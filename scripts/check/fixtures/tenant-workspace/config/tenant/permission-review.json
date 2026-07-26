@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "schedule": { "dailyAt": "08:00", "timeZone": "UTC" },
+  "actorUsername": "ci-assistant",
+  "notificationRecipientUsernames": ["ci-admin"],
+  "remindOpenAfterHours": 24,
+  "expectedResourceTopology": [],
+  "expectedGrants": [],
+  "expectedDirectGrantUserRoles": [],
+  "expectedGrantSubjectAssignments": [],
+  "expectedImplicitGrantManagerPositionCodes": [],
+  "separationOfDuties": []
+}

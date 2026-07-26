@@ -1,0 +1,14 @@
+import { z } from "zod";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { InventoryReceiptReportActionSchema, executeReceiptReportReviewCommand } from "@workspace/inventory/server/receipts/index";
+
+const paramsSchema = z.object({ reportId: z.coerce.number().int().positive() });
+
+export const POST = createCommandRoute({
+  paramsSchema,
+  paramsError: "无效月报ID",
+  bodySchema: InventoryReceiptReportActionSchema,
+  buildCommand: ({ params, body, user }) => okCommand({ reportId: params.reportId, body, userId: user.userId }),
+  action: executeReceiptReportReviewCommand,
+});

@@ -1,0 +1,16 @@
+{
+  "name": "@workspace/capital-securities",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./module": "./module.ts",
+    "./types": "./types/index.ts",
+    "./types/*": "./types/*.ts",
+    "./server": "./server/index.ts",
+    "./server/*": "./server/*.ts",
+    "./ui": "./ui/index.ts",
+    "./ui/*": "./ui/*.tsx"
+  }
+}

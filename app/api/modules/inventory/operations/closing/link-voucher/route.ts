@@ -1,0 +1,9 @@
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { buildLinkInventoryVoucherRouteCommand, executeLinkInventoryVoucherRouteCommand } from "@workspace/inventory/server/route-commands";
+import { linkInventoryVoucherSchema } from "@workspace/inventory/server/schemas";
+
+export const POST = createCommandRoute({
+  bodySchema: linkInventoryVoucherSchema,
+  buildCommand: ({ body, user }) => buildLinkInventoryVoucherRouteCommand(body, user.userId),
+  action: executeLinkInventoryVoucherRouteCommand,
+});

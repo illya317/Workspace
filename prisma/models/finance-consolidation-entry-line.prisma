@@ -1,0 +1,49 @@
+/// 合并抵销分录借贷行（事实表，主体、对方主体和匹配来源均保存真实外键；同时冻结来源审计摘要）。
+model FinanceConsolidationEntryLine {
+  id                           Int      @id @default(autoincrement())
+  entryId                      Int
+  lineNo                       Int
+  entitySnapshotId             Int
+  companyId                    Int
+  companyCode                  String
+  statementType                String // balanceSheet | incomeStatement | cashFlow
+  lineCode                     String
+  accountCode                  String?
+  debit                        Decimal  @default(0) @db.Decimal(20, 2)
+  credit                       Decimal  @default(0) @db.Decimal(20, 2)
+  currencyCode                 String   @default("CNY")
+  periodBasis                  String   @default("current") // current | comparative
+  note                         String?
+  matchSide                    String? // left | right
+  sourceKind                   String? // auxiliaryBalance | openItem | cashFlowAllocation | workpaper | voucher
+  sourceId                     String?
+  sourceFingerprint            String?
+  sourceAmount                 Decimal? @db.Decimal(20, 2)
+  sourceCurrency               String?
+  counterpartyEntitySnapshotId Int?
+  counterpartyCompanyId        Int?
+  sourceSnapshotId             Int?
+  sourceAuxiliaryBalanceId     Int?
+  sourceOpenItemId             Int?
+  sourceCashFlowAllocationId   Int?
+  sourceVoucherItemId          Int?
+  createdAt                    DateTime @default(now())
+
+  entry                    FinanceConsolidationEntry           @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  entity                   FinanceConsolidationEntitySnapshot  @relation("ConsolidationEntryLineEntity", fields: [entitySnapshotId], references: [id], onDelete: Restrict)
+  counterpartyEntity       FinanceConsolidationEntitySnapshot? @relation("ConsolidationEntryLineCounterparty", fields: [counterpartyEntitySnapshotId], references: [id], onDelete: Restrict)
+  sourceSnapshot           FinanceConsolidationSourceSnapshot? @relation(fields: [sourceSnapshotId], references: [id], onDelete: Restrict)
+  sourceAuxiliaryBalance   FinanceAuxiliaryBalance?            @relation(fields: [sourceAuxiliaryBalanceId], references: [id], onDelete: Restrict)
+  sourceOpenItem           FinanceOpenItem?                    @relation(fields: [sourceOpenItemId], references: [id], onDelete: Restrict)
+  sourceCashFlowAllocation FinanceCashFlowAllocation?          @relation(fields: [sourceCashFlowAllocationId], references: [id], onDelete: Restrict)
+  sourceVoucherItem        FinanceVoucherItem?                 @relation(fields: [sourceVoucherItemId], references: [id], onDelete: Restrict)
+
+  @@unique([entryId, lineNo])
+  @@index([entitySnapshotId, statementType, lineCode])
+  @@index([counterpartyEntitySnapshotId])
+  @@index([sourceSnapshotId])
+  @@index([sourceAuxiliaryBalanceId])
+  @@index([sourceOpenItemId])
+  @@index([sourceCashFlowAllocationId])
+  @@index([sourceVoucherItemId])
+}

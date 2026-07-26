@@ -1,0 +1,236 @@
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import test from "node:test";
+
+const publish = readFileSync(new URL("./publish.sh", import.meta.url), "utf8");
+const publishCnb = readFileSync(new URL("./publish-cnb.sh", import.meta.url), "utf8");
+const promoteRelease = readFileSync(new URL("./promote-release-branch.sh", import.meta.url), "utf8");
+const releaseToCnb = readFileSync(new URL("./release-to-cnb.sh", import.meta.url), "utf8");
+const syncTenantConfig = readFileSync(new URL("./sync-tenant-config.sh", import.meta.url), "utf8");
+const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
+const buildStandaloneArtifact = readFileSync(new URL("./build-standalone-artifact.sh", import.meta.url), "utf8");
+const cnbRelease = readFileSync(new URL("./cnb-release.yml", import.meta.url), "utf8");
+const uploadDataRelease = readFileSync(new URL("./upload-data-release.sh", import.meta.url), "utf8");
+
+test("shell variables next to non-ASCII punctuation use explicit braces", () => {
+  for (const [name, source] of Object.entries({ publish, publishCnb, releaseToCnb, deploy })) {
+    assert.doesNotMatch(source, /\$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7F]/u, name);
+  }
+});
+
+test("deploy has one Full CNB production path", () => {
+  const dispatch = publish.indexOf('case "${1:-}" in');
+  const githubSetup = publish.indexOf('GITHUB_REMOTE_NAME=');
+  assert.ok(dispatch >= 0 && dispatch < githubSetup);
+  assert.match(
+    publish,
+    /deploy\)[\s\S]*?promote-release-branch\.sh[\s\S]*?upload-data-release\.sh" upload[\s\S]*?upload-data-release\.sh" verify[\s\S]*?exec "\$SCRIPT_DIR\/publish-cnb\.sh" "\$\{deploy_args\[@\]\}"/,
+  );
+  assert.doesNotMatch(publish, /--full|hotfix|publish-hotfix/i);
+  assert.equal(existsSync(new URL("./publish-hotfix.sh", import.meta.url)), false);
+  assert.equal(existsSync(new URL("./hotfix-remote-build.sh", import.meta.url)), false);
+});
+
+test("deploy promotes main into the dedicated release worktree by fast-forward only", () => {
+  const promote = publish.indexOf('promote-release-branch.sh"');
+  const deploy = publish.indexOf('exec "$SCRIPT_DIR/publish-cnb.sh"');
+  assert.ok(promote >= 0 && promote < deploy);
+  assert.match(promoteRelease, /RELEASE_PROMOTION_BRANCH="\$\{RELEASE_PROMOTION_BRANCH:-main\}"/);
+  assert.match(promoteRelease, /git merge-base --is-ancestor "\$release_sha" "\$candidate_sha"/);
+  assert.match(promoteRelease, /git merge --ff-only "\$RELEASE_PROMOTION_BRANCH"/);
+  assert.doesNotMatch(promoteRelease, /--force|reset --hard|merge --no-ff/);
+  assert.match(publish, /git -C "\$RELEASE_WORKTREE" rev-parse main/);
+  assert.doesNotMatch(publish, /git -C .*SOURCE_DIR.*status/);
+  assert.match(publish, /RELEASE_CI_ENV_FILE/);
+  assert.match(publish, /ln -s "\$RELEASE_CI_ENV_FILE" "\$release_env_target"/);
+  assert.match(publish, /release \.env 必须是指向受控 CI 环境文件的符号链接/);
+});
+
+test("CNB deployment path contains no GitHub transport or deployment API", () => {
+  for (const [name, source] of Object.entries({ publishCnb, releaseToCnb, deploy })) {
+    assert.doesNotMatch(source, /\bgh\b|api\.github\.com|github\.com|GITHUB_TOKEN|GH_TOKEN|production-deployment|release-evidence/i, name);
+  }
+});
+
+test("CNB release identity is source parent plus exact injection files", () => {
+  assert.match(releaseToCnb, /\.cnb-release\.json\\n\.cnb\.yml/);
+  assert.match(releaseToCnb, /git rev-parse HEAD\^/);
+  assert.match(deploy, /\.cnb-release\.json\\n\.cnb\.yml/);
+  assert.match(deploy, /RELEASE_CNB_INJECTION_SHA/);
+});
+
+test("CNB deployment requires one tree-bound local full CI result", () => {
+  assert.match(publishCnb, /local-full-ci-receipt\.mjs verify/);
+  assert.match(publishCnb, /npm run check:ci/);
+  assert.doesNotMatch(publishCnb, /local-full-ci-receipt\.mjs create/);
+  assert.match(publishCnb, /本地全量 CI 结果不可复用/);
+  assert.ok(
+    publishCnb.indexOf("local-full-ci-receipt.mjs verify")
+      < publishCnb.indexOf('METADATA_FILE="$TMP_DIR/cnb-release.json"'),
+  );
+  for (const source of [releaseToCnb, deploy]) {
+    assert.match(source, /metadata\.localFullCi\?\.treeSha !== tree/);
+    assert.match(source, /metadata\.localFullCi\?\.command !== 'npm run check:ci'/);
+  }
+});
+
+test("CNB production preflight fails before full CI and release trigger", () => {
+  assert.match(publishCnb, /production-deploy-preflight\.mjs/);
+  assert.match(publishCnb, /maintenance-deploy/);
+  assert.match(publishCnb, /production-bootstrap-in-progress\.json/);
+  assert.match(publishCnb, /printf 'maintenance:'; sed -n 's\/\^sourceSha=\/\/p'/);
+  assert.match(publishCnb, /"maintenance:\$SOURCE_SHA"\)/);
+  assert.ok(
+    publishCnb.indexOf("production-deploy-preflight.mjs")
+      < publishCnb.indexOf("local-full-ci-receipt.mjs verify"),
+  );
+  assert.ok(
+    publishCnb.indexOf("production-deploy-preflight.mjs")
+      < publishCnb.indexOf('release_args=(--metadata "$METADATA_FILE"'),
+  );
+});
+
+test("CNB injection metadata is packaged for remote data-release approval and timing", () => {
+  assert.match(buildStandaloneArtifact, /cp \.cnb-release\.json \.next\/standalone\/\.cnb-release\.json/);
+  assert.match(buildStandaloneArtifact, /cmp \.cnb-release\.json \.next\/standalone\/\.cnb-release\.json/);
+  assert.match(buildStandaloneArtifact, /copy_runtime_package_tree[^\n]*server-only/);
+  assert.match(buildStandaloneArtifact, /node_modules\/server-only\/empty\.js/);
+  assert.match(buildStandaloneArtifact, /cp tsconfig\.json tsconfig\.base\.json \.next\/standalone\//);
+});
+
+test("genesis release metadata binds the exact deployed source and both migration histories", () => {
+  assert.match(publishCnb, /--genesis-production-base/);
+  assert.match(publishCnb, /genesis candidate must contain exactly 00000000000000_sanitized_baseline/);
+  assert.match(publishCnb, /legacyMigrationSetSha256/);
+  assert.match(publishCnb, /baselineChecksum/);
+  assert.match(releaseToCnb, /deployment genesis metadata is invalid/);
+  assert.match(deploy, /deployment genesis metadata is invalid/);
+});
+
+test("deploy agent uploads and remotely verifies private data before binding the release", () => {
+  assert.match(publish, /data_release_count=0/);
+  assert.match(publish, /data_release_count=\$\(\(data_release_count \+ 1\)\)/);
+  assert.match(publish, /if \[ "\$data_release_count" -gt 0 \]; then\s+for data_release_id in "\$\{data_release_ids\[@\]\}"/);
+  const inspect = publish.indexOf("inspect-private");
+  const upload = publish.indexOf('upload-data-release.sh" upload', inspect);
+  const verify = publish.indexOf('upload-data-release.sh" verify', upload);
+  const bind = publish.indexOf('deploy_args+=(--data-release', verify);
+  assert.ok(inspect >= 0 && inspect < upload && upload < verify && verify < bind);
+  assert.match(uploadDataRelease, /data-release-uploads\/\$RELEASE_ID/);
+  assert.match(uploadDataRelease, /verify-staged[\s\S]*?payload-digest/);
+  assert.match(uploadDataRelease, /mv '\$REMOTE_CURRENT\.tmp' '\$REMOTE_CURRENT'/);
+  assert.doesNotMatch(uploadDataRelease, /data-release-sources[^\n]*rm|data-release-manifests[^\n]*rm/);
+});
+
+test("real CNB deploy syncs verified tenant config after CI and before release trigger", () => {
+  assert.match(publishCnb, /WORKSPACE_CONFIG_DIR="\$\{WORKSPACE_CONFIG_DIR:-\$\{LOCAL_WORKSPACE_CONFIG_DIR:-\}\}"/);
+  assert.match(releaseToCnb, /WORKSPACE_CONFIG_DIR="\$\{WORKSPACE_CONFIG_DIR:-\$\{LOCAL_WORKSPACE_CONFIG_DIR:-\}\}"/);
+  assert.match(publishCnb, /sync-tenant-config\.sh" --source-sha "\$SOURCE_SHA"/);
+  const ciReceipt = publishCnb.lastIndexOf("local-full-ci-receipt.mjs verify");
+  const tenantSync = publishCnb.indexOf('sync-tenant-config.sh" --source-sha "$SOURCE_SHA"');
+  const releaseTrigger = publishCnb.indexOf('release-to-cnb.sh" "${release_args[@]}"');
+  assert.ok(ciReceipt >= 0 && ciReceipt < tenantSync);
+  assert.ok(tenantSync < releaseTrigger);
+  const syncBlock = publishCnb.slice(publishCnb.lastIndexOf("if [", tenantSync), tenantSync);
+  assert.match(syncBlock, /PRINT_COMMAND_ONLY" = "0/);
+  assert.match(syncTenantConfig, /--conditions=react-server --import tsx/);
+  assert.match(syncTenantConfig, /tenant\.getTenantConfig\(\)/);
+  assert.match(releaseToCnb, /validate-cnb-release-config\.mjs" "\$CNB_REAL_CNB_YML"/);
+});
+
+test("CNB separates persistent release handling from production time and excludes CI", () => {
+  assert.match(publish, /release-process-timing\.mjs" begin/);
+  assert.match(publishCnb, /release-process-timing\.mjs" exclude/);
+  assert.match(publishCnb, /release-process-timing\.mjs" snapshot/);
+  assert.match(publishCnb, /release-process-timing\.mjs" complete/);
+  assert.match(publishCnb, /PUBLISH_STARTED_EPOCH_SECONDS="\$\(date \+%s\)"/);
+  assert.match(publishCnb, /export PUBLISH_STARTED_EPOCH_SECONDS PUBLISH_STARTED_AT/);
+  assert.match(publishCnb, /deployment: \{[\s\S]*?startedAtEpochSeconds,[\s\S]*?target:/);
+  assert.match(publishCnb, /releaseProcessSeconds: seconds\('RELEASE_PROCESS_SECONDS'\)/);
+  assert.match(publishCnb, /releaseAttemptCount/);
+  assert.match(releaseToCnb, /metadata\.deployment\?\.startedAtEpochSeconds/);
+  assert.match(deploy, /metadata\.deployment\?\.startedAtEpochSeconds/);
+  assert.match(publishCnb, /正式部署计时开始/);
+  assert.match(publishCnb, /正式部署计时结束/);
+  assert.match(publishCnb, /Ops 总耗时/);
+  assert.match(publishCnb, /main 处理与 CI 已排除/);
+  assert.match(publishCnb, /cnb-build-timing-summary\.mjs --input/);
+  assert.ok(
+    publishCnb.indexOf("PUBLISH_STARTED_EPOCH_SECONDS=")
+      > publishCnb.lastIndexOf("local-full-ci-receipt.mjs verify"),
+  );
+  assert.ok(
+    publishCnb.indexOf("PUBLISH_STARTED_EPOCH_SECONDS=")
+      > publishCnb.indexOf('sync-tenant-config.sh" --source-sha "$SOURCE_SHA"'),
+  );
+  assert.ok(
+    publishCnb.indexOf("CNB-native 生产部署完成")
+      < publishCnb.lastIndexOf('print_deploy_timing_summary "$FORMAL_DEPLOY_DURATION"'),
+  );
+});
+
+test("CNB module publish separates public activation from explicit shadow and verifies exact Gateway state", () => {
+  assert.match(publishCnb, /--deploy-unit\)[\s\S]*?DEPLOY_UNIT_MODE="activate"/);
+  assert.match(publishCnb, /--shadow-unit\)/);
+  assert.match(publishCnb, /kind: 'unit', unitId: process\.env\.DEPLOY_UNIT_ID, mode: process\.env\.DEPLOY_UNIT_MODE/);
+  assert.match(publishCnb, /receipt-source-assert/);
+  assert.match(publishCnb, /gateway\/current\/unit-states/);
+  assert.match(publishCnb, /CNB-native 单模块 \$\{DEPLOY_UNIT_MODE\} 部署完成/);
+  assert.match(releaseToCnb, /render-cnb-release-config\.mjs/);
+  assert.match(releaseToCnb, /\['shadow', 'activate'\]\.includes\(target\.mode\)/);
+});
+
+test("CNB full reports success only after both terminal build success and exact production cutover", () => {
+  assert.match(publishCnb, /cnb_state="unknown"/);
+  assert.match(publishCnb, /\[ "\$cnb_state" != "failure" \]/);
+  assert.match(
+    publishCnb,
+    /if \[ "\$deployed_sha" = "\$SOURCE_SHA" \] && \[ "\$cnb_state" = "success" \]; then/,
+  );
+  assert.ok(
+    publishCnb.indexOf('[ "$cnb_state" != "failure" ]')
+      < publishCnb.indexOf('if [ "$deployed_sha" = "$SOURCE_SHA" ] && [ "$cnb_state" = "success" ]; then'),
+  );
+});
+
+test("CNB Linux build has non-production Prisma generation inputs", () => {
+  const buildStage = cnbRelease.slice(
+    cnbRelease.indexOf("- name: build-release-target"),
+    cnbRelease.indexOf("- name: deploy-to-server"),
+  );
+  assert.match(buildStage, /NEXTAUTH_SECRET: cnb-build-only-secret-2026/);
+  assert.match(buildStage, /DATABASE_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci/);
+  assert.match(buildStage, /DIRECT_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci/);
+  assert.match(buildStage, /SHADOW_DATABASE_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci_shadow/);
+});
+
+test("CNB release uses the reusable Builder, safe caches, and timed stages", () => {
+  assert.match(cnbRelease, /dockerfile: ops\/cnb-builder\.Dockerfile/);
+  assert.match(cnbRelease, /workspace-release-npm-v1:\/root\/\.npm:copy-on-write/);
+  assert.match(cnbRelease, /workspace-release-next-v1:\.\/\.next\/cache:copy-on-write/);
+  assert.match(cnbRelease, /workspace-release-types-v1:\.\/\.cache\/types:copy-on-write/);
+  assert.match(cnbRelease, /workspace-release-tsbuild-v1:\.\/\.cache\/tsbuild:copy-on-write/);
+  assert.match(cnbRelease, /workspace-release-artifacts-v1:\.\/\.cache\/release-artifacts:read-write/);
+  assert.match(releaseToCnb, /git commit --no-verify -m "chore\(cnb\): inject release metadata/);
+  assert.match(cnbRelease, /install-cnb-release-dependencies\.sh/);
+  assert.doesNotMatch(cnbRelease, /install-deploy-tools|apt-get|node_modules:copy-on-write/);
+  for (const stage of ["builder.verify", "dependencies.install", "artifact.build", "server.deploy"]) {
+    assert.match(cnbRelease, new RegExp(`run-cnb-release-stage\\.sh ${stage.replace(".", "\\.")}`));
+  }
+});
+
+test("standalone artifact substages record failures without disabling errexit", () => {
+  const localStageRunner = buildStandaloneArtifact.slice(
+    buildStandaloneArtifact.indexOf("run_artifact_stage()"),
+    buildStandaloneArtifact.indexOf("if ! printf '%s' \"$SOURCE_SHA\""),
+  );
+  assert.match(localStageRunner, /if ! release_timing_active_begin \"\$stage\"/);
+  assert.match(localStageRunner, /\"\$@\"\n(?:\s+#.*\n)*\s+release_timing_active_passed/);
+  assert.doesNotMatch(localStageRunner, /set \+e|release_timing_finish .*passed/);
+  assert.match(buildStandaloneArtifact, /cleanup_artifact_timing\(\)[\s\S]*?local artifact_exit_code=\$\?/);
+  assert.match(
+    buildStandaloneArtifact,
+    /release_timing_active_finalize_on_exit \"\$artifact_exit_code\" \|\| true[\s\S]*?return \"\$artifact_exit_code\"/,
+  );
+  assert.match(buildStandaloneArtifact, /trap cleanup_artifact_timing EXIT/);
+});

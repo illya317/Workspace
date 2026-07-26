@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": false,
+    "emitDeclarationOnly": true,
+    "rootDir": "./generated/prisma",
+    "outDir": "./.cache/types/generated/prisma",
+    "tsBuildInfoFile": "./.cache/tsbuild/prisma-client.tsbuildinfo"
+  },
+  "include": ["generated/prisma/**/*.ts"],
+  "exclude": ["node_modules"]
+}

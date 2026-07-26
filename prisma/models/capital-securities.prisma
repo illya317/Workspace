@@ -1,0 +1,208 @@
+/// 股权事件账本派生的有效期投影；只读缓存，不允许人工或页面直接维护
+model OwnershipInterest {
+  id              Int       @id @default(autoincrement())
+  ownerPartyId    Int
+  issuerCompanyId Int
+  shareRatio      Float?
+  isConsolidated  Boolean   @default(false)
+  effectiveFrom   DateTime?
+  effectiveTo     DateTime?
+  recordStatus    String    @default("confirmed")
+  changeLabel     String?
+  sourceType      String?
+  sourceLabel     String?
+  sourceReference String?
+  editedBy        Int?
+  editedAt        DateTime?
+  version         Int       @default(1)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+  owner           Party     @relation(fields: [ownerPartyId], references: [id], onDelete: Restrict)
+  issuer          Company   @relation(fields: [issuerCompanyId], references: [id], onDelete: Restrict)
+
+  @@index([ownerPartyId, issuerCompanyId, effectiveFrom, effectiveTo], map: "OwnershipInterest_owner_issuer_period_idx")
+  @@index([issuerCompanyId, isConsolidated, effectiveFrom, effectiveTo], map: "OwnershipInterest_issuer_consolidation_period_idx")
+  @@index([issuerCompanyId, recordStatus, effectiveFrom, effectiveTo], map: "OwnershipInterest_issuer_status_period_idx")
+}
+
+/// 工商变更原始事实（保存名称、法人、董监高与股东变更前后快照；缺少出资额时不得据此覆盖股权比例）
+model CompanyRegistryChange {
+  id                    Int                                   @id @default(autoincrement())
+  companyId             Int
+  sourceKey             String                                @unique
+  changeDate            DateTime
+  changeCategory        String
+  changeItem            String
+  contentBefore         String?                               @db.Text
+  contentAfter          String?                               @db.Text
+  sourceCreatedDate     DateTime?
+  sourceType            String?
+  sourceLabel           String?
+  sourceReference       String?
+  editedBy              Int?
+  editedAt              DateTime?
+  version               Int                                   @default(1)
+  createdAt             DateTime                              @default(now())
+  updatedAt             DateTime                              @default(now()) @updatedAt
+  company               Company                               @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  ownershipParticipants CompanyRegistryOwnershipParticipant[]
+
+  @@index([companyId, changeDate], map: "CompanyRegistryChange_company_date_idx")
+  @@index([companyId, changeCategory, changeDate], map: "CompanyRegistryChange_company_category_date_idx")
+}
+
+/// 工商投资人/股东变更的结构化前后快照；原始工商文本仍保留在 CompanyRegistryChange 中用于审计
+model CompanyRegistryOwnershipParticipant {
+  id               Int                   @id @default(autoincrement())
+  registryChangeId Int
+  snapshotSide     String
+  sequence         Int
+  partyId          Int?
+  rawName          String
+  normalizedName   String
+  resolutionStatus String                @default("unresolved")
+  editedBy         Int?
+  editedAt         DateTime?
+  version          Int                   @default(1)
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @default(now()) @updatedAt
+  registryChange   CompanyRegistryChange @relation(fields: [registryChangeId], references: [id], onDelete: Cascade)
+  party            Party?                @relation(fields: [partyId], references: [id], onDelete: Restrict)
+
+  @@unique([registryChangeId, snapshotSide, sequence], map: "CompanyRegistryOwnershipParticipant_change_side_sequence_key")
+  @@index([registryChangeId, snapshotSide], map: "CompanyRegistryOwnershipParticipant_change_side_idx")
+  @@index([partyId], map: "CompanyRegistryOwnershipParticipant_party_idx")
+}
+
+/// 股本变动事件头（事实表，来源于投资协议、工商文件或经审核的 Captable 导入）
+model ShareCapitalEvent {
+  id                              Int                            @id @default(autoincrement())
+  sourceKey                       String?                        @unique
+  issuerCompanyId                 Int
+  sequence                        Int
+  eventType                       String
+  eventName                       String
+  effectiveDate                   DateTime?
+  effectiveDatePrecision          String                         @default("day")
+  ledgerMode                      String                         @default("transactions")
+  dataCompleteness                String                         @default("complete")
+  registeredCapitalCheckpointYuan Decimal?                       @db.Decimal(20, 2)
+  recordStatus                    String                         @default("confirmed")
+  sourceObservedDate              DateTime?
+  consolidatedByPartyIdAfter      Int?
+  supersedesEventId               Int?
+  sourceType                      String?
+  sourceLabel                     String?
+  sourceReference                 String?
+  notes                           String?
+  editedBy                        Int?
+  editedAt                        DateTime?
+  version                         Int                            @default(1)
+  createdAt                       DateTime                       @default(now())
+  updatedAt                       DateTime                       @default(now()) @updatedAt
+  issuer                          Company                        @relation(fields: [issuerCompanyId], references: [id], onDelete: Restrict)
+  consolidatedByPartyAfter        Party?                         @relation("ShareCapitalEventController", fields: [consolidatedByPartyIdAfter], references: [id], onDelete: Restrict)
+  supersedesEvent                 ShareCapitalEvent?             @relation("ShareCapitalEventSupersession", fields: [supersedesEventId], references: [id], onDelete: Restrict)
+  supersededByEvents              ShareCapitalEvent[]            @relation("ShareCapitalEventSupersession")
+  transactions                    ShareCapitalTransaction[]
+  snapshotPositions               ShareCapitalSnapshotPosition[]
+
+  @@unique([issuerCompanyId, sequence])
+  @@index([issuerCompanyId, effectiveDate, recordStatus], map: "ShareCapitalEvent_issuer_date_status_idx")
+  @@index([supersedesEventId], map: "ShareCapitalEvent_supersedes_idx")
+}
+
+/// 单笔注册资本流向（事实表；转让同时记录转出方和转入方，增资/设立无转出方，减资/回购无转入方）
+model ShareCapitalTransaction {
+  id                          Int               @id @default(autoincrement())
+  eventId                     Int
+  sequence                    Int               @default(1)
+  fromPartyId                 Int?
+  toPartyId                   Int?
+  registeredCapitalAmountYuan Decimal           @db.Decimal(20, 2)
+  considerationAmountYuan     Decimal?          @db.Decimal(20, 2)
+  sourceReference             String?
+  notes                       String?
+  editedBy                    Int?
+  editedAt                    DateTime?
+  version                     Int               @default(1)
+  createdAt                   DateTime          @default(now())
+  updatedAt                   DateTime          @default(now()) @updatedAt
+  event                       ShareCapitalEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  fromParty                   Party?            @relation("ShareCapitalTransferor", fields: [fromPartyId], references: [id], onDelete: Restrict)
+  toParty                     Party?            @relation("ShareCapitalTransferee", fields: [toPartyId], references: [id], onDelete: Restrict)
+
+  @@unique([eventId, sequence])
+  @@index([fromPartyId, eventId], map: "ShareCapitalTransaction_from_event_idx")
+  @@index([toPartyId, eventId], map: "ShareCapitalTransaction_to_event_idx")
+}
+
+/// 确认快照中的股东事实；仅在历史金额缺失或建立可验证基准时使用，由统一股权账本投影消费
+model ShareCapitalSnapshotPosition {
+  id                          Int               @id @default(autoincrement())
+  eventId                     Int
+  sequence                    Int               @default(1)
+  partyId                     Int
+  registeredCapitalAmountYuan Decimal?          @db.Decimal(20, 2)
+  assertedShareRatio          Float?
+  sourceReference             String?
+  notes                       String?
+  editedBy                    Int?
+  editedAt                    DateTime?
+  version                     Int               @default(1)
+  createdAt                   DateTime          @default(now())
+  updatedAt                   DateTime          @default(now()) @updatedAt
+  event                       ShareCapitalEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  party                       Party             @relation(fields: [partyId], references: [id], onDelete: Restrict)
+
+  @@unique([eventId, sequence], map: "ShareCapitalSnapshotPosition_event_sequence_key")
+  @@unique([eventId, partyId], map: "ShareCapitalSnapshotPosition_event_party_key")
+  @@index([partyId, eventId], map: "ShareCapitalSnapshotPosition_party_event_idx")
+}
+
+/// 发行主体下的股东阵营定义（事实表，来源于股权结构文件或人工维护；不保存派生持股比例）
+model ShareholderGroup {
+  id              Int                          @id @default(autoincrement())
+  issuerCompanyId Int
+  groupKey        String
+  label           String
+  sortOrder       Int                          @default(0)
+  sourceType      String?
+  sourceLabel     String?
+  sourceReference String?
+  editedBy        Int?
+  editedAt        DateTime?
+  version         Int                          @default(1)
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @default(now()) @updatedAt
+  issuer          Company                      @relation(fields: [issuerCompanyId], references: [id], onDelete: Restrict)
+  memberships     ShareholderGroupMembership[]
+
+  @@unique([issuerCompanyId, groupKey])
+  @@index([issuerCompanyId, sortOrder], map: "ShareholderGroup_issuer_sort_idx")
+}
+
+/// 股东与阵营的有效期关系（事实表，来源于股权结构文件或人工维护；历史通过期间而非覆盖快照表达）
+model ShareholderGroupMembership {
+  id                 Int              @id @default(autoincrement())
+  shareholderGroupId Int
+  partyId            Int
+  sortOrder          Int              @default(0)
+  effectiveFrom      DateTime
+  effectiveTo        DateTime?
+  recordStatus       String           @default("confirmed")
+  sourceType         String?
+  sourceLabel        String?
+  sourceReference    String?
+  editedBy           Int?
+  editedAt           DateTime?
+  version            Int              @default(1)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @default(now()) @updatedAt
+  shareholderGroup   ShareholderGroup @relation(fields: [shareholderGroupId], references: [id], onDelete: Cascade)
+  party              Party            @relation(fields: [partyId], references: [id], onDelete: Restrict)
+
+  @@unique([shareholderGroupId, partyId, effectiveFrom], map: "ShareholderGroupMembership_group_party_from_key")
+  @@index([partyId, effectiveFrom, effectiveTo], map: "ShareholderGroupMembership_party_period_idx")
+  @@index([shareholderGroupId, recordStatus, effectiveFrom, effectiveTo], map: "ShareholderGroupMembership_group_status_period_idx")
+}

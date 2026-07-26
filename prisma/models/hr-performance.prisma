@@ -1,0 +1,29 @@
+/// 员工周期绩效评审事实表（来源于 HR 绩效流程归档；Work/OKR/KPI 证据以快照 JSON 固化）
+model HrPerformanceReview {
+  id                Int       @id @default(autoincrement())
+  employeeId        Int
+  okrCycleId        Int
+  approvalRequestId Int?
+  selfScore         Int?
+  selfComment       String    @default("")
+  managerScore      Int?
+  managerComment    String    @default("")
+  finalScore        Int
+  finalGrade        String
+  hrComment         String    @default("")
+  workEvidenceSnapshotJson String @default("{}")
+  archivedByUserId  Int?
+  archivedAt        DateTime  @default(now())
+  editedBy          Int?
+  editedAt          DateTime?
+  version           Int       @default(1)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+  employee          Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, okrCycleId])
+  @@index([okrCycleId])
+  @@index([approvalRequestId])
+  @@index([finalGrade])
+  @@index([archivedAt])
+}

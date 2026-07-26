@@ -1,0 +1,48 @@
+import { z } from "zod";
+
+import {
+  buildCreateFinanceGroupAccountRouteCommand,
+  buildSaveFinanceGroupAccountMappingChangeSetRouteCommand,
+  executeCreateFinanceGroupAccountRouteCommand,
+  executeSaveFinanceGroupAccountMappingChangeSetRouteCommand,
+} from "@workspace/finance/server/ledger/group-accounts";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const createGroupAccountSchema = z.object({
+  source: z.literal("catalog"),
+  code: z.string().min(1).max(32),
+  name: z.string().min(1).max(100),
+  category: z.enum(["asset", "liability", "common", "equity", "cost", "revenue", "expense"]),
+  balanceDirection: z.enum(["debit", "credit"]),
+  mnemonicCode: z.string().max(64).nullable(),
+  currency: z.string().max(32).nullable(),
+  parentGroupAccountId: z.number().int().positive().nullable(),
+});
+
+export const POST = createCommandRoute({
+  bodySchema: createGroupAccountSchema,
+  bodyError: "集团科目资料不完整",
+  buildCommand: ({ body, user }) => buildCreateFinanceGroupAccountRouteCommand({
+    userId: user.userId,
+    ...body,
+  }),
+  action: executeCreateFinanceGroupAccountRouteCommand,
+});
+
+const saveMappingChangeSetSchema = z.object({
+  changes: z.array(z.object({
+    mappingId: z.number().int().positive(),
+    targetGroupAccountId: z.number().int().positive(),
+    expectedUpdatedAt: z.string().min(1),
+  })).min(1).max(500),
+});
+
+export const PUT = createCommandRoute({
+  bodySchema: saveMappingChangeSetSchema,
+  bodyError: "changes 为必填",
+  buildCommand: ({ body, user }) => buildSaveFinanceGroupAccountMappingChangeSetRouteCommand({
+    userId: user.userId,
+    changes: body.changes,
+  }),
+  action: executeSaveFinanceGroupAccountMappingChangeSetRouteCommand,
+});

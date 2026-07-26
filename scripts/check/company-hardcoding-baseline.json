@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "note": "All tracked text, including docs, tests, generated source and migrations, must remain free of tenant facts. Only reviewed public reference catalogs are excluded.",
+  "activeViolations": [],
+  "excludedScopes": [
+    { "prefix": "packages/hr/constants/data/china-institutions.json", "reason": "reusable public reference catalog" },
+    { "prefix": "packages/hr/constants/data/qs-world-rankings.json", "reason": "reusable public reference catalog" },
+    { "prefix": "packages/hr/constants/data/undergraduate-majors.json", "reason": "reusable public reference catalog" },
+    { "prefix": "docs/product/reference/casc/", "reason": "public accounting-standard reference documents" }
+  ]
+}

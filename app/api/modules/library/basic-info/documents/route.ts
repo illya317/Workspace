@@ -1,0 +1,44 @@
+import { z } from "zod";
+
+import {
+  buildUploadLibraryDocumentRouteCommand,
+  executeListLibraryDocumentsCommand,
+  executeUploadLibraryDocumentCommand,
+} from "@workspace/library/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";import { okCommand } from "@workspace/platform/server/domain-validation";
+
+const documentsQuerySchema = z.object({
+  categoryCode: z.string().optional(),
+  directoryPath: z.string().optional(),
+  status: z.string().optional(),
+  origin: z.string().optional(),
+  confidentialityLevel: z.coerce.number().int().optional(),
+  keyword: z.string().optional(),
+  docId: z.string().optional(),
+  page: z.coerce.number().int().min(1).catch(1),
+  pageSize: z.coerce.number().int().min(1).max(500).catch(50),
+});
+
+export const GET = createCommandRoute({
+  querySchema: documentsQuerySchema,
+  buildCommand: ({ query, user }) => okCommand({ ...query, userId: user.userId }),
+  action: executeListLibraryDocumentsCommand,
+});
+
+const uploadDocumentSchema = z.object({
+  file: z.instanceof(File),
+  directoryPath: z.string(),
+  title: z.string().optional(),
+  summary: z.string().optional(),
+  tags: z.string().optional(),
+  confidentialityLevel: z.string().optional(),
+});
+
+export const POST = createCommandRoute({
+  accessError: "没有资料导入权限",
+  bodyParser: "formData",
+  bodySchema: uploadDocumentSchema,
+  bodyError: "上传资料参数无效",
+  buildCommand: ({ body, user }) => buildUploadLibraryDocumentRouteCommand({ body, userId: user.userId }),
+  action: executeUploadLibraryDocumentCommand,
+});

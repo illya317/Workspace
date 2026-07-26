@@ -1,0 +1,9 @@
+import { redirect } from "next/navigation";
+
+import { workspacePath } from "@workspace/core/routing";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
+
+export default async function WorkPerformancePage() {
+  await requireRouteAccess("/work/me");
+  redirect(workspacePath("/hr/performance/self"));
+}

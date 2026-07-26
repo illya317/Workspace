@@ -1,0 +1,86 @@
+import { z } from "zod";
+
+import {
+  canManageOperationalAnalyticsPermissionResource,
+  operationalAnalyticsScopeId,
+  OPERATIONAL_ANALYTICS_RESOURCE_KEY,
+  type OperationalAnalyticsScopeType,
+} from "@workspace/finance/server/cost";
+import { getPermissionGrantData, mergeBusinessSpaceActionsIntoPermissionGrantData } from "@workspace/platform/server/permission-subjects";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import {
+  getStandardSpacePermissionGrantData,
+  queryStandardSpacePermissionFlag,
+  resolveStandardSpacePermissionResourceKey,
+  setStandardSpacePermissionGrant,
+  standardSpacePermissionActionSchema,
+  type StandardSpacePermissionTargetType,
+} from "@workspace/platform/server/standard-space-permission-route";
+
+const paramsSchema = z.object({
+  targetType: z.enum(["department", "project"]),
+  targetId: z.coerce.number().int().positive(),
+});
+
+const operationalAnalyticsSpacePermissionConfig = {
+  registrationKey: OPERATIONAL_ANALYTICS_RESOURCE_KEY,
+  deniedText: "无权限管理该空间的经营分析权限",
+  canManage: ({ userId, targetType, targetId, resourceKey }: {
+    userId: number;
+    targetType: StandardSpacePermissionTargetType;
+    targetId: number;
+    resourceKey: string;
+  }) => canManageOperationalAnalyticsPermissionResource(
+    userId,
+    targetType as OperationalAnalyticsScopeType,
+    targetId,
+    resourceKey,
+  ),
+  loadPermissionGrantData: getPermissionGrantData,
+  mergeBusinessSpaceActions: mergeBusinessSpaceActionsIntoPermissionGrantData,
+};
+
+export const GET = createCommandRoute({
+  paramsSchema,
+  paramsError: "经营分析空间参数无效",
+  buildCommand: ({ params, user, searchParams }) => okCommand({
+    userId: user.userId,
+    targetType: params.targetType,
+    targetId: params.targetId,
+    scopeId: operationalAnalyticsScopeId(params.targetType, params.targetId),
+    resourceKey: resolveStandardSpacePermissionResourceKey({
+      targetType: params.targetType,
+      searchParams,
+      rootResourceKey: OPERATIONAL_ANALYTICS_RESOURCE_KEY,
+      spaceResourceKind: "analytics",
+    }),
+    includeNatural: queryStandardSpacePermissionFlag(searchParams, "includeNatural", true),
+    includeImplicit: queryStandardSpacePermissionFlag(searchParams, "includeImplicit", true),
+    includeStored: queryStandardSpacePermissionFlag(searchParams, "includeStored", true),
+  }),
+  action: (command) => getStandardSpacePermissionGrantData(command, operationalAnalyticsSpacePermissionConfig),
+});
+
+export const PUT = createCommandRoute({
+  paramsSchema,
+  paramsError: "经营分析空间参数无效",
+  bodySchema: standardSpacePermissionActionSchema,
+  bodyError: "权限参数无效",
+  buildCommand: ({ params, body, user, searchParams }) => okCommand({
+    actorUserId: user.userId,
+    targetType: params.targetType,
+    targetId: params.targetId,
+    scopeId: operationalAnalyticsScopeId(params.targetType, params.targetId),
+    subjectId: body.subjectId,
+    actionKey: body.actionKey,
+    value: body.value,
+    resourceKey: resolveStandardSpacePermissionResourceKey({
+      targetType: params.targetType,
+      searchParams,
+      rootResourceKey: OPERATIONAL_ANALYTICS_RESOURCE_KEY,
+      spaceResourceKind: "analytics",
+    }),
+  }),
+  action: (command) => setStandardSpacePermissionGrant(command, operationalAnalyticsSpacePermissionConfig),
+});

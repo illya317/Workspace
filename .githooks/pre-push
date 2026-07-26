@@ -1,0 +1,37 @@
+#!/bin/sh
+# Pre-push hook: run the local risk-selected CI subset before publishing.
+
+if [ "${WORKSPACE_REPO_RUNTIME_READY:-0}" != "1" ]; then
+  repository_root="$(cd "$(dirname "$0")/.." && pwd)"
+  exec "$repository_root/scripts/runtime/run-with-repo-node.sh" "$0" "$@"
+fi
+
+ci_tree="$(git rev-parse HEAD^{tree})"
+if ci_upstream="$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null)"; then
+  ci_base="$(git merge-base HEAD "$ci_upstream")"
+elif git rev-parse --verify origin/main >/dev/null 2>&1; then
+  ci_base="$(git merge-base HEAD origin/main)"
+else
+  ci_base="$(git rev-parse HEAD^ 2>/dev/null || git rev-parse HEAD)"
+fi
+ci_key="$ci_tree:$ci_base:${PRE_PUSH_FULL:-0}"
+ci_stamp="$(git rev-parse --git-path workspace-check-ci-ok)"
+
+# Git exports repository-local variables to hooks. They must not leak into
+# test fixtures that initialize their own repositories.
+unset $(git rev-parse --local-env-vars)
+
+if [ -f "$ci_stamp" ] && [ "$(cat "$ci_stamp")" = "$ci_key" ]; then
+  echo "✓ Risk-selected push checks already passed for this tree and base."
+  exit 0
+fi
+
+echo "→ Running risk-selected push checks..."
+npm run check:push || {
+  echo "✗ Push checks failed. Push aborted."
+  exit 1
+}
+
+printf '%s\n' "$ci_key" > "$ci_stamp"
+
+echo "✓ Push checks passed."

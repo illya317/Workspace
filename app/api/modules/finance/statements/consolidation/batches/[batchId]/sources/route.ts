@@ -1,0 +1,26 @@
+import { z } from "zod";
+
+import {
+  buildSaveConsolidationSourcesRouteCommand,
+  executeSaveConsolidationSourcesRouteCommand,
+} from "@workspace/finance/server/statements/consolidation-route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const paramsSchema = z.object({ batchId: z.coerce.number().int().positive() });
+const saveSourcesSchema = z.object({
+  expectedRevision: z.number().int().positive(),
+  intent: z.enum(["refresh", "completePreparation"]),
+});
+
+export const PUT = createCommandRoute({
+  paramsSchema,
+  bodySchema: saveSourcesSchema,
+  paramsError: "合并批次 ID 无效",
+  bodyError: "合并准备参数无效",
+  buildCommand: ({ params, body, user }) => buildSaveConsolidationSourcesRouteCommand(
+    params.batchId,
+    body,
+    user.userId,
+  ),
+  action: executeSaveConsolidationSourcesRouteCommand,
+});

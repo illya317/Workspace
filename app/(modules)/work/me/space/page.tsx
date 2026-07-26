@@ -1,0 +1,12 @@
+import { createElement } from "react";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
+import { WorkTasksPageView } from "@workspace/work/ui";
+
+export default async function WorkPersonalSpacePage() {
+  const user = await requireRouteAccess("/work/me");
+  return createElement(WorkTasksPageView, {
+    user,
+    title: "个人空间",
+    initialTarget: { targetType: "personal", targetId: user.id },
+  });
+}

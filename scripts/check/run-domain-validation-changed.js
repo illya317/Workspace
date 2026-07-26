@@ -1,0 +1,66 @@
+#!/usr/bin/env node
+
+const fs = require("node:fs");
+const path = require("node:path");
+const { spawnSync } = require("node:child_process");
+const { changedFileSets } = require("./changed-files");
+
+const repoRoot = path.resolve(__dirname, "../..");
+const DOMAIN_RELEVANT_PATTERNS = [
+  /^app\/api\/.+\.(ts|tsx)$/i,
+  /^packages\/[^/]+\/server\/.+\.(ts|tsx)$/i,
+  /^scripts\/arch\/domain-validation.*\.(ts|tsx)$/i,
+  /^scripts\/arch\/domain-gate\.ts$/i,
+  /^scripts\/arch\/domain-validation-baseline\.json$/i,
+];
+
+function isDomainRelevant(file) {
+  return DOMAIN_RELEVANT_PATTERNS.some((pattern) => pattern.test(file));
+}
+
+function runDomainValidation(cwd, scriptPath) {
+  return spawnSync(process.execPath, ["--import", "tsx", scriptPath], {
+    cwd,
+    stdio: "inherit",
+    env: process.env,
+  }).status ?? 1;
+}
+
+function createIndexSnapshot() {
+  const baseDir = path.join(repoRoot, ".cache", "domain-validation-staged");
+  fs.rmSync(baseDir, { recursive: true, force: true });
+  fs.mkdirSync(baseDir, { recursive: true });
+  const snapshotDir = fs.mkdtempSync(path.join(baseDir, "snapshot-"));
+  const checkout = spawnSync("git", ["checkout-index", "-a", `--prefix=${snapshotDir}${path.sep}`], {
+    cwd: repoRoot,
+    stdio: "inherit",
+  });
+  if (checkout.status !== 0) {
+    fs.rmSync(snapshotDir, { recursive: true, force: true });
+    process.exit(checkout.status ?? 1);
+  }
+  return snapshotDir;
+}
+
+const { files: candidateFiles, hasStagedChanges, source } = changedFileSets({ cwd: repoRoot });
+const relevantFiles = candidateFiles.filter(isDomainRelevant);
+
+if (relevantFiles.length === 0) {
+  process.stdout.write(`No changed domain-validation inputs (${source}); skipping.\n`);
+  process.exit(0);
+}
+
+process.stdout.write(`Domain validation inputs changed:\n${relevantFiles.map((file) => `  - ${file}`).join("\n")}\n`);
+
+if (hasStagedChanges) {
+  const snapshotDir = createIndexSnapshot();
+  let status = 1;
+  try {
+    status = runDomainValidation(snapshotDir, path.join(snapshotDir, "scripts/arch/domain-validation.ts"));
+  } finally {
+    fs.rmSync(snapshotDir, { recursive: true, force: true });
+  }
+  process.exit(status);
+}
+
+process.exit(runDomainValidation(repoRoot, path.join(repoRoot, "scripts/arch/domain-validation.ts")));

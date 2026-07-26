@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "productKey": "synthetic_mobile",
+  "productName": "Synthetic Mobile Product",
+  "generatedAt": "2026-01-01T00:00:00.000Z",
+  "document": {
+    "schemaVersion": 1,
+    "kind": "qc-editor-document",
+    "id": "synthetic-mobile-qc",
+    "title": "Synthetic Mobile QC Record",
+    "blocks": [
+      {
+        "id": "intermediate-stage",
+        "type": "heading",
+        "level": 1,
+        "text": "Intermediate",
+        "metadata": { "qcRole": "stageHeading", "stageKey": "intermediate" }
+      },
+      {
+        "id": "precheck-heading",
+        "type": "heading",
+        "level": 2,
+        "text": "文件",
+        "metadata": { "qcRole": "precheckSectionHeading" }
+      },
+      {
+        "id": "file-table",
+        "type": "table",
+        "rows": [
+          {
+            "cells": [
+              { "rawText": "文件名称", "parts": [{ "type": "text", "text": "文件名称" }] },
+              { "rawText": "是否在现场", "parts": [{ "type": "text", "text": "是否在现场" }] }
+            ]
+          },
+          {
+            "cells": [
+              { "rawText": "Synthetic Standard", "parts": [{ "type": "text", "text": "Synthetic Standard" }] },
+              { "parts": [{ "type": "fieldSlot", "fieldKey": "pre_check/file_1", "inputType": "radio", "options": ["是", "否"] }] }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "fieldModel": {
+    "schemaVersion": 1,
+    "fields": {
+      "pre_check/file_1": {
+        "fieldKey": "pre_check/file_1",
+        "inputType": "radio",
+        "valueType": "boolean",
+        "options": ["是", "否"],
+        "attr": "fillable"
+      }
+    },
+    "formulas": {}
+  }
+}

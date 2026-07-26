@@ -1,0 +1,17 @@
+import { z } from "zod";
+
+import { executeFundFlowAnalysisCommand } from "@workspace/finance/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+const fundFlowQuerySchema = z.object({
+  companyCodes: z.string().min(1).transform((value) => [...new Set(value.split(",").map((code) => code.trim()).filter(Boolean))]).refine((value) => value.length > 0 && value.length <= 10, "请选择 1—10 家公司"),
+  year: z.coerce.number().int().min(2020).max(2099).catch(2025),
+  month: z.preprocess((value) => value === undefined || value === "" ? undefined : value, z.coerce.number().int().min(1).max(12).optional()),
+});
+
+export const GET = createCommandRoute({
+  querySchema: fundFlowQuerySchema,
+  buildCommand: ({ query }) => okCommand(query),
+  action: executeFundFlowAnalysisCommand,
+});

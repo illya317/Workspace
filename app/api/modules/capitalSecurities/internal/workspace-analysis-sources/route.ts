@@ -1,0 +1,14 @@
+import {
+  buildCapitalSecuritiesWorkspaceAnalysisSourceCatalog,
+  canDiscoverCapitalSecuritiesWorkspaceAnalysisSource,
+  loadCapitalSecuritiesWorkspaceAnalysisSource,
+} from "@workspace/capital-securities/server";
+import { createWorkspaceAnalysisSourceRpcHandler } from "@workspace/platform/server/workspace-analysis-source-rpc";
+
+export const POST = createWorkspaceAnalysisSourceRpcHandler({
+  ownerUnitId: "capital-securities",
+  allowedCallerUnitIds: ["finance"],
+  sourceCatalog: buildCapitalSecuritiesWorkspaceAnalysisSourceCatalog(),
+  canDiscover: canDiscoverCapitalSecuritiesWorkspaceAnalysisSource,
+  executeSource: loadCapitalSecuritiesWorkspaceAnalysisSource,
+});

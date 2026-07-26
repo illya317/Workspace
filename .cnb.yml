@@ -1,0 +1,52 @@
+cnb-release:
+  # 关闭 GitHub 镜像同步后的自动部署；手动触发用 api_trigger_manual。
+  # 本文件只保留不会自动部署的公开占位形状。经 Git review 的 CD 配置真源
+  # 是 ops/cnb-release.yml；私有 ops 只保存 secrets/.env 与逐字一致兼容副本。
+  # 发布脚本从该跟踪真源注入 cnb-release 分支后再推送到 CNB。
+  api_trigger_manual:
+    - name: deploy-prod
+      docker:
+        image: node:22-bookworm
+      imports:
+        - https://cnb.cool/<owner>/<env-repo>/-/blob/main/server-prod.yaml
+      stages:
+        - name: install-deploy-tools
+          script: |
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates python3
+        - name: install-node-deps
+          script: |
+            npm ci --no-audit --fund=false --loglevel=error
+        - name: validate-deploy-input
+          script: |
+            if [ "${RUN_LOCAL_CHECKS:-1}" = "0" ]; then
+              echo "==> 跳过部署前校验（RUN_LOCAL_CHECKS=0）"
+              exit 0
+            fi
+            npm run deploy:preflight:ci
+        - name: deploy-to-server
+          # CNB 的 stage 级 import 作用域与流水线级 import 分开声明。
+          # 发布时 ops/cnb-release.yml 会替换这里的占位地址和空目录值。
+          imports:
+            - https://cnb.cool/<owner>/<env-repo>/-/blob/main/server-prod.yaml
+          env:
+            REMOTE_DIR: ""
+            REMOTE_WORKSPACE_CONFIG_DIR: ""
+            INSTALL_LIBRARY_RUNTIME_DEPS: "1"
+          script: |
+            missing=0
+            for key in SERVER REMOTE_DIR REMOTE_WORKSPACE_CONFIG_DIR KEY_CONTENT; do
+              if [ -z "$(eval "printf '%s' \"\${$key:-}\"")" ]; then
+                echo "[错误] 缺少部署环境变量: $key"
+                missing=1
+              fi
+            done
+            if [ -z "${GITHUB_TOKEN:-}" ] && [ -z "${GH_TOKEN:-}" ]; then
+              echo "[错误] 缺少 GITHUB_TOKEN/GH_TOKEN；需要读取 GitHub Actions、Contents 与 Administration branch protection 状态"
+              missing=1
+            fi
+            if [ "$missing" = "1" ]; then
+              echo "[提示] 请检查私有 CNB env import 的 allow_slugs / allow_events / allow_branches 是否允许当前仓库、api_trigger_manual 和 cnb-release。"
+              exit 1
+            fi
+            bash ./ops/deploy.sh

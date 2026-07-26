@@ -1,0 +1,12 @@
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { executeCreateProductSkuCommand, ProductSkuCreateSchema } from "@workspace/production/server";
+
+export const POST = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  bodySchema: ProductSkuCreateSchema,
+  paramsError: "无效产品 ID",
+  buildCommand: ({ params, body, user }) => okCommand({ productId: params.id, body, userId: user.userId }),
+  action: executeCreateProductSkuCommand,
+});

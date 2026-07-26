@@ -1,0 +1,85 @@
+import type { ChinaHolidayYearDefinition } from "./types";
+
+export const CHINA_HOLIDAY_YEAR_DEFINITIONS = [
+  {
+    year: 2024,
+    source: {
+      year: 2024,
+      title: "国务院办公厅关于2024年部分节假日安排的通知",
+      issuedBy: "国务院办公厅",
+      issuedDate: "2023-10-25",
+      url: "https://www.news.cn/politics/2023-10/25/c_1129936641.htm",
+    },
+    holidayRanges: [
+      { holidayKey: "new-year", holidayName: "元旦", startDate: "2024-01-01", endDate: "2024-01-01" },
+      { holidayKey: "spring-festival", holidayName: "春节", startDate: "2024-02-10", endDate: "2024-02-17" },
+      { holidayKey: "qingming", holidayName: "清明节", startDate: "2024-04-04", endDate: "2024-04-06" },
+      { holidayKey: "labor-day", holidayName: "劳动节", startDate: "2024-05-01", endDate: "2024-05-05" },
+      { holidayKey: "dragon-boat", holidayName: "端午节", startDate: "2024-06-10", endDate: "2024-06-10" },
+      { holidayKey: "mid-autumn", holidayName: "中秋节", startDate: "2024-09-15", endDate: "2024-09-17" },
+      { holidayKey: "national-day", holidayName: "国庆节", startDate: "2024-10-01", endDate: "2024-10-07" },
+    ],
+    adjustedWorkdays: [
+      { date: "2024-02-04", holidayKey: "spring-festival", holidayName: "春节" },
+      { date: "2024-02-18", holidayKey: "spring-festival", holidayName: "春节" },
+      { date: "2024-04-07", holidayKey: "qingming", holidayName: "清明节" },
+      { date: "2024-04-28", holidayKey: "labor-day", holidayName: "劳动节" },
+      { date: "2024-05-11", holidayKey: "labor-day", holidayName: "劳动节" },
+      { date: "2024-09-14", holidayKey: "mid-autumn", holidayName: "中秋节" },
+      { date: "2024-09-29", holidayKey: "national-day", holidayName: "国庆节" },
+      { date: "2024-10-12", holidayKey: "national-day", holidayName: "国庆节" },
+    ],
+  },
+  {
+    year: 2025,
+    source: {
+      year: 2025,
+      title: "国务院办公厅关于2025年部分节假日安排的通知",
+      issuedBy: "国务院办公厅",
+      issuedDate: "2024-11-12",
+      url: "https://www.news.cn/politics/20241112/46dcf0de740844dd824ff54b5be5af2e/c.html",
+    },
+    holidayRanges: [
+      { holidayKey: "new-year", holidayName: "元旦", startDate: "2025-01-01", endDate: "2025-01-01" },
+      { holidayKey: "spring-festival", holidayName: "春节", startDate: "2025-01-28", endDate: "2025-02-04" },
+      { holidayKey: "qingming", holidayName: "清明节", startDate: "2025-04-04", endDate: "2025-04-06" },
+      { holidayKey: "labor-day", holidayName: "劳动节", startDate: "2025-05-01", endDate: "2025-05-05" },
+      { holidayKey: "dragon-boat", holidayName: "端午节", startDate: "2025-05-31", endDate: "2025-06-02" },
+      { holidayKey: "national-day-mid-autumn", holidayName: "国庆节、中秋节", startDate: "2025-10-01", endDate: "2025-10-08" },
+    ],
+    adjustedWorkdays: [
+      { date: "2025-01-26", holidayKey: "spring-festival", holidayName: "春节" },
+      { date: "2025-02-08", holidayKey: "spring-festival", holidayName: "春节" },
+      { date: "2025-04-27", holidayKey: "labor-day", holidayName: "劳动节" },
+      { date: "2025-09-28", holidayKey: "national-day-mid-autumn", holidayName: "国庆节、中秋节" },
+      { date: "2025-10-11", holidayKey: "national-day-mid-autumn", holidayName: "国庆节、中秋节" },
+    ],
+  },
+  {
+    year: 2026,
+    source: {
+      year: 2026,
+      title: "国务院办公厅关于2026年部分节假日安排的通知",
+      issuedBy: "国务院办公厅",
+      issuedDate: "2025-11-04",
+      url: "https://www.scio.gov.cn/zdgz/jj/202511/t20251110_938367.html",
+    },
+    holidayRanges: [
+      { holidayKey: "new-year", holidayName: "元旦", startDate: "2026-01-01", endDate: "2026-01-03" },
+      { holidayKey: "spring-festival", holidayName: "春节", startDate: "2026-02-15", endDate: "2026-02-23" },
+      { holidayKey: "qingming", holidayName: "清明节", startDate: "2026-04-04", endDate: "2026-04-06" },
+      { holidayKey: "labor-day", holidayName: "劳动节", startDate: "2026-05-01", endDate: "2026-05-05" },
+      { holidayKey: "dragon-boat", holidayName: "端午节", startDate: "2026-06-19", endDate: "2026-06-21" },
+      { holidayKey: "mid-autumn", holidayName: "中秋节", startDate: "2026-09-25", endDate: "2026-09-27" },
+      { holidayKey: "national-day", holidayName: "国庆节", startDate: "2026-10-01", endDate: "2026-10-07" },
+    ],
+    adjustedWorkdays: [
+      { date: "2026-01-04", holidayKey: "new-year", holidayName: "元旦" },
+      { date: "2026-02-14", holidayKey: "spring-festival", holidayName: "春节" },
+      { date: "2026-02-28", holidayKey: "spring-festival", holidayName: "春节" },
+      { date: "2026-05-09", holidayKey: "labor-day", holidayName: "劳动节" },
+      { date: "2026-09-20", holidayKey: "national-day", holidayName: "国庆节" },
+      { date: "2026-10-10", holidayKey: "national-day", holidayName: "国庆节" },
+    ],
+  },
+] as const satisfies readonly ChinaHolidayYearDefinition[];

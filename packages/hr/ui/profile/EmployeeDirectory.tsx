@@ -1,0 +1,290 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  createPageBody,
+  type DataSurfaceColumnSpec,
+  type FormSurfaceFieldSpec,
+  createMessageSection,
+  PageSurface,
+  type BodySurfaceSectionSpec,
+} from "@workspace/core/ui";
+import { workspacePath } from "@workspace/core/routing";
+import { buildHRToolbarItems } from "../components/hr-toolbar-items";
+import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../fk-keys";
+import type { HRUser } from "@workspace/hr/types";
+import type { RosterSurfaceTabBarProps } from "../roster-surface";
+import {
+  EMPLOYEE_DIRECTORY_DEFAULT_VISIBLE_COLUMNS,
+  EMPLOYEE_DIRECTORY_FILTER_FIELDS,
+  EMPLOYEE_DIRECTORY_PAGE_SIZE_OPTIONS,
+  employeeDirectoryFilterValueOptions,
+} from "./employee-directory-config";
+import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
+
+interface DirectoryEmployee {
+  id: number;
+  employeeId: string;
+  name: string;
+  gender: boolean | null;
+  birthDate: string | null;
+  education: string | null;
+  positionName: string | null;
+  directDepartmentName: string | null;
+}
+
+interface EmployeeListResponse {
+  employees: DirectoryEmployee[];
+  total: number;
+}
+
+function genderLabel(value: boolean | null) {
+  if (value === true) return "男";
+  if (value === false) return "女";
+  return "-";
+}
+
+export default function EmployeeDirectory({
+  employmentStatus,
+  surface,
+  canCreate = false,
+}: {
+  user: HRUser;
+  employmentStatus?: "active" | "inactive";
+  surface?: RosterSurfaceTabBarProps;
+  canCreate?: boolean;
+}) {
+  const router = useRouter();
+  const tenantConfig = useTenantConfig();
+  const [keyword, setKeyword] = useState("");
+  const [employees, setEmployees] = useState<DirectoryEmployee[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filterField, setFilterField] = useState("");
+  const [filterValue, setFilterValue] = useState("");
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(EMPLOYEE_DIRECTORY_DEFAULT_VISIBLE_COLUMNS);
+  const [createName, setCreateName] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [reloadVersion, setReloadVersion] = useState(0);
+
+  const [pageSize, setPageSize] = useState(50);
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [pageSize, total]);
+  const filterValueOptions = useMemo(
+    () => employeeDirectoryFilterValueOptions(tenantConfig.hr.options.educations),
+    [tenantConfig.hr.options.educations],
+  );
+  const columns = useMemo<DataSurfaceColumnSpec<DirectoryEmployee>[]>(
+    () => [
+      {
+        key: "employeeId",
+        label: "员工编号",
+        required: true,
+        cell: (employee) => ({ kind: "text", value: employee.employeeId, emphasis: "medium" }),
+      },
+      { key: "name", label: "姓名", required: true, cell: (employee) => employee.name },
+      { key: "gender", label: "性别", defaultVisible: true, cell: (employee) => genderLabel(employee.gender) },
+      { key: "birthDate", label: "出生年月", defaultVisible: true, cell: (employee) => employee.birthDate || "-" },
+      { key: "education", label: "学历", defaultVisible: true, cell: (employee) => employee.education || "-" },
+      { key: "positionName", label: "岗位", defaultVisible: true, cell: (employee) => employee.positionName || "-" },
+      {
+        key: "directDepartmentName",
+        label: "直属部门",
+        defaultVisible: true,
+        cell: (employee) => employee.directDepartmentName || "-",
+      },
+
+    ],
+    []
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      const params = new URLSearchParams({
+        page: String(page),
+        pageSize: String(pageSize),
+      });
+      if (keyword) params.set("keyword", keyword);
+      if (employmentStatus) params.set("employmentStatus", employmentStatus);
+      if (filterField && filterValue) {
+        params.set("filterField", filterField);
+        params.set("filterValue", filterValue);
+      }
+      try {
+        const res = await fetch(workspacePath(`/api/modules/hr/roster/employees?${params.toString()}`));
+        if (!res.ok) throw new Error(`加载失败 (${res.status})`);
+        const data = (await res.json()) as EmployeeListResponse;
+        if (!cancelled) {
+          setEmployees(data.employees || []);
+          setTotal(data.total || 0);
+        }
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "加载失败");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [employmentStatus, filterField, filterValue, keyword, page, pageSize, reloadVersion]);
+
+  async function createEmployee() {
+    if (!canCreate || createName === null) throw new Error("无权限新增员工");
+    setCreating(true);
+    try {
+      const response = await fetch(workspacePath("/api/modules/hr/roster/employees"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: createName.trim() }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => null) as { error?: unknown } | null;
+        throw new Error(typeof body?.error === "string" ? body.error : `新增员工失败 (${response.status})`);
+      }
+      setCreateName(null);
+      setPage(1);
+      setReloadVersion((version) => version + 1);
+      return { outcome: "saved" as const, message: "员工已新增，员工编号和登录账号已自动生成" };
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  const toolbarItems = buildHRToolbarItems({
+    search: {
+      value: keyword,
+      onChange: (value: string) => {
+        setKeyword(value.trim());
+        setPage(1);
+      },
+      placeholder: "搜索员工编号、姓名、拼音",
+      ariaLabel: "搜索员工编号、姓名、拼音",
+    },
+    advancedFilter: {
+      fields: EMPLOYEE_DIRECTORY_FILTER_FIELDS,
+      valueOptions: filterValueOptions,
+      referenceEndpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
+      fieldKey: filterField,
+      onFieldKeyChange: (key: string) => {
+        setFilterField(key);
+        setPage(1);
+      },
+      value: filterValue,
+      onValueChange: (value: string) => {
+        setFilterValue(value);
+        setPage(1);
+      },
+    },
+    reset: {
+      onClick: () => {
+        setKeyword("");
+        setFilterField("");
+        setFilterValue("");
+        setVisibleColumns(EMPLOYEE_DIRECTORY_DEFAULT_VISIBLE_COLUMNS);
+        setPage(1);
+      },
+    },
+    columnToggle: { columns, visible: visibleColumns, onChange: setVisibleColumns },
+    meta: <span>共 {total} 人</span>,
+    pageSize: {
+      value: String(pageSize),
+      options: EMPLOYEE_DIRECTORY_PAGE_SIZE_OPTIONS,
+      onChange: (value: string) => {
+        setPageSize(Number(value));
+        setPage(1);
+      },
+    },
+    assistant: surface?.assistantAction
+      ? { label: surface.assistantAction.label, disabled: surface.assistantAction.disabled, onClick: surface.assistantAction.onClick ?? (() => {}) }
+      : undefined,
+  });
+
+  const createField: FormSurfaceFieldSpec = {
+    key: "name",
+    label: "姓名",
+    required: true,
+    spec: { valueType: "string", control: "text" },
+    value: createName ?? "",
+    placeholder: "请输入员工姓名",
+    onChange: (value) => setCreateName(String(value ?? "")),
+  };
+
+  const sections: BodySurfaceSectionSpec[] = [
+    ...(canCreate ? [{
+      key: "employee-create",
+      body: {
+        kind: "create" as const,
+        create: {
+          id: "employee-create",
+          trigger: "toolbar" as const,
+          presentation: "inline" as const,
+          title: "新增员工",
+          open: createName !== null,
+          canCreate,
+          disabled: creating,
+          content: {
+            kind: "form" as const,
+            form: { items: [createField], layout: { columns: 1 as const, density: "compact" as const } },
+          },
+          submission: {
+            action: "save" as const,
+            disabled: creating || !createName?.trim(),
+            execute: createEmployee,
+          },
+          onOpenChange: (open: boolean) => setCreateName(open ? "" : null),
+          onCancel: () => setCreateName(null),
+        },
+      },
+    }] : []),
+    ...(error ? [createMessageSection("error", { content: error, tone: "danger" as const })] : []),
+    {
+      key: "employees",
+      body: { kind: "data", data: {
+        kind: "table",
+        rows: employees,
+        columns,
+        visibleColumns,
+        loading,
+        emptyText: "暂无员工",
+        rowKey: (employee: DirectoryEmployee) => employee.id,
+        onRowClick: (employee: DirectoryEmployee) => router.push(`/hr/roster/employees/${employee.employeeId}`),
+        rowActions: (employee: DirectoryEmployee) => [
+          {
+            key: "view",
+            label: "查看员工资料",
+            kind: "view",
+            onClick: () => router.push(`/hr/roster/employees/${employee.employeeId}`),
+          },
+        ],
+
+      } },
+    },
+  ];
+
+  const footer = {
+    pagination: {
+      page,
+      totalPages,
+      total,
+      onPageChange: setPage,
+      frame: "bordered",
+      compact: true,
+    },
+  };
+
+  return (
+    <PageSurface kind="standard"
+      {...(surface ?? {})}
+      toolbar={{ items: toolbarItems }}
+      body={createPageBody(sections)}
+      footer={footer}
+    />
+  );
+}

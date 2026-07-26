@@ -1,0 +1,30 @@
+import {
+  buildCreateLibraryDirectoryRouteCommand,
+  buildRenameLibraryDirectoryRouteCommand,
+  executeCreateLibraryDirectoryCommand,
+  executeLibraryDirectoriesCommand,
+  executeRenameLibraryDirectoryCommand,
+} from "@workspace/library/server/route-commands";
+import {
+  LibraryDirectoryCreateSchema,
+  LibraryDirectoryRenameSchema,
+} from "@workspace/library/server/schemas";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+export const GET = createCommandRoute({
+  buildCommand: ({ user }) => okCommand({ userId: user.userId }),
+  action: executeLibraryDirectoriesCommand,
+});
+
+export const POST = createCommandRoute({
+  bodySchema: LibraryDirectoryCreateSchema,
+  buildCommand: ({ body, user }) => buildCreateLibraryDirectoryRouteCommand({ body, userId: user.userId }),
+  action: executeCreateLibraryDirectoryCommand,
+});
+
+export const PATCH = createCommandRoute({
+  bodySchema: LibraryDirectoryRenameSchema,
+  buildCommand: ({ body, user }) => buildRenameLibraryDirectoryRouteCommand({ body, userId: user.userId }),
+  action: executeRenameLibraryDirectoryCommand,
+});

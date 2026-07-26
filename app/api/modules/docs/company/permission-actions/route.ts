@@ -1,0 +1,29 @@
+import { z } from "zod";
+
+import {
+  buildPermissionActionKnowledge,
+  queryPermissionActionKnowledge,
+} from "@workspace/platform/permission-action-knowledge";
+import { PERMISSION_ACTION_KEYS } from "@workspace/platform/permission-actions";
+import { createApiRouteHandler } from "@workspace/platform/server/api-route";
+
+const querySchema = z.object({
+  permissionKey: z.string().trim().min(1).max(200).optional(),
+  resourceKey: z.string().trim().min(1).max(160).optional(),
+  actionKey: z.enum(PERMISSION_ACTION_KEYS).optional(),
+  businessActionKey: z.string().trim().min(1).max(240).optional(),
+  route: z.string().trim().min(1).max(500).optional(),
+  q: z.string().trim().min(1).max(200).optional(),
+  offset: z.coerce.number().int().min(0).default(0),
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+}).strict();
+
+const knowledge = buildPermissionActionKnowledge();
+
+export const GET = createApiRouteHandler({
+  querySchema,
+  queryError: "Invalid permission action query",
+  handler: ({ query }) => Response.json(queryPermissionActionKnowledge(query, knowledge), {
+    headers: { "Cache-Control": "private, no-store" },
+  }),
+});

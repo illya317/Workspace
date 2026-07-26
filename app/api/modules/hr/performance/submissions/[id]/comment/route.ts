@@ -1,0 +1,26 @@
+import { z } from "zod";
+
+import {
+  buildHrPerformanceSubmissionActionRouteCommand,
+  executeCommentHrPerformanceSubmissionRouteCommand,
+} from "@workspace/hr/server";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const actionBodySchema = z.object({
+  comment: z.string().nullable().optional(),
+  version: z.coerce.number().nullable().optional(),
+}).strict();
+
+export const POST = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "流程单 ID 无效",
+  bodySchema: actionBodySchema,
+  bodyError: "流程动作参数无效",
+  buildCommand: ({ params, body, user }) => buildHrPerformanceSubmissionActionRouteCommand({
+    userId: user.userId,
+    requestId: params.id,
+    body,
+  }),
+  action: executeCommentHrPerformanceSubmissionRouteCommand,
+});

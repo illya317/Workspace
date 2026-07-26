@@ -1,0 +1,19 @@
+{
+  "_note": "白名单分为两类：'待迁移'(todo)和'豁免'(exempt)。待迁移的逐步改用标准模块后从白名单删除。豁免的需标注原因。",
+  "tab-bar": {
+    "description": "页面手写 border-b-2 下划线 tab，应改用 TabBar 组件",
+    "entries": {}
+  },
+  "pagination": {
+    "description": "页面手写分页控件，应改用全局 Pagination 组件",
+    "entries": {}
+  },
+  "finance-filters": {
+    "description": "财务页面手写筛选栏，应改用全局 Toolbar items 或领域内已注册组件",
+    "entries": {}
+  },
+  "hr-toolbar": {
+    "description": "HR 页面手写工具栏，应改用全局 Toolbar items",
+    "entries": {}
+  }
+}

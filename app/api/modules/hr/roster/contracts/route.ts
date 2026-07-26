@@ -1,0 +1,44 @@
+import { z } from "zod";
+
+import { buildHrRouteCommand, createEmployeeContract, getContracts, updateContractPageDraft } from "@workspace/hr/server";
+import { updateFieldsBodySchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";const contractsQuerySchema = z.object({
+  company: z.string().optional(),
+  department: z.string().catch(""),
+  isActive: z.string().nullable().optional(),
+  keyword: z.string().optional(),
+  position: z.string().catch(""),
+  page: z.coerce.number().int().min(1).catch(1),
+  pageSize: z.coerce.number().int().min(1).max(500).catch(50),
+}).passthrough();
+
+const createContractSchema = z.object({
+  employeeId: z.unknown().optional(),
+}).passthrough();
+
+export const GET = createCommandRoute({
+  querySchema: contractsQuerySchema,
+  queryError: "参数错误",
+  buildCommand: ({ query }) => buildHrRouteCommand(query),
+  action: getContracts,
+});
+
+export const POST = createCommandRoute({
+  bodySchema: createContractSchema,
+  bodyError: "请求体必须为 JSON",
+  buildCommand: ({ body, user }) => {
+    const { employeeId, ...contractData } = body;
+    return buildHrRouteCommand({ employeeId, contractData, editorId: user.userId });
+  },
+  action: createEmployeeContract,
+});
+
+export const PUT = createCommandRoute({
+  bodySchema: updateFieldsBodySchema,
+  bodyError: "修改内容无效",
+  buildCommand: ({ body, user }) => buildHrRouteCommand({
+    changes: body.changes.map((change) => ({ ...change, value: change.value ?? null })),
+    userId: user.userId,
+  }),
+  action: updateContractPageDraft,
+});

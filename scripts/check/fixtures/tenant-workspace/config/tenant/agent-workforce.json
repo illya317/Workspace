@@ -1,0 +1,19 @@
+{
+  "lockName": "workspace:agent-workforce:ci",
+  "provisionerLedgerSource": "ci_agent_workforce_provisioner",
+  "managedWorkspaceResourceGrants": [],
+  "workforce": [
+    {
+      "employeeId": "CI-AI-01",
+      "displayName": "CI Assistant",
+      "username": "ci-assistant",
+      "profileKey": "ci.assistant",
+      "roleName": "CI Assistant",
+      "positionCode": "POS-TEC-02",
+      "responsibilities": "Exercise reusable tenant configuration.",
+      "workspaceResourceGrants": [],
+      "legacyAllowedToolKeys": [],
+      "runtimeBindings": [{ "runtimeKind": "ci", "interactive": false, "capabilityKeys": [], "instructions": "Run CI checks only." }]
+    }
+  ]
+}

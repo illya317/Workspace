@@ -1,0 +1,65 @@
+"use client";
+
+import type { MouseEvent } from "react";
+import { X } from "lucide-react";
+import { joinClassNames } from "../common/card-utils";
+import type { ConfirmOptions } from "../../services/FeedbackProvider";
+
+export interface TagRemoveButtonProps {
+  label: string;
+  onConfirm?: () => void | Promise<void>;
+  onClick?: () => void | Promise<void>;
+  disabled?: boolean;
+  confirm?: boolean;
+  confirmDelete?: (options?: Partial<ConfirmOptions>) => Promise<boolean>;
+  confirmOptions?: Partial<ConfirmOptions>;
+  confirmMessage?: ConfirmOptions["message"];
+  title?: string;
+  className?: string;
+}
+
+export default function TagRemoveButton({
+  label,
+  onConfirm,
+  onClick,
+  disabled = false,
+  confirm = true,
+  confirmDelete,
+  confirmOptions,
+  confirmMessage,
+  title,
+  className = "",
+}: TagRemoveButtonProps) {
+  async function handleClick(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (disabled) return;
+    if (confirm && confirmDelete) {
+      const confirmed = await confirmDelete({
+        message: confirmMessage ?? `确定${label}吗？此操作不可撤销。`,
+        ...confirmOptions,
+      });
+      if (!confirmed) return;
+    }
+    await (onConfirm ?? onClick)?.();
+  }
+
+  const actionTitle = title ?? label;
+
+  return (
+    <button
+      type="button"
+      aria-label={actionTitle}
+      title={actionTitle}
+      disabled={disabled}
+      onMouseDown={(event) => event.stopPropagation()}
+      onClick={(event) => void handleClick(event)}
+      className={joinClassNames(
+        "grid size-4 place-items-center rounded-full p-0 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
+    >
+      <X aria-hidden="true" className="size-3" strokeWidth={2.2} />
+    </button>
+  );
+}

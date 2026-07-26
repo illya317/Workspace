@@ -1,0 +1,321 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createPageBody, createEmptySection, createMessageSection,
+  createPanelSection,
+  PageSurface,
+  type BodySurfaceSectionSpec,
+  type SurfaceColumnOptionSpec,
+  type DataSurfaceStructuredCellSpec,
+  type SurfaceFilterFieldSpec,
+} from "@workspace/core/ui";
+import { workspacePath } from "@workspace/core/routing";
+import { HR_REFERENCE_OPTIONS_ENDPOINT } from "@workspace/hr/ui/fk-keys";
+import { buildHRToolbarItems } from "../components/hr-toolbar-items";
+import type { RosterSurfaceTabBarProps } from "../roster-surface";
+import type {
+  RosterGeneratedColumn,
+  RosterGeneratedFilterField,
+  RosterGeneratedGroup,
+  RosterGeneratedPreview,
+  RosterGeneratedVariant,
+} from "@workspace/hr/types";
+
+type RosterPreviewQuery = {
+  keyword?: string;
+  filterField?: string;
+  filterValue?: string;
+};
+
+export default function RosterGeneratedTab({ variant, canExport, surface }: { variant: RosterGeneratedVariant; canExport: boolean; surface?: RosterSurfaceTabBarProps }) {
+  const [keyword, setKeyword] = useState("");
+  const [preview, setPreview] = useState<RosterGeneratedPreview | null>(null);
+  const [groups, setGroups] = useState<RosterGeneratedGroup[]>([]);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
+  const [filterField, setFilterField] = useState("");
+  const [filterValue, setFilterValue] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [pageSize, setPageSize] = useState("50");
+  const currentQueryRef = useRef<RosterPreviewQuery>({});
+
+  const columns = useMemo(() => preview?.columns ?? [], [preview]);
+  const columnDefs = useMemo<SurfaceColumnOptionSpec[]>(
+    () => columns.map((column) => ({
+      key: column.key,
+      label: column.label,
+      required: column.required,
+      defaultVisible: column.defaultVisible,
+    })),
+    [columns],
+  );
+  const visibleColumnSet = useMemo(() => new Set(visibleColumns), [visibleColumns]);
+  const visibleTableColumns = useMemo(
+    () => columns.filter((column) => column.required || visibleColumnSet.has(column.key)),
+    [columns, visibleColumnSet],
+  );
+  const filterFields = useMemo(() => mapFilterFields(preview?.filterFields ?? []), [preview?.filterFields]);
+
+  const loadPreview = useCallback(async (query: RosterPreviewQuery = {}) => {
+    setLoading(true);
+    setError(null);
+    setEditMode(false);
+    try {
+      const params = new URLSearchParams({
+        variant,
+        pageSize,
+      });
+      const { keyword: currentKeyword = "", filterField: currentFilterField = "", filterValue: currentFilterValue = "" } = query;
+      if (currentKeyword.trim()) params.set("keyword", currentKeyword.trim());
+      if (currentFilterField && currentFilterValue) {
+        params.set("filterField", currentFilterField);
+        params.set("filterValue", currentFilterValue);
+      }
+      const response = await fetch(workspacePath(`/api/modules/hr/roster/generated/preview?${params.toString()}`));
+      const data = await response.json().catch(() => null) as RosterGeneratedPreview | { error?: string } | null;
+      if (!response.ok) throw new Error(data && "error" in data && data.error ? data.error : `加载失败 (${response.status})`);
+      const nextPreview = data as RosterGeneratedPreview;
+      setPreview(nextPreview);
+      setGroups(nextPreview.groups);
+      setVisibleColumns(defaultVisibleColumns(nextPreview.columns));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "加载失败");
+    } finally {
+      setLoading(false);
+    }
+  }, [pageSize, variant]);
+
+  useEffect(() => {
+    currentQueryRef.current = { keyword, filterField, filterValue };
+  }, [filterField, filterValue, keyword]);
+
+  useEffect(() => {
+    void loadPreview(currentQueryRef.current);
+  }, [loadPreview]);
+
+  function refreshPreview() {
+    void loadPreview({ keyword, filterField, filterValue });
+  }
+
+  async function applyEdits() {
+    setSaving(true);
+    await Promise.resolve();
+    setSaving(false);
+    setEditMode(false);
+  }
+
+  function updateEmployeeCell(groupIndex: number, field: string, value: string) {
+    setGroups((current) => current.map((group, index) => (
+      index === groupIndex
+        ? { ...group, employeeCells: { ...group.employeeCells, [field]: value } }
+        : group
+    )));
+  }
+
+  function updateRowCell(groupIndex: number, rowIndex: number, field: string, value: string) {
+    setGroups((current) => current.map((group, index) => {
+      if (index !== groupIndex) return group;
+      return {
+        ...group,
+        rows: group.rows.map((row, innerIndex) => (
+          innerIndex === rowIndex ? { ...row, cells: { ...row.cells, [field]: value } } : row
+        )),
+      };
+    }));
+  }
+
+  async function downloadCsv() {
+    setDownloading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({
+        variant,
+        fields: visibleColumns.join(","),
+      });
+      if (keyword.trim()) params.set("keyword", keyword.trim());
+      if (filterField && filterValue) {
+        params.set("filterField", filterField);
+        params.set("filterValue", filterValue);
+      }
+      const response = await fetch(workspacePath(`/api/modules/hr/roster/generated/export?${params.toString()}`));
+      if (!response.ok) {
+        const data = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(data?.error || `下载失败 (${response.status})`);
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${variant === "management" ? "管理版花名册" : "尽调版花名册"}_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "下载失败");
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  const toolbarItems = buildHRToolbarItems({
+    search: {
+      value: keyword,
+      onChange: setKeyword,
+      placeholder: "搜索员工、公司、部门、岗位",
+      ariaLabel: "搜索员工、公司、部门、岗位",
+    },
+    advancedFilter: {
+      fields: filterFields,
+      fieldKey: filterField,
+      value: filterValue,
+      onFieldKeyChange: setFilterField,
+      onValueChange: setFilterValue,
+      referenceEndpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
+    },
+    columnToggle: { columns: columnDefs, visible: visibleColumns, onChange: setVisibleColumns },
+    refresh: { label: "刷新生成", disabled: loading, onClick: refreshPreview },
+    editGroup: {
+      editMode,
+      onStartEdit: () => setEditMode(true),
+      onSave: applyEdits,
+      onCancel: () => {
+        setGroups(preview?.groups ?? []);
+        setEditMode(false);
+      },
+      onDownload: canExport ? () => void downloadCsv() : undefined,
+      canEdit: true,
+      saveLabel: "应用到预览",
+      editLabel: "编辑预览",
+      saving,
+      downloading,
+    },
+    meta: preview ? <span>共 {preview.totalEmployees} 人</span> : null,
+    pageSize: {
+      value: pageSize,
+      options: [
+        { value: "50", label: "50条/页" },
+        { value: "100", label: "100条/页" },
+        { value: "200", label: "200条/页" },
+      ],
+      onChange: setPageSize,
+    },
+    assistant: surface?.assistantAction
+      ? { label: surface.assistantAction.label, disabled: surface.assistantAction.disabled, onClick: surface.assistantAction.onClick ?? (() => {}) }
+      : undefined,
+  });
+
+  const tableSections: BodySurfaceSectionSpec[] = loading
+    ? [createMessageSection("loading", {
+      content: "正在生成预览...",
+      tone: "muted"
+    })]
+    : groups.length === 0
+      ? [createEmptySection("empty", {
+        presentation: "plain",
+        content: "暂无花名册数据"
+      })]
+      : [{
+          key: "table",
+          visibility: "desktop" as const,
+          body: { kind: "data", data: {
+            kind: "structured",
+            presentation: { density: "compact",
+ grid: "cells", header: "tinted", stripe: "subtle", cellWrap: "nowrap" },
+            rows: buildRosterGeneratedRows({
+              columns: visibleTableColumns,
+              groups,
+              editMode,
+              onEmployeeCellChange: updateEmployeeCell,
+              onRowCellChange: updateRowCell,
+            }),
+            colWidths: visibleTableColumns.map(() => 112),
+          } },
+        }];
+
+  const sections: BodySurfaceSectionSpec[] = [
+    ...(error ? [createMessageSection("error", { content: error, tone: "danger" as const })] : []),
+    { ...createMessageSection("generated-roster-mobile-boundary", {
+      content: "生成花名册包含动态列、批量编辑与导出，请在桌面端继续。",
+      tone: "muted" as const,
+    }), visibility: "mobile" as const },
+    { ...createPanelSection("preview", { sections: tableSections }), visibility: "desktop" as const },
+  ];
+  const desktopToolbarItems = toolbarItems.map((item) => ({ ...item, visibility: "desktop" as const }));
+
+  return (
+    <PageSurface kind="standard"
+      {...surface}
+      toolbar={{ items: desktopToolbarItems, onSubmit: refreshPreview }}
+      body={createPageBody(sections)}
+    />
+  );
+}
+
+function buildRosterGeneratedRows({
+  columns,
+  groups,
+  editMode,
+  onEmployeeCellChange,
+  onRowCellChange,
+}: {
+  columns: RosterGeneratedColumn[];
+  groups: RosterGeneratedGroup[];
+  editMode: boolean;
+  onEmployeeCellChange: (groupIndex: number, field: string, value: string) => void;
+  onRowCellChange: (groupIndex: number, rowIndex: number, field: string, value: string) => void;
+}): DataSurfaceStructuredCellSpec[][] {
+  const headerRow: DataSurfaceStructuredCellSpec[] = columns.map((column) => ({
+    header: true,
+    content: { kind: "text", value: column.label },
+  }));
+  const bodyRows = groups.flatMap((group, groupIndex) => (
+    group.rows.map((row, rowIndex) => (
+      columns.flatMap((column): DataSurfaceStructuredCellSpec[] => {
+        const isEmployeeCell = column.scope === "employee";
+        if (isEmployeeCell && rowIndex > 0) return [];
+        const value = isEmployeeCell ? group.employeeCells[column.key] ?? "" : row.cells[column.key] ?? "";
+        return [{
+          rowSpan: isEmployeeCell ? group.rows.length : undefined,
+
+          content: rosterGeneratedCell(value, editMode, (next) => {
+            if (isEmployeeCell) {
+              onEmployeeCellChange(groupIndex, column.key, next);
+            } else {
+              onRowCellChange(groupIndex, rowIndex, column.key, next);
+            }
+          }),
+        }];
+      })
+    ))
+  ));
+  return [headerRow, ...bodyRows];
+}
+
+function rosterGeneratedCell(value: string, editMode: boolean, onChange: (value: string) => void): DataSurfaceStructuredCellSpec["content"] {
+  if (!editMode) return value ? { kind: "text", value } : { kind: "empty" };
+  return {
+    kind: "input",
+    spec: { valueType: "string", control: "text", state: "normal" },
+    value,
+    onChange: (next) => onChange(String(next ?? "")),
+
+  };
+}
+
+function defaultVisibleColumns(columns: RosterGeneratedColumn[]) {
+  return columns.filter((column) => column.required || column.defaultVisible).map((column) => column.key);
+}
+
+function mapFilterFields(fields: RosterGeneratedFilterField[]): SurfaceFilterFieldSpec[] {
+  return fields.map((field) => ({
+    value: field.key,
+    label: field.label,
+    valueKind: field.valueKind,
+    fkKey: field.fkKey,
+    fkReturnField: field.fkReturnField,
+    lifecycleScope: field.lifecycleScope,
+  }));
+}

@@ -1,0 +1,265 @@
+/// 财务科目（含层级）
+model FinanceAccount {
+  id                          Int                                  @id @default(autoincrement())
+  code                        String
+  name                        String
+  category                    String
+  parentId                    Int?
+  balanceDirection            String                               @default("debit")
+  isActive                    Boolean                              @default(true)
+  companyCode                 String
+  mnemonicCode                String?
+  currency                    String?
+  sourceSystem                String?
+  sourceLedger                String?
+  sourceDatabase              String?
+  sourceKey                   String?
+  groupSubjectCode            String?
+  subjectLevel                Int?
+  year                        Int?
+  sortOrder                   Int                                  @default(0)
+  editedBy                    Int?
+  editedAt                    DateTime?
+  version                     Int                                  @default(1)
+  createdAt                   DateTime                             @default(now())
+  updatedAt                   DateTime                             @default(now()) @updatedAt
+  editor                      User?                                @relation("FinanceAccountEditor", fields: [editedBy], references: [id])
+  parent                      FinanceAccount?                      @relation("AccountHierarchy", fields: [parentId], references: [id])
+  children                    FinanceAccount[]                     @relation("AccountHierarchy")
+  balances                    FinanceAccountBalance[]
+  voucherItems                FinanceVoucherItem[]
+  snapshotRows                FinanceBalanceSnapshotRow[]
+  sourceBalances              FinanceSourceAccountBalance[]
+  auxiliaryBalances           FinanceAuxiliaryBalance[]
+  openItems                   FinanceOpenItem[]
+  bankAccounts                FinanceBankAccount[]
+  deptBudgets                 FinanceBudgetDept[]
+  rdBudgets                   FinanceBudgetRd[]
+  auxiliaryRequirements       FinanceAccountAuxiliaryRequirement[]
+  counterpartyClassifications FinanceCounterpartyClassification[]
+  currentLineages             FinanceAccountLineage[]              @relation("FinanceAccountLineageCurrent")
+  previousLineages            FinanceAccountLineage[]              @relation("FinanceAccountLineagePrevious")
+
+  @@unique([code, companyCode, year])
+  @@unique([sourceSystem, sourceDatabase, sourceKey])
+}
+
+/// 会计期间
+model FinancePeriod {
+  id                  Int                           @id @default(autoincrement())
+  year                Int
+  month               Int
+  startDate           String
+  endDate             String
+  isClosed            Boolean                       @default(false)
+  sourceSystem        String?
+  sourceDatabase      String?
+  sourceKey           String?
+  sourceClosed        Boolean?
+  companyCode         String
+  createdAt           DateTime                      @default(now())
+  updatedAt           DateTime                      @default(now()) @updatedAt
+  balances            FinanceAccountBalance[]
+  vouchers            FinanceVoucher[]
+  reclassResults      ReclassResult[]
+  sourceBalances      FinanceSourceAccountBalance[]
+  auxiliaryBalances   FinanceAuxiliaryBalance[]
+  cashFlowAllocations FinanceCashFlowAllocation[]
+  openItems           FinanceOpenItem[]
+  assetPeriodEntries  FinanceAssetPeriodEntry[]
+  assetAdjustments    FinanceAssetAdjustment[]
+  sourceStatuses      FinanceSourcePeriodStatus[]
+
+  @@unique([companyCode, year, month])
+}
+
+/// 单体报表来源例外：保留原始凭证，只从指定报表口径中排除，避免修改或删除总账事实
+model FinanceStatementVoucherExclusion {
+  id            Int      @id @default(autoincrement())
+  voucherId     Int
+  companyCode   String
+  statementType String // balance | income | cashflow
+  enabled       Boolean  @default(true)
+  sourceType    String   @default("reference_workpaper")
+  note          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+
+  voucher FinanceVoucher @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+
+  @@unique([voucherId, statementType])
+  @@index([companyCode, statementType, enabled])
+}
+
+/// 记账凭证
+model FinanceVoucher {
+  id                       Int                                @id @default(autoincrement())
+  voucherNo                String
+  date                     String
+  periodId                 Int
+  description              String
+  totalDebit               Float                              @default(0)
+  totalCredit              Float                              @default(0)
+  status                   String                             @default("draft")
+  companyCode              String
+  importId                 Int?
+  sourceSystem             String?
+  sourceDatabase           String?
+  sourceKey                String?
+  voucherTypeCode          String?
+  voucherTypeName          String?
+  isAdjustment             Boolean                            @default(false)
+  preparerName             String?
+  reviewerName             String?
+  posterName               String?
+  cashierName              String?
+  attachmentCount          Int                                @default(0)
+  sourcePosted             Boolean?
+  sourceAudited            Boolean?
+  sourceInvalid            Boolean?
+  externalSourceSystem     String?
+  externalSourceDocumentNo String?
+  externalSourceDocumentId String?
+  externalSourceAccountSet String?
+  externalSourceDate       String?
+  sourceMetadata           Json?
+  editedBy                 Int?
+  editedAt                 DateTime?
+  version                  Int                                @default(1)
+  createdAt                DateTime                           @default(now())
+  updatedAt                DateTime                           @default(now()) @updatedAt
+  editor                   User?                              @relation("FinanceVoucherEditor", fields: [editedBy], references: [id])
+  period                   FinancePeriod                      @relation(fields: [periodId], references: [id])
+  import                   FinanceLedgerImport?               @relation(fields: [importId], references: [id])
+  items                    FinanceVoucherItem[]
+  cashFlowAllocations      FinanceCashFlowAllocation[]
+  statementExclusions      FinanceStatementVoucherExclusion[]
+  assetPeriodEntries       FinanceAssetPeriodEntry[]
+  assetAdjustments         FinanceAssetAdjustment[]
+
+  @@unique([voucherNo, companyCode, periodId])
+  @@unique([sourceSystem, sourceDatabase, sourceKey])
+  @@index([importId])
+  @@index([periodId, date, companyCode])
+  @@index([status])
+}
+
+/// 凭证明细分录（事实：借/贷金额）
+model FinanceVoucherItem {
+  id                             Int                               @id @default(autoincrement())
+  voucherId                      Int
+  accountId                      Int
+  debit                          Float                             @default(0)
+  credit                         Float                             @default(0)
+  description                    String?
+  relatedEntity                  String? // 正则从描述提取的关联实体
+  sortOrder                      Int                               @default(0)
+  /// 导入去重指纹：companyCode|voucherNo|date|sortOrder|accountCode|debit|credit|description 的 hash
+  importFingerprint              String?
+  /// 导入来源文件
+  sourceFile                     String?
+  /// 导入来源 sheet
+  sourceSheet                    String?
+  /// 导入来源行号
+  sourceRow                      Int?
+  sourceSystem                   String?
+  sourceDatabase                 String?
+  sourceKey                      String?
+  currencyCode                   String?
+  exchangeRate                   Decimal?                          @db.Decimal(20, 8)
+  originalDebit                  Decimal?                          @db.Decimal(20, 2)
+  originalCredit                 Decimal?                          @db.Decimal(20, 2)
+  settlementStyle                String?
+  settlementNo                   String?
+  settlementDate                 String?
+  sourceMetadata                 Json?
+  /// 关联导入批次
+  importId                       Int?
+  account                        FinanceAccount                    @relation(fields: [accountId], references: [id])
+  voucher                        FinanceVoucher                    @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  reclassResults                 ReclassResult[]
+  import                         FinanceLedgerImport?              @relation(fields: [importId], references: [id])
+  auxiliaryLinks                 FinanceVoucherItemAuxiliary[]
+  cashFlowOwnerAllocations       FinanceCashFlowAllocation[]       @relation("FinanceCashFlowOwnerItem")
+  cashFlowCounterpartAllocations FinanceCashFlowAllocation[]       @relation("FinanceCashFlowCounterpartItem")
+  openItems                      FinanceOpenItem[]
+  consolidationEntryLines        FinanceConsolidationEntryLine[]
+  consolidationMatchSources      FinanceConsolidationMatchSource[]
+
+  @@unique([voucherId, accountId, sortOrder])
+  @@unique([sourceSystem, sourceDatabase, sourceKey])
+  @@index([importFingerprint])
+  @@index([importId])
+}
+
+/// 科目余额（事实：期初/本期/期末借贷）
+model FinanceAccountBalance {
+  id            Int            @id @default(autoincrement())
+  accountId     Int
+  periodId      Int
+  openingDebit  Float          @default(0)
+  openingCredit Float          @default(0)
+  currentDebit  Float          @default(0)
+  currentCredit Float          @default(0)
+  closingDebit  Float          @default(0)
+  closingCredit Float          @default(0)
+  companyCode   String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  period        FinancePeriod  @relation(fields: [periodId], references: [id])
+  account       FinanceAccount @relation(fields: [accountId], references: [id])
+
+  @@unique([accountId, periodId])
+}
+
+/// 年度余额快照批次（一次外部会计软件余额表导入 = 一行）
+model FinanceBalanceSnapshot {
+  id           Int                         @id @default(autoincrement())
+  companyCode  String
+  year         Int
+  snapshotType String                      @default("reconcile") // "baseline" | "reconcile"
+  isActive     Boolean                     @default(false) // 同(companyCode,year)只有一个active baseline
+  sourceFile   String?
+  sourcePath   String?
+  checksum     String?
+  rowCount     Int                         @default(0)
+  importedBy   Int?
+  importer     User?                       @relation("SnapshotImporter", fields: [importedBy], references: [id])
+  importedAt   DateTime                    @default(now())
+  note         String?
+  rows         FinanceBalanceSnapshotRow[]
+  editedBy     Int?
+  editor       User?                       @relation("SnapshotEditor", fields: [editedBy], references: [id])
+  editedAt     DateTime?
+  version      Int                         @default(1)
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @default(now()) @updatedAt
+
+  // 不设 unique 约束 —— 同文件可多次上传形成独立批次，便于追溯对比
+  @@index([companyCode, year, isActive])
+  @@index([companyCode, year, snapshotType])
+  @@index([companyCode, year, sourceFile])
+}
+
+/// 年度余额快照明细（每个科目一行，保存导入时的编码/名称快照）
+model FinanceBalanceSnapshotRow {
+  id            Int                    @id @default(autoincrement())
+  snapshotId    Int
+  snapshot      FinanceBalanceSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  accountId     Int
+  account       FinanceAccount         @relation(fields: [accountId], references: [id])
+  accountCode   String // 导入时的科目编码快照（审计追溯）
+  accountName   String // 导入时的科目名称快照
+  openingDebit  Float                  @default(0)
+  openingCredit Float                  @default(0)
+  currentDebit  Float                  @default(0)
+  currentCredit Float                  @default(0)
+  closingDebit  Float                  @default(0)
+  closingCredit Float                  @default(0)
+  sourceSheet   String?
+  sourceRow     Int?
+
+  @@unique([snapshotId, accountId])
+  @@index([snapshotId])
+  @@index([accountId])
+}

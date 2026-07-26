@@ -1,0 +1,218 @@
+"use client";
+
+import type { ReactNode } from "react";
+import {
+  type SurfaceColumnOptionSpec,
+  type SurfaceFilterFieldSpec,
+  type SurfaceSelectOptionSpec,
+  type SurfaceToolbarItems,
+  type SurfaceToolbarActionGroupActionSpec,
+} from "@workspace/core/ui";
+import type { FilterConfig } from "@workspace/hr/types";
+import { buildInlineFilterItems } from "./generic-filter-toolbar-items";
+
+export interface HRToolbarItemsSearch {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  ariaLabel?: string;
+}
+
+export interface HRToolbarItemsFilters {
+  configs: FilterConfig[];
+  values: Record<string, string>;
+  onChange: (key: string, value: string) => void;
+}
+
+export interface HRToolbarItemsAdvancedFilter {
+  fields: SurfaceFilterFieldSpec[];
+  valueOptions?: Record<string, SurfaceSelectOptionSpec[]>;
+  fieldKey: string;
+  value: string;
+  onFieldKeyChange: (key: string) => void;
+  onValueChange: (value: string, fieldKey?: string) => void;
+  placeholder?: string;
+  referenceEndpoint?: string;
+}
+
+export interface HRToolbarItemsColumnToggle {
+  columns: SurfaceColumnOptionSpec[];
+  visible: string[];
+  onChange: (visible: string[]) => void;
+}
+
+export interface HRToolbarItemsAction {
+  label?: string;
+  disabled?: boolean;
+  onClick: () => void;
+}
+
+export interface HRToolbarItemsEditGroup {
+  editMode: boolean;
+  dirty?: boolean;
+  canEdit?: boolean;
+  editLabel?: string;
+  saveLabel?: string;
+  saving?: boolean;
+  downloading?: boolean;
+  onStartEdit: () => void;
+  onSave: () => Promise<void> | void;
+  onCancel: () => void;
+  onDownload?: () => void;
+  onShowHistory?: () => void;
+}
+
+export interface HRToolbarItemsPageSize {
+  value: string;
+  options: SurfaceSelectOptionSpec[];
+  onChange: (value: string) => void;
+  label?: string;
+}
+
+export interface HRToolbarItemsOptions {
+  search?: HRToolbarItemsSearch;
+  filters?: HRToolbarItemsFilters;
+  advancedFilter?: HRToolbarItemsAdvancedFilter;
+  columnToggle?: HRToolbarItemsColumnToggle;
+  refresh?: HRToolbarItemsAction;
+  reset?: HRToolbarItemsAction;
+  assistant?: HRToolbarItemsAction;
+  editGroup?: HRToolbarItemsEditGroup;
+  pageSize?: HRToolbarItemsPageSize;
+  meta?: ReactNode;
+}
+
+export function buildHRToolbarItems({
+  search,
+  filters,
+  advancedFilter,
+  columnToggle,
+  refresh,
+  reset,
+  assistant,
+  editGroup,
+  pageSize,
+  meta,
+}: HRToolbarItemsOptions): SurfaceToolbarItems {
+  const items: SurfaceToolbarItems = [];
+
+  if (search) {
+    items.push({
+      kind: "search",
+      key: "search",
+      value: search.value,
+      onChange: search.onChange,
+      placeholder: search.placeholder,
+      ariaLabel: search.ariaLabel,
+    });
+  }
+
+  if (filters?.configs.length) {
+    items.push(...buildInlineFilterItems(filters.configs, filters.values, filters.onChange));
+  }
+
+  if (advancedFilter?.fields.length) {
+    items.push({
+      kind: "field-filter",
+      key: "advanced-filter",
+      fields: advancedFilter.fields,
+      valueOptions: advancedFilter.valueOptions ?? {},
+      referenceEndpoint: advancedFilter.referenceEndpoint,
+      fieldKey: advancedFilter.fieldKey,
+      onFieldKeyChange: advancedFilter.onFieldKeyChange,
+      value: advancedFilter.value,
+      onValueChange: advancedFilter.onValueChange,
+      placeholder: advancedFilter.placeholder ?? "高级筛选",
+    });
+  }
+
+  if (columnToggle) {
+    items.push({
+      kind: "column-toggle",
+      key: "columns",
+      columns: columnToggle.columns,
+      visible: columnToggle.visible,
+      onChange: columnToggle.onChange,
+    });
+  }
+
+  const actionGroupActions: SurfaceToolbarActionGroupActionSpec[] = [];
+
+  if (refresh) {
+    actionGroupActions.push({
+      key: "refresh",
+      kind: "refresh",
+      label: refresh.label ?? "刷新",
+      disabled: refresh.disabled,
+      onClick: refresh.onClick,
+    });
+  }
+
+  if (reset) {
+    actionGroupActions.push({
+      key: "reset",
+      kind: "reset",
+      label: reset.label ?? "重置",
+      disabled: reset.disabled,
+      onClick: reset.onClick,
+    });
+  }
+
+  if (assistant) {
+    actionGroupActions[actionGroupActions.length] = {
+      key: "assistant",
+      kind: "assistant",
+      label: assistant.label ?? "",
+      disabled: assistant.disabled,
+      onClick: assistant.onClick,
+    };
+  }
+
+  if (actionGroupActions.length > 0) {
+    items.push({
+      kind: "action-group",
+      key: "actions",
+      actions: actionGroupActions,
+    });
+  }
+
+  if (editGroup) {
+    items.push({
+      kind: "edit-group",
+      key: "edit",
+      editMode: editGroup.editMode,
+      dirty: editGroup.dirty,
+      canEdit: editGroup.canEdit,
+      editLabel: editGroup.editLabel,
+      saveLabel: editGroup.saveLabel,
+      saving: editGroup.saving,
+      downloading: editGroup.downloading,
+      onStartEdit: editGroup.onStartEdit,
+      onSave: editGroup.onSave,
+      onCancel: editGroup.onCancel,
+      onDownload: editGroup.onDownload,
+      onShowHistory: editGroup.onShowHistory,
+    });
+  }
+
+  if (meta !== undefined && meta !== null) {
+    items.push({
+      kind: "text",
+      key: "meta",
+      content: meta,
+    });
+  }
+
+  if (pageSize) {
+    items.push({
+      kind: "page-size",
+      key: "page-size",
+      value: pageSize.value,
+      options: pageSize.options,
+      onChange: pageSize.onChange,
+      label: pageSize.label,
+    });
+  }
+
+  return items;
+}

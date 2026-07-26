@@ -1,0 +1,137 @@
+import type {
+  ConsolidatedReportOutputPackage,
+  ConsolidationBatchSnapshot,
+} from "@workspace/finance/types";
+import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import {
+  failCommand,
+  type DomainValidationResult,
+} from "@workspace/platform/server/domain-validation";
+
+import { buildConsolidatedReportOutput } from "./consolidated-output";
+import {
+  consolidationBatchSnapshot,
+  loadConsolidationBatchRow,
+} from "./consolidation-dto";
+import {
+  prepareConsolidatedOutputSnapshot,
+  readConsolidatedOutputSnapshot,
+  type PreparedConsolidatedOutputSnapshot,
+} from "./consolidated-output-snapshots";
+import {
+  buildConsolidationPreviewPackage,
+  buildConsolidationReplayPackage,
+} from "./consolidation-replay";
+import { loadConsolidationVoucherMatchGroups } from "./consolidation-voucher-matches";
+
+export type ConsolidatedOutputBuildMode = "official" | "lockCandidate";
+
+export function buildConsolidatedOutputFromBatchSnapshot(
+  batch: ConsolidationBatchSnapshot,
+  mode: ConsolidatedOutputBuildMode = "official",
+  generatedAt = new Date(),
+): DomainValidationResult<ConsolidatedReportOutputPackage> {
+  if (mode === "official" && batch.status !== "locked" && batch.status !== "published") {
+    return failCommand("只有已锁定或已发布的合并批次可以生成正式报表", 409, "status");
+  }
+  if (mode === "lockCandidate" && batch.status !== "reviewed") {
+    return failCommand("只有已复核的合并批次可以执行锁定前输出校验", 409, "status");
+  }
+  const replaySnapshot: ConsolidationBatchSnapshot = mode === "lockCandidate"
+    ? { ...batch, status: "locked" }
+    : batch;
+  const functionalCurrencyByEntitySnapshotId = new Map<number, string>();
+  for (const entity of batch.entities) {
+    const functionalCurrency = entity.functionalCurrency?.trim();
+    if (!functionalCurrency) {
+      return failCommand(`合并实体 ${entity.companyCode} 缺少批次冻结的本位币`, 409, "functionalCurrency");
+    }
+    functionalCurrencyByEntitySnapshotId.set(entity.id, functionalCurrency);
+  }
+  const replay = buildConsolidationReplayPackage(replaySnapshot);
+  if (!replay.ok) return replay;
+  return buildConsolidatedReportOutput(replay.data, functionalCurrencyByEntitySnapshotId, generatedAt);
+}
+
+export function buildConsolidatedPreviewFromBatchSnapshot(
+  batch: ConsolidationBatchSnapshot,
+  generatedAt = new Date(),
+): DomainValidationResult<ConsolidatedReportOutputPackage> {
+  const functionalCurrencyByEntitySnapshotId = new Map<number, string>();
+  for (const entity of batch.entities) {
+    const functionalCurrency = entity.functionalCurrency?.trim();
+    if (!functionalCurrency) {
+      return failCommand(`合并实体 ${entity.companyCode} 缺少 ERP 本位币主数据，不能生成合并报表`, 409, "functionalCurrency");
+    }
+    functionalCurrencyByEntitySnapshotId.set(entity.id, functionalCurrency);
+  }
+  if ([...functionalCurrencyByEntitySnapshotId.values()].some((currency) => currency.toUpperCase() === "CAD")
+    && batch.exchangeRates.some((rate) => rate.rateKind !== "centralParity")) {
+    return failCommand("当前草稿仍冻结旧汇率来源，请重新生成批次并抓取中国货币网人民币汇率中间价", 409, "exchangeRates");
+  }
+  return buildConsolidatedReportOutput(
+    buildConsolidationPreviewPackage(batch),
+    functionalCurrencyByEntitySnapshotId,
+    generatedAt,
+  );
+}
+
+export function prepareLockedConsolidatedOutputSnapshot(
+  batch: ConsolidationBatchSnapshot,
+  lockedBy: number,
+  generatedAt: Date,
+): DomainValidationResult<PreparedConsolidatedOutputSnapshot> {
+  const lockedBatch: ConsolidationBatchSnapshot = {
+    ...batch,
+    revision: batch.revision + 1,
+    status: "locked",
+    lockedBy,
+    lockedAt: generatedAt.toISOString(),
+  };
+  const output = buildConsolidatedOutputFromBatchSnapshot(lockedBatch, "official", generatedAt);
+  return output.ok
+    ? { ok: true, data: prepareConsolidatedOutputSnapshot(lockedBatch, output.data, generatedAt) }
+    : output;
+}
+
+export async function loadConsolidatedReportOutput(batchId: number) {
+  if (!Number.isInteger(batchId) || batchId <= 0) return serviceError("合并批次 ID 无效", 400);
+  const row = await loadConsolidationBatchRow(batchId);
+  if (!row) return serviceError("合并批次不存在", 404);
+  const batch = consolidationBatchSnapshot(row);
+  if (row.status !== "locked" && row.status !== "published") {
+    const generatedByKey = new Map(row.matchGroups.map((group) => [group.generationKey, group]));
+    const currentMatchedGroups = (await loadConsolidationVoucherMatchGroups(row))
+      .filter((group) => group.status === "matched");
+    const pendingReviews = currentMatchedGroups.filter((group) => {
+      const persisted = generatedByKey.get(group.generationKey);
+      return !persisted?.entryId
+        || persisted.status !== "accepted"
+        || persisted.entry?.status !== "approved";
+    });
+    if (pendingReviews.length > 0) {
+      return serviceError(`仍有 ${pendingReviews.length} 组已形成抵销分录的事项未通过审阅，不能生成合并报表；无法抵销的例外事项不阻断`, 409);
+    }
+    const preview = buildConsolidatedPreviewFromBatchSnapshot(batch);
+    return preview.ok
+      ? serviceOk({ report: preview.data, lifecycle: { status: row.status } })
+      : serviceError(preview.issue.message, preview.issue.status);
+  }
+  const output = readConsolidatedOutputSnapshot(
+    row.outputSnapshot,
+    batchId,
+    batch,
+  );
+  return output.ok
+    ? serviceOk({
+        report: output.data,
+        lifecycle: {
+          status: row.status as "locked" | "published",
+          lockedBy: row.lockedBy,
+          lockedAt: row.lockedAt?.toISOString() ?? null,
+          publishedBy: row.publishedBy,
+          publishedAt: row.publishedAt?.toISOString() ?? null,
+        },
+      })
+    : serviceError(output.issue.message, output.issue.status);
+}

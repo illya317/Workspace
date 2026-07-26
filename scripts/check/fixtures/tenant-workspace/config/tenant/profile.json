@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "key": "ci-example",
+  "files": {
+    "companies": "config/tenant/companies.json",
+    "agentWorkforce": "config/tenant/agent-workforce.json",
+    "permissionReview": "config/tenant/permission-review.json",
+    "financeImports": "config/tenant/finance-imports.json",
+    "productNameAliases": "config/tenant/product-name-aliases.json",
+    "cnbRelease": "config/tenant/cnb-release.yml",
+    "hrEthnicities": "config/hr/ethnicities.json",
+    "hrProfessionalTitles": "config/hr/professional-titles.json",
+    "hrSchoolWhitelist": "config/hr/school-whitelist.json"
+  },
+  "directories": {
+    "qcTemplateSnapshots": "data/docs-editor/templates/production-qc-snapshots"
+  },
+  "identity": {
+    "appName": "Example Workspace",
+    "companyName": "Synthetic Tenant 9X",
+    "appDescription": "Reusable workspace CI tenant"
+  },
+  "localization": {
+    "businessTimeZone": "UTC"
+  },
+  "library": {
+    "generatorCategories": {
+      "finance-report": { "code": "L-FIN", "name": "Finance" },
+      "ownership-structure": { "code": "L-CORP", "name": "Corporate" },
+      "organization-chart": { "code": "L-CORP", "name": "Corporate" },
+      "roster-due-diligence": { "code": "L-PEOPLE", "name": "People" },
+      "contract-ledger": { "code": "L-LEGAL", "name": "Legal" }
+    }
+  },
+  "organization": {
+    "managementGroups": { "default": "tenantPrimary9X", "regulated": "tenantRegulated9X" },
+    "operatingCommittee": { "departmentCode": "GOV", "departmentName": "Tenant Council 9X", "executivePositionNames": ["Tenant Executive 9X"] },
+    "administrativeDepartmentCodes": ["ADM001"],
+    "implicitAllAdminEmployeeIds": ["CI0001"],
+    "implicitGrantDepartmentKeywords": ["technology"]
+  },
+  "finance": {
+    "referenceCompanyCode": "ZX01",
+    "defaultLedgerCompanyCode": "ZX01",
+    "consolidationCompanyCodes": ["ZX01"],
+    "countryReportProfiles": [],
+    "defaultAnalysisYear": 2026,
+    "openingBalanceBaselineYear": 2025
+  },
+  "work": {
+    "companyProjectCodePrefix": "EX",
+    "companyProjectSequenceStart": 1,
+    "companyProjectSequenceEnd": 99,
+    "otherProjectSequenceStart": 101,
+    "companyProjectSequenceWidth": 3,
+    "departmentProjectSequenceWidth": 2
+  },
+  "hr": {
+    "options": {
+      "educations": ["Bachelor"],
+      "politics": ["Not specified"],
+      "attendanceTypes": ["Full time"],
+      "officeLocations": ["Headquarters"],
+      "legalRelations": ["Employment"],
+      "contractTypes": ["Employment contract"],
+      "employmentForms": ["Full time"],
+      "insuranceStatuses": ["Active", "Inactive"],
+      "insuranceStatusMapping": { "insured": "Active", "uninsured": "Inactive" },
+      "personnelTypes": ["Employee", "Virtual employee"],
+      "virtualEmployeePersonnelType": "Virtual employee",
+      "leaveReasons": ["Other"],
+      "ranks": ["P1"],
+      "employmentTitles": ["Advisor"]
+    },
+    "optionAliases": {
+      "ethnicities": {},
+      "politics": {},
+      "educations": {}
+    },
+    "positionDescriptionOptions": {
+      "educationRequirements": ["Degree not required"],
+      "defaultEducationRequirement": "Degree not required",
+      "salaryTypes": ["Salary band 9X"],
+      "workSchedules": ["Flexible schedule 9X"],
+      "workAreas": ["Synthetic area 9X"],
+      "environmentFactors": ["Synthetic factor 9X"]
+    },
+    "roster": {
+      "primaryManagementGroup": "tenantPrimary9X",
+      "secondaryManagementGroup": "tenantRegulated9X",
+      "secondaryDepartmentFieldKey": "regulatedDepartment",
+      "secondaryDepartmentLabel": "Regulated department",
+      "secondaryPositionFieldKey": "regulatedPosition",
+      "secondaryPositionLabel": "Regulated position",
+      "excludedEmploymentTitles": []
+    }
+  },
+  "docs": {
+    "hrPositionDescriptionDepartment": { "code": "HR001", "name": "Tenant People 9X" },
+    "qcDepartment": { "code": "QC001", "name": "Tenant Quality 9X" },
+    "officialQcProductKeys": ["synthetic_mobile"],
+    "standardTemplateAliases": {},
+    "resultSuffixUpgradeRules": [],
+    "formulaRules": { "dryingWeightMultipliers": {} }
+  },
+  "agent": {
+    "department": { "code": "TEC001", "name": "Technology" },
+    "parentPosition": { "code": "POS-TEC-01", "name": "Technology Lead" }
+  }
+}

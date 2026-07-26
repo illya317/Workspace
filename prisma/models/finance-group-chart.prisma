@@ -1,0 +1,108 @@
+/// 集团科目主数据（配置事实：参考公司初始化，后续可由系统建议或人工新增）
+model FinanceGroupAccount {
+  id                       Int                               @id @default(autoincrement())
+  code                     String                            @unique
+  name                     String
+  category                 String
+  balanceDirection         String
+  mnemonicCode             String?
+  currency                 String?
+  subjectLevel             Int?
+  parentId                 Int?
+  sourceKind               String // reference_seed | suggested | manual
+  reviewStatus             String                            @default("confirmed") // confirmed | reviewed | pending_review | pending_delete
+  reviewedBy               Int?
+  reviewedAt               DateTime?
+  originCompanyCode        String?
+  originSourceScopeKey     String?
+  originLocalAccountCode   String?
+  isActive                 Boolean                           @default(true)
+  createdAt                DateTime                          @default(now())
+  updatedAt                DateTime                          @default(now()) @updatedAt
+  parent                   FinanceGroupAccount?              @relation("FinanceGroupAccountHierarchy", fields: [parentId], references: [id])
+  children                 FinanceGroupAccount[]             @relation("FinanceGroupAccountHierarchy")
+  mappings                 FinanceGroupAccountMapping[]
+  revisions                FinanceGroupAccountRevision[]     @relation("FinanceGroupAccountRevisionAccount")
+  parentOfRevisions        FinanceGroupAccountRevision[]     @relation("FinanceGroupAccountRevisionParent")
+  sourceReclassRules       FinanceReclassRule[]              @relation("FinanceReclassRuleSourceGroupAccount")
+  targetReclassRules       FinanceReclassRule[]              @relation("FinanceReclassRuleTargetGroupAccount")
+  sourceReclassAdjustments FinanceBalanceReclassAdjustment[] @relation("FinanceBalanceReclassSourceGroupAccount")
+  targetReclassAdjustments FinanceBalanceReclassAdjustment[] @relation("FinanceBalanceReclassTargetGroupAccount")
+
+  @@index([name])
+  @@index([parentId])
+}
+
+/// 集团科目表版本（配置事实：半开生效区间 [effectiveFrom, effectiveTo)，V1 的起点为空并覆盖全部历史）
+model FinanceAccountingPolicyVersion {
+  id                 Int                               @id @default(autoincrement())
+  versionNo          Int                               @unique
+  code               String                            @unique
+  name               String
+  effectiveFrom      DateTime?                         @db.Date
+  effectiveTo        DateTime?                         @db.Date
+  status             String                            @default("published")
+  note               String?
+  createdAt          DateTime                          @default(now())
+  updatedAt          DateTime                          @default(now()) @updatedAt
+  revisions          FinanceGroupAccountRevision[]
+  mappings           FinanceGroupAccountMapping[]
+  reclassRules       FinanceReclassRule[]
+  reclassAdjustments FinanceBalanceReclassAdjustment[]
+
+  @@index([effectiveFrom, effectiveTo, status], map: "FinanceAccountingPolicyVersion_effective_range_idx")
+}
+
+/// 版本内集团科目属性快照（配置事实：集团科目身份稳定，编码、名称和层级按版本生效）
+model FinanceGroupAccountRevision {
+  id                   Int                            @id @default(autoincrement())
+  policyVersionId      Int
+  groupAccountId       Int
+  code                 String
+  name                 String
+  category             String
+  balanceDirection     String
+  mnemonicCode         String?
+  currency             String?
+  subjectLevel         Int?
+  parentGroupAccountId Int?
+  isActive             Boolean                        @default(true)
+  reviewStatus         String                         @default("confirmed") // confirmed | reviewed | pending_review | pending_delete
+  reviewedBy           Int?
+  reviewedAt           DateTime?
+  createdAt            DateTime                       @default(now())
+  updatedAt            DateTime                       @default(now()) @updatedAt
+  policyVersion        FinanceAccountingPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)
+  groupAccount         FinanceGroupAccount            @relation("FinanceGroupAccountRevisionAccount", fields: [groupAccountId], references: [id], onDelete: Restrict)
+  parentGroupAccount   FinanceGroupAccount?           @relation("FinanceGroupAccountRevisionParent", fields: [parentGroupAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([policyVersionId, groupAccountId], map: "FinanceGroupAccountRevision_version_account_key")
+  @@unique([policyVersionId, code], map: "FinanceGroupAccountRevision_version_code_key")
+  @@index([parentGroupAccountId], map: "FinanceGroupAccountRevision_parent_idx")
+}
+
+/// 公司科目到集团科目的持久化映射/复核项（配置事实：正常同步后必须有 groupAccountId）
+model FinanceGroupAccountMapping {
+  id                    Int                            @id @default(autoincrement())
+  policyVersionId       Int
+  groupAccountId        Int?
+  companyCode           String
+  sourceScopeKey        String
+  sourceSystem          String?
+  sourceDatabase        String?
+  sourceLedger          String?
+  localAccountCode      String
+  localAccountName      String
+  localCategory         String
+  localBalanceDirection String
+  latestYear            Int?
+  mappingMethod         String // unmatched | reference_seed | exact_code_name | exact_name | suggested | hierarchy_match | manual_override
+  createdAt             DateTime                       @default(now())
+  updatedAt             DateTime                       @default(now()) @updatedAt
+  policyVersion         FinanceAccountingPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)
+  groupAccount          FinanceGroupAccount?           @relation(fields: [groupAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([policyVersionId, companyCode, sourceScopeKey, localAccountCode], map: "FinanceGroupAccountMapping_version_scope_local_key")
+  @@index([groupAccountId])
+  @@index([companyCode, localAccountName])
+}

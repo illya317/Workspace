@@ -1,0 +1,44 @@
+/// 工作空间经营分析模板（业务配置事实，来源于 Workspace 页面助手生成或修订；代码不属于应用源代码）。
+model WorkspaceAnalysisTemplate {
+  id                Int                                 @id @default(autoincrement())
+  scopeType         String
+  scopeId           Int
+  name              String
+  description       String?
+  code              String                              @db.Text
+  status            String                              @default("active")
+  sortOrder         Int                                 @default(0)
+  revision          Int                                 @default(1)
+  publishedRevision Int?
+  publishedBy       Int?
+  publishedAt       DateTime?
+  archivedBy        Int?
+  archivedAt        DateTime?
+  createdBy         Int
+  updatedBy         Int
+  createdAt         DateTime                            @default(now())
+  updatedAt         DateTime                            @updatedAt
+  revisions         WorkspaceAnalysisTemplateRevision[]
+
+  @@unique([scopeType, scopeId, name])
+  @@index([scopeType, scopeId, status, sortOrder], map: "WorkspaceAnalysisTemplate_scope_status_sort_idx")
+}
+
+/// 工作空间经营分析模板的不可变修订快照（审计事实，来源于每次模板保存）。
+model WorkspaceAnalysisTemplateRevision {
+  id             Int                       @id @default(autoincrement())
+  templateId     Int
+  revision       Int
+  name           String
+  description    String?
+  code           String                    @db.Text
+  changeKind     String                    @default("draft")
+  sourceRevision Int?
+  reason         String?
+  createdBy      Int
+  createdAt      DateTime                  @default(now())
+  template       WorkspaceAnalysisTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, revision])
+  @@index([templateId, createdAt])
+}

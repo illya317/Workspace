@@ -1,0 +1,164 @@
+import type { CreateSurfaceSectionSpec, FormSurfaceFieldSpec } from "@workspace/core/ui";
+import type {
+  CreateFinanceGroupAccountInput,
+  FinanceGroupAccountCatalogRow,
+  UpdateFinanceGroupAccountInput,
+} from "@workspace/finance/types";
+
+import { balanceDirectionLabel } from "./groupAccountMappingPresentation";
+
+const CURRENCY_OPTIONS = [
+  { value: "人民币", label: "人民币（CNY）" },
+  { value: "美元", label: "美元（USD）" },
+  { value: "加元", label: "加元（CAD）" },
+  { value: "港币", label: "港币（HKD）" },
+  { value: "欧元", label: "欧元（EUR）" },
+  { value: "日元", label: "日元（JPY）" },
+  { value: "澳元", label: "澳元（AUD）" },
+  { value: "瑞士法郎", label: "瑞士法郎（CHF）" },
+] as const;
+
+export type GroupAccountCatalogCreateDraft = CreateFinanceGroupAccountInput;
+export type GroupAccountCatalogEditDraft = UpdateFinanceGroupAccountInput & { id: number };
+
+export function emptyGroupAccountCatalogCreateDraft(): GroupAccountCatalogCreateDraft {
+  return {
+    code: "",
+    name: "",
+    category: "asset",
+    balanceDirection: "debit",
+    mnemonicCode: null,
+    currency: "人民币",
+    parentGroupAccountId: null,
+  };
+}
+
+export function groupAccountCatalogEditDraft(row: FinanceGroupAccountCatalogRow): GroupAccountCatalogEditDraft {
+  const recommendedParent = row.parentRecommendation?.kind === "mapped"
+    ? row.parentRecommendation.groupAccount
+    : null;
+  return {
+    id: row.id,
+    code: row.code,
+    name: row.name,
+    category: row.category as GroupAccountCatalogEditDraft["category"],
+    balanceDirection: row.balanceDirection as GroupAccountCatalogEditDraft["balanceDirection"],
+    mnemonicCode: row.mnemonicCode,
+    currency: row.currency ?? "人民币",
+    parentGroupAccountId: row.parent?.id ?? recommendedParent?.id ?? null,
+    expectedUpdatedAt: row.updatedAt,
+  };
+}
+
+export function groupAccountCatalogCreateSections(
+  draft: GroupAccountCatalogCreateDraft,
+  onChange: (change: Partial<GroupAccountCatalogCreateDraft>) => void,
+  options: { lockAttributes?: boolean } = {},
+): CreateSurfaceSectionSpec<FormSurfaceFieldSpec>[] {
+  return [{
+    key: "group-account",
+    title: "集团科目资料",
+    layout: { columns: 2, density: "compact" },
+    items: [
+      {
+        key: "code",
+        label: "科目编码",
+        required: true,
+        spec: { valueType: "string", control: "text", validation: { required: true } },
+        value: draft.code,
+        maxLength: 32,
+        onChange: (value) => onChange({ code: String(value ?? "") }),
+      },
+      {
+        key: "name",
+        label: "科目名称",
+        required: true,
+        spec: { valueType: "string", control: "text", validation: { required: true } },
+        value: draft.name,
+        maxLength: 100,
+        onChange: (value) => onChange({ name: String(value ?? "") }),
+      },
+      {
+        key: "category",
+        label: "科目类别",
+        required: true,
+        spec: {
+          valueType: "string",
+          control: "choice",
+          options: { source: "static", items: [
+            { value: "asset", label: "资产" },
+            { value: "liability", label: "负债" },
+            { value: "common", label: "共同" },
+            { value: "equity", label: "权益" },
+            { value: "cost", label: "成本" },
+            { value: "revenue", label: "收入" },
+            { value: "expense", label: "费用" },
+          ] },
+        },
+        value: draft.category,
+        readOnly: options.lockAttributes,
+        onChange: (value) => {
+          const category = value as GroupAccountCatalogCreateDraft["category"];
+          onChange({ category, balanceDirection: defaultDirection(category), parentGroupAccountId: null });
+        },
+      },
+      {
+        key: "balanceDirection",
+        label: "余额方向",
+        required: true,
+        spec: {
+          valueType: "string",
+          control: "choice",
+          options: { source: "static", items: [
+            { value: "debit", label: balanceDirectionLabel("debit") },
+            { value: "credit", label: balanceDirectionLabel("credit") },
+          ] },
+        },
+        value: draft.balanceDirection,
+        readOnly: options.lockAttributes,
+        onChange: (value) => onChange({ balanceDirection: value as "debit" | "credit" }),
+      },
+      {
+        key: "currency",
+        label: "币种",
+        required: true,
+        spec: {
+          valueType: "string",
+          control: "choice",
+          validation: { required: true },
+          options: { source: "static", items: [...CURRENCY_OPTIONS] },
+        },
+        value: draft.currency ?? "人民币",
+        onChange: (value) => onChange({ currency: String(value ?? "人民币") }),
+      },
+      {
+        key: "parentGroupAccountId",
+        label: "上级集团科目（可选）",
+        spec: {
+          valueType: "string",
+          control: "reference",
+          options: {
+            source: "remote",
+            fkKey: "finance.groupAccount.parent",
+            endpoint: "/api/modules/finance/ledger/group-account-options",
+            returnField: "id",
+            queryParams: { category: draft.category },
+          },
+        },
+        value: draft.parentGroupAccountId === null ? "" : String(draft.parentGroupAccountId),
+        onChange: (value) => onChange({ parentGroupAccountId: value ? Number(value) : null }),
+      },
+    ],
+  }];
+}
+
+export function groupAccountCatalogEditSections(
+  draft: GroupAccountCatalogEditDraft,
+  onChange: (change: Partial<GroupAccountCatalogEditDraft>) => void,
+) {
+  return groupAccountCatalogCreateSections(draft, onChange);
+}
+
+function defaultDirection(category: GroupAccountCatalogCreateDraft["category"]) {
+  return category === "liability" || category === "equity" || category === "revenue" ? "credit" : "debit";
+}

@@ -1,0 +1,628 @@
+{
+  "schemaVersion": 1,
+  "policies": {
+    "unmatchedModulePath": "C3",
+    "unmappedWritePath": "C3"
+  },
+  "suites": [
+    {
+      "id": "auth-access",
+      "tier": "critical",
+      "kind": "playwright",
+      "selection": {
+        "grep": "@auth-access"
+      },
+      "specs": [
+        "e2e/auth.spec.ts"
+      ],
+      "covers": [
+        "anonymous redirects",
+        "login page readiness"
+      ]
+    },
+    {
+      "id": "settings-account-save",
+      "tier": "critical",
+      "kind": "playwright",
+      "selection": {
+        "grep": "@settings-account-save"
+      },
+      "specs": [
+        "e2e/account-preferences-save.spec.ts"
+      ],
+      "covers": [
+        "browser save",
+        "server readback",
+        "reload persistence",
+        "readiness diagnostics"
+      ]
+    },
+    {
+      "id": "finance-analysis-read",
+      "tier": "critical",
+      "kind": "playwright",
+      "selection": {
+        "grep": "@finance-analysis-read"
+      },
+      "specs": [
+        "e2e/finance-analysis.spec.ts"
+      ],
+      "covers": [
+        "management analysis response",
+        "analysis view rendering",
+        "readiness diagnostics"
+      ]
+    },
+    {
+      "id": "finance-ledger-read",
+      "tier": "critical",
+      "kind": "playwright",
+      "selection": {
+        "grep": "@finance-ledger-read"
+      },
+      "specs": [
+        "e2e/finance-ledger.spec.ts"
+      ],
+      "covers": [
+        "ledger account response",
+        "default scope",
+        "readiness diagnostics"
+      ]
+    },
+    {
+      "id": "module-readiness",
+      "tier": "nightly",
+      "kind": "playwright",
+      "selection": {
+        "grep": "@module-readiness"
+      },
+      "specs": [
+        "e2e/module-readiness.spec.ts"
+      ],
+      "covers": [
+        "HR roster readiness",
+        "Work home and project readiness",
+        "Finance home readiness",
+        "Production QC readiness",
+        "Inventory operations readiness",
+        "Library readiness",
+        "External customer readiness",
+        "Administration home readiness",
+        "configurable 15 second slow readiness budget",
+        "navigation timing and slow resource diagnostics"
+      ]
+    },
+    {
+      "id": "nightly-all",
+      "tier": "nightly",
+      "kind": "playwright",
+      "selection": {
+        "grep": "@nightly"
+      },
+      "specs": [
+        "e2e/account-preferences-save.spec.ts",
+        "e2e/auth.spec.ts",
+        "e2e/finance-analysis.spec.ts",
+        "e2e/finance-ledger.spec.ts",
+        "e2e/module-readiness.spec.ts"
+      ],
+      "covers": [
+        "all registered browser flows"
+      ]
+    },
+    {
+      "id": "nightly-latency",
+      "tier": "nightly",
+      "kind": "playwright",
+      "selection": {
+        "grep": "@latency"
+      },
+      "specs": [
+        "e2e/account-preferences-save.spec.ts",
+        "e2e/auth.spec.ts",
+        "e2e/finance-analysis.spec.ts",
+        "e2e/finance-ledger.spec.ts",
+        "e2e/module-readiness.spec.ts"
+      ],
+      "covers": [
+        "navigation timing attachments",
+        "ready-state timing attachments",
+        "slow resource diagnostics"
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "id": "core",
+      "roots": {
+        "prefixes": [
+          "packages/core/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": []
+    },
+    {
+      "id": "platform",
+      "roots": {
+        "prefixes": [
+          "packages/platform/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "packages/platform/server/",
+        "packages/platform/ui/"
+      ]
+    },
+    {
+      "id": "shell",
+      "roots": {
+        "prefixes": [
+          "app/(system)/module-disabled/",
+          "app/(system)/portal/"
+        ],
+        "files": [
+          "app/error.tsx",
+          "app/layout.tsx",
+          "app/page.tsx"
+        ]
+      },
+      "potentialWritePrefixes": []
+    },
+    {
+      "id": "administration",
+      "roots": {
+        "prefixes": [
+          "app/(modules)/administration/",
+          "app/api/modules/administration/",
+          "packages/administration/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/modules/administration/",
+        "packages/administration/server/",
+        "packages/administration/ui/"
+      ]
+    },
+    {
+      "id": "capital-securities",
+      "roots": {
+        "prefixes": [
+          "app/(modules)/capital-securities/",
+          "app/api/modules/capitalSecurities/",
+          "packages/capital-securities/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/modules/capitalSecurities/",
+        "packages/capital-securities/server/",
+        "packages/capital-securities/ui/"
+      ]
+    },
+    {
+      "id": "docs",
+      "roots": {
+        "prefixes": [
+          "app/(docs)/",
+          "app/api/modules/docs/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/modules/docs/"
+      ]
+    },
+    {
+      "id": "external",
+      "roots": {
+        "prefixes": [
+          "app/(modules)/external/",
+          "app/api/modules/external/",
+          "packages/external/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/modules/external/",
+        "packages/external/server/",
+        "packages/external/ui/"
+      ]
+    },
+    {
+      "id": "finance",
+      "roots": {
+        "prefixes": [
+          "app/(modules)/finance/",
+          "app/api/modules/finance/",
+          "packages/finance/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/modules/finance/",
+        "packages/finance/server/",
+        "packages/finance/ui/"
+      ]
+    },
+    {
+      "id": "hr",
+      "roots": {
+        "prefixes": [
+          "app/(modules)/hr/",
+          "app/api/modules/hr/",
+          "packages/hr/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/modules/hr/",
+        "packages/hr/server/",
+        "packages/hr/ui/"
+      ]
+    },
+    {
+      "id": "inventory",
+      "roots": {
+        "prefixes": [
+          "app/(modules)/inventory/",
+          "app/api/modules/inventory/",
+          "packages/inventory/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/modules/inventory/",
+        "packages/inventory/server/",
+        "packages/inventory/ui/"
+      ]
+    },
+    {
+      "id": "library",
+      "roots": {
+        "prefixes": [
+          "app/(modules)/library/",
+          "app/api/modules/library/",
+          "packages/library/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/modules/library/",
+        "packages/library/server/",
+        "packages/library/ui/"
+      ]
+    },
+    {
+      "id": "production",
+      "roots": {
+        "prefixes": [
+          "app/(modules)/production/",
+          "app/api/modules/production/",
+          "packages/production/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/modules/production/",
+        "packages/production/server/",
+        "packages/production/ui/"
+      ]
+    },
+    {
+      "id": "work",
+      "roots": {
+        "prefixes": [
+          "app/(modules)/work/",
+          "app/api/modules/work/",
+          "packages/work/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/modules/work/",
+        "packages/work/server/",
+        "packages/work/ui/"
+      ]
+    },
+    {
+      "id": "settings",
+      "roots": {
+        "prefixes": [
+          "app/(system)/settings/",
+          "app/api/settings/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/(system)/settings/",
+        "app/api/settings/"
+      ]
+    },
+    {
+      "id": "agent",
+      "roots": {
+        "prefixes": [
+          "app/(modules)/agent/",
+          "app/api/agent/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/agent/"
+      ]
+    },
+    {
+      "id": "auth",
+      "roots": {
+        "prefixes": [
+          "app/(auth)/",
+          "app/api/auth/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/auth/"
+      ]
+    },
+    {
+      "id": "integrations",
+      "roots": {
+        "prefixes": [
+          "app/api/integrations/",
+          "scripts/runtime/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/integrations/",
+        "scripts/runtime/"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "auth-access",
+      "modules": [
+        "auth",
+        "platform"
+      ],
+      "paths": {
+        "prefixes": [
+          "app/(auth)/",
+          "app/api/auth/",
+          "packages/platform/server/auth/"
+        ],
+        "files": [
+          "packages/platform/server/auth-token.ts",
+          "packages/platform/server/auth.ts",
+          "packages/platform/ui/LoginClient.tsx"
+        ]
+      },
+      "traits": [
+        "auth",
+        "api",
+        "ui",
+        "write"
+      ],
+      "riskFloor": "C3",
+      "requiredSuites": [
+        "auth-access"
+      ]
+    },
+    {
+      "id": "settings-account-save",
+      "modules": [
+        "settings",
+        "platform",
+        "work"
+      ],
+      "paths": {
+        "prefixes": [
+          "app/(system)/settings/account/",
+          "app/api/settings/account/profile/"
+        ],
+        "files": [
+          "packages/platform/ui/settings/AccountSettingsPanel.tsx",
+          "packages/platform/ui/settings/SettingsClient.tsx",
+          "packages/platform/ui/settings/account-profile.ts",
+          "packages/work/ui/settings/pages.tsx"
+        ]
+      },
+      "traits": [
+        "api",
+        "server",
+        "ui",
+        "write",
+        "latency"
+      ],
+      "riskFloor": "C2",
+      "requiredSuites": [
+        "settings-account-save"
+      ]
+    },
+    {
+      "id": "administration-readiness",
+      "modules": ["administration"],
+      "paths": {
+        "prefixes": [],
+        "files": ["app/(modules)/administration/page.tsx"]
+      },
+      "traits": ["latency", "read-only", "ui"],
+      "riskFloor": "C2",
+      "requiredSuites": ["module-readiness"]
+    },
+    {
+      "id": "external-readiness",
+      "modules": ["external"],
+      "paths": {
+        "prefixes": [],
+        "files": ["app/(modules)/external/customers/page.tsx"]
+      },
+      "traits": ["latency", "read-only", "ui"],
+      "riskFloor": "C2",
+      "requiredSuites": ["module-readiness"]
+    },
+    {
+      "id": "finance-readiness",
+      "modules": ["finance"],
+      "paths": {
+        "prefixes": [],
+        "files": ["app/(modules)/finance/page.tsx"]
+      },
+      "traits": ["latency", "read-only", "ui"],
+      "riskFloor": "C2",
+      "requiredSuites": ["module-readiness"]
+    },
+    {
+      "id": "hr-readiness",
+      "modules": ["hr"],
+      "paths": {
+        "prefixes": [],
+        "files": ["app/(modules)/hr/roster/page.tsx"]
+      },
+      "traits": ["latency", "read-only", "ui"],
+      "riskFloor": "C2",
+      "requiredSuites": ["module-readiness"]
+    },
+    {
+      "id": "inventory-readiness",
+      "modules": ["inventory"],
+      "paths": {
+        "prefixes": [],
+        "files": ["app/(modules)/inventory/operations/page.tsx"]
+      },
+      "traits": ["latency", "read-only", "ui"],
+      "riskFloor": "C2",
+      "requiredSuites": ["module-readiness"]
+    },
+    {
+      "id": "library-readiness",
+      "modules": ["library"],
+      "paths": {
+        "prefixes": [],
+        "files": ["app/(modules)/library/basic-info/page.tsx"]
+      },
+      "traits": ["latency", "read-only", "ui"],
+      "riskFloor": "C2",
+      "requiredSuites": ["module-readiness"]
+    },
+    {
+      "id": "production-readiness",
+      "modules": ["production"],
+      "paths": {
+        "prefixes": [],
+        "files": ["app/(modules)/production/qc/page.tsx"]
+      },
+      "traits": ["latency", "read-only", "ui"],
+      "riskFloor": "C2",
+      "requiredSuites": ["module-readiness"]
+    },
+    {
+      "id": "work-readiness",
+      "modules": ["work"],
+      "paths": {
+        "prefixes": [],
+        "files": [
+          "app/(modules)/work/page.tsx",
+          "app/(modules)/work/project/page.tsx",
+          "packages/work/ui/home/WorkHomePage.tsx"
+        ]
+      },
+      "traits": ["latency", "read-only", "ui"],
+      "riskFloor": "C2",
+      "requiredSuites": ["module-readiness"]
+    },
+    {
+      "id": "finance-analysis-read",
+      "modules": [
+        "finance"
+      ],
+      "paths": {
+        "prefixes": [
+          "app/(modules)/finance/analysis/",
+          "packages/finance/ui/analysis/"
+        ],
+        "files": []
+      },
+      "traits": [
+        "latency",
+        "read-only",
+        "ui"
+      ],
+      "riskFloor": "C2",
+      "requiredSuites": [
+        "finance-analysis-read"
+      ]
+    },
+    {
+      "id": "finance-analysis-server-unverified",
+      "modules": [
+        "finance"
+      ],
+      "paths": {
+        "prefixes": [
+          "app/api/modules/finance/analysis/",
+          "packages/finance/server/analysis/"
+        ],
+        "files": []
+      },
+      "traits": [
+        "api",
+        "latency",
+        "server"
+      ],
+      "riskFloor": "C2",
+      "requiredSuites": [
+        "finance-analysis-read"
+      ]
+    },
+    {
+      "id": "finance-ledger-read",
+      "modules": [
+        "finance"
+      ],
+      "paths": {
+        "prefixes": [
+          "app/(modules)/finance/ledger/"
+        ],
+        "files": []
+      },
+      "traits": [
+        "latency",
+        "read-only",
+        "ui"
+      ],
+      "riskFloor": "C2",
+      "requiredSuites": [
+        "finance-ledger-read"
+      ]
+    },
+    {
+      "id": "finance-ledger-write-unverified",
+      "modules": [
+        "finance"
+      ],
+      "paths": {
+        "prefixes": [
+          "app/api/modules/finance/ledger/",
+          "packages/finance/server/ledger/",
+          "packages/finance/ui/ledger/"
+        ],
+        "files": []
+      },
+      "traits": [
+        "api",
+        "latency",
+        "server",
+        "ui"
+      ],
+      "riskFloor": "C2",
+      "requiredSuites": [
+        "finance-ledger-read"
+      ]
+    }
+  ]
+}

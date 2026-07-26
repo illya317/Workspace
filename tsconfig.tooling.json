@@ -1,0 +1,38 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": false,
+    "emitDeclarationOnly": true,
+    "rootDir": ".",
+    "outDir": "./.cache/types/tooling",
+    "tsBuildInfoFile": "./.cache/tsbuild/tooling.tsbuildinfo"
+  },
+  "include": [
+    "next.config.ts",
+    "playwright.config.ts",
+    "prisma.config.ts",
+    "e2e/**/*.ts",
+    "e2e/**/*.mts",
+    "e2e/**/*.cts",
+    "scripts/**/*.ts",
+    "scripts/**/*.mts",
+    "scripts/**/*.cts"
+  ],
+  "exclude": ["node_modules", ".cache", "scripts/migrate/sqlite-legacy"],
+  "references": [
+    { "path": "./tsconfig.prisma-client.json" },
+    { "path": "./packages/core" },
+    { "path": "./packages/platform" },
+    { "path": "./packages/administration" },
+    { "path": "./packages/capital-securities" },
+    { "path": "./packages/external" },
+    { "path": "./packages/finance" },
+    { "path": "./packages/hr" },
+    { "path": "./packages/inventory" },
+    { "path": "./packages/library" },
+    { "path": "./packages/production" },
+    { "path": "./packages/work" }
+  ]
+}

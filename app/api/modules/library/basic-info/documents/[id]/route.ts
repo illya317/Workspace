@@ -1,0 +1,33 @@
+import {
+  executeGetLibraryDocumentCommand,
+  executeSetLibraryDocumentLifecycleCommand,
+  executeUpdateLibraryDocumentCommand,
+} from "@workspace/library/server/route-commands";
+import { LibraryMetadataUpdateSchema } from "@workspace/library/server/schemas";
+import { checkLibraryRead } from "@workspace/library/server/permissions";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+export const GET = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "Invalid id",
+  buildCommand: ({ params, user }) => okCommand({ id: params.id, userId: user.userId }),
+  action: executeGetLibraryDocumentCommand,
+});
+
+export const PATCH = createCommandRoute({
+  access: checkLibraryRead,
+  paramsSchema: routeIdParamsSchema,
+  bodySchema: LibraryMetadataUpdateSchema,
+  paramsError: "Invalid id",
+  buildCommand: ({ params, body, user }) => okCommand({ id: params.id, body, userId: user.userId }),
+  action: executeUpdateLibraryDocumentCommand,
+});
+
+export const DELETE = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "Invalid id",
+  buildCommand: ({ params, user }) => okCommand({ id: params.id, userId: user.userId, archived: true }),
+  action: executeSetLibraryDocumentLifecycleCommand,
+});

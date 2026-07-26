@@ -1,0 +1,59 @@
+/// 岗位说明书职责节点索引（事实表，来源于 PositionDescription.details.duties，同步生成稳定 nodeKey）
+model PositionResponsibilityNode {
+  id                    Int                           @id @default(autoincrement())
+  positionDescriptionId Int
+  parentId              Int?
+  nodeKey               String                        @unique
+  nodeType              String
+  title                 String
+  content               String                        @default("")
+  pathLabel             String                        @default("")
+  sourcePath            String                        @default("")
+  sourceHash            String
+  descriptionVersion    String?
+  descriptionUpdatedAt  DateTime?
+  sortOrder             Int                           @default(0)
+  isActive              Boolean                       @default(true)
+  createdAt             DateTime                      @default(now())
+  updatedAt             DateTime                      @default(now()) @updatedAt
+  positionDescription   PositionDescription           @relation(fields: [positionDescriptionId], references: [id], onDelete: Cascade)
+  parent                PositionResponsibilityNode?   @relation("PositionResponsibilityNodeTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children              PositionResponsibilityNode[]  @relation("PositionResponsibilityNodeTree")
+  workReferences        WorkResponsibilityReference[]
+
+  @@index([positionDescriptionId, nodeType, isActive])
+  @@index([positionDescriptionId, parentId, sortOrder])
+  @@index([sourceHash])
+}
+
+/// WorkItem 职责引用快照（事实表，来源于用户选择岗位职责时固化的版本和文本快照）
+model WorkResponsibilityReference {
+  id                                   Int                         @id @default(autoincrement())
+  targetKind                           String
+  referenceRole                        String
+  workItemId                           Int
+  responsibilityNodeId                 Int?
+  lockedEmployeeId                     Int
+  lockedPositionId                     Int?
+  lockedEmployeePositionId             Int?
+  positionDescriptionId                Int
+  positionDescriptionVersionSnapshot   String?
+  positionDescriptionUpdatedAtSnapshot DateTime?
+  nodeKeySnapshot                      String
+  nodeTypeSnapshot                     String
+  parentNodeKeySnapshot                String?
+  pathLabelSnapshot                    String                      @default("")
+  titleSnapshot                        String
+  contentSnapshot                      String                      @default("")
+  snapshotJson                         String                      @default("{}")
+  createdAt                            DateTime                    @default(now())
+  updatedAt                            DateTime                    @default(now()) @updatedAt
+  workItem                             WorkItem                    @relation(fields: [workItemId], references: [id], onDelete: Cascade)
+  responsibilityNode                   PositionResponsibilityNode? @relation(fields: [responsibilityNodeId], references: [id], onDelete: SetNull)
+
+  @@index([targetKind, referenceRole])
+  @@index([workItemId, referenceRole])
+  @@index([lockedEmployeeId])
+  @@index([positionDescriptionId])
+  @@index([responsibilityNodeId])
+}

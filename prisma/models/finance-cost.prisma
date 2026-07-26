@@ -1,0 +1,183 @@
+/// 财务成本数据导入批次。每次从 Excel/JSON 导入时生成一条记录，作为该批次所有明细行的事实来源追溯。
+model FinanceDataImport {
+  id                 Int                       @id @default(autoincrement())
+  profile            String
+  year               Int?
+  sourceFile         String
+  sourcePath         String?
+  normalizedJsonPath String?
+  checksum           String?
+  status             String                    @default("imported")
+  recordCount        Int                       @default(0)
+  warningCount       Int                       @default(0)
+  errorCount         Int                       @default(0)
+  importedBy         String?
+  importedAt         DateTime                  @default(now())
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  costAnalysisRows   FinanceCostAnalysisRow[]
+  costStructureRows  FinanceCostStructureRow[]
+  salesSalaries      FinanceSalesSalary[]
+  shipments          FinanceShipment[]
+  workshopReports    FinanceWorkshopReport[]
+
+  @@index([profile, year])
+  @@index([sourceFile])
+}
+
+/// 发货/销售明细。salesChannel 区分员工销售、厂家直销和未知归属；仅员工销售使用 employeeId FK，salespersonName 保留来源快照。
+model FinanceShipment {
+  id              Int                @id @default(autoincrement())
+  importId        Int
+  customerId      Int?
+  productId       Int?
+  year            Int
+  month           Int?
+  date            String?
+  customerName    String?
+  productName     String?
+  spec            String?
+  batchNo         String?
+  quantity        Float?
+  unitPrice       Float?
+  amount          Float?
+  receivedAmount  Float?
+  salesChannel    String             @default("unknown")
+  salespersonName String?
+  employeeId      Int?
+  sourceFile      String
+  sourceSheet     String?
+  sourceRow       Int?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  employee        Employee?          @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  customer        ExternalPartyRole? @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  product         InventoryItem?     @relation(fields: [productId], references: [id], onDelete: Restrict)
+  import          FinanceDataImport  @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  @@index([year, month])
+  @@index([customerId])
+  @@index([productId])
+  @@index([customerName])
+  @@index([productName])
+  @@index([salesChannel, employeeId])
+  @@index([employeeId])
+}
+
+/// 销售工资。salesChannel 区分员工归属、厂销归集和未知归属；仅员工归属使用 employeeId FK，salespersonName 保留来源快照。
+model FinanceSalesSalary {
+  id              Int               @id @default(autoincrement())
+  importId        Int
+  year            Int
+  month           Int?
+  baseSalary      Float?
+  bonus           Float?
+  deduction       Float?
+  actualSalary    Float?
+  salesChannel    String            @default("unknown")
+  salespersonName String?
+  employeeId      Int?
+  sourceFile      String
+  sourceSheet     String?
+  sourceRow       Int?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  employee        Employee?         @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  import          FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  @@index([year, month])
+  @@index([salesChannel, employeeId])
+  @@index([employeeId])
+}
+
+/// 成本结构明细。按产品归集原材料、包材、直接人工、辅助人工、制造费用等各项成本金额。用于计算产品单位成本。
+model FinanceCostStructureRow {
+  id                           Int                     @id @default(autoincrement())
+  importId                     Int
+  productId                    Int?
+  receiptReportId              Int?
+  year                         Int
+  month                        Int?
+  productStatus                String?
+  productName                  String?
+  workHours                    Float?
+  rawMaterials                 Float?
+  packagingMaterials           Float?
+  directLaborWage              Float?
+  directLaborSocialSecurity    Float?
+  directLaborWelfare           Float?
+  auxiliaryLaborWage           Float?
+  auxiliaryLaborSocialSecurity Float?
+  auxiliaryLaborWelfare        Float?
+  utilities                    Float?
+  depreciationDirect           Float?
+  depreciationAuxiliary        Float?
+  otherManufacturingCost       Float?
+  quantity                     Float?
+  unit                         String?
+  sourceFile                   String
+  sourceSheet                  String?
+  sourceRow                    Int?
+  createdAt                    DateTime                @default(now())
+  updatedAt                    DateTime                @updatedAt
+  import                       FinanceDataImport       @relation(fields: [importId], references: [id], onDelete: Cascade)
+  product                      InventoryItem?          @relation(fields: [productId], references: [id], onDelete: Restrict)
+  receiptReport                InventoryReceiptReport? @relation(fields: [receiptReportId], references: [id], onDelete: Restrict)
+
+  @@index([year, month])
+  @@index([productId])
+  @@index([receiptReportId])
+  @@index([productName])
+}
+
+/// 成本分析指标。从成本分析 Excel 的多张工作表解析而来，每张表按行标签+指标键存储数值或文本。用于生成成本分析报表。
+model FinanceCostAnalysisRow {
+  id          Int               @id @default(autoincrement())
+  importId    Int
+  year        Int
+  month       Int?
+  tableName   String?
+  rowLabel    String?
+  metricKey   String?
+  metricName  String?
+  value       Float?
+  textValue   String?
+  sourceFile  String
+  sourceSheet String?
+  sourceRow   Int?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  import      FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  @@index([year, month])
+  @@index([tableName])
+  @@index([metricKey])
+}
+
+/// 车间日报。记录生产车间每日各批次产品的人员投入、工序、工分和完成数量。employeeId/positionId 关联到员工和岗位，用于人工成本归集和计件工资计算。
+model FinanceWorkshopReport {
+  id          Int               @id @default(autoincrement())
+  importId    Int
+  year        Int
+  month       Int
+  productName String?
+  batchNo     String?
+  workPoint   Float?
+  quantity    Float?
+  employeeId  Int?
+  positionId  Int?
+  sourceFile  String
+  sourceSheet String?
+  sourceRow   Int?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  position    Position?         @relation(fields: [positionId], references: [id])
+  employee    Employee?         @relation(fields: [employeeId], references: [id])
+  import      FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  @@index([year, month])
+  @@index([productName])
+  @@index([batchNo])
+  @@index([employeeId])
+  @@index([positionId])
+}

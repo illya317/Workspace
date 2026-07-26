@@ -1,0 +1,22 @@
+import { NextResponse } from "next/server";
+import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
+import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
+import { getAgentProposalForUser } from "@workspace/platform/server/agent";
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+
+  const user = await getSessionUserFromAuthPayload(auth.user);
+  if (!user) return jsonErrorResponse("Unauthorized", 401);
+
+  const parsedParams = routeIdParamsSchema.safeParse(await params);
+  if (!parsedParams.success) return jsonErrorResponse("Invalid id", 400);
+
+  const proposal = await getAgentProposalForUser(parsedParams.data.id, user);
+  if (!proposal) return jsonErrorResponse("Proposal not found", 404);
+  return NextResponse.json(proposal);
+}

@@ -1,0 +1,255 @@
+/// 工作计划总包（OKR 计划）
+model WorkPlan {
+  id                              Int                       @id @default(autoincrement())
+  targetType                      String                    @default("personal")
+  targetId                        Int
+  kind                            String                    @default("okr")
+  title                           String
+  description                     String                    @default("")
+  status                          String                    @default("active")
+  isArchived                      Boolean                   @default(false)
+  okrStage                        String                    @default("objective_draft")
+  objectiveSubmittedAt            DateTime?
+  objectiveApprovedAt             DateTime?
+  objectiveApprovedByUserId       Int?
+  krReviewOpensAt                 DateTime?
+  krSubmittedAt                   DateTime?
+  krApprovedAt                    DateTime?
+  krApprovedByUserId              Int?
+  ownerEmployeeId                 Int?
+  collaborationId                 Int?
+  okrCycleId                      Int?
+  sourcePlanId                    Int?
+  parentPeriodPlanId              Int?
+  previousPeriodPlanId            Int?
+  okrControlScopeType             String?
+  okrControlScopeId               String?
+  governanceMode                  String                    @default("legacy_inferred")
+  governanceRevision              Int                       @default(1)
+  governanceActionKey             String?
+  governanceWorkflowPolicyId      Int?
+  governanceWorkflowVersion       Int?
+  governanceActionContractVersion Int?
+  governanceOkrControlVersion     Int?
+  governanceSnapshotJson          String                    @default("{}")
+  governanceBoundAt               DateTime?
+  governanceBoundByUserId         Int?
+  governanceBindingSource         String                    @default("legacy_inferred")
+  objectiveApprovalSnapshotJson   String                    @default("{}")
+  krApprovalSnapshotJson          String                    @default("{}")
+  periodType                      String?
+  actualStartDate                 DateTime?
+  actualEndDate                   DateTime?
+  plannedStartDate                DateTime?
+  plannedEndDate                  DateTime?
+  sourceType                      String                    @default("other")
+  sourceKind                      String?
+  sourceMeetingId                 Int?
+  sourceMeetingDecisionId         Int?
+  sourceMeetingActionCandidateId  Int?
+  sourceDepartmentId              Int?
+  linkedProjectId                 Int?
+  linkedProjectPhaseId            Int?
+  isSystemGenerated               Boolean                   @default(false)
+  isMilestone                     Boolean                   @default(false)
+  milestoneDate                   DateTime?
+  sortOrder                       Int                       @default(0)
+  createdAt                       DateTime                  @default(now())
+  updatedAt                       DateTime                  @default(now()) @updatedAt
+  owner                           Employee?                 @relation("WorkPlanOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
+  collaboration                   DepartmentCollaboration?  @relation(fields: [collaborationId], references: [id], onDelete: SetNull)
+  okrCycle                        WorkOkrCycle?             @relation(fields: [okrCycleId], references: [id], onDelete: SetNull)
+  sourcePlan                      WorkPlan?                 @relation("WorkPlanSourcePlan", fields: [sourcePlanId], references: [id], onDelete: SetNull)
+  derivedPlans                    WorkPlan[]                @relation("WorkPlanSourcePlan")
+  parentPeriodPlan                WorkPlan?                 @relation("WorkPlanParentPeriodPlan", fields: [parentPeriodPlanId], references: [id], onDelete: SetNull)
+  childPeriodPlans                WorkPlan[]                @relation("WorkPlanParentPeriodPlan")
+  previousPeriodPlan              WorkPlan?                 @relation("WorkPlanPreviousPeriodPlan", fields: [previousPeriodPlanId], references: [id], onDelete: SetNull)
+  nextPeriodPlans                 WorkPlan[]                @relation("WorkPlanPreviousPeriodPlan")
+  planAlignments                  WorkPlanAlignment[]       @relation("WorkPlanAlignmentChildPlan")
+  sourcePlanAlignments            WorkPlanAlignment[]       @relation("WorkPlanAlignmentSourcePlan")
+  linkedProject                   Project?                  @relation("WorkPlanLinkedProject", fields: [linkedProjectId], references: [id], onDelete: SetNull)
+  linkedProjectPhase              ProjectPlanPhase?         @relation("WorkPlanLinkedProjectPhase", fields: [linkedProjectPhaseId], references: [id], onDelete: SetNull)
+  sourceMeeting                   Meeting?                  @relation("WorkPlanSourceMeeting", fields: [sourceMeetingId], references: [id], onDelete: SetNull)
+  sourceMeetingDecision           MeetingDecision?          @relation("WorkPlanSourceMeetingDecision", fields: [sourceMeetingDecisionId], references: [id], onDelete: SetNull)
+  sourceMeetingActionCandidate    MeetingActionCandidate?   @relation("WorkPlanSourceMeetingActionCandidate", fields: [sourceMeetingActionCandidateId], references: [id], onDelete: SetNull)
+  sourceDepartment                Department?               @relation("WorkPlanSourceDepartment", fields: [sourceDepartmentId], references: [id], onDelete: SetNull)
+  items                           WorkItem[]
+  meetingActionCandidates         MeetingActionCandidate[]  @relation("MeetingActionCandidateWorkPlan")
+  reportItems                     WorkReportItem[]
+  kpiAssignments                 WorkKpiAssignment[]
+  governanceEvents                WorkPlanGovernanceEvent[]
+
+  @@index([targetType, targetId, kind, status, isArchived])
+  @@index([targetType, targetId, okrStage])
+  @@index([krReviewOpensAt, okrStage])
+  @@index([targetType, targetId, periodType, actualStartDate])
+  @@index([targetType, targetId, plannedStartDate, plannedEndDate])
+  @@index([okrCycleId])
+  @@index([sourcePlanId])
+  @@index([parentPeriodPlanId])
+  @@index([previousPeriodPlanId])
+  @@index([okrControlScopeType, okrControlScopeId])
+  @@index([governanceMode, governanceBindingSource])
+  @@index([sourceType, linkedProjectId, linkedProjectPhaseId])
+  @@index([targetType, targetId, isMilestone, milestoneDate])
+  @@index([ownerEmployeeId])
+  @@index([collaborationId])
+  @@index([linkedProjectId])
+  @@index([linkedProjectPhaseId])
+  @@index([sourceMeetingId])
+  @@index([sourceMeetingDecisionId])
+  @@index([sourceMeetingActionCandidateId])
+  @@index([sourceDepartmentId])
+}
+
+/// 工作计划内节点
+model WorkItem {
+  id                             Int                           @id @default(autoincrement())
+  planId                         Int?
+  targetType                     String                        @default("personal")
+  targetId                       Int?
+  category                       String
+  itemType                       String                        @default("task")
+  content                        String
+  description                    String                        @default("")
+  importance                     Int                           @default(3)
+  urgency                        Int                           @default(3)
+  status                         String?
+  completedAt                    DateTime?
+  krStartValue                   Float?
+  krTargetValue                  Float?
+  krCurrentValue                 Float?
+  krUnit                         String?
+  routineTaskType                String?
+  routineRecurrenceType          String?
+  routineRecurrenceTime          String?
+  routineRecurrenceWeekday       Int?
+  routineRecurrenceMonthDay      Int?
+  routineRecurrenceQuarterDay    Int?
+  routineRecurrenceYearMonth     Int?
+  routineRecurrenceYearDay       Int?
+  ownerEmployeeId                Int?
+  collaborationId                Int?
+  actualStartDate                DateTime?
+  actualEndDate                  DateTime?
+  plannedStartDate               DateTime?
+  plannedEndDate                 DateTime?
+  isMilestone                    Boolean                       @default(false)
+  milestoneDate                  DateTime?
+  periodType                     String?
+  periodStart                    DateTime?
+  periodEnd                      DateTime?
+  sourceType                     String                        @default("other")
+  sourceKind                     String?
+  sourceMeetingId                Int?
+  sourceMeetingDecisionId        Int?
+  sourceMeetingActionCandidateId Int?
+  sourceDepartmentId             Int?
+  linkedProjectId                Int?
+  linkedProjectPhaseId           Int?
+  parentWorkItemId               Int?
+  parentPeriodWorkItemId         Int?
+  previousPeriodWorkItemId       Int?
+  isArchived                     Boolean                       @default(false)
+  isPrivate                      Boolean                       @default(false)
+  sortOrder                      Int                           @default(0)
+  createdAt                      DateTime                      @default(now())
+  updatedAt                      DateTime                      @default(now()) @updatedAt
+  plan                           WorkPlan?                     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  participants                   WorkParticipant[]
+  owner                          Employee?                     @relation("WorkItemOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
+  collaboration                  DepartmentCollaboration?      @relation(fields: [collaborationId], references: [id], onDelete: SetNull)
+  linkedProject                  Project?                      @relation("WorkItemLinkedProject", fields: [linkedProjectId], references: [id], onDelete: SetNull)
+  linkedProjectPhase             ProjectPlanPhase?             @relation("WorkItemLinkedProjectPhase", fields: [linkedProjectPhaseId], references: [id], onDelete: SetNull)
+  sourceMeeting                  Meeting?                      @relation("WorkItemSourceMeeting", fields: [sourceMeetingId], references: [id], onDelete: SetNull)
+  sourceMeetingDecision          MeetingDecision?              @relation("WorkItemSourceMeetingDecision", fields: [sourceMeetingDecisionId], references: [id], onDelete: SetNull)
+  sourceMeetingActionCandidate   MeetingActionCandidate?       @relation("WorkItemSourceMeetingActionCandidate", fields: [sourceMeetingActionCandidateId], references: [id], onDelete: SetNull)
+  sourceDepartment               Department?                   @relation("WorkItemSourceDepartment", fields: [sourceDepartmentId], references: [id], onDelete: SetNull)
+  parentWorkItem                 WorkItem?                     @relation("WorkItemHierarchy", fields: [parentWorkItemId], references: [id], onDelete: SetNull)
+  childWorkItems                 WorkItem[]                    @relation("WorkItemHierarchy")
+  parentPeriodWorkItem           WorkItem?                     @relation("WorkItemParentPeriod", fields: [parentPeriodWorkItemId], references: [id], onDelete: SetNull)
+  childPeriodWorkItems           WorkItem[]                    @relation("WorkItemParentPeriod")
+  previousPeriodWorkItem         WorkItem?                     @relation("WorkItemPreviousPeriod", fields: [previousPeriodWorkItemId], references: [id], onDelete: SetNull)
+  nextPeriodWorkItems            WorkItem[]                    @relation("WorkItemPreviousPeriod")
+  sourcePlanAlignments           WorkPlanAlignment[]           @relation("WorkPlanAlignmentSourceItem")
+  meetingActionCandidates        MeetingActionCandidate[]      @relation("MeetingActionCandidateWorkItem")
+  reportItems                    WorkReportItem[]
+  krEvidenceTasks                WorkKrEvidence[]              @relation("WorkKrEvidenceKr")
+  taskEvidenceForKrs             WorkKrEvidence[]              @relation("WorkKrEvidenceTask")
+  responsibilityReferences       WorkResponsibilityReference[]
+  kpiAssignment                  WorkKpiAssignment?
+
+  @@index([planId, parentWorkItemId, itemType])
+  @@index([planId, itemType, isArchived])
+  @@index([targetType, targetId, category])
+  @@index([targetType, targetId, periodType, periodStart])
+  @@index([targetType, targetId, plannedStartDate, plannedEndDate])
+  @@index([targetType, targetId, isMilestone, milestoneDate])
+  @@index([targetType, targetId, parentWorkItemId, itemType])
+  @@index([targetType, targetId, itemType, isArchived])
+  @@index([sourceType, linkedProjectId, linkedProjectPhaseId])
+  @@index([ownerEmployeeId])
+  @@index([collaborationId])
+  @@index([status])
+  @@index([linkedProjectId])
+  @@index([linkedProjectPhaseId])
+  @@index([sourceMeetingId])
+  @@index([sourceMeetingDecisionId])
+  @@index([sourceMeetingActionCandidateId])
+  @@index([sourceDepartmentId])
+  @@index([parentWorkItemId])
+  @@index([parentPeriodWorkItemId])
+  @@index([previousPeriodWorkItemId])
+}
+
+/// KR 核查证据：KR 引用同一 OKR 计划内的 Task，不改变 Task 层级
+model WorkKrEvidence {
+  id             Int      @id @default(autoincrement())
+  krWorkItemId   Int
+  taskWorkItemId Int
+  note           String   @default("")
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  krWorkItem     WorkItem @relation("WorkKrEvidenceKr", fields: [krWorkItemId], references: [id], onDelete: Cascade)
+  taskWorkItem   WorkItem @relation("WorkKrEvidenceTask", fields: [taskWorkItemId], references: [id], onDelete: Cascade)
+
+  @@unique([krWorkItemId, taskWorkItemId])
+  @@index([krWorkItemId, sortOrder])
+  @@index([taskWorkItemId])
+}
+
+/// 工作清单参与人
+model WorkParticipant {
+  id         Int      @id @default(autoincrement())
+  workItemId Int
+  name       String
+  wxUserId   String?
+  createdAt  DateTime @default(now())
+  workItem   WorkItem @relation(fields: [workItemId], references: [id], onDelete: Cascade)
+
+  @@index([workItemId])
+}
+
+/// 部门工作指派人（业务配置，非 RBAC 权限）
+model DepartmentWorkAssignee {
+  id           Int        @id @default(autoincrement())
+  departmentId Int
+  userId       Int
+  kind         String // "task"
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([departmentId, userId, kind])
+}
+
+/// 项目工作指派人（业务配置，非 RBAC 权限）
+model ProjectWorkAssignee {
+  id        Int     @id @default(autoincrement())
+  projectId Int
+  userId    Int
+  kind      String // "task"
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId, kind])
+}

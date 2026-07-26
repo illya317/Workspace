@@ -1,0 +1,238 @@
+"use client";
+
+import type { CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import FloatingPortalSurface from "../common/FloatingPortalSurface";
+import { CONTROL_SIZES } from "../common/interactionTokens";
+import type { ControlSize } from "../common/interactionTokens";
+import type { LifecycleScope } from "./FkFieldInput";
+import InputSurface, { type InputFieldSpec } from "../../InputSurface";
+import { SelectionOptionButton } from "../selection/SelectionParts";
+import type { InputOption } from "./InputSurfaceTypes";
+
+export type FieldValueFilterValueKind = "text" | "fk";
+
+export interface FieldValueFilterField extends InputOption {
+  valueKind?: FieldValueFilterValueKind;
+  fkKey?: string;
+  fkReturnField?: "id" | "name";
+  referenceEndpoint?: string;
+  lifecycleScope?: LifecycleScope;
+  placeholder?: string;
+}
+
+export interface FieldValueFilterProps {
+  fields: FieldValueFilterField[];
+  valueOptions: Record<string, InputOption[]>;
+  fieldKey: string;
+  onFieldKeyChange: (key: string) => void;
+  value: string;
+  onValueChange: (value: string, fieldKey?: string) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  referenceEndpoint?: string;
+  className?: string;
+  style?: CSSProperties;
+  size?: ControlSize;
+}
+
+const FLOATING_PANEL_MAX_WIDTH = 448;
+const FLOATING_PANEL_MIN_HEIGHT = 160;
+
+export default function FieldValueFilter({
+  fields,
+  valueOptions,
+  fieldKey,
+  onFieldKeyChange,
+  value,
+  onValueChange,
+  placeholder = "选择筛选",
+  disabled = false,
+  referenceEndpoint,
+  className,
+  style,
+  size = "md",
+}: FieldValueFilterProps) {
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState<"field" | "value">("field");
+  const [draftFieldKey, setDraftFieldKey] = useState(fieldKey);
+  const [draftValue, setDraftValue] = useState(value);
+  const rootRef = useRef<HTMLSpanElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const selectedField = fields.find((field) => field.value === fieldKey);
+  const currentOptions = valueOptions[fieldKey] ?? [];
+  const selectedValue = currentOptions.find((option) => option.value === value);
+  const draftField = fields.find((field) => field.value === draftFieldKey);
+  const draftOptions = valueOptions[draftFieldKey] ?? [];
+  const selectableDraftOptions = draftOptions.filter((option) => option.value !== "");
+  const draftReferenceEndpoint = draftField?.referenceEndpoint ?? referenceEndpoint;
+  const displayValue = useMemo(() => selectedValue?.label ?? (value || "全部"), [selectedValue, value]);
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(event: MouseEvent) {
+      const target = event.target as Node;
+      if (rootRef.current?.contains(target) || panelRef.current?.contains(target)) return;
+      setOpen(false);
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
+
+  function selectField(nextKey: string) {
+    setDraftFieldKey(nextKey);
+    setDraftValue("");
+    setStep("value");
+  }
+
+  function commitValue(nextValue: string, closeAfterCommit = draftOptions.length > 0) {
+    setDraftValue(nextValue);
+    onFieldKeyChange(draftFieldKey);
+    onValueChange(nextValue, draftFieldKey);
+    if (closeAfterCommit) {
+      setOpen(false);
+      setStep("field");
+    }
+  }
+
+  function toggleOpen() {
+    setOpen((current) => {
+      const next = !current;
+      if (next) {
+        setDraftFieldKey(fieldKey);
+        setDraftValue(value);
+        setStep("field");
+      }
+      return next;
+    });
+  }
+
+  const valuePlaceholder = draftField?.placeholder ?? (draftField?.label ? `搜索${draftField.label}` : "输入搜索...");
+  const sizeTokens = CONTROL_SIZES[size];
+  const valueInputSpec: InputFieldSpec = selectableDraftOptions.length > 0
+    ? {
+        valueType: "string",
+        control: "choice",
+        options: { source: "static", items: selectableDraftOptions, visibleCount: 6 },
+      }
+    : draftField?.valueKind === "fk" && draftField.fkKey && draftReferenceEndpoint
+      ? {
+          valueType: "reference",
+          control: "reference",
+          options: {
+            source: "remote",
+            fkKey: draftField.fkKey,
+            endpoint: draftReferenceEndpoint,
+            returnField: draftField.fkReturnField,
+            lifecycleScope: draftField.lifecycleScope ?? "all",
+            visibleCount: 5,
+          },
+        }
+      : { valueType: "string", control: "text" };
+  const closeOnValueChange = valueInputSpec.control !== "text";
+  const panelContent = open && !disabled
+    ? (
+        <FloatingPortalSurface
+          open={open}
+          triggerRef={rootRef}
+          surfaceRef={panelRef}
+          maxWidth={FLOATING_PANEL_MAX_WIDTH}
+          minHeightForFlip={FLOATING_PANEL_MIN_HEIGHT}
+          className="w-max overflow-auto rounded-lg border border-slate-200 bg-white p-2 shadow-xl"
+        >
+          {step === "field" ? (
+            <div className="space-y-1.5">
+              <div className={`${CONTROL_SIZES[size].text} font-semibold text-slate-400`}>字段</div>
+              <div className="flex max-w-full flex-wrap gap-1.5">
+                {fields.map((field) => (
+                  <SelectionOptionButton
+                    key={field.value}
+                    selected={field.value === draftFieldKey}
+                    onClick={() => selectField(field.value)}
+                    align="center"
+                    size="compact"
+                    className="min-h-8"
+                  >
+                    <span className="truncate" title={field.label}>{field.label}</span>
+                  </SelectionOptionButton>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => setStep("field")}
+                  className={`${CONTROL_SIZES[size].text} font-semibold text-slate-400 hover:text-slate-700`}
+                >
+                  字段
+                </button>
+                <div className={`min-w-0 flex-1 text-right ${CONTROL_SIZES[size].text} font-semibold text-slate-400`}>
+                  {draftField?.label ?? "值"}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <SelectionOptionButton
+                  selected={draftValue === ""}
+                  onClick={() => commitValue("", true)}
+                  align="center"
+                  size="compact"
+                  className="min-h-8"
+                >
+                  全部
+                </SelectionOptionButton>
+                <InputSurface
+                  spec={valueInputSpec}
+                  value={draftValue}
+                  placeholder={valuePlaceholder}
+                  autocompletePresentation={valueInputSpec.control === "reference" ? "inline" : undefined}
+                  onChange={(nextValue) => commitValue(String(nextValue ?? ""), closeOnValueChange)}
+                />
+              </div>
+            </div>
+          )}
+        </FloatingPortalSurface>
+      )
+    : null;
+
+  return (
+    <span ref={rootRef} style={style} className={`inline-block ${className ?? ""}`}>
+      <button
+        type="button"
+        disabled={disabled}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={toggleOpen}
+        className={`inline-flex ${sizeTokens.height} ${sizeTokens.minWidth} items-center gap-2 ${sizeTokens.paddingX} ${sizeTokens.radius} border border-slate-200 bg-white ${sizeTokens.text} font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500`}
+      >
+        {selectedField ? (
+          <>
+            <span className="shrink-0 text-slate-400">{selectedField.label}</span>
+            <span className="min-w-0 flex-1 truncate" title={displayValue}>{displayValue}</span>
+          </>
+        ) : (
+          <span className="truncate" title={placeholder}>{placeholder}</span>
+        )}
+        <svg
+          className={`ml-auto h-4 w-4 shrink-0 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {panelContent}
+    </span>
+  );
+}

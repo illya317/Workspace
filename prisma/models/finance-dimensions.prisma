@@ -1,0 +1,183 @@
+/// ERP 辅助核算成员（客户、供应商、个人、部门、项目和费用等来源主数据）
+model FinanceAuxiliaryMember {
+  id             Int                             @id @default(autoincrement())
+  companyCode    String
+  sourceSystem   String
+  sourceLedger   String
+  dimensionType  String
+  sourceCode     String
+  sourceName     String
+  shortName      String?
+  identityNumber String?
+  contactPerson  String?
+  phone          String?
+  address        String?
+  bankName       String?
+  bankAccount    String?
+  firstYear      Int?
+  lastYear       Int?
+  latestImportId Int?
+  linkedCompanyId Int?
+  companyLinkMethod String?
+  companyLinkEvidence String?
+  createdAt      DateTime                        @default(now())
+  updatedAt      DateTime                        @default(now()) @updatedAt
+  latestImport   FinanceLedgerImport?            @relation(fields: [latestImportId], references: [id])
+  linkedCompany  Company?                        @relation("FinanceAuxiliaryMemberLinkedCompany", fields: [linkedCompanyId], references: [id], onDelete: Restrict)
+  voucherLinks   FinanceVoucherItemAuxiliary[]
+  balanceLinks   FinanceAuxiliaryBalanceMember[]
+  openItemLinks  FinanceOpenItemAuxiliary[]
+  counterpartyClassifications FinanceCounterpartyClassification[]
+
+  @@unique([companyCode, sourceSystem, sourceLedger, dimensionType, sourceCode])
+  @@index([companyCode, dimensionType, sourceName])
+  @@index([linkedCompanyId])
+  @@index([latestImportId])
+}
+
+/// TPlus 历史往来对象按会计科目锁定的一次性客户、供应商或个人归类事实
+model FinanceCounterpartyClassification {
+  id                     Int                    @id @default(autoincrement())
+  memberId               Int
+  accountId              Int
+  counterpartyType       String
+  classificationMethod   String
+  classificationEvidence String
+  lockedAt               DateTime               @default(now())
+  createdAt              DateTime               @default(now())
+  member                 FinanceAuxiliaryMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  account                FinanceAccount         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, accountId])
+  @@index([counterpartyType, accountId])
+}
+
+/// 凭证明细与辅助核算成员的多值关联
+model FinanceVoucherItemAuxiliary {
+  id         Int                    @id @default(autoincrement())
+  itemId     Int
+  memberId   Int
+  sourceRole String
+  item       FinanceVoucherItem     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  member     FinanceAuxiliaryMember @relation(fields: [memberId], references: [id])
+
+  @@unique([itemId, memberId, sourceRole])
+  @@index([memberId, sourceRole])
+}
+
+/// ERP 原生辅助核算余额事实
+model FinanceAuxiliaryBalance {
+  id             Int                             @id @default(autoincrement())
+  importId       Int
+  periodId       Int
+  accountId      Int
+  companyCode    String
+  sourceSystem   String
+  sourceDatabase String
+  sourceKey      String
+  openingDebit   Decimal                         @default(0) @db.Decimal(20, 2)
+  openingCredit  Decimal                         @default(0) @db.Decimal(20, 2)
+  currentDebit   Decimal                         @default(0) @db.Decimal(20, 2)
+  currentCredit  Decimal                         @default(0) @db.Decimal(20, 2)
+  closingDebit   Decimal                         @default(0) @db.Decimal(20, 2)
+  closingCredit  Decimal                         @default(0) @db.Decimal(20, 2)
+  createdAt      DateTime                        @default(now())
+  updatedAt      DateTime                        @default(now()) @updatedAt
+  import         FinanceLedgerImport             @relation(fields: [importId], references: [id], onDelete: Cascade)
+  period         FinancePeriod                   @relation(fields: [periodId], references: [id])
+  account        FinanceAccount                  @relation(fields: [accountId], references: [id])
+  members        FinanceAuxiliaryBalanceMember[]
+  consolidationEntryLines FinanceConsolidationEntryLine[]
+
+  @@unique([sourceSystem, sourceDatabase, sourceKey])
+  @@index([importId])
+  @@index([companyCode, periodId, accountId])
+}
+
+/// 辅助余额与一个或多个核算成员的关联
+model FinanceAuxiliaryBalanceMember {
+  id         Int                     @id @default(autoincrement())
+  balanceId  Int
+  memberId   Int
+  sourceRole String
+  balance    FinanceAuxiliaryBalance @relation(fields: [balanceId], references: [id], onDelete: Cascade)
+  member     FinanceAuxiliaryMember  @relation(fields: [memberId], references: [id])
+
+  @@unique([balanceId, memberId, sourceRole])
+  @@index([memberId, sourceRole])
+}
+
+/// 应收应付未清项（来源有逐笔核销事实时导入）
+model FinanceOpenItem {
+  id                Int                        @id @default(autoincrement())
+  importId          Int
+  companyCode       String
+  periodId          Int?
+  accountId         Int?
+  voucherItemId     Int?
+  sourceSystem      String
+  sourceDatabase    String
+  sourceKey         String
+  documentNo        String?
+  documentDate      String?
+  dueDate           String?
+  memo              String?
+  currencyCode      String?
+  originalDebit     Decimal                    @default(0) @db.Decimal(20, 2)
+  originalCredit    Decimal                    @default(0) @db.Decimal(20, 2)
+  outstandingDebit  Decimal                    @default(0) @db.Decimal(20, 2)
+  outstandingCredit Decimal                    @default(0) @db.Decimal(20, 2)
+  status            String                     @default("open")
+  originType        String?
+  sourcePeriodBeginDetailId String?
+  agingBaseDate     String?
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @default(now()) @updatedAt
+  import            FinanceLedgerImport        @relation(fields: [importId], references: [id], onDelete: Cascade)
+  period            FinancePeriod?             @relation(fields: [periodId], references: [id])
+  account           FinanceAccount?            @relation(fields: [accountId], references: [id])
+  voucherItem       FinanceVoucherItem?        @relation(fields: [voucherItemId], references: [id])
+  members           FinanceOpenItemAuxiliary[]
+  settlements       FinanceOpenItemSettlement[]
+  consolidationEntryLines FinanceConsolidationEntryLine[]
+
+  @@unique([sourceSystem, sourceDatabase, sourceKey])
+  @@index([importId])
+  @@index([companyCode, status, documentDate])
+  @@index([accountId, status])
+}
+
+/// 应收应付未清项的人工或来源核销事件；账龄天数及区间由日期事实动态计算
+model FinanceOpenItemSettlement {
+  id             Int             @id @default(autoincrement())
+  openItemId     Int
+  settlementDate String
+  settlementType String          @default("manual")
+  referenceNo    String?
+  settledDebit   Decimal         @default(0) @db.Decimal(20, 2)
+  settledCredit  Decimal         @default(0) @db.Decimal(20, 2)
+  currencyCode   String?
+  note           String?
+  sourceSystem   String?
+  sourceDatabase String?
+  sourceKey      String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now()) @updatedAt
+  openItem       FinanceOpenItem @relation(fields: [openItemId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceSystem, sourceDatabase, sourceKey])
+  @@index([openItemId, settlementDate])
+}
+
+/// 未清项与客户、供应商等辅助成员的关联
+model FinanceOpenItemAuxiliary {
+  id         Int                    @id @default(autoincrement())
+  openItemId Int
+  memberId   Int
+  sourceRole String
+  openItem   FinanceOpenItem        @relation(fields: [openItemId], references: [id], onDelete: Cascade)
+  member     FinanceAuxiliaryMember @relation(fields: [memberId], references: [id])
+
+  @@unique([openItemId, memberId, sourceRole])
+  @@index([memberId, sourceRole])
+}

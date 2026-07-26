@@ -1,0 +1,121 @@
+/// 中立法定主体主数据（事实表，来源于 Workspace 人工录入或经审核的主数据导入）
+model Party {
+  id                            Int                                   @id @default(autoincrement())
+  subjectType                   String                                @default("organization")
+  name                          String
+  fullName                      String?
+  identityNumber                String
+  legalRepresentative           String?
+  editedBy                      Int?
+  editedAt                      DateTime?
+  version                       Int                                   @default(1)
+  createdAt                     DateTime                              @default(now())
+  updatedAt                     DateTime                              @default(now()) @updatedAt
+  externalProfile               ExternalPartyProfile?
+  externalRoles                 ExternalPartyRole[]
+  nameHistory                   PartyNameHistory[]
+  company                       Company?
+  ownedInterests                OwnershipInterest[]
+  shareCapitalOutflows          ShareCapitalTransaction[]             @relation("ShareCapitalTransferor")
+  shareCapitalInflows           ShareCapitalTransaction[]             @relation("ShareCapitalTransferee")
+  shareCapitalSnapshotPositions ShareCapitalSnapshotPosition[]
+  controlledAfterCapitalEvents  ShareCapitalEvent[]                   @relation("ShareCapitalEventController")
+  shareholderGroupMemberships   ShareholderGroupMembership[]
+  registryOwnershipParticipants CompanyRegistryOwnershipParticipant[]
+
+  @@unique([subjectType, identityNumber])
+  @@index([name])
+}
+
+/// 主体名称沿革事实；稳定 Party 身份不随法定名称、简称或来源别名变化
+model PartyNameHistory {
+  id                 Int       @id @default(autoincrement())
+  partyId            Int
+  sourceKey          String    @unique
+  nameKind           String
+  name               String
+  normalizedName     String
+  effectiveFrom      DateTime?
+  effectiveTo        DateTime?
+  datePrecision      String    @default("day")
+  recordStatus       String    @default("confirmed")
+  sourceObservedDate DateTime?
+  sourceType         String?
+  sourceLabel        String?
+  sourceReference    String?
+  editedBy           Int?
+  editedAt           DateTime?
+  version            Int       @default(1)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @default(now()) @updatedAt
+  party              Party     @relation(fields: [partyId], references: [id], onDelete: Cascade)
+
+  @@index([partyId, nameKind, effectiveFrom, effectiveTo], map: "PartyNameHistory_party_kind_period_idx")
+  @@index([normalizedName, recordStatus], map: "PartyNameHistory_normalized_status_idx")
+}
+
+/// External 域的主体共享属性；不得作为全局 Party 身份字段使用
+model ExternalPartyProfile {
+  partyId          Int    @id
+  relatedPartyType String @default("unrelated")
+  party            Party  @relation(fields: [partyId], references: [id], onDelete: Cascade)
+
+  @@index([relatedPartyType])
+}
+
+/// 外部往来主体的客户或供应商角色资料（事实表，来源于 Workspace 人工录入或经审核的主数据导入）
+model ExternalPartyRole {
+  id                  Int                          @id @default(autoincrement())
+  partyId             Int
+  category            String
+  code                String
+  classification      String?
+  contactPerson       String?
+  phone               String?
+  email               String?
+  bankName            String?
+  bankAccount         String?
+  address             String?
+  invoiceTitle        String?
+  invoiceAddressPhone String?
+  settlementTerms     String?
+  creditLimit         Float?
+  creditDays          Int?
+  taxRate             Float?
+  remark              String?
+  isActive            Boolean                      @default(true)
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @default(now()) @updatedAt
+  party               Party                        @relation(fields: [partyId], references: [id], onDelete: Restrict)
+  financeShipments    FinanceShipment[]
+  sourceMappings      ExternalPartySourceMapping[]
+
+  @@unique([partyId, category])
+  @@unique([category, code])
+  @@index([category, isActive])
+  @@index([category, classification])
+}
+
+/// 外部往来角色的公司/来源主数据映射（事实表，来源于受治理的客户、供应商和业务事实导入）
+model ExternalPartySourceMapping {
+  id                   Int               @id @default(autoincrement())
+  roleId               Int
+  companyId            Int
+  sourceSystem         String
+  sourceKey            String
+  sourceCode           String?
+  sourceName           String
+  sourceNameNormalized String
+  sourceFile           String?
+  sourceSheet          String?
+  sourceRow            Int?
+  sourceData           Json?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @default(now()) @updatedAt
+  role                 ExternalPartyRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  company              Company           @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@unique([companyId, sourceSystem, sourceKey])
+  @@index([roleId])
+  @@index([companyId, sourceSystem, sourceNameNormalized])
+}

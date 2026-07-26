@@ -1,0 +1,9 @@
+{
+  "records": [
+    { "name": "Massachusetts Institute of Technology", "rankDisplay": "1", "region": "North America", "country": "United States", "city": "Cambridge" },
+    { "name": "Imperial College London", "rankDisplay": "2", "region": "Europe", "country": "United Kingdom", "city": "London" },
+    { "name": "University of Oxford", "rankDisplay": "3", "region": "Europe", "country": "United Kingdom", "city": "Oxford" },
+    { "name": "Harvard University", "rankDisplay": "4", "region": "North America", "country": "United States", "city": "Cambridge" },
+    { "name": "University of Cambridge", "rankDisplay": "5", "region": "Europe", "country": "United Kingdom", "city": "Cambridge" }
+  ]
+}

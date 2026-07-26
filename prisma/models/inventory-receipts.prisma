@@ -1,0 +1,140 @@
+/// 固体制剂车间月度成品入库报单表头。历史来源与人工维护共用同一业务事实表。
+model InventoryReceiptReport {
+  id                    Int                                @id @default(autoincrement())
+  recordUid             String                             @unique @default(uuid())
+  year                  Int
+  month                 Int
+  workshopName          String                             @default("固体制剂车间")
+  status                String                             @default("draft")
+  preparedBy            String?
+  preparedByUserId      Int?
+  preparedAt            DateTime?
+  reviewedBy            String?
+  reviewedByUserId      Int?
+  reviewedAt            DateTime?
+  confirmedSnapshot     Json?
+  confirmedSnapshotHash String?
+  confirmationSource    String?
+  sourceKey             String?                            @unique
+  sourceFile            String?
+  sourceSheet           String?
+  version               Int                                @default(1)
+  createdByUserId       Int?
+  updatedByUserId       Int?
+  createdAt             DateTime                           @default(now())
+  updatedAt             DateTime                           @default(now()) @updatedAt
+  batches               InventoryReceiptBatch[]
+  productWorkPoints     InventoryReceiptProductWorkPoint[]
+  events                InventoryReceiptReportEvent[]
+  costStructureRows     FinanceCostStructureRow[]
+
+  @@unique([year, month, workshopName])
+  @@index([year, month])
+  @@index([status, year, month])
+}
+
+/// 月报内按产品汇总的工分事实。历史值由主报表 F 列区块按产品求和，未来由同事按月维护，不包含批号、员工或工序明细。
+model InventoryReceiptProductWorkPoint {
+  id              Int                    @id @default(autoincrement())
+  reportId        Int
+  productId       Int?
+  sortOrder       Int                    @default(0)
+  productName     String
+  workPoints      Decimal                @db.Decimal(18, 4)
+  sourceKey       String?                @unique
+  version         Int                    @default(1)
+  createdByUserId Int?
+  updatedByUserId Int?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @default(now()) @updatedAt
+  report          InventoryReceiptReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  product         Product?               @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([reportId, productName])
+  @@unique([reportId, productId])
+  @@index([reportId, sortOrder])
+  @@index([productId])
+}
+
+/// 月度汇总确认与独立复核事件。数据库触发器保证只追加，不允许改写或删除。
+model InventoryReceiptReportEvent {
+  id            Int                    @id @default(autoincrement())
+  reportId      Int
+  eventType     String
+  actorUserId   Int?
+  actorName     String
+  reportVersion Int
+  snapshotHash  String
+  sourceKey     String?                @unique
+  payload       Json?
+  createdAt     DateTime               @default(now())
+  report        InventoryReceiptReport @relation(fields: [reportId], references: [id], onDelete: Restrict)
+
+  @@index([reportId, createdAt])
+  @@index([eventType, createdAt])
+}
+
+/// 投料批号事实。投料量属于批号层，一个批号可以拆成多条产量/包装记录。
+model InventoryReceiptBatch {
+  id                        Int                      @id @default(autoincrement())
+  reportId                  Int
+  productId                 Int?
+  sortOrder                 Int                      @default(0)
+  productName               String
+  specification             String?
+  batchNumber               String
+  inputQuantityTenThousands Decimal?                 @db.Decimal(18, 4)
+  sourceKey                 String?                  @unique
+  sourceRowStart            Int?
+  sourceRowEnd              Int?
+  version                   Int                      @default(1)
+  createdByUserId           Int?
+  updatedByUserId           Int?
+  createdAt                 DateTime                 @default(now())
+  updatedAt                 DateTime                 @default(now()) @updatedAt
+  report                    InventoryReceiptReport   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  product                   Product?                 @relation(fields: [productId], references: [id], onDelete: Restrict)
+  outputs                   InventoryReceiptOutput[]
+
+  @@index([reportId, sortOrder])
+  @@index([productId])
+  @@index([productName])
+  @@index([batchNumber])
+}
+
+/// 单条生产产量事实。折合盒/瓶与折合万粒/片由源字段实时推导，不作为业务真值入库。
+model InventoryReceiptOutput {
+  id                                 Int                   @id @default(autoincrement())
+  batchId                            Int
+  productSkuId                       Int?
+  sortOrder                          Int                   @default(0)
+  productionQuantityText             String?
+  caseQuantity                       Decimal?              @db.Decimal(18, 4)
+  extraPackageQuantity               Decimal?              @db.Decimal(18, 4)
+  packagesPerCase                    Decimal               @db.Decimal(18, 4)
+  unitsPerPackage                    Decimal               @db.Decimal(18, 4)
+  packageUnit                        String
+  packagingNote                      String
+  sourceKey                          String?               @unique
+  sourceFile                         String?
+  sourceSheet                        String?
+  sourceRow                          Int?
+  sourceConvertedPackages            Decimal?              @db.Decimal(18, 4)
+  sourceConvertedTenThousands        Decimal?              @db.Decimal(18, 4)
+  sourceConvertedPackagesFormula     String?
+  sourceConvertedTenThousandsFormula String?
+  auditStatus                        String                @default("ok")
+  auditNote                          String?
+  version                            Int                   @default(1)
+  createdByUserId                    Int?
+  updatedByUserId                    Int?
+  createdAt                          DateTime              @default(now())
+  updatedAt                          DateTime              @default(now()) @updatedAt
+  batch                              InventoryReceiptBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  productSku                         InventoryItem?        @relation(fields: [productSkuId], references: [id], onDelete: Restrict)
+
+  @@index([batchId, sortOrder])
+  @@index([productSkuId])
+  @@index([auditStatus])
+  @@index([sourceFile, sourceSheet, sourceRow])
+}

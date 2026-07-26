@@ -1,0 +1,137 @@
+export interface BalanceItem {
+  account: { code: string; name: string };
+  openingDebit: number;
+  openingCredit: number;
+  closingDebit: number;
+  closingCredit: number;
+  currentDebit: number;
+  currentCredit: number;
+}
+
+export interface ReportPeriod {
+  id: number;
+  companyCode: string | null;
+  year: number;
+  month: number;
+}
+
+export function closingNetLeaf(balances: BalanceItem[], prefixes: string[]) {
+  const matched = new Set<string>();
+  for (const b of balances) {
+    if (prefixes.some((p) => b.account.code.startsWith(p))) {
+      matched.add(b.account.code);
+    }
+  }
+  const codes = Array.from(matched);
+  const parentCodes = new Set<string>();
+  for (const c1 of codes) {
+    for (const c2 of codes) {
+      if (c2 !== c1 && c2.startsWith(c1) && c2.length > c1.length) {
+        parentCodes.add(c1);
+        break;
+      }
+    }
+  }
+  const leafCodes = new Set(codes.filter((c) => !parentCodes.has(c)));
+
+  let debit = 0, credit = 0;
+  for (const b of balances) {
+    if (leafCodes.has(b.account.code)) {
+      debit += b.closingDebit;
+      credit += b.closingCredit;
+    }
+  }
+  return { debit, credit };
+}
+
+export function yearlyCurrentLeaf(yearBalances: BalanceItem[], prefixes: string[], direction: "debit" | "credit" = "debit") {
+  const matched = new Set<string>();
+  for (const b of yearBalances) {
+    if (prefixes.some((p) => b.account.code.startsWith(p))) {
+      matched.add(b.account.code);
+    }
+  }
+  const codes = Array.from(matched);
+  const parentCodes = new Set<string>();
+  for (const c1 of codes) {
+    for (const c2 of codes) {
+      if (c2 !== c1 && c2.startsWith(c1) && c2.length > c1.length) {
+        parentCodes.add(c1);
+        break;
+      }
+    }
+  }
+  const leafCodes = new Set(codes.filter((c) => !parentCodes.has(c)));
+
+  let total = 0;
+  for (const b of yearBalances) {
+    if (leafCodes.has(b.account.code)) {
+      total += direction === "debit" ? b.currentDebit : b.currentCredit;
+    }
+  }
+  return total;
+}
+
+// ─── Phase 7: ReclassResult-based reclassification ─────────
+
+/** A single approved/adjusted reclassification entry from ReclassResult. */
+export interface ReclassEntry {
+  sourceAccount: string;
+  targetAccount: string;
+  amount: number;
+}
+
+/**
+ * Reclassification routing: two maps for source deductions and target additions.
+ *
+ * deductions: keyed by sourceAccount → amounts to REMOVE from the source line
+ *   - asset source: credit amount to deduct
+ *   - liability source: debit amount to deduct
+ *
+ * additions: keyed by targetAccount → amounts to ADD to the target line
+ *   - asset→liability: credit amount to add
+ *   - liability→asset: debit amount to add
+ */
+export interface ReclassRouting {
+  /** By sourceAccount: amounts to DEDUCT from each source line */
+  deductions: Map<string, { debit: number; credit: number }>;
+  /** By targetAccount: amounts to ADD to each target line */
+  additions: Map<string, { debit: number; credit: number }>;
+}
+
+/**
+ * Compute reclassification pools from approved ReclassResult entries.
+ * Each entry's `amount` is routed to the entry's `targetAccount`.
+ *
+ * Classification by sourceAccount prefix:
+ *   1xxx (asset)   → amount added as credit to targetAccount pool
+ *   2xxx (liability)→ amount added as debit  to targetAccount pool
+ */
+export function reclassifyFromEntries(entries: ReclassEntry[]): ReclassRouting {
+  const deductions = new Map<string, { debit: number; credit: number }>();
+  const additions = new Map<string, { debit: number; credit: number }>();
+
+  for (const e of entries) {
+    // Source-side deduction
+    const src = deductions.get(e.sourceAccount) || { debit: 0, credit: 0 };
+    if (e.sourceAccount.startsWith("1")) {
+      src.credit += e.amount; // deduct credit from asset line
+    } else if (e.sourceAccount.startsWith("2")) {
+      src.debit += e.amount;  // deduct debit from liability line
+    }
+    deductions.set(e.sourceAccount, src);
+
+    // Target-side addition
+    const tgt = additions.get(e.targetAccount) || { debit: 0, credit: 0 };
+    if (e.sourceAccount.startsWith("1")) {
+      tgt.credit += e.amount; // add credit to target liability line
+    } else if (e.sourceAccount.startsWith("2")) {
+      tgt.debit += e.amount;  // add debit to target asset line
+    }
+    additions.set(e.targetAccount, tgt);
+  }
+  return { deductions, additions };
+}
+
+export const mk = (d: number, c: number) => +(d - c).toFixed(2);
+export const mkC = (d: number, c: number) => +(c - d).toFixed(2);

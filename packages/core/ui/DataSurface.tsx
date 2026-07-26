@@ -1,0 +1,61 @@
+"use client";
+
+import { renderCommands, renderData } from "./internal/data/DataSurface.renderers";
+import type { DataSurfaceLooseRow, DataSurfaceProps } from "./DataSurface.types";
+
+export type {
+  DataSurfaceAlign,
+  DataSurfaceCellActionSpec,
+  DataSurfaceCellGroupSpec,
+  DataSurfaceCellInputSpec,
+  DataSurfaceCellSelectionGridSpec,
+  DataSurfaceCellSpec,
+  DataSurfaceColumnSpec,
+  DataSurfaceCommandSpec,
+  DataSurfaceDisplaySpec,
+  DataSurfaceEmphasis,
+  DataSurfaceFont,
+  DataSurfaceFrame,
+  DataSurfaceKind,
+  DataSurfaceLooseRow,
+  DataSurfaceMobilePresentation,
+  DataSurfaceMobileSpec,
+  DataSurfaceRowState,
+  DataSurfaceScrollSpec,
+  DataSurfaceActionsColumnSpec,
+  DataSurfacePresentationSpec,
+  DataSurfaceProps,
+  DataSurfaceRecordActionSpec,
+  DataSurfaceRecordProps,
+  DataSurfaceRecordSpec,
+  DataSurfaceRowActionSpec,
+  DataSurfaceRowEditActionSpec,
+  DataSurfaceSummaryMetricSpec,
+  DataSurfaceSummaryProps,
+  DataSurfaceStructuredCellSpec,
+  DataSurfaceStructuredCellRole,
+  DataSurfaceStructuredDimension,
+  DataSurfaceStructuredFormatSpec,
+  DataSurfaceStructuredMatrixFormatSpec,
+  DataSurfaceStructuredProps,
+  DataSurfaceStructuredRowInteractionSpec,
+  DataSurfaceTableFormatSpec,
+  DataSurfaceTableMatrixFormatSpec,
+  DataSurfaceTableProps,
+  DataSurfaceTone,
+  DataSurfaceWidth,
+  DataSurfaceWrap,
+} from "./DataSurface.types";
+
+export default function DataSurface<T = DataSurfaceLooseRow>(props: DataSurfaceProps<T>) {
+  if (props.wrap === false) return renderData(props);
+
+  const content = (
+    <div className="space-y-4">
+      {renderCommands(props.actions)}
+      {renderData(props)}
+    </div>
+  );
+
+  return content;
+}

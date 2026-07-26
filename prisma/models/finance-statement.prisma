@@ -1,0 +1,72 @@
+/// 报表底稿头（资产负债表/利润表/现金流量表导入或手工底稿）
+/// 唯一键：companyCode + year + month + reportType
+/// 只存事实输入（manualAmount / importedAmount / formulaText / note / source），不存计算结果
+model FinanceStatementWorkpaper {
+  id          Int                             @id @default(autoincrement())
+  companyCode String
+  year        Int
+  month       Int
+  reportType  String // balanceSheet | incomeStatement | cashFlow
+  status      String                          @default("draft") // draft | submitted
+  note        String?
+  sourcePackageId       Int?
+  sourcePackageRevision Int?
+  sourceChecksum        String?
+  updatedBy   Int?
+  editedAt    DateTime?
+  version     Int                             @default(1)
+  createdAt   DateTime                        @default(now())
+  updatedAt   DateTime                        @default(now()) @updatedAt
+  editor      User?                           @relation("WorkpaperEditor", fields: [updatedBy], references: [id])
+  sourcePackage FinanceStatementSourcePackage? @relation(fields: [sourcePackageId], references: [id], onDelete: SetNull)
+  lines       FinanceStatementWorkpaperLine[]
+
+  @@unique([companyCode, year, month, reportType])
+  @@index([companyCode, year, reportType])
+  @@index([sourcePackageId])
+}
+
+/// 报表底稿行（底稿每行的手工/导入输入）
+/// 唯一键：workpaperId + lineCode
+/// lineCode 必须存在于代码内对应 reportType 的固定报表行定义
+model FinanceStatementWorkpaperLine {
+  id             Int                       @id @default(autoincrement())
+  workpaperId    Int
+  lineCode       String
+  manualAmount   Float                     @default(0)
+  importedAmount Float                     @default(0)
+  formulaText    String?
+  note           String?
+  source         String?
+  sortOrder      Int                       @default(0)
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @default(now()) @updatedAt
+  workpaper      FinanceStatementWorkpaper @relation(fields: [workpaperId], references: [id], onDelete: Cascade)
+
+  @@unique([workpaperId, lineCode])
+  @@index([workpaperId])
+}
+
+/// 外币报表汇率事实，自动抓取中国外汇交易中心人民币汇率中间价
+/// rate 统一保存为人民币/1外币；sourceField/note 保留原始币种对方向与报价单位
+model FinanceStatementExchangeRate {
+  id            Int       @id @default(autoincrement())
+  baseCurrency  String
+  quoteCurrency String
+  rateKind      String // centralParity；历史数据可能为 closing | historicalInvestment
+  rateDate      String // YYYY-MM-DD
+  rate          Decimal   @db.Decimal(20, 8) // 人民币/1外币
+  sourceName    String    @default("中国外汇交易中心")
+  sourceField   String    @default("人民币汇率中间价")
+  sourceUrl     String
+  publishedAt   DateTime?
+  capturedAt    DateTime  @default(now())
+  note          String?
+  version       Int       @default(1)
+  updatedBy     Int?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  @@unique([baseCurrency, quoteCurrency, rateKind, rateDate, version], map: "FinanceStatementExchangeRate_currency_kind_date_version_key")
+  @@index([baseCurrency, quoteCurrency, rateDate], map: "FinanceStatementExchangeRate_currency_date_idx")
+}

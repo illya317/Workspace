@@ -1,0 +1,48 @@
+/// 销售到回款 ERP 现状尽调填报。问卷定义由代码版本管理，数据库保存每位填报人的事实回答。
+model ErpDueDiligenceSubmission {
+  id                   Int       @id @default(autoincrement())
+  campaignKey          String    @default("order-to-cash-2026")
+  definitionVersion    Int       @default(2)
+  respondentUserId     Int
+  positionAssignmentId Int?
+  respondentName       String
+  departmentName       String
+  roleTitle            String
+  primaryArea          String
+  status               String    @default("draft")
+  answersJson          Json      @default("{}")
+  processStepsJson     Json      @default("[]")
+  evidenceItemsJson    Json      @default("[]")
+  submittedAt          DateTime?
+  editedAt             DateTime  @default(now())
+  version              Int       @default(1)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @default(now()) @updatedAt
+  respondent           User      @relation("ErpDueDiligenceRespondent", fields: [respondentUserId], references: [id], onDelete: Cascade)
+  positionAssignment   EDP?      @relation("ErpDueDiligencePositionAssignment", fields: [positionAssignmentId], references: [id], onDelete: SetNull)
+  evidenceAttachments  ErpDueDiligenceEvidenceAttachment[]
+
+  @@unique([campaignKey, respondentUserId])
+  @@index([campaignKey, status, updatedAt])
+  @@index([positionAssignmentId])
+  @@index([departmentName, primaryArea])
+}
+
+/// ERP 尽调样表与材料附件。附件内容保存在受鉴权 API 后，不暴露公共文件路径。
+model ErpDueDiligenceEvidenceAttachment {
+  id             Int      @id @default(autoincrement())
+  attachmentUid  String   @unique @default(uuid())
+  submissionId   Int
+  evidenceKey    String
+  fileName       String
+  mimeType       String
+  fileSize       Int
+  checksumSha256 String
+  fileContent    Bytes
+  uploadedBy     Int
+  uploadedAt     DateTime @default(now())
+  submission     ErpDueDiligenceSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId, evidenceKey, uploadedAt])
+  @@index([checksumSha256])
+}

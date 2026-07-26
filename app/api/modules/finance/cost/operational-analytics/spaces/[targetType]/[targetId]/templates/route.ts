@@ -1,0 +1,20 @@
+import {
+  listOperationalAnalysisTemplates,
+  operationalAnalysisTemplateRouteParamsSchema,
+} from "@workspace/finance/server/cost";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { registerFinanceWorkSpaceAccessProvider } from "@workspace/finance/server/cost/work-space-access-provider";
+
+registerFinanceWorkSpaceAccessProvider();
+
+export const GET = createCommandRoute({
+  paramsSchema: operationalAnalysisTemplateRouteParamsSchema,
+  paramsError: "经营分析空间参数无效",
+  buildCommand: ({ params, user }) => okCommand({
+    userId: user.userId,
+    scopeType: params.targetType,
+    scopeId: params.targetId,
+  }),
+  action: ({ userId, scopeType, scopeId }) => listOperationalAnalysisTemplates(userId, { scopeType, scopeId }),
+});

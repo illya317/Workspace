@@ -1,0 +1,22 @@
+{
+  "name": "@workspace/work",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./constants": "./constants/index.ts",
+    "./constants/*": "./constants/*.ts",
+    "./import": "./import/index.ts",
+    "./module": "./module.ts",
+    "./server": "./server/index.ts",
+    "./server/*": "./server/*.ts",
+    "./types": "./types/index.ts",
+    "./types/*": "./types/*.ts",
+    "./work-report-periods": "./work-report-periods.ts",
+    "./ui": "./ui/index.ts",
+    "./ui/components/*": "./ui/components/*.tsx",
+    "./ui/tabs/*": "./ui/tabs/*.tsx",
+    "./ui/*": "./ui/*.ts"
+  }
+}

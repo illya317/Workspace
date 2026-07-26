@@ -1,0 +1,10 @@
+import { rejectEmploymentDelete, buildHrRouteCommand } from "@workspace/hr/server";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+export const DELETE = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "ID 无效",
+  buildCommand: () => buildHrRouteCommand({}),
+  action: () => rejectEmploymentDelete(),
+});

@@ -1,0 +1,16 @@
+/// 人员生命周期操作账本（事实表，来源于 HR 人员生命周期表单；记录未来生效的入职、调岗、兼岗、汇报变化和离职）
+model EmployeeLifecycleEvent {
+  id               Int      @id @default(autoincrement())
+  employeeId       Int
+  eventType        String
+  effectiveDate    String
+  reason           String?
+  detailsJson      String
+  recordedByUserId Int
+  recordedAt       DateTime @default(now())
+  employee         Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  recordedBy       User     @relation("EmployeeLifecycleEventRecorder", fields: [recordedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([employeeId, effectiveDate])
+  @@index([eventType, effectiveDate])
+}

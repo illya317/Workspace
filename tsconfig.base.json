@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./*"],
+      "@workspace/core": ["./packages/core/index.ts"],
+      "@workspace/core/*": ["./packages/core/*"],
+      "@workspace/platform": ["./packages/platform/index.ts"],
+      "@workspace/platform/*": ["./packages/platform/*"],
+      "@workspace/administration": ["./packages/administration/index.ts"],
+      "@workspace/administration/*": ["./packages/administration/*"],
+      "@workspace/capital-securities": ["./packages/capital-securities/index.ts"],
+      "@workspace/capital-securities/*": ["./packages/capital-securities/*"],
+      "@workspace/external": ["./packages/external/index.ts"],
+      "@workspace/external/*": ["./packages/external/*"],
+      "@workspace/finance": ["./packages/finance/index.ts"],
+      "@workspace/finance/*": ["./packages/finance/*"],
+      "@workspace/hr": ["./packages/hr/index.ts"],
+      "@workspace/hr/*": ["./packages/hr/*"],
+      "@workspace/inventory": ["./packages/inventory/index.ts"],
+      "@workspace/inventory/*": ["./packages/inventory/*"],
+      "@workspace/library": ["./packages/library/index.ts"],
+      "@workspace/library/*": ["./packages/library/*"],
+      "@workspace/production": ["./packages/production/index.ts"],
+      "@workspace/production/*": ["./packages/production/*"],
+      "@workspace/work": ["./packages/work/index.ts"],
+      "@workspace/work/*": ["./packages/work/*"]
+    }
+  }
+}

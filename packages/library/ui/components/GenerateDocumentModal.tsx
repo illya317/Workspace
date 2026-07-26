@@ -1,0 +1,195 @@
+"use client";
+
+import { workspacePath } from "@workspace/core/routing";
+import { useState, useEffect, useCallback } from "react";
+import { createFieldsSection, createPageBody, createPageModalSection, BodySurface } from "@workspace/core/ui";
+
+interface Source {
+  key: string;
+  name: string;
+  defaultConfidentialityLevel: number;
+  titleMode: "custom" | "fixed";
+  defaultTitle: string;
+}
+
+interface Props {
+  onClose: () => void;
+  onSuccess: () => void;
+  canConfigure?: boolean;
+}
+
+const LEVEL_LABELS: Record<number, string> = {
+  0: "公开",
+  1: "内部",
+  2: "普通",
+  3: "机密",
+  4: "绝密",
+};
+
+export default function GenerateDocumentModal({ onClose, onSuccess, canConfigure }: Props) {
+  const [sources, setSources] = useState<Source[]>([]);
+  const [loadingSources, setLoadingSources] = useState(false);
+  const [selectedKey, setSelectedKey] = useState("");
+  const [title, setTitle] = useState("");
+  const [summary, setSummary] = useState("");
+  const [confidentialityLevel, setConfidentialityLevel] = useState<number>(2);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoadingSources(true);
+    fetch(workspacePath("/api/modules/library/basic-info/generated-sources"))
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: Source[]) => {
+        setSources(data);
+        if (data.length > 0) {
+          setSelectedKey(data[0].key);
+          setConfidentialityLevel(data[0].defaultConfidentialityLevel);
+          setTitle(data[0].defaultTitle);
+        }
+      })
+      .catch(() => setError("加载生成来源失败"))
+      .finally(() => setLoadingSources(false));
+  }, []);
+
+  const handleSourceChange = useCallback(
+    (key: string) => {
+      setSelectedKey(key);
+      const s = sources.find((x) => x.key === key);
+      if (s) {
+        setConfidentialityLevel(s.defaultConfidentialityLevel);
+        setTitle(s.defaultTitle);
+      }
+    },
+    [sources]
+  );
+
+  const handleGenerate = async () => {
+    if (!selectedKey || !title.trim()) return;
+    setGenerating(true);
+    setError(null);
+    try {
+      const payload: Record<string, unknown> = {
+        title: title.trim(),
+        summary: summary.trim() || undefined,
+      };
+      if (canConfigure) payload.confidentialityLevel = confidentialityLevel;
+
+      const res = await fetch(workspacePath(`/api/modules/library/basic-info/generated-sources/${selectedKey}/generate`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "生成失败" }));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      onSuccess();
+      onClose();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "生成失败");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const hasSources = sources.length > 0;
+  const selectedSource = sources.find((source) => source.key === selectedKey);
+  const statusMessage = error ?? (loadingSources ? "加载中..." : hasSources ? null : "暂无可用生成来源");
+
+  return (
+    <BodySurface {...createPageBody([
+        createPageModalSection("generate-document", {
+          open: true,
+          title: "生成文档",
+          onClose,
+          size: "md",
+          sections: [
+            createFieldsSection("generate-document-form", [
+              ...(statusMessage
+                ? [{
+                    key: "status",
+                    label: "状态",
+                    spec: { valueType: "string" as const, control: "text" as const, state: "readonly" as const },
+                    value: statusMessage,
+                  }]
+                : []),
+              {
+                key: "source",
+                label: "生成类型",
+                spec: {
+                  valueType: "string",
+                  control: "choice",
+                  state: hasSources ? "normal" : "disabled",
+                  options: {
+                    source: "static",
+                    items: sources.map((source) => ({ value: source.key, label: source.name })),
+                  },
+                },
+                value: selectedKey,
+                onChange: (value) => handleSourceChange(String(value ?? "")),
+              },
+              {
+                key: "title",
+                label: "标题",
+                spec: {
+                  valueType: "string",
+                  control: "text",
+                  state: !hasSources ? "disabled" : selectedSource?.titleMode === "fixed" ? "readonly" : "normal",
+                },
+                hint: selectedSource?.titleMode === "fixed" ? "标题由 Workspace 权威来源自动确定" : undefined,
+                value: title,
+                onChange: (value) => setTitle(String(value ?? "")),
+                placeholder: "文档标题",
+              },
+              {
+                key: "summary",
+                label: "简介",
+                hint: selectedSource?.titleMode === "fixed" ? "简介和来源证据由 Workspace 自动生成" : undefined,
+                spec: {
+                  valueType: "string",
+                  control: "text",
+                  multiline: true,
+                  state: !hasSources ? "disabled" : selectedSource?.titleMode === "fixed" ? "readonly" : "normal",
+                },
+                value: summary,
+                onChange: (value) => setSummary(String(value ?? "")),
+                rows: 3,
+                placeholder: "可选",
+              },
+              {
+                key: "confidentialityLevel",
+                label: "保密等级",
+                hint: !canConfigure ? "需要配置权限才能调整，默认使用生成来源设置" : undefined,
+                spec: {
+                  valueType: "number",
+                  control: "choice",
+                  state: hasSources && canConfigure ? "normal" : "disabled",
+                  options: {
+                    source: "static",
+                    items: Object.entries(LEVEL_LABELS).map(([level, label]) => ({
+                      value: level,
+                      label: `${label} (L${level})`,
+                    })),
+                  },
+                },
+                value: String(confidentialityLevel),
+                onChange: (value) => setConfidentialityLevel(Number(value)),
+              },
+            ], {
+              actions: [
+                { key: "cancel", action: "cancel", label: "取消", onClick: onClose },
+                {
+                  key: "generate",
+                  action: "generate",
+                  label: generating ? "生成中..." : "生成",
+                  disabled: generating || !title.trim() || !hasSources,
+                  onClick: () => void handleGenerate(),
+                },
+              ],
+            }),
+          ],
+        }),
+      ])} />
+  );
+}

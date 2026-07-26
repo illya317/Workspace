@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "synthetic-qc-template-audit",
+  "outputRoot": "data/docs-editor/templates/production-qc-snapshots",
+  "products": [
+    {
+      "productKey": "synthetic_mobile",
+      "productName": "Synthetic Mobile Product",
+      "stages": 1,
+      "fields": 1,
+      "formulas": 0,
+      "tables": 1
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+import { z } from "zod";
+
+import {
+  buildGenerateConsolidationEntriesRouteCommand,
+  executeGenerateConsolidationEntriesRouteCommand,
+} from "@workspace/finance/server/statements/consolidation-route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const paramsSchema = z.object({ batchId: z.coerce.number().int().positive() });
+const bodySchema = z.object({ expectedRevision: z.number().int().positive() });
+
+export const POST = createCommandRoute({
+  paramsSchema,
+  bodySchema,
+  paramsError: "合并批次 ID 无效",
+  bodyError: "自动生成抵销分录参数无效",
+  buildCommand: ({ params, body, user }) => buildGenerateConsolidationEntriesRouteCommand(
+    params.batchId,
+    body,
+    user.userId,
+  ),
+  action: executeGenerateConsolidationEntriesRouteCommand,
+});

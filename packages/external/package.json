@@ -1,0 +1,16 @@
+{
+  "name": "@workspace/external",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./module": "./module.ts",
+    "./server": "./server/index.ts",
+    "./server/*": "./server/*.ts",
+    "./types": "./types/index.ts",
+    "./types/*": "./types/*.ts",
+    "./ui": "./ui/index.ts",
+    "./ui/*": "./ui/*.tsx"
+  }
+}

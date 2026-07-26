@@ -1,0 +1,6 @@
+import { z } from "zod";
+
+export const investorRelationshipQuerySchema = z.object({
+  issuerCompanyId: z.coerce.number().int().positive().optional(),
+  asOf: z.iso.date({ error: "基准日必须是有效的 YYYY-MM-DD 日期" }).optional(),
+}).passthrough();

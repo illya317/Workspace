@@ -1,0 +1,72 @@
+/// 合并抵销凭证级匹配组（事实；一组可承载 1:1、1:N、N:1 或 N:N 来源分录）。
+model FinanceConsolidationMatchGroup {
+  id                    Int                                 @id @default(autoincrement())
+  batchId               Int
+  entryId               Int?                                @unique
+  category              String // investmentEquity | intercompanyBalance
+  status                String // matched | difference | unresolved | accepted | rejected
+  leftEntitySnapshotId  Int
+  rightEntitySnapshotId Int?
+  matchingRule          String
+  matchingVersion       String
+  matchedAmount         Decimal                             @default(0) @db.Decimal(20, 2)
+  differenceAmount      Decimal                             @default(0) @db.Decimal(20, 2)
+  differenceResolution  String?
+  generationKey         String
+  sourceFingerprint     String
+  createdAt             DateTime                            @default(now())
+  updatedAt             DateTime                            @default(now()) @updatedAt
+  batch                 FinanceConsolidationBatch           @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  entry                 FinanceConsolidationEntry?          @relation(fields: [entryId], references: [id], onDelete: SetNull)
+  leftEntity            FinanceConsolidationEntitySnapshot  @relation("ConsolidationMatchGroupLeftEntity", fields: [leftEntitySnapshotId], references: [id], onDelete: Restrict)
+  rightEntity           FinanceConsolidationEntitySnapshot? @relation("ConsolidationMatchGroupRightEntity", fields: [rightEntitySnapshotId], references: [id], onDelete: Restrict)
+  sources               FinanceConsolidationMatchSource[]
+
+  @@unique([batchId, generationKey])
+  @@index([batchId, category, status])
+  @@index([leftEntitySnapshotId, rightEntitySnapshotId])
+}
+
+/// 合并抵销匹配组的凭证分录来源（事实；allocatedAmount 允许同一来源在不同组中拆分）。
+model FinanceConsolidationMatchSource {
+  id                           Int                                 @id @default(autoincrement())
+  matchGroupId                 Int
+  entitySnapshotId             Int
+  counterpartyEntitySnapshotId Int?
+  voucherItemId                Int
+  matchSide                    String // left | right
+  sourceAmount                 Decimal                             @db.Decimal(20, 2)
+  allocatedAmount              Decimal                             @db.Decimal(20, 2)
+  currencyCode                 String                              @default("CNY")
+  sourceFingerprint            String
+  createdAt                    DateTime                            @default(now())
+  matchGroup                   FinanceConsolidationMatchGroup      @relation(fields: [matchGroupId], references: [id], onDelete: Cascade)
+  entity                       FinanceConsolidationEntitySnapshot  @relation("ConsolidationMatchSourceEntity", fields: [entitySnapshotId], references: [id], onDelete: Restrict)
+  counterpartyEntity           FinanceConsolidationEntitySnapshot? @relation("ConsolidationMatchSourceCounterparty", fields: [counterpartyEntitySnapshotId], references: [id], onDelete: Restrict)
+  voucherItem                  FinanceVoucherItem                  @relation(fields: [voucherItemId], references: [id], onDelete: Restrict)
+
+  @@unique([matchGroupId, voucherItemId])
+  @@index([voucherItemId])
+  @@index([entitySnapshotId, counterpartyEntitySnapshotId])
+}
+
+/// 无辅助核算外键的凭证明细公司映射规则；用于投资款等需按来源摘要一次映射、跨年度复用的事实。
+model FinanceVoucherCompanyMappingRule {
+  id                Int      @id @default(autoincrement())
+  purpose           String // investmentInvestee
+  sourceCompanyCode String
+  linkedCompanyId   Int
+  voucherDate       String?
+  voucherNo         String?
+  matchText         String?
+  matchingPolicy    String   @default("direct") // direct | aggregateCnyMirror
+  priority          Int      @default(100)
+  evidence          String
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+  linkedCompany     Company  @relation(fields: [linkedCompanyId], references: [id], onDelete: Restrict)
+
+  @@index([purpose, sourceCompanyCode, isActive, priority], map: "FinanceVoucherCompanyMappingRule_purpose_sourceCompanyCode_isAc")
+  @@index([linkedCompanyId])
+}

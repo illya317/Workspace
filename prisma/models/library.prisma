@@ -1,0 +1,271 @@
+/// 资料库文档元数据（事实表：文件系统扫描 + 人工维护元数据）
+model LibraryDocument {
+  id                   Int       @id @default(autoincrement())
+  documentUid          String    @unique @default(uuid())
+  docId                String    @unique
+  stableKey            String    @unique
+  rootKey              String    @default("default")
+  relativePath         String
+  fileName             String
+  extension            String?
+  mimeType             String?
+  fileSizeBytes        Int?
+  fileMtime            DateTime?
+  checksumSha256       String?
+  categoryCode         String?
+  categoryName         String?
+  subcategoryPath      String?
+  directoryPath        String?
+  title                String?
+  summary              String?
+  categoryId           Int?
+  currentDirectoryId   Int?
+  categorySource       String    @default("folder")
+  currentVersionId     Int?      @unique
+  confidentialityLevel Int       @default(2)
+  status               String    @default("active")
+  origin               String    @default("uploaded")
+  generatorKey         String?
+  versionLabel         String?
+  ownerUserId          Int?
+  asOfDate             DateTime?
+  reviewStatus         String    @default("pending")
+  reviewedAt           DateTime?
+  reviewedBy           Int?
+  gitRepo              String?
+  gitCommit            String?
+  gitPath              String?
+  editedBy             Int?
+  editedAt             DateTime?
+  version              Int       @default(1)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @default(now()) @updatedAt
+
+  editor             User?                           @relation("LibraryDocumentEditor", fields: [editedBy], references: [id])
+  owner              User?                           @relation("LibraryDocumentOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
+  reviewer           User?                           @relation("LibraryDocumentReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  category           LibraryCategory?                @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  currentDirectory   LibraryDirectory?               @relation(fields: [currentDirectoryId], references: [id], onDelete: SetNull)
+  currentVersion     LibraryDocumentVersion?         @relation("LibraryDocumentCurrentVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
+  versions           LibraryDocumentVersion[]        @relation("LibraryDocumentVersions")
+  tags               LibraryDocumentTag[]
+  tagCandidates      LibraryTagCandidate[]
+  metadataCandidates LibraryMetadataCandidate[]
+  materialSelections DueDiligenceMaterialSelection[]
+
+  @@index([stableKey])
+  @@index([rootKey])
+  @@index([categoryCode])
+  @@index([categoryId])
+  @@index([directoryPath])
+  @@index([currentDirectoryId])
+  @@index([status])
+  @@index([confidentialityLevel])
+  @@index([origin])
+  @@index([reviewStatus])
+  @@index([asOfDate])
+}
+
+/// 资料库文件版本（事实表：每次文件入库或内容更新创建，不可变并保留实际文件事实）
+model LibraryDocumentVersion {
+  id                    Int       @id @default(autoincrement())
+  versionUid            String    @unique @default(uuid())
+  documentId            Int
+  versionNo             Int
+  versionLabel          String?
+  fileName              String
+  storagePath           String
+  storageFileName       String?
+  storageMimeType       String?
+  storageFileSizeBytes  Int?
+  storageChecksumSha256 String?
+  relativePath          String
+  extension             String?
+  mimeType              String?
+  fileSizeBytes         Int?
+  sourceModifiedAt      DateTime?
+  checksumSha256        String?
+  gitCommit             String?
+  changeNote            String?
+  createdBy             Int?
+  createdAt             DateTime  @default(now())
+
+  document           LibraryDocument                 @relation("LibraryDocumentVersions", fields: [documentId], references: [id], onDelete: Cascade)
+  currentForDocument LibraryDocument?                @relation("LibraryDocumentCurrentVersion")
+  creator            User?                           @relation("LibraryDocumentVersionCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  selections         DueDiligenceMaterialSelection[]
+  processingJobs     LibraryProcessingJob[]
+  artifacts          LibraryArtifact[]
+  chunks             LibraryContentChunk[]
+  searchIndexes      LibrarySearchIndex[]
+  tagCandidates      LibraryTagCandidate[]
+  metadataCandidates LibraryMetadataCandidate[]
+  entityMentions     LibraryEntityMention[]
+  evaluationEvidence LibraryEvaluationEvidence[]
+
+  @@unique([documentId, versionNo])
+  @@index([documentId])
+  @@index([versionNo])
+}
+
+/// 资料库业务分类（配置表，手工维护的多级分类树，不由文件路径决定身份）
+model LibraryCategory {
+  id          Int      @id @default(autoincrement())
+  categoryUid String   @unique @default(uuid())
+  parentId    Int?
+  code        String?  @unique
+  name        String
+  fullPath    String   @unique
+  status      String   @default("active")
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  parent    LibraryCategory?  @relation("LibraryCategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children  LibraryCategory[] @relation("LibraryCategoryTree")
+  documents LibraryDocument[]
+
+  @@index([parentId])
+  @@index([status])
+}
+
+/// 资料库逻辑文件夹（配置/事实交界：扫描建立初始位置，用户可新建、重命名并调整资料归属）
+model LibraryDirectory {
+  id            Int       @id @default(autoincrement())
+  directoryUid  String    @unique @default(uuid())
+  rootKey       String    @default("default")
+  relativePath  String
+  name          String
+  status        String    @default("active")
+  lastScannedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  documents LibraryDocument[]
+
+  @@unique([rootKey, relativePath])
+  @@index([status])
+}
+
+/// 尽调参与方（事实表，手工录入）
+model DueDiligenceParty {
+  id        Int      @id @default(autoincrement())
+  name      String
+  contact   String?
+  type      String?
+  ndaStatus String   @default("none")
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  requests DueDiligenceRequest[]
+}
+
+/// 尽调请求/问卷（事实表，手工录入或导入）
+model DueDiligenceRequest {
+  id                          Int       @id @default(autoincrement())
+  partyId                     Int
+  title                       String
+  receivedAt                  DateTime?
+  status                      String    @default("draft")
+  defaultConfidentialityLevel Int       @default(2)
+  archivedAt                  DateTime?
+  archivedBy                  Int?
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @default(now()) @updatedAt
+
+  party     DueDiligenceParty      @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  questions DueDiligenceQuestion[]
+
+  @@index([partyId])
+  @@index([status])
+}
+
+/// 尽调问题（事实表，从问卷拆分）
+model DueDiligenceQuestion {
+  id           Int      @id @default(autoincrement())
+  requestId    Int
+  questionText String
+  categoryHint String?
+  answerDraft  String?
+  status       String   @default("draft")
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  request   DueDiligenceRequest             @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  materials DueDiligenceMaterialSelection[]
+
+  @@index([requestId])
+  @@index([status])
+}
+
+/// 尽调材料推荐与选择（关联表：问题 ↔ 文档版本）
+/// 注意：documentVersionId 与 documentId 的一致性由 service 层校验保证。
+/// Prisma 不支持 nullable 字段参与复合 FK，因此 DB 层不强制 version 必须属于同一 document。
+/// 归档/确认操作前，service 必须验证：documentVersion.documentId == selection.documentId。
+model DueDiligenceMaterialSelection {
+  id                Int       @id @default(autoincrement())
+  questionId        Int
+  documentId        Int
+  documentVersionId Int?
+  matchScore        Float?
+  reason            String?
+  selected          Boolean   @default(false)
+  selectedBy        Int?
+  selectedAt        DateTime?
+
+  question        DueDiligenceQuestion    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  document        LibraryDocument         @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  documentVersion LibraryDocumentVersion? @relation(fields: [documentVersionId], references: [id], onDelete: SetNull)
+
+  @@index([questionId])
+  @@index([documentId])
+}
+
+/// 自动生成来源预留表（配置表，Phase 6 启用）
+model LibraryGeneratedSource {
+  id                          Int      @id @default(autoincrement())
+  key                         String   @unique
+  name                        String
+  outputCategory              String?
+  defaultConfidentialityLevel Int      @default(2)
+  enabled                     Boolean  @default(false)
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @default(now()) @updatedAt
+
+  @@index([key])
+}
+
+/// 资料库标签定义（配置表，作为可复用的话题标签）
+model LibraryTag {
+  id              Int      @id @default(autoincrement())
+  tagUid          String   @unique @default(uuid())
+  key             String   @unique
+  name            String
+  dimension       String   @default("theme")
+  taxonomyVersion String   @default("v1")
+  status          String   @default("active")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+
+  documents  LibraryDocumentTag[]
+  candidates LibraryTagCandidate[]
+
+  @@index([status])
+}
+
+/// 资料库文档标签（关联表：一个文档可关联多个标签，同一标签不可重复关联）
+model LibraryDocumentTag {
+  id         Int             @id @default(autoincrement())
+  documentId Int
+  tagId      Int
+  createdBy  Int?
+  createdAt  DateTime        @default(now())
+  document   LibraryDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  tag        LibraryTag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  creator    User?           @relation("LibraryDocumentTagCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@unique([documentId, tagId])
+  @@index([tagId])
+}

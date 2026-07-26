@@ -1,0 +1,21 @@
+import { z } from "zod";
+
+import {
+  buildStandaloneStatementExportCommand,
+  executeStandaloneStatementExportCommand,
+} from "@workspace/finance/server/statements/statement-export-route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const querySchema = z.object({
+  companyCode: z.string().trim().min(1),
+  year: z.coerce.number().int().min(2000).max(2099),
+  month: z.coerce.number().int().min(1).max(12),
+  periodKind: z.enum(["year", "quarter", "month"]).optional(),
+});
+
+export const GET = createCommandRoute({
+  querySchema,
+  queryError: "公司和会计期间无效",
+  buildCommand: ({ query }) => buildStandaloneStatementExportCommand(query),
+  action: executeStandaloneStatementExportCommand,
+});

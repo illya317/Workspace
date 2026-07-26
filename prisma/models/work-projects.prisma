@@ -1,0 +1,164 @@
+/// 项目/虚拟团队
+model Project {
+  id                  Int                         @id @default(autoincrement())
+  code                String?                     @unique
+  name                String
+  description         String?
+  projectType         String                      @default("department")
+  projectLevel        String                      @default("普通")
+  plan                String?
+  goal                String?
+  milestones          String?
+  budgetAmount        Float?
+  budgetNote          String?
+  riskNote            String?
+  remark              String?
+  status              String                      @default("pending")
+  plannedStartDate    DateTime?
+  plannedEndDate      DateTime?
+  actualStartDate     DateTime?
+  actualEndDate       DateTime?
+  completionPercent   Float?
+  closureType         String?
+  leadingDepartmentId Int?
+  workspaceEnabled    Boolean                     @default(false)
+  isArchived          Boolean                     @default(false)
+  archivedAt          DateTime?
+  createdBy           Int?
+  editedBy            Int?
+  editedAt            DateTime?
+  version             Int                         @default(1)
+  createdAt           DateTime                    @default(now())
+  updatedAt           DateTime                    @default(now()) @updatedAt
+  leadingDepartment   Department?                 @relation("ProjectLeadingDepartment", fields: [leadingDepartmentId], references: [id], onDelete: SetNull)
+  employees           EmployeeProject[]
+  enablingDepartments ProjectEnablingDepartment[]
+  planPhases          ProjectPlanPhase[]          @relation("ProjectPlanPhases")
+  planDependencies    ProjectPlanDependency[]     @relation("ProjectPlanDependencies")
+  planBaselines       ProjectPlanBaseline[]       @relation("ProjectPlanBaselines")
+  workAssignees       ProjectWorkAssignee[]
+  linkedWorkItems     WorkItem[]                  @relation("WorkItemLinkedProject")
+  linkedWorkPlans     WorkPlan[]                  @relation("WorkPlanLinkedProject")
+
+  @@index([leadingDepartmentId])
+  @@index([workspaceEnabled])
+  @@index([projectType])
+  @@index([status])
+}
+
+/// 项目-赋能部门关联
+model ProjectEnablingDepartment {
+  id           Int        @id @default(autoincrement())
+  projectId    Int
+  departmentId Int
+  createdAt    DateTime   @default(now())
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  department   Department @relation("ProjectEnablingDepartmentDepartment", fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, departmentId])
+  @@index([departmentId])
+}
+
+/// 员工-项目关联
+model EmployeeProject {
+  id         Int       @id @default(autoincrement())
+  employeeId Int
+  projectId  Int
+  role       String?
+  startDate  String?
+  endDate    String?
+  editedBy   Int?
+  editedAt   DateTime?
+  version    Int       @default(1)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
+  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, projectId])
+}
+
+/// 项目计划阶段（串行计划段）
+model ProjectPlanPhase {
+  id               Int        @id @default(autoincrement())
+  projectId        Int
+  sequenceNo       Int
+  name             String
+  plannedStartDate DateTime?
+  plannedEndDate   DateTime?
+  note             String?
+  createdBy        Int?
+  editedBy         Int?
+  editedAt         DateTime?
+  version          Int        @default(1)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @default(now()) @updatedAt
+  project          Project    @relation("ProjectPlanPhases", fields: [projectId], references: [id], onDelete: Cascade)
+  linkedWorkItems  WorkItem[] @relation("WorkItemLinkedProjectPhase")
+  linkedWorkPlans  WorkPlan[] @relation("WorkPlanLinkedProjectPhase")
+
+  @@unique([projectId, sequenceNo])
+  @@index([projectId, sequenceNo])
+}
+
+/// 项目计划依赖（统一项目/任务节点）
+model ProjectPlanDependency {
+  id              Int       @id @default(autoincrement())
+  projectId       Int
+  predecessorKind String
+  predecessorId   Int
+  successorKind   String
+  successorId     Int
+  dependencyType  String    @default("finish_start")
+  lagDays         Int       @default(1)
+  createdBy       Int?
+  editedBy        Int?
+  editedAt        DateTime?
+  version         Int       @default(1)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+  project         Project   @relation("ProjectPlanDependencies", fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, predecessorKind, predecessorId, successorKind, successorId])
+  @@index([projectId, successorKind, successorId])
+  @@index([projectId, predecessorKind, predecessorId])
+}
+
+/// 项目计划基准快照
+model ProjectPlanBaseline {
+  id        Int                       @id @default(autoincrement())
+  projectId Int
+  name      String
+  note      String?
+  isActive  Boolean                   @default(false)
+  createdBy Int?
+  editedBy  Int?
+  editedAt  DateTime?
+  version   Int                       @default(1)
+  createdAt DateTime                  @default(now())
+  updatedAt DateTime                  @default(now()) @updatedAt
+  project   Project                   @relation("ProjectPlanBaselines", fields: [projectId], references: [id], onDelete: Cascade)
+  items     ProjectPlanBaselineItem[]
+
+  @@index([projectId, isActive])
+}
+
+/// 项目计划基准条目
+model ProjectPlanBaselineItem {
+  id               Int                 @id @default(autoincrement())
+  baselineId       Int
+  itemKind         String
+  itemId           Int
+  parentKind       String?
+  parentId         Int?
+  phaseId          Int?
+  name             String
+  status           String?
+  isMilestone      Boolean             @default(false)
+  plannedStartDate DateTime?
+  plannedEndDate   DateTime?
+  baseline         ProjectPlanBaseline @relation(fields: [baselineId], references: [id], onDelete: Cascade)
+
+  @@unique([baselineId, itemKind, itemId])
+  @@index([baselineId, phaseId])
+}

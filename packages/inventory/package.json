@@ -1,0 +1,16 @@
+{
+  "name": "@workspace/inventory",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./module": "./module.ts",
+    "./server": "./server/index.ts",
+    "./server/receipts": "./server/receipts/index.ts",
+    "./server/*": "./server/*.ts",
+    "./types": "./types/index.ts",
+    "./ui": "./ui/index.ts",
+    "./ui/receipts": "./ui/receipts/index.ts"
+  }
+}

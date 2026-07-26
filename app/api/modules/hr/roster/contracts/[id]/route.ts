@@ -1,0 +1,10 @@
+import { deleteContract, buildHrRouteCommand } from "@workspace/hr/server";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+export const DELETE = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "ID 无效",
+  buildCommand: ({ params, user }) => buildHrRouteCommand({ id: params.id, userId: user.userId }),
+  action: ({ id, userId }) => deleteContract(id, userId),
+});

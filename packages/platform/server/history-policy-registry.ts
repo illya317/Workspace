@@ -1,0 +1,550 @@
+import os from "os";
+import path from "path";
+import { readFile } from "fs/promises";
+import { FIELD_LABELS } from "../audit/field-labels";
+import type { PrismaClient } from "./prisma";
+type PrismaModelKey = Extract<keyof PrismaClient, string>;
+export type HistoryClient = Pick<PrismaClient, "editHistory"> & Record<string, unknown>;
+export type HistoryChange = {
+  field: string;
+  label?: string;
+  from?: string;
+  to: string;
+};
+export type HistorySummaryContext = {
+  entityType: string;
+  previous: Record<string, unknown> | null;
+  current: Record<string, unknown>;
+  fkMap: Record<string, string>;
+  labelField: (field: string) => string;
+  formatValue: (field: string, value: unknown) => string;
+};
+type HistoryModelDelegate = {
+  findUnique: (args: { where: { id: number } }) => Promise<Record<string, unknown> | null>;
+  findMany?: (args: unknown) => Promise<Array<Record<string, unknown>>>;
+  update?: (args: { where: { id: number }; data: Record<string, unknown> }) => Promise<unknown>;
+  create?: (args: { data: Record<string, unknown> }) => Promise<unknown>;
+};
+export type HistoryDisplayPolicy = {
+  field?: string;
+  fallback: string;
+  resolveNames?: (ids: number[], client: HistoryClient) => Promise<Record<string, string>>;
+};
+
+export type HistoryRestorePolicy = {
+  mode: "update-or-create";
+  omitFields?: readonly string[];
+  auditMetadata?: "standard" | "none";
+  sanitizeSnapshot?: (data: Record<string, unknown>) => Record<string, unknown>;
+};
+
+export type HistoryPolicy = {
+  entityType: string;
+  modelKey: PrismaModelKey;
+  trackHistory: true;
+  baseline: "before-first-update" | "never";
+  displayName: HistoryDisplayPolicy;
+  fieldLabels?: Record<string, string>;
+  ignoredFields?: readonly string[];
+  restore: false | HistoryRestorePolicy;
+  readRecord?: (entityId: number, client: HistoryClient) => Promise<Record<string, unknown> | null>;
+  prepareSnapshot?: (record: Record<string, unknown>, client: HistoryClient) => Promise<Record<string, unknown>>;
+  summarizeChanges?: (context: HistorySummaryContext) => HistoryChange[];
+};
+
+const AUDIT_FIELDS = ["editedBy", "editedAt", "version", "editor", "createdAt", "updatedAt", "id"] as const;
+const EMPLOYMENT_CONTRACT_FIELDS = [
+  "company",
+  "isPrimary",
+  "insuranceStatus",
+  "legalRelation",
+  "contractType",
+  "employmentForm",
+  "firstContractStartDate",
+  "firstContractEndDate",
+  "secondContractStartDate",
+  "secondContractEndDate",
+  "thirdContractStartDate",
+  "thirdContractEndDate",
+  "permanentContractDate",
+  "confidentialityDate",
+  "nonCompeteDate",
+  "endDate",
+] as const;
+
+const RESTORE_UPDATE_OR_CREATE = {
+  mode: "update-or-create",
+  omitFields: AUDIT_FIELDS,
+  auditMetadata: "standard",
+} as const satisfies HistoryRestorePolicy;
+function nonRestorableHistoryPolicy(entityType: string, modelKey: PrismaModelKey, displayName: HistoryDisplayPolicy) {
+  return { entityType, modelKey, trackHistory: true, baseline: "before-first-update", displayName, ignoredFields: AUDIT_FIELDS, restore: false } as const satisfies HistoryPolicy;
+}
+
+async function readAgentPermissionPolicy(_entityId: number, client: HistoryClient) {
+  const delegate = client.systemConfig as { findUnique: (args: { where: { key: string } }) => Promise<Record<string, unknown> | null> };
+  return delegate.findUnique({ where: { key: "agentAllowedActions" } });
+}
+
+async function prepareExternalPartyRoleSnapshot(record: Record<string, unknown>, client: HistoryClient) {
+  const delegate = client.externalPartyProfile as { findUnique: (args: { where: { partyId: number } }) => Promise<Record<string, unknown> | null> };
+  const profile = await delegate.findUnique({ where: { partyId: Number(record.partyId) } });
+  return { ...record, relatedPartyType: profile?.relatedPartyType ?? null };
+}
+
+function getDelegate(client: HistoryClient, modelKey: PrismaModelKey): HistoryModelDelegate {
+  return (client as unknown as Record<string, HistoryModelDelegate>)[modelKey];
+}
+
+async function resolveEdpNames(ids: number[], client: HistoryClient) {
+  const records = await getDelegate(client, "eDP").findMany?.({
+    where: { id: { in: ids } },
+    include: { employee: { select: { name: true } } },
+  });
+  const map: Record<string, string> = {};
+  for (const record of records ?? []) {
+    const employee = record.employee as { name?: string } | undefined;
+    map[String(record.id)] = employee?.name || String(record.id);
+  }
+  return map;
+}
+
+async function resolveEmployeeProjectNames(ids: number[], client: HistoryClient) {
+  const records = await getDelegate(client, "employeeProject").findMany?.({
+    where: { id: { in: ids } },
+    include: {
+      employee: { select: { name: true } },
+      project: { select: { name: true } },
+    },
+  });
+  const map: Record<string, string> = {};
+  for (const record of records ?? []) {
+    const employee = record.employee as { name?: string } | undefined;
+    const project = record.project as { name?: string } | undefined;
+    map[String(record.id)] = `${employee?.name || "?"} / ${project?.name || "?"}`;
+  }
+  return map;
+}
+
+async function resolveEmploymentNames(ids: number[], client: HistoryClient) {
+  const records = await getDelegate(client, "employment").findMany?.({
+    where: { id: { in: ids } },
+    include: { employee: { select: { name: true } } },
+  });
+  const map: Record<string, string> = {};
+  for (const record of records ?? []) {
+    const employee = record.employee as { name?: string } | undefined;
+    map[String(record.id)] = employee?.name || String(record.id);
+  }
+  return map;
+}
+
+const employeeLabels = {
+  employeeId: "员工编号",
+  name: "姓名",
+  alias: "别名",
+  userId: "关联账号",
+} satisfies Record<string, string>;
+
+const financeAccountLabels = {
+  code: "科目编码",
+  name: "科目名称",
+  category: "科目类别",
+  parentId: "上级科目",
+  balanceDirection: "余额方向",
+  companyCode: "公司编码",
+  mnemonicCode: "助记码",
+  currency: "币种",
+  groupSubjectCode: "集团科目编码",
+  subjectLevel: "科目层级",
+} satisfies Record<string, string>;
+
+const documentTemplateLabels = {
+  title: "模板名称",
+  type: "模板类型",
+  status: "状态",
+  spaceId: "模板空间",
+  sourceKind: "来源类型",
+  sourceProductKey: "来源标识",
+  publishedAt: "发布时间",
+  publishedByUserId: "发布人",
+} satisfies Record<string, string>;
+
+async function prepareDocumentTemplateSnapshot(record: Record<string, unknown>) {
+  const content = await readDocumentTemplateContentJson(record);
+  return {
+    ...record,
+    documentJson: content.documentJson,
+    fieldModelJson: content.fieldModelJson,
+  };
+}
+
+async function readDocumentTemplateContentJson(record: Record<string, unknown>) {
+  const [documentContent, fieldModelContent] = await Promise.all([
+    readDocumentTemplateContentRef(typeof record.documentContentRef === "string" ? record.documentContentRef : null),
+    readDocumentTemplateContentRef(typeof record.fieldModelContentRef === "string" ? record.fieldModelContentRef : null),
+  ]);
+  return {
+    documentJson: documentContent ?? "{}",
+    fieldModelJson: fieldModelContent ?? "{}",
+  };
+}
+
+async function readDocumentTemplateContentRef(ref: string | null) {
+  if (!ref) return null;
+  const rootRef = "data/docs-editor/templates";
+  if (path.isAbsolute(ref) || ref.includes("..") || !ref.startsWith(`${rootRef}/`)) return null;
+  const configured = process.env["WORKSPACE_CONFIG_DIR"]?.trim();
+  if (!configured) return null;
+  const root = configured === "~" ? os.homedir() : configured.startsWith("~/") ? path.join(os.homedir(), configured.slice(2)) : configured;
+  return readFile(path.join(root, ...ref.split("/")), "utf8").catch(() => null);
+}
+
+function parseContractSnapshots(value: unknown) {
+  if (!value || typeof value !== "string") return [];
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (Array.isArray(parsed)) return parsed as Record<string, unknown>[];
+    if (parsed && typeof parsed === "object") return [parsed as Record<string, unknown>];
+  } catch {}
+  return [];
+}
+
+function summarizeEmploymentChanges(context: HistorySummaryContext) {
+  const changes: HistoryChange[] = [];
+  const keys = new Set([...Object.keys(context.current), ...(context.previous ? Object.keys(context.previous) : [])]);
+  for (const key of keys) {
+    if (shouldIgnoreHistoryField(getHistoryPolicy(context.entityType), key)) continue;
+    if (key === "contracts") {
+      const previousContracts = parseContractSnapshots(context.previous?.contracts);
+      const currentContracts = parseContractSnapshots(context.current.contracts);
+      const count = Math.max(previousContracts.length, currentContracts.length);
+      for (let index = 0; index < count; index += 1) {
+        const previousContract = previousContracts[index] || {};
+        const currentContract = currentContracts[index] || {};
+        for (const field of EMPLOYMENT_CONTRACT_FIELDS) {
+          const oldValue = previousContract[field];
+          const newValue = currentContract[field];
+          if (JSON.stringify(oldValue ?? null) === JSON.stringify(newValue ?? null)) continue;
+          changes.push({
+            field: `contracts.${index}.${field}`,
+            label: `合同${index + 1} · ${context.labelField(field)}`,
+            from: context.formatValue(field, oldValue),
+            to: context.formatValue(field, newValue),
+          });
+        }
+      }
+      continue;
+    }
+
+    const oldValue = context.previous?.[key];
+    const newValue = context.current[key];
+    if (JSON.stringify(oldValue ?? null) === JSON.stringify(newValue ?? null)) continue;
+    changes.push({
+      field: key,
+      label: context.labelField(key),
+      from: context.formatValue(key, oldValue),
+      to: context.formatValue(key, newValue),
+    });
+  }
+  return changes;
+}
+
+export const historyPolicyRegistry = {
+  Employee: {
+    entityType: "Employee",
+    modelKey: "employee",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "name", fallback: "未知员工" },
+    fieldLabels: employeeLabels,
+    ignoredFields: AUDIT_FIELDS,
+    restore: RESTORE_UPDATE_OR_CREATE,
+  },
+  Employment: {
+    entityType: "Employment",
+    modelKey: "employment",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { fallback: "未知雇佣", resolveNames: resolveEmploymentNames },
+    ignoredFields: AUDIT_FIELDS,
+    restore: RESTORE_UPDATE_OR_CREATE,
+    summarizeChanges: summarizeEmploymentChanges,
+  },
+  Company: {
+    entityType: "Company",
+    modelKey: "company",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "code", fallback: "未知公司" },
+    ignoredFields: AUDIT_FIELDS,
+    // Company identity moved to Party; pre-migration Company snapshots do not
+    // contain partyId and therefore cannot be restored safely.
+    restore: false,
+  },
+  OwnershipInterest: {
+    entityType: "OwnershipInterest",
+    modelKey: "ownershipInterest",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "id", fallback: "未知关系" },
+    ignoredFields: AUDIT_FIELDS,
+    restore: false,
+  },
+  ShareCapitalEvent: nonRestorableHistoryPolicy("ShareCapitalEvent", "shareCapitalEvent", { field: "eventName", fallback: "未知股本事件" }), ShareCapitalTransaction: nonRestorableHistoryPolicy("ShareCapitalTransaction", "shareCapitalTransaction", { field: "id", fallback: "未知股本交易" }), ShareCapitalSnapshotPosition: nonRestorableHistoryPolicy("ShareCapitalSnapshotPosition", "shareCapitalSnapshotPosition", { field: "id", fallback: "未知股本快照" }), ShareholderGroup: nonRestorableHistoryPolicy("ShareholderGroup", "shareholderGroup", { field: "label", fallback: "未知股东分组" }), ShareholderGroupMembership: nonRestorableHistoryPolicy("ShareholderGroupMembership", "shareholderGroupMembership", { field: "id", fallback: "未知股东分组成员" }), CompanyRegistryChange: nonRestorableHistoryPolicy("CompanyRegistryChange", "companyRegistryChange", { field: "changeItem", fallback: "未知工商变更" }), CompanyRegistryOwnershipParticipant: nonRestorableHistoryPolicy("CompanyRegistryOwnershipParticipant", "companyRegistryOwnershipParticipant", { field: "rawName", fallback: "未知工商股东快照" }), PartyNameHistory: nonRestorableHistoryPolicy("PartyNameHistory", "partyNameHistory", { field: "name", fallback: "未知主体名称" }),
+  Party: {
+    entityType: "Party",
+    modelKey: "party",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "name", fallback: "未知主体" },
+    ignoredFields: AUDIT_FIELDS,
+    restore: false,
+  },
+  ExternalPartyRole: {
+    entityType: "ExternalPartyRole",
+    modelKey: "externalPartyRole",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "code", fallback: "未知往来角色" },
+    ignoredFields: AUDIT_FIELDS,
+    restore: false,
+    prepareSnapshot: prepareExternalPartyRoleSnapshot,
+  },
+  Contract: {
+    entityType: "Contract",
+    modelKey: "contract",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "name", fallback: "未知合同" },
+    ignoredFields: AUDIT_FIELDS,
+    restore: false,
+  },
+  InventoryReceiptBatch: { entityType: "InventoryReceiptBatch", modelKey: "inventoryReceiptBatch", trackHistory: true, baseline: "before-first-update", displayName: { field: "batchNumber", fallback: "成品入库报单批号" }, ignoredFields: AUDIT_FIELDS, restore: false },
+  InventoryReceiptOutput: { entityType: "InventoryReceiptOutput", modelKey: "inventoryReceiptOutput", trackHistory: true, baseline: "before-first-update", displayName: { field: "productionQuantityText", fallback: "成品入库报单记录" }, ignoredFields: AUDIT_FIELDS, restore: false },
+  Product: { entityType: "Product", modelKey: "product", trackHistory: true, baseline: "before-first-update", displayName: { field: "name", fallback: "未知产品" }, ignoredFields: AUDIT_FIELDS, restore: false },
+  InventoryItem: { entityType: "InventoryItem", modelKey: "inventoryItem", trackHistory: true, baseline: "before-first-update", displayName: { field: "name", fallback: "未知 SKU" }, ignoredFields: AUDIT_FIELDS, restore: false },
+  Department: {
+    entityType: "Department",
+    modelKey: "department",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "name", fallback: "未知部门" },
+    ignoredFields: AUDIT_FIELDS,
+    restore: RESTORE_UPDATE_OR_CREATE,
+  },
+  Position: {
+    entityType: "Position",
+    modelKey: "position",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "name", fallback: "未知岗位" },
+    ignoredFields: AUDIT_FIELDS,
+    restore: RESTORE_UPDATE_OR_CREATE,
+  },
+  EDP: {
+    entityType: "EDP",
+    modelKey: "eDP",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { fallback: "未知关联", resolveNames: resolveEdpNames },
+    ignoredFields: AUDIT_FIELDS,
+    restore: RESTORE_UPDATE_OR_CREATE,
+  },
+  Project: {
+    entityType: "Project",
+    modelKey: "project",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "name", fallback: "未知项目" },
+    ignoredFields: AUDIT_FIELDS,
+    restore: RESTORE_UPDATE_OR_CREATE,
+  },
+  WorkPlan: {
+    entityType: "WorkPlan",
+    modelKey: "workPlan",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "title", fallback: "未知工作计划" },
+    ignoredFields: AUDIT_FIELDS,
+    restore: false,
+  },
+  WorkItem: {
+    entityType: "WorkItem",
+    modelKey: "workItem",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "content", fallback: "未知工作项" },
+    ignoredFields: AUDIT_FIELDS,
+    restore: false,
+  },
+  WorkKpiDefinition: nonRestorableHistoryPolicy("WorkKpiDefinition", "workKpiDefinition", { field: "name", fallback: "未知 KPI 指标定义" }),
+  EmployeeProject: {
+    entityType: "EmployeeProject",
+    modelKey: "employeeProject",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { fallback: "未知关联", resolveNames: resolveEmployeeProjectNames },
+    ignoredFields: AUDIT_FIELDS,
+    restore: RESTORE_UPDATE_OR_CREATE,
+  },
+  ProjectPlanPhase: nonRestorableHistoryPolicy("ProjectPlanPhase", "projectPlanPhase", { field: "name", fallback: "未知项目阶段" }),
+  Meeting: nonRestorableHistoryPolicy("Meeting", "meeting", { field: "title", fallback: "未知会议" }),
+  WorkflowPolicy: nonRestorableHistoryPolicy("WorkflowPolicy", "workflowPolicy", { field: "businessActionKey", fallback: "未知流程策略" }),
+  AgentProfile: { ...nonRestorableHistoryPolicy("AgentProfile", "agentProfile", { field: "displayName", fallback: "未知 Agent 档案" }), fieldLabels: { displayName: "Agent 名称", roleName: "岗位名称", responsibilities: "职责说明", status: "档案状态" } },
+  AgentRuntimeBinding: { ...nonRestorableHistoryPolicy("AgentRuntimeBinding", "agentRuntimeBinding", { field: "runtimeKind", fallback: "未知 Agent 运行时" }), fieldLabels: { runtimeKind: "运行时类型", status: "运行时状态", interactive: "允许交互", capabilityKeysJson: "运行时能力白名单", instructions: "运行时职责指令" } },
+  AgentPermissionPolicy: { ...nonRestorableHistoryPolicy("AgentPermissionPolicy", "systemConfig", { fallback: "Agent 全局动作上限", resolveNames: async (ids) => Object.fromEntries(ids.map((id) => [String(id), "Agent 全局动作上限"])) }), readRecord: readAgentPermissionPolicy, fieldLabels: { value: "允许动作" } },
+  PositionDescription: {
+    entityType: "PositionDescription",
+    modelKey: "positionDescription",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "name", fallback: "未知岗位说明书" },
+    ignoredFields: AUDIT_FIELDS,
+    restore: false,
+  },
+  FinanceAccount: {
+    entityType: "FinanceAccount",
+    modelKey: "financeAccount",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "name", fallback: "未知科目" },
+    fieldLabels: financeAccountLabels,
+    ignoredFields: AUDIT_FIELDS,
+    restore: false,
+  },
+  FinanceDataImport: nonRestorableHistoryPolicy("FinanceDataImport", "financeDataImport", { field: "sourceFile", fallback: "未知成本导入批次" }),
+  FinancePeriod: nonRestorableHistoryPolicy("FinancePeriod", "financePeriod", { fallback: "未知会计期间" }),
+  FinanceVoucher: nonRestorableHistoryPolicy("FinanceVoucher", "financeVoucher", { field: "voucherNo", fallback: "未知会计凭证" }),
+  LibraryDocument: {
+    entityType: "LibraryDocument",
+    modelKey: "libraryDocument",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "title", fallback: "未知资料" },
+    ignoredFields: AUDIT_FIELDS,
+    restore: false,
+  },
+  LibraryDirectory: nonRestorableHistoryPolicy("LibraryDirectory", "libraryDirectory", { field: "name", fallback: "未知资料文件夹" }),
+  DocumentTemplate: {
+    entityType: "DocumentTemplate",
+    modelKey: "documentTemplate",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "title", fallback: "未知模板" },
+    fieldLabels: documentTemplateLabels,
+    ignoredFields: [
+      "id",
+      "version",
+      "createdAt",
+      "updatedAt",
+      "deletedAt",
+      "documentContentRef",
+      "fieldModelContentRef",
+    ],
+    restore: false,
+    prepareSnapshot: prepareDocumentTemplateSnapshot,
+  },
+} as const satisfies Record<string, HistoryPolicy>;
+
+export type HistoryEntityType = keyof typeof historyPolicyRegistry;
+
+export function getHistoryPolicy(entityType: string): HistoryPolicy | undefined {
+  return (historyPolicyRegistry as Record<string, HistoryPolicy>)[entityType];
+}
+
+export function assertTrackedHistoryPolicy(entityType: string, caller = "history"): HistoryPolicy {
+  const policy = getHistoryPolicy(entityType);
+  if (!policy?.trackHistory) {
+    throw new Error(
+      `[${caller}] 未注册的 entityType: "${entityType}"。请在 @workspace/platform/server/history-policy-registry 中添加策略。`,
+    );
+  }
+  return policy;
+}
+
+export function getHistoryModelDelegate(client: HistoryClient, policy: HistoryPolicy): HistoryModelDelegate {
+  const delegate = getDelegate(client, policy.modelKey);
+  if (!delegate || typeof delegate.findUnique !== "function") {
+    throw new Error(`[historyPolicyRegistry] ${policy.entityType} 的 modelKey "${policy.modelKey}" 不存在或缺少 findUnique。`);
+  }
+  return delegate;
+}
+
+export function getRestorableHistoryPolicy(entityType: string): (HistoryPolicy & { restore: HistoryRestorePolicy }) | undefined {
+  const policy = getHistoryPolicy(entityType);
+  if (!policy || policy.restore === false) return undefined;
+  return policy as HistoryPolicy & { restore: HistoryRestorePolicy };
+}
+
+export function labelHistoryField(entityType: string, field: string) {
+  const policy = getHistoryPolicy(entityType);
+  return policy?.fieldLabels?.[field] ?? FIELD_LABELS[field] ?? field;
+}
+
+export function shouldIgnoreHistoryField(policy: HistoryPolicy | undefined, field: string) {
+  const ignored = policy?.ignoredFields ?? AUDIT_FIELDS;
+  return (ignored as readonly string[]).includes(field);
+}
+
+export function buildHistoryRestoreData(policy: HistoryPolicy & { restore: HistoryRestorePolicy }, snapshotData: Record<string, unknown>) {
+  const data = { ...snapshotData };
+  for (const field of policy.restore.omitFields ?? []) delete data[field];
+  return policy.restore.sanitizeSnapshot ? policy.restore.sanitizeSnapshot(data) : data;
+}
+
+export function buildHistoryRestoreAuditMetadata(
+  policy: HistoryPolicy & { restore: HistoryRestorePolicy },
+  userId: number,
+  mode: "create" | "update",
+  now = new Date(),
+) {
+  if (policy.restore.auditMetadata === "none") return {};
+  return mode === "update"
+    ? { editedBy: userId, editedAt: now, version: { increment: 1 } }
+    : { editedBy: userId, editedAt: now, version: 1 };
+}
+
+function defaultHistoryValue(value: unknown) {
+  if (value == null) return "(空)";
+  return typeof value === "object" ? JSON.stringify(value) : String(value);
+}
+
+export function summarizeHistoryChanges(
+  entityType: string,
+  previous: Record<string, unknown> | null,
+  current: Record<string, unknown>,
+  options: {
+    fkMap?: Record<string, string>;
+    formatValue?: (field: string, value: unknown) => string;
+  } = {},
+) {
+  const policy = getHistoryPolicy(entityType);
+  const context: HistorySummaryContext = {
+    entityType,
+    previous,
+    current,
+    fkMap: options.fkMap ?? {},
+    labelField: (field) => labelHistoryField(entityType, field),
+    formatValue: options.formatValue ?? ((_field, value) => defaultHistoryValue(value)),
+  };
+  if (policy?.summarizeChanges) return policy.summarizeChanges(context);
+  if (!previous) return [];
+
+  const changes: HistoryChange[] = [];
+  const keys = new Set([...Object.keys(current), ...Object.keys(previous)]);
+  for (const key of keys) {
+    if (shouldIgnoreHistoryField(policy, key)) continue;
+    const oldValue = previous[key];
+    const newValue = current[key];
+    if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+      changes.push({
+        field: key,
+        label: context.labelField(key),
+        from: context.formatValue(key, oldValue),
+        to: context.formatValue(key, newValue),
+      });
+    }
+  }
+  return changes;
+}

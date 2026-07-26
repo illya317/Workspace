@@ -1,0 +1,29 @@
+import {
+  operationalAnalysisTemplateLifecycleParamsSchema,
+  operationalAnalysisTemplatePreviewInputSchema,
+  runOperationalAnalysisTemplateRevisionPreview,
+} from "@workspace/finance/server/cost";
+import { registerFinanceWorkSpaceAccessProvider } from "@workspace/finance/server/cost/work-space-access-provider";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+registerFinanceWorkSpaceAccessProvider();
+
+export const POST = createCommandRoute({
+  paramsSchema: operationalAnalysisTemplateLifecycleParamsSchema,
+  paramsError: "经营分析模板参数无效",
+  bodySchema: operationalAnalysisTemplatePreviewInputSchema,
+  bodyError: "经营分析预览参数无效",
+  buildCommand: ({ params, body, user }) => okCommand({
+    userId: user.userId,
+    scope: { scopeType: params.targetType, scopeId: params.targetId },
+    templateId: params.templateId,
+    expectedRevision: body.expectedRevision,
+    revision: body.revision,
+    filterValues: body.filterValues,
+  }),
+  action: (command, { request }) => runOperationalAnalysisTemplateRevisionPreview({
+    ...command,
+    signal: request.signal,
+  }),
+});

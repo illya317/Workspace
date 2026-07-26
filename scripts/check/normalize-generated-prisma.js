@@ -1,0 +1,57 @@
+const fs = require("node:fs");
+const path = require("node:path");
+
+const generatedPaths = [
+  "../../generated/prisma/internal/prismaNamespace.ts",
+  "../../generated/prisma/models/MutationImpactBatch.ts",
+  "../../generated/prisma/models/MutationImpactEffect.ts",
+  "../../generated/prisma/models/FinanceBalanceReclassAdjustmentHistory.ts",
+  "../../generated/prisma/models/FinanceAccountingPolicyVersion.ts",
+  "../../generated/prisma/models/FinanceCashFlowAllocationAdjustment.ts",
+  "../../generated/prisma/models/FinanceGroupAccount.ts",
+  "../../generated/prisma/models/FinanceGroupAccountMapping.ts",
+  "../../generated/prisma/models/FinanceGroupAccountRevision.ts",
+  "../../generated/prisma/models/FinanceStatementVoucherExclusion.ts",
+  "../../generated/prisma/models/DataQualityCheckState.ts",
+  "../../generated/prisma/models/DataQualityEvaluationRequest.ts",
+  "../../generated/prisma/models/DataQualityFinding.ts",
+  "../../generated/prisma/models/DataQualityNotificationDelivery.ts",
+  "../../generated/prisma/models/DataQualityRun.ts",
+  "../../generated/prisma/models/EmployeeLifecycleEvent.ts",
+  "../../generated/prisma/models/CompanyRegistryChange.ts",
+  "../../generated/prisma/models/CompanyRegistryOwnershipParticipant.ts",
+  "../../generated/prisma/models/FinanceCounterpartyClassification.ts",
+  "../../generated/prisma/models/FinanceOpenItemSettlement.ts",
+  "../../generated/prisma/models/ExternalPartySourceMapping.ts",
+  "../../generated/prisma/models/ExternalPartyProfile.ts",
+  "../../generated/prisma/models/InventoryReceiptBatch.ts",
+  "../../generated/prisma/models/InventoryReceiptOutput.ts",
+  "../../generated/prisma/models/InventoryReceiptProductWorkPoint.ts",
+  "../../generated/prisma/models/InventoryReceiptReport.ts",
+  "../../generated/prisma/models/InventoryReceiptReportEvent.ts",
+  "../../generated/prisma/models/OwnershipInterest.ts",
+  "../../generated/prisma/models/Party.ts",
+  "../../generated/prisma/models/PartyNameHistory.ts",
+  "../../generated/prisma/models/Product.ts",
+  "../../generated/prisma/models/ProductSourceMapping.ts",
+  "../../generated/prisma/models/ShareCapitalEvent.ts",
+  "../../generated/prisma/models/ShareCapitalSnapshotPosition.ts",
+  "../../generated/prisma/models/ShareCapitalTransaction.ts",
+  "../../generated/prisma/models/ShareholderGroup.ts",
+  "../../generated/prisma/models/ShareholderGroupMembership.ts",
+  "../../generated/prisma/models/WorkspaceAnalysisTemplate.ts",
+  "../../generated/prisma/models/WorkspaceAnalysisTemplateRevision.ts",
+  "../../generated/prisma/models/WorkKpiAssignment.ts",
+  "../../generated/prisma/models/WorkKpiDefinition.ts",
+  "../../generated/prisma/models/WorkKpiResultSnapshot.ts",
+  "../../generated/prisma/models/ProductionQcAuditEvent.ts",
+  "../../generated/prisma/models/ProductionQcBatch.ts",
+  "../../generated/prisma/models/ProductionQcFieldValue.ts",
+  "../../generated/prisma/models/ProductionQcSignature.ts",
+].map((filePath) => path.resolve(__dirname, filePath));
+
+for (const filePath of generatedPaths) {
+  const source = fs.readFileSync(filePath, "utf8");
+  const normalized = source.replace(/[\t ]+$/gm, "");
+  if (normalized !== source) fs.writeFileSync(filePath, normalized);
+}

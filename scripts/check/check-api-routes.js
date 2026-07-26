@@ -1,0 +1,336 @@
+#!/usr/bin/env node
+/**
+ * API Route Governance Check
+ *
+ * 规则：
+ * 1. API 一级目录只表达系统能力类型
+ * 2. 业务 API 必须放在 /api/modules/<module>/* 下
+ * 3. module 名必须来自 packages/platform/module-registry.ts 中登记的 API guards
+ * 4. 外部开放 API 必须放在 /api/open/*，且走 Open API registry/scope
+ */
+
+const fs = require("fs");
+const path = require("path");
+const { collectApiContracts, collectModuleDefs } = require("./module-registry-reader");
+
+const WORKSPACE_ROOT = path.resolve(__dirname, "../..");
+const ROOT = path.join(WORKSPACE_ROOT, "app/api");
+const HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"];
+
+function walkRoutes(dir) {
+  const results = [];
+  for (const entry of fs.readdirSync(dir)) {
+    const full = path.join(dir, entry);
+    if (fs.statSync(full).isDirectory()) {
+      results.push(...walkRoutes(full));
+    } else if (entry === "route.ts") {
+      results.push(full);
+    }
+  }
+  return results;
+}
+
+const KNOWN_PREFIXES = [
+  "agent",
+  "auth",
+  "internal",
+  "integrations",
+  "modules",
+  "open",
+  "settings",
+];
+
+const MODULE_DEFS = collectModuleDefs();
+const KNOWN_MODULES = new Set(MODULE_DEFS.filter((moduleDef) => !moduleDef.parentKey).map((moduleDef) => moduleDef.key));
+const MODULES_WITH_CHILDREN = new Set(MODULE_DEFS.filter((moduleDef) => moduleDef.parentKey).map((moduleDef) => moduleDef.parentKey));
+const REGISTERED_L2_API_BASES = new Set(
+  MODULE_DEFS
+    .filter((moduleDef) => moduleDef.parentKey)
+    .flatMap((moduleDef) => moduleDef.apiPrefixes || []),
+);
+const REGISTERED_L1_ONLY_API_BASES = new Set(
+  collectApiContracts()
+    .filter((contract) => contract.source === "apiGuards")
+    .map((contract) => contract.pathPrefix)
+    .filter((prefix) => {
+      const parts = prefix.split("/").filter(Boolean);
+      const moduleName = parts[2];
+      return parts[0] === "api" && parts[1] === "modules" && moduleName && !MODULES_WITH_CHILDREN.has(moduleName);
+    }),
+);
+const EXPLICIT_NON_L2_API_CONTRACTS = collectApiContracts()
+  .filter((contract) => contract.source === "apiRoutes" && ["disabled", "internal", "public"].includes(contract.access))
+  .map((contract) => contract.pathPrefix);
+const EXPLICIT_INTERNAL_API_CONTRACTS = collectApiContracts()
+  .filter((contract) => contract.source === "apiRoutes" && contract.access === "internal")
+  .map((contract) => contract.pathPrefix);
+const EXPLICIT_PUBLIC_API_CONTRACTS = collectApiContracts()
+  .filter((contract) => contract.source === "apiRoutes" && contract.access === "public")
+  .map((contract) => contract.pathPrefix);
+const REGISTERED_API_CONTRACTS = collectApiContracts()
+  .filter((contract) => HTTP_METHODS.includes(contract.method));
+const PUBLIC_OR_DEV_API_ROUTES = new Set([
+  "auth/dev-login/route.ts",
+  "auth/dev-login-bypass/route.ts",
+  "auth/gateway-check/route.ts",
+  "auth/me/route.ts",
+  "auth/wecom/callback/route.ts",
+  "auth/wecom/start/route.ts",
+  "settings/account/week-info/route.ts",
+]);
+const API_ACCESS_IMPORTS = [
+  "@workspace/platform/server/auth",
+  "@workspace/platform/server/api-access",
+];
+const API_ROUTE_HELPER_IMPORT = "@workspace/platform/server/api-route";
+const WITH_AUTH_IMPORT = "@workspace/platform/server/with-auth";
+const DIRECT_PERMISSION_ACTION_CALL = /\bevaluatePermissionAction\s*\(/;
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function routePathFromRel(rel) {
+  return `/api/${rel.replace(/\/route\.ts$/, "")}`;
+}
+
+function exportedMethods(content) {
+  const methods = new Set();
+  for (const match of content.matchAll(/\bexport\s+(?:const|async\s+function|function)\s+(GET|POST|PUT|PATCH|DELETE)\b/g)) {
+    methods.add(match[1]);
+  }
+  return [...methods];
+}
+
+function pathMatchesPrefix(apiPath, pathPrefix) {
+  return apiPath === pathPrefix || apiPath.startsWith(`${pathPrefix}/`);
+}
+
+function isCoveredByRegisteredApiContract(method, pathname) {
+  return REGISTERED_API_CONTRACTS.some((contract) =>
+    contract.method === method && pathMatchesPrefix(pathname, contract.pathPrefix),
+  );
+}
+
+function isCoveredByExplicitNonL2Contract(pathname) {
+  return EXPLICIT_NON_L2_API_CONTRACTS.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+function isCoveredByExplicitInternalContract(pathname) {
+  return EXPLICIT_INTERNAL_API_CONTRACTS.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+function isCoveredByExplicitPublicContract(pathname) {
+  return EXPLICIT_PUBLIC_API_CONTRACTS.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+function isCoveredByL1OnlyContract(pathname) {
+  return [...REGISTERED_L1_ONLY_API_BASES].some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+function hasNamedImport(content, name, sources) {
+  return sources.some((source) => {
+    const escaped = escapeRegExp(source);
+    const regex = new RegExp(`import\\s*\\{([^}]*)\\}\\s*from\\s*["']${escaped}["']`, "g");
+    let match;
+    while ((match = regex.exec(content))) {
+      const names = match[1].split(",").map((item) => item.trim().split(/\s+as\s+/)[0]?.trim());
+      if (names.includes(name)) return true;
+    }
+    return false;
+  });
+}
+
+function hasWithAuthImport(content) {
+  const escaped = escapeRegExp(WITH_AUTH_IMPORT);
+  return new RegExp(`import\\s*\\{[^}]*with[A-Za-z]*(?:Access|Write|Delete|Auth)[^}]*\\}\\s*from\\s*["']${escaped}["']`).test(content);
+}
+
+function usesImportedApiGate(content) {
+  return hasNamedImport(content, "requireApiAccess", API_ACCESS_IMPORTS) && /\brequireApiAccess\s*\(/.test(content);
+}
+
+function usesApiRouteHelperGate(content) {
+  return (
+    hasNamedImport(content, "createApiRouteHandler", [API_ROUTE_HELPER_IMPORT]) &&
+    /\bcreateApiRouteHandler\s*\(/.test(content)
+  ) || (
+    hasNamedImport(content, "createCommandRoute", [API_ROUTE_HELPER_IMPORT]) &&
+    /\bcreateCommandRoute\s*\(/.test(content)
+  );
+}
+
+function usesInternalApiRouteHelper(content) {
+  return (
+    hasNamedImport(content, "createInternalApiRoute", [API_ROUTE_HELPER_IMPORT]) &&
+    /\bcreateInternalApiRoute\s*\(/.test(content)
+  ) || (
+    hasNamedImport(content, "createAgentDomainRpcHandler", ["@workspace/platform/server/agent/remote-domain-rpc"]) &&
+    /\bcreateAgentDomainRpcHandler\s*\(/.test(content)
+  ) || (
+    hasNamedImport(content, "createAuthoritativeLibrarySourceRoute", ["@workspace/platform/server/authoritative-library-source-route"]) &&
+    /\bcreateAuthoritativeLibrarySourceRoute\s*\(/.test(content)
+  ) || (
+    hasNamedImport(content, "createWorkspaceAnalysisSourceRpcHandler", ["@workspace/platform/server/workspace-analysis-source-rpc"]) &&
+    /\bcreateWorkspaceAnalysisSourceRpcHandler\s*\(/.test(content)
+  );
+}
+
+function usesImportedAdminApiGate(content) {
+  return hasNamedImport(content, "requireAdminApiAccess", API_ACCESS_IMPORTS) && /\brequireAdminApiAccess\s*\(/.test(content);
+}
+
+let errors = 0;
+
+for (const contract of REGISTERED_API_CONTRACTS) {
+  const routeLabel = `${contract.method} ${contract.pathPrefix}`;
+  if (contract.apiKind === "business") {
+    if (!contract.resourceKey) {
+      console.error(`❌ API contract ${routeLabel} classified as business but has no resourceKey`);
+      errors++;
+    }
+  } else {
+    if (contract.resourceKey) {
+      console.error(`❌ API contract ${routeLabel} classified as ${contract.apiKind} but declares resourceKey ${contract.resourceKey}`);
+      errors++;
+    }
+    if (!contract.notes) {
+      console.error(`❌ API contract ${routeLabel} classified as ${contract.apiKind} must explain why it has no resource/action via notes`);
+      errors++;
+    }
+  }
+}
+
+const allRoutes = walkRoutes(ROOT);
+
+for (const file of allRoutes) {
+  const rel = path.relative(ROOT, file).replace(/\\/g, "/");
+  const content = fs.readFileSync(file, "utf-8");
+
+  // 检查是否在已知 API 能力前缀下
+  const firstSegment = rel.split("/")[0];
+  const routePath = routePathFromRel(rel);
+  const methods = exportedMethods(content);
+  if (!KNOWN_PREFIXES.includes(firstSegment)) {
+    console.error(`❌ ${rel} 缺少 API 能力前缀，应放到 /api/{auth,agent,settings,modules,integrations,internal,open}/*`);
+    errors++;
+    continue;
+  }
+
+  if (methods.length === 0) {
+    console.error(`❌ ${rel} 未导出 HTTP method；API route 必须显式导出 GET/POST/PUT/PATCH/DELETE`);
+    errors++;
+  }
+
+  if (firstSegment !== "open") {
+    for (const method of methods) {
+      if (!isCoveredByRegisteredApiContract(method, routePath)) {
+        console.error(`❌ ${rel} 导出未注册的 API method: ${method} ${routePath}；请在 module-registry 的 apiRoutes/apiGuards/systemApiRoutes 中登记`);
+        errors++;
+      }
+    }
+  }
+
+  const isExplicitNonL2 = isCoveredByExplicitNonL2Contract(routePath);
+  const isExplicitInternal = isCoveredByExplicitInternalContract(routePath);
+  const isExplicitPublic = isCoveredByExplicitPublicContract(routePath);
+  const usesDirectAuthenticate = content.includes("authenticate(");
+  const usesAuthWrapper = hasWithAuthImport(content) && (/with[A-Za-z]*(Access|Write|Delete|Auth)\s*\(/.test(content) || /withAuth\s*\(/.test(content));
+  const usesRegistryGate = usesImportedApiGate(content) || usesApiRouteHelperGate(content) || usesAuthWrapper;
+  const usesAdminGate = usesImportedAdminApiGate(content);
+
+  if (DIRECT_PERMISSION_ACTION_CALL.test(content)) {
+    console.error(`❌ ${rel} 禁止直接调用 evaluatePermissionAction()；API 动作权限必须在 permission-api-action-policy 注册 requiredActions，由 requireApiAccess() 统一执行`);
+    errors++;
+  }
+
+  if (firstSegment === "modules") {
+    const parts = rel.split("/");
+    const moduleName = parts[1];
+    if (!KNOWN_MODULES.has(moduleName)) {
+      console.error(`❌ ${rel} 的模块名未在 module-registry apiGuards 登记，应放到 /api/modules/<registered-module>/*`);
+      errors++;
+    }
+    const l2Base = parts.length >= 3 ? `/api/modules/${parts[1]}/${parts[2]}` : null;
+    if (
+      !isCoveredByExplicitNonL2Contract(routePath) &&
+      !isCoveredByL1OnlyContract(routePath) &&
+      (!l2Base || !REGISTERED_L2_API_BASES.has(l2Base))
+    ) {
+      console.error(`❌ ${rel} 未命中注册的 L2 API base；应放到 /api/modules/<l1>/<registered-l2>/*，当前 L2 base 为 ${l2Base || "缺失"}`);
+      errors++;
+    }
+
+    if (usesDirectAuthenticate && !isExplicitPublic) {
+      console.error(`❌ ${rel} 业务 API 禁止裸用 authenticate()；入口必须走 requireApiAccess(request) 或已接入它的 with-auth wrapper`);
+      errors++;
+    }
+    if (isExplicitInternal && !usesInternalApiRouteHelper(content)) {
+      console.error(`❌ ${rel} 是 explicit internal API contract，必须使用 createInternalApiRoute() 统一声明 internal 授权入口`);
+      errors++;
+    }
+    if (!isExplicitNonL2 && !usesRegistryGate) {
+      console.error(`❌ ${rel} 缺少 registry 派生 API 门禁；请使用 createApiRouteHandler()/createCommandRoute()、requireApiAccess(request)，或已接入它的 with-auth wrapper`);
+      errors++;
+    }
+    if (
+      content.includes("searchFkOptions(") &&
+      !content.includes("definition.permission") &&
+      !content.includes("authorizeFk")
+    ) {
+      console.error(`❌ ${rel} 调用 searchFkOptions() 前必须按 FK definition.permission 做 resource 授权，避免 FK 分支绕过 L2 权限`);
+      errors++;
+    }
+  }
+
+  if (firstSegment === "settings" && !PUBLIC_OR_DEV_API_ROUTES.has(rel)) {
+    if (rel.startsWith("settings/account/")) {
+      if (usesDirectAuthenticate) {
+        console.error(`❌ ${rel} 账号自助 API 禁止裸用 authenticate()；必须从平台导入并调用 requireApiAccess(request)`);
+        errors++;
+      }
+      if (!usesRegistryGate) {
+        console.error(`❌ ${rel} 缺少 settings.account registry API 门禁；请从 @workspace/platform/server/auth 导入 requireApiAccess`);
+        errors++;
+      }
+    } else if (rel.startsWith("settings/admin/")) {
+      if (usesDirectAuthenticate) {
+        console.error(`❌ ${rel} 系统管理 API 禁止裸用 authenticate()；必须使用 requireAdminApiAccess(request)`);
+        errors++;
+      }
+      if (!usesAdminGate) {
+        console.error(`❌ ${rel} 缺少 settings.admin 管理范围 API 门禁；请从 @workspace/platform/server/auth 导入 requireAdminApiAccess`);
+        errors++;
+      }
+    }
+  }
+
+  if (firstSegment === "agent") {
+    if (usesDirectAuthenticate || content.includes("getCurrentUser(") && !usesRegistryGate) {
+      console.error(`❌ ${rel} Agent API 必须先走 requireApiAccess(request)，再读取 session user`);
+      errors++;
+    }
+    if (!usesRegistryGate) {
+      console.error(`❌ ${rel} 缺少 agent registry API 门禁；请从 @workspace/platform/server/auth 导入 requireApiAccess`);
+      errors++;
+    }
+  }
+
+  if (firstSegment === "open") {
+    if (!content.includes("withOpenApiScope(")) {
+      console.error(`❌ ${rel} 外部开放 API 必须使用 withOpenApiScope()`);
+      errors++;
+    }
+    if (/\bauthorize\s*\(/.test(content) || /\bwithAuth\s*\(/.test(content) || /\bauthenticate\s*\(/.test(content)) {
+      console.error(`❌ ${rel} 外部开放 API 禁止使用内部 RBAC/auth wrapper`);
+      errors++;
+    }
+  }
+}
+
+if (errors > 0) {
+  console.error(`\nAPI route governance check failed: ${errors} error(s)`);
+  process.exit(1);
+} else {
+  console.log("\n✓ API route governance check passed");
+}

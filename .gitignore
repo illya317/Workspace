@@ -1,0 +1,107 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/.next
+/apps/*/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.eslintcache
+.cache/
+
+# env files — .env.example is committed as documentation;
+# all other .env files (local secrets) must stay ignored.
+.env
+.env.*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+/app/generated/prisma
+
+# SQLite database and runtime data
+/data
+/data/*.db
+/data/*.db-journal
+/data/*.db.backup-*
+/data/.env.backup-*
+
+# Company-specific assets (logo, favicon, etc.)
+/public/company/
+/public/company
+
+# Agent avatar assets live in the external .workspace runtime.
+/public/assets/agent/avatar/
+/public/assets/agent/avatar
+
+# User avatar assets also live in the external .workspace runtime.
+/public/assets/user/avatar/
+/public/assets/user/avatar
+
+# Deployment lock file
+.deploying
+
+# Server deployment secrets and local ops overrides
+ops/server.env.sh
+ops/*.local.sh
+
+# Playwright test results
+/test-results/
+
+# Local scratch artifacts
+/tmp/
+/outputs/
+
+# Agent worktrees
+/.claude/
+
+# Planning files (local working memory)
+/task_plan.md
+/findings.md
+/progress.md
+/.planning/
+
+# Seed data (raw Excel, intermediate JSON, normalized JSON, engine)
+/prisma/seed/data/
+/prisma/seed-data/现金流/
+prisma/dev.db
+
+# Python
+__pycache__/
+*.swp
+
+# Runtime pharma-ops JSON config lives in ../.workspace/config/pharma-ops.
+/config/pharma-ops/**/*.json
+
+# Generated runtime caches
+/cache/

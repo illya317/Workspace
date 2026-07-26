@@ -1,0 +1,10 @@
+import { listWorkshopReports, costQuerySchema } from "@workspace/finance/server/cost";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+export const GET = createCommandRoute({
+  querySchema: costQuerySchema,
+  queryError: "参数无效",
+  buildCommand: ({ query }) => okCommand(query),
+  action: async (command) => ({ success: true, ...await listWorkshopReports(command) }),
+});

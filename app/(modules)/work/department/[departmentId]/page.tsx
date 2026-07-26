@@ -1,0 +1,28 @@
+import { requireRouteAccess } from "@workspace/platform/server/auth";
+import { emptyWorkDepartmentHomeData, getDepartmentHomeEntry, listWorkTaskSpaces } from "@workspace/work/server";
+import { WorkDepartmentHomePageView } from "@workspace/work/ui";
+
+export default async function WorkDepartmentHomePage({
+  params,
+}: {
+  params: Promise<{ departmentId: string }>;
+}) {
+  const user = await requireRouteAccess("/work/me");
+  const { departmentId } = await params;
+  const parsedDepartmentId = Number(departmentId);
+  const [entry, navigation] = await Promise.all([
+    getDepartmentHomeEntry({ userId: user.id, departmentId: parsedDepartmentId }),
+    listWorkTaskSpaces(user.id),
+  ]);
+  return <WorkDepartmentHomePageView
+    user={user}
+    data={entry.ok ? entry.data : emptyWorkDepartmentHomeData()}
+    navigation={navigation}
+    contributions={entry.ok ? [{
+      key: "business-analysis",
+      label: "经营分析",
+      order: 100,
+      href: `/finance/cost/workspace/department/${parsedDepartmentId}`,
+    }] : []}
+  />;
+}

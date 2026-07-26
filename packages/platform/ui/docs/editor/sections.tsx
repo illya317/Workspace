@@ -1,0 +1,113 @@
+"use client";
+
+import {
+  createEmptySection,
+  createMessageSection,
+  createStatusSection,
+  type BodySurfaceSectionSpec,
+} from "@workspace/core/ui";
+import {
+  createDocumentWorkspaceSection,
+  type DocumentEditorCanvasProps,
+  type EditorDocument,
+  type FieldModel,
+} from "@workspace/platform/document-editor";
+import type {
+  EditorTemplateDetailDto,
+} from "./api";
+import {
+  type FormulaComputation,
+} from "./model";
+
+export function createEditorDetailSection(input: {
+  detail: EditorTemplateDetailDto | null;
+  detailLoading: boolean;
+  documentDraft: EditorDocument;
+  fieldModelDraft: FieldModel;
+  formulaComputation: FormulaComputation;
+  message: string | null;
+  editable: boolean;
+  assistantAction?: DocumentEditorCanvasProps["assistantAction"];
+  setDocumentDraft: (document: EditorDocument) => void;
+}): BodySurfaceSectionSpec {
+  const {
+    detail,
+    detailLoading,
+    documentDraft,
+    fieldModelDraft,
+    formulaComputation,
+    message,
+    editable,
+    assistantAction,
+    setDocumentDraft,
+  } = input;
+
+  if (detailLoading) {
+    return createHeaderlessSection("docs-editor-detail", [
+      createStatusSection("detail-loading", { kind: "loading", content: "加载模板详情..." }),
+    ]);
+  }
+
+  if (!detail) {
+    return createHeaderlessSection("docs-editor-detail", [
+      createEmptySection("detail-empty", { content: "请选择一个模板", compact: true }),
+    ]);
+  }
+
+  const messageSection = message
+    ? [createMessageSection("docs-editor-message", { content: message, tone: message.includes("失败") ? "danger" : "success" })]
+    : [];
+
+  return createPaperTabSection({
+    documentDraft,
+    fieldModelDraft,
+    formulaComputation,
+    editable,
+    assistantAction,
+    messageSection,
+    setDocumentDraft,
+  });
+}
+
+function createHeaderlessSection(key: string, sections: BodySurfaceSectionSpec[]): BodySurfaceSectionSpec {
+  return {
+    key,
+    body: {
+      kind: "section",
+      sections,
+    },
+  };
+}
+
+function createPaperTabSection(input: {
+  documentDraft: EditorDocument;
+  fieldModelDraft: FieldModel;
+  formulaComputation: FormulaComputation;
+  editable: boolean;
+  assistantAction?: DocumentEditorCanvasProps["assistantAction"];
+  messageSection: BodySurfaceSectionSpec[];
+  setDocumentDraft: (document: EditorDocument) => void;
+}): BodySurfaceSectionSpec {
+  const { documentDraft, fieldModelDraft, formulaComputation, editable, assistantAction, messageSection, setDocumentDraft } = input;
+  return {
+    key: "docs-editor-paper",
+    body: {
+      kind: "section" as const,
+      sections: [
+        ...messageSection,
+        createDocumentWorkspaceSection({
+          key: "paper-editor",
+          mode: "edit",
+          editor: {
+            document: documentDraft,
+            fieldModel: fieldModelDraft,
+            computedValues: formulaComputation.previewValues,
+            editable,
+            assistantAction,
+            onChange: setDocumentDraft,
+          },
+        }),
+      ],
+    },
+  };
+}

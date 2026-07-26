@@ -1,0 +1,43 @@
+(version 1)
+
+(allow default)
+
+;; Darwin 25 aborts deny-by-default profiles that contain path filters. Keep
+;; normal process/network behavior, then fail closed for filesystem access
+;; outside the fixed system/runtime roots.
+(deny file-read*
+  (require-all
+    (require-not (literal "/"))
+    (require-not (literal "/opt"))
+    (require-not (literal "/private"))
+    (require-not (literal "/private/var"))
+    (require-not (literal (param "ROOT_PARENT_1")))
+    (require-not (literal (param "ROOT_PARENT_2")))
+    (require-not (literal (param "ROOT_PARENT_3")))
+    (require-not (literal (param "ROOT_PARENT_4")))
+    (require-not (literal (param "ROOT_PARENT_5")))
+    (require-not (literal (param "ROOT_PARENT_6")))
+    (require-not (literal (param "ROOT_DIR")))
+    (require-not (subpath "/System"))
+    (require-not (subpath "/usr"))
+    (require-not (subpath "/Library"))
+    (require-not (subpath "/opt/homebrew"))
+    (require-not (subpath "/private/etc"))
+    (require-not (subpath "/private/var/db"))
+    (require-not (subpath "/dev"))
+    (require-not (subpath (param "RUNNER_DIR")))
+    (require-not (subpath (param "VENV_DIR")))
+    (require-not (subpath (param "CONFIG_DIR")))
+    (require-not (subpath (param "SKILLS_DIR")))
+    (require-not (subpath (param "AGENT_CONFIG_DIR")))
+    (require-not (subpath (param "HOME_DIR")))
+    (require-not (subpath (param "SHARE_DIR")))
+    (require-not (subpath (param "WORK_DIR")))
+    (require-not (subpath (param "TMP_DIR")))))
+
+(deny file-write*
+  (require-all
+    (require-not (subpath (param "HOME_DIR")))
+    (require-not (subpath (param "SHARE_DIR")))
+    (require-not (subpath (param "WORK_DIR")))
+    (require-not (subpath (param "TMP_DIR")))))

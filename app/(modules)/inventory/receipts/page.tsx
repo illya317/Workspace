@@ -1,0 +1,28 @@
+import { evaluatePermissionAction, requireRouteAccess } from "@workspace/platform/server/auth";
+import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
+import InventoryReceiptClient from "@workspace/inventory/ui/receipts";
+
+export default async function InventoryReceiptsPage() {
+  const user = await requireRouteAccess("/inventory/receipts");
+  const [canCreate, canUpdate, canDelete, canSubmit, canApprove] = await Promise.all([
+    evaluatePermissionAction(user.id, "inventory.receipts", "create"),
+    evaluatePermissionAction(user.id, "inventory.receipts", "update"),
+    evaluatePermissionAction(user.id, "inventory.receipts", "delete"),
+    evaluatePermissionAction(user.id, "inventory.receipts", "submit"),
+    evaluatePermissionAction(user.id, "inventory.receipts", "approve"),
+  ]);
+  return renderAppShellPage({
+    title: "成品入库报单",
+    backHref: "/inventory",
+    user,
+    children: <InventoryReceiptClient
+      canCreate={canCreate}
+      canUpdate={canUpdate}
+      canDelete={canDelete}
+      canSubmit={canSubmit}
+      canApprove={canApprove}
+      currentUserId={user.id}
+      currentUserName={user.employeeName ?? ""}
+    />,
+  });
+}

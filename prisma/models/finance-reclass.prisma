@@ -1,0 +1,140 @@
+/// 重分类规则 — 绑定共享会计政策版本和稳定集团科目身份，不再按公司或自然年分套
+/// 一条规则 = 人工确认的 (政策版本, 集团源科目, 异常借贷方向) 处理结论
+model FinanceReclassRule {
+  id                Int       @id @default(autoincrement())
+  policyVersionId   Int
+  sourceGroupAccountId Int
+  targetGroupAccountId Int?
+  sourceAccountCode String // 规则确认时的集团科目编码快照
+  abnormalSide      String // debit | credit | both
+  decision          String    @default("reclassify") // reclassify | no_reclass
+  basis             String    @default("account_net") // 计算口径：account_net = 按科目净额 | counterparty_gross = 按往来户逐户毛额
+  targetAccountCode String? // 规则确认时的集团目标科目编码快照
+  enabled           Boolean   @default(true)
+  source            String    @default("manual") // 仅保留 manual；字段用于历史追溯
+  confirmedBy       Int?
+  confirmedAt       DateTime?
+  note              String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+
+  policyVersion     FinanceAccountingPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)
+  sourceGroupAccount FinanceGroupAccount @relation("FinanceReclassRuleSourceGroupAccount", fields: [sourceGroupAccountId], references: [id], onDelete: Restrict)
+  targetGroupAccount FinanceGroupAccount? @relation("FinanceReclassRuleTargetGroupAccount", fields: [targetGroupAccountId], references: [id], onDelete: Restrict)
+  confirmer          User?           @relation("FinanceReclassRuleConfirmer", fields: [confirmedBy], references: [id])
+  results            ReclassResult[]
+
+  @@unique([policyVersionId, sourceGroupAccountId, abnormalSide], map: "FinanceReclassRule_policyVersionId_sourceGroupAccountId_abn_key")
+  @@index([sourceGroupAccountId])
+  @@index([targetGroupAccountId])
+  @@index([sourceAccountCode])
+}
+
+/// 旧版凭证明细例外快照：仅保留历史数据，不再写入或参与当前重分类决策
+model FinanceReclassItemRule {
+  id                Int      @id @default(autoincrement())
+  companyCode       String
+  year              Int
+  sourceAccountCode String
+  matchType         String   @default("exact_description")
+  matchValue        String
+  targetAccountCode String
+  enabled           Boolean  @default(true)
+  note              String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+
+  @@unique([companyCode, year, sourceAccountCode, matchType, matchValue])
+  @@index([companyCode, year, sourceAccountCode])
+}
+
+/// 余额层重分类调整（residual = 期末异常余额 - 凭证明细已调金额）
+model FinanceBalanceReclassAdjustment {
+  id                Int       @id @default(autoincrement())
+  policyVersionId   Int
+  sourceGroupAccountId Int?
+  targetGroupAccountId Int?
+  periodId          Int
+  companyCode       String
+  year              Int
+  sourceAccountCode String
+  targetAccountCode String?
+  amount            Float
+  decision          String    @default("reclassify") // reclassify | no_reclass
+  basis             String    @default("account_net") // 实际执行口径：account_net = 按科目净额 | counterparty_gross = 按往来户逐户毛额
+  sourceType        String    @default("automatic_rule") // automatic_rule | auxiliary_balance | reference_workpaper | balance_residual | manual
+  ruleId            Int?
+  status            String    @default("approved") // approved | adjusted | rejected
+  note              String?
+  adjustedBy        Int?
+  adjustedAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+
+  policyVersion     FinanceAccountingPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)
+  sourceGroupAccount FinanceGroupAccount? @relation("FinanceBalanceReclassSourceGroupAccount", fields: [sourceGroupAccountId], references: [id], onDelete: Restrict)
+  targetGroupAccount FinanceGroupAccount? @relation("FinanceBalanceReclassTargetGroupAccount", fields: [targetGroupAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([periodId, sourceAccountCode])
+  @@index([policyVersionId, sourceGroupAccountId], map: "FinanceBalanceReclassAdjustment_policyVersionId_sourceGroup_idx")
+  @@index([periodId, status])
+}
+
+/// 余额层重分类结果历史（append-only 事实表；来源于自动结果重算或人工覆盖前的当前结果快照）
+model FinanceBalanceReclassAdjustmentHistory {
+  id                   Int       @id @default(autoincrement())
+  adjustmentIdSnapshot Int
+  policyVersionIdSnapshot Int?
+  sourceGroupAccountIdSnapshot Int?
+  targetGroupAccountIdSnapshot Int?
+  periodId             Int
+  companyCode          String
+  year                 Int
+  sourceAccountCode    String
+  targetAccountCode    String?
+  amount               Float
+  decision             String
+  sourceType           String
+  status               String
+  ruleIdSnapshot       Int?
+  adjustedBySnapshot   Int?
+  adjustedAtSnapshot   DateTime?
+  note                 String?
+  archiveReason        String
+  archivedBy           Int?
+  archivedAt           DateTime  @default(now())
+
+  @@index([periodId, archivedAt])
+  @@index([companyCode, year, sourceAccountCode])
+  @@index([adjustmentIdSnapshot])
+}
+
+/// 重分类结果（引擎生成 + 人工审核，从 finance-schedules.prisma 迁入）
+/// periodId + voucherItemId 唯一：同一凭证明细只生成一条重分类结果
+/// engine upsert 时幂等，不会重复
+model ReclassResult {
+  id                    Int       @id @default(autoincrement())
+  periodId              Int
+  voucherItemId         Int? // 当前来源凭证明细；历史来源已删除时为 null
+  voucherItemIdSnapshot Int // 生成时的来源凭证明细 ID 快照，永不因父记录删除而丢失
+  ruleId                Int? // 当前规则；手工添加、规则已删除或历史兼容时为 null
+  ruleIdSnapshot        Int? // 生成时的规则 ID 快照
+  sourceAccount         String // 原科目编码（快照，不FK）
+  targetAccount         String // 目标科目编码（可修改）
+  amount                Float // 重分类金额
+  status                String    @default("pending") // pending|approved|adjusted|rejected
+  adjustedBy            Int? // 审核人 userId
+  adjustedAt            DateTime?
+  note                  String? // 审核备注
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @default(now()) @updatedAt
+
+  period      FinancePeriod       @relation(fields: [periodId], references: [id])
+  voucherItem FinanceVoucherItem? @relation(fields: [voucherItemId], references: [id], onDelete: SetNull)
+  rule        FinanceReclassRule? @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+  reviewer    User?               @relation("ReclassResultReviewer", fields: [adjustedBy], references: [id])
+
+  @@unique([periodId, voucherItemId])
+  @@index([periodId, status])
+  @@index([ruleId])
+}

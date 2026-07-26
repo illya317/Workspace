@@ -1,0 +1,48 @@
+import { z } from "zod";
+
+import {
+  buildHrRouteCommand,
+  listPositionReportOverrides,
+  savePositionReportOverrides,
+} from "@workspace/hr/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";const nullablePositiveInt = z.preprocess(
+  (value) => value === "" || value === undefined ? null : value,
+  z.coerce.number().int().positive().nullable(),
+);
+
+const nullableHeadcount = z.preprocess(
+  (value) => value === "" || value === undefined ? null : value,
+  z.coerce.number().int().min(0).nullable(),
+);
+
+const reportOverridesQuerySchema = z.object({
+  positionId: z.coerce.number().int().positive(),
+}).passthrough();
+
+const reportOverrideRowSchema = z.object({
+  companyId: z.coerce.number().int().positive(),
+  departmentId: z.coerce.number().int().positive(),
+  reportToPositionId: nullablePositiveInt.optional(),
+  headcount: nullableHeadcount.optional(),
+  isActive: z.boolean().optional().nullable(),
+});
+
+const reportOverrideBodySchema = z.object({
+  positionId: z.coerce.number().int().positive(),
+  overrides: z.array(reportOverrideRowSchema),
+});
+
+export const GET = createCommandRoute({
+  querySchema: reportOverridesQuerySchema,
+  queryError: "岗位ID无效",
+  buildCommand: ({ query }) => buildHrRouteCommand({ positionId: query.positionId }),
+  action: ({ positionId }) => listPositionReportOverrides(positionId),
+});
+
+export const PUT = createCommandRoute({
+  bodySchema: reportOverrideBodySchema,
+  bodyError: "特殊汇报配置无效",
+  buildCommand: ({ body, user }) => buildHrRouteCommand({ ...body, userId: user.userId }),
+  action: ({ positionId, overrides, userId }) =>
+    savePositionReportOverrides({ positionId, overrides }, userId),
+});

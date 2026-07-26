@@ -1,0 +1,107 @@
+export interface WorkItemCreateCommand {
+  planId: number;
+  targetType: string;
+  targetId: number;
+  category: string;
+  itemType: string;
+  content: string;
+  description: string;
+  importance: number;
+  urgency: number;
+  status: string | null;
+  krStartValue: number | null;
+  krTargetValue: number | null;
+  krCurrentValue: number | null;
+  krUnit: string | null;
+  routineTaskType: string | null;
+  routineRecurrenceType: string | null;
+  routineRecurrenceTime: string | null;
+  routineRecurrenceWeekday: number | null;
+  routineRecurrenceMonthDay: number | null;
+  routineRecurrenceQuarterDay: number | null;
+  routineRecurrenceYearMonth: number | null;
+  routineRecurrenceYearDay: number | null;
+  ownerEmployeeId: number | null;
+  collaborationId: number | null;
+  actualStartDate: Date | null;
+  actualEndDate: Date | null;
+  plannedStartDate: Date | null;
+  plannedEndDate: Date | null;
+  isMilestone: boolean;
+  milestoneDate: Date | null;
+  periodType: string | null;
+  periodStart: Date | null;
+  periodEnd: Date | null;
+  sourceType: string;
+  sourceKind: string | null;
+  sourceMeetingId: number | null;
+  sourceMeetingDecisionId: number | null;
+  sourceMeetingActionCandidateId: number | null;
+  sourceDepartmentId: number | null;
+  linkedProjectId: number | null;
+  linkedProjectPhaseId: number | null;
+  parentWorkItemId: number | null;
+  parentPeriodWorkItemId: number | null;
+  previousPeriodWorkItemId: number | null;
+  responsibilityNodeId: number | null;
+  responsibilityPositionId: number | null;
+  participants: string[];
+  sortOrder: number;
+}
+
+export interface WorkItemUpdateCommand {
+  workId: number;
+  data: {
+    planId?: number | null;
+    category?: string;
+    itemType?: string;
+    content?: string;
+    description?: string;
+    importance?: number;
+    urgency?: number;
+    status?: string | null;
+    krStartValue?: number | null;
+    krTargetValue?: number | null;
+    krCurrentValue?: number | null;
+    krUnit?: string | null;
+    routineTaskType?: string | null;
+    routineRecurrenceType?: string | null;
+    routineRecurrenceTime?: string | null;
+    routineRecurrenceWeekday?: number | null;
+    routineRecurrenceMonthDay?: number | null;
+    routineRecurrenceQuarterDay?: number | null;
+    routineRecurrenceYearMonth?: number | null;
+    routineRecurrenceYearDay?: number | null;
+    ownerEmployeeId?: number | null;
+    collaborationId?: number | null;
+    actualStartDate?: Date | string | null;
+    actualEndDate?: Date | string | null;
+    plannedStartDate?: Date | string | null;
+    plannedEndDate?: Date | string | null;
+    isMilestone?: boolean;
+    milestoneDate?: Date | string | null;
+    periodType?: string | null;
+    periodStart?: Date | string | null;
+    periodEnd?: Date | string | null;
+    sourceType?: string;
+    sourceKind?: string | null;
+    sourceMeetingId?: number | null;
+    sourceMeetingDecisionId?: number | null;
+    sourceMeetingActionCandidateId?: number | null;
+    sourceDepartmentId?: number | null;
+    linkedProjectId?: number | null;
+    linkedProjectPhaseId?: number | null;
+    parentWorkItemId?: number | null;
+    parentPeriodWorkItemId?: number | null;
+    previousPeriodWorkItemId?: number | null;
+    responsibilityNodeId?: number | null;
+    responsibilityPositionId?: number | null;
+    participants?: string[];
+    sortOrder?: number;
+    isArchived?: boolean;
+  };
+}
+
+export interface WorkItemDeleteCommand {
+  workId: number;
+}

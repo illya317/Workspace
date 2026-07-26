@@ -1,0 +1,98 @@
+/// QC 电子批记录主记录。模板快照固定在创建时，version 用于阻断并发覆盖。
+model ProductionQcBatch {
+  id               Int                      @id @default(autoincrement())
+  recordUid        String                   @unique @default(uuid())
+  legacyFileId     Int?                     @unique
+  batchNumber      String
+  productId        Int?
+  productKey       String
+  productName      String
+  templateId       Int
+  templateVersion  Int
+  templateSnapshot Json
+  templateHash     String
+  status           String                   @default("draft")
+  version          Int                      @default(1)
+  createdByUserId  Int?
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @default(now()) @updatedAt
+  product          Product?                 @relation(fields: [productId], references: [id], onDelete: Restrict)
+  template         DocumentTemplate         @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  fieldValues      ProductionQcFieldValue[]
+  signatures       ProductionQcSignature[]
+
+  @@index([productId, batchNumber])
+  @@index([productKey, batchNumber])
+  @@index([createdAt])
+}
+
+/// QC 字段当前值。历史值不在此表覆盖保留，而进入不可变审计事件。
+model ProductionQcFieldValue {
+  id                Int               @id @default(autoincrement())
+  batchId           Int
+  fieldKey          String
+  value             String
+  valueType         String?
+  unit              String?
+  source            String            @default("manual")
+  lastRecordVersion Int
+  updatedByUserId   Int?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @default(now()) @updatedAt
+  batch             ProductionQcBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, fieldKey])
+  @@index([fieldKey])
+}
+
+/// 每次电子签名均追加一行；重复保存会产生新签名，而不是覆盖旧签名。
+model ProductionQcSignature {
+  id                  Int               @id @default(autoincrement())
+  batchId             Int
+  fieldKey            String
+  scopeKey            String
+  scopeKind           String
+  stageKey            String
+  testName            String?
+  role                String
+  meaning             String
+  signerUserId        Int?
+  signerEmployeeId    String?
+  signerName          String
+  signedAt            DateTime          @default(now())
+  signedRecordVersion Int
+  signedPayloadHash   String
+  authMethod          String
+  batch               ProductionQcBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([batchId, fieldKey, signedAt])
+  @@index([signerUserId, signedAt])
+}
+
+/// QC 不可变审计账。仅保存批次标识快照，不建批次 FK，保证硬删除后事件仍存在。
+model ProductionQcAuditEvent {
+  id                Int      @id @default(autoincrement())
+  batchId           Int?
+  batchRecordUid    String
+  batchNumber       String
+  eventType         String
+  action            String?
+  fieldKey          String?
+  stageKey          String?
+  testName          String?
+  role              String?
+  actorUserId       Int?
+  actorEmployeeId   String?
+  actorName         String?
+  signatureMeaning  String?
+  signedPayloadHash String?
+  beforeValue       String?
+  afterValue        String?
+  recordVersion     Int
+  payload           Json?
+  createdAt         DateTime @default(now())
+
+  @@index([batchRecordUid, createdAt])
+  @@index([batchId, createdAt])
+  @@index([actorUserId, createdAt])
+}

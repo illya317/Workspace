@@ -1,0 +1,261 @@
+/// 员工基础信息
+model Employee {
+  id                     Int                         @id @default(autoincrement())
+  employeeId             String                      @unique
+  idNumber               String?                     @unique
+  otherId                String?
+  name                   String
+  alias                  String?
+  gender                 Boolean?
+  birthDate              String?
+  ethnicity              String?
+  hometown               String?
+  politics               String?
+  education              String?
+  title                  String?
+  school                 String?
+  major                  String?
+  phone                  String?
+  workStartDate          String?
+  userId                 Int?
+  editedBy               Int?
+  editedAt               DateTime?
+  version                Int                         @default(1)
+  createdAt              DateTime                    @default(now())
+  updatedAt              DateTime                    @default(now()) @updatedAt
+  user                   User?                       @relation("EmployeeUser", fields: [userId], references: [id])
+  positions              EDP[]                       @relation("EmployeePositions")
+  lifecycleEvents        EmployeeLifecycleEvent[]
+  projects               EmployeeProject[]
+  ownedWorkItems         WorkItem[]                  @relation("WorkItemOwner")
+  ownedWorkPlans         WorkPlan[]                  @relation("WorkPlanOwner")
+  managedDepartments     DepartmentManagerEmployee[]
+  employments            Employment[]
+  financeSalesSalaries   FinanceSalesSalary[]
+  financeShipments       FinanceShipment[]
+  financeWorkshopReports FinanceWorkshopReport[]
+  performanceReviews     HrPerformanceReview[]
+  ownedKpiAssignments    WorkKpiAssignment[]
+  handledContracts       Contract[]                  @relation("ContractHandlerEmployee")
+}
+
+/// 员工雇佣信息（在职状态、入职/离职日期等事实字段）
+model Employment {
+  id             Int       @id @default(autoincrement())
+  employeeId     Int
+  isActive       Boolean   @default(true)
+  currentCompany String?
+  joinDate       String?
+  leaveDate      String?
+  leaveReason    String?
+  leaveNote      String?
+  officeLocation String?
+  attendanceType String?
+  personnelType  String?
+  rank           String?
+  title          String?
+  contracts      String?
+  editedBy       Int?
+  editedAt       DateTime?
+  version        Int       @default(1)
+  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([isActive])
+}
+
+/// 内部法律公司角色；法定身份由 Party 统一维护
+model Company {
+  id                                Int                                @id @default(autoincrement())
+  partyId                           Int                                @unique
+  code                              String                             @unique
+  description                       String?
+  registeredCapital                 String?
+  bankName                          String?
+  registeredAddress                 String?
+  registeredDate                    String?
+  managementGroup                   String
+  codePoolCode                      String?
+  isActive                          Boolean                            @default(true)
+  sortOrder                         Int                                @default(0)
+  editedBy                          Int?
+  editedAt                          DateTime?
+  version                           Int                                @default(1)
+  createdAt                         DateTime                           @default(now())
+  updatedAt                         DateTime                           @default(now()) @updatedAt
+  party                             Party                              @relation(fields: [partyId], references: [id], onDelete: Restrict)
+  issuedOwnerships                  OwnershipInterest[]
+  shareCapitalEvents                ShareCapitalEvent[]
+  shareholderGroups                 ShareholderGroup[]
+  registryChanges                   CompanyRegistryChange[]
+  positionReportOverrides           PositionReportOverride[]
+  reportingEdps                     EDP[]                              @relation("EDPReportingCompany")
+  financeAuxiliaryMembers           FinanceAuxiliaryMember[]           @relation("FinanceAuxiliaryMemberLinkedCompany")
+  financeVoucherCompanyMappingRules FinanceVoucherCompanyMappingRule[]
+  financeCurrencyPolicy             FinanceCompanyCurrencyPolicy?
+  externalPartySourceMappings       ExternalPartySourceMapping[]
+}
+
+/// 组织单元树（兼容名 Department；含 G/M 层级关系与负责人岗位）
+model Department {
+  id                        Int                                 @id @default(autoincrement())
+  code                      String
+  name                      String
+  alias                     String?
+  hierarchyKind             String                              @default("M")
+  level                     Int                                 @default(1)
+  parentId                  Int?
+  managerPositionId         Int?
+  isArchived                Boolean                             @default(false)
+  archivedAt                DateTime?
+  endDate                   DateTime?
+  editedBy                  Int?
+  editedAt                  DateTime?
+  version                   Int                                 @default(1)
+  managerPosition           Position?                           @relation("DepartmentManagerPosition", fields: [managerPositionId], references: [id])
+  parent                    Department?                         @relation("DeptHierarchy", fields: [parentId], references: [id])
+  children                  Department[]                        @relation("DeptHierarchy")
+  descriptions              DepartmentDescription[]
+  managerEmployees          DepartmentManagerEmployee[]
+  resourceActionGrants      DepartmentResourceActionGrant[]
+  workAssignees             DepartmentWorkAssignee[]
+  responsibleCollaborations DepartmentCollaboration[]           @relation("DepartmentCollaborationResponsibleDepartment")
+  enabledCollaborations     DepartmentCollaborationDepartment[] @relation("DepartmentCollaborationEnablingDepartment")
+  sourceWorkPlans           WorkPlan[]                          @relation("WorkPlanSourceDepartment")
+  sourceWorkItems           WorkItem[]                          @relation("WorkItemSourceDepartment")
+  leadingProjects           Project[]                           @relation("ProjectLeadingDepartment")
+  enabledProjects           ProjectEnablingDepartment[]         @relation("ProjectEnablingDepartmentDepartment")
+  edps                      EDP[]
+  positions                 Position[]
+  positionReportOverrides   PositionReportOverride[]
+  ownedKpiDefinitions       WorkKpiDefinition[]
+
+  @@index([code])
+  @@index([name])
+  @@index([hierarchyKind, level])
+  @@index([managerPositionId])
+}
+
+/// 部门负责人关系（事实表，来源于组织架构维护；负责人必须来自部门负责人岗位的在岗员工）
+model DepartmentManagerEmployee {
+  id           Int        @id @default(autoincrement())
+  departmentId Int
+  employeeId   Int
+  createdAt    DateTime   @default(now())
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  employee     Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([departmentId, employeeId])
+  @@index([employeeId])
+}
+
+/// 岗位定义
+model Position {
+  id                      Int                               @id @default(autoincrement())
+  code                    String
+  alias                   String?
+  name                    String
+  departmentId            Int?
+  positionDescriptionId   Int?
+  reportToPositionId      Int?
+  isArchived              Boolean                           @default(false)
+  archivedAt              DateTime?
+  endDate                 DateTime?
+  editedBy                Int?
+  editedAt                DateTime?
+  version                 Int                               @default(1)
+  edps                    EDP[]                              @relation("EDPPosition")
+  reportedEdps            EDP[]                              @relation("EDPReportToPosition")
+  financeWorkshopReports  FinanceWorkshopReport[]
+  positionDescription     PositionDescription?              @relation(fields: [positionDescriptionId], references: [id])
+  reportToPosition        Position?                         @relation("PositionReportTo", fields: [reportToPositionId], references: [id])
+  directReportPositions   Position[]                        @relation("PositionReportTo")
+  department              Department?                       @relation(fields: [departmentId], references: [id])
+  managedDepartments      Department[]                      @relation("DepartmentManagerPosition")
+  resourceActionGrants    PositionResourceActionGrant[]
+  reportOverrides         PositionReportOverride[]          @relation("PositionReportOverrideSource")
+  reportedReportOverrides PositionReportOverride[]          @relation("PositionReportOverrideReportTo")
+  collaborationPositions  DepartmentCollaborationPosition[]
+
+  @@unique([positionDescriptionId])
+  @@index([code])
+  @@index([name])
+  @@index([departmentId])
+  @@index([reportToPositionId])
+}
+
+/// 员工-部门-岗位关联（EmployeePosition 别名）
+model EDP {
+  id                         Int                         @id @default(autoincrement())
+  employeeId                 Int
+  reportingCompanyId         Int?
+  departmentId               Int?
+  positionId                 Int?
+  positionReportOverrideId   Int?
+  isPrimary                  Boolean                     @default(false)
+  startDate                  String?
+  endDate                    String?
+  reportTo                   String?
+  reportToPositionId         Int?
+  workPercent                String?
+  editedBy                   Int?
+  editedAt                   DateTime?
+  version                    Int                         @default(1)
+  position                   Position?                   @relation("EDPPosition", fields: [positionId], references: [id])
+  department                 Department?                 @relation(fields: [departmentId], references: [id])
+  reportingCompany           Company?                    @relation("EDPReportingCompany", fields: [reportingCompanyId], references: [id], onDelete: SetNull)
+  positionReportOverride     PositionReportOverride?     @relation(fields: [positionReportOverrideId], references: [id], onDelete: SetNull)
+  employee                   Employee                    @relation("EmployeePositions", fields: [employeeId], references: [id], onDelete: Cascade)
+  reportToPosition           Position?                   @relation("EDPReportToPosition", fields: [reportToPositionId], references: [id], onDelete: SetNull)
+  erpDueDiligenceSubmissions ErpDueDiligenceSubmission[] @relation("ErpDueDiligencePositionAssignment")
+
+  @@index([employeeId])
+  @@index([reportingCompanyId])
+  @@index([departmentId])
+  @@index([positionId])
+  @@index([positionReportOverrideId])
+  @@index([reportToPositionId])
+  @@map("EmployeePosition")
+}
+
+/// 岗位在指定公司/组织口径下的特殊汇报规则
+model PositionReportOverride {
+  id                 Int        @id @default(autoincrement())
+  positionId         Int
+  companyId          Int
+  departmentId       Int
+  reportToPositionId Int?
+  headcount          Int?
+  isActive           Boolean    @default(true)
+  remark             String?
+  editedBy           Int?
+  editedAt           DateTime?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @default(now()) @updatedAt
+  position           Position   @relation("PositionReportOverrideSource", fields: [positionId], references: [id], onDelete: Cascade)
+  company            Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  department         Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  reportToPosition   Position?  @relation("PositionReportOverrideReportTo", fields: [reportToPositionId], references: [id])
+  edps               EDP[]
+
+  @@unique([positionId, companyId, departmentId])
+  @@index([companyId])
+  @@index([departmentId])
+  @@index([reportToPositionId])
+  @@index([isActive])
+}
+
+/// 实体编辑历史（版本快照）
+model EditHistory {
+  id         Int      @id @default(autoincrement())
+  entityType String
+  entityId   String
+  version    Int
+  dataJson   String
+  editedBy   Int
+  createdAt  DateTime @default(now())
+  tag        String?
+  editor     User     @relation("EditHistoryEditor", fields: [editedBy], references: [id])
+
+  @@unique([entityType, entityId, version, tag])
+}
