@@ -74,7 +74,11 @@ export type EmploymentAgreementCommand =
       termKind: "initial" | "renewal" | "permanent";
     })
   | (ExistingAgreementCommandBase & {
-      kind: "revise" | "supersede";
+      kind: "revise";
+      content: EmploymentAgreementContent;
+    })
+  | (ExistingAgreementCommandBase & {
+      kind: "supersede";
       content: EmploymentAgreementContent;
     })
   | (ExistingAgreementCommandBase & {
