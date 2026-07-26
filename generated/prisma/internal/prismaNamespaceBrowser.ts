@@ -77,7 +77,10 @@ export const ModelName = {
   ShareCapitalSnapshotPosition: 'ShareCapitalSnapshotPosition',
   ShareholderGroup: 'ShareholderGroup',
   ShareholderGroupMembership: 'ShareholderGroupMembership',
+  ContractCategory: 'ContractCategory',
   Contract: 'Contract',
+  ContractAttachment: 'ContractAttachment',
+  ContractRecord: 'ContractRecord',
   DataQualityRun: 'DataQualityRun',
   DataQualityCheckState: 'DataQualityCheckState',
   DataQualityFinding: 'DataQualityFinding',
@@ -831,23 +834,58 @@ export const ShareholderGroupMembershipScalarFieldEnum = {
 export type ShareholderGroupMembershipScalarFieldEnum = (typeof ShareholderGroupMembershipScalarFieldEnum)[keyof typeof ShareholderGroupMembershipScalarFieldEnum]
 
 
+export const ContractCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContractCategoryScalarFieldEnum = (typeof ContractCategoryScalarFieldEnum)[keyof typeof ContractCategoryScalarFieldEnum]
+
+
 export const ContractScalarFieldEnum = {
   id: 'id',
+  contractUid: 'contractUid',
   contractNo: 'contractNo',
   name: 'name',
   partyA: 'partyA',
   partyB: 'partyB',
   shareholder: 'shareholder',
-  category: 'category',
+  categoryId: 'categoryId',
   content: 'content',
+  owningCompanyId: 'owningCompanyId',
+  ownerDepartmentId: 'ownerDepartmentId',
+  partyAId: 'partyAId',
+  partyBId: 'partyBId',
   handlerEmployeeId: 'handlerEmployeeId',
-  signDate: 'signDate',
-  endDate: 'endDate',
-  status: 'status',
+  signedOn: 'signedOn',
+  expiresOn: 'expiresOn',
+  signedOnPrecision: 'signedOnPrecision',
+  expiresOnPrecision: 'expiresOnPrecision',
+  legacySignDateRaw: 'legacySignDateRaw',
+  legacyEndDateRaw: 'legacyEndDateRaw',
+  lifecycleStatus: 'lifecycleStatus',
+  signatureStatus: 'signatureStatus',
+  performanceStatus: 'performanceStatus',
+  legacyStatusRaw: 'legacyStatusRaw',
   amount: 'amount',
   executedAmount: 'executedAmount',
+  currencyCode: 'currencyCode',
+  confidentialityLevel: 'confidentialityLevel',
   location: 'location',
   remark: 'remark',
+  approvalSourceKey: 'approvalSourceKey',
+  approvalRecordId: 'approvalRecordId',
+  approvalRecordUrl: 'approvalRecordUrl',
+  approvalStatusSnapshot: 'approvalStatusSnapshot',
+  approvedOn: 'approvedOn',
+  approvalSyncedAt: 'approvalSyncedAt',
+  isArchived: 'isArchived',
+  archivedAt: 'archivedAt',
+  archivedBy: 'archivedBy',
   editedBy: 'editedBy',
   editedAt: 'editedAt',
   version: 'version',
@@ -856,6 +894,55 @@ export const ContractScalarFieldEnum = {
 } as const
 
 export type ContractScalarFieldEnum = (typeof ContractScalarFieldEnum)[keyof typeof ContractScalarFieldEnum]
+
+
+export const ContractAttachmentScalarFieldEnum = {
+  id: 'id',
+  attachmentUid: 'attachmentUid',
+  contractId: 'contractId',
+  kind: 'kind',
+  fileName: 'fileName',
+  mimeType: 'mimeType',
+  originalStoragePath: 'originalStoragePath',
+  originalSizeBytes: 'originalSizeBytes',
+  originalChecksumSha256: 'originalChecksumSha256',
+  optimizedStoragePath: 'optimizedStoragePath',
+  optimizedSizeBytes: 'optimizedSizeBytes',
+  optimizedChecksumSha256: 'optimizedChecksumSha256',
+  optimizationStatus: 'optimizationStatus',
+  optimizationError: 'optimizationError',
+  compressionSavingsRatio: 'compressionSavingsRatio',
+  pageCount: 'pageCount',
+  note: 'note',
+  uploadedBy: 'uploadedBy',
+  uploadedAt: 'uploadedAt',
+  removedBy: 'removedBy',
+  removedAt: 'removedAt',
+  removalReason: 'removalReason',
+  version: 'version'
+} as const
+
+export type ContractAttachmentScalarFieldEnum = (typeof ContractAttachmentScalarFieldEnum)[keyof typeof ContractAttachmentScalarFieldEnum]
+
+
+export const ContractRecordScalarFieldEnum = {
+  id: 'id',
+  recordUid: 'recordUid',
+  contractId: 'contractId',
+  recordType: 'recordType',
+  occurredOn: 'occurredOn',
+  title: 'title',
+  content: 'content',
+  sourceKey: 'sourceKey',
+  externalRecordId: 'externalRecordId',
+  externalUrl: 'externalUrl',
+  statusSnapshot: 'statusSnapshot',
+  attachmentUid: 'attachmentUid',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type ContractRecordScalarFieldEnum = (typeof ContractRecordScalarFieldEnum)[keyof typeof ContractRecordScalarFieldEnum]
 
 
 export const DataQualityRunScalarFieldEnum = {

@@ -9,7 +9,6 @@
     "./import": "./import/index.ts",
     "./module": "./module.ts",
     "./server": "./server/index.ts",
-    "./server/agent-tools": "./server/agent-tools.ts",
     "./server/route-commands": "./server/route-commands.ts",
     "./server/analysis/*": "./server/analysis/*.ts",
     "./server/assets/*": "./server/assets/*.ts",

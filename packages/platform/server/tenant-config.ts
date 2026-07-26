@@ -393,11 +393,23 @@ export function getTenantFinanceImports(): TenantFinanceImportConfig {
   return getTenantConfig().financeImports;
 }
 
+function tenantBrandLogoPath() {
+  const root = workspaceConfigDir();
+  for (const file of ["logo.png", "logo.svg"]) {
+    const absolutePath = path.join(root, "assets/brand/company", file);
+    if (fs.existsSync(absolutePath) && fs.statSync(absolutePath).isFile() && fs.statSync(absolutePath).size > 0) {
+      return `/company/${file}`;
+    }
+  }
+  return "/assets/brand/default-company-logo.svg";
+}
+
 export function getTenantPublicConfig(): TenantPublicConfig {
   const { profile, hrCatalogs } = getTenantConfig();
   const { companyDocuments: _companyDocuments, ...publicDocs } = profile.docs;
   return {
     key: profile.key,
+    brand: { logoPath: tenantBrandLogoPath() },
     identity: profile.identity,
     localization: profile.localization,
     organization: profile.organization,

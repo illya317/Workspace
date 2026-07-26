@@ -16,14 +16,17 @@ const contractsQuerySchema = z.object({
   q: optionalText,
   location: optionalText,
   category: optionalText,
-  status: optionalText,
+  categoryId: z.coerce.number().int().positive().optional(),
+  ownerDepartmentId: z.coerce.number().int().positive().optional(),
+  lifecycleStatus: z.enum(["draft", "active", "terminated", "expired", "closed", "unknown"]).optional(),
+  view: z.enum(["all", "needs_attention", "expiring", "expired"]).catch("all"),
   page: z.coerce.number().int().positive().catch(1),
   pageSize: z.coerce.number().int().positive().catch(50),
 });
 
 export const GET = createCommandRoute({
   querySchema: contractsQuerySchema,
-  buildCommand: ({ query }) => okCommand(query),
+  buildCommand: ({ query, user }) => okCommand({ ...query, userId: user.userId }),
   action: listContracts,
 });
 

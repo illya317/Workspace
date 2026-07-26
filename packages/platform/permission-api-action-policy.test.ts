@@ -88,6 +88,39 @@ test("ERP diligence evidence deletion uses submission update permission", () => 
   assert.equal(policy.runtimeEnforcement, "gateway");
 });
 
+test("Contract archive uses archive permission instead of create", () => {
+  const policy = resolvePermissionApiActionPolicy({
+    method: "POST",
+    apiPath: "/api/modules/administration/contracts/17/archive",
+    resourceKey: "administration.contracts",
+  });
+  assert.equal(policy.resourceKey, "administration.contracts");
+  assert.deepEqual(policy.requiredActions, ["archive"]);
+});
+
+test("Contract archive package separates read access from post-approval record updates", () => {
+  const readPaths = [
+    "/api/modules/administration/contracts/17/package",
+    "/api/modules/administration/contracts/17/attachments/00000000-0000-4000-8000-000000000001/download",
+  ];
+  for (const apiPath of readPaths) {
+    const policy = resolveGet(apiPath, "administration.contracts");
+    assert.equal(policy.resourceKey, "administration.contracts");
+    assert.deepEqual(policy.requiredActions, ["read"]);
+  }
+
+  for (const [method, apiPath] of [
+    ["POST", "/api/modules/administration/contracts/17/attachments"],
+    ["POST", "/api/modules/administration/contracts/17/records"],
+    ["POST", "/api/modules/administration/contracts/17/attachments/00000000-0000-4000-8000-000000000001/remove"],
+    ["PUT", "/api/modules/administration/contracts/17/approval-reference"],
+  ] as const) {
+    const policy = resolvePermissionApiActionPolicy({ method, apiPath, resourceKey: "administration.contracts" });
+    assert.equal(policy.resourceKey, "administration.contracts");
+    assert.deepEqual(policy.requiredActions, ["update"]);
+  }
+});
+
 test("Finance statement workbook downloads require export rather than ordinary read", () => {
   for (const apiPath of [
     "/api/modules/finance/statements/reports/export",
@@ -128,4 +161,45 @@ test("Operational analysis lifecycle separates published reads from configure-on
     resourceKey: "finance.operationalAnalytics",
   });
   assert.deepEqual(runtime.requiredActions, ["read"]);
+});
+
+test("Operational analysis standard draft API resolves concrete-space configure policy", () => {
+  const collection = "/api/modules/finance/cost/operational-analytics/spaces/department/12/templates";
+  const item = `${collection}/31`;
+  for (const [method, apiPath] of [["POST", collection], ["GET", item], ["PUT", item]] as const) {
+    const policy = resolvePermissionApiActionPolicy({
+      method,
+      apiPath,
+      resourceKey: "finance.operationalAnalytics",
+    });
+    assert.equal(policy.resourceKey, "space.department.analytics");
+    assert.deepEqual(policy.requiredActions, ["configure"]);
+    assert.equal(policy.runtimeEnforcement, "serviceDelegated");
+    assert.equal(policy.scopeId, "department:12");
+    assert.equal(policy.projection, "space");
+  }
+
+  const catalog = resolvePermissionApiActionPolicy({
+    method: "GET",
+    apiPath: collection,
+    resourceKey: "finance.operationalAnalytics",
+  });
+  assert.deepEqual(catalog.requiredActions, ["read"]);
+  assert.equal(catalog.scopeId, "department:12");
+
+  const sourceDiscovery = resolvePermissionApiActionPolicy({
+    method: "GET",
+    apiPath: "/api/modules/finance/cost/operational-analytics/spaces/department/12/sources/discover",
+    resourceKey: "finance.operationalAnalytics",
+  });
+  assert.deepEqual(sourceDiscovery.requiredActions, ["read"]);
+  assert.equal(sourceDiscovery.scopeId, "department:12");
+
+  const templateContract = resolvePermissionApiActionPolicy({
+    method: "GET",
+    apiPath: "/api/modules/finance/cost/operational-analytics/spaces/department/12/templates/contract",
+    resourceKey: "finance.operationalAnalytics",
+  });
+  assert.deepEqual(templateContract.requiredActions, ["configure"]);
+  assert.equal(templateContract.scopeId, "department:12");
 });

@@ -165,9 +165,6 @@ function usesInternalApiRouteHelper(content) {
     hasNamedImport(content, "createInternalApiRoute", [API_ROUTE_HELPER_IMPORT]) &&
     /\bcreateInternalApiRoute\s*\(/.test(content)
   ) || (
-    hasNamedImport(content, "createAgentDomainRpcHandler", ["@workspace/platform/server/agent/remote-domain-rpc"]) &&
-    /\bcreateAgentDomainRpcHandler\s*\(/.test(content)
-  ) || (
     hasNamedImport(content, "createAuthoritativeLibrarySourceRoute", ["@workspace/platform/server/authoritative-library-source-route"]) &&
     /\bcreateAuthoritativeLibrarySourceRoute\s*\(/.test(content)
   ) || (

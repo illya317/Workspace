@@ -1,0 +1,15 @@
+import { executeArchiveContractCommand } from "@workspace/administration/server";
+import { readRequestExpectedVersion, routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+export const POST = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "无效ID",
+  buildCommand: ({ params, request, user }) => okCommand({
+    id: params.id,
+    userId: user.userId,
+    expectedVersion: readRequestExpectedVersion(request),
+  }),
+  action: executeArchiveContractCommand,
+});

@@ -1,5 +1,7 @@
+import { PDF_OPTIMIZATION_VERSION } from "@workspace/platform/pdf-optimization";
+
 export const LIBRARY_PIPELINE_VERSION = "v1.0.4";
-export const LIBRARY_PREVIEW_VERSION = "v2-compressed";
+export const LIBRARY_PREVIEW_VERSION = PDF_OPTIMIZATION_VERSION;
 export const LIBRARY_LOCATOR_SCHEMA_VERSION = "v1";
 export const LIBRARY_TAXONOMY_VERSION = "v1";
 export const LIBRARY_AGENT_PROVIDER = "workspace-agent";

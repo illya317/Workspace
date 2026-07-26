@@ -425,23 +425,23 @@ function contextText(value: string | null | undefined) {
 export function buildContextualAgentMessage(question: string, session: AgentSessionRow, requestContext?: AgentMessageContextInput) {
   const context = session.contextLabel || session.title || session.pagePath;
   const path = contextText(requestContext?.path) || contextText(session.pagePath);
-  const sourceContext = requestContext?.sourceContext;
-  const sourceLines = [
-    "页面源码定位：",
+  const pageContext = requestContext?.sourceContext;
+  const contextLines = [
+    "当前业务界面上下文：",
     path ? `- path: ${path}` : "",
-    contextText(sourceContext?.navigationLabel) ? `- navigation: ${contextText(sourceContext?.navigationLabel)}` : "",
-    contextText(sourceContext?.activeKey) || contextText(sourceContext?.activeLabel)
-      ? `- activeTab: ${contextText(sourceContext?.activeKey) || "(none)"}${contextText(sourceContext?.activeLabel) ? ` (${contextText(sourceContext?.activeLabel)})` : ""}`
+    contextText(pageContext?.navigationLabel) ? `- navigation: ${contextText(pageContext?.navigationLabel)}` : "",
+    contextText(pageContext?.activeKey) || contextText(pageContext?.activeLabel)
+      ? `- activeTab: ${contextText(pageContext?.activeKey) || "(none)"}${contextText(pageContext?.activeLabel) ? ` (${contextText(pageContext?.activeLabel)})` : ""}`
       : "",
-    contextText(sourceContext?.activeChildKey) || contextText(sourceContext?.activeChildLabel)
-      ? `- activeChild: ${contextText(sourceContext?.activeChildKey) || "(none)"}${contextText(sourceContext?.activeChildLabel) ? ` (${contextText(sourceContext?.activeChildLabel)})` : ""}`
+    contextText(pageContext?.activeChildKey) || contextText(pageContext?.activeChildLabel)
+      ? `- activeChild: ${contextText(pageContext?.activeChildKey) || "(none)"}${contextText(pageContext?.activeChildLabel) ? ` (${contextText(pageContext?.activeChildLabel)})` : ""}`
       : "",
-    "- rule: 回答页面实现问题时，先按 route page 和 import graph 定位当前 tab 对应的 TSX/TS，再扩散搜索。",
+    "- rule: 只按当前页面语义发现并调用已登记业务 API；不得推断或查找源码、组件、schema、数据库或服务器实现。",
   ].filter(Boolean);
-  if (!context && sourceLines.length <= 2) return question;
+  if (!context && contextLines.length <= 2) return question;
   return [
     context ? `当前页面：${context}` : "",
-    ...sourceLines,
+    ...contextLines,
     `用户问题：${question}`,
   ].filter(Boolean).join("\n");
 }

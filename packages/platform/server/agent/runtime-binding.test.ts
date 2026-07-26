@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   ACTIVE_WORKSPACE_RUNTIME_WHERE,
   AGENT_RUNTIME_KINDS,
+  WORKSPACE_AGENT_CAPABILITY_KEYS,
   normalizeAgentRuntimeInstructions,
   parseAgentCapabilityKeys,
 } from "./runtime-binding";
@@ -18,9 +19,14 @@ test("Workspace eligibility requires the active interactive Workspace binding", 
 
 test("runtime capabilities are normalized without accepting malformed values", () => {
   assert.deepEqual(
-    parseAgentCapabilityKeys('["source.searchWorkspaceCode","source.searchWorkspaceCode"]'),
-    ["source.searchWorkspaceCode"],
+    parseAgentCapabilityKeys('["workspace.api.read","workspace.api.read"]'),
+    ["workspace.api.read"],
   );
+  assert.deepEqual(WORKSPACE_AGENT_CAPABILITY_KEYS, [
+    "workspace.api.discover",
+    "workspace.api.read",
+    "workspace.api.proposeMutation",
+  ]);
   assert.throws(() => parseAgentCapabilityKeys('["",1]'));
   assert.throws(() => parseAgentCapabilityKeys("{}"));
 });

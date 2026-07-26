@@ -57,8 +57,8 @@ test("only a non-error finished or non-runtime response succeeds", () => {
 test("non-finished runtime responses cannot masquerade as answers or pending proposals", () => {
   const cancelled = { ...response("proposal", "cancelled"), proposal: {
     id: 9,
-    actionKey: "source.submit",
-    targetType: "PullRequest",
+    actionKey: "agent.businessApi.mutation.execute",
+    targetType: "WorkspaceBusinessApi",
     diff: {},
   } } satisfies AgentResponse;
   assert.deepEqual(normalizeAgentResponseForTerminalOutcome(cancelled), {

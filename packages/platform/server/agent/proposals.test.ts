@@ -499,7 +499,7 @@ test("session persistence failure never masks the original executor error", asyn
 
 test("explicit remote dispatch boundary distinguishes known preflight failures from uncertain remote failures", async () => {
   settlements = [];
-  const actionKey = "source.submitRemoteEffect";
+  const actionKey = "agent.businessApi.mutation.execute";
   proposalRecord = {
     ...proposal("pending"),
     actionKey,

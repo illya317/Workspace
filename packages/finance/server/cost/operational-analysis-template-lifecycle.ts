@@ -19,7 +19,10 @@ import type {
   OperationalAnalysisTemplateLifecycleCommandInput,
   OperationalAnalysisTemplateLifecycleQuery,
 } from "./operational-analysis-template-schema";
-import { canConfigureOperationalAnalytics } from "./operational-analytics";
+import {
+  canConfigureOperationalAnalytics,
+  canUseOperationalAnalyticsApi,
+} from "./operational-analytics";
 import {
   compileAuthorizedFinanceWorkspaceAnalysisDefinition,
   runFinanceWorkspaceAnalysisRuntime,
@@ -124,9 +127,13 @@ export async function getOperationalAnalysisTemplateLifecycle(input: {
   readonly scope: AnalysisScope;
   readonly templateId: number;
   readonly query: OperationalAnalysisTemplateLifecycleQuery;
+  readonly viaApiKey?: boolean;
 }) {
   if (!await canConfigureOperationalAnalytics(input.userId, input.scope.scopeType, input.scope.scopeId)) {
     return serviceError("无权限管理该空间的经营分析模板", 403);
+  }
+  if (input.viaApiKey && !await canUseOperationalAnalyticsApi(input.userId, input.scope.scopeType, input.scope.scopeId)) {
+    return serviceError("当前 API 凭证没有该空间的经营分析 API 使用权限", 403);
   }
   const template = await prisma.workspaceAnalysisTemplate.findFirst({
     where: { id: input.templateId, ...input.scope },
@@ -195,10 +202,14 @@ export async function runOperationalAnalysisTemplateRevisionPreview(input: {
   readonly expectedRevision: number;
   readonly revision: number;
   readonly filterValues?: Readonly<Record<string, string>>;
+  readonly viaApiKey?: boolean;
   readonly signal?: AbortSignal;
 }) {
   if (!await canConfigureOperationalAnalytics(input.userId, input.scope.scopeType, input.scope.scopeId)) {
     return serviceError("无权限预览该空间的经营分析草稿", 403);
+  }
+  if (input.viaApiKey && !await canUseOperationalAnalyticsApi(input.userId, input.scope.scopeType, input.scope.scopeId)) {
+    return serviceError("当前 API 凭证没有该空间的经营分析 API 使用权限", 403);
   }
   const template = await prisma.workspaceAnalysisTemplate.findFirst({
     where: { id: input.templateId, ...input.scope },
@@ -233,9 +244,13 @@ export async function executeOperationalAnalysisTemplateLifecycle(input: {
   readonly scope: AnalysisScope;
   readonly templateId: number;
   readonly command: OperationalAnalysisTemplateLifecycleCommandInput;
+  readonly viaApiKey?: boolean;
 }) {
   if (!await canConfigureOperationalAnalytics(input.userId, input.scope.scopeType, input.scope.scopeId)) {
     return serviceError("无权限管理该空间的经营分析模板", 403);
+  }
+  if (input.viaApiKey && !await canUseOperationalAnalyticsApi(input.userId, input.scope.scopeType, input.scope.scopeId)) {
+    return serviceError("当前 API 凭证没有该空间的经营分析 API 使用权限", 403);
   }
   const current = await prisma.workspaceAnalysisTemplate.findFirst({
     where: { id: input.templateId, ...input.scope },

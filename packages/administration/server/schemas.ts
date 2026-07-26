@@ -1,21 +1,34 @@
 import { z } from "zod";
 
+const nullableText = z.string().trim().optional().nullable();
+const nullableId = z.coerce.number().int().positive().optional().nullable();
+const nullableDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "日期格式应为 YYYY-MM-DD").optional().nullable();
+const nullableAmount = z.union([z.string(), z.number()]).optional().nullable();
+
 export const ContractCreateSchema = z.object({
-  name: z.string().min(1, "合同名称必填"),
-  contractNo: z.string().optional().nullable(),
-  partyA: z.string().optional().nullable(),
-  partyB: z.string().optional().nullable(),
-  shareholder: z.string().optional().nullable(),
-  category: z.string().optional().nullable(),
-  content: z.string().optional().nullable(),
-  handlerEmployeeId: z.coerce.number().int().positive().optional().nullable(),
-  signDate: z.string().optional().nullable(),
-  endDate: z.string().optional().nullable(),
-  status: z.string().optional().nullable(),
-  amount: z.union([z.string(), z.number()]).optional().nullable(),
-  executedAmount: z.union([z.string(), z.number()]).optional().nullable(),
-  location: z.string().optional().nullable(),
-  remark: z.string().optional().nullable(),
+  name: z.string().trim().min(1, "合同名称必填"),
+  contractNo: nullableText,
+  partyA: nullableText,
+  partyB: nullableText,
+  shareholder: nullableText,
+  categoryId: z.coerce.number().int().positive("合同类型必填"),
+  content: nullableText,
+  owningCompanyId: nullableId,
+  ownerDepartmentId: nullableId,
+  partyAId: nullableId,
+  partyBId: nullableId,
+  handlerEmployeeId: nullableId,
+  signedOn: nullableDate,
+  expiresOn: nullableDate,
+  lifecycleStatus: z.enum(["draft", "active", "terminated", "expired", "closed", "unknown"]),
+  signatureStatus: z.enum(["unknown", "unsigned", "signed"]),
+  performanceStatus: z.enum(["unknown", "not_started", "in_progress", "fulfilled", "breached", "waived"]),
+  amount: nullableAmount,
+  executedAmount: nullableAmount,
+  currencyCode: z.string().trim().toUpperCase().regex(/^[A-Z]{3}$/, "币种应为三位代码"),
+  confidentialityLevel: z.coerce.number().int().min(2).max(4),
+  location: nullableText,
+  remark: nullableText,
 });
 
 export const ContractUpdateSchema = ContractCreateSchema.partial();

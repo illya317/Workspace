@@ -94,6 +94,7 @@ model Company {
   financeVoucherCompanyMappingRules FinanceVoucherCompanyMappingRule[]
   financeCurrencyPolicy             FinanceCompanyCurrencyPolicy?
   externalPartySourceMappings       ExternalPartySourceMapping[]
+  ownedContracts                    Contract[]                         @relation("ContractOwningCompany")
 }
 
 /// 组织单元树（兼容名 Department；含 G/M 层级关系与负责人岗位）
@@ -129,6 +130,7 @@ model Department {
   positions                 Position[]
   positionReportOverrides   PositionReportOverride[]
   ownedKpiDefinitions       WorkKpiDefinition[]
+  ownedContracts            Contract[]                        @relation("ContractOwnerDepartment")
 
   @@index([code])
   @@index([name])

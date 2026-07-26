@@ -70,7 +70,7 @@ const BASE_PERMISSION_RESOURCE_ACTION_POLICIES = [
   { resourceKey: "hr.analytics", status: "business", supportedActions: ["entry", "read"], ancestorInheritedActions: ["entry", "read"], explicitOnlyActions: [] },
   { resourceKey: "hr.roster.generated", status: "capability", supportedActions: ["entry", "read", "export"], ancestorInheritedActions: [], explicitOnlyActions: ["entry", "read", "export"] },
   { resourceKey: "administration", status: "container", supportedActions: ["entry", "read", "create", "update", "delete"], ancestorInheritedActions: [], explicitOnlyActions: [] },
-  { resourceKey: "administration.contracts", status: "business", supportedActions: ["entry", "read", "create", "update", "delete", "export"], ancestorInheritedActions: ["entry", "read", "create", "update", "delete"], explicitOnlyActions: ["export"] },
+  { resourceKey: "administration.contracts", status: "business", supportedActions: ["entry", "read", "create", "update", "delete", "archive", "export"], ancestorInheritedActions: ["entry", "read", "create", "update", "delete"], explicitOnlyActions: ["archive", "export"] },
   { resourceKey: "administration.erpDiligence", status: "business", supportedActions: ["entry", "read", "update"], ancestorInheritedActions: ["entry", "read", "update"], explicitOnlyActions: [], notes: "Ordinary users can read and update only their own ERP diligence submission; the service enforces record ownership." },
   { resourceKey: "administration.erpDiligence.viewAll", status: "capability", supportedActions: ["read"], ancestorInheritedActions: [], explicitOnlyActions: ["read"], notes: "Allows reading all ERP diligence submissions after the administration.erpDiligence owner entry gate; ordinary users remain limited to their own submission." },
   { resourceKey: "finance", status: "container", supportedActions: ["entry", "read", "create", "update", "delete"], ancestorInheritedActions: [], explicitOnlyActions: [] },
@@ -106,8 +106,7 @@ const BASE_PERMISSION_RESOURCE_ACTION_POLICIES = [
   { resourceKey: "settings.account.apiAccess", status: "capability", supportedActions: ["entry", "read", "revise"], ancestorInheritedActions: [], explicitOnlyActions: ["entry", "read", "revise"] },
   { resourceKey: "settings.api.manage", status: "capability", supportedActions: ["entry", "read", "create", "update", "revise"], ancestorInheritedActions: [], explicitOnlyActions: ["entry", "read", "create", "update", "revise"] },
   { resourceKey: "agent", status: "headless", supportedActions: ["entry", "read", "submit"], ancestorInheritedActions: [], explicitOnlyActions: ["submit"] },
-  { resourceKey: "agent.assistant", status: "capability", supportedActions: ["entry", "read", "submit"], ancestorInheritedActions: [], explicitOnlyActions: ["entry", "read", "submit"], notes: "Headless toolbar and /api/agent capability owned by settings.account." },
-  { resourceKey: "agent.source", status: "capability", supportedActions: ["read", "submit"], ancestorInheritedActions: [], explicitOnlyActions: ["read", "submit"], notes: "Profile-only Workspace source search and CNB PR proposal execution; both requester and virtual actor need agent.assistant entry plus explicit live source grants." },
+  { resourceKey: "agent.assistant", status: "capability", supportedActions: ["entry", "read", "submit"], ancestorInheritedActions: [], explicitOnlyActions: ["entry", "read", "submit"], notes: "Headless toolbar and /api/agent capability; the runtime can only discover and call registered protected /api/modules business APIs." },
 ] as const satisfies readonly PermissionResourceActionPolicy[];
 
 const WORKFLOW_MANAGEMENT_RESOURCE_ACTION_POLICIES: readonly PermissionResourceActionPolicy[] =

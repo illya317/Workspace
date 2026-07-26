@@ -11,6 +11,7 @@ import { canEnterResource } from "./rbac/resource-entry";
 import type { AuthPayload } from "./auth-token";
 import { disabledApiResponseForRequest } from "./module-runtime";
 import { jsonErrorResponse } from "./api";
+import { authorizeAgentApiDelegation } from "./agent/business-api-authorization";
 
 export type ApiAccessResult =
   | {
@@ -82,9 +83,20 @@ export async function requireApiAccess(request: Request): Promise<ApiAccessResul
   const payload = await authenticate(request);
   if (!payload) return { ok: false, response: await unauthenticatedResponse(request) };
 
+  if (payload.agentDelegation && (
+    contract.apiKind !== "business"
+    || contract.access !== "protected"
+    || !contract.pathPrefix.startsWith("/api/modules/")
+  )) {
+    return { ok: false, response: jsonError("Agent delegation is limited to protected business APIs", 403) };
+  }
+
   if (contract.apiKind === "business") {
     const allowed = await requireBusinessApiActions(payload.userId, contract);
     if (!allowed) return { ok: false, response: jsonError("无权限", 403) };
+    if (payload.agentDelegation && !(await authorizeAgentApiDelegation(payload, contract))) {
+      return { ok: false, response: jsonError("Agent API 委托权限无效", 403) };
+    }
   }
 
   return { ok: true, user: payload, contract };

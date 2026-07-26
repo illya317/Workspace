@@ -1,63 +1,18 @@
-import { execFile } from "node:child_process";
-import { readFile, stat } from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
-import { promisify } from "node:util";
 
 import { prisma } from "@workspace/platform/server/prisma";
+import { runValidatedPdfOptimization } from "@workspace/platform/server/pdf-optimization";
 
 import { LIBRARY_PREVIEW_VERSION } from "../constants/pipeline";
-import { computeChecksumOrThrow } from "./checksum";
 import { getDefaultRoot, safeResolve } from "./config";
 import { buildProcessLibraryVersionCommand } from "./domain/processing-validation";
 import { buildLibraryJobIdempotencyKey } from "./pipeline-contracts";
 import { resolveLibraryVersionProcessingInput } from "./version-content";
 
-const execFileAsync = promisify(execFile);
-
-type PreviewResult = {
-  status: "succeeded";
-  pageCount: number;
-  compressionRetained: boolean;
-  compressionSavingsRatio: number;
-  visualRms: number;
-  textLayerMatches: boolean | null;
-  artifacts: Array<{
-    kind: "preview-pdf" | "thumbnail";
-    fileName: string;
-    mimeType: string;
-    fileSizeBytes: number;
-    checksumSha256: string;
-    pageCount: number | null;
-  }>;
-  warnings: string[];
-};
-
 const PREVIEWABLE_EXTENSIONS = new Set(["pdf"]);
 
 export function supportsLibraryPreview(extension: string | null | undefined) {
   return PREVIEWABLE_EXTENSIONS.has(extension?.toLowerCase() || "");
-}
-
-function pythonPath() {
-  const configured = process.env.LIBRARY_WORKER_PYTHON?.trim();
-  if (configured) return configured.startsWith("~/") ? path.join(os.homedir(), configured.slice(2)) : configured;
-  return path.join(os.homedir(), ".cache/workspace-library/venv/bin/python");
-}
-
-async function readResult(outputDir: string) {
-  return JSON.parse(await readFile(path.join(outputDir, "result.json"), "utf8")) as PreviewResult;
-}
-
-async function validateResult(outputDir: string, result: PreviewResult) {
-  for (const artifact of result.artifacts) {
-    const artifactPath = path.join(outputDir, artifact.fileName);
-    const fileStat = await stat(artifactPath);
-    if (!fileStat.isFile() || fileStat.size !== artifact.fileSizeBytes) throw new Error(`Preview artifact size mismatch: ${artifact.fileName}`);
-    if (await computeChecksumOrThrow(artifactPath) !== artifact.checksumSha256) {
-      throw new Error(`Preview artifact checksum mismatch: ${artifact.fileName}`);
-    }
-  }
 }
 
 export async function previewLibraryVersion(input: { versionUid: string; previewVersion?: string }) {
@@ -128,22 +83,13 @@ export async function previewLibraryVersion(input: { versionUid: string; preview
   if (!outputDir) throw new Error("Preview output path is outside runtime root");
 
   try {
-    let result: PreviewResult;
-    try {
-      result = await readResult(outputDir);
-    } catch {
-      const workerArgs = [
-        path.resolve(process.cwd(), "ops/library-preview-document.py"),
-        "--input", inputPath,
-        "--output-dir", outputDir,
-        "--input-checksum", inputChecksum,
-        "--preview-version", validated.data.pipelineVersion,
-      ];
-      if (validated.data.pipelineVersion.endsWith("-fast")) workerArgs.push("--skip-compression");
-      await execFileAsync(pythonPath(), workerArgs, { timeout: 20 * 60 * 1000, maxBuffer: 10 * 1024 * 1024 });
-      result = await readResult(outputDir);
-    }
-    await validateResult(outputDir, result);
+    const result = await runValidatedPdfOptimization({
+      inputPath,
+      outputDir,
+      inputChecksum,
+      pipelineVersion: validated.data.pipelineVersion,
+      skipCompression: validated.data.pipelineVersion.endsWith("-fast"),
+    });
     await prisma.$transaction(async (tx) => {
       for (const artifact of result.artifacts) {
         await tx.libraryArtifact.upsert({

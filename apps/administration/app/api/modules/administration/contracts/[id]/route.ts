@@ -12,7 +12,12 @@ export const PATCH = createCommandRoute({
   paramsSchema: routeIdParamsSchema,
   bodySchema: ContractUpdateSchema,
   paramsError: "无效ID",
-  buildCommand: ({ params, body, user }) => okCommand({ id: params.id, body, userId: user.userId }),
+  buildCommand: ({ params, body, request, user }) => okCommand({
+    id: params.id,
+    body,
+    userId: user.userId,
+    expectedVersion: readRequestExpectedVersion(request),
+  }),
   action: executeUpdateContractCommand,
 });
 

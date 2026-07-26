@@ -1,0 +1,37 @@
+import {
+  discoverOperationalAnalysisSources,
+  operationalAnalysisSourceDiscoveryQuerySchema,
+  operationalAnalysisTemplateRouteParamsSchema,
+  parseOperationalAnalysisSourceSelections,
+} from "@workspace/finance/server/cost";
+import { registerFinanceWorkSpaceAccessProvider } from "@workspace/finance/server/cost/work-space-access-provider";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { isProgrammaticApiRequest } from "@workspace/platform/server/auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+registerFinanceWorkSpaceAccessProvider();
+
+export const GET = createCommandRoute({
+  paramsSchema: operationalAnalysisTemplateRouteParamsSchema,
+  paramsError: "经营分析空间参数无效",
+  querySchema: operationalAnalysisSourceDiscoveryQuerySchema,
+  queryError: "经营分析数据源发现参数无效",
+  buildCommand: ({ params, query, user, request }) => okCommand({
+    userId: user.userId,
+    scopeType: params.targetType,
+    scopeId: params.targetId,
+    query: {
+      keyword: query.keyword,
+      page: query.page,
+      pageSize: query.pageSize,
+      selected: parseOperationalAnalysisSourceSelections(query.selected),
+    },
+    viaApiKey: isProgrammaticApiRequest(request),
+  }),
+  action: ({ userId, scopeType, scopeId, query, viaApiKey }) => discoverOperationalAnalysisSources(
+    userId,
+    { scopeType, scopeId },
+    query,
+    { viaApiKey },
+  ),
+});

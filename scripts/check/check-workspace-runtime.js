@@ -122,6 +122,19 @@ function validateOptionalFile(root, relativePath, label) {
   return true;
 }
 
+function validateRequiredAlternativeFile(root, relativePaths, label) {
+  const selected = relativePaths.find((relativePath) => {
+    const filePath = path.join(root, relativePath);
+    return fs.existsSync(filePath) && fs.statSync(filePath).isFile() && fs.statSync(filePath).size > 0;
+  });
+  if (!selected) {
+    fail(`${label} missing; provide one of: ${relativePaths.map((relativePath) => path.join(root, relativePath)).join(", ")}`);
+    return false;
+  }
+  ok(`${label} exists: ${selected}`);
+  return true;
+}
+
 function runPrivateConfigCheck(label, args, workspaceDir) {
   const result = spawnSync(process.execPath, args, {
     cwd: ROOT,
@@ -337,7 +350,11 @@ async function main() {
   const workspaceEnvPath = path.join(workspaceDir, ".env");
   validateRequiredFile(workspaceDir, ".env", "workspace .env");
   validateTenantConfiguration(workspaceDir);
-  validateRequiredFile(workspaceDir, "assets/brand/company/logo.png", "company logo");
+  validateRequiredAlternativeFile(
+    workspaceDir,
+    ["assets/brand/company/logo.png", "assets/brand/company/logo.svg"],
+    "company logo",
+  );
   validateRequiredFile(workspaceDir, "assets/brand/favicon.ico", "favicon.ico");
   validateRequiredFile(workspaceDir, "assets/brand/favicon.png", "favicon.png");
   validateRequiredFile(

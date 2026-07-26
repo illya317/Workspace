@@ -52,6 +52,7 @@ type HrDataQualityRow = {
   currentAssignments: Array<{
     reportingCompanyId: number | null;
     departmentId: number | null;
+    departmentName: string | null;
     positionId: number | null;
     isPrimary: boolean;
     workPercent: string | null;
@@ -62,24 +63,49 @@ function sample(rows: HrDataQualityRow[]) {
   return rows.slice(0, 8).map((row) => ({ key: row.employeeId, label: `${row.name}（${row.employeeId}）` }));
 }
 
-function finding(
+type DepartmentScope = { id: number; name: string };
+
+function accountableDepartment(row: HrDataQualityRow): DepartmentScope | null {
+  const assignments = row.currentAssignments.filter((assignment) => assignment.departmentId && assignment.departmentName);
+  const primary = assignments.filter((assignment) => assignment.isPrimary);
+  const candidates = primary.length === 1 ? primary : assignments;
+  const departments = new Map(candidates.map((assignment) => [
+    assignment.departmentId!,
+    assignment.departmentName!,
+  ]));
+  if (departments.size !== 1) return null;
+  const [id, name] = [...departments.entries()][0]!;
+  return { id, name };
+}
+
+function findingsByDepartment(
   check: (typeof CHECKS)[number],
   rows: HrDataQualityRow[],
-  summary: string,
-): DataQualityFinding | null {
-  if (rows.length === 0) return null;
-  return {
-    fingerprint: `${check.key}:global`,
+  issueSummary: (count: number) => string,
+): DataQualityFinding[] {
+  const groups = new Map<string, { department: DepartmentScope | null; rows: HrDataQualityRow[] }>();
+  for (const row of rows) {
+    const department = accountableDepartment(row);
+    const key = department ? `department:${department.id}` : "global";
+    const group = groups.get(key) ?? { department, rows: [] };
+    group.rows.push(row);
+    groups.set(key, group);
+  }
+  return [...groups.entries()].map(([scopeKey, group]) => ({
+    fingerprint: `${check.key}:${scopeKey}`,
     checkKey: check.key,
     domain: check.domain,
     severity: check.defaultSeverity,
     title: check.title,
-    summary,
-    count: rows.length,
+    summary: group.department
+      ? `${group.department.name}：${issueSummary(group.rows.length)}`
+      : `${issueSummary(group.rows.length)}，当前无法归属到唯一部门。`,
+    count: group.rows.length,
     resourceKey: "hr.roster",
+    departmentId: group.department?.id ?? null,
     href: "/hr/roster",
-    samples: sample(rows),
-  };
+    samples: sample(group.rows),
+  }));
 }
 
 function workloadInvalid(row: HrDataQualityRow) {
@@ -103,11 +129,11 @@ export function evaluateHrDataQualityRows(rows: HrDataQualityRow[]): DataQuality
   )));
   const workloadTotalInvalid = rows.filter(workloadInvalid);
   return [
-    finding(CHECKS[0], multipleActiveEmployment, `有 ${multipleActiveEmployment.length} 名员工同时存在多条在职雇佣关系，需要确认唯一有效记录。`),
-    finding(CHECKS[1], currentAssignmentInvalid, `有 ${currentAssignmentInvalid.length} 名在职员工缺少当前任职，或主岗数量不等于 1。`),
-    finding(CHECKS[2], organizationIncomplete, `有 ${organizationIncomplete.length} 名在职员工的当前任职缺少公司、部门或岗位。`),
-    finding(CHECKS[3], workloadTotalInvalid, `有 ${workloadTotalInvalid.length} 名在职员工的当前任职工作占比缺失或合计不等于 1。`),
-  ].filter((item): item is DataQualityFinding => item !== null);
+    ...findingsByDepartment(CHECKS[0], multipleActiveEmployment, (count) => `有 ${count} 名员工同时存在多条在职雇佣关系，需要确认唯一有效记录。`),
+    ...findingsByDepartment(CHECKS[1], currentAssignmentInvalid, (count) => `有 ${count} 名在职员工缺少当前任职，或主岗数量不等于 1。`),
+    ...findingsByDepartment(CHECKS[2], organizationIncomplete, (count) => `有 ${count} 名在职员工的当前任职缺少公司、部门或岗位。`),
+    ...findingsByDepartment(CHECKS[3], workloadTotalInvalid, (count) => `有 ${count} 名在职员工的当前任职工作占比缺失或合计不等于 1。`),
+  ];
 }
 
 export async function evaluateHrDataQuality(): Promise<DataQualityEvaluationResponse> {
@@ -123,6 +149,7 @@ export async function evaluateHrDataQuality(): Promise<DataQualityEvaluationResp
         select: {
           reportingCompanyId: true,
           departmentId: true,
+          department: { select: { name: true } },
           positionId: true,
           isPrimary: true,
           workPercent: true,
@@ -136,7 +163,10 @@ export async function evaluateHrDataQuality(): Promise<DataQualityEvaluationResp
     employeeId: employee.employeeId,
     name: employee.name,
     activeEmploymentCount: employee.employments.length,
-    currentAssignments: employee.positions,
+    currentAssignments: employee.positions.map((assignment) => ({
+      ...assignment,
+      departmentName: assignment.department?.name ?? null,
+    })),
   }));
   return {
     schemaVersion: 1,

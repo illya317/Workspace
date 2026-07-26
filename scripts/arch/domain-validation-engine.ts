@@ -101,7 +101,6 @@ const LOW_LEVEL_HELPER_FILE_PATTERNS = [
 const QUERY_ONLY_FILE_PATTERNS = [
   /\/server\/index\.ts$/,
   /\/server\/autocomplete(?:-config)?\.ts$/,
-  /\/server\/agent-tools\.ts$/,
   /\/server\/admin-/,
   /\/server\/company-directory\.ts$/,
   /\/server\/department-codes\.ts$/,
@@ -597,7 +596,7 @@ function createCommandRouteInlineBranchWarnings(source: string) {
 function commandRouteShellWarnings(file: string, source: string) {
   if (!file.endsWith("/route.ts")) return [];
   const warnings: string[] = [];
-  if (!/\bcreateCommandRoute\b|\bcreateInternalApiRoute\b|\bcreateAgentDomainRpcHandler\b|\bcreateAuthoritativeLibrarySourceRoute\b|\bcreateWorkspaceAnalysisSourceRpcHandler\b/.test(source)) {
+  if (!/\bcreateCommandRoute\b|\bcreateInternalApiRoute\b|\bcreateAuthoritativeLibrarySourceRoute\b|\bcreateWorkspaceAnalysisSourceRpcHandler\b/.test(source)) {
     warnings.push("business API route does not use createCommandRoute/createInternalApiRoute");
   }
   if (/\brequest\.json\s*\(\s*\)\.catch\s*\(/.test(source)) {

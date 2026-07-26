@@ -22,7 +22,7 @@
 - `data/` 中的文件型运行态以服务器为准：本地 `data/` 不上传覆盖服务器；业务关系数据只存 PostgreSQL。
 - 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL` / `DIRECT_URL` 连接 PostgreSQL，通过 `WORKSPACE_CONFIG_DIR` 定位文件型运行态。
 - `.env` 可以软链到外部 `.workspace/.env`；`public/company` 和 `public/assets/agent/avatar` 开发时可软链到 `.workspace/assets/...`，生产 standalone 打包时脚本用 `cp -rL` 复制真实文件。
-- 页面助手源码阅读默认使用服务端受管 Git 源码缓存；本地/内网调试可配置 `AGENT_SOURCE_WORKTREE=/absolute/path/to/workspace`，让助手只读当前 checkout 和未提交源码改动。生产部署时 `ops/deploy.sh` 会将精确 runtime source 同步到 `$REMOTE_DIR/source/Workspace`，并把远端 `.workspace/.env` 的 `AGENT_SOURCE_WORKTREE` 指向该 git worktree。
+- 页面助手不挂载或读取源码、Git worktree、数据库、`.env` 或服务器 home。其运行态是 API-only 薄壳，只能使用 Platform 注入的三个受保护业务 API connector；源码同步、检查、提交和部署留在外部 Codex/CI/服务器流程。
 
 候选提交流程：
 

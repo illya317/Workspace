@@ -1,4 +1,4 @@
-import type { Prisma } from "@workspace/platform/server/prisma";
+import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import {
   failCommand,
   okCommand,
@@ -13,48 +13,99 @@ export interface ContractWriteCommand {
   data: Prisma.ContractUncheckedCreateInput | Prisma.ContractUncheckedUpdateInput;
 }
 
-export interface ContractDeleteCommand {
+export interface ContractTargetCommand {
   id: number;
   userId: number;
-  expectedVersion?: number;
+  expectedVersion: number;
 }
 
-function positiveInt(value: number, field: string) {
-  return Number.isInteger(value) && value > 0
-    ? okCommand(value)
+function positiveInt(value: number | undefined, field: string) {
+  return Number.isInteger(value) && Number(value) > 0
+    ? okCommand(Number(value))
     : failCommand(`${field} must be a positive integer`, 400, field);
 }
 
 function nullableText(value: string | null | undefined) {
-  return value ?? null;
+  const text = value?.trim();
+  return text ? text : null;
 }
 
 function normalizeAmount(
   value: string | number | null | undefined,
   field: "amount" | "executedAmount",
-): DomainValidationResult<number | null> {
+): DomainValidationResult<Prisma.Decimal | null> {
   if (value == null || value === "") return okCommand(null);
-  const amount = Number(value);
-  if (!Number.isFinite(amount)) return failCommand(`${field} must be a number`, 400, field);
-  return okCommand(amount);
+  const text = String(value).trim();
+  if (!/^-?\d+(\.\d{1,2})?$/.test(text)) {
+    return failCommand(`${field} 最多保留两位小数`, 400, field);
+  }
+  return okCommand(new Prisma.Decimal(text));
 }
 
-async function normalizeHandlerEmployeeId(value: number | null | undefined) {
+function normalizeDate(value: string | null | undefined, field: "signedOn" | "expiresOn") {
+  if (!value) return okCommand(null);
+  const date = new Date(`${value}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) {
+    return failCommand(`${field} 不是有效日期`, 400, field);
+  }
+  return okCommand(date);
+}
+
+async function normalizeReference(
+  fkKey: string,
+  value: number | null | undefined,
+  field: string,
+  label: string,
+) {
   if (value === undefined) return okCommand(undefined);
   const validation = await validateFkValue(ADMINISTRATION_FK_REGISTRY, {
-    fkKey: "administration.contracts.handler.employee",
+    fkKey,
     value,
     lifecycleScope: "all",
-    requiredLabel: "经办人",
+    requiredLabel: label,
   });
   return validation.ok
     ? okCommand(validation.value)
-    : failCommand(validation.error, validation.status ?? 400, "handlerEmployeeId");
+    : failCommand(validation.error, validation.status ?? 400, field);
+}
+
+async function normalizeReferences(data: ContractCreateInput | ContractUpdateInput) {
+  const entries = await Promise.all([
+    normalizeReference("administration.contracts.owning.company", data.owningCompanyId, "owningCompanyId", "归属公司"),
+    normalizeReference("administration.contracts.owner.department", data.ownerDepartmentId, "ownerDepartmentId", "归口部门"),
+    normalizeReference("administration.contracts.party.a", data.partyAId, "partyAId", "甲方主体"),
+    normalizeReference("administration.contracts.party.b", data.partyBId, "partyBId", "乙方主体"),
+    normalizeReference("administration.contracts.handler.employee", data.handlerEmployeeId, "handlerEmployeeId", "经办人"),
+  ]);
+  const failed = entries.find((entry) => !entry.ok);
+  if (failed && !failed.ok) return failed;
+  return okCommand({
+    owningCompanyId: entries[0].data,
+    ownerDepartmentId: entries[1].data,
+    partyAId: entries[2].data,
+    partyBId: entries[3].data,
+    handlerEmployeeId: entries[4].data,
+  });
+}
+
+async function validateCategoryId(value: number | undefined) {
+  if (value === undefined) return okCommand(undefined);
+  const category = await prisma.contractCategory.findFirst({
+    where: { id: value, isActive: true },
+    select: { id: true },
+  });
+  return category ? okCommand(category.id) : failCommand("合同类型不存在或已停用", 400, "categoryId");
 }
 
 function buildContractData(
   data: ContractCreateInput | ContractUpdateInput,
-  handlerEmployeeId: number | null | undefined,
+  references: {
+    owningCompanyId?: number | null;
+    ownerDepartmentId?: number | null;
+    partyAId?: number | null;
+    partyBId?: number | null;
+    handlerEmployeeId?: number | null;
+  },
 ) {
   const amount = data.amount !== undefined ? normalizeAmount(data.amount, "amount") : okCommand(undefined);
   if (!amount.ok) return amount;
@@ -62,24 +113,43 @@ function buildContractData(
     ? normalizeAmount(data.executedAmount, "executedAmount")
     : okCommand(undefined);
   if (!executedAmount.ok) return executedAmount;
+  const signedOn = data.signedOn !== undefined ? normalizeDate(data.signedOn, "signedOn") : okCommand(undefined);
+  if (!signedOn.ok) return signedOn;
+  const expiresOn = data.expiresOn !== undefined ? normalizeDate(data.expiresOn, "expiresOn") : okCommand(undefined);
+  if (!expiresOn.ok) return expiresOn;
 
   return okCommand({
-    ...(data.name !== undefined ? { name: data.name } : {}),
+    ...(data.name !== undefined ? { name: data.name.trim() } : {}),
     ...(data.contractNo !== undefined ? { contractNo: nullableText(data.contractNo) } : {}),
     ...(data.partyA !== undefined ? { partyA: nullableText(data.partyA) } : {}),
     ...(data.partyB !== undefined ? { partyB: nullableText(data.partyB) } : {}),
     ...(data.shareholder !== undefined ? { shareholder: nullableText(data.shareholder) } : {}),
-    ...(data.category !== undefined ? { category: nullableText(data.category) } : {}),
+    ...(data.categoryId !== undefined ? { categoryId: data.categoryId } : {}),
     ...(data.content !== undefined ? { content: nullableText(data.content) } : {}),
-    ...(data.handlerEmployeeId !== undefined ? { handlerEmployeeId } : {}),
-    ...(data.signDate !== undefined ? { signDate: nullableText(data.signDate) } : {}),
-    ...(data.endDate !== undefined ? { endDate: nullableText(data.endDate) } : {}),
-    ...(data.status !== undefined ? { status: nullableText(data.status) } : {}),
+    ...(data.owningCompanyId !== undefined ? { owningCompanyId: references.owningCompanyId } : {}),
+    ...(data.ownerDepartmentId !== undefined ? { ownerDepartmentId: references.ownerDepartmentId } : {}),
+    ...(data.partyAId !== undefined ? { partyAId: references.partyAId } : {}),
+    ...(data.partyBId !== undefined ? { partyBId: references.partyBId } : {}),
+    ...(data.handlerEmployeeId !== undefined ? { handlerEmployeeId: references.handlerEmployeeId } : {}),
+    ...(data.signedOn !== undefined ? { signedOn: signedOn.data, signedOnPrecision: signedOn.data ? "day" : null } : {}),
+    ...(data.expiresOn !== undefined ? { expiresOn: expiresOn.data, expiresOnPrecision: expiresOn.data ? "day" : null } : {}),
+    ...(data.lifecycleStatus !== undefined ? { lifecycleStatus: data.lifecycleStatus } : {}),
+    ...(data.signatureStatus !== undefined ? { signatureStatus: data.signatureStatus } : {}),
+    ...(data.performanceStatus !== undefined ? { performanceStatus: data.performanceStatus } : {}),
     ...(data.amount !== undefined ? { amount: amount.data } : {}),
     ...(data.executedAmount !== undefined ? { executedAmount: executedAmount.data } : {}),
+    ...(data.currencyCode !== undefined ? { currencyCode: data.currencyCode.trim().toUpperCase() } : {}),
+    ...(data.confidentialityLevel !== undefined ? { confidentialityLevel: data.confidentialityLevel } : {}),
     ...(data.location !== undefined ? { location: nullableText(data.location) } : {}),
     ...(data.remark !== undefined ? { remark: nullableText(data.remark) } : {}),
   });
+}
+
+export function validateContractState(input: { signedOn?: Date | null; expiresOn?: Date | null }) {
+  if (input.signedOn && input.expiresOn && input.signedOn > input.expiresOn) {
+    return failCommand("合同结束日期不能早于签订日期", 400, "expiresOn");
+  }
+  return okCommand(input);
 }
 
 export async function buildContractCreateCommand(
@@ -89,10 +159,14 @@ export async function buildContractCreateCommand(
   const validUserId = positiveInt(userId, "userId");
   if (!validUserId.ok) return validUserId;
   if (!data.name?.trim()) return failCommand("合同名称必填", 400, "name");
-  const handlerEmployeeId = await normalizeHandlerEmployeeId(data.handlerEmployeeId);
-  if (!handlerEmployeeId.ok) return handlerEmployeeId;
-  const normalized = buildContractData(data, handlerEmployeeId.data);
+  const categoryId = await validateCategoryId(data.categoryId);
+  if (!categoryId.ok) return categoryId;
+  const references = await normalizeReferences(data);
+  if (!references.ok) return references;
+  const normalized = buildContractData(data, references.data);
   if (!normalized.ok) return normalized;
+  const state = validateContractState(normalized.data);
+  if (!state.ok) return state;
   return okCommand({ userId: validUserId.data, data: normalized.data });
 }
 
@@ -100,31 +174,40 @@ export async function buildContractUpdateCommand(
   id: number,
   data: ContractUpdateInput,
   userId: number,
-): Promise<DomainValidationResult<ContractDeleteCommand & ContractWriteCommand>> {
+  expectedVersion?: number,
+): Promise<DomainValidationResult<ContractTargetCommand & ContractWriteCommand>> {
   const validId = positiveInt(id, "id");
   if (!validId.ok) return validId;
   const validUserId = positiveInt(userId, "userId");
   if (!validUserId.ok) return validUserId;
+  const validVersion = positiveInt(expectedVersion, "expectedVersion");
+  if (!validVersion.ok) return validVersion;
   if (Object.keys(data).length === 0) return failCommand("无更新内容", 400);
   if (data.name !== undefined && !data.name.trim()) return failCommand("合同名称必填", 400, "name");
-  const handlerEmployeeId = await normalizeHandlerEmployeeId(data.handlerEmployeeId);
-  if (!handlerEmployeeId.ok) return handlerEmployeeId;
-  const normalized = buildContractData(data, handlerEmployeeId.data);
+  const categoryId = await validateCategoryId(data.categoryId);
+  if (!categoryId.ok) return categoryId;
+  const references = await normalizeReferences(data);
+  if (!references.ok) return references;
+  const normalized = buildContractData(data, references.data);
   if (!normalized.ok) return normalized;
-  return okCommand({ id: validId.data, userId: validUserId.data, data: normalized.data });
+  return okCommand({
+    id: validId.data,
+    userId: validUserId.data,
+    expectedVersion: validVersion.data,
+    data: normalized.data,
+  });
 }
 
-export function buildContractDeleteCommand(
+export function buildContractTargetCommand(
   id: number,
   userId: number,
   expectedVersion?: number,
-): DomainValidationResult<ContractDeleteCommand> {
+): DomainValidationResult<ContractTargetCommand> {
   const validId = positiveInt(id, "id");
   if (!validId.ok) return validId;
   const validUserId = positiveInt(userId, "userId");
   if (!validUserId.ok) return validUserId;
-  if (expectedVersion !== undefined && (!Number.isInteger(expectedVersion) || expectedVersion < 0)) {
-    return failCommand("version must be a non-negative integer", 400, "expectedVersion");
-  }
-  return okCommand({ id: validId.data, userId: validUserId.data, expectedVersion });
+  const validVersion = positiveInt(expectedVersion, "expectedVersion");
+  if (!validVersion.ok) return validVersion;
+  return okCommand({ id: validId.data, userId: validUserId.data, expectedVersion: validVersion.data });
 }

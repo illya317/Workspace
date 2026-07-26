@@ -498,7 +498,7 @@ function extractAuth(content: string, method: ApiMethod, apiPath: string): strin
   // These wrappers enforce credentials outside the ordinary session API contract.
   if (content.includes("withOpenApiScope(")) return "Open API Client + Scope";
   if (content.includes("withWecomAgentBridgeAccess(")) return "企业微信 Agent 身份";
-  if (content.includes("createAgentDomainRpcHandler(") || content.includes("createInternalApiRoute(")) return "内部服务鉴权";
+  if (content.includes("createInternalApiRoute(")) return "内部服务鉴权";
   if (content.includes("createCompatibilityProxyHandler(")) return "继承目标 API 鉴权";
 
   const contractAuth = extractContractAuth(method, apiPath);

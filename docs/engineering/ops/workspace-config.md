@@ -16,7 +16,7 @@ npm run workspace:provision -- \
   --time-zone Etc/UTC
 ```
 
-`workspace:provision` 会先建立目录，再生成单一主体公司、空业务导入、空 QC 产品和中性基础目录。它不会生成数据库连接、secret、品牌图片、人员花名册、财务期初数或其他业务台账，也不会覆盖已有 `config/tenant/profile.json`。生成的 HR、组织、编号和 Agent 最小默认值只用于让租户契约完整，正式开通前必须按客户核准资料复核。
+`workspace:provision` 会先建立目录，再生成单一主体公司、空业务导入、空 QC 产品、中性基础目录和一份带公司名称的默认 SVG Logo。它不会生成数据库连接、secret、人员花名册、财务期初数或其他业务台账，也不会覆盖已有 `config/tenant/profile.json`。生成的 HR、组织、编号和 Agent 最小默认值只用于让租户契约完整，正式开通前必须按客户核准资料复核。
 
 只需要补齐或修复目录时，使用幂等目录初始化：
 
@@ -49,20 +49,22 @@ npm run workspace:check -- --ops-env /absolute/path/to/private/ops/.env
 WORKSPACE_CONFIG_DIR/
 └── assets/
     ├── brand/
-    │   ├── company/logo.png
+    │   ├── company/
+    │   │   ├── logo.png                  # 客户提供时优先
+    │   │   └── logo.svg                  # provision 生成的默认图
     │   ├── favicon.ico
     │   └── favicon.png
     ├── agent/avatar/00_main-transparent.webp
     └── user/avatar/                    # 用户上传时按需创建内容
 ```
 
-品牌图片和主 Agent 头像属于租户必需输入，不会自动生成；初始化命令只创建目录。用户头像由上传功能写入。部署器把这些私有目录挂到运行版本，不把图片复制进 main、release 或构建产物。
+公司 Logo 可以由客户提供 PNG；未提供时 `workspace:provision` 自动生成 SVG，运行时优先 PNG、其次 SVG，两个私有文件都缺失时使用源码内的通用 SVG，不显示空态。favicon 和主 Agent 头像仍由租户提供；`workspace:init` 只创建目录。用户头像由上传功能写入。部署器把这些私有目录挂到运行版本，不把租户图片复制进 main、release 或构建产物。
 
 ## 目录生命周期
 
 | 类型 | 目录 | 生命周期 |
 |---|---|---|
-| 人工租户输入 | `config/tenant`, `config/hr`, `config/docs`, `assets/brand`, `assets/agent` | 初始化只建目录；内容必须配置或迁移 |
+| 人工租户输入 | `config/tenant`, `config/hr`, `config/docs`, `assets/brand`, `assets/agent` | provision 生成默认 Logo；其余内容必须配置或迁移 |
 | QC 私有定义 | `config/pharma-qc` | 源数据必须迁移；派生目录由显式生成命令重建，不在 UI 请求中生成 |
 | 数据发布输入 | `data-release-manifests`, `data-release-sources` | 人工准备并长期保留 |
 | 文件运行态 | `agent`, `library`, `template`, `data` | 初始化可建空目录；使用功能时继续创建子目录和文件 |

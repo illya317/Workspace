@@ -12,11 +12,11 @@ Workspace 通过 SDK 固定 `thinking: false` 走 Kimi K2.6 非思考路径，�
 
 ## 安全边界
 
-- Platform 在启动 SDK 前按 `agentAllowedActions + 请求人 RBAC + 虚拟员工 actor RBAC + active interactive workspace AgentRuntimeBinding 能力清单` 过滤工具；每次 Wire tool call 再实时校验绑定和授权。源码与 CNB PR 工具额外要求双方显式 `agent.source.read/submit`，并标记为 profile-only；本人助手即使获得 source grant 也不能调用。profile 列表只返回当前请求人至少可用一个注册工具的虚拟员工。没有 Workspace 绑定的本地 Codex、CI、服务器虚拟员工不能进入页面助手。虚拟员工账号固定不可登录，不能被当作浏览器会话。
+- Platform 固定只向模型暴露 `workspace.api.discover`、`workspace.api.read`、`workspace.api.proposeMutation`；每次 Wire tool call 都重新校验活跃 Workspace binding、Agent action ceiling、请求人权限和可双主体判定时的虚拟员工 actor 权限。profile 列表只返回当前请求人至少可用一个 connector 的虚拟员工。没有 Workspace 绑定的本地 Codex、CI、服务器虚拟员工不能进入页面助手。虚拟员工账号固定不可登录，不能被当作浏览器会话。
 - 每次运行在 `AgentRun` 中保存 runtime binding ID，以及当时职责 instructions、能力清单的不可变 JSON/SHA-256 快照；后续修改运行配置不会改写历史审计证据。
 - 自定义 Kimi agent 的 `tools` 和 `subagents` 均为空。CLI 内置 Shell、文件、MCP、插件、后台任务和子 Agent 不进入模型工具集；Wire `PreToolUse` 还会阻断所有非本轮 Workspace allowlist 工具。
-- 澄清只允许询问普通业务用户能够回答的业务选择或事实。源码路径、组件名、API 路由、schema、内部 ID 和实现细节必须由已授权 Workspace 工具发现，不能编造，也不能要求用户粘贴代码或提供文件列表；所需工具缺失或失败时应明确报告能力暂不可用并停止，不能改用不相关领域工具凑答案。
-- 写工具默认只能生成 proposal；只有工具契约显式声明 `writeMode=direct`，且同时通过 Agent 动作上限、请求人/虚拟员工实时授权和领域 service 校验时，才允许直接写入。当前 QC 官方模板保存/发布使用这条 direct contract，不创建 Agent proposal；保存工具可通过受限 JSON Pointer 结构补丁完整编辑 `document + fieldModel`，但不能修改模板归属、权限、状态、审计或系统元数据。若 Docs Editor 空间把对应业务动作配置成必须走流程，领域 service 仍会拒绝直接执行。其他写工具继续使用 proposal：SDK 不注册 proposal confirm executor；请求人确认由独立 Workspace API 固定原 profile/actor、原子抢占状态并重新鉴权后执行。抢占记录带执行 token 与租约；进程中断后的陈旧执行只能落为“结果未知、需人工核对”，不得自动重放。源码 PR proposal 还固定完整 patch、SHA-256、远端仓库、base commit/branch 和确定性 proposal branch，执行前再次验证目标与实际暂存文件集。确定性分支使用 create-only push；校验、缺 token、clone/apply 等 dispatch 前失败保持“结果已知”，只有首次 push dispatch 后的异常才标记远端结果未知并要求人工 reconciliation。
+- 澄清只允许询问普通业务用户能够回答的业务选择或事实。业务 API 路径和请求结构必须从受控 catalog 或业务 contract 响应发现，不能编造；源码路径、组件名、schema、内部实现和服务器信息不属于 Agent 能力，也不能要求用户粘贴代码或提供文件列表。
+- 所有业务写入都只能由 `workspace.api.proposeMutation` 冻结为 proposal；请求人确认后，独立 Workspace API 固定原 profile/actor 和原始 method/path/query/body，原子抢占状态、重新鉴权，再调用同一标准业务 API。抢占记录带执行 token 与租约；dispatch 后异常只能落为“结果未知、需人工核对”，不得自动重放。模型没有 direct write、领域 executor 或源码 PR 特例。
 - SDK 会继承父进程环境，因此生产 executable 必须是 `kimi-agent-sandbox-runner.sh`。runner 的 shebang 在 Bash 启动前清空环境，再通过 Bubblewrap 二次 `--clearenv`，只挂载专用 runtime、空 workdir、Kimi 凭据目录和经过校验的本轮只读 agent config；应用 `.env`、数据库、源码和服务器 home 不可见。
 - Web 和企业微信共用 3 个活跃 turn 槽位；这是 Workspace 自身的硬上限，不因选择 OAuth 或 API Key 而放宽。
 
@@ -29,7 +29,7 @@ Workspace 通过 SDK 固定 `thinking: false` 走 Kimi K2.6 非思考路径，�
 
 ## 安装与认证
 
-Agent 会话消息、摘要和图片默认保存在 `$WORKSPACE_CONFIG_DIR/agent`。如需通过 `AGENT_DATA_DIR` 覆盖，必须使用绝对路径；服务端不接受相对路径，也不会把运行态存储回退到源码 checkout。Agent 源码阅读使用部署时独立同步的绝对 `AGENT_SOURCE_WORKTREE`，或绝对 `AGENT_SOURCE_CACHE_DIR`；这些动态源文件路径显式排除于 Turbopack tracing，不能把 Git 历史和源码打入 standalone 部署产物。远端 clone/fetch 可以使用运维配置的 credential-bearing URL，但 snapshot、模型工具数据和 Git 失败消息只允许返回去凭据后的 canonical repository identity。
+Agent 会话消息、摘要和图片默认保存在 `$WORKSPACE_CONFIG_DIR/agent`。如需通过 `AGENT_DATA_DIR` 覆盖，必须使用绝对路径；服务端不接受相对路径，也不会把运行态存储回退到源码 checkout。Agent runtime 不接收源码 worktree/cache 配置，不挂载应用源码、`.env`、数据库或服务器 home；模型只能经 Platform 注入的固定 connector 访问已登记业务 API。
 
 生产 Ubuntu/Debian 服务器执行：
 

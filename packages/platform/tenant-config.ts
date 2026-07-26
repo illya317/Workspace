@@ -197,6 +197,7 @@ export type TenantRuntimeConfig = {
 };
 
 export type TenantPublicConfig = Pick<TenantProfile, "key" | "identity" | "localization" | "organization" | "finance" | "work" | "hr"> & {
+  brand: { logoPath: string };
   docs: Omit<TenantProfile["docs"], "companyDocuments">;
   hrCatalogs: TenantHrCatalogs;
 };

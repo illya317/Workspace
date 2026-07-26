@@ -26,8 +26,8 @@ test("proposal view reports an elapsed pending proposal as expired", () => {
   const view = createAgentProposalView({
     id: 18,
     status: "pending",
-    actionKey: "source.submitCnbPullRequest",
-    targetType: "CnbPullRequest",
+    actionKey: "agent.businessApi.mutation.execute",
+    targetType: "WorkspaceBusinessApi",
     targetId: null,
     diffJson: "not-json",
     createdAt,

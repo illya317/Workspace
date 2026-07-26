@@ -7,12 +7,17 @@ import {
   type DataQualityFinding,
   type DataQualityTrigger,
 } from "@workspace/platform/data-quality-contract";
+import {
+  buildDataQualityNotificationGroups,
+  type DataQualityNotificationGroup,
+} from "../data-quality-notification-routing";
 import { callWorkspaceInternalJson } from "./internal-unit-rpc";
 import { sendNotification } from "./notifications";
 import {
   dataQualitySeverityIncreased,
   dataQualitySeverityMeetsThreshold,
   getDataQualityPolicy,
+  listDataQualityRoutingResourceOptions,
   type DataQualityPolicy,
 } from "./data-quality-policy";
 import { sendDataQualityWecomGroupAlert } from "./data-quality-wecom";
@@ -198,7 +203,36 @@ function notificationCandidates(
   }).map(({ finding }) => finding);
 }
 
-function alertPayload(runId: number, trigger: DataQualityTrigger, findings: DataQualityFinding[]) {
+type DeliveryGroup = DataQualityNotificationGroup & {
+  resourceLabel: string;
+  departmentName: string | null;
+  href: string;
+};
+
+async function resolveDeliveryGroups(groups: DataQualityNotificationGroup[]): Promise<DeliveryGroup[]> {
+  const departmentIds = [...new Set(groups.flatMap((group) => group.departmentId ? [group.departmentId] : []))];
+  const departments = departmentIds.length > 0
+    ? await prisma.department.findMany({
+        where: { id: { in: departmentIds } },
+        select: { id: true, name: true },
+      })
+    : [];
+  const departmentNames = new Map(departments.map((department) => [department.id, department.name]));
+  const resourceLabels = new Map(listDataQualityRoutingResourceOptions().map((option) => [option.value, option.label]));
+  return groups.map((group) => ({
+    ...group,
+    resourceLabel: group.resourceKey
+      ? resourceLabels.get(group.resourceKey) ?? group.resourceKey
+      : "未归属 L2",
+    departmentName: group.departmentId
+      ? departmentNames.get(group.departmentId) ?? `部门 #${group.departmentId}`
+      : null,
+    href: group.findings.find((finding) => finding.href)?.href ?? "/settings/admin?tab=dataQuality",
+  }));
+}
+
+function alertPayload(runId: number, trigger: DataQualityTrigger, group: DeliveryGroup) {
+  const findings = group.findings;
   return {
     runId,
     trigger,
@@ -206,6 +240,13 @@ function alertPayload(runId: number, trigger: DataQualityTrigger, findings: Data
     findingCount: findings.length,
     criticalCount: findings.filter((finding) => finding.severity === "critical").length,
     warningCount: findings.filter((finding) => finding.severity === "warning").length,
+    scope: {
+      resourceKey: group.resourceKey,
+      resourceLabel: group.resourceLabel,
+      departmentId: group.departmentId,
+      departmentName: group.departmentName,
+    },
+    href: group.href,
     findings: findings.map((finding) => ({
       fingerprint: finding.fingerprint,
       severity: finding.severity,
@@ -223,44 +264,54 @@ async function deliverWorkspaceAlerts(
   findings: DataQualityFinding[],
 ) {
   if (!policy.notifications.workspace.enabled || findings.length === 0) return;
-  const usernames = policy.notifications.workspace.recipientUsernames;
-  const recipients = await prisma.user.findMany({
-    where: { username: { in: usernames }, canLogin: true },
+  const groups = await resolveDeliveryGroups(buildDataQualityNotificationGroups({
+    findings,
+    routes: policy.notifications.workspace.routes,
+    fallbackRecipientUsernames: policy.notifications.workspace.fallbackRecipientUsernames,
+  }));
+  const allUsernames = [...new Set(groups.flatMap((group) => group.recipientUsernames))];
+  const users = await prisma.user.findMany({
+    where: { username: { in: allUsernames }, canLogin: true },
     select: { id: true, username: true },
   });
-  const destination = usernames.join(",");
-  try {
-    if (recipients.length === 0) throw new Error("没有可用的站内通知接收人");
-    const payload = alertPayload(runId, trigger, findings);
-    await Promise.all(recipients.map((recipient) => sendNotification({
-      recipientUserId: recipient.id,
-      type: "platform.dataQuality.alert",
-      payload,
-      isImportant: payload.criticalCount > 0,
-      isStrongReminder: payload.criticalCount > 0,
-      requiresAcknowledgement: payload.criticalCount > 0,
-    })));
-    const sentAt = new Date();
-    await prisma.$transaction([
-      prisma.dataQualityFinding.updateMany({
-        where: { fingerprint: { in: findings.map((finding) => finding.fingerprint) } },
-        data: { lastWorkspaceNotifiedAt: sentAt },
-      }),
-      prisma.dataQualityNotificationDelivery.create({
-        data: { runId, channel: "workspace", destination, status: "sent", findingCount: findings.length, sentAt },
-      }),
-    ]);
-  } catch (error) {
-    await prisma.dataQualityNotificationDelivery.create({
-      data: {
-        runId,
-        channel: "workspace",
-        destination,
-        status: "failed",
-        findingCount: findings.length,
-        error: error instanceof Error ? error.message : String(error),
-      },
-    });
+  const usersByUsername = new Map(users.map((user) => [user.username, user]));
+  for (const group of groups) {
+    const scope = [group.resourceLabel, group.departmentName].filter(Boolean).join(" · ");
+    const destination = `${scope} → ${group.recipientUsernames.join(",")}`;
+    try {
+      const recipients = group.recipientUsernames.map((username) => usersByUsername.get(username)).filter(Boolean);
+      if (recipients.length !== group.recipientUsernames.length) throw new Error("分流规则包含不存在或不可登录的站内接收人");
+      const payload = alertPayload(runId, trigger, group);
+      await Promise.all(recipients.map((recipient) => sendNotification({
+        recipientUserId: recipient!.id,
+        type: "platform.dataQuality.alert",
+        payload,
+        isImportant: payload.criticalCount > 0,
+        isStrongReminder: payload.criticalCount > 0,
+        requiresAcknowledgement: payload.criticalCount > 0,
+      })));
+      const sentAt = new Date();
+      await prisma.$transaction([
+        prisma.dataQualityFinding.updateMany({
+          where: { fingerprint: { in: group.findings.map((finding) => finding.fingerprint) } },
+          data: { lastWorkspaceNotifiedAt: sentAt },
+        }),
+        prisma.dataQualityNotificationDelivery.create({
+          data: { runId, channel: "workspace", destination, status: "sent", findingCount: group.findings.length, sentAt },
+        }),
+      ]);
+    } catch (error) {
+      await prisma.dataQualityNotificationDelivery.create({
+        data: {
+          runId,
+          channel: "workspace",
+          destination,
+          status: "failed",
+          findingCount: group.findings.length,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
+    }
   }
 }
 
@@ -271,29 +322,39 @@ async function deliverWecomAlerts(
   findings: DataQualityFinding[],
 ) {
   if (!policy.notifications.wecomGroup.enabled || findings.length === 0) return;
-  try {
-    await sendDataQualityWecomGroupAlert({ runId, trigger, findings });
-    const sentAt = new Date();
-    await prisma.$transaction([
-      prisma.dataQualityFinding.updateMany({
-        where: { fingerprint: { in: findings.map((finding) => finding.fingerprint) } },
-        data: { lastWecomNotifiedAt: sentAt },
-      }),
-      prisma.dataQualityNotificationDelivery.create({
-        data: { runId, channel: "wecom_group", destination: "configured-group-webhook", status: "sent", findingCount: findings.length, sentAt },
-      }),
-    ]);
-  } catch (error) {
-    await prisma.dataQualityNotificationDelivery.create({
-      data: {
+  const groups = await resolveDeliveryGroups(buildDataQualityNotificationGroups({ findings }));
+  for (const group of groups) {
+    const scope = [group.resourceLabel, group.departmentName].filter(Boolean).join(" · ");
+    const destination = `${scope} → configured-group-webhook`;
+    try {
+      await sendDataQualityWecomGroupAlert({
         runId,
-        channel: "wecom_group",
-        destination: "configured-group-webhook",
-        status: "failed",
-        findingCount: findings.length,
-        error: error instanceof Error ? error.message : String(error),
-      },
-    });
+        trigger,
+        findings: group.findings,
+        scope: { resourceLabel: group.resourceLabel, departmentName: group.departmentName, href: group.href },
+      });
+      const sentAt = new Date();
+      await prisma.$transaction([
+        prisma.dataQualityFinding.updateMany({
+          where: { fingerprint: { in: group.findings.map((finding) => finding.fingerprint) } },
+          data: { lastWecomNotifiedAt: sentAt },
+        }),
+        prisma.dataQualityNotificationDelivery.create({
+          data: { runId, channel: "wecom_group", destination, status: "sent", findingCount: group.findings.length, sentAt },
+        }),
+      ]);
+    } catch (error) {
+      await prisma.dataQualityNotificationDelivery.create({
+        data: {
+          runId,
+          channel: "wecom_group",
+          destination,
+          status: "failed",
+          findingCount: group.findings.length,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
+    }
   }
 }
 

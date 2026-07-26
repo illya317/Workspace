@@ -13,10 +13,6 @@ RUN_LOCAL_CHECKS="${RUN_LOCAL_CHECKS:-0}"
 ENV_CONTENT="${ENV_CONTENT:-}"
 REMOTE_BACKUP_DIR="${REMOTE_BACKUP_DIR:-}"
 REMOTE_WORKSPACE_BACKUP_DIR="${REMOTE_WORKSPACE_BACKUP_DIR:-}"
-REMOTE_AGENT_SOURCE_ROOT="${REMOTE_AGENT_SOURCE_ROOT:-$REMOTE_DIR/source}"
-REMOTE_AGENT_SOURCE_DIR="${REMOTE_AGENT_SOURCE_DIR:-$REMOTE_AGENT_SOURCE_ROOT/Workspace}"
-REMOTE_AGENT_SOURCE_REPO_URL="${REMOTE_AGENT_SOURCE_REPO_URL:-${AGENT_SOURCE_REPO_URL:-}}"
-REMOTE_AGENT_SOURCE_BRANCH="${REMOTE_AGENT_SOURCE_BRANCH:-${AGENT_SOURCE_BRANCH:-main}}"
 BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
 BACKUP_RETENTION_COUNT="${BACKUP_RETENTION_COUNT:-5}"
 LIBRARY_SYNC_SOURCE="${LIBRARY_SYNC_SOURCE:-}"
@@ -29,7 +25,6 @@ EXPECTED_CNB_REPOSITORY="${EXPECTED_CNB_REPOSITORY:-}"
 CONTROL_PLANE_POLICY="${CONTROL_PLANE_POLICY:-auto}"
 DEPLOY_EXECUTION_MODE="${DEPLOY_EXECUTION_MODE:-combined}"
 WORKSPACE_GATEWAY_NGINX_SITE="${WORKSPACE_GATEWAY_NGINX_SITE:-}"
-REMOTE_AGENT_SOURCE_ROOT_NAME="$(basename "$REMOTE_AGENT_SOURCE_ROOT")"
 if [ -n "$ENV_CONTENT" ]; then
   ENV_CONTENT_B64="$(printf '%s' "$ENV_CONTENT" | base64 | tr -d '\n')"
 else
@@ -57,13 +52,9 @@ if [ -z "$REMOTE_DIR" ]; then
   exit 1
 fi
 
-if [ -z "$REMOTE_AGENT_SOURCE_REPO_URL" ]; then
-  echo "[错误] 缺少 REMOTE_AGENT_SOURCE_REPO_URL 或 AGENT_SOURCE_REPO_URL"
-  exit 1
-fi
-
 if [ -z "$EXPECTED_CNB_REPOSITORY" ]; then
-  EXPECTED_CNB_REPOSITORY="$(REPOSITORY_URL="$REMOTE_AGENT_SOURCE_REPO_URL" node -e 'const u=new URL(process.env.REPOSITORY_URL); process.stdout.write(u.pathname.replace(/^\/+|\.git$/g, ""))')"
+  echo "[错误] 缺少 EXPECTED_CNB_REPOSITORY，例如 owner/repository"
+  exit 1
 fi
 
 if [ -z "$HEALTHCHECK_URL" ]; then
@@ -1099,7 +1090,6 @@ env_path = Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env')
 text = env_path.read_text()
 replacements = {
     'WORKSPACE_CONFIG_DIR': '$REMOTE_WORKSPACE_CONFIG_DIR',
-    'AGENT_SOURCE_WORKTREE': '$REMOTE_AGENT_SOURCE_DIR',
     'LIBRARY_SOURCE_ROOT': '$REMOTE_WORKSPACE_CONFIG_DIR/library/originals',
     'LIBRARY_ROOT': '$REMOTE_WORKSPACE_CONFIG_DIR/library',
 }
@@ -1112,6 +1102,15 @@ obsolete_agent_keys = {
     'DEEPSEEK_API_KEY',
     'DEEPSEEK_BASE_URL',
     'DEEPSEEK_MODEL',
+    'AGENT_SOURCE_WORKTREE',
+    'AGENT_SOURCE_CACHE_DIR',
+    'AGENT_SOURCE_REPO_URL',
+    'AGENT_SOURCE_BRANCH',
+    'CNB_PR_TOKEN',
+    'CNB_PR_REPO',
+    'CNB_PR_BRANCH_PREFIX',
+    'CNB_PR_GIT_AUTHOR_NAME',
+    'CNB_PR_GIT_AUTHOR_EMAIL',
 }
 retired_agent_lines = [
     line for line in text.splitlines()
@@ -1280,40 +1279,6 @@ ensure_remote_onlyoffice_runtime() {
   "
 }
 
-sync_remote_agent_source() {
-  echo "==> 同步服务器页面助手源码到 runtime SHA: ${RELEASE_SOURCE_SHA:0:12} -> $REMOTE_AGENT_SOURCE_DIR"
-  ssh_cmd "
-    set -e
-    if ! command -v git >/dev/null 2>&1; then
-      echo '[错误] 服务器缺少 git，无法同步页面助手源码'
-      exit 1
-    fi
-    mkdir -p \"\$(dirname '$REMOTE_AGENT_SOURCE_DIR')\"
-    if [ -d '$REMOTE_AGENT_SOURCE_DIR/.git' ]; then
-      git -C '$REMOTE_AGENT_SOURCE_DIR' remote set-url origin '$REMOTE_AGENT_SOURCE_REPO_URL'
-    else
-      rm -rf '$REMOTE_AGENT_SOURCE_DIR'
-      mkdir -p '$REMOTE_AGENT_SOURCE_DIR'
-      git -C '$REMOTE_AGENT_SOURCE_DIR' init
-      git -C '$REMOTE_AGENT_SOURCE_DIR' remote add origin '$REMOTE_AGENT_SOURCE_REPO_URL'
-    fi
-    git -C '$REMOTE_AGENT_SOURCE_DIR' fetch --no-tags --depth=1 origin '$RELEASE_SOURCE_SHA'
-    if [ \"\$(git -C '$REMOTE_AGENT_SOURCE_DIR' rev-parse FETCH_HEAD)\" != '$RELEASE_SOURCE_SHA' ]; then
-      echo '[错误] 页面助手源码 fetch 未得到 runtime source SHA'
-      exit 1
-    fi
-    git -C '$REMOTE_AGENT_SOURCE_DIR' reset --hard '$RELEASE_SOURCE_SHA'
-    git -C '$REMOTE_AGENT_SOURCE_DIR' clean -ffdx
-    if [ \"\$(git -C '$REMOTE_AGENT_SOURCE_DIR' rev-parse HEAD)\" != '$RELEASE_SOURCE_SHA' ] \
-      || [ \"\$(git -C '$REMOTE_AGENT_SOURCE_DIR' rev-parse 'HEAD^{tree}')\" != '$RELEASE_SOURCE_TREE' ] \
-      || [ -n \"\$(git -C '$REMOTE_AGENT_SOURCE_DIR' status --porcelain)\" ]; then
-      echo '[错误] 页面助手源码未锁定到 runtime source identity'
-      exit 1
-    fi
-    git -C '$REMOTE_AGENT_SOURCE_DIR' rev-parse HEAD
-  "
-}
-
 validate_remote_runtime() {
   echo "==> 校验服务器运行态配置..."
   ssh_cmd "
@@ -1325,22 +1290,20 @@ validate_remote_runtime() {
     grep -q '^WORKSPACE_CONFIG_DIR=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^DATABASE_URL=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^DIRECT_URL=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    grep -q '^AGENT_SOURCE_WORKTREE=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^LIBRARY_SOURCE_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^LIBRARY_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     if [ '$INSTALL_ONLYOFFICE_RUNTIME' = '1' ]; then
       grep -q '^ONLYOFFICE_JWT_SECRET=.' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
       grep -Eq '^WORKSPACE_PUBLIC_ORIGIN=https?://[^[:space:]]+' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     fi
-    if grep -Eq '^(AGENT_MODEL_PROVIDER|KIMI_API_KEY|KIMI_BASE_URL|KIMI_MODEL|KIMI_MAX_TOKENS|DEEPSEEK_API_KEY|DEEPSEEK_BASE_URL|DEEPSEEK_MODEL)=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'; then
-      echo '[错误] 服务器仍包含已废弃的自研 Agent provider 配置'
+    if grep -Eq '^(AGENT_MODEL_PROVIDER|KIMI_API_KEY|KIMI_BASE_URL|KIMI_MODEL|KIMI_MAX_TOKENS|DEEPSEEK_API_KEY|DEEPSEEK_BASE_URL|DEEPSEEK_MODEL|AGENT_SOURCE_WORKTREE|AGENT_SOURCE_CACHE_DIR|AGENT_SOURCE_REPO_URL|AGENT_SOURCE_BRANCH|CNB_PR_TOKEN|CNB_PR_REPO|CNB_PR_BRANCH_PREFIX|CNB_PR_GIT_AUTHOR_NAME|CNB_PR_GIT_AUTHOR_EMAIL)=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'; then
+      echo '[错误] 服务器仍包含已废弃或越界的 Agent provider/source/PR 配置'
       exit 1
     fi
     WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$REMOTE_WORKSPACE_CONFIG_DIR/runtime/kimi-agent-bootstrap/install-kimi-agent-runtime.sh' --check
     if [ '$INSTALL_ONLYOFFICE_RUNTIME' = '1' ]; then
       WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$REMOTE_WORKSPACE_CONFIG_DIR/runtime/onlyoffice-bootstrap/install-onlyoffice-runtime.sh' --check
     fi
-    test -d '$REMOTE_AGENT_SOURCE_DIR/.git'
     python3 - <<'PY'
 from pathlib import Path
 import os
@@ -1356,7 +1319,6 @@ for line in Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env').read_text().splitlines():
 workspace = env.get('WORKSPACE_CONFIG_DIR', '')
 database = env.get('DATABASE_URL', '')
 direct_database = env.get('DIRECT_URL', '')
-agent_source = env.get('AGENT_SOURCE_WORKTREE', '')
 library_source_root = env.get('LIBRARY_SOURCE_ROOT', '')
 library_root = env.get('LIBRARY_ROOT', '')
 cutover_source = env.get('SQLITE_CUTOVER_SOURCE', '')
@@ -1415,12 +1377,6 @@ if not os.path.isabs(library_source_root):
 expected_library_source = os.path.join(workspace, 'library', 'originals')
 if library_source_root != expected_library_source:
     sys.exit(f'LIBRARY_SOURCE_ROOT must equal WORKSPACE_CONFIG_DIR/library/originals: {library_source_root}')
-if not agent_source:
-    sys.exit('AGENT_SOURCE_WORKTREE missing from remote .env')
-if not os.path.isabs(agent_source):
-    sys.exit(f'AGENT_SOURCE_WORKTREE must be absolute: {agent_source}')
-if not os.path.isdir(os.path.join(agent_source, '.git')):
-    sys.exit(f'AGENT_SOURCE_WORKTREE must point to a git worktree: {agent_source}')
 print('Remote runtime env check passed.')
 PY
     set -a
@@ -1600,7 +1556,7 @@ if (manifest.schemaVersion !== 1
 NODE
     mkdir -p '$REMOTE_DIR/releases'
     old_release=\$(readlink -f '$REMOTE_DIR/current' 2>/dev/null || true)
-    find '$REMOTE_DIR' -mindepth 1 -maxdepth 1 ! -name current ! -name releases ! -name .workspace ! -name .workspace.backups ! -name '$REMOTE_AGENT_SOURCE_ROOT_NAME' -exec rm -rf {} +
+    find '$REMOTE_DIR' -mindepth 1 -maxdepth 1 ! -name current ! -name releases ! -name .workspace ! -name .workspace.backups -exec rm -rf {} +
     release_dir='$REMOTE_DIR/releases/$release_id'
     rm -rf \"\$release_dir\"
     mkdir -p \"\$release_dir\"
@@ -2692,7 +2648,6 @@ else
   run_deploy_stage runtime.agent ensure_remote_kimi_agent_runtime
   run_deploy_stage runtime.onlyoffice ensure_remote_onlyoffice_runtime
   run_deploy_stage source.library sync_remote_library_source
-  run_deploy_stage source.agent sync_remote_agent_source
   run_deploy_stage runtime.validate validate_remote_runtime
   verify_release_order
   run_deploy_stage backup.postgresql backup_remote_postgresql

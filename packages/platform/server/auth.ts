@@ -1,4 +1,4 @@
-export { authenticate, isKicked } from "./auth/authenticate";
+export { authenticate, isKicked, isProgrammaticApiRequest } from "./auth/authenticate";
 export {
   createToken,
   getTokenFromCookie,

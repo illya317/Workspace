@@ -161,9 +161,9 @@ test("Kimi runtime uses an empty builtin toolset and preserves proposal-only wri
     assert.deepEqual(deltas, ["sdk result"]);
     assert.match(agentSpec, /tools: \[\]/);
     assert.match(agentSpec, /subagents: \{\}/);
-    assert.match(systemPrompt, /never contradict it by claiming you cannot perform the capability/);
+    assert.match(systemPrompt, /only external capabilities are the Workspace business API catalog[\s\S]*cannot inspect or modify repository source code, Prisma, internal RPC, files, environment variables, credentials, or server state/);
     assert.match(systemPrompt, /selected runtime's responsibility boundary/);
-    assert.match(systemPrompt, /never expand the supplied tools or Platform permissions[\s\S]*implementation details are never clarification questions[\s\S]*never ask the user to paste code or list files[\s\S]*Never call an unrelated domain tool/);
+    assert.match(systemPrompt, /never expand the supplied tools or Platform permissions[\s\S]*Discover API paths and request contracts through the supplied API catalog[\s\S]*Never call an unrelated API/);
     assert.match(systemPrompt, /Never guess entity, workspace, employee, plan, or relationship IDs/);
     assert.match(systemPrompt, /Do not call a mutating external tool until the user has supplied it/);
   } finally {

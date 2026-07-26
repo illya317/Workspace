@@ -14,13 +14,12 @@ import type { AgentTool } from "./tools";
 const requester: SessionUser = { id: 11, username: "requester" };
 const actor: SessionUser = { id: 22, username: "synthetic-agent-user", canLogin: false };
 
-const sourceTool: AgentTool = {
-  key: "source.searchWorkspaceCode",
-  label: "检索 Workspace 源码",
+const businessApiTool: AgentTool = {
+  key: "workspace.api.read",
+  label: "读取 Workspace 业务 API",
   description: "test",
-  requiredPermissions: [{ resourceKey: "agent.source", action: "read" }],
+  requiredPermissions: [{ resourceKey: "agent.assistant", action: "read" }],
   delegatedExecution: true,
-  requiresAgentProfile: true,
   mutates: false,
   execute: async () => ({ type: "data", message: "ok" }),
 };
@@ -34,8 +33,8 @@ function execution(): AgentExecutionContext {
       key: "synthetic.agent.profile",
       displayName: "示例提案助理",
       roleName: "AI查询与变更提案助理",
-      responsibilities: "源码检索与 PR 提案",
-      allowedToolKeys: [sourceTool.key],
+      responsibilities: "业务查询与变更提案",
+      allowedToolKeys: [businessApiTool.key],
       runtime: { bindingId: 8, kind: "workspace", instructions: "test" },
       actorEmployeeId: "BOT-X004",
       actorEmployeeName: "示例提案助理",
@@ -60,21 +59,21 @@ function directoryDependencies(
   };
 }
 
-test("profile discovery hides the synthetic profile when the requester lacks the source grant", async () => {
+test("profile discovery hides the synthetic profile when the requester lacks the business API connector grant", async () => {
   const profiles = await listAvailableAgentProfiles(
     requester,
-    [sourceTool],
+    [businessApiTool],
     directoryDependencies(async (userId) => userId === actor.id),
   );
 
   assert.deepEqual(profiles, []);
 });
 
-test("profile discovery exposes the synthetic profile when requester and actor can use a registered source tool", async () => {
+test("profile discovery exposes the synthetic profile when requester and actor can use a registered API connector", async () => {
   const permissionChecks: string[] = [];
   const profiles = await listAvailableAgentProfiles(
     requester,
-    [sourceTool],
+    [businessApiTool],
     directoryDependencies(async (userId, resourceKey, action) => {
       permissionChecks.push(`${userId}:${resourceKey}:${action}`);
       return true;
@@ -87,7 +86,7 @@ test("profile discovery exposes the synthetic profile when requester and actor c
     roleName: "AI查询与变更提案助理",
   }]);
   assert.deepEqual(permissionChecks.sort(), [
-    "11:agent.source:read",
-    "22:agent.source:read",
+    "11:agent.assistant:read",
+    "22:agent.assistant:read",
   ]);
 });

@@ -24,6 +24,7 @@ export async function sendDataQualityWecomGroupAlert(input: {
   runId: number;
   trigger: DataQualityTrigger;
   findings: DataQualityFinding[];
+  scope: { resourceLabel: string; departmentName: string | null; href: string };
 }) {
   const webhook = dataQualityWecomWebhook();
   if (!webhook) throw new Error("WECOM_DATA_QUALITY_WEBHOOK_URL is not configured or invalid");
@@ -31,15 +32,16 @@ export async function sendDataQualityWecomGroupAlert(input: {
   const warningCount = input.findings.filter((finding) => finding.severity === "warning").length;
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.trim() || "/workspace";
   const appOrigin = process.env.NEXTAUTH_URL?.trim()?.replace(/\/$/, "") ?? "";
-  const workbenchUrl = appOrigin ? `${appOrigin}${basePath === "/" ? "" : basePath}/settings/admin?tab=dataQuality` : "";
+  const targetUrl = appOrigin ? `${appOrigin}${basePath === "/" ? "" : basePath}${input.scope.href}` : "";
   const lines = [
-    `## 数据质量异常 · ${triggerLabel(input.trigger)}`,
+    `## 数据质量异常 · ${[input.scope.resourceLabel, input.scope.departmentName].filter(Boolean).join(" · ")}`,
+    triggerLabel(input.trigger),
     `本次需关注 **${input.findings.length}** 项规则异常，其中严重 ${criticalCount} 项、警告 ${warningCount} 项。`,
     ...input.findings.slice(0, 6).map((finding) => (
       `> **[${severityLabel(finding.severity)}] ${finding.title}**\n> ${finding.summary}`
     )),
     input.findings.length > 6 ? `> 另有 ${input.findings.length - 6} 项，请进入工作台处理。` : "",
-    workbenchUrl ? `[进入数据质量工作台](${workbenchUrl})` : `巡检批次 #${input.runId}`,
+    targetUrl ? `[打开处理入口](${targetUrl})` : `巡检批次 #${input.runId}`,
   ].filter(Boolean);
   const response = await fetch(webhook, {
     method: "POST",

@@ -2,50 +2,42 @@
 
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import { ModuleCard, ModuleGridPage } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import type { PortalSlot } from "../portal-preferences";
 import {
   defaultPortalCardsForUser,
-  defaultSlotsForUser,
-  fetchPortalSlotSettings,
   portalCardsForUser,
 } from "./portal-preferences";
 import { useTenantConfig } from "./tenant-config";
 
-export default function PortalClient({ user }: { user: SessionUser }) {
+export default function PortalClient({ user, initialSlots }: { user: SessionUser; initialSlots: PortalSlot[] }) {
   return (
-    <Suspense fallback={<PortalContent user={user} desktopMode="personalized" />}>
-      <PortalContentFromUrl user={user} />
+    <Suspense fallback={<PortalContent user={user} initialSlots={initialSlots} desktopMode="personalized" />}>
+      <PortalContentFromUrl user={user} initialSlots={initialSlots} />
     </Suspense>
   );
 }
 
-function PortalContentFromUrl({ user }: { user: SessionUser }) {
+function PortalContentFromUrl({ user, initialSlots }: { user: SessionUser; initialSlots: PortalSlot[] }) {
   const searchParams = useSearchParams();
   const desktopMode = searchParams.get("desktop") === "default" ? "default" : "personalized";
-  return <PortalContent user={user} desktopMode={desktopMode} />;
+  return <PortalContent user={user} initialSlots={initialSlots} desktopMode={desktopMode} />;
 }
 
-function PortalContent({ user, desktopMode }: { user: SessionUser; desktopMode: "personalized" | "default" }) {
+function PortalContent({
+  user,
+  initialSlots,
+  desktopMode,
+}: {
+  user: SessionUser;
+  initialSlots: PortalSlot[];
+  desktopMode: "personalized" | "default";
+}) {
   const tenantConfig = useTenantConfig();
-  const [slots, setSlots] = useState<PortalSlot[]>(() => defaultSlotsForUser(user));
-  const entries = desktopMode === "default" ? defaultPortalCardsForUser(user) : portalCardsForUser(user, slots);
-
-  useEffect(() => {
-    if (desktopMode === "default") return;
-    let cancelled = false;
-    fetchPortalSlotSettings()
-      .then((settings) => {
-        if (!cancelled) setSlots(settings.slots);
-      })
-      .catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
-  }, [desktopMode]);
+  const entries = desktopMode === "default" ? defaultPortalCardsForUser(user) : portalCardsForUser(user, initialSlots);
 
   return (
     <ModuleGridPage
@@ -57,7 +49,7 @@ function PortalContent({ user, desktopMode }: { user: SessionUser; desktopMode: 
           <span aria-hidden="true" className="absolute -bottom-12 right-14 h-24 w-24 rounded-full bg-cyan-300/10 blur-xl sm:hidden" />
           <div className="relative z-10 grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
             <Image
-              src={workspacePath("/company/logo.png")}
+              src={workspacePath(tenantConfig.brand.logoPath)}
               alt={tenantConfig.identity.companyName}
               width={150}
               height={45}

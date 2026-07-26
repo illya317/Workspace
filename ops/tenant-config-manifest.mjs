@@ -31,6 +31,7 @@ const REQUIRED_PROFILE_FILE_KEYS = [
 ];
 const REQUIRED_PROFILE_DIRECTORY_KEYS = ["qcTemplateSnapshots"];
 const RETIRED_TENANT_CONFIG_FILES = ["manifest.json"];
+const OPTIONAL_MANAGED_DIRECTORIES = ["assets/brand/company"];
 
 function sha256(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
@@ -121,7 +122,7 @@ function tenantConfigPaths(root) {
   }
   const managedDirectories = REQUIRED_PROFILE_DIRECTORY_KEYS.map((key) => (
     requireRelativePath(profile.directories[key], `profile.directories.${key}`)
-  ));
+  )).concat(OPTIONAL_MANAGED_DIRECTORIES.filter((directory) => existsSync(path.join(root, directory))));
   if (new Set(managedDirectories).size !== managedDirectories.length) {
     throw new Error("tenant profile managed-directory references must be unique");
   }
@@ -136,7 +137,12 @@ function tenantConfigPaths(root) {
     throw new Error("tenant profile file references must be unique");
   }
   const managedFiles = managedDirectories.flatMap((directory) => listRegularDirectoryFiles(root, directory));
-  const files = [PROFILE_PATH, ...references, ...companyDocumentReferences, ...managedFiles];
+  const files = [
+    PROFILE_PATH,
+    ...references,
+    ...companyDocumentReferences,
+    ...managedFiles,
+  ];
   for (const relativePath of files) resolveRegularFile(root, relativePath);
   for (const relativePath of files.filter((file) => file.endsWith(".json"))) readJson(root, relativePath);
   const cnbRelease = readFileSync(resolveRegularFile(root, profile.files.cnbRelease), "utf8");

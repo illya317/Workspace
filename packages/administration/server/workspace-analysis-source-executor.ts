@@ -22,10 +22,12 @@ export function loadAdministrationWorkspaceAnalysisSource(request: WorkspaceAnal
       const sourceKey = registration.definition.sourceKey;
       if (sourceKey === "administration.contracts") {
         const result = await listContracts({
+          userId: request.requesterId,
           q: text(parameters.keyword),
           location: text(parameters.location),
           category: text(parameters.category),
-          status: text(parameters.status),
+          lifecycleStatus: text(parameters.lifecycleStatus),
+          ownerDepartmentId: integer(parameters.ownerDepartmentId),
           page,
           pageSize,
         });
@@ -96,6 +98,11 @@ export function loadAdministrationWorkspaceAnalysisSource(request: WorkspaceAnal
 
 function text(value: string | number | boolean | undefined) {
   return typeof value === "string" ? value : undefined;
+}
+
+function integer(value: string | number | boolean | undefined) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 function visibleSubmissions(workspace: Awaited<ReturnType<typeof listErpDiligenceWorkspace>>) {

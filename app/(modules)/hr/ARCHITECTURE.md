@@ -54,6 +54,8 @@ FUN 职能岗位不复制到应用部门。`Position.departmentId` 继续表示�
 
 `Employment` 是雇佣期间事实，`EDP` 是员工任职期间事实，两个期间均使用包含首尾日的日期区间。入职日 D 从 D 当天生效；调岗、汇报关系变化和兼岗在 D 创建新任职片段，原任职片段自动截止到 D-1；离职事件的生效日 D 表示从 D 起不再在职，因此雇佣、任职和当前项目成员期间截止到 D-1。当前态统一按租户业务时区和期间字段即时派生，只有完全没有入离职日期的旧雇佣记录才回退 `Employment.isActive`，不得依赖定时任务把未来记录翻成当前。
 
+HR 数据质量 Provider 按员工的唯一责任部门拆分异常 fingerprint，并输出 `resourceKey = hr.roster` 与可选 `departmentId`。当前任职能唯一归属部门时（优先唯一主岗）由该部门接收；缺少任职或多部门歧义导致无法确定唯一责任部门时保留为无部门异常，交给 Platform 的未匹配兜底规则。不同部门的 HR 异常不得在同一条通知中聚合。
+
 员工详情的“生命周期”页签是业务变更入口，通过 `PUT /api/modules/hr/roster/employee-profiles/[id]/lifecycle` 登记入职、调岗、兼岗、汇报关系变化和离职。route 只校验请求形状并调用 HR service；domain validator 校验生效日期、来源任职、目标岗位、汇报岗位和所有未来期间边界上的工作占比/唯一主岗，service 在同一事务内拆分 `Employment` / `EDP` 期间并写入不可变 `EmployeeLifecycleEvent` 台账。普通雇佣和部门岗位页仍用于资料修正，不得直接删除已保存的任职期间，也不承担生命周期期间拆分。
 
 汇报关系是岗位关系，不是固定人员关系。`Position.reportToPositionId` 和 `PositionReportOverride.reportToPositionId` 是结构默认值；`EDP.reportToPositionId -> Position.id` 是某段任职期间实际采用的汇报岗位快照。人员只在使用时按业务日期从该岗位的有效 `EDP` 占有人派生，因此汇报岗位换人后无需逐个改下属，历史期间也不会被当前组织结构重写。`EDP.reportTo` 仅保留为旧库兼容列，新写入不再使用。Platform 的 `currentEmploymentDateWhere`、`currentOpenEndedDateWhere` 是 HR、权限、审批和 Work 读取当前人员/任职的共享口径，未来任职不得提前获得权限，已到离职生效日的人员不得继续作为处理人或负责人。

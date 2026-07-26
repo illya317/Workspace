@@ -21,7 +21,7 @@ function tool(
     key,
     label: key,
     description: key,
-    requiredPermissions: [{ resourceKey: "agent.source", action }],
+    requiredPermissions: [{ resourceKey: "agent.assistant", action }],
     policyActions,
     delegatedExecution,
     requiresAgentProfile,
@@ -54,8 +54,8 @@ function delegatedExecution(allowedToolKeys: string[]): AgentExecutionContext {
 
 test("delegated tools require profile allowlist, explicit adapter opt-in and both live identities", async () => {
   const calls: string[] = [];
-  const allowed = tool("source.searchWorkspaceCode");
-  const notAllowlisted = tool("source.proposePullRequest", "submit");
+  const allowed = tool("workspace.api.read");
+  const notAllowlisted = tool("workspace.api.proposeMutation", "submit");
   const notDelegated = tool("library.searchDocuments", "read", false);
   const result = await resolveAgentToolAccess(
     delegatedExecution([allowed.key, notDelegated.key]),
@@ -71,12 +71,12 @@ test("delegated tools require profile allowlist, explicit adapter opt-in and bot
   );
 
   assert.deepEqual(result.tools.map((item) => item.key), [allowed.key]);
-  assert.deepEqual(calls.sort(), ["11:agent.source:read", "22:agent.source:read"]);
+  assert.deepEqual(calls.sort(), ["11:agent.assistant:read", "22:agent.assistant:read"]);
 });
 
-test("profile-only tools stay unavailable to the personal assistant even with a live source grant", async () => {
+test("profile-only tools stay unavailable to the personal assistant even with a live capability grant", async () => {
   let permissionChecks = 0;
-  const candidate = tool("source.searchWorkspaceCode", "read", true, true);
+  const candidate = tool("workspace.api.read.profileOnly", "read", true, true);
   const result = await resolveAgentToolAccess(requester, [candidate], {
     agentAllowedActions: ["read"],
     permissionEvaluator: async () => {
@@ -91,7 +91,7 @@ test("profile-only tools stay unavailable to the personal assistant even with a 
 
 test("configuration preview can discover a profile-only tool from the virtual actor's live grant", async () => {
   const calls: string[] = [];
-  const candidate = tool("source.searchWorkspaceCode", "read", true, true);
+  const candidate = tool("workspace.api.read.profileOnly", "read", true, true);
   const result = await resolveAgentToolAccess(actor, [candidate], {
     accessMode: "configuration_preview",
     agentAllowedActions: ["read"],
@@ -102,11 +102,11 @@ test("configuration preview can discover a profile-only tool from the virtual ac
   });
 
   assert.deepEqual(result.tools.map((item) => item.key), [candidate.key]);
-  assert.deepEqual(calls, ["22:agent.source:read"]);
+  assert.deepEqual(calls, ["22:agent.assistant:read"]);
 });
 
 test("requester super-admin status cannot bypass a denied virtual actor", async () => {
-  const candidate = tool("source.searchWorkspaceCode");
+  const candidate = tool("workspace.api.read");
   const result = await resolveAgentToolAccess(
     delegatedExecution([candidate.key]),
     [candidate],
@@ -120,7 +120,7 @@ test("requester super-admin status cannot bypass a denied virtual actor", async 
 });
 
 test("global Agent action ceiling narrows a profile even when both identities are allowed", async () => {
-  const candidate = tool("source.proposePullRequest", "submit");
+  const candidate = tool("workspace.api.proposeMutation", "submit");
   let permissionChecks = 0;
   const result = await resolveAgentToolAccess(
     delegatedExecution([candidate.key]),
@@ -174,7 +174,7 @@ test("Work create stays unavailable unless the global Agent ceiling explicitly a
 });
 
 test("live profile refresh revokes a tool removed after the conversation started", async () => {
-  const candidate = tool("source.searchWorkspaceCode");
+  const candidate = tool("workspace.api.read");
   const result = await resolveAgentToolAccess(
     delegatedExecution([candidate.key]),
     [candidate],
@@ -191,7 +191,7 @@ test("live profile refresh revokes a tool removed after the conversation started
 });
 
 test("live profile refresh fails closed when the bound actor changes", async () => {
-  const candidate = tool("source.searchWorkspaceCode");
+  const candidate = tool("workspace.api.read");
   const result = await resolveAgentToolAccess(
     delegatedExecution([candidate.key]),
     [candidate],

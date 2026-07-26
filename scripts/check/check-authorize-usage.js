@@ -71,9 +71,6 @@ function hasApiRouteHelperGate(code) {
     hasNamedImport(code, "createInternalApiRoute", [API_ROUTE_HELPER_IMPORT]) &&
     /\bcreateInternalApiRoute\s*\(/.test(code)
   ) || (
-    hasNamedImport(code, "createAgentDomainRpcHandler", ["@workspace/platform/server/agent/remote-domain-rpc"]) &&
-    /\bcreateAgentDomainRpcHandler\s*\(/.test(code)
-  ) || (
     hasNamedImport(code, "createAuthoritativeLibrarySourceRoute", ["@workspace/platform/server/authoritative-library-source-route"]) &&
     /\bcreateAuthoritativeLibrarySourceRoute\s*\(/.test(code)
   ) || (

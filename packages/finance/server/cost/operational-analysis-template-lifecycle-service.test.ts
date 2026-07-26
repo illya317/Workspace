@@ -77,7 +77,10 @@ mock.module("@workspace/platform/server/prisma", {
   },
 } as never);
 mock.module("./operational-analytics", {
-  namedExports: { canConfigureOperationalAnalytics: async () => true },
+  namedExports: {
+    canConfigureOperationalAnalytics: async () => true,
+    canUseOperationalAnalyticsApi: async () => true,
+  },
 } as never);
 mock.module("./workspace-analysis-runtime", {
   namedExports: {

@@ -37,6 +37,11 @@ type ExcludedCoverage = {
 type ExplicitCoverage = DerivedCoverage | ExcludedCoverage;
 
 const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
+  "/api/modules/administration/contracts/[id]/package": {
+    disposition: "excluded",
+    reason: "singleRecord",
+    description: "单份合同的审批引用、附件与归档记录聚合只服务合同详情，不是稳定分页分析数据集。",
+  },
   "/api/modules/capitalSecurities/governance/ownership-parties": {
     disposition: "excluded",
     reason: "lookupFragment",
@@ -164,6 +169,7 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/agent/capabilities": "controlPlane",
   "/api/agent/profiles": "controlPlane",
   "/api/agent/proposals/[id]": "controlPlane",
+  "/api/modules/administration/contracts/[id]/attachments/[attachmentUid]/download": "binary",
   "/api/modules/administration/contracts/export": "binary",
   "/api/modules/administration/contracts/reference-options": "lookupFragment",
   "/api/modules/administration/erp-diligence/attachments/[attachmentUid]": "binary",
@@ -177,9 +183,12 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/modules/docs/editor/templates/[templateId]": "controlPlane",
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/permissions": "recursiveAnalysis",
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/sources": "recursiveAnalysis",
+  "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/sources/discover": "recursiveAnalysis",
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates": "recursiveAnalysis",
+  "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates/[templateId]": "recursiveAnalysis",
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates/[templateId]/lifecycle": "recursiveAnalysis",
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates/[templateId]/runtime": "recursiveAnalysis",
+  "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates/contract": "recursiveAnalysis",
   "/api/modules/finance/ledger/export": "binary",
   "/api/modules/finance/ledger/group-account-options": "lookupFragment",
   "/api/modules/finance/ledger/reclass-results/lookup-period": "lookupFragment",
@@ -213,6 +222,7 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/modules/work/tasks/submissions": "workflowControl",
   "/api/modules/work/tasks/submissions/[id]": "workflowControl",
   "/api/settings/account/api-key": "controlPlane",
+  "/api/settings/account/api-catalog": "controlPlane",
   "/api/settings/account/avatar-library": "controlPlane",
   "/api/settings/account/company-options": "controlPlane",
   "/api/settings/account/notifications": "controlPlane",

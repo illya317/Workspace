@@ -7,6 +7,13 @@ export type DataQualityAlertPayload = {
   findingCount: number;
   criticalCount: number;
   warningCount: number;
+  scope?: {
+    resourceKey: string | null;
+    resourceLabel: string;
+    departmentId: number | null;
+    departmentName: string | null;
+  };
+  href?: string;
   findings: Array<{
     fingerprint: string;
     severity: DataQualitySeverity;
@@ -29,13 +36,17 @@ export const dataQualityNotificationDefinition = {
   isStrongReminder: true,
   requiresAcknowledgement: true,
   render: (payload: DataQualityAlertPayload) => ({
-    title: payload.criticalCount > 0 ? "数据质量发现严重异常" : "数据质量发现异常",
+    title: [
+      payload.criticalCount > 0 ? "数据质量严重异常" : "数据质量异常",
+      payload.scope?.resourceLabel,
+      payload.scope?.departmentName,
+    ].filter(Boolean).join(" · "),
     body: [
       `${triggerLabel(payload.trigger)}发现 ${payload.findingCount} 项需关注规则，其中严重 ${payload.criticalCount} 项、警告 ${payload.warningCount} 项。`,
       ...payload.findings.slice(0, 5).map((finding) => `${finding.title}：${finding.summary}`),
       payload.findingCount > 5 ? `另有 ${payload.findingCount - 5} 项，请进入数据质量工作台处理。` : "",
     ].filter(Boolean).join("\n"),
-    href: "/settings/admin?tab=dataQuality",
+    href: payload.href ?? "/settings/admin?tab=dataQuality",
     payload,
   }),
 } as const;

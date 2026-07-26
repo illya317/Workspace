@@ -6,37 +6,14 @@ import {
   type WorkspaceAnalysisReadModelField,
 } from "@workspace/platform/server/workspace-analysis-read-model";
 import type {
+  Contract,
   ErpDiligenceEvidenceAttachment,
   ErpDiligenceEvidenceItem,
   ErpDiligenceProcessStep,
   ErpDiligenceSubmissionDto,
 } from "@workspace/administration/types";
 
-type AdministrationContractListRow = {
-  id: number;
-  contractNo: string | null;
-  name: string;
-  partyA: string | null;
-  partyB: string | null;
-  shareholder: string | null;
-  category: string | null;
-  content: string | null;
-  handlerEmployeeId: number | null;
-  signDate: string | null;
-  endDate: string | null;
-  status: string | null;
-  amount: number | null;
-  executedAmount: number | null;
-  location: string | null;
-  remark: string | null;
-  editedBy: number | null;
-  editedAt: Date | null;
-  version: number;
-  createdAt: Date;
-  updatedAt: Date;
-  handlerEmployeeName: string | null;
-  handlerEmployeeActive: boolean | null;
-};
+type AdministrationContractListRow = Contract;
 
 const field = (
   input: Omit<WorkspaceAnalysisReadModelField, "classification" | "exportPolicy"> & {
@@ -61,8 +38,8 @@ const restricted = (valueKind: WorkspaceAnalysisReadModelField["valueKind"], lab
 );
 
 const workspaceScopes = {
-  personal: { mode: "workspace", description: "合同台账没有个人外键；显示当前账号按合同权限可见的全公司台账。" },
-  department: { mode: "workspace", description: "合同台账没有可信目标部门外键；显示当前账号按合同权限可见的全公司台账。" },
+  personal: { mode: "workspace", description: "合同采用集中台账，不构造个人合同口径；返回当前账号按合同保密与责任范围可见的记录。" },
+  department: { mode: "target", description: "按合同归口部门返回目标部门记录，并继续执行合同保密与责任范围。", query: { ownerDepartmentId: "scopeId" } },
   project: { mode: "workspace", description: "合同台账没有项目外键；显示当前账号按合同权限可见的全公司台账。" },
 } as const;
 
@@ -140,32 +117,56 @@ export const ADMINISTRATION_CONTRACTS_ANALYSIS_SOURCE = defineWorkspaceAnalysisR
     { key: "keyword", label: "关键词", description: "匹配合同编号、名称、主体、内容、股东、经办人或备注。", kind: "text", queryKey: "q" },
     { key: "location", label: "文件位置", description: "按合同文件位置精确筛选。", kind: "text", queryKey: "location" },
     { key: "category", label: "合同类型", description: "按合同类型精确筛选。", kind: "text", queryKey: "category" },
-    { key: "status", label: "合同状态", description: "按合同状态精确筛选。", kind: "text", queryKey: "status" },
+    { key: "lifecycleStatus", label: "合同状态", description: "按合同生命周期状态精确筛选。", kind: "text", queryKey: "lifecycleStatus" },
   ],
   fields: {
     id: field({ label: "合同 ID", description: "合同稳定内部 ID。", valueKind: "integer", sensitivity: "internal" }),
+    contractUid: field({ label: "系统标识", description: "不随业务编号变化的合同系统标识。", valueKind: "text", sensitivity: "internal" }),
+    version: field({ label: "合同版本", description: "合同乐观并发版本号。", valueKind: "integer", sensitivity: "internal" }),
     contractNo: field({ label: "合同编号", description: "合同业务编号。", valueKind: "text", sensitivity: "confidential" }),
     name: field({ label: "合同名称", description: "合同名称。", valueKind: "text", sensitivity: "confidential" }),
     partyA: field({ label: "甲方", description: "合同甲方。", valueKind: "text", sensitivity: "confidential" }),
     partyB: field({ label: "乙方", description: "合同乙方。", valueKind: "text", sensitivity: "confidential" }),
     shareholder: field({ label: "股东", description: "合同台账维护的股东。", valueKind: "text", sensitivity: "confidential" }),
-    category: field({ label: "合同类型", description: "合同类型。", valueKind: "text", sensitivity: "internal" }),
+    categoryId: field({ label: "合同类型 ID", description: "合同类型字典 ID。", valueKind: "integer", sensitivity: "internal" }),
+    categoryName: field({ label: "合同类型", description: "合同类型字典名称。", valueKind: "text", sensitivity: "internal" }),
     content: field({ label: "合同内容", description: "合同台账维护的内容摘要。", valueKind: "text", sensitivity: "restricted" }),
+    owningCompanyId: field({ label: "归属公司 ID", description: "合同归属公司的稳定 ID。", valueKind: "integer", sensitivity: "internal" }),
+    owningCompanyName: field({ label: "归属公司", description: "合同归属公司名称。", valueKind: "text", sensitivity: "confidential" }),
+    ownerDepartmentId: field({ label: "归口部门 ID", description: "合同归口部门稳定 ID。", valueKind: "integer", sensitivity: "internal" }),
+    ownerDepartmentName: field({ label: "归口部门", description: "合同归口部门名称。", valueKind: "text", sensitivity: "confidential" }),
+    partyAId: field({ label: "甲方主体 ID", description: "甲方法定主体稳定 ID。", valueKind: "integer", sensitivity: "internal" }),
+    partyAIdentityName: field({ label: "甲方主体主数据", description: "甲方关联的法定主体当前名称。", valueKind: "text", sensitivity: "confidential" }),
+    partyBId: field({ label: "乙方主体 ID", description: "乙方法定主体稳定 ID。", valueKind: "integer", sensitivity: "internal" }),
+    partyBIdentityName: field({ label: "乙方主体主数据", description: "乙方关联的法定主体当前名称。", valueKind: "text", sensitivity: "confidential" }),
     handlerEmployeeId: field({ label: "经办人 ID", description: "合同经办员工内部 ID。", valueKind: "integer", sensitivity: "internal" }),
-    signDate: field({ label: "签订日期", description: "合同签订日期。", valueKind: "date", sensitivity: "confidential" }),
-    endDate: field({ label: "结束日期", description: "合同结束日期。", valueKind: "date", sensitivity: "confidential" }),
-    status: field({ label: "状态", description: "合同当前状态。", valueKind: "text", sensitivity: "internal" }),
-    amount: field({ label: "合同金额", description: "合同含税或台账约定金额，单位沿用业务记录。", valueKind: "currency", sensitivity: "restricted" }),
-    executedAmount: field({ label: "已执行金额", description: "合同已执行金额，单位沿用业务记录。", valueKind: "currency", sensitivity: "restricted" }),
-    location: field({ label: "文件位置", description: "合同文件归档位置文本，不读取附件内容。", valueKind: "text", sensitivity: "confidential" }),
-    remark: field({ label: "备注", description: "合同备注。", valueKind: "text", sensitivity: "restricted" }),
-    editedBy: field({ label: "最后编辑人 ID", description: "公开合同列表返回的最后编辑账号 ID。", valueKind: "integer", sensitivity: "internal" }),
-    editedAt: field({ label: "最后编辑时间", description: "公开合同列表返回的最后编辑时间。", valueKind: "date", sensitivity: "internal" }),
-    version: field({ label: "合同版本", description: "合同台账版本号。", valueKind: "integer", sensitivity: "internal" }),
-    createdAt: field({ label: "记录创建时间", description: "合同台账记录创建时间；不等同于签订日期。", valueKind: "date", sensitivity: "internal" }),
-    updatedAt: field({ label: "记录更新时间", description: "合同台账记录最后更新时间；不等同于合同业务状态日期。", valueKind: "date", sensitivity: "internal" }),
     handlerEmployeeName: field({ label: "经办人", description: "合同经办员工姓名。", valueKind: "text", sensitivity: "confidential" }),
     handlerEmployeeActive: field({ label: "经办人在职", description: "经办员工是否存在在职雇佣记录。", valueKind: "boolean", sensitivity: "confidential" }),
+    signedOn: field({ label: "签订日期", description: "已确认到日的合同签订日期。", valueKind: "date", sensitivity: "confidential" }),
+    expiresOn: field({ label: "结束日期", description: "已确认到日的合同结束日期。", valueKind: "date", sensitivity: "confidential" }),
+    signedOnPrecision: field({ label: "签订日期精度", description: "签订日期的已知精度。", valueKind: "text", sensitivity: "internal" }),
+    expiresOnPrecision: field({ label: "结束日期精度", description: "结束日期的已知精度。", valueKind: "text", sensitivity: "internal" }),
+    legacySignDateRaw: field({ label: "旧签订日期", description: "迁移前的签订日期原始文本。", valueKind: "text", sensitivity: "restricted" }),
+    legacyEndDateRaw: field({ label: "旧结束日期", description: "迁移前的结束日期原始文本。", valueKind: "text", sensitivity: "restricted" }),
+    lifecycleStatus: field({ label: "合同状态", description: "合同生命周期状态。", valueKind: "text", sensitivity: "internal" }),
+    signatureStatus: field({ label: "签署状态", description: "合同签署状态。", valueKind: "text", sensitivity: "internal" }),
+    performanceStatus: field({ label: "履行状态", description: "合同履行状态。", valueKind: "text", sensitivity: "internal" }),
+    legacyStatusRaw: field({ label: "旧状态", description: "迁移前的状态原始文本。", valueKind: "text", sensitivity: "restricted" }),
+    amount: field({ label: "合同金额", description: "合同台账约定金额。", valueKind: "currency", sensitivity: "restricted" }),
+    executedAmount: field({ label: "台账已执行金额", description: "P0 台账人工记录的已执行金额。", valueKind: "currency", sensitivity: "restricted" }),
+    currencyCode: field({ label: "币种", description: "ISO 三位币种代码。", valueKind: "text", sensitivity: "internal" }),
+    confidentialityLevel: field({ label: "保密级别", description: "合同记录的保密级别。", valueKind: "integer", sensitivity: "restricted" }),
+    location: field({ label: "文件位置", description: "合同文件归档位置文本，不读取附件内容。", valueKind: "text", sensitivity: "confidential" }),
+    remark: field({ label: "备注", description: "合同备注。", valueKind: "text", sensitivity: "restricted" }),
+    isArchived: field({ label: "已归档", description: "合同是否已归档。", valueKind: "boolean", sensitivity: "internal" }),
+    archivedAt: field({ label: "归档时间", description: "合同归档时间。", valueKind: "date", sensitivity: "internal" }),
+    archivedBy: field({ label: "归档人 ID", description: "执行归档的用户 ID。", valueKind: "integer", sensitivity: "internal" }),
+    editedBy: field({ label: "最后编辑人 ID", description: "公开合同列表返回的最后编辑账号 ID。", valueKind: "integer", sensitivity: "internal" }),
+    editedAt: field({ label: "最后编辑时间", description: "公开合同列表返回的最后编辑时间。", valueKind: "date", sensitivity: "internal" }),
+    createdAt: field({ label: "记录创建时间", description: "合同台账记录创建时间；不等同于签订日期。", valueKind: "date", sensitivity: "internal" }),
+    updatedAt: field({ label: "记录更新时间", description: "合同台账记录最后更新时间；不等同于合同业务状态日期。", valueKind: "date", sensitivity: "internal" }),
+    dataQualityIssues: { classification: "omit", reason: "nonScalar", description: "数据质量问题数组只用于工作台提示，不作为标量分析字段。" },
+    canHardDelete: { classification: "omit", reason: "controlPlane", description: "删除能力由生命周期和权限动态判定，不作为经营分析事实。" },
   },
   pagination: { pageParam: "page", pageSizeParam: "pageSize", pageSize: 500, maxPages: 10 },
   limits: { maxRows: 5_000, maxGroups: 500, maxPageSize: 500, maxPages: 10, maxBytes: 5 * 1024 * 1024, timeoutMs: 10_000 },

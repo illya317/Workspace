@@ -69,7 +69,7 @@ test("generic grant callback recomputes stale isSystemAdmin through the transact
     actorUserId: 7,
     subjectType: "user",
     subjectId: 9,
-    resourceKey: "agent.source",
+    resourceKey: "settings.account.apiAccess",
     actionKey: "read",
     value: true,
     isSystemAdmin: true,

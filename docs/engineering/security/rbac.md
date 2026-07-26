@@ -145,10 +145,10 @@ space.company
 
 - `agent.assistant.read`：发现可用 profile，并读取能力清单或本人安全视图。
 - `agent.assistant.submit`：显示工具栏助手、提交消息，以及确认/取消自己创建的 proposal；`submit` 按 action registry 同时隐含 `entry/read`。
-- `agent.source.read/submit`：分别控制 Workspace 源码检索、CNB PR 草案及确认 executor。该 capability 以 `agent.assistant` 为 owner，所以双方还必须拥有显式 assistant entry。助手授权不会自动迁移或推导为 source 授权。
-- 每个智能体 tool 必须声明最小 `resourceKey + action`。本人助手按请求人执行；选择虚拟员工后，Platform 在初次暴露、每次 tool call 和 proposal 确认时实时检查请求人与虚拟员工 actor 的权限交集。
-- 虚拟员工模式只暴露显式声明 `delegatedExecution` 且进入该 `AgentProfile` 工具白名单的 adapter。`requiresAgentProfile` 工具在本人助手中始终失败关闭；toolbar profile discovery 还会隐藏对当前请求人没有任何可用注册工具的 profile。尚未实现双主体对象/数据范围校验的业务 adapter 必须失败关闭。
-- 当前 Workspace 绑定的 AI0004 只允许源码检索和 PR 提案，并由 provisioner 精确维护 assistant/source grants；AI0001-AI0003 不获得 Workspace source grants。本地代码开发、直接提交和部署属于本地 Codex、CI 或服务器运行时，不在 Workspace 对话中执行。
+- 模型侧工具集固定为 `workspace.api.discover`、`workspace.api.read`、`workspace.api.proposeMutation`；工具只能命中 Registry 中受保护的 `/api/modules/**` 业务 contract。模型不能提供 origin、认证头或内部路由，也不能访问源码、文件系统、Prisma/数据库、内部 RPC、任意网络、凭据或部署能力。
+- 本人助手按请求人执行；选择虚拟员工后，Platform 在发现、调用和 proposal 确认时都重验请求人与虚拟员工 actor 的权限交集。短期委托令牌固定请求人、actor、profile、run、method、规范化 path/query 和 body hash，且不向模型暴露。
+- 标记为 `serviceDelegated` 的 API 在选择虚拟员工时失败关闭，因为领域 service 当前只接受一个对象身份；只有 gateway 能完整检查双主体的 contract 才允许委托调用。本人助手仍按普通请求人的完整 gateway + service 授权链执行。
+- Workspace Agent 不承担代码开发、提交或部署。AI0001-AI0003 的本地 Codex、CI、服务器职责属于独立外部运行时，不会转化为页面助手能力。
 - 智能体 action ceiling 是用户 RBAC 之上的全局收紧策略，只能减少任意模型 provider 可见的 action，不能授予用户原本没有的权限。root identity 也受 ceiling 约束。
 - 默认 ceiling 只允许 `entry/read/create/update/submit/import/export`；`delete/archive/revise/reverse/lock/unlock/approve/reject/share/apiUse/grant/configure/audit` 默认关闭。新注册 action 默认关闭，必须由 root admin 在 Settings 的“智能体”策略中显式复核后才能开放。
 - proposal 确认不是全局 `approve`。确认只表示请求人继续执行这次智能体提案；proposal 固定创建时的虚拟员工 actor，先原子抢占 `pending -> executing`，再实时重验全局上限与双方权限，业务写入以 actor 进入编辑审计。
@@ -201,6 +201,10 @@ evaluatePermissionAction(userId, resourceKey, actionKey, scope?)
 默认求值使用 effective grant：动作可由 `actionImplies` 隐含，资源可按 `ancestorInheritedActions` 从父级继承。少数读取若必须同时排除动作隐含与父级继承，应在同一次求值中设置 `grantMatch.action = exact` 与 `grantMatch.resource = exact`；只设置动作 exact 仍允许同名 action 从父资源下传。exact 只收窄目标 grant 匹配，不取消 root identity、目标资源上的系统管理来源、系统默认权限或显式用户/岗位/部门授权；capability 的 owner-entry 前置条件仍按 owner 的 effective entry 求值。
 
 ## API 权限
+
+个人 API Key 使用 `X-API-Key`，只代表 Key 所属的 Workspace 用户，不创建独立 Agent 身份，也不经过 `/api/agent`。`GET /api/settings/account/api-catalog` 只从 API registry 与 business-action registry 派生正常业务 contract 和精确 mutation 路径；公开协议不硬编码领域 workflow，也不携带旧 Harness 名称或 Agent 专属领域语义。个人 API 的写操作立即执行，因此外部客户端负责交互确认，并必须遵守业务 API 的版本 CAS；每次请求仍由 gateway 与业务 Service 重新检查当前 resource/action/apiUse/object/space 权限。
+
+内置 Agent 已彻底收缩为同一业务 API 的薄壳：发现与读取直接调用标准业务 contract，所有 mutation 只冻结为 proposal，确认后再以同一份 method/path/query/body 调用标准 API。它没有领域 adapter、专用 domain RPC 或普通 API 无法完成的私有业务操作。源码修改属于独立开发工作流，不纳入 Agent 或个人业务 API workflow。
 
 API contract 分两层：
 

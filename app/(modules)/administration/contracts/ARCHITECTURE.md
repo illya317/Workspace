@@ -1,74 +1,97 @@
-# Contracts 合同管理模块架构
+# Contracts 合同主数据模块架构
 
-## 路由入口
+## 定位与边界
 
-| 页面 | 路由 | 组件 |
-|------|------|------|
-| 合同管理 | `/administration/contracts` | `app/(modules)/administration/contracts/page.tsx` → `ContractsClient.tsx` |
+Administration Contracts 是公司集中维护的合同主数据和台账，不是采购、销售、应收应付单据引擎。P0 负责可信身份、主体、期限、金额、状态、责任归属、保密、归档和数据补全。P1 增加审批完成后的附件包、归档记录和外部审批记录引用；系统不承载审批流程。电子签、条款、义务、付款/开票联动属于后续阶段。
+
+页面入口为 `/administration/contracts`，由 `app/(modules)/administration/contracts/page.tsx` 完成路由鉴权和动作权限预取，再挂载 `ContractsClient`。页面不提供“我的合同”口径；合同采用集中台账，记录访问由保密级别和责任归属控制。
 
 ## 页面结构
 
-ContractsClient 渲染主列表 + 详情工作区，支持筛选、分页和块内新增/编辑：
+`ContractsClient` 使用 Core `PageSurface + createPageTabBar + createMasterDetailBody`：
 
-| 组件 | 说明 |
-|------|------|
-| SelectorSurface | 左侧合同列表；主标题为合同名称，小字为签署对方 |
-| ContractFilters | 筛选条件（公司、状态、日期等） |
-| contract-form | 合同表单字段与分段声明 |
-| ContractPagination | 分页组件 |
+- 同页工作视图：以“合同台账”为父项，手风琴展开待补全、即将到期、已到期；父项本身即全部台账，视图状态不通过路由跳转同步。
+- Toolbar：关键词、文件位置、合同类型、合同生命周期状态、页容量和导出。
+- 左侧 Selector：合同名称、业务编号或系统标识、签署对方、到期日和生命周期状态。
+- 右侧表单：基本信息、责任归属、签约主体、期限与履行、内容与备注、待核验旧值。
+- P1 材料包：审批记录引用、合同附件和不可变归档记录以互斥折叠面板呈现。
+- 正式记录只显示归档动作；只有 `lifecycleStatus=draft` 的草稿可以硬删除。
 
-页面统一使用 Core `createMasterDetailBody`：左侧 `master` 是合同选择列表，右侧 `detail` 承载新增或编辑 block；桌面折叠状态、toolbar 折叠按钮和移动端列表到详情推进都由 PageSurface 持有。新增合同声明 block `CreateSurface`，由 PageSurface 派生 toolbar `+`；新增和编辑均按基本信息、签约主体、履行与归档、内容与备注分段展示。合同类型为必填下拉，文件位置与合同类型均使用列表接口返回的真实去重选项；状态固定为未盖章、执行中、已终止、已结束，旧“已失效”在表单中归入“已结束”。删除动作位于左侧合同项，编辑通过选择合同进入右侧 block。
+`待补全` 是服务端根据事实动态计算的工作队列，不持久化派生总数。典型问题包括缺号、重复号、主体未关联、经办人缺失、状态待确认、旧日期精度不足和机密合同责任归属缺失。
 
-## 核心组件链
+## 数据模型
 
-```
-page.tsx
-  └─ ContractsClient.tsx
-       ├─ ContractFilters.tsx      — 筛选栏
-       ├─ SelectorSurface           — 名称 + 签署对方列表
-       ├─ contract-form.ts          — 表单字段/分段声明
-       ├─ createMasterDetailBody    — 主列表 + 详情工作区
-       └─ ContractPagination.tsx    — 分页
-```
+`Contract.contractUid` 是不可变且唯一的系统身份；`contractNo` 是可空业务编号。新建和修改拒绝重复的非空业务编号，但迁移不会销毁既有重复来源值，重复记录进入待补全队列。
 
-## 数据流
+合同类型由 Administration 自有 `ContractCategory` 字典维护。合同通过稳定 FK 关联：
 
-1. **useContracts.ts** 提供加载/搜索/分页/CRUD hook
-2. **ContractsClient** 消费 hook，渲染筛选 + 主列表 + 右侧新增/编辑 block
-3. **API** `app/api/modules/administration/contracts/` 和 `app/api/modules/hr/roster/contracts/` 提供合同 CRUD
+- `owningCompanyId -> Company.id`
+- `ownerDepartmentId -> Department.id`
+- `partyAId/partyBId -> Party.id`
+- `handlerEmployeeId -> Employee.id`
 
-## API 规范
+`partyA/partyB` 继续保存合同签署时的名称快照；共享 `Party` 只提供稳定法定主体身份，不以当前主体名称覆盖历史签署文本。
 
-| 端点 | 说明 |
-|------|------|
-| `GET /api/modules/administration/contracts` | 合同列表（支持筛选、分页） |
-| `GET /api/modules/administration/contracts/export` | 下载全部匹配合同 CSV（忽略分页） |
-| `GET /api/modules/administration/contracts/reference-options` | 按姓名/工号搜索经办人员工，包含离职员工 |
-| `POST /api/modules/administration/internal/library-source` | HMAC 内部接口，向 Library 提供当前合同台账 XLSX 快照 |
+`signedOn/expiresOn` 使用 PostgreSQL `date`。迁移前文本保存在 `legacySignDateRaw/legacyEndDateRaw`，日期精度记录在 `signedOnPrecision/expiresOnPrecision`；只有年份或无法确认到日的来源值不会被强行转换。金额使用 `Decimal(20,2)` 并配套三位 `currencyCode`。
+
+状态拆为三个独立事实：
+
+- `lifecycleStatus`: draft / active / terminated / expired / closed / unknown
+- `signatureStatus`: unsigned / signed / unknown
+- `performanceStatus`: not_started / in_progress / fulfilled / breached / waived / unknown
+
+旧自由文本状态保存在 `legacyStatusRaw`。归档由 `isArchived + archivedAt + archivedBy` 审计，不把正式合同物理删除。
+
+## API 与写入链路
+
+| 端点 | 动作 |
+|---|---|
+| `GET /api/modules/administration/contracts` | 列表、筛选和工作视图 |
+| `GET /api/modules/administration/contracts/export` | 导出全部匹配且当前用户可见的合同 |
+| `GET /api/modules/administration/contracts/reference-options` | Company / Department / Party / Employee 候选项 |
 | `POST /api/modules/administration/contracts` | 创建合同 |
-| `PATCH /api/modules/administration/contracts/[id]` | 更新合同 |
-| `DELETE /api/modules/administration/contracts/[id]` | 删除合同；必须通过 `If-Match` 提交当前版本 |
-| `GET /api/modules/hr/roster/contracts` | HR 模块内嵌合同列表 |
+| `PATCH /api/modules/administration/contracts/[id]` | 带 `If-Match` 的并发安全更新 |
+| `POST /api/modules/administration/contracts/[id]/archive` | 带 `If-Match` 的归档 |
+| `DELETE /api/modules/administration/contracts/[id]` | 仅删除带 `If-Match` 的草稿 |
+| `GET /api/modules/administration/contracts/[id]/package` | 读取合同附件和归档记录 |
+| `POST /api/modules/administration/contracts/[id]/attachments` | 上传附件并追加归档记录 |
+| `GET /api/modules/administration/contracts/[id]/attachments/[attachmentUid]/download` | 下载原件或优化版 |
+| `POST /api/modules/administration/contracts/[id]/attachments/[attachmentUid]/remove` | 软移除附件并追加记录 |
+| `POST /api/modules/administration/contracts/[id]/records` | 新增归档、补充或备注记录 |
+| `PUT /api/modules/administration/contracts/[id]/approval-reference` | 带 `If-Match` 登记外部审批记录引用 |
+| `POST /api/modules/administration/internal/library-source` | HMAC 内部接口，生成内部级合同台账 XLSX |
 
-## 权限标准
+所有写入遵守 `Zod schema -> domain validator -> service/Prisma`。Route Handler 只适配参数、当前用户和版本头；domain validator 统一归一金额、日期和 FK；service 在事务内锁定合同、重查记录访问、校验版本、写编辑历史并提交。
 
-- 页面入口：`requireRouteAccess("/administration/contracts")`
-- GET：`administration.contracts.read`
-- POST：`administration.contracts.create`
-- PATCH：`administration.contracts.update`
-- DELETE：`administration.contracts.delete`
-- 导出：`administration.contracts.export`
+## 权限与记录访问
 
-API route 的资源和动作统一由 API contract 的 `resourceKey + requiredActions` 推导并在 gateway 执行，不再维护重复的 route-local guard。
+资源为 `administration.contracts`：
 
-`Contract.handlerEmployeeId` 是经办人的唯一业务字段，通过 `ContractHandlerEmployee` 关系关联 `Employee.id`；页面和导出只展示关联员工姓名，不接受经办人自由文本。关系允许为空，员工离职后继续保留历史合同引用，删除仍被合同引用的员工会由数据库 `Restrict` 和 Relation Policy 阻断。
+- `read/create/update/delete` 使用基础资源动作。
+- `archive` 和 `export` 是显式动作；归档 POST 在 API action policy 中要求 `archive`，不会回退为 POST 默认的 `create`。
+- 页面、API contract、BusinessAction 和 service 使用同一资源键。
 
-合同经办人选择器使用 Administration 自有的 relation key `administration.contracts.handler.employee` 和本模块 reference-options API，不借用 HR API 权限。候选项包含在职与离职员工并显示生命周期状态；写入时 domain validator 以 `lifecycleScope: all` 校验真实 Employee FK，因此历史合同可以继续关联离职员工。
+对象访问由 `packages/administration/server/contract-access.ts` 负责：
 
-写入接口统一由 Administration typed command 承载：route 只适配 Zod 输入和当前用户，package service 调用 domain validator 后写入。合同硬删通过 Platform `guardedDelete` 完成目标存在性、生命周期、乐观并发和删除前历史快照；当前模型没有入向业务引用，因此显式声明 `referencePolicy: "none"`。
+- 内部级（2）合同遵循普通资源读权限。
+- 机密级（3）合同仅系统管理员、合同经办人或归口部门负责人可见和维护。
+- 绝密级（4）合同仅系统管理员可见和维护。
+- 列表、导出、经营分析、更新、归档和删除复用同一记录范围；无权记录按不存在返回。
 
-## 生命周期标记
+Company、Department、Party、Employee 关系均登记在 Platform relation registry，并由 Administration mutation-impact adapter 阻止删除或归档仍被合同引用的主数据。
 
-状态：`workspace-owned`。当前合同台账是行政/人事轻流程，不作为采购、销售、应收应付合同单据引擎使用。
+## 下游适配
 
-Library 的 `contract-ledger` 权威来源复用本模块 `loadContractExportRecords + renderContractsCsv` 的同一导出口径，再由 Administration Adapter 封装 XLSX、固定资料身份、截止日和完整度证据。Library 不直接查询 `Contract`，避免列表、导出和资料快照出现三套字段与状态解释。
+Library 的 `contract-ledger` 权威来源复用 `loadContractExportRecords + renderContractsCsv`，仅生成内部级现行合同快照；Library 不直接查询 Contract。经营分析复用受保护的合同 GET，个人视角仍是集中台账，部门视角按 `ownerDepartmentId` 约束，且继续执行合同记录访问规则。
+
+## P1 合同材料包
+
+P1 是审批完成后的归档和记录层，不创建待办、审批节点或审批状态机。`approvalSourceKey + approvalRecordId` 为将来接入外部审批系统预留稳定引用，URL、结果快照、通过日期和同步时间只保存外部事实快照；每次变更同时追加 `ContractRecord(recordType=approval)`。
+
+合同附件保存不可变原件，移除仅做软删除并追加记录。PDF 上传后复用 Platform 的确定性优化原语；该原语由 Library 与 Administration 共同使用，生成线性化/压缩派生文件并校验页数、抽样渲染差异、大小和 SHA-256。只有节省至少 10% 且通过校验时才提供优化版，原件始终保留，避免压缩破坏数字签名或法律证据。
+
+## 迁移
+
+`20260726143000_contract_clm_p0` 创建类型字典和新字段，归一可确认到日的日期、旧状态和十进制金额，并仅在名称唯一匹配时关联 Party/Company。模糊值保留为旧值证据，不伪造法律事实。
+
+`20260726165000_contract_clm_p1_archive_package` 增加审批引用字段、`ContractAttachment` 和追加式 `ContractRecord`，并以约束保证审批引用成对、附件存储事实完整和软移除事实一致。

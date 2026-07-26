@@ -1,4 +1,11 @@
 export * from "./contracts";
+export * from "./contract-package";
+export {
+  ContractApprovalReferenceSchema,
+  ContractAttachmentRemoveSchema,
+  ContractAttachmentUploadSchema,
+  ContractRecordCreateSchema,
+} from "./contract-package-schemas";
 export * from "./library-source";
 export * from "./contract-reference-options";
 export * from "./contract-relation-adapter";

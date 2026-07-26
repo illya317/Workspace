@@ -159,8 +159,8 @@ test("runtime abort telemetry is persisted with the aborted API result", async (
     throw new AgentRuntimeAbortError("request disconnected", partialTelemetry, {
       type: "proposal",
       message: "partial proposal",
-      toolUsed: "source.proposePullRequest",
-      proposal: { id: 43, actionKey: "source.submit", targetType: "PullRequest", diff: {} },
+      toolUsed: "workspace.api.proposeMutation",
+      proposal: { id: 43, actionKey: "agent.businessApi.mutation.execute", targetType: "WorkspaceBusinessApi", diff: {} },
       telemetry: partialTelemetry,
     });
   };
@@ -178,7 +178,7 @@ test("runtime abort telemetry is persisted with the aborted API result", async (
   assert.deepEqual(cancelledProposalIds, [43]);
   assert.deepEqual(finishedRun, {
     status: "aborted",
-    toolKey: "source.proposePullRequest",
+    toolKey: "workspace.api.proposeMutation",
     resultType: "error",
     proposalId: 43,
     errorMessage: "request disconnected",
@@ -229,7 +229,7 @@ test("cancelled runtime cannot expose a pending proposal as a successful result"
   processMessageImpl = async () => ({
     type: "proposal",
     message: "please confirm",
-    proposal: { id: 44, actionKey: "source.submit", targetType: "PullRequest", diff: {} },
+    proposal: { id: 44, actionKey: "agent.businessApi.mutation.execute", targetType: "WorkspaceBusinessApi", diff: {} },
     telemetry: { ...telemetry, runtimeOutcome: "cancelled" },
   });
 

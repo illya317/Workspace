@@ -7,6 +7,13 @@ export const AGENT_RUNTIME_KINDS = {
 
 export type AgentRuntimeKind = typeof AGENT_RUNTIME_KINDS[keyof typeof AGENT_RUNTIME_KINDS];
 
+/** Workspace runtimes expose only the generic protected-business-API connector. */
+export const WORKSPACE_AGENT_CAPABILITY_KEYS = [
+  "workspace.api.discover",
+  "workspace.api.read",
+  "workspace.api.proposeMutation",
+] as const;
+
 export const ACTIVE_WORKSPACE_RUNTIME_WHERE = {
   runtimeKind: AGENT_RUNTIME_KINDS.workspace,
   status: "active",

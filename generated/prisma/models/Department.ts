@@ -325,6 +325,7 @@ export type DepartmentWhereInput = {
   positions?: Prisma.PositionListRelationFilter
   positionReportOverrides?: Prisma.PositionReportOverrideListRelationFilter
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionListRelationFilter
+  ownedContracts?: Prisma.ContractListRelationFilter
 }
 
 export type DepartmentOrderByWithRelationInput = {
@@ -359,6 +360,7 @@ export type DepartmentOrderByWithRelationInput = {
   positions?: Prisma.PositionOrderByRelationAggregateInput
   positionReportOverrides?: Prisma.PositionReportOverrideOrderByRelationAggregateInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionOrderByRelationAggregateInput
+  ownedContracts?: Prisma.ContractOrderByRelationAggregateInput
 }
 
 export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
@@ -396,6 +398,7 @@ export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
   positions?: Prisma.PositionListRelationFilter
   positionReportOverrides?: Prisma.PositionReportOverrideListRelationFilter
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionListRelationFilter
+  ownedContracts?: Prisma.ContractListRelationFilter
 }, "id">
 
 export type DepartmentOrderByWithAggregationInput = {
@@ -469,6 +472,7 @@ export type DepartmentCreateInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateInput = {
@@ -501,6 +505,7 @@ export type DepartmentUncheckedCreateInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUpdateInput = {
@@ -532,6 +537,7 @@ export type DepartmentUpdateInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateInput = {
@@ -564,6 +570,7 @@ export type DepartmentUncheckedUpdateInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateManyInput = {
@@ -715,6 +722,22 @@ export type DepartmentUpdateOneRequiredWithoutResourceActionGrantsNestedInput = 
   upsert?: Prisma.DepartmentUpsertWithoutResourceActionGrantsInput
   connect?: Prisma.DepartmentWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutResourceActionGrantsInput, Prisma.DepartmentUpdateWithoutResourceActionGrantsInput>, Prisma.DepartmentUncheckedUpdateWithoutResourceActionGrantsInput>
+}
+
+export type DepartmentCreateNestedOneWithoutOwnedContractsInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutOwnedContractsInput, Prisma.DepartmentUncheckedCreateWithoutOwnedContractsInput>
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutOwnedContractsInput
+  connect?: Prisma.DepartmentWhereUniqueInput
+}
+
+export type DepartmentUpdateOneWithoutOwnedContractsNestedInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutOwnedContractsInput, Prisma.DepartmentUncheckedCreateWithoutOwnedContractsInput>
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutOwnedContractsInput
+  upsert?: Prisma.DepartmentUpsertWithoutOwnedContractsInput
+  disconnect?: Prisma.DepartmentWhereInput | boolean
+  delete?: Prisma.DepartmentWhereInput | boolean
+  connect?: Prisma.DepartmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutOwnedContractsInput, Prisma.DepartmentUpdateWithoutOwnedContractsInput>, Prisma.DepartmentUncheckedUpdateWithoutOwnedContractsInput>
 }
 
 export type DepartmentCreateNestedOneWithoutDescriptionsInput = {
@@ -1037,6 +1060,7 @@ export type DepartmentCreateWithoutResourceActionGrantsInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutResourceActionGrantsInput = {
@@ -1068,6 +1092,7 @@ export type DepartmentUncheckedCreateWithoutResourceActionGrantsInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutResourceActionGrantsInput = {
@@ -1114,6 +1139,7 @@ export type DepartmentUpdateWithoutResourceActionGrantsInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutResourceActionGrantsInput = {
@@ -1134,6 +1160,149 @@ export type DepartmentUncheckedUpdateWithoutResourceActionGrantsInput = {
   children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
   managerEmployees?: Prisma.DepartmentManagerEmployeeUncheckedUpdateManyWithoutDepartmentNestedInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
+  responsibleCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutResponsibleDepartmentNestedInput
+  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
+  sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
+  sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
+  leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
+  enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
+  edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
+  ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+}
+
+export type DepartmentCreateWithoutOwnedContractsInput = {
+  code: string
+  name: string
+  alias?: string | null
+  hierarchyKind?: string
+  level?: number
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
+  parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
+  children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
+  descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
+  managerEmployees?: Prisma.DepartmentManagerEmployeeCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
+  responsibleCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutResponsibleDepartmentInput
+  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutDepartmentInput
+  sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
+  sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
+  leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
+  enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
+  edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
+  positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
+  positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
+  ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+}
+
+export type DepartmentUncheckedCreateWithoutOwnedContractsInput = {
+  id?: number
+  code: string
+  name: string
+  alias?: string | null
+  hierarchyKind?: string
+  level?: number
+  parentId?: number | null
+  managerPositionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
+  descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
+  managerEmployees?: Prisma.DepartmentManagerEmployeeUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
+  responsibleCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutResponsibleDepartmentInput
+  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
+  sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
+  sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
+  leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
+  enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
+  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
+  ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+}
+
+export type DepartmentCreateOrConnectWithoutOwnedContractsInput = {
+  where: Prisma.DepartmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutOwnedContractsInput, Prisma.DepartmentUncheckedCreateWithoutOwnedContractsInput>
+}
+
+export type DepartmentUpsertWithoutOwnedContractsInput = {
+  update: Prisma.XOR<Prisma.DepartmentUpdateWithoutOwnedContractsInput, Prisma.DepartmentUncheckedUpdateWithoutOwnedContractsInput>
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutOwnedContractsInput, Prisma.DepartmentUncheckedCreateWithoutOwnedContractsInput>
+  where?: Prisma.DepartmentWhereInput
+}
+
+export type DepartmentUpdateToOneWithWhereWithoutOwnedContractsInput = {
+  where?: Prisma.DepartmentWhereInput
+  data: Prisma.XOR<Prisma.DepartmentUpdateWithoutOwnedContractsInput, Prisma.DepartmentUncheckedUpdateWithoutOwnedContractsInput>
+}
+
+export type DepartmentUpdateWithoutOwnedContractsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hierarchyKind?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
+  parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
+  descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
+  managerEmployees?: Prisma.DepartmentManagerEmployeeUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
+  responsibleCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutResponsibleDepartmentNestedInput
+  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutDepartmentNestedInput
+  sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
+  sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
+  leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
+  enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
+  edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
+  ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+}
+
+export type DepartmentUncheckedUpdateWithoutOwnedContractsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hierarchyKind?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
+  descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
+  managerEmployees?: Prisma.DepartmentManagerEmployeeUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
   responsibleCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutResponsibleDepartmentNestedInput
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1175,6 +1344,7 @@ export type DepartmentCreateWithoutDescriptionsInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutDescriptionsInput = {
@@ -1206,6 +1376,7 @@ export type DepartmentUncheckedCreateWithoutDescriptionsInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutDescriptionsInput = {
@@ -1252,6 +1423,7 @@ export type DepartmentUpdateWithoutDescriptionsInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutDescriptionsInput = {
@@ -1283,6 +1455,7 @@ export type DepartmentUncheckedUpdateWithoutDescriptionsInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutChildrenInput = {
@@ -1313,6 +1486,7 @@ export type DepartmentCreateWithoutChildrenInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutChildrenInput = {
@@ -1344,6 +1518,7 @@ export type DepartmentUncheckedCreateWithoutChildrenInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutChildrenInput = {
@@ -1379,6 +1554,7 @@ export type DepartmentCreateWithoutParentInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutParentInput = {
@@ -1410,6 +1586,7 @@ export type DepartmentUncheckedCreateWithoutParentInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutParentInput = {
@@ -1461,6 +1638,7 @@ export type DepartmentUpdateWithoutChildrenInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutChildrenInput = {
@@ -1492,6 +1670,7 @@ export type DepartmentUncheckedUpdateWithoutChildrenInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUpsertWithWhereUniqueWithoutParentInput = {
@@ -1558,6 +1737,7 @@ export type DepartmentCreateWithoutManagerEmployeesInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutManagerEmployeesInput = {
@@ -1589,6 +1769,7 @@ export type DepartmentUncheckedCreateWithoutManagerEmployeesInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutManagerEmployeesInput = {
@@ -1635,6 +1816,7 @@ export type DepartmentUpdateWithoutManagerEmployeesInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutManagerEmployeesInput = {
@@ -1666,6 +1848,7 @@ export type DepartmentUncheckedUpdateWithoutManagerEmployeesInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutPositionsInput = {
@@ -1696,6 +1879,7 @@ export type DepartmentCreateWithoutPositionsInput = {
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutPositionsInput = {
@@ -1727,6 +1911,7 @@ export type DepartmentUncheckedCreateWithoutPositionsInput = {
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutPositionsInput = {
@@ -1762,6 +1947,7 @@ export type DepartmentCreateWithoutManagerPositionInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutManagerPositionInput = {
@@ -1793,6 +1979,7 @@ export type DepartmentUncheckedCreateWithoutManagerPositionInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutManagerPositionInput = {
@@ -1844,6 +2031,7 @@ export type DepartmentUpdateWithoutPositionsInput = {
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutPositionsInput = {
@@ -1875,6 +2063,7 @@ export type DepartmentUncheckedUpdateWithoutPositionsInput = {
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUpsertWithWhereUniqueWithoutManagerPositionInput = {
@@ -1921,6 +2110,7 @@ export type DepartmentCreateWithoutEdpsInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutEdpsInput = {
@@ -1952,6 +2142,7 @@ export type DepartmentUncheckedCreateWithoutEdpsInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutEdpsInput = {
@@ -1998,6 +2189,7 @@ export type DepartmentUpdateWithoutEdpsInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutEdpsInput = {
@@ -2029,6 +2221,7 @@ export type DepartmentUncheckedUpdateWithoutEdpsInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutPositionReportOverridesInput = {
@@ -2059,6 +2252,7 @@ export type DepartmentCreateWithoutPositionReportOverridesInput = {
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutPositionReportOverridesInput = {
@@ -2090,6 +2284,7 @@ export type DepartmentUncheckedCreateWithoutPositionReportOverridesInput = {
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutPositionReportOverridesInput = {
@@ -2136,6 +2331,7 @@ export type DepartmentUpdateWithoutPositionReportOverridesInput = {
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutPositionReportOverridesInput = {
@@ -2167,6 +2363,7 @@ export type DepartmentUncheckedUpdateWithoutPositionReportOverridesInput = {
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutResponsibleCollaborationsInput = {
@@ -2197,6 +2394,7 @@ export type DepartmentCreateWithoutResponsibleCollaborationsInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutResponsibleCollaborationsInput = {
@@ -2228,6 +2426,7 @@ export type DepartmentUncheckedCreateWithoutResponsibleCollaborationsInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutResponsibleCollaborationsInput = {
@@ -2274,6 +2473,7 @@ export type DepartmentUpdateWithoutResponsibleCollaborationsInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutResponsibleCollaborationsInput = {
@@ -2305,6 +2505,7 @@ export type DepartmentUncheckedUpdateWithoutResponsibleCollaborationsInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutEnabledCollaborationsInput = {
@@ -2335,6 +2536,7 @@ export type DepartmentCreateWithoutEnabledCollaborationsInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutEnabledCollaborationsInput = {
@@ -2366,6 +2568,7 @@ export type DepartmentUncheckedCreateWithoutEnabledCollaborationsInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutEnabledCollaborationsInput = {
@@ -2412,6 +2615,7 @@ export type DepartmentUpdateWithoutEnabledCollaborationsInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutEnabledCollaborationsInput = {
@@ -2443,6 +2647,7 @@ export type DepartmentUncheckedUpdateWithoutEnabledCollaborationsInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutOwnedKpiDefinitionsInput = {
@@ -2473,6 +2678,7 @@ export type DepartmentCreateWithoutOwnedKpiDefinitionsInput = {
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutOwnedKpiDefinitionsInput = {
@@ -2504,6 +2710,7 @@ export type DepartmentUncheckedCreateWithoutOwnedKpiDefinitionsInput = {
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutOwnedKpiDefinitionsInput = {
@@ -2550,6 +2757,7 @@ export type DepartmentUpdateWithoutOwnedKpiDefinitionsInput = {
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutOwnedKpiDefinitionsInput = {
@@ -2581,6 +2789,7 @@ export type DepartmentUncheckedUpdateWithoutOwnedKpiDefinitionsInput = {
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutLeadingProjectsInput = {
@@ -2611,6 +2820,7 @@ export type DepartmentCreateWithoutLeadingProjectsInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutLeadingProjectsInput = {
@@ -2642,6 +2852,7 @@ export type DepartmentUncheckedCreateWithoutLeadingProjectsInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutLeadingProjectsInput = {
@@ -2688,6 +2899,7 @@ export type DepartmentUpdateWithoutLeadingProjectsInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutLeadingProjectsInput = {
@@ -2719,6 +2931,7 @@ export type DepartmentUncheckedUpdateWithoutLeadingProjectsInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutEnabledProjectsInput = {
@@ -2749,6 +2962,7 @@ export type DepartmentCreateWithoutEnabledProjectsInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutEnabledProjectsInput = {
@@ -2780,6 +2994,7 @@ export type DepartmentUncheckedCreateWithoutEnabledProjectsInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutEnabledProjectsInput = {
@@ -2826,6 +3041,7 @@ export type DepartmentUpdateWithoutEnabledProjectsInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutEnabledProjectsInput = {
@@ -2857,6 +3073,7 @@ export type DepartmentUncheckedUpdateWithoutEnabledProjectsInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutSourceWorkPlansInput = {
@@ -2887,6 +3104,7 @@ export type DepartmentCreateWithoutSourceWorkPlansInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutSourceWorkPlansInput = {
@@ -2918,6 +3136,7 @@ export type DepartmentUncheckedCreateWithoutSourceWorkPlansInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutSourceWorkPlansInput = {
@@ -2964,6 +3183,7 @@ export type DepartmentUpdateWithoutSourceWorkPlansInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutSourceWorkPlansInput = {
@@ -2995,6 +3215,7 @@ export type DepartmentUncheckedUpdateWithoutSourceWorkPlansInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutSourceWorkItemsInput = {
@@ -3025,6 +3246,7 @@ export type DepartmentCreateWithoutSourceWorkItemsInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutSourceWorkItemsInput = {
@@ -3056,6 +3278,7 @@ export type DepartmentUncheckedCreateWithoutSourceWorkItemsInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutSourceWorkItemsInput = {
@@ -3102,6 +3325,7 @@ export type DepartmentUpdateWithoutSourceWorkItemsInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutSourceWorkItemsInput = {
@@ -3133,6 +3357,7 @@ export type DepartmentUncheckedUpdateWithoutSourceWorkItemsInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutWorkAssigneesInput = {
@@ -3163,6 +3388,7 @@ export type DepartmentCreateWithoutWorkAssigneesInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutWorkAssigneesInput = {
@@ -3194,6 +3420,7 @@ export type DepartmentUncheckedCreateWithoutWorkAssigneesInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutWorkAssigneesInput = {
@@ -3240,6 +3467,7 @@ export type DepartmentUpdateWithoutWorkAssigneesInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutWorkAssigneesInput = {
@@ -3271,6 +3499,7 @@ export type DepartmentUncheckedUpdateWithoutWorkAssigneesInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentCreateManyParentInput = {
@@ -3317,6 +3546,7 @@ export type DepartmentUpdateWithoutParentInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutParentInput = {
@@ -3348,6 +3578,7 @@ export type DepartmentUncheckedUpdateWithoutParentInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateManyWithoutParentInput = {
@@ -3410,6 +3641,7 @@ export type DepartmentUpdateWithoutManagerPositionInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutManagerPositionInput = {
@@ -3441,6 +3673,7 @@ export type DepartmentUncheckedUpdateWithoutManagerPositionInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateManyWithoutManagerPositionInput = {
@@ -3480,6 +3713,7 @@ export type DepartmentCountOutputType = {
   positions: number
   positionReportOverrides: number
   ownedKpiDefinitions: number
+  ownedContracts: number
 }
 
 export type DepartmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3498,6 +3732,7 @@ export type DepartmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extens
   positions?: boolean | DepartmentCountOutputTypeCountPositionsArgs
   positionReportOverrides?: boolean | DepartmentCountOutputTypeCountPositionReportOverridesArgs
   ownedKpiDefinitions?: boolean | DepartmentCountOutputTypeCountOwnedKpiDefinitionsArgs
+  ownedContracts?: boolean | DepartmentCountOutputTypeCountOwnedContractsArgs
 }
 
 /**
@@ -3615,6 +3850,13 @@ export type DepartmentCountOutputTypeCountOwnedKpiDefinitionsArgs<ExtArgs extend
   where?: Prisma.WorkKpiDefinitionWhereInput
 }
 
+/**
+ * DepartmentCountOutputType without action
+ */
+export type DepartmentCountOutputTypeCountOwnedContractsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContractWhereInput
+}
+
 
 export type DepartmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3648,6 +3890,7 @@ export type DepartmentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   positions?: boolean | Prisma.Department$positionsArgs<ExtArgs>
   positionReportOverrides?: boolean | Prisma.Department$positionReportOverridesArgs<ExtArgs>
   ownedKpiDefinitions?: boolean | Prisma.Department$ownedKpiDefinitionsArgs<ExtArgs>
+  ownedContracts?: boolean | Prisma.Department$ownedContractsArgs<ExtArgs>
   _count?: boolean | Prisma.DepartmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["department"]>
 
@@ -3725,6 +3968,7 @@ export type DepartmentInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   positions?: boolean | Prisma.Department$positionsArgs<ExtArgs>
   positionReportOverrides?: boolean | Prisma.Department$positionReportOverridesArgs<ExtArgs>
   ownedKpiDefinitions?: boolean | Prisma.Department$ownedKpiDefinitionsArgs<ExtArgs>
+  ownedContracts?: boolean | Prisma.Department$ownedContractsArgs<ExtArgs>
   _count?: boolean | Prisma.DepartmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DepartmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3756,6 +4000,7 @@ export type $DepartmentPayload<ExtArgs extends runtime.Types.Extensions.Internal
     positions: Prisma.$PositionPayload<ExtArgs>[]
     positionReportOverrides: Prisma.$PositionReportOverridePayload<ExtArgs>[]
     ownedKpiDefinitions: Prisma.$WorkKpiDefinitionPayload<ExtArgs>[]
+    ownedContracts: Prisma.$ContractPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -4183,6 +4428,7 @@ export interface Prisma__DepartmentClient<T, Null = never, ExtArgs extends runti
   positions<T extends Prisma.Department$positionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$positionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   positionReportOverrides<T extends Prisma.Department$positionReportOverridesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$positionReportOverridesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionReportOverridePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ownedKpiDefinitions<T extends Prisma.Department$ownedKpiDefinitionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$ownedKpiDefinitionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkKpiDefinitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedContracts<T extends Prisma.Department$ownedContractsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$ownedContractsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5022,6 +5268,30 @@ export type Department$ownedKpiDefinitionsArgs<ExtArgs extends runtime.Types.Ext
   take?: number
   skip?: number
   distinct?: Prisma.WorkKpiDefinitionScalarFieldEnum | Prisma.WorkKpiDefinitionScalarFieldEnum[]
+}
+
+/**
+ * Department.ownedContracts
+ */
+export type Department$ownedContractsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Contract
+   */
+  select?: Prisma.ContractSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Contract
+   */
+  omit?: Prisma.ContractOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContractInclude<ExtArgs> | null
+  where?: Prisma.ContractWhereInput
+  orderBy?: Prisma.ContractOrderByWithRelationInput | Prisma.ContractOrderByWithRelationInput[]
+  cursor?: Prisma.ContractWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ContractScalarFieldEnum | Prisma.ContractScalarFieldEnum[]
 }
 
 /**

@@ -6,6 +6,7 @@ import {
   runWorkspaceSourcesOperationalAnalysisTemplateRuntime,
 } from "@workspace/finance/server/cost";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { isProgrammaticApiRequest } from "@workspace/platform/server/auth";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import { registerFinanceWorkSpaceAccessProvider } from "@workspace/finance/server/cost/work-space-access-provider";
 
@@ -43,7 +44,7 @@ export const POST = createCommandRoute({
     templateId: params.templateId,
     revision: body.revision,
     filterValues: body.filterValues,
-    viaApiKey: Boolean(request.headers.get("x-api-key")?.trim()),
+    viaApiKey: isProgrammaticApiRequest(request),
   }),
   action: ({ userId, scopeType, scopeId, templateId, revision, filterValues, viaApiKey }, { request }) => (
     runWorkspaceSourcesOperationalAnalysisTemplateRuntime({

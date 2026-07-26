@@ -2,7 +2,7 @@
 
 # 全项目权限 Action 授权手册
 
-当前共 20 个 permission action、102 个资源策略、184 个已注册 BusinessAction。
+当前共 20 个 permission action、101 个资源策略、191 个已注册 BusinessAction。
 
 事实来源：`action-registry.ts`、`permission-resource-policy.ts`、`module-registry.ts` 与 `business-action-registry.ts`。业务写入的状态、校验和持久化细节继续以 `action-contracts.md` 为准。
 
@@ -469,8 +469,9 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `administration.contracts.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
 | `administration.contracts.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
 | `administration.contracts.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：创建行政合同（`administration.contract.create`；POST /api/modules/administration/contracts） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
-| `administration.contracts.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新行政合同（`administration.contract.update`；PATCH /api/modules/administration/contracts/:id） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `administration.contracts.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新行政合同（`administration.contract.update`；PATCH /api/modules/administration/contracts/:id）<br>直接执行：上传合同附件（`administration.contract.attachment.upload`；POST /api/modules/administration/contracts/:id/attachments）<br>直接执行：新增合同归档记录（`administration.contract.record.create`；POST /api/modules/administration/contracts/:id/records）<br>直接执行：登记合同审批引用（`administration.contract.approvalReference.set`；PUT /api/modules/administration/contracts/:id/approval-reference）<br>直接执行：移除合同附件（`administration.contract.attachment.remove`；POST /api/modules/administration/contracts/:id/attachments/:attachmentUid/remove） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `administration.contracts.delete`<br>删除 | 删除记录；可能是硬删除，也可能由具体业务动作定义为受控删除，不能理解成编辑权限。 | 直接执行：删除行政合同（`administration.contract.delete`；DELETE /api/modules/administration/contracts/:id） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `administration.contracts.archive`<br>归档 | 归档或反归档仍需保留的历史事实，不等于删除。 | 直接执行：归档行政合同（`administration.contract.archive`；POST /api/modules/administration/contracts/:id/archive） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `administration.contracts.export`<br>导出 | 导出、下载、打印或对外发送该资源数据。 | 直接执行：下载行政合同台账（`administration.contract.export`；GET /api/modules/administration/contracts/export） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `administration.contracts.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
@@ -504,26 +505,14 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 
 类型：独立 capability · 页面：`/settings/account` · owner：`settings.account` · scope：全局
 
-资源说明：Headless toolbar and /api/agent capability owned by settings.account.
+资源说明：Headless toolbar and /api/agent capability; the runtime can only discover and call registered protected /api/modules business APIs.
 
 | Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
 |---|---|---|---|---|
 | `agent.assistant.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 | `agent.assistant.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry` |
-| `agent.assistant.submit`<br>提交 | 提交、确认或发起业务流程；不代表有权处理或通过该流程。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `agent.assistant.submit`<br>提交 | 提交、确认或发起业务流程；不代表有权处理或通过该流程。 | 直接执行：确认执行 Agent 业务 API 写入（`agent.businessApi.mutation.execute`；POST /api/agent/proposals/:id/confirm） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `agent.assistant.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
-
-#### Workspace 源码与 PR（`agent.source`）
-
-类型：独立 capability · 页面：`/settings/account` · owner：`agent.assistant` · scope：全局
-
-资源说明：Profile-only Workspace source search and CNB PR proposal execution; both requester and virtual actor need agent.assistant entry plus explicit live source grants.
-
-| Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
-|---|---|---|---|---|
-| `agent.source.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry` |
-| `agent.source.submit`<br>提交 | 提交、确认或发起业务流程；不代表有权处理或通过该流程。 | 直接执行：提交 CNB Pull Request（`source.submitCnbPullRequest`；POST /api/agent/proposals/:id/confirm） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
-| `agent.source.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
 #### 法定主体治理（`party.identity`）
 
@@ -708,7 +697,7 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `finance.operationalAnalytics.export`<br>导出 | 导出、下载、打印或对外发送该资源数据。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `finance.operationalAnalytics.apiUse`<br>API 调用 | 通过集成 API 使用该资源能力；默认不自动包含业务读写。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 | `finance.operationalAnalytics.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
-| `finance.operationalAnalytics.configure`<br>配置 | 修改规则、流程或系统配置；默认不自动包含业务数据读写。 | 直接执行：管理经营分析模板版本（`finance.operationalAnalytics.template.lifecycle`；POST /api/modules/finance/cost/operational-analytics/spaces/:targetType/:targetId/templates/:templateId/lifecycle） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+| `finance.operationalAnalytics.configure`<br>配置 | 修改规则、流程或系统配置；默认不自动包含业务数据读写。 | 直接执行：创建经营分析模板草稿（`finance.operationalAnalytics.template.draft.create`；POST /api/modules/finance/cost/operational-analytics/spaces/:targetType/:targetId/templates）<br>直接执行：修订经营分析模板草稿（`finance.operationalAnalytics.template.draft.update`；PUT /api/modules/finance/cost/operational-analytics/spaces/:targetType/:targetId/templates/:templateId）<br>直接执行：管理经营分析模板版本（`finance.operationalAnalytics.template.lifecycle`；POST /api/modules/finance/cost/operational-analytics/spaces/:targetType/:targetId/templates/:templateId/lifecycle） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
 #### 财务报表（`finance.statements`）
 

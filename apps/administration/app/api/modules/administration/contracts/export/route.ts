@@ -16,11 +16,14 @@ const contractsExportQuerySchema = z.object({
   q: optionalText,
   location: optionalText,
   category: optionalText,
-  status: optionalText,
+  categoryId: z.coerce.number().int().positive().optional(),
+  ownerDepartmentId: z.coerce.number().int().positive().optional(),
+  lifecycleStatus: z.enum(["draft", "active", "terminated", "expired", "closed", "unknown"]).optional(),
+  view: z.enum(["all", "needs_attention", "expiring", "expired"]).catch("all"),
 });
 
 export const GET = createCommandRoute({
   querySchema: contractsExportQuerySchema,
-  buildCommand: ({ query }) => okCommand(query),
+  buildCommand: ({ query, user }) => okCommand({ ...query, userId: user.userId }),
   action: exportContracts,
 });

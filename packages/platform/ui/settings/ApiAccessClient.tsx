@@ -27,7 +27,7 @@ function buildAgentAccessText({
   username: string;
   modules: ApiAccessModuleRow[];
 }) {
-  const lines = [`Base URL: ${baseUrl}`, `X-API-Key: ${apiKey}`, `User: ${username}`, "", "API rules:", "- Request URL = Base URL + path below", "- Business: /api/modules/<l1>/<l2-kebab>/*", "- Settings: /api/settings/<l2>/*", "- Auth: /api/auth/*", "- 智能体: /api/agent/*", "- Source of truth: module registry / API registry. Run arch:gate after API changes.", "", "L1/L2 modules:"];
+  const lines = [`Base URL: ${baseUrl}`, `X-API-Key: ${apiKey}`, `User: ${username}`, `API Catalog: ${baseUrl}/api/settings/account/api-catalog`, "", "API rules:", "- Request URL = Base URL + path below", "- Business operations use /api/modules/** directly; /api/agent is not required", "- The API key acts only as its owning user and every call rechecks normal resource/action/apiUse/object permissions", "- Read the API Catalog first for registered contracts and exact mutation routes", "- Mutations execute immediately; your own Agent is responsible for conversational confirmation and read-before-write CAS", "", "L1/L2 modules:"];
   for (const moduleRow of modules) {
     lines.push(`- ${moduleRow.label} (${moduleRow.key}): ${moduleRow.apiPrefix}`);
     for (const child of moduleRow.children) {

@@ -52,7 +52,7 @@ test("Workspace Agent identity keeps requester, virtual employee and runtime rol
       displayName: "示例提案助理",
       roleName: "AI查询与变更提案助理",
       responsibilities: "负责 Workspace 内的受控查询、操作与变更提案",
-      allowedToolKeys: ["source.searchWorkspaceCode"],
+      allowedToolKeys: ["workspace.api.read"],
       runtime: {
         bindingId: 5,
         kind: "workspace" as const,

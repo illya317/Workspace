@@ -9,7 +9,7 @@ let readAllowed = true;
 let apiUseAllowed = true;
 const readCalls: Array<[number, string, number]> = [];
 const apiUseCalls: Array<[number, string, number]> = [];
-const remoteProviderInputs: Array<{ ownerUnitId: string; apiModulePathSegment?: string }> = [];
+const remoteProviderInputs: Array<{ ownerUnitId: string; apiModulePathSegment?: string; timeoutMs?: number }> = [];
 mock.module("@workspace/platform/server/auth", {
   namedExports: {
     canEnterResource: async () => true,
@@ -55,6 +55,7 @@ mock.module("@workspace/platform/server/workspace-analysis-source-rpc", {
 
 const {
   buildFinanceOperationalAnalysisSourceDirectory,
+  discoverOperationalAnalysisSources,
   listOperationalAnalysisSources,
 } = await import("./operational-analysis-source-directory");
 
@@ -80,6 +81,19 @@ test("default directory composes every domain owner and maps the legacy capital 
     remoteProviderInputs.find(({ ownerUnitId }) => ownerUnitId === "capital-securities")?.apiModulePathSegment,
     "capitalSecurities",
   );
+  assert.equal(remoteProviderInputs.every(({ timeoutMs }) => timeoutMs === 2_000), true);
+});
+
+test("runtime directory can limit remote discovery to referenced owners with a cold-start budget", () => {
+  remoteProviderInputs.length = 0;
+  assert.doesNotThrow(() => buildFinanceOperationalAnalysisSourceDirectory({
+    remoteOwnerUnitIds: ["hr", "work"],
+    remoteProviderTimeoutMs: 10_000,
+  }));
+  assert.deepEqual(remoteProviderInputs, [
+    { ownerUnitId: "hr", callerUnitId: "finance", timeoutMs: 10_000 },
+    { ownerUnitId: "work", callerUnitId: "finance", timeoutMs: 10_000 },
+  ]);
 });
 
 test("Finance composition exposes the personal source only to personal space and company-wide sources to every space", async () => {
@@ -152,4 +166,29 @@ test("API key source discovery requires apiUse in addition to read", async () =>
   assert.deepEqual(apiUseCalls, [[7, "personal", 7]]);
   assert.equal(directoryCalls, 0);
   apiUseAllowed = true;
+});
+
+test("standard source discovery searches and expands an exact selected definition", async () => {
+  readAllowed = true;
+  apiUseAllowed = true;
+  const directory = buildFinanceOperationalAnalysisSourceDirectory({ remoteProviders: [emptyHrProvider] });
+  const result = await discoverOperationalAnalysisSources(7, {
+    scopeType: "department",
+    scopeId: 12,
+  }, {
+    keyword: "成本",
+    page: 1,
+    pageSize: 20,
+    selected: [{ sourceKey: "finance.cost.structure", sourceVersion: 1 }],
+  }, { viaApiKey: true }, directory);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.data.data.sources.some((source) => source.sourceKey === "finance.cost.structure"), true);
+  assert.equal(result.data.data.selected[0]?.sourceKey, "finance.cost.structure");
+  assert.equal(result.data.data.selected[0]?.fields.some((field) => field.key === "manufacturingSubtotal"), true);
+  assert.equal(
+    result.data.data.links.templateContract,
+    "/api/modules/finance/cost/operational-analytics/spaces/department/12/templates/contract",
+  );
 });

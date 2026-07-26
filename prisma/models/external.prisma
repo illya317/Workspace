@@ -22,6 +22,8 @@ model Party {
   controlledAfterCapitalEvents  ShareCapitalEvent[]                   @relation("ShareCapitalEventController")
   shareholderGroupMemberships   ShareholderGroupMembership[]
   registryOwnershipParticipants CompanyRegistryOwnershipParticipant[]
+  contractsAsPartyA             Contract[]                            @relation("ContractPartyA")
+  contractsAsPartyB             Contract[]                            @relation("ContractPartyB")
 
   @@unique([subjectType, identityNumber])
   @@index([name])

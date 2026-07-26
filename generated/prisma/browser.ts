@@ -150,10 +150,25 @@ export type ShareholderGroup = Prisma.ShareholderGroupModel
  */
 export type ShareholderGroupMembership = Prisma.ShareholderGroupMembershipModel
 /**
+ * Model ContractCategory
+ * 合同类型字典；历史自由文本在迁移时归一到稳定 ID
+ */
+export type ContractCategory = Prisma.ContractCategoryModel
+/**
  * Model Contract
- * 合同管理（事实：合同基本信息、金额、状态）
+ * 合同主数据（事实：身份、签约主体、期限、金额、状态与归档审计）
  */
 export type Contract = Prisma.ContractModel
+/**
+ * Model ContractAttachment
+ * 合同附件（原件不可变；PDF 优化件是可替换的派生物，移除只做软删除）
+ */
+export type ContractAttachment = Prisma.ContractAttachmentModel
+/**
+ * Model ContractRecord
+ * 合同归档记录（P1 只追加，不提供修改或删除接口）
+ */
+export type ContractRecord = Prisma.ContractRecordModel
 /**
  * Model DataQualityRun
  * 数据质量巡检批次；记录触发来源、执行范围与结果摘要

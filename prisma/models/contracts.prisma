@@ -1,30 +1,143 @@
-/// 合同管理（事实：合同基本信息、金额、状态）
-model Contract {
-  id             Int       @id @default(autoincrement())
-  contractNo     String?
-  name           String
-  partyA         String?
-  partyB         String?
-  shareholder    String?
-  category       String?
-  content        String?
-  handlerEmployeeId Int?
-  signDate       String?
-  endDate        String?
-  status         String?
-  amount         Float?
-  executedAmount Float?
-  location       String?
-  remark         String?
-  editedBy       Int?
-  editedAt       DateTime?
-  version        Int       @default(1)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @default(now()) @updatedAt
-  editor          User?     @relation("ContractEditor", fields: [editedBy], references: [id])
-  handlerEmployee Employee? @relation("ContractHandlerEmployee", fields: [handlerEmployeeId], references: [id], onDelete: Restrict)
+/// 合同类型字典；历史自由文本在迁移时归一到稳定 ID
+model ContractCategory {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  isActive  Boolean    @default(true)
+  sortOrder Int        @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now()) @updatedAt
+  contracts Contract[]
 
-  @@index([endDate])
+  @@index([isActive, sortOrder])
+}
+
+/// 合同主数据（事实：身份、签约主体、期限、金额、状态与归档审计）
+model Contract {
+  id                       Int               @id @default(autoincrement())
+  contractUid              String            @unique @default(uuid())
+  contractNo               String?
+  name                     String
+  partyA                   String?
+  partyB                   String?
+  shareholder              String?
+  categoryId               Int
+  content                  String?
+  owningCompanyId          Int?
+  ownerDepartmentId        Int?
+  partyAId                 Int?
+  partyBId                 Int?
+  handlerEmployeeId        Int?
+  signedOn                 DateTime?         @db.Date
+  expiresOn                DateTime?         @db.Date
+  signedOnPrecision        String?
+  expiresOnPrecision       String?
+  legacySignDateRaw        String?
+  legacyEndDateRaw         String?
+  lifecycleStatus          String            @default("unknown")
+  signatureStatus          String            @default("unknown")
+  performanceStatus        String            @default("unknown")
+  legacyStatusRaw          String?
+  amount                   Decimal?          @db.Decimal(20, 2)
+  executedAmount           Decimal?          @db.Decimal(20, 2)
+  currencyCode             String            @default("CNY")
+  confidentialityLevel     Int               @default(2)
+  location                 String?
+  remark                   String?
+  approvalSourceKey        String?
+  approvalRecordId         String?
+  approvalRecordUrl        String?
+  approvalStatusSnapshot   String?
+  approvedOn               DateTime?         @db.Date
+  approvalSyncedAt         DateTime?
+  isArchived               Boolean           @default(false)
+  archivedAt               DateTime?
+  archivedBy               Int?
+  editedBy                 Int?
+  editedAt                 DateTime?
+  version                  Int               @default(1)
+  createdAt                DateTime          @default(now())
+  updatedAt                DateTime          @default(now()) @updatedAt
+  category                 ContractCategory  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  owningCompany            Company?          @relation("ContractOwningCompany", fields: [owningCompanyId], references: [id], onDelete: Restrict)
+  ownerDepartment          Department?       @relation("ContractOwnerDepartment", fields: [ownerDepartmentId], references: [id], onDelete: Restrict)
+  partyAIdentity           Party?            @relation("ContractPartyA", fields: [partyAId], references: [id], onDelete: Restrict)
+  partyBIdentity           Party?            @relation("ContractPartyB", fields: [partyBId], references: [id], onDelete: Restrict)
+  editor                   User?             @relation("ContractEditor", fields: [editedBy], references: [id])
+  archivedByUser           User?             @relation("ContractArchivedBy", fields: [archivedBy], references: [id])
+  handlerEmployee          Employee?         @relation("ContractHandlerEmployee", fields: [handlerEmployeeId], references: [id], onDelete: Restrict)
+  attachments              ContractAttachment[]
+  records                  ContractRecord[]
+
+  @@index([contractNo])
+  @@index([categoryId])
+  @@index([owningCompanyId])
+  @@index([ownerDepartmentId])
+  @@index([partyAId])
+  @@index([partyBId])
+  @@index([expiresOn])
   @@index([handlerEmployeeId])
-  @@index([status])
+  @@index([lifecycleStatus])
+  @@index([signatureStatus])
+  @@index([performanceStatus])
+  @@index([confidentialityLevel])
+  @@index([isArchived, archivedAt])
+  @@index([approvedOn])
+  @@unique([approvalSourceKey, approvalRecordId])
+}
+
+/// 合同附件（原件不可变；PDF 优化件是可替换的派生物，移除只做软删除）
+model ContractAttachment {
+  id                       Int       @id @default(autoincrement())
+  attachmentUid            String    @unique @default(uuid())
+  contractId               Int
+  kind                     String    @default("signed_contract")
+  fileName                 String
+  mimeType                 String
+  originalStoragePath      String
+  originalSizeBytes        Int
+  originalChecksumSha256   String
+  optimizedStoragePath     String?
+  optimizedSizeBytes       Int?
+  optimizedChecksumSha256  String?
+  optimizationStatus       String    @default("not_applicable")
+  optimizationError        String?
+  compressionSavingsRatio  Decimal?  @db.Decimal(8, 6)
+  pageCount                Int?
+  note                     String?
+  uploadedBy               Int?
+  uploadedAt               DateTime  @default(now())
+  removedBy                Int?
+  removedAt                DateTime?
+  removalReason            String?
+  version                  Int       @default(1)
+  contract                 Contract  @relation(fields: [contractId], references: [id], onDelete: Restrict)
+  uploader                 User?     @relation("ContractAttachmentUploader", fields: [uploadedBy], references: [id], onDelete: SetNull)
+  remover                  User?     @relation("ContractAttachmentRemover", fields: [removedBy], references: [id], onDelete: SetNull)
+
+  @@index([contractId, removedAt, uploadedAt])
+  @@index([optimizationStatus])
+}
+
+/// 合同归档记录（P1 只追加，不提供修改或删除接口）
+model ContractRecord {
+  id                 Int      @id @default(autoincrement())
+  recordUid          String   @unique @default(uuid())
+  contractId         Int
+  recordType         String
+  occurredOn         DateTime @db.Date
+  title              String
+  content            String?
+  sourceKey          String?
+  externalRecordId   String?
+  externalUrl        String?
+  statusSnapshot     String?
+  attachmentUid      String?
+  createdBy          Int?
+  createdAt          DateTime @default(now())
+  contract           Contract @relation(fields: [contractId], references: [id], onDelete: Restrict)
+  creator            User?    @relation("ContractRecordCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([contractId, occurredOn, createdAt])
+  @@index([sourceKey, externalRecordId])
+  @@index([attachmentUid])
 }

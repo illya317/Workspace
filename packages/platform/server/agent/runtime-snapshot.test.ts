@@ -10,7 +10,7 @@ test("runtime audit snapshot binds a run to immutable responsibility and capabil
     displayName: "示例提案助理",
     roleName: "AI查询与变更提案助理",
     responsibilities: "受控 Workspace 操作",
-    allowedToolKeys: ["source.proposePullRequest", "source.searchWorkspaceCode"],
+    allowedToolKeys: ["workspace.api.proposeMutation", "workspace.api.read"],
     runtime: {
       bindingId: 9,
       kind: "workspace",

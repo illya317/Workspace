@@ -8,6 +8,7 @@ import {
 } from "@workspace/finance/server/cost";
 import { registerFinanceWorkSpaceAccessProvider } from "@workspace/finance/server/cost/work-space-access-provider";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { isProgrammaticApiRequest } from "@workspace/platform/server/auth";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 
 registerFinanceWorkSpaceAccessProvider();
@@ -17,11 +18,12 @@ export const GET = createCommandRoute({
   paramsError: "经营分析模板参数无效",
   querySchema: operationalAnalysisTemplateLifecycleQuerySchema,
   queryError: "经营分析版本查询参数无效",
-  buildCommand: ({ params, query, user }) => okCommand({
+  buildCommand: ({ params, query, user, request }) => okCommand({
     userId: user.userId,
     scope: { scopeType: params.targetType, scopeId: params.targetId },
     templateId: params.templateId,
     query,
+    viaApiKey: isProgrammaticApiRequest(request),
   }),
   action: getOperationalAnalysisTemplateLifecycle,
 });
@@ -31,11 +33,12 @@ export const POST = createCommandRoute({
   paramsError: "经营分析模板参数无效",
   bodySchema: operationalAnalysisTemplateLifecycleCommandSchema,
   bodyError: "经营分析生命周期操作无效",
-  buildCommand: ({ params, body, user }) => okCommand({
+  buildCommand: ({ params, body, user, request }) => okCommand({
     userId: user.userId,
     scope: { scopeType: params.targetType, scopeId: params.targetId },
     templateId: params.templateId,
     command: body,
+    viaApiKey: isProgrammaticApiRequest(request),
   }),
   action: executeOperationalAnalysisTemplateLifecycle,
 });

@@ -410,7 +410,10 @@ export const ModelName = {
   ShareCapitalSnapshotPosition: 'ShareCapitalSnapshotPosition',
   ShareholderGroup: 'ShareholderGroup',
   ShareholderGroupMembership: 'ShareholderGroupMembership',
+  ContractCategory: 'ContractCategory',
   Contract: 'Contract',
+  ContractAttachment: 'ContractAttachment',
+  ContractRecord: 'ContractRecord',
   DataQualityRun: 'DataQualityRun',
   DataQualityCheckState: 'DataQualityCheckState',
   DataQualityFinding: 'DataQualityFinding',
@@ -624,7 +627,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "erpDueDiligenceSubmission" | "erpDueDiligenceEvidenceAttachment" | "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "ownershipInterest" | "companyRegistryChange" | "companyRegistryOwnershipParticipant" | "shareCapitalEvent" | "shareCapitalTransaction" | "shareCapitalSnapshotPosition" | "shareholderGroup" | "shareholderGroupMembership" | "contract" | "dataQualityRun" | "dataQualityCheckState" | "dataQualityFinding" | "dataQualityNotificationDelivery" | "dataQualityEvaluationRequest" | "documentTemplateSpace" | "documentTemplate" | "party" | "partyNameHistory" | "externalPartyProfile" | "externalPartyRole" | "externalPartySourceMapping" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeCashFlowAllocationAdjustment" | "financeConsolidationEntryLine" | "financeConsolidationMatchGroup" | "financeConsolidationMatchSource" | "financeVoucherCompanyMappingRule" | "financeConsolidationOutputSnapshot" | "financeConsolidationBatch" | "financeCompanyCurrencyPolicy" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeCounterpartyClassification" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemSettlement" | "financeOpenItemAuxiliary" | "financeGroupAccount" | "financeAccountingPolicyVersion" | "financeGroupAccountRevision" | "financeGroupAccountMapping" | "financeReadableSourcePackage" | "financeReadableImportRun" | "financeSourceLedgerMapping" | "financeAccountAuxiliaryRequirement" | "financeSourcePeriodStatus" | "financeSourceSubsystemStatus" | "financeAccountLineage" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeStatementVoucherExclusion" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "financeBalanceReclassAdjustmentHistory" | "reclassResult" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "employeeLifecycleEvent" | "hrPerformanceReview" | "employee" | "employment" | "company" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "inventoryReceiptReport" | "inventoryReceiptProductWorkPoint" | "inventoryReceiptReportEvent" | "inventoryReceiptBatch" | "inventoryReceiptOutput" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "mutationImpactBatch" | "mutationImpactEffect" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "product" | "productSourceMapping" | "productionQcBatch" | "productionQcFieldValue" | "productionQcSignature" | "productionQcAuditEvent" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "workKpiDefinition" | "workKpiAssignment" | "workKpiResultSnapshot" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workspaceAnalysisTemplate" | "workspaceAnalysisTemplateRevision"
+    modelProps: "erpDueDiligenceSubmission" | "erpDueDiligenceEvidenceAttachment" | "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "ownershipInterest" | "companyRegistryChange" | "companyRegistryOwnershipParticipant" | "shareCapitalEvent" | "shareCapitalTransaction" | "shareCapitalSnapshotPosition" | "shareholderGroup" | "shareholderGroupMembership" | "contractCategory" | "contract" | "contractAttachment" | "contractRecord" | "dataQualityRun" | "dataQualityCheckState" | "dataQualityFinding" | "dataQualityNotificationDelivery" | "dataQualityEvaluationRequest" | "documentTemplateSpace" | "documentTemplate" | "party" | "partyNameHistory" | "externalPartyProfile" | "externalPartyRole" | "externalPartySourceMapping" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeCashFlowAllocationAdjustment" | "financeConsolidationEntryLine" | "financeConsolidationMatchGroup" | "financeConsolidationMatchSource" | "financeVoucherCompanyMappingRule" | "financeConsolidationOutputSnapshot" | "financeConsolidationBatch" | "financeCompanyCurrencyPolicy" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeCounterpartyClassification" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemSettlement" | "financeOpenItemAuxiliary" | "financeGroupAccount" | "financeAccountingPolicyVersion" | "financeGroupAccountRevision" | "financeGroupAccountMapping" | "financeReadableSourcePackage" | "financeReadableImportRun" | "financeSourceLedgerMapping" | "financeAccountAuxiliaryRequirement" | "financeSourcePeriodStatus" | "financeSourceSubsystemStatus" | "financeAccountLineage" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeStatementVoucherExclusion" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "financeBalanceReclassAdjustmentHistory" | "reclassResult" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "employeeLifecycleEvent" | "hrPerformanceReview" | "employee" | "employment" | "company" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "inventoryReceiptReport" | "inventoryReceiptProductWorkPoint" | "inventoryReceiptReportEvent" | "inventoryReceiptBatch" | "inventoryReceiptOutput" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "mutationImpactBatch" | "mutationImpactEffect" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "product" | "productSourceMapping" | "productionQcBatch" | "productionQcFieldValue" | "productionQcSignature" | "productionQcAuditEvent" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "workKpiDefinition" | "workKpiAssignment" | "workKpiResultSnapshot" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workspaceAnalysisTemplate" | "workspaceAnalysisTemplateRevision"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2552,6 +2555,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ContractCategory: {
+      payload: Prisma.$ContractCategoryPayload<ExtArgs>
+      fields: Prisma.ContractCategoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ContractCategoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractCategoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ContractCategoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractCategoryPayload>
+        }
+        findFirst: {
+          args: Prisma.ContractCategoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractCategoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ContractCategoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractCategoryPayload>
+        }
+        findMany: {
+          args: Prisma.ContractCategoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractCategoryPayload>[]
+        }
+        create: {
+          args: Prisma.ContractCategoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractCategoryPayload>
+        }
+        createMany: {
+          args: Prisma.ContractCategoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ContractCategoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractCategoryPayload>[]
+        }
+        delete: {
+          args: Prisma.ContractCategoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractCategoryPayload>
+        }
+        update: {
+          args: Prisma.ContractCategoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractCategoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.ContractCategoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ContractCategoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ContractCategoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractCategoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.ContractCategoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractCategoryPayload>
+        }
+        aggregate: {
+          args: Prisma.ContractCategoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContractCategory>
+        }
+        groupBy: {
+          args: Prisma.ContractCategoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContractCategoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ContractCategoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContractCategoryCountAggregateOutputType> | number
+        }
+      }
+    }
     Contract: {
       payload: Prisma.$ContractPayload<ExtArgs>
       fields: Prisma.ContractFieldRefs
@@ -2623,6 +2700,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ContractCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ContractCountAggregateOutputType> | number
+        }
+      }
+    }
+    ContractAttachment: {
+      payload: Prisma.$ContractAttachmentPayload<ExtArgs>
+      fields: Prisma.ContractAttachmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ContractAttachmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractAttachmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ContractAttachmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractAttachmentPayload>
+        }
+        findFirst: {
+          args: Prisma.ContractAttachmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractAttachmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ContractAttachmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractAttachmentPayload>
+        }
+        findMany: {
+          args: Prisma.ContractAttachmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractAttachmentPayload>[]
+        }
+        create: {
+          args: Prisma.ContractAttachmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractAttachmentPayload>
+        }
+        createMany: {
+          args: Prisma.ContractAttachmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ContractAttachmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractAttachmentPayload>[]
+        }
+        delete: {
+          args: Prisma.ContractAttachmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractAttachmentPayload>
+        }
+        update: {
+          args: Prisma.ContractAttachmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractAttachmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.ContractAttachmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ContractAttachmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ContractAttachmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractAttachmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.ContractAttachmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractAttachmentPayload>
+        }
+        aggregate: {
+          args: Prisma.ContractAttachmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContractAttachment>
+        }
+        groupBy: {
+          args: Prisma.ContractAttachmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContractAttachmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ContractAttachmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContractAttachmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    ContractRecord: {
+      payload: Prisma.$ContractRecordPayload<ExtArgs>
+      fields: Prisma.ContractRecordFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ContractRecordFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractRecordPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ContractRecordFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractRecordPayload>
+        }
+        findFirst: {
+          args: Prisma.ContractRecordFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractRecordPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ContractRecordFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractRecordPayload>
+        }
+        findMany: {
+          args: Prisma.ContractRecordFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractRecordPayload>[]
+        }
+        create: {
+          args: Prisma.ContractRecordCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractRecordPayload>
+        }
+        createMany: {
+          args: Prisma.ContractRecordCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ContractRecordCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractRecordPayload>[]
+        }
+        delete: {
+          args: Prisma.ContractRecordDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractRecordPayload>
+        }
+        update: {
+          args: Prisma.ContractRecordUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractRecordPayload>
+        }
+        deleteMany: {
+          args: Prisma.ContractRecordDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ContractRecordUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ContractRecordUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractRecordPayload>[]
+        }
+        upsert: {
+          args: Prisma.ContractRecordUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContractRecordPayload>
+        }
+        aggregate: {
+          args: Prisma.ContractRecordAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContractRecord>
+        }
+        groupBy: {
+          args: Prisma.ContractRecordGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContractRecordGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ContractRecordCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContractRecordCountAggregateOutputType> | number
         }
       }
     }
@@ -17854,23 +18079,58 @@ export const ShareholderGroupMembershipScalarFieldEnum = {
 export type ShareholderGroupMembershipScalarFieldEnum = (typeof ShareholderGroupMembershipScalarFieldEnum)[keyof typeof ShareholderGroupMembershipScalarFieldEnum]
 
 
+export const ContractCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContractCategoryScalarFieldEnum = (typeof ContractCategoryScalarFieldEnum)[keyof typeof ContractCategoryScalarFieldEnum]
+
+
 export const ContractScalarFieldEnum = {
   id: 'id',
+  contractUid: 'contractUid',
   contractNo: 'contractNo',
   name: 'name',
   partyA: 'partyA',
   partyB: 'partyB',
   shareholder: 'shareholder',
-  category: 'category',
+  categoryId: 'categoryId',
   content: 'content',
+  owningCompanyId: 'owningCompanyId',
+  ownerDepartmentId: 'ownerDepartmentId',
+  partyAId: 'partyAId',
+  partyBId: 'partyBId',
   handlerEmployeeId: 'handlerEmployeeId',
-  signDate: 'signDate',
-  endDate: 'endDate',
-  status: 'status',
+  signedOn: 'signedOn',
+  expiresOn: 'expiresOn',
+  signedOnPrecision: 'signedOnPrecision',
+  expiresOnPrecision: 'expiresOnPrecision',
+  legacySignDateRaw: 'legacySignDateRaw',
+  legacyEndDateRaw: 'legacyEndDateRaw',
+  lifecycleStatus: 'lifecycleStatus',
+  signatureStatus: 'signatureStatus',
+  performanceStatus: 'performanceStatus',
+  legacyStatusRaw: 'legacyStatusRaw',
   amount: 'amount',
   executedAmount: 'executedAmount',
+  currencyCode: 'currencyCode',
+  confidentialityLevel: 'confidentialityLevel',
   location: 'location',
   remark: 'remark',
+  approvalSourceKey: 'approvalSourceKey',
+  approvalRecordId: 'approvalRecordId',
+  approvalRecordUrl: 'approvalRecordUrl',
+  approvalStatusSnapshot: 'approvalStatusSnapshot',
+  approvedOn: 'approvedOn',
+  approvalSyncedAt: 'approvalSyncedAt',
+  isArchived: 'isArchived',
+  archivedAt: 'archivedAt',
+  archivedBy: 'archivedBy',
   editedBy: 'editedBy',
   editedAt: 'editedAt',
   version: 'version',
@@ -17879,6 +18139,55 @@ export const ContractScalarFieldEnum = {
 } as const
 
 export type ContractScalarFieldEnum = (typeof ContractScalarFieldEnum)[keyof typeof ContractScalarFieldEnum]
+
+
+export const ContractAttachmentScalarFieldEnum = {
+  id: 'id',
+  attachmentUid: 'attachmentUid',
+  contractId: 'contractId',
+  kind: 'kind',
+  fileName: 'fileName',
+  mimeType: 'mimeType',
+  originalStoragePath: 'originalStoragePath',
+  originalSizeBytes: 'originalSizeBytes',
+  originalChecksumSha256: 'originalChecksumSha256',
+  optimizedStoragePath: 'optimizedStoragePath',
+  optimizedSizeBytes: 'optimizedSizeBytes',
+  optimizedChecksumSha256: 'optimizedChecksumSha256',
+  optimizationStatus: 'optimizationStatus',
+  optimizationError: 'optimizationError',
+  compressionSavingsRatio: 'compressionSavingsRatio',
+  pageCount: 'pageCount',
+  note: 'note',
+  uploadedBy: 'uploadedBy',
+  uploadedAt: 'uploadedAt',
+  removedBy: 'removedBy',
+  removedAt: 'removedAt',
+  removalReason: 'removalReason',
+  version: 'version'
+} as const
+
+export type ContractAttachmentScalarFieldEnum = (typeof ContractAttachmentScalarFieldEnum)[keyof typeof ContractAttachmentScalarFieldEnum]
+
+
+export const ContractRecordScalarFieldEnum = {
+  id: 'id',
+  recordUid: 'recordUid',
+  contractId: 'contractId',
+  recordType: 'recordType',
+  occurredOn: 'occurredOn',
+  title: 'title',
+  content: 'content',
+  sourceKey: 'sourceKey',
+  externalRecordId: 'externalRecordId',
+  externalUrl: 'externalUrl',
+  statusSnapshot: 'statusSnapshot',
+  attachmentUid: 'attachmentUid',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type ContractRecordScalarFieldEnum = (typeof ContractRecordScalarFieldEnum)[keyof typeof ContractRecordScalarFieldEnum]
 
 
 export const DataQualityRunScalarFieldEnum = {
@@ -22182,7 +22491,10 @@ export type GlobalOmitConfig = {
   shareCapitalSnapshotPosition?: Prisma.ShareCapitalSnapshotPositionOmit
   shareholderGroup?: Prisma.ShareholderGroupOmit
   shareholderGroupMembership?: Prisma.ShareholderGroupMembershipOmit
+  contractCategory?: Prisma.ContractCategoryOmit
   contract?: Prisma.ContractOmit
+  contractAttachment?: Prisma.ContractAttachmentOmit
+  contractRecord?: Prisma.ContractRecordOmit
   dataQualityRun?: Prisma.DataQualityRunOmit
   dataQualityCheckState?: Prisma.DataQualityCheckStateOmit
   dataQualityFinding?: Prisma.DataQualityFindingOmit

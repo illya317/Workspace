@@ -51,25 +51,25 @@ const libraryDocumentSetExport: ActionContractMetadata = {
 
 export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
   {
-    ...registeredActionFacts("source.submitCnbPullRequest"),
+    ...registeredActionFacts("agent.businessApi.mutation.execute"),
     kind: "remote_effect",
     payload: {
       cardinality: "single",
       shape: "full_record",
       target: "new_record",
-      notes: "确认时使用 AgentProposal 中已绑定的 repository/base commit/branch/patch hash，重新校验后向 CNB 创建远端 Pull Request。",
+      notes: "确认时使用 AgentProposal 中冻结的 method、path 和 JSON body；目标必须仍命中受保护的 /api/modules/** business contract。",
     },
     remoteEffect: {
-      provider: "CNB",
-      operation: "create_pull_request",
+      provider: "Workspace protected business API",
+      operation: "execute_registered_mutation",
       localAuditEntity: "AgentProposal",
       outcomeAfterDispatchFailure: "unknown",
       retryPolicy: "reconcile_before_retry",
-      notes: "push 或 CNB API 调用开始后发生异常时，远端可能已接受部分或全部副作用；AgentProposal 记录不确定失败，禁止自动重试，必须先核对远端 branch/PR。",
+      notes: "HTTP dispatch 开始后发生异常时，目标业务单元可能已接受写入；AgentProposal 记录不确定失败，禁止自动重试，必须先通过对应业务 API 核对。",
     },
     domain: d(
-      "packages/platform/server/agent/cnb-pr.validateCnbPullRequestProposalPayload",
-      "packages/platform/server/agent/cnb-pr.executeCnbPullRequestProposal",
+      "packages/platform/server/agent/business-api-connector.validateAgentBusinessApiMutationProposalPayload",
+      "packages/platform/server/agent/business-api-connector.executeAgentBusinessApiMutationProposal",
     ),
   },
   {

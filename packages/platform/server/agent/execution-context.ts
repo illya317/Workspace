@@ -19,7 +19,7 @@ import {
 import {
   ACTIVE_WORKSPACE_RUNTIME_WHERE,
   normalizeAgentRuntimeInstructions,
-  parseAgentCapabilityKeys,
+  WORKSPACE_AGENT_CAPABILITY_KEYS,
 } from "./runtime-binding";
 
 export class AgentExecutionError extends Error {
@@ -52,7 +52,6 @@ export async function resolveAgentExecutionContext(
         select: {
           id: true,
           runtimeKind: true,
-          capabilityKeysJson: true,
           instructions: true,
         },
       },
@@ -128,10 +127,8 @@ export async function resolveAgentExecutionContext(
     throw new AgentExecutionError("Agent 执行身份不可用", 409);
   }
 
-  let allowedToolKeys: string[];
   let runtimeInstructions: string;
   try {
-    allowedToolKeys = parseAgentCapabilityKeys(runtimeBinding.capabilityKeysJson);
     runtimeInstructions = normalizeAgentRuntimeInstructions(runtimeBinding.instructions);
   } catch {
     throw new AgentExecutionError("Agent 运行时配置无效", 409);
@@ -143,7 +140,7 @@ export async function resolveAgentExecutionContext(
     displayName: profile.displayName,
     roleName: profile.roleName,
     responsibilities: profile.responsibilities,
-    allowedToolKeys,
+    allowedToolKeys: [...WORKSPACE_AGENT_CAPABILITY_KEYS],
     runtime: {
       bindingId: runtimeBinding.id,
       kind: "workspace",

@@ -30,6 +30,7 @@ const OUTPUT_PATHS = Object.freeze([
   "config/hr/school-whitelist.json",
   "config/pharma-qc/product_stage_tests.json",
   "data/docs-editor/templates/production-qc-snapshots/audit.json",
+  "assets/brand/company/logo.svg",
 ]);
 
 function parseArguments(argv) {
@@ -80,6 +81,37 @@ function safeCode(value) {
 
 function json(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+function escapeXml(value) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
+function companyLogoSvg(companyName) {
+  const normalizedName = companyName.replace(/\s+/g, " ").trim();
+  const mark = [...normalizedName.replace(/\s+/g, "")].slice(0, 2).join("").toUpperCase() || "W";
+  const label = [...normalizedName].slice(0, 28).join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="200" viewBox="0 0 640 200" role="img" aria-labelledby="title desc">
+  <title id="title">${escapeXml(normalizedName)}</title>
+  <desc id="desc">Generated tenant company logo</desc>
+  <defs>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#065f46"/>
+      <stop offset="1" stop-color="#0891b2"/>
+    </linearGradient>
+  </defs>
+  <rect x="12" y="12" width="176" height="176" rx="48" fill="url(#mark)"/>
+  <path d="M44 64h112v12H44zm0 30h112v12H44zm0 30h112v12H44z" fill="#fff" opacity=".18"/>
+  <text x="100" y="121" fill="#fff" font-family="system-ui, sans-serif" font-size="54" font-weight="700" text-anchor="middle">${escapeXml(mark)}</text>
+  <text x="220" y="104" fill="#0f172a" font-family="system-ui, sans-serif" font-size="42" font-weight="700">${escapeXml(label)}</text>
+  <text x="222" y="140" fill="#64748b" font-family="system-ui, sans-serif" font-size="18" letter-spacing="4">WORKSPACE</text>
+</svg>
+`;
 }
 
 function buildTenantFiles(options) {
@@ -269,6 +301,7 @@ function buildTenantFiles(options) {
       outputRoot: "data/docs-editor/templates/production-qc-snapshots",
       products: [],
     })],
+    ["assets/brand/company/logo.svg", companyLogoSvg(companyName)],
   ]);
   files.set("config/tenant/cnb-release.yml", readFileSync(path.join(REPOSITORY_ROOT, "ops/cnb-release.yml"), "utf8"));
   return { tenantKey, companyCode, companyName, files };
@@ -335,8 +368,8 @@ export function main(argv = process.argv.slice(2)) {
   const result = provisionWorkspace(root, options);
   process.stdout.write(`Workspace tenant provisioned: ${result.root}\n`);
   process.stdout.write(`Tenant: ${result.tenantKey}; primary company: ${result.companyCode} ${result.companyName}\n`);
-  process.stdout.write(`Created ${result.written.length} private tenant files without database credentials, secrets, assets, or business imports.\n`);
-  process.stdout.write("Next: add .env and required assets, review the generated neutral catalogs, then run npm run workspace:check.\n");
+  process.stdout.write(`Created ${result.written.length} private tenant files without database credentials, secrets, uploaded media, or business imports.\n`);
+  process.stdout.write("Next: add .env, favicon and Agent avatar, review the generated SVG and neutral catalogs, then run npm run workspace:check.\n");
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {

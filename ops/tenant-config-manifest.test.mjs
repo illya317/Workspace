@@ -91,12 +91,16 @@ test("tenant config install verifies staging and preserves replaced files in bac
   const backup = join(root, "backup");
   copyFixture(staging);
   copyFixture(target);
+  mkdirSync(join(staging, "assets/brand/company"), { recursive: true });
+  writeFileSync(join(staging, "assets/brand/company/logo.svg"), "<svg xmlns=\"http://www.w3.org/2000/svg\"/>\n");
   const manifest = createTenantConfigManifest(staging);
   const manifestPath = join(staging, ".deployment/tenant-config-manifest.json");
   mkdirSync(join(staging, ".deployment"), { recursive: true });
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, { flag: "wx" });
   writeFileSync(join(target, "config/tenant/companies.json"), "[]\n");
   writeFileSync(join(target, "manifest.json"), "{\"retired\":true}\n");
+  mkdirSync(join(target, "assets/brand/company"), { recursive: true });
+  writeFileSync(join(target, "assets/brand/company/logo.png"), "old png");
   writeFileSync(
     join(target, "data/docs-editor/templates/production-qc-snapshots/stale.json"),
     "{\"stale\":true}\n",
@@ -110,6 +114,12 @@ test("tenant config install verifies staging and preserves replaced files in bac
   assert.equal(readFileSync(join(backup, "config/tenant/companies.json"), "utf8"), "[]\n");
   assert.equal(readFileSync(join(backup, "manifest.json"), "utf8"), "{\"retired\":true}\n");
   assert.equal(existsSync(join(target, "manifest.json")), false);
+  assert.equal(
+    readFileSync(join(target, "assets/brand/company/logo.svg"), "utf8"),
+    "<svg xmlns=\"http://www.w3.org/2000/svg\"/>\n",
+  );
+  assert.equal(existsSync(join(target, "assets/brand/company/logo.png")), false);
+  assert.equal(readFileSync(join(backup, "assets/brand/company/logo.png"), "utf8"), "old png");
   assert.equal(
     readFileSync(join(backup, "data/docs-editor/templates/production-qc-snapshots/stale.json"), "utf8"),
     "{\"stale\":true}\n",

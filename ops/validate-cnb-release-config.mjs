@@ -27,8 +27,8 @@ const REQUIRED_BUILD_ENV = {
 };
 const ALLOWED_DEPLOY_ENV_KEYS = [
   "HEALTHCHECK_URL",
+  "EXPECTED_CNB_REPOSITORY",
   "INSTALL_LIBRARY_RUNTIME_DEPS",
-  "REMOTE_AGENT_SOURCE_REPO_URL",
   "REMOTE_DIR",
   "REMOTE_WORKSPACE_CONFIG_DIR",
 ];
@@ -163,7 +163,7 @@ export function validateCnbReleaseConfig(source, options = {}) {
   for (const [key, value] of Object.entries(deployEnv)) {
     if (typeof value !== "string") throw new Error(`deploy-to-server.env.${key} must be a string`);
   }
-  for (const key of ["HEALTHCHECK_URL", "INSTALL_LIBRARY_RUNTIME_DEPS", "REMOTE_DIR", "REMOTE_WORKSPACE_CONFIG_DIR"]) {
+  for (const key of ["EXPECTED_CNB_REPOSITORY", "HEALTHCHECK_URL", "INSTALL_LIBRARY_RUNTIME_DEPS", "REMOTE_DIR", "REMOTE_WORKSPACE_CONFIG_DIR"]) {
     if (!Object.hasOwn(deployEnv, key)) throw new Error(`deploy-to-server.env.${key} is required`);
   }
   for (const name of REQUIRED_STAGE_NAMES) {

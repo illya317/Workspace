@@ -13,16 +13,25 @@ import {
   type SurfaceToolbarItem,
 } from "@workspace/core/ui";
 import { postJson, putJson, requestJson } from "../../api-client";
+import {
+  dataQualityNotificationRoutingItems,
+  type DataQualityNotificationRouteDraft,
+  type DataQualityNotificationRoutingOptions,
+} from "./DataQualityNotificationRoutingFields";
 
 type Severity = "critical" | "warning" | "info";
 type DataQualityPolicy = {
-  version: 1;
+  version: 2;
   schedule: { enabled: boolean; dailyAt: string; timeZone: string };
   mutationTrigger: { enabled: boolean };
   notifications: {
     minimumSeverity: Severity;
     repeatAfterHours: number;
-    workspace: { enabled: boolean; recipientUsernames: string[] };
+    workspace: {
+      enabled: boolean;
+      fallbackRecipientUsernames: string[];
+      routes: DataQualityNotificationRouteDraft[];
+    };
     wecomGroup: { enabled: boolean };
   };
 };
@@ -76,6 +85,7 @@ type DeliveryRow = {
 type WorkbenchResponse = {
   policy: DataQualityPolicy;
   channelAvailability: { workspace: { configured: boolean }; wecomGroup: { configured: boolean } };
+  routingOptions: DataQualityNotificationRoutingOptions;
   metrics: {
     checkCount: number;
     healthyCheckCount: number;
@@ -230,7 +240,13 @@ export function useDataQualityTab({ enabled, showToast }: Props): {
         minimumSeverity: draft.notifications.minimumSeverity,
         repeatAfterHours: draft.notifications.repeatAfterHours,
         workspaceEnabled: draft.notifications.workspace.enabled,
-        workspaceRecipientUsernames: draft.notifications.workspace.recipientUsernames,
+        workspaceFallbackRecipientUsernames: draft.notifications.workspace.fallbackRecipientUsernames,
+        workspaceRoutes: draft.notifications.workspace.routes.map((route) => ({
+          id: route.id,
+          resourceKey: route.resourceKey,
+          departmentId: route.departmentId,
+          recipientUsernames: route.recipientUsernames,
+        })),
         wecomGroupEnabled: draft.notifications.wecomGroup.enabled,
       }, "保存数据质量策略失败");
       showToast("数据质量设置已保存", "success");
@@ -261,8 +277,19 @@ export function useDataQualityTab({ enabled, showToast }: Props): {
         { key: "minimum-severity", label: "最低提醒级别", spec: { control: "choice" as const, valueType: "string" as const, options: { source: "static" as const, items: [{ value: "critical", label: "仅严重" }, { value: "warning", label: "警告及以上" }, { value: "info", label: "全部异常" }] } }, value: draft.notifications.minimumSeverity, onChange: (value: unknown) => setDraft({ ...draft, notifications: { ...draft.notifications, minimumSeverity: String(value) as Severity } }) },
         { key: "repeat-hours", label: "重复提醒间隔（小时）", spec: { control: "number" as const, valueType: "number" as const, validation: { min: 1, max: 720 } }, value: draft.notifications.repeatAfterHours, onChange: (value: unknown) => setDraft({ ...draft, notifications: { ...draft.notifications, repeatAfterHours: Number(value) } }) },
         { key: "workspace-enabled", label: "站内提醒", spec: enabledChoiceSpec, value: draft.notifications.workspace.enabled ? "开启" : "关闭", onChange: (value: unknown) => setDraft({ ...draft, notifications: { ...draft.notifications, workspace: { ...draft.notifications.workspace, enabled: value === "开启" } } }) },
-        { key: "workspace-recipients", label: "站内接收账号", spec: { control: "collection" as const, valueType: "array" as const, itemControl: "text" as const }, value: draft.notifications.workspace.recipientUsernames, disabled: !draft.notifications.workspace.enabled, onChange: (value: unknown) => setDraft({ ...draft, notifications: { ...draft.notifications, workspace: { ...draft.notifications.workspace, recipientUsernames: Array.isArray(value) ? value.map(String) : [] } } }) },
-        { key: "wecom-enabled", label: "企业微信群提醒", spec: { ...enabledChoiceSpec, state: data.channelAvailability.wecomGroup.configured ? "normal" as const : "disabled" as const }, value: draft.notifications.wecomGroup.enabled ? "开启" : "关闭", onChange: (value: unknown) => setDraft({ ...draft, notifications: { ...draft.notifications, wecomGroup: { enabled: value === "开启" } } }), hint: data.channelAvailability.wecomGroup.configured ? undefined : "未配置群机器人" },
+        ...dataQualityNotificationRoutingItems({
+          workspace: draft.notifications.workspace,
+          options: data.routingOptions,
+          wecomGroupField: {
+            key: "wecom-enabled",
+            label: "企业微信群提醒",
+            spec: { ...enabledChoiceSpec, state: data.channelAvailability.wecomGroup.configured ? "normal" as const : "disabled" as const },
+            value: draft.notifications.wecomGroup.enabled ? "开启" : "关闭",
+            onChange: (value: unknown) => setDraft({ ...draft, notifications: { ...draft.notifications, wecomGroup: { enabled: value === "开启" } } }),
+            hint: data.channelAvailability.wecomGroup.configured ? undefined : "未配置群机器人",
+          },
+          onChange: (workspace) => setDraft({ ...draft, notifications: { ...draft.notifications, workspace } }),
+        }),
       ], { layout: { columns: 3 } }),
       header: {
         title: "触发与通知",

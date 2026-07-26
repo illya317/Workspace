@@ -60,6 +60,10 @@ const WORK_RELATION_REGISTRATIONS = [
   { key: "work.meetings.participant.user", scope: "work", source: { entity: "MeetingParticipant", field: "userId" }, target: "user", targetLabel: "参会账号", nullable: false, permission: { resourceKey: "work.meetings", action: "read" } },
 ] satisfies RelationRegistration[];
 const ADMINISTRATION_RELATION_REGISTRATIONS = [
+  { key: "administration.contracts.owning.company", scope: "administration", usage: "both", semantics: "reference", source: { entity: "Contract", field: "owningCompanyId" }, target: "company", targetLabel: "归属公司", nullable: true, defaultLifecycleScope: "active", lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "administration.contracts.owning.company", permission: { resourceKey: "administration.contracts", action: "read" } },
+  { key: "administration.contracts.owner.department", scope: "administration", usage: "both", semantics: "reference", source: { entity: "Contract", field: "ownerDepartmentId" }, target: "department", targetLabel: "归口部门", nullable: true, defaultLifecycleScope: "active", lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "administration.contracts.owner.department", permission: { resourceKey: "administration.contracts", action: "read" } },
+  { key: "administration.contracts.party.a", scope: "administration", usage: "both", semantics: "reference", source: { entity: "Contract", field: "partyAId" }, target: "party", targetLabel: "甲方主体", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "administration.contracts.party.a", permission: { resourceKey: "administration.contracts", action: "read" } },
+  { key: "administration.contracts.party.b", scope: "administration", usage: "both", semantics: "reference", source: { entity: "Contract", field: "partyBId" }, target: "party", targetLabel: "乙方主体", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "administration.contracts.party.b", permission: { resourceKey: "administration.contracts", action: "read" } },
   { key: "administration.contracts.handler.employee", scope: "administration", usage: "both", semantics: "reference", source: { entity: "Contract", field: "handlerEmployeeId" }, target: "employee", targetLabel: "经办人", nullable: true, defaultLifecycleScope: "all", lifecycle: { targetDelete: "block", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "administration.contracts.handler.employee", permission: { resourceKey: "administration.contracts", action: "read" } },
 ] satisfies RelationRegistration[];
 const FINANCE_RELATION_REGISTRATIONS = [{ key: "finance.accounts.parent", scope: "finance", source: { entity: "FinanceAccount", field: "parentId" }, target: "financeAccount", targetLabel: "上级科目", nullable: true, permission: { resourceKey: "finance.ledger", action: "read" } }, { key: "finance.groupAccount.parent", scope: "finance", source: { entity: "FinanceGroupAccountRevision", field: "parentGroupAccountId" }, target: "financeGroupAccount", targetLabel: "上级集团科目", nullable: true, permission: { resourceKey: "finance.ledger", action: "read" } }, { key: "finance.statements.consolidation.entrySource", scope: "finance", source: { entity: "FinanceConsolidationEntryLine", field: "sourceRecordId", valueKind: "semantic" }, target: "financeConsolidationEntrySource", targetLabel: "抵销业务来源", nullable: true, permission: { resourceKey: "finance.statements", action: "read" } }] satisfies RelationRegistration[];
@@ -223,7 +227,7 @@ export const registeredModuleDefinitions = [
       { key: "administration.erpDiligence.viewAll", name: "ERP尽调全量查看", kind: "capability", capabilityOwnerKey: "administration.erpDiligence", runtimeParentKey: "administration.erpDiligence", sortOrder: 0 },
     ],
     apiGuards: [
-      ...apiResourceGuards("/api/modules/administration/contracts", ["GET", "POST", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/modules/administration/contracts", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
       ...apiResourceGuards("/api/modules/administration/erp-diligence", ["GET", "POST", "PUT", "DELETE"]),
     ],
     apiRoutes: [
@@ -239,7 +243,6 @@ export const registeredModuleDefinitions = [
     apiRoutes: [
       ...FINANCE_MODULE_REGISTRY_FRAGMENT.apiRoutes,
       { method: "POST", pathPrefix: "/api/modules/finance/internal/library-source", access: "internal", notes: "Signed caller-bound Finance authoritative snapshot transport; only the Library caller unit is accepted." },
-      { method: "POST", pathPrefix: "/api/modules/finance/agent/rpc", access: "internal", notes: "Signed internal RPC Finance Agent catalog and execution boundary; only the Assistant caller unit is accepted." },
     ],
     apiGuards: [
       ...apiResourceGuards("/api/modules/finance/ledger"),
@@ -438,7 +441,6 @@ export const registeredModuleDefinitions = [
       { method: "POST", pathPrefix: "/api/modules/library/basic-info/documents", access: "protected", notes: "File upload creates immutable V1 and starts the Library processing pipeline." },
       { method: "POST", pathPrefix: "/api/modules/library/basic-info/documents/:id/review", access: "protected", notes: "Importer confirms the pending upload after metadata review." },
       { method: "POST", pathPrefix: "/api/modules/library/basic-info/documents/:id/delete", access: "protected", notes: "Configure-only permanent deletion is distinct from archive and cleans managed runtime storage." },
-      { method: "POST", pathPrefix: "/api/modules/library/agent/rpc", access: "internal", notes: "Signed internal RPC Library Agent catalog and execution boundary; only the Assistant caller unit is accepted." },
       { method: "POST", pathPrefix: "/api/modules/library/internal/workspace-analysis-sources", access: "internal", notes: "Signed internal RPC with requester authorization; only the Finance caller unit is accepted." },
       { method: "GET", pathPrefix: "/api/modules/library/integrations/onlyoffice/documents", access: "internal", notes: "Library-owned immutable document source; the legacy integration URL redirects here." },
       { method: "GET", pathPrefix: "/api/modules/library/integrations/wecom/agent/artifacts", access: "internal", notes: "Library-owned artifact stream for the Assistant WeCom bridge." },
@@ -511,7 +513,6 @@ export const registeredModuleDefinitions = [
     },
     resourceDefs: [
       { key: "agent.assistant", name: "Agent 助手调用", kind: "capability", capabilityOwnerKey: "settings.account", runtimeParentKey: "agent", apiPrefixes: ["/api/agent"], sortOrder: 0 },
-      { key: "agent.source", name: "Workspace 源码与 PR", kind: "capability", capabilityOwnerKey: "agent.assistant", runtimeParentKey: "agent", sortOrder: 1 },
     ],
     apiRoutes: assistantIntegrationApiRoutes(),
   },

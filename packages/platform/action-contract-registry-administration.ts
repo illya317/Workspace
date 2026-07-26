@@ -1,5 +1,5 @@
 import { defineActionContractMetadataList } from "./action-contract";
-import { registeredImport, registeredLifecycle } from "./action-contract-registry-helpers";
+import { registeredImport, registeredLifecycle, registeredWrite } from "./action-contract-registry-helpers";
 
 const ADMINISTRATION_CONTRACT_RESOURCE = {
   resourceKey: "administration.contracts",
@@ -187,6 +187,88 @@ export const ADMINISTRATION_ACTION_CONTRACT_METADATA = defineActionContractMetad
       hrefPattern: "/administration/contracts",
     },
   },
+  registeredImport({
+    key: "administration.contract.attachment.upload",
+    activeEntity: "ContractAttachment",
+    transport: "file",
+    result: "records",
+    domain: {
+      validatorKey: "packages/administration/server/domain/contract-package-validation.buildContractAttachmentUploadCommand",
+      commitKey: "packages/administration/server/contract-package.commitUploadContractAttachment",
+    },
+  }),
+  registeredWrite({
+    key: "administration.contract.record.create",
+    activeEntity: "ContractRecord",
+    shape: "full_record",
+    target: "new_record",
+    commitMode: "activate",
+    domain: {
+      validatorKey: "packages/administration/server/domain/contract-package-validation.buildContractRecordCreateCommand",
+      commitKey: "packages/administration/server/contract-package.commitCreateContractRecord",
+    },
+  }),
+  registeredWrite({
+    key: "administration.contract.approvalReference.set",
+    activeEntity: "Contract",
+    targetIdKey: "contractId",
+    domain: {
+      validatorKey: "packages/administration/server/domain/contract-package-validation.buildContractApprovalReferenceCommand",
+      commitKey: "packages/administration/server/contract-package.commitSetContractApprovalReference",
+    },
+  }),
+  registeredLifecycle({
+    key: "administration.contract.attachment.remove",
+    activeEntity: "ContractAttachment",
+    operation: "custom",
+    targetIdKey: "attachmentUid",
+    deleteMode: "soft",
+    referencePolicy: "domain",
+    auditPolicy: "event",
+    domain: {
+      validatorKey: "packages/administration/server/domain/contract-package-validation.buildContractAttachmentRemoveCommand",
+      commitKey: "packages/administration/server/contract-package.commitRemoveContractAttachment",
+    },
+  }),
+  {
+    key: "administration.contract.archive",
+    version: 1,
+    kind: "lifecycle",
+    label: "归档行政合同",
+    targetKind: "Contract",
+    resource: { ...ADMINISTRATION_CONTRACT_RESOURCE, directPermissionAction: "archive" },
+    payload: {
+      cardinality: "single",
+      shape: "field_patch",
+      target: "existing_record",
+      targetIdKey: "id",
+      versionKey: "expectedVersion",
+      notes: "If-Match 版本与合同记录访问范围在同一归档命令中校验。",
+    },
+    lifecycle: {
+      operation: "archive",
+      targetIdKey: "id",
+      versionKey: "expectedVersion",
+      referencePolicy: "domain",
+      auditPolicy: "history",
+      notes: "合同事实保留不物理删除，并记录 archivedAt、archivedBy 与编辑历史。",
+    },
+    persistence: { ...ACTIVE_CONTRACT_PERSISTENCE, commitMode: "native_transition" },
+    domain: {
+      validatorKey: "packages/administration/server/domain/administration-contract-validation.buildContractTargetCommand",
+      commitKey: "packages/administration/server/contracts.commitArchiveContractCommand",
+    },
+    api: {
+      commandRoute: "POST /api/modules/administration/contracts/:id/archive",
+      directRoutes: ["POST /api/modules/administration/contracts/:id/archive"],
+      envelopeVersion: 1,
+    },
+    workflow: DIRECT_ONLY,
+    display: {
+      titleTemplate: "归档行政合同 #{id}",
+      hrefPattern: "/administration/contracts",
+    },
+  },
   {
     key: "administration.contract.delete",
     version: 1,
@@ -200,7 +282,7 @@ export const ADMINISTRATION_ACTION_CONTRACT_METADATA = defineActionContractMetad
       target: "existing_record",
       targetIdKey: "id",
       versionKey: "expectedVersion",
-      notes: "If-Match 版本进入同一个删除 command，避免校验和提交分别解析请求。",
+      notes: "仅草稿合同允许硬删除；正式记录必须使用归档。If-Match 版本进入同一个删除 command。",
     },
     lifecycle: {
       operation: "delete",
@@ -209,11 +291,11 @@ export const ADMINISTRATION_ACTION_CONTRACT_METADATA = defineActionContractMetad
       deleteMode: "hard",
       referencePolicy: "none",
       auditPolicy: "history",
-      notes: "提交委托 guardedDelete，保留版本冲突和历史记录策略。",
+      notes: "提交委托 guardedDelete；domain 钩子只允许 lifecycleStatus=draft。",
     },
     persistence: { ...ACTIVE_CONTRACT_PERSISTENCE, commitMode: "native_transition" },
     domain: {
-      validatorKey: "packages/administration/server/domain/administration-contract-validation.buildContractDeleteCommand",
+      validatorKey: "packages/administration/server/domain/administration-contract-validation.buildContractTargetCommand",
       commitKey: "packages/administration/server/contracts.commitDeleteContractCommand",
     },
     api: {

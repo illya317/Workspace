@@ -1,6 +1,4 @@
 import type {
-  CostMetricValues,
-  CostOperationalAnalysisRuntimeDTO,
   OperationalAnalysisDefinition,
   OperationalAnalysisScopeType,
   OperationalAnalysisTemplateCatalogDTO,
@@ -13,7 +11,6 @@ import { evaluatePermissionAction } from "@workspace/platform/server/auth";
 import { prisma } from "@workspace/platform/server/prisma";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { workspaceSourcesOperationalAnalysisDefinitionSchema } from "@workspace/platform/workspace-analysis-definition-schema";
-import { buildYearMonthWhere } from "./common";
 import { validateOperationalAnalysisTemplate } from "../domain/operational-analysis-template-validation";
 import {
   operationalAnalysisDefinitionSchema,
@@ -26,12 +23,16 @@ import {
   canConfigureOperationalAnalytics,
   canUseOperationalAnalyticsApi,
 } from "./operational-analytics";
-import { listOperationalAnalysisManagedTemplates } from "./operational-analysis-template-lifecycle";
+import {
+  listOperationalAnalysisEditableTemplates,
+  listOperationalAnalysisManagedTemplates,
+} from "./operational-analysis-template-lifecycle";
 import { hasDepartmentShipmentActivity, hasPersonalShipmentActivity } from "./shipment-department-scope";
 import {
   compileAuthorizedFinanceWorkspaceAnalysisDefinition,
   runFinanceWorkspaceAnalysisRuntime,
 } from "./workspace-analysis-runtime";
+import { buildCostOperationalAnalysisRuntime } from "./operational-analysis-cost-runtime";
 const SYSTEM_SALES_DEFINITION = {
   schemaVersion: 1,
   dataset: "sales.shipments",
@@ -50,9 +51,13 @@ type AnalysisScope = { scopeType: OperationalAnalysisScopeType; scopeId: number 
 export async function listOperationalAnalysisTemplates(
   userId: number,
   scope: AnalysisScope,
+  options: { readonly viaApiKey?: boolean } = {},
 ) {
   if (!await canReadOperationalAnalytics(userId, scope.scopeType, scope.scopeId)) {
     return serviceError("无权限查看该空间的经营分析", 403);
+  }
+  if (options.viaApiKey && !await canUseOperationalAnalyticsApi(userId, scope.scopeType, scope.scopeId)) {
+    return serviceError("当前 API 凭证没有该空间的经营分析 API 使用权限", 403);
   }
   const [rows, canConfigure, hasSales] = await Promise.all([
     prisma.workspaceAnalysisTemplate.findMany({
@@ -127,42 +132,42 @@ export async function listOperationalAnalysisTemplates(
   });
 }
 
-export async function prepareOperationalAnalysisTemplateSave(
+async function prepareOperationalAnalysisTemplateSave(
   userId: number,
   input: WorkspaceSourcesOperationalAnalysisTemplateInput,
+  options: { readonly viaApiKey?: boolean } = {},
 ) {
-  const parsed = workspaceSourcesOperationalAnalysisTemplateInputSchema.safeParse(input);
-  if (!parsed.success) return serviceError(parsed.error.issues[0]?.message ?? "经营分析模板参数无效", 400);
-  const validated = validateOperationalAnalysisTemplate(parsed.data);
-  if (!validated.ok) return serviceError(validated.error, 400);
-  if (!await canConfigureOperationalAnalytics(userId, parsed.data.scopeType, parsed.data.scopeId)) {
+  if (!await canConfigureOperationalAnalytics(userId, input.scopeType, input.scopeId)) {
     return serviceError("无权限配置该空间的经营分析", 403);
+  }
+  if (options.viaApiKey && !await canUseOperationalAnalyticsApi(userId, input.scopeType, input.scopeId)) {
+    return serviceError("当前 API 凭证没有该空间的经营分析 API 使用权限", 403);
   }
   const compiled = await compileAuthorizedFinanceWorkspaceAnalysisDefinition({
     userId,
-    scope: { scopeType: parsed.data.scopeType, scopeId: parsed.data.scopeId },
-    definition: parsed.data.definition,
+    scope: { scopeType: input.scopeType, scopeId: input.scopeId },
+    definition: input.definition,
   });
   if (!compiled.ok) return compiled;
-  const existing = parsed.data.templateId
+  const existing = input.templateId
     ? await prisma.workspaceAnalysisTemplate.findFirst({
-        where: { id: parsed.data.templateId, scopeType: parsed.data.scopeType, scopeId: parsed.data.scopeId, status: "active" },
+        where: { id: input.templateId, scopeType: input.scopeType, scopeId: input.scopeId, status: "active" },
         select: { id: true, name: true, revision: true },
       })
     : null;
-  if (parsed.data.templateId && !existing) return serviceError("要修改的分析模板不存在", 404);
+  if (input.templateId && !existing) return serviceError("要修改的分析模板不存在", 404);
   const duplicateName = await prisma.workspaceAnalysisTemplate.findFirst({
     where: {
-      scopeType: parsed.data.scopeType,
-      scopeId: parsed.data.scopeId,
-      name: validated.data.name,
-      ...(parsed.data.templateId ? { id: { not: parsed.data.templateId } } : {}),
+      scopeType: input.scopeType,
+      scopeId: input.scopeId,
+      name: input.name,
+      ...(input.templateId ? { id: { not: input.templateId } } : {}),
     },
     select: { id: true },
   });
   if (duplicateName) return serviceError("当前空间已经存在同名分析模板", 409);
   return serviceOk({
-    input: validated.data,
+    input,
     expectedRevision: existing?.revision,
     existingName: existing?.name ?? null,
   });
@@ -171,12 +176,13 @@ export async function prepareOperationalAnalysisTemplateSave(
 export async function saveOperationalAnalysisTemplate(
   userId: number,
   stored: StoredWorkspaceSourcesOperationalAnalysisTemplateInput,
+  options: { readonly viaApiKey?: boolean } = {},
 ) {
   const parsed = workspaceSourcesOperationalAnalysisTemplateInputSchema.safeParse(stored.input);
   if (!parsed.success) return serviceError(parsed.error.issues[0]?.message ?? "经营分析模板参数无效", 400);
   const validated = validateOperationalAnalysisTemplate(parsed.data);
   if (!validated.ok) return serviceError(validated.error, 400);
-  const prepared = await prepareOperationalAnalysisTemplateSave(userId, validated.data);
+  const prepared = await prepareOperationalAnalysisTemplateSave(userId, validated.data, options);
   if (!prepared.ok) return prepared;
   const { input } = prepared.data;
   if (input.templateId) {
@@ -262,6 +268,25 @@ export async function saveOperationalAnalysisTemplate(
   });
 }
 
+export async function getOperationalAnalysisEditableTemplate(
+  userId: number,
+  scope: AnalysisScope,
+  templateId: number,
+  options: { readonly viaApiKey?: boolean } = {},
+) {
+  if (!await canConfigureOperationalAnalytics(userId, scope.scopeType, scope.scopeId)) {
+    return serviceError("无权限配置该空间的经营分析", 403);
+  }
+  if (options.viaApiKey && !await canUseOperationalAnalyticsApi(userId, scope.scopeType, scope.scopeId)) {
+    return serviceError("当前 API 凭证没有该空间的经营分析 API 使用权限", 403);
+  }
+  const templates = await listOperationalAnalysisEditableTemplates(userId, scope);
+  const template = templates.find((candidate) => candidate.id === templateId);
+  return template
+    ? serviceOk({ success: true, data: template })
+    : serviceError("分析模板不存在，或当前草稿不是可编辑的 v3 模板", 404);
+}
+
 export async function getCostOperationalAnalysisRuntime(
   userId: number,
   scope: AnalysisScope,
@@ -289,7 +314,7 @@ export async function getCostOperationalAnalysisRuntime(
   if (!definition || definition.dataset !== "finance.costStructure") {
     return serviceError("该模板不使用成本结构数据源", 409);
   }
-  const runtime = await buildCostRuntime(filters);
+  const runtime = await buildCostOperationalAnalysisRuntime(filters);
   return serviceOk({ success: true, data: runtime });
 }
 
@@ -427,123 +452,3 @@ function resolveWorkspaceApiQueryValue(value: WorkspaceApiQueryValue, scope: Ana
   if (typeof value !== "object") return String(value);
   return value.binding === "scopeId" ? String(scope.scopeId) : scope.scopeType;
 }
-
-type CostFact = {
-  year: number;
-  month: number | null;
-  productName: string | null;
-  rawMaterials: number | null;
-  packagingMaterials: number | null;
-  directLaborWage: number | null;
-  directLaborSocialSecurity: number | null;
-  directLaborWelfare: number | null;
-  auxiliaryLaborWage: number | null;
-  auxiliaryLaborSocialSecurity: number | null;
-  auxiliaryLaborWelfare: number | null;
-  utilities: number | null;
-  depreciationDirect: number | null;
-  depreciationAuxiliary: number | null;
-  otherManufacturingCost: number | null;
-  quantity: number | null;
-};
-
-async function buildCostRuntime(filters: { year?: number; month?: number; productName?: string }): Promise<CostOperationalAnalysisRuntimeDTO> {
-  const baseWhere = buildYearMonthWhere({ productName: filters.productName });
-  const [facts, yearRows] = await Promise.all([
-    prisma.financeCostStructureRow.findMany({
-      where: filters.year ? { ...baseWhere, year: { in: [filters.year - 1, filters.year] } } : baseWhere,
-      select: costFactSelect,
-      orderBy: [{ year: "asc" }, { month: "asc" }, { sourceRow: "asc" }],
-    }),
-    prisma.financeCostStructureRow.findMany({
-      where: buildYearMonthWhere({ productName: filters.productName }),
-      select: { year: true },
-      distinct: ["year"],
-      orderBy: { year: "desc" },
-    }),
-  ]);
-  const current = facts.filter((fact) => (
-    (filters.year === undefined || fact.year === filters.year)
-    && (filters.month === undefined || fact.month === filters.month)
-  ));
-  const trendGroups = groupFacts(current, (fact) => `${fact.year}-${String(fact.month ?? 0).padStart(2, "0")}`);
-  const comparisonGroups = groupFacts(facts, (fact) => `${fact.year}-${String(fact.month ?? 0).padStart(2, "0")}`);
-  const productGroups = groupFacts(current, (fact) => fact.productName || "未命名产品");
-  return {
-    years: yearRows.map((row) => row.year),
-    summary: summarizeCostFacts(current),
-    trend: Array.from(trendGroups.entries()).map(([key, rows]) => {
-      const [yearText, monthText] = key.split("-");
-      const year = Number(yearText);
-      const month = Number(monthText);
-      const previousMonthKey = month > 1
-        ? `${year}-${String(month - 1).padStart(2, "0")}`
-        : `${year - 1}-12`;
-      const previousYearKey = `${year - 1}-${String(month).padStart(2, "0")}`;
-      return {
-        key,
-        label: month ? `${year}年${month}月` : `${year}年`,
-        values: summarizeCostFacts(rows),
-        previousMonth: comparisonGroups.has(previousMonthKey) ? summarizeCostFacts(comparisonGroups.get(previousMonthKey)!) : null,
-        previousYear: comparisonGroups.has(previousYearKey) ? summarizeCostFacts(comparisonGroups.get(previousYearKey)!) : null,
-      };
-    }),
-    ranking: Array.from(productGroups.entries())
-      .map(([key, rows]) => ({ key, label: key, values: summarizeCostFacts(rows) }))
-      .sort((left, right) => (right.values.manufacturingCost ?? 0) - (left.values.manufacturingCost ?? 0)),
-    rows: current.map((fact, index) => ({
-      key: `${fact.year}-${fact.month ?? 0}-${fact.productName ?? "unknown"}-${index}`,
-      year: fact.year,
-      month: fact.month,
-      product: fact.productName || "未命名产品",
-      values: summarizeCostFacts([fact]),
-    })),
-  };
-}
-
-function groupFacts(rows: CostFact[], keyOf: (fact: CostFact) => string) {
-  const groups = new Map<string, CostFact[]>();
-  for (const row of rows) groups.set(keyOf(row), [...(groups.get(keyOf(row)) ?? []), row]);
-  return groups;
-}
-
-function summarizeCostFacts(rows: CostFact[]): CostMetricValues {
-  const sum = (key: keyof CostFact) => rows.reduce((total, row) => total + (typeof row[key] === "number" ? row[key] : 0), 0);
-  const directLabor = sum("directLaborWage") + sum("directLaborSocialSecurity") + sum("directLaborWelfare");
-  const auxiliaryLabor = sum("auxiliaryLaborWage") + sum("auxiliaryLaborSocialSecurity") + sum("auxiliaryLaborWelfare");
-  const depreciation = sum("depreciationDirect") + sum("depreciationAuxiliary");
-  const manufacturingCost = sum("rawMaterials") + sum("packagingMaterials") + directLabor + auxiliaryLabor
-    + sum("utilities") + depreciation + sum("otherManufacturingCost");
-  const quantity = sum("quantity");
-  return {
-    rawMaterials: sum("rawMaterials"),
-    packagingMaterials: sum("packagingMaterials"),
-    directLabor,
-    auxiliaryLabor,
-    utilities: sum("utilities"),
-    depreciation,
-    otherManufacturingCost: sum("otherManufacturingCost"),
-    manufacturingCost,
-    quantity,
-    unitCost: quantity > 0 ? manufacturingCost / quantity : null,
-  };
-}
-
-const costFactSelect = {
-  year: true,
-  month: true,
-  productName: true,
-  rawMaterials: true,
-  packagingMaterials: true,
-  directLaborWage: true,
-  directLaborSocialSecurity: true,
-  directLaborWelfare: true,
-  auxiliaryLaborWage: true,
-  auxiliaryLaborSocialSecurity: true,
-  auxiliaryLaborWelfare: true,
-  utilities: true,
-  depreciationDirect: true,
-  depreciationAuxiliary: true,
-  otherManufacturingCost: true,
-  quantity: true,
-} as const;

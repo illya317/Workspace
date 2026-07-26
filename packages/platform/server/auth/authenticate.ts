@@ -2,12 +2,37 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { verifyToken, getTokenFromCookie } from "../auth-token";
 import { findUserByPersonalApiKey } from "../personal-api-key";
 import { evaluatePermissionAction } from "../rbac/action-grants";
+import {
+  AGENT_API_DELEGATION_HEADER,
+  verifyAgentApiDelegation,
+} from "../agent/api-delegation";
 
 function getPersonalApiKey(request: Request) {
   return request.headers.get("x-api-key")?.trim() || null;
 }
 
+export function isProgrammaticApiRequest(request: Request) {
+  return Boolean(getPersonalApiKey(request) || request.headers.get(AGENT_API_DELEGATION_HEADER)?.trim());
+}
+
 export async function authenticate(request: Request) {
+  if (request.headers.has(AGENT_API_DELEGATION_HEADER)) {
+    const delegation = await verifyAgentApiDelegation(request);
+    if (!delegation) return null;
+    const user = await prisma.user.findUnique({
+      where: { id: delegation.requesterId },
+      select: { canLogin: true, sessionVersion: true, wxUserId: true },
+    });
+    if (!user?.canLogin) return null;
+    return {
+      userId: delegation.requesterId,
+      wxUserId: user.wxUserId ?? "",
+      departmentId: 0,
+      sessionVersion: user.sessionVersion,
+      agentDelegation: delegation,
+    };
+  }
+
   const token = getTokenFromCookie(request);
   if (token) {
     const payload = await verifyToken(token);

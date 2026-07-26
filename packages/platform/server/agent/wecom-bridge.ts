@@ -10,7 +10,6 @@ import { convertWecomBotOpenUserId } from "../auth/wecom";
 import { prisma } from "../prisma";
 import { evaluatePermissionAction } from "../rbac/action-grants";
 import type { ParsedAgentRequest } from "./route-input";
-import type { AgentTool } from "./tools";
 
 const BRIDGE_CLOCK_SKEW_MS = 5 * 60 * 1000;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -157,19 +156,3 @@ export function toParsedAgentRequest(input: WecomAgentBridgeInput): ParsedAgentR
     }),
   };
 }
-
-export const wecomGroupConversationTool: AgentTool = {
-  key: "wecom.groupConversation",
-  label: "企业微信群聊",
-  description: "仅用于普通群聊问答，不读取 Workspace 业务数据、不读取源码、不执行变更。",
-  requiredPermissions: [],
-  mutates: false,
-  async execute() {
-    return {
-      type: "data",
-      data: { channel: "wecom_group", businessDataAvailable: false },
-      modelContext: { instruction: "Answer only from general knowledge. Do not claim access to Workspace business data." },
-      message: "群聊模式不读取 Workspace 业务数据。",
-    };
-  },
-};

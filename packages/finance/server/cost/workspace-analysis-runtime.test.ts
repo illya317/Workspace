@@ -12,6 +12,8 @@ mock.module("server-only", { namedExports: {} } as never);
 
 let readAllowed = true;
 let apiUseAllowed = true;
+let defaultBuiltDirectory: ReturnType<typeof createWorkspaceAnalysisSourceDirectory> | null = null;
+const directoryBuildInputs: unknown[] = [];
 mock.module("./operational-analytics", {
   namedExports: {
     canReadOperationalAnalytics: async () => readAllowed,
@@ -20,7 +22,13 @@ mock.module("./operational-analytics", {
 } as never);
 mock.module("./operational-analysis-source-directory", {
   namedExports: {
-    buildFinanceOperationalAnalysisSourceDirectory: () => {
+    OPERATIONAL_ANALYSIS_RUNTIME_PROVIDER_TIMEOUT_MS: 10_000,
+    isFinanceOperationalAnalysisRemoteOwnerUnitId: (value: string) => [
+      "administration", "capital-securities", "external", "hr", "inventory", "library", "production", "work",
+    ].includes(value),
+    buildFinanceOperationalAnalysisSourceDirectory: (input: unknown) => {
+      directoryBuildInputs.push(input);
+      if (defaultBuiltDirectory) return defaultBuiltDirectory;
       throw new Error("test must inject a directory");
     },
   },
@@ -215,6 +223,53 @@ test("Finance runtime distinguishes an unavailable referenced provider from an i
     assert.equal(result.ok, false);
     if (!result.ok) assert.equal(result.status, 409);
   });
+});
+
+test("runtime discovery asks only the source owners referenced by a valid template", async () => {
+  const hrSource = {
+    ...source,
+    sourceKey: "hr.employments",
+    ownerModuleKey: "hr",
+    scopeBindings: { department: { mode: "target" as const, description: "强制绑定目标部门。" } },
+  } satisfies WorkspaceAnalysisSourceDefinition;
+  const hrDefinition = {
+    schemaVersion: 3,
+    dataset: "workspace.sources",
+    sources: [{ key: "employments", sourceKey: "hr.employments", sourceVersion: 1 }],
+    filters: [],
+    blocks: [{
+      key: "count",
+      kind: "metrics",
+      source: "employments",
+      metrics: [{ key: "count", label: "人数", operation: "count" }],
+    }],
+  } as const satisfies WorkspaceSourcesOperationalAnalysisDefinition;
+  defaultBuiltDirectory = createWorkspaceAnalysisSourceDirectory([{
+    ownerUnitId: "hr",
+    listAvailableSources: async () => [hrSource],
+    loadSource: async () => ({
+      sourceKey: "hr.employments",
+      sourceVersion: 1,
+      rows: [],
+      pageCount: 1,
+      byteCount: 2,
+    }),
+  }]);
+  directoryBuildInputs.length = 0;
+  try {
+    const result = await compileAuthorizedFinanceWorkspaceAnalysisDefinition({
+      userId: 7,
+      scope: { scopeType: "department", scopeId: 12 },
+      definition: hrDefinition,
+    });
+    assert.equal(result.ok, true);
+    assert.deepEqual(directoryBuildInputs, [{
+      remoteOwnerUnitIds: ["hr"],
+      remoteProviderTimeoutMs: 10_000,
+    }]);
+  } finally {
+    defaultBuiltDirectory = null;
+  }
 });
 
 function directory(
