@@ -412,10 +412,10 @@ export function updatePosition(id: number, body: PositionInput, userId: number) 
 
 export async function updatePositionField(command: CrudUpdateFieldCommand & { userId: number; lifecycle: PositionInput["lifecycle"] }) {
   const validation = await validatePositionFieldUpdate(command.field, command.value, command.id);
-  if ("error" in validation) return serviceError(validation.error, validation.status);
+  if (!validation.ok) return serviceError(validation.issue.message, validation.issue.status);
   if (!command.id) return serviceError("岗位不存在", 404);
   return updatePosition(command.id, {
-    [validation.field]: validation.value,
+    [validation.data.field]: validation.data.value,
     lifecycle: command.lifecycle,
   } as PositionInput, command.userId);
 }

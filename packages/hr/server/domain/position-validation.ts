@@ -167,26 +167,30 @@ export async function buildPositionCreateCommand(input: PositionInput): Promise<
   });
 }
 
-export async function validatePositionFieldUpdate(field: string, value: unknown, id?: number) {
+export async function validatePositionFieldUpdate(
+  field: string,
+  value: unknown,
+  id?: number,
+): Promise<DomainValidationResult<{ field: string; value: unknown }>> {
   if (field === "departmentId") {
     const department = await validateDepartment(value);
-    if (!department.ok) return { error: department.issue.message, status: department.issue.status };
-    return { field, value: department.data };
+    if (!department.ok) return failCommand(department.issue.message, department.issue.status);
+    return okCommand({ field, value: department.data });
   }
   if (field === "reportToPositionId") {
     const position = await prisma.position.findUnique({ where: { id }, select: { departmentId: true } });
-    if (!position) return { error: "岗位不存在", status: 404 };
+    if (!position) return failCommand("岗位不存在", 404);
     const reportToPosition = await validateReportToPosition(value, position.departmentId, id);
-    if (!reportToPosition.ok) return { error: reportToPosition.issue.message, status: reportToPosition.issue.status };
-    return { field, value: reportToPosition.data };
+    if (!reportToPosition.ok) return failCommand(reportToPosition.issue.message, reportToPosition.issue.status);
+    return okCommand({ field, value: reportToPosition.data });
   }
   if (field === "isArchived") {
     const archived = Boolean(value);
     const validation = await validateArchive(id, archived);
-    if (!validation.ok) return { error: validation.issue.message, status: validation.issue.status };
-    return { field, value: archived };
+    if (!validation.ok) return failCommand(validation.issue.message, validation.issue.status);
+    return okCommand({ field, value: archived });
   }
-  return { field, value };
+  return okCommand({ field, value });
 }
 
 export async function buildPositionUpdateCommand(
