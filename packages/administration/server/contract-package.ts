@@ -131,17 +131,19 @@ async function visibleContract(contractId: number, userId: number, options: { mu
       approvalSyncedAt: true,
     },
   });
-  if (!contract) return { error: serviceError("合同不存在", 404) } as const;
-  if (options.mutable && contract.isArchived) return { error: serviceError("已归档合同不能再新增或修改材料", 409) } as const;
-  if (options.mutable && contract.lifecycleStatus === "draft") {
-    return { error: serviceError("草稿合同不能归档材料，请先完成合同主数据", 409) } as const;
+  if (!contract) return { ok: false, error: serviceError("合同不存在", 404) } as const;
+  if (options.mutable && contract.isArchived) {
+    return { ok: false, error: serviceError("已归档合同不能再新增或修改材料", 409) } as const;
   }
-  return { contract, accessWhere } as const;
+  if (options.mutable && contract.lifecycleStatus === "draft") {
+    return { ok: false, error: serviceError("草稿合同不能归档材料，请先完成合同主数据", 409) } as const;
+  }
+  return { ok: true, contract, accessWhere } as const;
 }
 
 export async function loadContractArchivePackage(input: { contractId: number; userId: number }) {
   const visible = await visibleContract(input.contractId, input.userId);
-  if ("error" in visible) return visible.error;
+  if (!visible.ok) return visible.error;
   const [attachments, records] = await Promise.all([
     prisma.contractAttachment.findMany({
       where: { contractId: input.contractId },
@@ -177,7 +179,7 @@ export async function commitUploadContractAttachment(
   command: ContractAttachmentUploadCommand,
 ): Promise<ContractAttachmentUploadResult> {
   const visible = await visibleContract(command.contractId, command.userId, { mutable: true });
-  if ("error" in visible) return visible.error;
+  if (!visible.ok) return visible.error;
   const [activeCount, totalSize] = await Promise.all([
     prisma.contractAttachment.count({ where: { contractId: command.contractId, removedAt: null } }),
     prisma.contractAttachment.aggregate({
@@ -249,7 +251,7 @@ export async function commitUploadContractAttachment(
 
 export async function commitCreateContractRecord(command: ContractRecordCreateCommand) {
   const visible = await visibleContract(command.contractId, command.userId, { mutable: true });
-  if ("error" in visible) return visible.error;
+  if (!visible.ok) return visible.error;
   return prisma.$transaction(async (tx) => {
     const mutable = await recheckMutableContract(command.contractId, visible.accessWhere, tx);
     if (!mutable.ok) return mutable;
@@ -292,7 +294,7 @@ async function recheckMutableContract(
 
 export async function commitSetContractApprovalReference(command: ContractApprovalReferenceCommand) {
   const visible = await visibleContract(command.contractId, command.userId, { mutable: true });
-  if ("error" in visible) return visible.error;
+  if (!visible.ok) return visible.error;
   try {
     return await prisma.$transaction(async (tx) => {
       const mutable = await recheckMutableContract(command.contractId, visible.accessWhere, tx);
@@ -344,7 +346,7 @@ export async function commitSetContractApprovalReference(command: ContractApprov
 
 export async function commitRemoveContractAttachment(command: ContractAttachmentRemoveCommand) {
   const visible = await visibleContract(command.contractId, command.userId, { mutable: true });
-  if ("error" in visible) return visible.error;
+  if (!visible.ok) return visible.error;
   return prisma.$transaction(async (tx) => {
     const mutable = await recheckMutableContract(command.contractId, visible.accessWhere, tx);
     if (!mutable.ok) return mutable;
@@ -381,7 +383,7 @@ export async function commitRemoveContractAttachment(command: ContractAttachment
 
 export async function downloadContractAttachment(input: ContractAttachmentTargetCommand & { variant?: "original" | "optimized" }) {
   const visible = await visibleContract(input.contractId, input.userId);
-  if ("error" in visible) return visible.error;
+  if (!visible.ok) return visible.error;
   const attachment = await prisma.contractAttachment.findFirst({
     where: { contractId: input.contractId, attachmentUid: input.attachmentUid },
     select: {
