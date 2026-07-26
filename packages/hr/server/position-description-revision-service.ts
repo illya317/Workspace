@@ -80,15 +80,17 @@ export async function appendPositionDescriptionRevision(
         select: { id: true, positionDescriptionId: true, sequence: true },
       });
       if (receipt) {
-        if (receipt.positionDescriptionId !== command.id) return { error: "幂等键已用于其他岗位说明书", status: 409 } as const;
-        return { receipt } as const;
+        if (receipt.positionDescriptionId !== command.id) {
+          return { ok: false, error: "幂等键已用于其他岗位说明书", status: 409 } as const;
+        }
+        return { ok: true, receipt } as const;
       }
 
       const description = await tx.positionDescription.findUnique({
         where: { id: command.id },
         select: { id: true },
       });
-      if (!description) return { error: "岗位说明书不存在", status: 404 } as const;
+      if (!description) return { ok: false, error: "岗位说明书不存在", status: 404 } as const;
 
       const latest = await tx.positionDescriptionRevision.findFirst({
         where: { positionDescriptionId: command.id },
@@ -96,14 +98,14 @@ export async function appendPositionDescriptionRevision(
         select: { id: true, sequence: true, details: true },
       });
       if (!latest) {
-        return { error: "岗位说明书已产生新修订，请刷新后重试", status: 409 } as const;
+        return { ok: false, error: "岗位说明书已产生新修订，请刷新后重试", status: 409 } as const;
       }
       const next = nextPositionDescriptionRevision({
         latest,
         expectedSequence: command.expectedSequence,
         changeKind: command.changeKind,
       });
-      if (!next.ok) return { error: next.error, status: 409 } as const;
+      if (!next.ok) return { ok: false, error: next.error, status: 409 } as const;
 
       const revision = await tx.positionDescriptionRevision.create({
         data: {
@@ -129,10 +131,10 @@ export async function appendPositionDescriptionRevision(
         },
       });
       await syncPositionDescriptionResponsibilityNodesInTx(tx, responsibilityProjection(command.id, revision));
-      return { revision } as const;
+      return { ok: true, revision } as const;
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 
-    if ("error" in result) return serviceError(result.error, result.status);
+    if (!result.ok) return serviceError(result.error, result.status);
     return serviceOk({
       success: true,
       positionDescription: "receipt" in result ? result.receipt : result.revision,
