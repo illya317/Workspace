@@ -243,11 +243,11 @@ export function useDepartmentDetailPaneSection({
       value: departmentDraft.changeReason,
       onChange: (value: unknown) => onUpdateDepartmentDraft("changeReason", String(value ?? "")),
     }] : []),
-    {
-      kind: "note",
+    ...(selectedDepartment ? [{
+      kind: "note" as const,
       key: "temporalTimeline",
       content: organizationTimelineSummary(selectedDepartment),
-    },
+    }] : []),
   ] : [];
   const departmentDescriptionsSection = useDepartmentDescriptionsSection({
     drafts: departmentDescriptionDrafts,
