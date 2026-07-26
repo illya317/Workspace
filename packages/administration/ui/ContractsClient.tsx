@@ -380,7 +380,7 @@ export default function ContractsClient({
               key: "save",
               action: "save",
               label: saving ? "保存中..." : editing.lifecycleStatus === "draft" && !editing.currentRevisionId ? "保存草稿" : "创建修订草稿",
-              disabled: saving || ((editing.lifecycleStatus !== "draft" || editing.currentRevisionId) && !lifecycle.revisionReason.trim()),
+              disabled: saving || ((editing.lifecycleStatus !== "draft" || Boolean(editing.currentRevisionId)) && !lifecycle.revisionReason.trim()),
               onClick: () => void saveContract(),
             },
           ] : [],
