@@ -108,7 +108,7 @@ export function useContractLifecycle(input: {
       key: "revisionEffectiveOn",
       label: "修订生效日",
       value: revisionEffectiveOn,
-      spec: { valueType: "date", control: "date", state: busy ? "disabled" : "required" },
+      spec: { valueType: "date", control: "temporal", precision: "date", state: busy ? "disabled" : "required" },
       onChange: (value) => setRevisionEffectiveOn(String(value ?? "")),
     },
     {
@@ -240,7 +240,7 @@ export function useContractLifecycle(input: {
         key: "stateEffectiveOn",
         label: "生效日",
         value: stateEffectiveOn,
-        spec: { valueType: "date", control: "date", state: busy ? "disabled" : "required" },
+        spec: { valueType: "date", control: "temporal", precision: "date", state: busy ? "disabled" : "required" },
         onChange: (value) => setStateEffectiveOn(String(value ?? "")),
       },
       {

@@ -101,7 +101,7 @@ function approvalFields(input: {
       key: "approvedOn",
       label: "审批通过日期",
       value: input.draft.approvedOn,
-      spec: { valueType: "date", control: "date", state },
+      spec: { valueType: "date", control: "temporal", precision: "date", state },
       onChange: (value) => input.update({ approvedOn: String(value ?? "") }),
     },
     {
@@ -412,7 +412,7 @@ export function useContractArchivePackage(input: {
                 key: "contractRecordOccurredOn",
                 label: "发生日期",
                 value: recordDraft.occurredOn,
-                spec: { valueType: "date", control: "date", state: busy === "record" ? "disabled" : "required" },
+                spec: { valueType: "date", control: "temporal", precision: "date", state: busy === "record" ? "disabled" : "required" },
                 onChange: (value) => setRecordDraft((current) => ({ ...current, occurredOn: String(value ?? "") })),
               },
               {
