@@ -64,7 +64,7 @@ External owner 登记 `external.customers`、`external.suppliers` 及对应的 `
 
 External 列表和详情按服务端 `asOfDate` 从修订台账选择最新有效快照，并返回当前、待生效、历史和取消/被替代状态。`CompanyRegistryChange` 保留为工商原始证据，可通过 `sourceRegistryChangeId` 导航到产生修订的来源，但其自由文本前后值不再直接充当 Party/Company 当前事实。迁移会为所有现有 Party 建立“现状基线”，明确标注迁移前历史未知，不从无法验证的工商文本伪造期间。
 
-当前 registration 标记为 `partial`：External 在线创建/更新已进入统一 legal-fact seam；Capital 公司治理与旧 External ERP 导入仍需改为调用 `recordPartyLegalFactInTransaction`，随后才可关闭 Party/Company 法定字段的旁路写入并标记 `implemented`。
+当前 registration 标记为 `partial`：External 在线创建/更新与 Capital 公司治理已进入统一 `recordPartyLegalFactInTransaction` seam，旧 External ERP 导入直写也已 fail closed；待受治理批量导入 handler 与独立 correction 权限接入后，才能标记 `implemented`。
 
 ## 历史 ERP 主数据导入
 

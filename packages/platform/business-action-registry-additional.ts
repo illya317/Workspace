@@ -235,7 +235,7 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
     ...WORK_PROJECTS,
     ...PERMISSION_ONLY,
     key: "work.projects.member.delete",
-    label: "删除项目成员",
+    label: "结束项目成员关系",
     writeKind: "delete",
     targetKind: "EmployeeProject",
     directPermissionAction: "delete",

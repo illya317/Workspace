@@ -61,6 +61,9 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 
 `Project` / `EmployeeProject` 表名保留是存量 schema 命名，不代表项目仍归 HR；业务归属是 Work。
 `EmployeeProject.startDate/endDate` 是项目角色的包含式有效期间。项目列表可见性、对象 view/edit/manage/delete、项目甘特负责人和系统计划 owner 都只消费业务日有效成员，并同时要求成员员工存在当前 Employment；非管理员的项目创建者特权也要求当前 Employment。岗位/部门 scoped grant 的主体也只能从同一业务日有效的 Employment + EDP 派生，历史或非法任职不得继续携带授权。离职从生效日 D 起停止授予项目角色、创建者特权和历史岗位/部门授权，但历史成员记录继续保留。账号停用是独立动作，不能靠忽略成员期间来维持权限。
+
+项目成员使用稳定 `membershipUid` 和递增 `sequence` 形成有效版本；新增、角色变化、历史纠错、终止、取消未来与拒绝邀请都进入 `ProjectMembershipChange` 命令台账。所有命令要求幂等键，修改既有版本时还要求 expected version，并在 Serializable 事务中检查同一成员/项目期间不重叠；终结旧版本前的完整 `sourceBefore`、重新打开的来源快照及新旧版本引用都保存在不可变回执中。成员历史不允许普通更新、硬删或通用审计恢复；列表/详情按服务端基准日分开返回当前、待生效和历史。
+
 `/work/project` 是项目库和项目组合管理入口，仅用于项目新建、项目列表、总览和存量阶段排期；“阶段排期”作为 `/work/project/:projectId` 内的独立 tab 展示。真正的执行甘特位于 `/work/project/:projectId/space` 的“计划 → 甘特图”，使用 `targetType=project` 和 `targetId=projectId`，并与部门空间复用同一套 Work Tasks 工作台。项目工作台的读写权限先由项目自身成员/负责人权限派生。
 
 ### 工作计划
@@ -115,10 +118,10 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 - 具备 `work.projects.entry` 和 `work.projects.initiate.submit` 的在职员工可以发起项目并自由选择有效赋能部门；root admin 即使未绑定员工也可作为业务操作者发起，审计姓名固定为“管理员”，但不会伪造 Employee、岗位或默认项目成员。仅有项目管理入口不能发起项目。发起人不需要拥有所选部门的项目空间权限。提交后系统向每个赋能部门的负责人发送确认待办；所有解析出的负责人会签通过前不创建正式 `Project`，通过后一次性创建项目、赋能部门关系和项目人员。任一赋能部门未配置负责人时禁止提交。
 - 项目负责人和 RASC 项目人员可从所选赋能部门及其全部下属部门中选择，并排除当前操作者的递归直属上级；赋能部门包含治理委员会时，候选范围按租户组织配置扩展，不能在源码或长期文档中固化具体治理部门名称。
 - 项目设置保存新增 RASCI 成员或调整成员职责后，系统向该成员发送待处理通知，文案包含邀请人、项目和当前 RASCI 职责；通知可直达项目总览。
-- RASCI 成员关系在邀请发出时建立，并以未处理通知标记“待确认”。成员接受后转为已确认；成员拒绝等价于主动退出项目，服务端必须校验通知与当前用户员工身份一致，并在同一事务中删除本人 `EmployeeProject`、记录历史并收口同一项目的未处理邀请。
+- RASCI 成员关系在邀请发出时建立，并以未处理通知标记“待确认”。成员接受后转为已确认；成员拒绝等价于从当前业务日起退出项目，服务端必须校验通知与当前用户员工身份一致，并在同一事务中执行成员生命周期 `reject` 命令、受控终结或取消未来版本、保留变更回执并收口同一项目的未处理邀请，不能物理删除历史 `EmployeeProject`。
 - 项目级别是项目重要性维度，当前保留普通、重点、特殊；列表和甘特筛选只暴露全部/普通/重点。
 - 项目不再从项目任务派生子项目，也不在项目详情中维护项目任务。
-- 项目归档/删除由同一 Mutation Impact Planner 检查：仍被 `WorkPlan` / `WorkItem` 或项目阶段引用时阻断；项目成员、赋能部门、阶段、依赖、基线和项目任务责任人属于项目自有技术明细，删除根项目时按数据库所有权在同一事务中自动级联并记入影响批次。项目完成状态没有权威的 Work 引用聚合关系，不能根据 `linkedProjectId` 推断或级联完成。
+- 项目归档/删除由同一 Mutation Impact Planner 检查：仍被 `WorkPlan` / `WorkItem`、项目阶段或 `ProjectMembershipChange` 生命周期证据引用时阻断；赋能部门、尚无生命周期证据的技术明细、阶段、依赖、基线和项目任务责任人只在允许删除根项目时按数据库所有权于同一事务级联并记入影响批次。项目成员版本与命令台账不是可随意清除的 owned detail。项目完成状态没有权威的 Work 引用聚合关系，不能根据 `linkedProjectId` 推断或级联完成。
 - 项目显式存储 `status=pending / active / done`，不再由日期反推状态。项目执行日期与 Work 统一使用 `plannedStartDate / plannedEndDate / actualStartDate / actualEndDate`；实际日期不得晚于今日，只有选择 `done` 后才能填写可选的 `actualEndDate`，离开 `done` 时同步清空该日期。项目阶段和计划基线只表达计划日期，使用 `plannedStartDate / plannedEndDate`。
 - 项目主页的“阶段排期”暂时保留单项目阶段视角；个人、部门和项目执行排期统一读取各自工作空间的 Work 计划甘特。
 

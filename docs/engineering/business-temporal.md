@@ -179,6 +179,14 @@ UI 硬规则：
 
 ## 项目当前接入状态
 
+### 完成判定与成熟度
+
+生命周期改造的工程完成条件是：目标聚合已经选择唯一事实源和存储模板，登记明确的写命令与 UI 能力，在线写入不能绕过领域 seam，schema/migration 与模块文档同步，并且全局 registry 与受保护模型检查通过。`npm run business-temporal:check` 是这组条件的常驻门禁；当前 catalog 固定覆盖 15 个登记项、23 个受保护模型，且没有 `planned` 登记。
+
+`maturity: partial` 不表示目标聚合仍可继续走普通 CRUD，也不能用来跳过门禁。它表示登记备注中仍存在可命名的兼容来源、租户历史基线、批量导入、独立权限或运行时 adapter/UI coverage 缺口；这些缺口没有关闭前不得改成 `implemented`。因此“工程改造完成”和“所有租户历史已被人工确认”是两个不同结论：前者由代码、migration、UI 和检查证明，后者必须由每个环境的只读 preflight 与受控数据发布证明。
+
+租户级 preflight 只输出到私有审计目录，不把人员、合同或主体明细提交到源码。发现歧义时保持 fail closed：允许发布不重写该批历史事实的兼容代码，但任何会消费、回填或收紧这些事实的数据 migration 必须先完成对应人工决策单。
+
 | 聚合 | 当前判断 | 状态 |
 |---|---|---|
 | HR Employment | `Employment` 包含式期间为事实源；`isActive` 是 legacy fallback/投影 | `effective-version`, partial |
