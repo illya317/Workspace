@@ -198,7 +198,7 @@ function workViewWhere(view: ContractWorkView | undefined, duplicateNumbers: rea
   return {
     OR: [
       { contractNo: null },
-      ...(duplicateNumbers.length ? [{ contractNo: { in: duplicateNumbers } }] : []),
+      ...(duplicateNumbers.length ? [{ contractNo: { in: [...duplicateNumbers] } }] : []),
       { category: { name: "待补全" } },
       { partyA: null },
       { partyB: null },
