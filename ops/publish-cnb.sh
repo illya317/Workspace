@@ -331,8 +331,10 @@ if [ -n "$GENESIS_PRODUCTION_BASE" ]; then
     || { echo "[错误] 本地仓库缺少 production genesis baseline 提交"; exit 1; }
   [ "$GENESIS_PRODUCTION_BASE" != "$SOURCE_SHA" ] \
     || { echo "[错误] genesis baseline 不能等于候选提交"; exit 1; }
-  [ "$(git rev-list --parents -n 1 "$SOURCE_SHA" | awk '{print NF}')" = "1" ] \
-    || { echo "[错误] genesis 候选必须是没有 parent 的单一根提交"; exit 1; }
+  [ "$(git rev-list --max-parents=0 "$SOURCE_SHA" | wc -l | tr -d ' ')" = "1" ] \
+    || { echo "[错误] genesis 候选历史必须只有一个根提交"; exit 1; }
+  [ -z "$(git rev-list --min-parents=2 "$SOURCE_SHA")" ] \
+    || { echo "[错误] genesis 候选历史必须保持线性"; exit 1; }
 fi
 
 TMP_DIR="$(mktemp -d)"

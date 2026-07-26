@@ -78,8 +78,10 @@ export function preflightProductionDeploy({
     if (receipt.runtimeSource.commitSha !== genesisFrom) {
       throw new Error(`production is ${receipt.runtimeSource.commitSha}, not the authorized genesis baseline ${genesisFrom}`);
     }
-    const commitLine = runGit(repositoryRoot, ["rev-list", "--parents", "-n", "1", candidate]).split(/\s+/);
-    if (commitLine.length !== 1) throw new Error("genesis candidate must be one root commit with no parent");
+    const roots = runGit(repositoryRoot, ["rev-list", "--max-parents=0", candidate]).split("\n").filter(Boolean);
+    if (roots.length !== 1) throw new Error("genesis candidate lineage must contain exactly one root");
+    const mergeCommits = runGit(repositoryRoot, ["rev-list", "--min-parents=2", candidate]);
+    if (mergeCommits) throw new Error("genesis candidate lineage must remain linear");
     const migrationFiles = runGit(repositoryRoot, ["ls-tree", "-r", "--name-only", candidate, "--", "prisma/migrations"])
       .split("\n")
       .filter(Boolean)

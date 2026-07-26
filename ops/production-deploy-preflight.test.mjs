@@ -112,7 +112,7 @@ test("production preflight rejects a candidate outside the canonical lineage", (
   }), /not a proven descendant/);
 });
 
-test("production preflight accepts one exact orphan genesis candidate only with the deployed baseline", (context) => {
+test("production preflight accepts one linear sanitized genesis lineage only with the deployed baseline", (context) => {
   const fixture = createRepository(context);
   git(fixture.cwd, "checkout", "--orphan", "genesis");
   git(fixture.cwd, "rm", "-r", "--cached", ".");
@@ -123,12 +123,14 @@ test("production preflight accepts one exact orphan genesis candidate only with 
     "-- workspace:migration-mode=maintenance\nCREATE TABLE \"BaseRecord\" (\"id\" TEXT PRIMARY KEY);\n",
   );
   writeFileSync(join(fixture.cwd, "prisma", "migrations", "migration_lock.toml"), 'provider = "postgresql"\n');
-  const candidate = commitAll(fixture.cwd, "genesis");
+  commitAll(fixture.cwd, "genesis");
+  writeFileSync(join(fixture.cwd, "post-genesis-fix.txt"), "fix\n");
+  const descendant = commitAll(fixture.cwd, "post genesis fix");
   const result = preflightProductionDeploy({
     cwd: fixture.cwd,
     receiptFile: fixture.receiptFile,
-    candidateSha: candidate.sha,
-    candidateTreeSha: candidate.tree,
+    candidateSha: descendant.sha,
+    candidateTreeSha: descendant.tree,
     expectedRepository: "example-owner/example-repo",
     genesisFromSha: fixture.production.sha,
   });
@@ -138,8 +140,8 @@ test("production preflight accepts one exact orphan genesis candidate only with 
   assert.throws(() => preflightProductionDeploy({
     cwd: fixture.cwd,
     receiptFile: fixture.receiptFile,
-    candidateSha: candidate.sha,
-    candidateTreeSha: candidate.tree,
+    candidateSha: descendant.sha,
+    candidateTreeSha: descendant.tree,
     expectedRepository: "example-owner/example-repo",
     genesisFromSha: "f".repeat(40),
   }), /not the authorized genesis baseline/);

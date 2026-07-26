@@ -101,6 +101,8 @@ test("CNB injection metadata is packaged for release identity and timing", () =>
 test("genesis release metadata binds the exact deployed source and both migration histories", () => {
   assert.match(publishCnb, /--genesis-production-base/);
   assert.match(publishCnb, /genesis candidate must contain exactly 00000000000000_sanitized_baseline/);
+  assert.match(publishCnb, /rev-list --max-parents=0/);
+  assert.match(publishCnb, /rev-list --min-parents=2/);
   assert.match(publishCnb, /legacyMigrationSetSha256/);
   assert.match(publishCnb, /baselineChecksum/);
   assert.match(releaseToCnb, /deployment genesis metadata is invalid/);
