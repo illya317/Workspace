@@ -11,7 +11,7 @@ import { evaluatePermissionAction } from "@workspace/platform/server/auth";
 import { prisma } from "@workspace/platform/server/prisma";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { workspaceSourcesOperationalAnalysisDefinitionSchema } from "@workspace/platform/workspace-analysis-definition-schema";
-import { validateOperationalAnalysisTemplate } from "../domain/operational-analysis-template-validation";
+import { validateOperationalAnalysisTemplate } from "./domain/operational-analysis-template-validation";
 import {
   operationalAnalysisDefinitionSchema,
   workspaceSourcesOperationalAnalysisTemplateInputSchema,
