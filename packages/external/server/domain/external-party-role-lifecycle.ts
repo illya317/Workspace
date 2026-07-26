@@ -106,26 +106,27 @@ export function buildExternalPartyRoleAvailabilityPlan(input: {
   rows: readonly ExternalPartyRolePeriodSnapshot[];
 }): ExternalPartyRolePeriodCreate {
   const asOfDate = requireDate(input.asOfDate, "基准日");
+  const command = input.command;
   const nextSequence = Math.max(0, ...input.rows.map((row) => row.sequence)) + 1;
   const authoritative = activeExternalPartyRolePeriods(input.rows);
 
-  if (input.command.kind === "schedule") {
-    const period = requirePeriod(input.command.validFrom, input.command.validThrough);
+  if (command.kind === "schedule") {
+    const period = requirePeriod(command.validFrom, command.validThrough);
     assertNoOverlap(authoritative, period);
     return {
       roleId: input.roleId,
       sequence: nextSequence,
-      validFrom: input.command.validFrom,
-      validThrough: input.command.validThrough,
+      validFrom: command.validFrom,
+      validThrough: command.validThrough,
       recordState: "confirmed",
       commandKind: input.rows.length ? "schedule" : "establish",
       supersedesId: null,
-      reason: normalizedReason(input.command.reason),
+      reason: normalizedReason(command.reason),
     };
   }
 
-  if (input.command.kind === "end-date") {
-    const effectiveOn = requireDate(input.command.effectiveOn, "停用生效日");
+  if (command.kind === "end-date") {
+    const effectiveOn = requireDate(command.effectiveOn, "停用生效日");
     const target = availabilityAtOrNext(authoritative, effectiveOn);
     if (!target) throw new ExternalPartyRoleLifecycleError("该角色在生效日没有可结束的期间");
     const otherFuture = authoritative.some((row) => (
@@ -144,15 +145,15 @@ export function buildExternalPartyRoleAvailabilityPlan(input: {
       recordState: cancelFuture ? "cancelled" : "confirmed",
       commandKind: cancelFuture ? "cancel-future" : "end-date",
       supersedesId: target.id,
-      reason: requireReason(input.command.reason),
+      reason: requireReason(command.reason),
     };
   }
 
-  const target = input.rows.find((row) => row.id === input.command.periodId);
+  const target = input.rows.find((row) => row.id === command.periodId);
   if (!target || !authoritative.some((row) => row.id === target.id)) {
     throw new ExternalPartyRoleLifecycleError("目标可用期间不存在或已被替代");
   }
-  if (input.command.kind === "cancel-future") {
+  if (command.kind === "cancel-future") {
     if (!target.validFrom || requireDate(target.validFrom, "期间开始日") <= asOfDate) {
       throw new ExternalPartyRoleLifecycleError("只能取消尚未开始的可用期间");
     }
@@ -164,21 +165,21 @@ export function buildExternalPartyRoleAvailabilityPlan(input: {
       recordState: "cancelled",
       commandKind: "cancel-future",
       supersedesId: target.id,
-      reason: requireReason(input.command.reason),
+      reason: requireReason(command.reason),
     };
   }
 
-  const period = requirePeriod(input.command.validFrom, input.command.validThrough);
+  const period = requirePeriod(command.validFrom, command.validThrough);
   assertNoOverlap(authoritative.filter((row) => row.id !== target.id), period);
   return {
     roleId: input.roleId,
     sequence: nextSequence,
-    validFrom: input.command.validFrom,
-    validThrough: input.command.validThrough,
+    validFrom: command.validFrom,
+    validThrough: command.validThrough,
     recordState: "confirmed",
     commandKind: "correct",
     supersedesId: target.id,
-    reason: requireReason(input.command.reason),
+    reason: requireReason(command.reason),
   };
 }
 
