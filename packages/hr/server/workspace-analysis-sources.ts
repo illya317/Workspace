@@ -2,8 +2,8 @@ import "server-only";
 
 import type { CompanyDirectoryRecord } from "@workspace/platform/server/company-directory";
 import { defineWorkspaceAnalysisReadModel } from "@workspace/platform/server/workspace-analysis-read-model";
+import type { ContractRow } from "@workspace/hr/types";
 
-import type { ContractRow } from "./contract-records";
 import type { PositionListItem } from "./positions";
 import { HR_WORKSPACE_ANALYSIS_GOVERNANCE_SOURCE_REGISTRATIONS } from "./workspace-analysis-governance-sources";
 import { HR_WORKSPACE_ANALYSIS_PERFORMANCE_SOURCE_REGISTRATIONS } from "./workspace-analysis-performance-sources";
