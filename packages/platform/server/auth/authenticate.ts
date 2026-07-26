@@ -1,5 +1,5 @@
 import { prisma } from "@workspace/platform/server/prisma";
-import { verifyToken, getTokenFromCookie } from "../auth-token";
+import { verifyToken, getTokenFromCookie, type AuthPayload } from "../auth-token";
 import { findUserByPersonalApiKey } from "../personal-api-key";
 import { evaluatePermissionAction } from "../rbac/action-grants";
 import {
@@ -15,7 +15,7 @@ export function isProgrammaticApiRequest(request: Request) {
   return Boolean(getPersonalApiKey(request) || request.headers.get(AGENT_API_DELEGATION_HEADER)?.trim());
 }
 
-export async function authenticate(request: Request) {
+export async function authenticate(request: Request): Promise<AuthPayload | null> {
   if (request.headers.has(AGENT_API_DELEGATION_HEADER)) {
     const delegation = await verifyAgentApiDelegation(request);
     if (!delegation) return null;

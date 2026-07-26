@@ -72,7 +72,12 @@ export async function getDataQualityWorkbench() {
         label: department.name,
         subtitle: department.code,
       })),
-      users: users.flatMap((user) => {
+      users: users.flatMap<{
+        value: string;
+        label: string;
+        searchText?: string;
+        disabled?: boolean;
+      }>((user) => {
         const employee = user.employees[0];
         if (!employee) {
           return configuredRecipientUsernames.has(user.username)

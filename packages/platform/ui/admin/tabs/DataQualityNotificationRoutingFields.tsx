@@ -51,7 +51,6 @@ function recipientField(input: {
     onRemove: (username) => input.onChange(input.usernames.filter((item) => item !== username)),
     confirmRemove: false,
     disabled: input.disabled,
-    emptyText: "尚未选择接收人",
     append: input.disabled || available.length === 0 ? undefined : {
       field: {
         key: `${input.key}-append`,

@@ -17,6 +17,8 @@ import {
   LATEST_INCLUSIVE_BUSINESS_DATE,
   parseBusinessDate,
   shiftBusinessDate,
+  type BusinessTemporalCommitRequest,
+  type BusinessTemporalPreviewRequest,
 } from "./business-temporal";
 
 test("business dates reject normalized-but-impossible calendar values", () => {
@@ -252,12 +254,17 @@ test("a runtime module binds one registration to one narrow domain adapter", asy
       deletion: "draft-only",
     },
   });
+  type Subject = Record<string, never>;
+  type Command = Record<string, never>;
+  function execute(request: BusinessTemporalPreviewRequest<Subject, Command>): Promise<{ mode: "preview"; preview: { revision: number } }>;
+  function execute(request: BusinessTemporalCommitRequest<Subject, Command>): Promise<{ mode: "commit"; result: { revision: number } }>;
+  async function execute(request: BusinessTemporalPreviewRequest<Subject, Command> | BusinessTemporalCommitRequest<Subject, Command>) {
+    return request.mode === "preview"
+      ? { mode: "preview" as const, preview: { revision: 2 } }
+      : { mode: "commit" as const, result: { revision: 2 } };
+  }
   const adapter = {
-    async execute(request: { mode: "preview" | "commit" }) {
-      return request.mode === "preview"
-        ? { mode: "preview" as const, preview: { revision: 2 } }
-        : { mode: "commit" as const, result: { revision: 2 } };
-    },
+    execute,
     async getState() {
       return { registrationKey: registration.key, asOf: "2026-07-27" as never, state: { revision: 1 } };
     },

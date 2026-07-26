@@ -12,6 +12,7 @@ export type BusinessActionWriteKind =
   | "update"
   | "delete"
   | "archive"
+  | "publish"
   | "revise"
   | "reverse"
   | "submit"

@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import type { BodySurfaceSectionBodyProps } from "@workspace/core/ui";
 import { defineBusinessTemporalRegistration } from "../contracts/business-temporal";
 import { createBusinessTemporalView } from "./business-temporal-view";
 
-const emptyBody = { kind: "section", sections: [] } as const;
+const emptyBody: BodySurfaceSectionBodyProps = { kind: "section", sections: [] };
 
 const HR_EMPLOYEE_IDENTITY_TEMPORAL = defineBusinessTemporalRegistration({
   key: "example.current",

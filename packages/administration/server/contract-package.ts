@@ -3,7 +3,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 
 import type { ContractArchivePackage, ContractArchiveRecord, ContractAttachment } from "@workspace/administration/types";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/server/api";
 import {
   defineBusinessActionCommandAdapter,
   executeDirectBusinessActionCommand,
@@ -171,7 +171,11 @@ export async function loadContractArchivePackage(input: { contractId: number; us
   } satisfies ContractArchivePackage);
 }
 
-export async function commitUploadContractAttachment(command: ContractAttachmentUploadCommand) {
+type ContractAttachmentUploadResult = ServiceResult<{ attachment: ContractAttachment }>;
+
+export async function commitUploadContractAttachment(
+  command: ContractAttachmentUploadCommand,
+): Promise<ContractAttachmentUploadResult> {
   const visible = await visibleContract(command.contractId, command.userId, { mutable: true });
   if ("error" in visible) return visible.error;
   const [activeCount, totalSize] = await Promise.all([
@@ -190,7 +194,7 @@ export async function commitUploadContractAttachment(command: ContractAttachment
   const attachmentUid = randomUUID();
   const stored = await storeContractAttachment({ attachmentUid, fileName: command.fileName, buffer });
   try {
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx): Promise<ContractAttachmentUploadResult> => {
       const mutable = await recheckMutableContract(command.contractId, visible.accessWhere, tx);
       if (!mutable.ok) return mutable;
       const [currentActiveCount, currentTotalSize] = await Promise.all([

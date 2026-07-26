@@ -5,6 +5,7 @@ import type {
   BodySurfaceCommandSpec,
   BodySurfaceListItemSpec,
   BodySurfaceProps,
+  BodySurfaceSectionBodyProps,
   BodySurfaceSectionSpec,
 } from "@workspace/core/ui";
 import {
@@ -39,7 +40,7 @@ export interface BusinessTemporalViewBaseSpec {
 export type BusinessTemporalViewSpec =
   | (BusinessTemporalViewBaseSpec & {
       kind: "current-audit";
-      current: BodySurfaceProps;
+      current: BodySurfaceSectionBodyProps;
       auditAction?: BodySurfaceCommandSpec;
     })
   | (BusinessTemporalViewBaseSpec & {
@@ -55,7 +56,7 @@ export type BusinessTemporalViewSpec =
     })
   | (BusinessTemporalViewBaseSpec & {
       kind: "event-ledger";
-      projection: BodySurfaceProps;
+      projection: BodySurfaceSectionBodyProps;
       pending?: BusinessTemporalViewItemSpec[];
       events: BusinessTemporalViewItemSpec[];
     });
@@ -111,13 +112,22 @@ export function createBusinessTemporalView(
     throw new Error(`Business Temporal view ${spec.kind} 与 registration ${spec.registration.key} 不匹配`);
   }
   const asOfDate = resolveAsOfDate(spec);
-  const sections = spec.kind === "current-audit"
-    ? currentAuditSections(spec)
-    : spec.kind === "availability" || spec.kind === "effective-period"
-      ? effectivePeriodSections(spec)
-      : spec.kind === "revision"
-        ? revisionSections(spec)
-        : eventLedgerSections(spec);
+  let sections: BodySurfaceSectionSpec[];
+  switch (spec.kind) {
+    case "current-audit":
+      sections = currentAuditSections(spec);
+      break;
+    case "availability":
+    case "effective-period":
+      sections = effectivePeriodSections(spec);
+      break;
+    case "revision":
+      sections = revisionSections(spec);
+      break;
+    case "event-ledger":
+      sections = eventLedgerSections(spec);
+      break;
+  }
   if (spec.actions?.length) sections.unshift(actionsSection("business-temporal-actions", spec.actions));
   return {
     kind: spec.kind,
@@ -160,32 +170,38 @@ function currentAuditSections(
 
 function effectivePeriodSections(
   spec: Extract<BusinessTemporalViewSpec, { kind: "availability" | "effective-period" }>,
-) {
+): BodySurfaceSectionSpec[] {
   const groups: Array<[BusinessTemporalPosition, BusinessTemporalViewItemSpec[]]> = [
     ["current", spec.items.filter((item) => item.temporalState === "current")],
     ["upcoming", spec.items.filter((item) => item.temporalState === "upcoming")],
     ["past", spec.items.filter((item) => item.temporalState === "past")],
     ["invalid", spec.items.filter((item) => item.temporalState === "invalid")],
   ];
-  return groups.flatMap(([state, items]) => {
-    if (state === "upcoming" && !spec.registration.ui.upcoming) return [];
-    if (state === "past" && !spec.registration.ui.history) return [];
-    if (items.length === 0) return [];
-    return [itemListSection(`business-temporal-${state}`, TEMPORAL_LABELS[state], items, spec.registration)];
-  });
+  const sections: BodySurfaceSectionSpec[] = [];
+  for (const [state, items] of groups) {
+    if (state === "upcoming" && !spec.registration.ui.upcoming) continue;
+    if (state === "past" && !spec.registration.ui.history) continue;
+    if (items.length === 0) continue;
+    sections.push(itemListSection(`business-temporal-${state}`, TEMPORAL_LABELS[state], items, spec.registration));
+  }
+  return sections;
 }
 
-function revisionSections(spec: Extract<BusinessTemporalViewSpec, { kind: "revision" }>) {
-  return [
-    spec.current ? itemListSection("business-temporal-published", "当前发布版", [spec.current], spec.registration) : null,
-    spec.drafts?.length ? itemListSection("business-temporal-drafts", "草稿与待确认", spec.drafts, spec.registration) : null,
-    spec.registration.ui.upcoming && spec.scheduled?.length
-      ? itemListSection("business-temporal-scheduled", "待生效版本", spec.scheduled, spec.registration)
-      : null,
-    spec.registration.ui.history && spec.history.length
-      ? itemListSection("business-temporal-revisions", "版本历史", spec.history, spec.registration)
-      : null,
-  ].filter((section): section is BodySurfaceSectionSpec => Boolean(section));
+function revisionSections(spec: Extract<BusinessTemporalViewSpec, { kind: "revision" }>): BodySurfaceSectionSpec[] {
+  const sections: BodySurfaceSectionSpec[] = [];
+  if (spec.current) {
+    sections.push(itemListSection("business-temporal-published", "当前发布版", [spec.current], spec.registration));
+  }
+  if (spec.drafts?.length) {
+    sections.push(itemListSection("business-temporal-drafts", "草稿与待确认", spec.drafts, spec.registration));
+  }
+  if (spec.registration.ui.upcoming && spec.scheduled?.length) {
+    sections.push(itemListSection("business-temporal-scheduled", "待生效版本", spec.scheduled, spec.registration));
+  }
+  if (spec.registration.ui.history && spec.history.length) {
+    sections.push(itemListSection("business-temporal-revisions", "版本历史", spec.history, spec.registration));
+  }
+  return sections;
 }
 
 function eventLedgerSections(spec: Extract<BusinessTemporalViewSpec, { kind: "event-ledger" }>) {

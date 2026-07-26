@@ -136,6 +136,7 @@ export function buildPartyLegalFactTimeline(
 
 export function planPartyLegalFactCommand(input: PlanPartyLegalFactCommandInput): PartyLegalFactAppendPlan {
   const asOf = requireBusinessDate(input.asOf);
+  const command = input.command;
   const idempotencyKey = input.idempotencyKey.trim();
   if (!idempotencyKey) throw new PartyLegalFactLifecycleError("幂等键不能为空");
   const duplicate = input.timeline.find((item) => item.idempotencyKey === idempotencyKey);
@@ -146,28 +147,28 @@ export function planPartyLegalFactCommand(input: PlanPartyLegalFactCommandInput)
   }
   const revision = latestRevision + 1;
 
-  if (input.command.kind === "change") {
+  if (command.kind === "change") {
     return {
       kind: "append",
       revision,
       commandKind: "change",
-      effectiveOn: requireBusinessDate(input.command.effectiveOn, "生效日期"),
+      effectiveOn: requireBusinessDate(command.effectiveOn, "生效日期"),
       recordState: "confirmed",
       supersedesId: null,
-      snapshot: normalizePartyLegalFactSnapshot(input.command.snapshot),
-      reason: nullableText(input.command.reason),
+      snapshot: normalizePartyLegalFactSnapshot(command.snapshot),
+      reason: nullableText(command.reason),
       idempotencyKey,
     };
   }
 
-  const target = input.timeline.find((item) => item.id === input.command.supersedesId);
+  const target = input.timeline.find((item) => item.id === command.supersedesId);
   if (!target) throw new PartyLegalFactLifecycleError("被替代的法定事实版本不存在");
   if (supersededRevisionIds(input.timeline).has(target.id)) {
     throw new PartyLegalFactLifecycleError("该法定事实版本已经被替代或取消");
   }
-  const reason = input.command.reason.trim();
+  const reason = command.reason.trim();
   if (!reason) throw new PartyLegalFactLifecycleError("更正或取消原因不能为空");
-  if (input.command.kind === "cancel-future") {
+  if (command.kind === "cancel-future") {
     if (target.effectiveOn <= asOf) throw new PartyLegalFactLifecycleError("只能取消尚未生效的法定事实版本");
     return {
       kind: "append",
@@ -188,7 +189,7 @@ export function planPartyLegalFactCommand(input: PlanPartyLegalFactCommandInput)
     effectiveOn: requireBusinessDate(target.effectiveOn),
     recordState: "confirmed",
     supersedesId: target.id,
-    snapshot: normalizePartyLegalFactSnapshot(input.command.snapshot),
+    snapshot: normalizePartyLegalFactSnapshot(command.snapshot),
     reason,
     idempotencyKey,
   };

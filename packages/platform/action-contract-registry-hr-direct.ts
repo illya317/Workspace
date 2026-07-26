@@ -41,7 +41,7 @@ function lifecycle(
   key: string,
   activeEntity: string,
   command: ActionMutationDomainReferenceContract,
-  operation: "archive" | "delete" | "restore",
+  operation: "archive" | "delete" | "restore" | "custom",
   options?: { targetIdKey?: string; versionKey?: string; deleteMode?: "soft" | "hard"; referencePolicy?: "none" | "guarded" | "domain" },
 ): ActionContractMetadata {
   return {

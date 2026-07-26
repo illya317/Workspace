@@ -76,22 +76,23 @@ test("read connector rejects arbitrary origins, source paths and internal Agent 
 });
 
 test("read connector calls a registered same-origin GET with only a short-lived delegation", async (t) => {
-  let captured: Request | null = null;
-  t.mock.method(globalThis, "fetch", async (input, init) => {
-    captured = new Request(input, init);
+  const captured: Request[] = [];
+  t.mock.method(globalThis, "fetch", async (input: string | URL | Request, init?: RequestInit) => {
+    captured.push(new Request(input, init));
     return Response.json({ success: true, data: { year: 2026 } });
   });
   const result = await tool("workspace.api.read").execute({
     path: "/api/modules/finance/budget?year=2026",
   }, execution);
   assert.equal(result.type, "data");
-  assert.ok(captured);
-  assert.equal(captured.method, "GET");
-  assert.equal(new URL(captured.url).origin, "http://workspace.test");
-  assert.ok(captured.headers.get("x-workspace-agent-api-delegation"));
-  assert.equal(captured.headers.has("cookie"), false);
-  assert.equal(captured.headers.has("x-api-key"), false);
-  assert.equal(captured.headers.has("authorization"), false);
+  const request = captured[0];
+  assert.ok(request);
+  assert.equal(request.method, "GET");
+  assert.equal(new URL(request.url).origin, "http://workspace.test");
+  assert.ok(request.headers.get("x-workspace-agent-api-delegation"));
+  assert.equal(request.headers.has("cookie"), false);
+  assert.equal(request.headers.has("x-api-key"), false);
+  assert.equal(request.headers.has("authorization"), false);
 });
 
 test("mutation connector stores an immutable API proposal without dispatching the write", async (t) => {
