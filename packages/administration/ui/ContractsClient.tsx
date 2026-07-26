@@ -11,7 +11,7 @@ import {
   PageSurface,
   useFeedback,
 } from "@workspace/core/ui";
-import type { FormSurfaceSectionSpec, SelectorSurfaceProps } from "@workspace/core/ui";
+import type { FormSurfaceSectionSpec, PageSurfaceTabBarItemSpec, SelectorSurfaceProps } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import {
   CONTRACT_LIFECYCLE_OPTIONS,
@@ -26,7 +26,7 @@ import { useContractLifecycle } from "./hooks/useContractLifecycle";
 import getContractFilterToolbarItems from "./components/ContractFilters";
 import { contractFormSections } from "./components/contract-form";
 
-const CONTRACT_LEDGER_TAB = {
+const CONTRACT_LEDGER_TAB: PageSurfaceTabBarItemSpec = {
   key: "contract-ledger",
   label: "合同台账",
   children: [
@@ -34,7 +34,7 @@ const CONTRACT_LEDGER_TAB = {
     { key: "expiring", label: "即将到期" },
     { key: "expired", label: "已到期" },
   ],
-} as const;
+};
 
 async function responseError(response: Response, fallback: string) {
   const body = await response.json().catch(() => null) as { error?: string; message?: string } | null;
