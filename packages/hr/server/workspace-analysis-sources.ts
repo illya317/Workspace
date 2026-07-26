@@ -387,6 +387,7 @@ export const HR_POSITIONS_ANALYSIS_SOURCE = defineWorkspaceAnalysisReadModel<Pos
     headcountPlan: field({ label: "计划编制", description: "岗位说明书维护的计划编制人数。", valueKind: "integer", sensitivity: "internal" }),
     version: field({ label: "岗位版本", description: "岗位主数据版本号。", valueKind: "integer", sensitivity: "internal" }),
     positionDescriptionVersion: field({ label: "说明书版本", description: "岗位说明书业务版本。", valueKind: "text", sensitivity: "internal" }),
+    positionDescriptionSequence: field({ label: "说明书修订序号", description: "查询业务日选中的岗位说明书 revision 序号。", valueKind: "integer", sensitivity: "internal" }),
     effectiveDate: field({ label: "说明书生效日期", description: "岗位说明书生效日期。", valueKind: "date", sensitivity: "internal" }),
     sourceFile: field({ label: "说明书来源文件", description: "岗位说明书公开列表返回的来源文件标识。", valueKind: "text", sensitivity: "confidential" }),
     headcount: field({ label: "岗位关系数", description: "该岗位关联的 EDP 记录数量，不等同于当前在职人数。", valueKind: "integer", sensitivity: "internal" }),

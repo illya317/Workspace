@@ -112,6 +112,7 @@ test("nested list payloads do not leak into canonical fields", () => {
   assert.ok(catalog.get("hr.department-descriptions", 1));
   assert.ok(catalog.get("hr.department-managers", 1));
   assert.ok(catalog.get("hr.position-descriptions", 1));
+  assert.equal(catalog.get("hr.positions", 1)?.fields.some((field) => field.key === "positionDescriptionSequence"), true);
   assert.equal(catalog.get("hr.employees", 1)?.fields.some((field) => field.key === "idNumber"), true);
   assert.equal(catalog.get("hr.employees", 1)?.fields.some((field) => field.key === "phone"), true);
   for (const key of ["editedBy", "editedAt", "version", "createdAt", "updatedAt"]) {
