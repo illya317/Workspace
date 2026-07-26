@@ -70,21 +70,24 @@ async function normalizeReference(
 }
 
 async function normalizeReferences(data: ContractCreateInput | ContractUpdateInput) {
-  const entries = await Promise.all([
+  const [owningCompany, ownerDepartment, partyA, partyB, handlerEmployee] = await Promise.all([
     normalizeReference("administration.contracts.owning.company", data.owningCompanyId, "owningCompanyId", "归属公司"),
     normalizeReference("administration.contracts.owner.department", data.ownerDepartmentId, "ownerDepartmentId", "归口部门"),
     normalizeReference("administration.contracts.party.a", data.partyAId, "partyAId", "甲方主体"),
     normalizeReference("administration.contracts.party.b", data.partyBId, "partyBId", "乙方主体"),
     normalizeReference("administration.contracts.handler.employee", data.handlerEmployeeId, "handlerEmployeeId", "经办人"),
   ]);
-  const failed = entries.find((entry) => !entry.ok);
-  if (failed && !failed.ok) return failed;
+  if (!owningCompany.ok) return owningCompany;
+  if (!ownerDepartment.ok) return ownerDepartment;
+  if (!partyA.ok) return partyA;
+  if (!partyB.ok) return partyB;
+  if (!handlerEmployee.ok) return handlerEmployee;
   return okCommand({
-    owningCompanyId: entries[0].data,
-    ownerDepartmentId: entries[1].data,
-    partyAId: entries[2].data,
-    partyBId: entries[3].data,
-    handlerEmployeeId: entries[4].data,
+    owningCompanyId: owningCompany.data,
+    ownerDepartmentId: ownerDepartment.data,
+    partyAId: partyA.data,
+    partyBId: partyB.data,
+    handlerEmployeeId: handlerEmployee.data,
   });
 }
 
