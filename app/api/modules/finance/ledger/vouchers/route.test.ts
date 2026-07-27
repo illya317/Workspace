@@ -48,7 +48,8 @@ test("voucher details accept accounting years before 2020", async () => {
   ));
 
   assert.equal(response.status, 200);
-  assert.equal(listCommand?.year, 2016);
-  assert.equal(listCommand?.month, 12);
-  assert.equal(listCommand?.companyCode, "ZX01");
+  const received = listCommand as unknown as Record<string, unknown>;
+  assert.equal(received.year, 2016);
+  assert.equal(received.month, 12);
+  assert.equal(received.companyCode, "ZX01");
 });

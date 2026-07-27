@@ -107,7 +107,9 @@ export interface EmployeeLifecycleCommand {
 
 export { isHydratableOnboardingPlaceholder };
 
-type TimelineRow = Pick<LifecycleAssignmentPeriod, "startDate" | "endDate" | "allocationWeight" | "isPrimary">;
+type TimelineRow = Pick<LifecycleAssignmentPeriod, "startDate" | "endDate" | "isPrimary"> & {
+  allocationWeight: string | null;
+};
 
 export function validateAssignmentChange(
   eventType: "transfer" | "reporting_change",
@@ -397,7 +399,7 @@ export async function buildEmployeeLifecycleCommand(
     : null;
   if (eventType === "onboard") {
     if (
-      HR_EMPLOYMENT_TEMPORAL.policy.overlaps !== "allow"
+      doesNotAllowOverlaps(HR_EMPLOYMENT_TEMPORAL.policy.overlaps)
       && !onboardingPlaceholder
       && !employeeCanOnboardAt({
         employments: employee.employments,
@@ -498,4 +500,8 @@ export async function buildEmployeeLifecycleCommand(
     employment: eventType === "onboard" ? onboardingPlaceholder : activeEmployment,
     employmentFields: employmentFields.data,
   });
+}
+
+function doesNotAllowOverlaps(value: string) {
+  return value !== "allow";
 }

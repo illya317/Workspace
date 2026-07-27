@@ -31,7 +31,7 @@ const lifecycleBodySchema = z.object({
   if (value.eventType === "onboard" && isEmploymentPositionOptionalTitle(value.title)) return;
   const placementRequired = ["onboard", "transfer", "concurrent_assignment"].includes(value.eventType);
   for (const field of placementRequired ? ["reportingCompanyId", "departmentId", "positionId"] as const : []) {
-    if (value[field] !== null && value[field] !== undefined && value[field] !== "") continue;
+    if (value[field] !== null && value[field] !== undefined) continue;
     context.addIssue({ code: "custom", path: [field], message: `${field} required` });
   }
   if (["onboard", "concurrent_assignment", "allocation_change"].includes(value.eventType)) {

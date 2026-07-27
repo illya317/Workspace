@@ -16,7 +16,7 @@ import { listFinanceGroupAccountMappedLocalAccounts } from "./ledger/group-accou
 import { listFinancePeriods } from "./ledger/periods";
 import { listReclassResults } from "./ledger/reclass-results/list";
 import { scanCandidates } from "./ledger/reclass-rules";
-import { listVouchers } from "./ledger/voucher-service";
+import { listVouchers, type StandardVoucherListRow } from "./ledger/voucher-service";
 import { computeReclassification } from "./schedules/reclassify";
 import { generateFinanceReport } from "./statements/report-generator";
 import { generateDirectStatementReport } from "./statements/reports/direct";
@@ -400,7 +400,7 @@ async function loadAllVouchers(
   sourceKey: string,
   parameters: Readonly<Record<string, string | number | boolean>>,
 ) {
-  return loadAllPages(sourceKey, (parentPage, parentPageSize) => listVouchers({
+  return loadAllPages<StandardVoucherListRow>(sourceKey, (parentPage, parentPageSize) => listVouchers({
     periodId: integer(parameters.periodId), companyCode: text(parameters.companyCode), year: integer(parameters.year), month: integer(parameters.month),
     status: text(parameters.status), keyword: text(parameters.keyword), page: parentPage, pageSize: parentPageSize,
   }).then((result) => ({ rows: result.data, total: result.total })));

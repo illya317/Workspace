@@ -51,7 +51,7 @@ export async function buildEmployeePeriodRevisionCommand(
   if (!reason) return failCommand("周期修订必须填写原因", 400, "reason");
 
   const registration = entityType === "Employment" ? HR_EMPLOYMENT_TEMPORAL : HR_ASSIGNMENT_TEMPORAL;
-  if (registration.policy.revision === "forbid") return failCommand("该周期不允许修订", 409);
+  if (revisionIsForbidden(registration.policy.revision)) return failCommand("该周期不允许修订", 409);
   if (
     businessTemporalRetrospectiveChanges(registration.policy) === "forbid"
     && startDate < workspaceBusinessDate(new Date())
@@ -101,6 +101,10 @@ export async function buildEmployeePeriodRevisionCommand(
   }
 
   return okCommand({ employeeId, userId, entityType, periodId, expectedVersion, startDate, endDate, reason });
+}
+
+function revisionIsForbidden(value: string) {
+  return value === "forbid";
 }
 
 function hasEmploymentOverlap(rows: Array<{ joinDate: string | null; leaveDate: string | null }>) {

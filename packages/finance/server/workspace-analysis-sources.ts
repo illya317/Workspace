@@ -14,16 +14,14 @@ import type { ReclassResultRow } from "./ledger/reclass-results/types";
 import type { listFinanceAccounts } from "./ledger/accounts";
 import type { listFinanceBalances } from "./ledger/balance-api";
 import type { listFinancePeriods } from "./ledger/periods";
-import type { listVouchers } from "./ledger/voucher-service";
+import type { StandardVoucherListRow } from "./ledger/voucher-service";
 import type { listBudgetVersions } from "./budget/budget-version";
 import type { DirectReportLine } from "./statements/reports/direct";
-
 type FinanceAccountRow = Awaited<ReturnType<typeof listFinanceAccounts>>["data"][number];
 type FinanceBalanceRow = NonNullable<Awaited<ReturnType<typeof listFinanceBalances>>["data"]>[number];
 type FinancePeriodRow = Awaited<ReturnType<typeof listFinancePeriods>>["periods"][number];
-type FinanceVoucherRow = Awaited<ReturnType<typeof listVouchers>>["data"][number];
+type FinanceVoucherRow = StandardVoucherListRow;
 type FinanceBudgetVersionRow = Awaited<ReturnType<typeof listBudgetVersions>>[number];
-
 export type FinanceBudgetMonthlyRow = {
   readonly versionId: number | null;
   readonly year: number;
@@ -410,6 +408,8 @@ export const FINANCE_LEDGER_GROUP_ACCOUNTS_SOURCE = defineWorkspaceAnalysisReadM
     reviewStatus: field("复核状态", "集团科目复核状态。", "text"),
     reviewedBy: field("复核人 ID", "最近复核账号标识。", "integer", { sensitivity: "confidential" }),
     reviewedAt: field("复核时间", "最近复核时间。", "date"),
+    consolidationRole: field("合并角色", "集团科目的合并取数角色。", "text"), counterpartyRequirement: field("对方公司要求", "集团科目对对方公司辅助核算的要求。", "text"),
+    movementType: field("取数口径", "集团科目的默认合并取数口径。", "text"), translationRateType: field("折算方法", "集团报表使用的折算方法。", "text"),
     originCompanyCode: field("来源公司", "集团科目起源公司编码。", "text"),
     mappingCount: field("映射数", "已确认或已复核公司科目映射数量。", "integer"),
     years: { classification: "childSource", sourceKey: "finance.ledger.group-account-years", description: "集团科目与适用年度的一对多关系。" },

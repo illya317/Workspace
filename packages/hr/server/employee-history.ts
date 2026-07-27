@@ -110,13 +110,13 @@ export async function getEmployeeProfileHistoryByKey(key: string) {
         changes: [{
           field: startKey,
           label: revision.entityType === "Employment" ? "入职日期" : "任职开始日期",
-          from: formatVal(before[startKey] ?? "(空)"),
-          to: formatVal(after.startDate ?? "(空)"),
+          from: formatVal(String(before[startKey] ?? "(空)")),
+          to: formatVal(String(after.startDate ?? "(空)")),
         }, {
           field: endKey,
           label: revision.entityType === "Employment" ? "离职日期" : "任职结束日期",
-          from: formatVal(before[endKey] ?? "(空)"),
-          to: formatVal(after.endDate ?? "(空)"),
+          from: formatVal(String(before[endKey] ?? "(空)")),
+          to: formatVal(String(after.endDate ?? "(空)")),
         }],
       };
     }),

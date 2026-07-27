@@ -198,6 +198,10 @@ export function useContractSections({
     } else if (kind === "correct") {
       command = { kind, ...target, termUid: draft.termUid, effectiveFrom: draft.effectiveFrom, effectiveThrough: draft.effectiveThrough, termKind: draft.termKind };
     } else if (kind === "supplement-missing" || kind === "correct-existing") {
+      if (!selected) {
+        feedback.error("请选择已规范化的协议");
+        return;
+      }
       const patch = agreementContentPatch(selected, draft, kind);
       if (Object.keys(patch).length === 0) {
         feedback.error(kind === "supplement-missing" ? "请填写至少一项缺失资料" : "没有需要保存的修正");
