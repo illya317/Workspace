@@ -1,0 +1,20 @@
+import { z } from "zod";
+
+import {
+  buildSetConsolidationInclusionRouteCommand,
+  setConsolidationInclusion,
+} from "@workspace/capital-securities/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const bodySchema = z.object({
+  relationId: z.coerce.number().int().positive(),
+  expectedVersion: z.coerce.number().int().positive(),
+  included: z.boolean(),
+  effectiveDate: z.string().date(),
+});
+
+export const POST = createCommandRoute({
+  bodySchema,
+  buildCommand: ({ body, user }) => buildSetConsolidationInclusionRouteCommand(body, user.userId),
+  action: setConsolidationInclusion,
+});

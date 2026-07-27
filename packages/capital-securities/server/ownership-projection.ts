@@ -60,12 +60,12 @@ export async function rebuildOwnershipProjection(input: {
   const command = buildOwnershipProjectionRebuildCommand(input);
   if (!command.ok) throw new OwnershipProjectionRebuildError(command.issue.message);
   return database.$transaction(
-    (tx) => rebuildIssuerProjection(tx, command.data),
+    (tx) => rebuildOwnershipProjectionInTransaction(tx, command.data),
     { maxWait: 30_000, timeout: 300_000 },
   );
 }
 
-async function rebuildIssuerProjection(
+export async function rebuildOwnershipProjectionInTransaction(
   tx: Prisma.TransactionClient,
   command: { issuerCompanyId: number; triggerReason: string | null; triggeredBy: number | null },
 ): Promise<OwnershipProjectionRebuildReceipt> {
@@ -91,7 +91,7 @@ async function rebuildIssuerProjection(
   if (sourceEvents.length === 0 && existingProjectionCount > 0) {
     throw new OwnershipProjectionRebuildError("该发行主体仍有旧投影但没有股本事件账本，已拒绝清空；请先补录来源事件");
   }
-  const ledgerEvents = toLedgerEvents(sourceEvents);
+  const ledgerEvents = toEquityLedgerEvents(sourceEvents);
   const ledgerHash = hashOwnershipProjectionLedger(ledgerEvents);
   const periods = deriveOwnershipPeriods(ledgerEvents, PROJECTION_HORIZON);
   const previousRun = await tx.ownershipProjectionRun.findFirst({
@@ -155,7 +155,7 @@ async function rebuildIssuerProjection(
   };
 }
 
-function toLedgerEvents(sourceEvents: readonly ShareCapitalSourceEvent[]): EquityLedgerEventState[] {
+export function toEquityLedgerEvents(sourceEvents: readonly ShareCapitalSourceEvent[]): EquityLedgerEventState[] {
   return sourceEvents.map((event) => ({
     id: event.id,
     sequence: event.sequence,

@@ -15,6 +15,7 @@ import type {
 } from "@workspace/finance/types";
 
 import { balanceDirectionLabel, categoryLabel } from "./groupAccountMappingPresentation";
+import { formatFinanceDateTime } from "../formatters";
 
 const MAPPED_ACCOUNT_COLUMNS: DataSurfaceColumnSpec<FinanceGroupAccountMappedLocalAccountRow>[] = [
   {
@@ -82,14 +83,17 @@ export function mappedAccountSections(
   })];
 }
 
-export function groupAccountDetailFields(row: FinanceGroupAccountCatalogRow): FormSurfaceFieldSpec[] {
+export function groupAccountDetailFields(
+  row: FinanceGroupAccountCatalogRow,
+  businessTimeZone: string,
+): FormSurfaceFieldSpec[] {
   return [
     readOnlyDetail("category", "科目类别", categoryLabel(row.category)),
     readOnlyDetail("balanceDirection", "余额方向", balanceDirectionLabel(row.balanceDirection)),
     readOnlyDetail("reviewStatus", "复核状态", groupReviewStatusLabel(row.reviewStatus)),
     ...(row.reviewedAt ? [
       readOnlyDetail("reviewedBy", "复核人", row.reviewedBy === null ? "—" : String(row.reviewedBy)),
-      readOnlyDetail("reviewedAt", "复核时间", new Date(row.reviewedAt).toLocaleString("zh-CN", { hour12: false })),
+      readOnlyDetail("reviewedAt", "复核时间", formatFinanceDateTime(row.reviewedAt, businessTimeZone)),
     ] : []),
     readOnlyDetail("status", "状态", row.isActive ? "启用" : "停用"),
     readOnlyDetail("parent", groupAccountParentLabel(row), groupAccountParentValue(row)),

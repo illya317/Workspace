@@ -34,7 +34,25 @@ function productMasterCommand(execution, context) {
   };
 }
 
+function financeReviewedOriginMappingsCommand(execution, context) {
+  const parameters = execution.parameters;
+  if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
+    || Object.keys(parameters).sort().join(",") !== "inputFile") {
+    fail("finance-reviewed-origin-mappings-v1 parameters must contain only inputFile");
+  }
+  const inputFile = relativeSourcePath(parameters.inputFile, "finance-reviewed-origin-mappings-v1 inputFile");
+  return {
+    executable: process.execPath,
+    args: [
+      path.join(context.repositoryRoot, "scripts/repair/repair-finance-reviewed-origin-mappings.mjs"),
+      "--execute",
+      `--input-file=${path.join(context.sourceRoot, inputFile)}`,
+    ],
+  };
+}
+
 const HANDLERS = new Map([
+  ["finance-reviewed-origin-mappings-v1", financeReviewedOriginMappingsCommand],
   ["product-master-v1", productMasterCommand],
 ]);
 

@@ -77,3 +77,23 @@ test("executable manifests select a registered handler instead of a script path"
     sourceRoot: "/srv/private/sources",
   }), /not registered/);
 });
+
+test("finance reviewed-origin repairs use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "finance-reviewed-origin-mappings-v1",
+    parameters: { inputFile: "finance/reviewed-origin-mappings.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/finance/reviewed-origin-mappings.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "finance-reviewed-origin-mappings-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  }), /escapes/);
+});

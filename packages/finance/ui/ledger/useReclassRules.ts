@@ -18,7 +18,9 @@ import {
   filterRuleCandidates,
   initialRuleTreeExpandedIds,
   reclassRuleDraftFromCandidate,
+  resolveFilteredRuleSelection,
   sameReclassRuleDraft,
+  visibleRuleCandidateIds,
   type ReclassRuleFormDraft,
   type RuleAccountTreeValue,
 } from "./reclassRulePresentation";
@@ -132,24 +134,25 @@ export function useReclassRules({
     [keyword, ruleCandidates, ruleStatusFilter],
   );
   const ruleFilterActive = ruleStatusFilter !== "all" || keyword.trim() !== "";
-  const visibleRuleCandidateIds = useMemo(() => {
-    const ids = new Set(filteredRuleCandidates.map((row) => row.groupAccountId));
-    if (selectedRuleAccountId !== null) ids.add(selectedRuleAccountId);
-    return ids;
-  }, [filteredRuleCandidates, selectedRuleAccountId]);
+  const visibleCandidateIds = useMemo(
+    () => visibleRuleCandidateIds(filteredRuleCandidates, selectedRuleAccountId, ruleFormDirty),
+    [filteredRuleCandidates, ruleFormDirty, selectedRuleAccountId],
+  );
   const ruleTreeItems = useMemo(() => buildRuleAccountTree({
     rows: ruleCatalogRows,
     candidates: ruleCandidates,
-    visibleCandidateIds: visibleRuleCandidateIds,
-  }), [ruleCandidates, ruleCatalogRows, visibleRuleCandidateIds]);
+    visibleCandidateIds,
+  }), [ruleCandidates, ruleCatalogRows, visibleCandidateIds]);
 
   useEffect(() => {
-    setSelectedRuleAccountId((current) => {
-      if (ruleCandidates.length === 0) return null;
-      if (current !== null && ruleCandidates.some((row) => row.groupAccountId === current)) return current;
-      return filteredRuleCandidates[0]?.groupAccountId ?? ruleCandidates[0]?.groupAccountId ?? null;
-    });
-  }, [filteredRuleCandidates, ruleCandidates]);
+    setSelectedRuleAccountId((currentId) => resolveFilteredRuleSelection({
+      currentId,
+      allRows: ruleCandidates,
+      filteredRows: filteredRuleCandidates,
+      filterActive: ruleFilterActive,
+      preserveFilteredOutSelection: ruleFormDirty,
+    }));
+  }, [filteredRuleCandidates, ruleCandidates, ruleFilterActive, ruleFormDirty]);
 
   useEffect(() => {
     setRuleFormDraft(selectedRule ? reclassRuleDraftFromCandidate(selectedRule.candidate) : null);

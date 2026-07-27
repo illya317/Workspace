@@ -61,6 +61,16 @@ export async function reviewFinanceGroupAccount(input: ReviewFinanceGroupAccount
       policyVersionId: currentVersion.id,
       groupAccountId: data.groupAccountId,
     } },
+    include: {
+      groupAccount: {
+        select: {
+          sourceKind: true,
+          originCompanyCode: true,
+          originSourceScopeKey: true,
+          originLocalAccountCode: true,
+        },
+      },
+    },
   });
   if (!revision) return serviceError("集团科目不存在或不属于当前版本", 404);
 
@@ -84,7 +94,7 @@ export async function reviewFinanceGroupAccount(input: ReviewFinanceGroupAccount
 
   const reviewedAt = resolved.transition.recordReview ? new Date() : null;
   try {
-    await prisma.$transaction(async (tx) => {
+    const originMappingConfirmed = await prisma.$transaction(async (tx) => {
       const updated = await tx.financeGroupAccountRevision.updateMany({
         where: { id: revision.id, updatedAt: new Date(data.expectedUpdatedAt) },
         data: {
@@ -99,8 +109,26 @@ export async function reviewFinanceGroupAccount(input: ReviewFinanceGroupAccount
         reviewedBy: reviewedAt === null ? null : data.userId,
         reviewedAt,
       } });
+      if (nextStatus !== "reviewed" || revision.groupAccount.sourceKind !== "suggested"
+        || !revision.groupAccount.originCompanyCode
+        || !revision.groupAccount.originSourceScopeKey
+        || !revision.groupAccount.originLocalAccountCode) {
+        return false;
+      }
+      const confirmed = await tx.financeGroupAccountMapping.updateMany({
+        where: {
+          policyVersionId: currentVersion.id,
+          groupAccountId: data.groupAccountId,
+          companyCode: revision.groupAccount.originCompanyCode,
+          sourceScopeKey: revision.groupAccount.originSourceScopeKey,
+          localAccountCode: revision.groupAccount.originLocalAccountCode,
+          mappingMethod: "suggested",
+        },
+        data: { mappingMethod: "manual_override" },
+      });
+      return confirmed.count === 1;
     });
-    return serviceOk({ success: true, reviewStatus: nextStatus });
+    return serviceOk({ success: true, reviewStatus: nextStatus, originMappingConfirmed });
   } catch (error) {
     if (error instanceof FinanceGroupAccountReviewConflictError) {
       return serviceError("集团科目已被其他操作修改，请刷新后重试", 409);

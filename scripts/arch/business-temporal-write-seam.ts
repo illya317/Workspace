@@ -82,7 +82,7 @@ export const BUSINESS_TEMPORAL_WRITE_RULES: readonly BusinessTemporalWriteRule[]
 }, {
   delegate: "shareCapitalEvent",
   model: "ShareCapitalEvent",
-  allowedFiles: [],
+  allowedFiles: ["packages/capital-securities/server/consolidation-inclusion.ts"],
 }, {
   delegate: "shareCapitalTransaction",
   model: "ShareCapitalTransaction",

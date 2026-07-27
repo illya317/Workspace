@@ -293,4 +293,15 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
       "packages/capital-securities/server/ownership-projection.rebuildOwnershipProjection",
     ),
   }),
+  registeredWrite({
+    key: "capitalSecurities.governance.consolidationScope.update",
+    activeEntity: "ShareCapitalEvent",
+    domain: d(
+      "packages/capital-securities/server/domain/consolidation-inclusion-validation.buildSetConsolidationInclusionCommand",
+      "packages/capital-securities/server/consolidation-inclusion.setConsolidationInclusion",
+    ),
+    shape: "full_record",
+    target: "new_record",
+    commitMode: "native_transition",
+  }),
 ]);

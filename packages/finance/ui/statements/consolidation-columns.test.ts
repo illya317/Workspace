@@ -10,7 +10,7 @@ import type {
 
 import {
   adjustmentComparisonExpandedRow,
-  consolidationEntityColumns,
+  createConsolidationEntityColumns,
   createAdjustmentComparisonColumns,
   sourceCoverageTone,
 } from "./consolidation-columns";
@@ -149,7 +149,7 @@ test("uses only ready and not-ready tones for individual statements", () => {
   assert.equal(sourceCoverageTone({ ...source, kind: "missing", status: "missing" }), "red");
 });
 
-test("keeps ownership beside the company instead of a separate column", () => {
+test("keeps ownership context beside the company and exposes a second inclusion column", () => {
   const entity = {
     name: "加拿大",
     fullName: "The Palace Institute of Medical Biology Co Ltd",
@@ -158,10 +158,20 @@ test("keeps ownership beside the company instead of a separate column", () => {
     parentName: "示例子公司甲",
     role: "子公司",
     shareRatio: 0.75,
+    isConsolidated: true,
+    relationId: 76,
+    relationVersion: 1,
   } as ConsolidationEntityCoverage;
+  const changes: Array<[number | null, boolean]> = [];
+  const consolidationEntityColumns = createConsolidationEntityColumns({
+    canUpdate: true,
+    busyRelationId: null,
+    onInclusionChange: (row, included) => changes.push([row.relationId, included]),
+  });
 
   assert.deepEqual(consolidationEntityColumns.map((column) => column.key), [
     "company",
+    "consolidated",
     "balance",
     "income",
     "cash-flow",
@@ -173,4 +183,20 @@ test("keeps ownership beside the company instead of a separate column", () => {
   assert.match(JSON.stringify(companyCell), /示例子公司甲 → 加拿大/);
   assert.doesNotMatch(JSON.stringify(companyCell), /02 → 05/);
   assert.doesNotMatch(JSON.stringify(companyCell), /"wrap":"truncate"/);
+  const inclusionCell = consolidationEntityColumns[1]!.cell(entity) as DataSurfaceCellSpec;
+  assert.equal(inclusionCell.kind, "action");
+  if (inclusionCell.kind !== "action") return;
+  assert.equal(inclusionCell.action.label, "已并表");
+  assert.equal(inclusionCell.action.icon, "check");
+  inclusionCell.action.onClick?.();
+  assert.deepEqual(changes, [[76, false]]);
+
+  const excludedCell = consolidationEntityColumns[1]!.cell({
+    ...entity,
+    isConsolidated: false,
+  }) as DataSurfaceCellSpec;
+  assert.equal(excludedCell.kind, "action");
+  if (excludedCell.kind !== "action") return;
+  assert.equal(excludedCell.action.label, "未并表");
+  assert.equal(excludedCell.action.icon, "x");
 });

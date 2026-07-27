@@ -3,6 +3,7 @@ export type ConsolidationWorkpaperView = "preparation" | "eliminations" | "workp
 export interface ConsolidationCapabilities {
   canCreate: boolean;
   canUpdate: boolean;
+  canUpdateConsolidationScope: boolean;
   canDelete: boolean;
   canSubmit: boolean;
   canApprove: boolean;

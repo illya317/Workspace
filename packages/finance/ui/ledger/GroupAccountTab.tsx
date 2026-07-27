@@ -21,6 +21,7 @@ import type {
   FinanceGroupAccountMappedLocalAccountRow,
   FinanceGroupAccountMappedLocalAccountsResponse,
 } from "@workspace/finance/types";
+import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -55,6 +56,7 @@ export default function GroupAccountTab({
   canDelete: boolean;
   canApprove: boolean;
 }) {
+  const businessTimeZone = useTenantConfig().localization.businessTimeZone;
   const [response, setResponse] = useState<FinanceGroupAccountCatalogResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -218,10 +220,16 @@ export default function GroupAccountTab({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ decision, expectedUpdatedAt: row.updatedAt }),
       });
-      const data = await result.json().catch(() => null) as { error?: string; reviewStatus?: string } | null;
+      const data = await result.json().catch(() => null) as {
+        error?: string;
+        reviewStatus?: string;
+        originMappingConfirmed?: boolean;
+      } | null;
       if (!result.ok) throw new Error(data?.error || "集团科目复核失败");
       feedback.success(data?.reviewStatus === "reviewed"
-        ? "集团科目已复核"
+        ? data.originMappingConfirmed
+          ? "集团科目及来源公司科目映射已复核"
+          : "集团科目已复核"
         : data?.reviewStatus === "pending_delete"
           ? "集团科目已标记为待删除"
           : "集团科目已删除");
@@ -317,7 +325,7 @@ export default function GroupAccountTab({
               "group-account-detail",
               selectedVersionIsCurrent && canRevise
                 ? groupAccountEditFields(editDraft, setEditDraft)
-                : groupAccountDetailFields(selected),
+                : groupAccountDetailFields(selected, businessTimeZone),
               {
               kind: selectedVersionIsCurrent && canRevise ? "fields" : "detail",
               layout: { columns: 2, density: "compact" },

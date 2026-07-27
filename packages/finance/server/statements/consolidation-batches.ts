@@ -335,6 +335,7 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
             relationEffectiveTo: entity.relationEffectiveTo,
             relationVersion: entity.relationVersion,
             shareRatio: entity.shareRatio,
+            isConsolidated: entity.isConsolidated,
             functionalCurrency: entity.functionalCurrency,
             currencyEvidence: entity.currencyEvidence,
             currencyDecidedBy: entity.currencyDecidedBy,

@@ -38,6 +38,33 @@ export function filterRuleCandidates(rows: readonly RuleCandidate[], keyword: st
   });
 }
 
+export function visibleRuleCandidateIds(
+  rows: readonly Pick<RuleCandidate, "groupAccountId">[],
+  selectedId: number | null,
+  preserveFilteredOutSelection: boolean,
+) {
+  const ids = new Set(rows.map((row) => row.groupAccountId));
+  if (preserveFilteredOutSelection && selectedId !== null) ids.add(selectedId);
+  return ids;
+}
+
+export function resolveFilteredRuleSelection(input: {
+  currentId: number | null;
+  allRows: readonly Pick<RuleCandidate, "groupAccountId">[];
+  filteredRows: readonly Pick<RuleCandidate, "groupAccountId">[];
+  filterActive: boolean;
+  preserveFilteredOutSelection: boolean;
+}) {
+  const currentExists = input.currentId !== null
+    && input.allRows.some((row) => row.groupAccountId === input.currentId);
+  if (currentExists && (input.preserveFilteredOutSelection
+    || input.filteredRows.some((row) => row.groupAccountId === input.currentId))) {
+    return input.currentId;
+  }
+  return input.filteredRows[0]?.groupAccountId
+    ?? (input.filterActive ? null : input.allRows[0]?.groupAccountId ?? null);
+}
+
 /** 表单初值：处理方式和旧表格一致（existingDecision 优先，无异常历史派生为无需重分类），口径取 existingBasis ?? defaultBasis。 */
 export function reclassRuleDraftFromCandidate(candidate: RuleCandidate): ReclassRuleFormDraft {
   return {

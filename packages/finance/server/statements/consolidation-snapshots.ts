@@ -31,6 +31,7 @@ export interface ConsolidationScopeFact {
   relationEffectiveTo: Date | null;
   relationVersion: number | null;
   shareRatio: number | null;
+  isConsolidated: boolean;
   functionalCurrency: string | null;
   currencyEvidence: string | null;
   currencyDecidedBy: number | null;
@@ -122,7 +123,11 @@ async function generateFrozenReportPayload(
   });
 }
 
-export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfDate: string) {
+async function loadConsolidationRelationshipFacts(
+  parentCompanyId: number,
+  asOfDate: string,
+  includeCandidates: boolean,
+) {
   const asOf = new Date(`${asOfDate}T23:59:59.999Z`);
   const [parent, relations] = await Promise.all([
     prisma.company.findUnique({
@@ -131,7 +136,9 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
     }),
     prisma.ownershipInterest.findMany({
       where: {
-        isConsolidated: true,
+        ...(includeCandidates
+          ? { owner: { company: { isNot: null } } }
+          : { isConsolidated: true }),
         AND: [
           { OR: [{ effectiveFrom: null }, { effectiveFrom: { lte: asOf } }] },
           { OR: [{ effectiveTo: null }, { effectiveTo: { gte: asOf } }] },
@@ -166,6 +173,7 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
     relationEffectiveTo: null,
     relationVersion: null,
     shareRatio: 1,
+    isConsolidated: true,
     functionalCurrency: null,
     currencyEvidence: null,
     currencyDecidedBy: null,
@@ -175,10 +183,16 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
     for (const relation of byParent.get(currentParentId) ?? []) {
       const ownerCompany = relation.owner.company;
       if (!ownerCompany) throw new ConsolidationSnapshotError("并表股权关系的持股方不是内部公司", 409);
-      if (path.has(relation.issuerCompanyId)) throw new ConsolidationSnapshotError("并表公司关系存在循环持股，不能创建批次", 409);
+      if (path.has(relation.issuerCompanyId)) {
+        if (!includeCandidates) throw new ConsolidationSnapshotError("并表公司关系存在循环持股，不能创建批次", 409);
+        continue;
+      }
       const existingOwner = ownerByCompany.get(relation.issuerCompanyId);
       if (existingOwner && existingOwner !== ownerCompany.id) {
-        throw new ConsolidationSnapshotError("同一并表公司存在多个直接持股方，需先确认法律持股链路", 409);
+        if (!includeCandidates) {
+          throw new ConsolidationSnapshotError("同一并表公司存在多个直接持股方，需先确认法律持股链路", 409);
+        }
+        continue;
       }
       if (existingOwner) continue;
       ownerByCompany.set(relation.issuerCompanyId, ownerCompany.id);
@@ -195,6 +209,7 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
         relationEffectiveTo: relation.effectiveTo,
         relationVersion: relation.version,
         shareRatio: relation.shareRatio,
+        isConsolidated: relation.isConsolidated,
         functionalCurrency: null,
         currencyEvidence: null,
         currencyDecidedBy: null,
@@ -203,7 +218,9 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
     }
   };
   visit(parentCompanyId, new Set([parentCompanyId]));
-  if (facts.length === 1) throw new ConsolidationSnapshotError("母公司没有已标记并表的子公司", 409);
+  if (!includeCandidates && facts.length === 1) {
+    throw new ConsolidationSnapshotError("母公司没有已标记并表的子公司", 409);
+  }
   const [baseCurrencies, currencyPolicies] = await Promise.all([
     prisma.financeCurrency.findMany({
       where: { companyCode: { in: facts.map((fact) => fact.companyCode) }, isBase: true },
@@ -248,6 +265,14 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
       : null;
   }
   return facts;
+}
+
+export function loadConsolidationScopeFacts(parentCompanyId: number, asOfDate: string) {
+  return loadConsolidationRelationshipFacts(parentCompanyId, asOfDate, false);
+}
+
+export function loadConsolidationCandidateFacts(parentCompanyId: number, asOfDate: string) {
+  return loadConsolidationRelationshipFacts(parentCompanyId, asOfDate, true);
 }
 
 async function loadSourceFact(

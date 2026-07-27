@@ -67,6 +67,8 @@ export interface ConsolidationEntityCoverage {
   entitySnapshotId?: number | null;
   companyId?: number;
   relationId: number | null;
+  relationVersion: number | null;
+  isConsolidated: boolean;
   code: string;
   name: string;
   fullName: string | null;

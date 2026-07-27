@@ -59,6 +59,7 @@ function scopeFactsBySnapshotId(batch: DraftBatch) {
     relationEffectiveTo: entity.relationEffectiveTo,
     relationVersion: entity.relationVersion,
     shareRatio: entity.shareRatio === null ? null : Number(entity.shareRatio),
+    isConsolidated: entity.isConsolidated,
     functionalCurrency: entity.functionalCurrency,
     currencyEvidence: entity.currencyEvidence,
     currencyDecidedBy: entity.currencyDecidedBy,

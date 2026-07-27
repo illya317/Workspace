@@ -160,7 +160,12 @@ function sourceCell(source: StatementSourceCoverage): DataSurfaceDisplaySpec {
   };
 }
 
-export const consolidationEntityColumns: DataSurfaceColumnSpec<ConsolidationEntityCoverage>[] = [
+export function createConsolidationEntityColumns(input: {
+  canUpdate: boolean;
+  busyRelationId: number | null;
+  onInclusionChange: (row: ConsolidationEntityCoverage, included: boolean) => void;
+}): DataSurfaceColumnSpec<ConsolidationEntityCoverage>[] {
+  return [
   {
     key: "company",
     label: "合并主体",
@@ -178,10 +183,40 @@ export const consolidationEntityColumns: DataSurfaceColumnSpec<ConsolidationEnti
       ],
     }),
   },
+  {
+    key: "consolidated",
+    label: "并表",
+    required: true,
+    width: "sm",
+    cell: (row) => {
+      const disabled = !input.canUpdate
+          || row.role === "母公司"
+          || row.entitySnapshotId != null
+          || row.relationId === null
+          || row.relationVersion === null
+          || input.busyRelationId === row.relationId;
+      return {
+        kind: "action",
+        action: {
+          key: `consolidation-${row.relationId ?? row.companyId ?? row.code}`,
+          label: row.isConsolidated ? "已并表" : "未并表",
+          title: disabled
+            ? row.isConsolidated ? "已并表" : "未并表"
+            : row.isConsolidated ? "已并表，点击移出" : "未并表，点击纳入",
+          icon: row.isConsolidated ? "check" : "x",
+          presentation: "glyph",
+          tone: row.isConsolidated ? "green" : "slate",
+          disabled,
+          onClick: () => input.onInclusionChange(row, !row.isConsolidated),
+        },
+      };
+    },
+  },
   { key: "balance", label: "资产负债表", required: true, width: "xl", cell: (row) => sourceCell(row.balanceSheet) },
   { key: "income", label: "利润表", required: true, width: "xl", cell: (row) => sourceCell(row.incomeStatement) },
   { key: "cash-flow", label: "现金流量表", required: true, width: "xl", cell: (row) => sourceCell(row.cashFlow) },
-];
+  ];
+}
 
 export const exchangeRateSummaryColumns: DataSurfaceColumnSpec<ExchangeRateSummaryRow>[] = [
   { key: "pair", label: "币种对", required: true, width: "md", emphasis: "medium", cell: (row) => ({ kind: "text", value: row.pair, font: "mono", emphasis: "strong" }) },
