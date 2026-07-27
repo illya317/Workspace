@@ -7,7 +7,7 @@ import type { AgentExecutionContext } from "./execution";
 
 const permissionCalls: string[] = [];
 mock.module("@workspace/platform/server/system-config", {
-  exports: {
+  namedExports: {
     getSystemConfig: async () => ({
       agentAllowedActions: [
         "entry", "read", "create", "update", "delete", "archive", "revise",
@@ -17,7 +17,7 @@ mock.module("@workspace/platform/server/system-config", {
   },
 } as never);
 mock.module("../rbac/action-grants", {
-  exports: {
+  namedExports: {
     evaluatePermissionAction: async (userId: number, resourceKey: string, action: string) => {
       permissionCalls.push(`${userId}:${resourceKey}:${action}`);
       return true;
@@ -25,7 +25,7 @@ mock.module("../rbac/action-grants", {
   },
 } as never);
 mock.module("../rbac/resource-entry", {
-  exports: {
+  namedExports: {
     canEnterResource: async (userId: number, resourceKey: string) => {
       permissionCalls.push(`${userId}:${resourceKey}:entry`);
       return true;

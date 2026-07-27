@@ -7,10 +7,10 @@ process.env.NEXTAUTH_SECRET = "agent-business-api-connector-test-secret";
 
 let createdProposal: Record<string, unknown> | null = null;
 mock.module("./business-api-authorization", {
-  exports: { canAgentExecutionUseBusinessApi: async () => true },
+  namedExports: { canAgentExecutionUseBusinessApi: async () => true },
 } as never);
 mock.module("./proposals", {
-  exports: {
+  namedExports: {
     createProposal: async (_execution: unknown, input: Record<string, unknown>) => {
       createdProposal = input;
       return { proposalId: 17, status: "pending", message: "待确认" };
@@ -18,7 +18,7 @@ mock.module("./proposals", {
   },
 } as never);
 mock.module("@workspace/platform/server/internal-unit-rpc", {
-  exports: {
+  namedExports: {
     workspaceInternalApiUrl: (path: string) => new URL(path, "http://workspace.test"),
     readBoundedJsonResponse: (response: Response) => response.json(),
   },

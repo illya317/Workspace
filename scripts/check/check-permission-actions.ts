@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
-import { actionImplies, getPermissionActionGlyph, PERMISSION_ACTION_KEYS } from "../../packages/platform/permission-actions";
+import {
+  actionImplies,
+  getPermissionActionGlyph,
+  PERMISSION_ACTION_KEYS,
+  type PermissionActionKey,
+} from "../../packages/platform/permission-actions";
 import { getApiContracts, findApiContract } from "../../packages/platform/api-registry";
 import { isPermissionRegistryActionKey } from "../../packages/platform/action-registry";
 import {

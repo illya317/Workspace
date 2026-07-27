@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test, { mock } from "node:test";
 
+import type { WorkspaceSourcesOperationalAnalysisDefinition } from "@workspace/platform/workspace-analysis-source-contract";
+
 let readAllowed = true;
 let configureAllowed = false;
 let apiUseAllowed = true;
@@ -116,7 +118,7 @@ const definition = {
     source: "shipments",
     metrics: [{ key: "count", label: "发货笔数", operation: "count" }],
   }],
-};
+} satisfies WorkspaceSourcesOperationalAnalysisDefinition;
 
 test("v3 template runtime executes only the requested published immutable revision", async (t) => {
   readAllowed = true;

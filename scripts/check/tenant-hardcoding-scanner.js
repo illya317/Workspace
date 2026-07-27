@@ -225,6 +225,14 @@ function walkUntrackedFixture(root, excludedScopes) {
 function repositoryFiles(root, excludedScopes) {
   let relativeFiles;
   try {
+    const repositoryRoot = execFileSync(
+      "git",
+      ["-C", root, "rev-parse", "--show-toplevel"],
+      { encoding: "utf8" },
+    ).trim();
+    if (fs.realpathSync(root) !== fs.realpathSync(repositoryRoot)) {
+      throw new Error("fixture root is not the repository root");
+    }
     relativeFiles = execFileSync(
       "git",
       ["-C", root, "ls-files", "-z", "--cached", "--others", "--exclude-standard"],

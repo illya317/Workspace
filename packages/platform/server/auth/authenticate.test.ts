@@ -1,18 +1,18 @@
 import assert from "node:assert/strict";
 import test, { mock } from "node:test";
 
-mock.module("@workspace/platform/server/prisma", { exports: { prisma: {} } } as never);
+mock.module("@workspace/platform/server/prisma", { namedExports: { prisma: {} } } as never);
 mock.module("../auth-token", {
-  exports: { getTokenFromCookie: () => null, verifyToken: async () => null },
+  namedExports: { getTokenFromCookie: () => null, verifyToken: async () => null },
 } as never);
 mock.module("../personal-api-key", {
-  exports: { findUserByPersonalApiKey: async () => null },
+  namedExports: { findUserByPersonalApiKey: async () => null },
 } as never);
 mock.module("../rbac/action-grants", {
-  exports: { evaluatePermissionAction: async () => false },
+  namedExports: { evaluatePermissionAction: async () => false },
 } as never);
 mock.module("../agent/api-delegation", {
-  exports: {
+  namedExports: {
     AGENT_API_DELEGATION_HEADER: "x-workspace-agent-api-delegation",
     verifyAgentApiDelegation: async () => null,
   },
