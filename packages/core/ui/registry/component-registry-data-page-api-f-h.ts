@@ -100,6 +100,7 @@ export const page_api_registry_entries = [
         description: "字段树和布局声明。",
         children: [
           { name: "field", description: "普通输入字段，具体 spec 交给 InputSurface。" },
+          { name: "required", description: "统一必填契约；required、InputSurface validation.required 或 required state 任一声明都会同步必填星号、输入语义和提交前校验。" },
           { name: "readonly", description: "只读字段。" },
           { name: "tagList", description: "标签列表字段。" },
           { name: "rowSpan", description: "字段单元格可声明占 2 或 3 行，适用于头像、图片等高内容。" },

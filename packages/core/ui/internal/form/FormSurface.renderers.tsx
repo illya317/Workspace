@@ -8,6 +8,7 @@ import { isInputField, renderCommands, renderFieldValue } from "./FormSurface.co
 import { ACTION_GLYPH_ACTION_BY_KEY } from "../action/ActionGlyphs";
 import { orderFormSurfaceActions, renderFormSurfaceActions } from "./form-surface-actions";
 import { isFormSurfaceNativeSubmitAction } from "./form-surface-submit";
+import { isFormSurfaceFieldRequired } from "./form-surface-required";
 import type {
   FormSurfaceCommandSpec,
   FormSurfaceFilterLayoutSpec,
@@ -85,8 +86,8 @@ function renderGridItem<T>(
     <FieldGrid.Cell
       key={field.key}
       label={field.label}
-      required={field.required}
-      hint={field.hint ?? field.error}
+      required={isFormSurfaceFieldRequired(field)}
+      hint={field.error ?? field.hint}
       span={field.span}
       rowSpan={field.rowSpan}
       mode={layout.mode}
@@ -225,7 +226,7 @@ function renderInlineItem<T>(field: FormSurfaceItemSpec<T>, layout: ResolvedForm
   }
   const fieldActions = isInputField(field) ? field.actions : undefined;
   return (
-    <FormField key={field.key} label={field.label} required={field.required} hint={field.hint} error={field.error} layout="inline">
+    <FormField key={field.key} label={field.label} required={isFormSurfaceFieldRequired(field)} hint={field.hint} error={field.error} layout="inline">
       {fieldActions?.length ? (
         <div className="flex min-w-0 items-center gap-2">
           <div className="min-w-0 flex-1">{renderFieldValue(field, layout.density)}</div>

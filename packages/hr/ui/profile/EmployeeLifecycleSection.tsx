@@ -285,6 +285,10 @@ export function useEmployeeLifecycleSections({
   const employmentItems = employmentKeys.map((key) => profileFieldSpec(fieldByKey(resolvedEmploymentFields, key), draft, !canEdit, setField));
   const percentItem = profileFieldSpec(fieldByKey(edpFields, "workPercent"), draft, !canEdit, setField);
   const reasonItem = profileFieldSpec(lifecycleTextField, draft, !canEdit, setField);
+  const requiredLeaveReasonField = {
+    ...fieldByKey(resolvedEmploymentFields, "leaveReason"),
+    required: true,
+  };
   const positionOptionalOnboard = draft.eventType === "onboard"
     && isEmploymentPositionOptionalTitle(draft.title);
 
@@ -297,7 +301,7 @@ export function useEmployeeLifecycleSections({
         : draft.eventType === "reporting_change"
           ? [sourceItem, profileFieldSpec(fieldByKey(edpFields, "reportToPositionId"), draft, !canEdit, setField)]
           : [
-              profileFieldSpec(fieldByKey(resolvedEmploymentFields, "leaveReason"), draft, !canEdit, setField),
+              profileFieldSpec(requiredLeaveReasonField, draft, !canEdit, setField),
               profileFieldSpec(fieldByKey(resolvedEmploymentFields, "leaveNote"), draft, !canEdit, setField),
             ];
 

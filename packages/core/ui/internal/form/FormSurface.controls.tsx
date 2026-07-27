@@ -9,6 +9,7 @@ import FkFieldInput from "../input/FkFieldInput";
 import TagListInput from "../input/TagListInput";
 import TagPill from "../input/TagPill";
 import { renderCommands } from "./form-surface-commands";
+import { isFormSurfaceFieldRequired, resolveFormSurfaceInputSpec } from "./form-surface-required";
 export { renderCommands };
 import type {
   FormSurfaceFieldSpec,
@@ -32,7 +33,7 @@ export function isInputField<T>(field: FormSurfaceItemSpec<T>): field is FormSur
 export function renderControl(field: FormSurfaceFieldSpec, density: InputSurfaceProps["density"]) {
   return (
     <InputSurface
-      spec={field.spec}
+      spec={resolveFormSurfaceInputSpec(field)}
       value={field.value}
       displayValue={field.displayValue}
       onChange={field.onChange}
@@ -54,10 +55,10 @@ export function renderControl(field: FormSurfaceFieldSpec, density: InputSurface
       disabled={field.disabled}
       readOnly={field.readOnly}
       ariaLabel={field.ariaLabel}
-      dataFieldKey={field.dataFieldKey}
+      dataFieldKey={field.dataFieldKey ?? field.key}
       title={field.title}
       textAlign={field.textAlign}
-      visualState={field.visualState}
+      visualState={field.error ? "error" : field.visualState}
       choiceType={field.choiceType}
       choiceName={field.choiceName}
       accept={field.accept}
@@ -268,8 +269,8 @@ function TagAppendReferenceCreatePanel({
           <FieldGrid.Cell
             key={field.key}
             label={field.label}
-            required={field.required}
-            hint={field.hint ?? field.error}
+            required={isFormSurfaceFieldRequired(field)}
+            hint={field.error ?? field.hint}
             span={field.span}
             rowSpan={field.rowSpan}
             mode={layout.mode ?? "mixed"}
