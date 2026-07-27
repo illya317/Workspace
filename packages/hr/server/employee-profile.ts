@@ -1,5 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
+import { getTenantCompanies } from "@workspace/platform/server/tenant-config";
 import { listEmploymentAgreementsForEmployee } from "./employment-agreements";
 import { employeeWhereFromKey } from "./employee-profile-key";
 import {
@@ -26,8 +27,16 @@ function findPrimaryContractCompany(
 async function findCompanyByNameOrCode(value: string | null) {
   const text = value?.trim();
   if (!text) return null;
+  const aliasCode = getTenantCompanies().find((company) => (
+    company.aliases?.some((alias) => alias.trim() === text)
+  ))?.code;
   return prisma.company.findFirst({
-    where: { OR: [{ code: text }, { party: { name: text } }, { party: { fullName: text } }] },
+    where: { OR: [
+      { code: text },
+      ...(aliasCode ? [{ code: aliasCode }] : []),
+      { party: { name: text } },
+      { party: { fullName: text } },
+    ] },
     select: { id: true, party: { select: { name: true } } },
   }).then((company) => company ? { id: company.id, name: company.party.name } : null);
 }

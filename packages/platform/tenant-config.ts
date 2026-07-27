@@ -3,6 +3,7 @@ import type { TenantPermissionReviewPolicy } from "./permission-review-policy";
 export type TenantCompanySeed = {
   code: string;
   name: string;
+  aliases?: string[];
   managementGroup: string;
   codePoolCode: string | null;
   isActive: boolean;

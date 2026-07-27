@@ -12,6 +12,7 @@ import {
 } from "@workspace/platform/server/domain-validation";
 import { employmentIsActiveOnDate } from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
+import { isEmploymentPositionOptionalTitle } from "@workspace/hr/constants/employee-temporal-write-policy";
 import {
   resolveDefaultEdpReportToPositionId,
   validateEdpReportToPosition,
@@ -164,7 +165,11 @@ function normalizeDate(
   return okCommand(parsed);
 }
 
-export function validateAssignmentTimeline(rows: TimelineRow[], fromDate: string) {
+export function validateAssignmentTimeline(
+  rows: TimelineRow[],
+  fromDate: string,
+  options: { requireAssignmentAtFromDate?: boolean } = {},
+) {
   const normalizedFromDate = parseBusinessDate(fromDate);
   if (!normalizedFromDate) return "岗位期间校验基准日期格式无效";
   const periods = rows.map((row) => ({
@@ -193,7 +198,12 @@ export function validateAssignmentTimeline(rows: TimelineRow[], fromDate: string
     const active = periods
       .filter((period) => businessDateWindowContains(period.window!, date))
       .map((period) => period.row);
-    if (active.length === 0) continue;
+    if (active.length === 0) {
+      if (options.requireAssignmentAtFromDate && date === normalizedFromDate) {
+        return `${date} 生效时必须至少存在一条当前任职`;
+      }
+      continue;
+    }
     const percentages = active.map((row) => parseWorkPercent(row.workPercent));
     if (percentages.some((value) => value === null || Number.isNaN(value))) {
       return `${date} 生效的岗位工作占比必须完整填写`;
@@ -230,9 +240,9 @@ async function normalizeTargetAssignment(
   const positionId = positiveInteger(input.positionId ?? defaults?.positionId);
   if (!positionId || Number.isNaN(positionId)) return failCommand("岗位必填", 400, "positionId");
   const reportingCompanyId = positiveInteger(input.reportingCompanyId ?? defaults?.reportingCompanyId);
-  if (Number.isNaN(reportingCompanyId)) return failCommand("汇报公司无效", 400, "reportingCompanyId");
+  if (!reportingCompanyId || Number.isNaN(reportingCompanyId)) return failCommand("汇报公司必填", 400, "reportingCompanyId");
   const departmentId = positiveInteger(input.departmentId ?? defaults?.departmentId);
-  if (Number.isNaN(departmentId)) return failCommand("部门无效", 400, "departmentId");
+  if (!departmentId || Number.isNaN(departmentId)) return failCommand("部门必填", 400, "departmentId");
   const overrideId = positiveInteger(input.positionReportOverrideId ?? defaults?.positionReportOverrideId);
   if (Number.isNaN(overrideId)) return failCommand("特殊汇报配置无效", 400, "positionReportOverrideId");
   const assignment = await resolveEdpPositionAssignment({
@@ -242,6 +252,8 @@ async function normalizeTargetAssignment(
     positionReportOverrideId: overrideId,
   });
   if (!assignment.ok) return failCommand(assignment.issue.message, assignment.issue.status);
+  if (!assignment.data.reportingCompanyId) return failCommand("汇报公司必填", 400, "reportingCompanyId");
+  if (!assignment.data.departmentId) return failCommand("部门必填", 400, "departmentId");
   const reportToPosition = reportingMode === "explicit"
     ? await validateEdpReportToPosition({
         positionId,
@@ -357,7 +369,9 @@ export async function buildEmployeeLifecycleCommand(
 
   let targetAssignment: LifecycleAssignmentPeriod | null = null;
   let sourceRemainingWorkPercent: string | null = null;
-  if (eventType === "onboard" || eventType === "transfer") {
+  if (eventType === "onboard" && isEmploymentPositionOptionalTitle(employmentFields.data.title)) {
+    targetAssignment = null;
+  } else if (eventType === "onboard" || eventType === "transfer") {
     const target = await normalizeTargetAssignment(employeeId, input, effectiveDate, sourceAssignment ?? undefined);
     if (!target.ok) return target;
     if (eventType === "transfer" && sourceAssignment) {

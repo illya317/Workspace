@@ -57,13 +57,13 @@ export const contractFields: ProfileField[] = [
 ];
 
 export const edpFields: ProfileField[] = [
-  { key: "reportingCompanyId", label: "汇报公司", type: "fk", entity: "company", fkKey: "hr.company", displayKey: "reportingCompanyName" },
-  { key: "departmentId", label: "部门", type: "fk", entity: "department", fkKey: "hr.department", displayKey: "departmentPath" },
+  { key: "reportingCompanyId", label: "汇报公司", type: "fk", entity: "company", fkKey: "hr.company", displayKey: "reportingCompanyName", required: true },
+  { key: "departmentId", label: "部门", type: "fk", entity: "department", fkKey: "hr.department", displayKey: "departmentPath", required: true },
   { key: "positionId", label: "岗位", type: "fk", entity: "position", fkKey: "hr.edp.position", displayKey: "positionName", required: true },
   { key: "isPrimary", label: "主岗", type: "boolean" },
   { key: "startDate", label: "开始日期", type: "date" },
   { key: "endDate", label: "结束日期", type: "date" },
-  { key: "workPercent", label: "工作占比", type: "percent" },
+  { key: "workPercent", label: "工作占比", type: "percent", required: true },
   { key: "reportToPositionId", label: "汇报岗位", type: "fk", entity: "position", fkKey: "hr.edp.reportToPosition", displayKey: "reportTo", activeOnly: true },
 ];
 

@@ -344,7 +344,9 @@ async function assertAssignmentProjection(
     throw new LifecycleInvariantError("生效日之后存在岗位、工作占比不完整的任职记录，请先修正资料");
   }
   const periods = relevantRows as Array<typeof relevantRows[number] & { positionId: number; workPercent: string }>;
-  const timelineError = validateAssignmentTimeline(periods, command.effectiveDate);
+  const timelineError = validateAssignmentTimeline(periods, command.effectiveDate, {
+    requireAssignmentAtFromDate: command.eventType !== "offboard" && command.targetAssignment !== null,
+  });
   if (timelineError) throw new LifecycleInvariantError(timelineError);
 }
 

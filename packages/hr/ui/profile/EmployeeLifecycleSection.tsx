@@ -12,6 +12,7 @@ import {
   useFeedback,
 } from "@workspace/core/ui";
 import { edpFields, employmentFields, withTenantProfileFieldOptions } from "@workspace/hr/constants";
+import { isEmploymentPositionOptionalTitle } from "@workspace/hr/constants/employee-temporal-write-policy";
 import type {
   EdpRow,
   EmployeeLifecycleEventRow,
@@ -284,9 +285,11 @@ export function useEmployeeLifecycleSections({
   const employmentItems = employmentKeys.map((key) => profileFieldSpec(fieldByKey(resolvedEmploymentFields, key), draft, !canEdit, setField));
   const percentItem = profileFieldSpec(fieldByKey(edpFields, "workPercent"), draft, !canEdit, setField);
   const reasonItem = profileFieldSpec(lifecycleTextField, draft, !canEdit, setField);
+  const positionOptionalOnboard = draft.eventType === "onboard"
+    && isEmploymentPositionOptionalTitle(draft.title);
 
   const eventItems: FormSurfaceItemSpec[] = draft.eventType === "onboard"
-    ? [...targetItems, percentItem, ...employmentItems]
+    ? [...(positionOptionalOnboard ? [] : [...targetItems, percentItem]), ...employmentItems]
     : draft.eventType === "transfer"
       ? [sourceItem, ...targetItems]
       : draft.eventType === "concurrent_assignment"

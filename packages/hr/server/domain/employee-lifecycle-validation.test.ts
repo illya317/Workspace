@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { shiftBusinessDate } from "@workspace/platform/contracts/business-temporal";
+import { isEmploymentPositionOptionalTitle } from "@workspace/hr/constants/employee-temporal-write-policy";
 import {
   validateAssignmentChange,
   validateAssignmentTimeline,
@@ -30,6 +31,13 @@ function assignment(input: Partial<LifecycleAssignmentPeriod> & Pick<LifecycleAs
     workPercent: input.workPercent ?? "1",
   };
 }
+
+test("only advisor and director titles make a position optional", () => {
+  assert.equal(isEmploymentPositionOptionalTitle("顾问"), true);
+  assert.equal(isEmploymentPositionOptionalTitle(" 董事 "), true);
+  assert.equal(isEmploymentPositionOptionalTitle(""), false);
+  assert.equal(isEmploymentPositionOptionalTitle("经理"), false);
+});
 
 test("period boundaries are inclusive and future starts do not become current early", () => {
   const period = { startDate: "2026-08-01", endDate: "2026-08-31" };
@@ -84,6 +92,13 @@ test("timeline validation catches future over-allocation and primary-role confli
     { startDate: "2026-01-01", endDate: null, workPercent: "0.8", isPrimary: true },
     { startDate: "2026-08-01", endDate: null, workPercent: "0.2", isPrimary: true },
   ], "2026-08-01") ?? "", /只能有一个主岗/);
+});
+
+test("timeline validation can require a current assignment at the effective date", () => {
+  assert.match(validateAssignmentTimeline([], "2026-07-26", {
+    requireAssignmentAtFromDate: true,
+  }) ?? "", /至少存在一条当前任职/);
+  assert.equal(validateAssignmentTimeline([], "2026-07-26"), null);
 });
 
 test("timeline validation fail-closes invalid and unshiftable inclusive ends", () => {

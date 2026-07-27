@@ -53,6 +53,7 @@ const companyDocumentSchema = z.object({
 const companySchema = z.object({
   code: nonEmptyString,
   name: nonEmptyString,
+  aliases: z.array(nonEmptyString).default([]),
   managementGroup: nonEmptyString,
   codePoolCode: nonEmptyString.nullable(),
   isActive: z.boolean(),

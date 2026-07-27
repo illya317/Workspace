@@ -3,11 +3,9 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { listDataQualityProviderResourceKeys } from "@workspace/platform/data-quality-provider-registry";
-import { listDataQualityRoutingResourceOptions } from "./data-quality-policy";
 
-test("data-quality routing only exposes producer-backed L2 resources", () => {
+test("data-quality provider registry exposes the HR inspection resource", () => {
   assert.deepEqual(listDataQualityProviderResourceKeys(), ["hr.roster"]);
-  assert.deepEqual(listDataQualityRoutingResourceOptions().map((option) => option.value), ["hr.roster"]);
 });
 
 test("automatic inspection scheduler is enabled outside tests in both development and production", () => {

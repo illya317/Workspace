@@ -152,7 +152,7 @@ async function resolveFoundation(client, runtime) {
   }
 
   const managers = (await client.query(
-    `SELECT DISTINCT employee.id, employee."employeeId", employee.name
+    `SELECT DISTINCT employee.id, employee."employeeId", employee.name, assignment."reportingCompanyId"
      FROM "Employee" AS employee
      JOIN "EmployeePosition" AS assignment ON assignment."employeeId" = employee.id
      WHERE assignment."positionId" = $1
@@ -166,6 +166,10 @@ async function resolveFoundation(client, runtime) {
     [parentPosition.id, runtime.today],
   )).rows;
   const manager = requireExactlyOne(managers, `current active occupant of ${PARENT_POSITION.code}`);
+  const reportingCompanyId = numericId(manager.reportingCompanyId);
+  if (!reportingCompanyId) {
+    throw new ProvisioningError(`current active occupant of ${PARENT_POSITION.code} must have a reporting company`);
+  }
 
   const resourceKeys = MANAGED_WORKSPACE_RESOURCE_GRANTS.map((grant) => grant.resourceKey);
   const resources = (await client.query(
@@ -187,6 +191,7 @@ async function resolveFoundation(client, runtime) {
     editorUserId: numericId(editor.id),
     editorUsername: editor.username,
     departmentId: numericId(department.id),
+    reportingCompanyId,
     parentPositionId: numericId(parentPosition.id),
     managerEmployeeId: manager.employeeId,
     resourceByKey,
@@ -419,7 +424,7 @@ async function ensureEmployment(client, runtime, foundation, spec, identity) {
 async function ensureCurrentAssignment(client, runtime, foundation, spec, identity, position) {
   if (identity.employeeId === null || position.id === null) {
     addAction(runtime.actions, "create", "EmployeePosition", spec.employeeId, [
-      "departmentId", "positionId", "isPrimary", "workPercent", "reportTo",
+      "reportingCompanyId", "departmentId", "positionId", "isPrimary", "workPercent", "reportTo",
     ]);
     return;
   }
@@ -429,7 +434,7 @@ async function ensureCurrentAssignment(client, runtime, foundation, spec, identi
   }
   const lock = runtime.lockRows ? " FOR UPDATE" : "";
   const rows = (await client.query(
-    `SELECT id, "departmentId", "positionId", "positionReportOverrideId", "isPrimary",
+    `SELECT id, "reportingCompanyId", "departmentId", "positionId", "positionReportOverrideId", "isPrimary",
             "startDate", "endDate", "reportTo", "workPercent"
      FROM "EmployeePosition"
      WHERE "employeeId" = $1
@@ -451,20 +456,22 @@ async function ensureCurrentAssignment(client, runtime, foundation, spec, identi
   const assignment = current[0] ?? null;
   if (!assignment) {
     if (rows.length > 0) {
-      // A historical ended assignment is an explicit offboarding decision.
-      return;
+      throw new ProvisioningError(
+        `employee ${spec.employeeId} has active Employment but no current EmployeePosition`,
+      );
     }
     addAction(runtime.actions, "create", "EmployeePosition", spec.employeeId, [
-      "departmentId", "positionId", "isPrimary", "workPercent", "reportTo",
+      "reportingCompanyId", "departmentId", "positionId", "isPrimary", "workPercent", "reportTo",
     ]);
     if (runtime.apply) {
       await client.query(
         `INSERT INTO "EmployeePosition"
-           ("employeeId", "departmentId", "positionId", "positionReportOverrideId", "isPrimary",
+           ("employeeId", "reportingCompanyId", "departmentId", "positionId", "positionReportOverrideId", "isPrimary",
             "endDate", "reportTo", "workPercent", "editedBy", "editedAt")
-         VALUES ($1, $2, $3, NULL, TRUE, NULL, $4, '1', $5, CURRENT_TIMESTAMP)`,
+         VALUES ($1, $2, $3, $4, NULL, TRUE, NULL, $5, '1', $6, CURRENT_TIMESTAMP)`,
         [
           identity.employeeId,
+          foundation.reportingCompanyId,
           foundation.departmentId,
           position.id,
           foundation.managerEmployeeId,
@@ -473,6 +480,28 @@ async function ensureCurrentAssignment(client, runtime, foundation, spec, identi
       );
     }
     return;
+  }
+  if (!numericId(assignment.reportingCompanyId)) {
+    addAction(runtime.actions, "update", "EmployeePosition", spec.employeeId, ["reportingCompanyId"]);
+    if (runtime.apply) {
+      await client.query(
+        `UPDATE "EmployeePosition"
+         SET "reportingCompanyId" = $1, "editedBy" = $2, "editedAt" = CURRENT_TIMESTAMP,
+             version = version + 1
+         WHERE id = $3 AND "reportingCompanyId" IS NULL`,
+        [foundation.reportingCompanyId, foundation.editorUserId, assignment.id],
+      );
+    }
+  }
+  if (
+    !numericId(assignment.departmentId)
+    || !numericId(assignment.positionId)
+    || assignment.isPrimary !== true
+    || Number(assignment.workPercent) !== 1
+  ) {
+    throw new ProvisioningError(
+      `employee ${spec.employeeId} current EmployeePosition violates required placement fields`,
+    );
   }
   // Existing active assignments are owned by HR. A transfer, reporting-line
   // override or workload change must survive the next deployment.

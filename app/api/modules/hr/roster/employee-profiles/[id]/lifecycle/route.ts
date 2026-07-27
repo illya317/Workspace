@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { isEmploymentPositionOptionalTitle } from "@workspace/hr/constants/employee-temporal-write-policy";
 import { buildHrRouteCommand, recordEmployeeLifecycleEvent } from "@workspace/hr/server";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
@@ -25,6 +26,15 @@ const lifecycleBodySchema = z.object({
   title: nullableText,
   leaveReason: nullableText,
   leaveNote: nullableText,
+}).superRefine((value, context) => {
+  if (
+    value.eventType === "offboard"
+    || (value.eventType === "onboard" && isEmploymentPositionOptionalTitle(value.title))
+  ) return;
+  for (const field of ["reportingCompanyId", "departmentId", "positionId", "workPercent"] as const) {
+    if (value[field] !== null && value[field] !== undefined && value[field] !== "") continue;
+    context.addIssue({ code: "custom", path: [field], message: `${field} required` });
+  }
 });
 
 export const PUT = createCommandRoute({

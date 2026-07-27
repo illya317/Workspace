@@ -5,7 +5,6 @@ import type {
 } from "./notification-workflow";
 import { prisma, type Prisma } from "./prisma";
 import { permissionReviewNotificationDefinition, type PermissionReviewAlertPayload } from "./notification-permission-review";
-import { dataQualityNotificationDefinition, type DataQualityAlertPayload } from "./notification-data-quality";
 import type { ProjectMemberNotificationPayload } from "./notification-project-members";
 export {
   clearReadUserNotifications,
@@ -54,7 +53,6 @@ type NotificationPayloadByType = {
   "approval.request.approved": ApprovalNotificationPayload;
   "approval.request.commented": ApprovalNotificationPayload;
   "security.permissionReview.alert": PermissionReviewAlertPayload;
-  "platform.businessData.alert": DataQualityAlertPayload;
 };
 export type RegisteredNotificationType = keyof NotificationPayloadByType;
 type NotificationRenderResult = {
@@ -359,7 +357,6 @@ const notificationRegistry = {
     }),
   }),
   "security.permissionReview.alert": defineNotification<PermissionReviewAlertPayload>(permissionReviewNotificationDefinition),
-  "platform.businessData.alert": defineNotification<DataQualityAlertPayload>(dataQualityNotificationDefinition),
 } satisfies { [TType in RegisteredNotificationType]: NotificationDefinition<NotificationPayloadByType[TType]> };
 
 function defineNotification<TPayload>(definition: NotificationDefinition<TPayload>) {

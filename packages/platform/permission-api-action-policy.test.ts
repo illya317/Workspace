@@ -205,7 +205,7 @@ test("Operational analysis standard draft API resolves concrete-space configure 
 });
 
 test("personal notification subscription writes use account read and are Agent-discoverable", async () => {
-  const path = "/api/modules/settings/account/notification-subscriptions/platform.businessData.alert";
+  const path = "/api/modules/settings/account/notification-subscriptions/approval.request.submitted";
   for (const policy of [
     resolvePut(path, "settings.account"),
     resolveDelete(path, "settings.account"),

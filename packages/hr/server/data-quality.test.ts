@@ -9,6 +9,7 @@ function employee(overrides: Partial<Parameters<typeof evaluateHrDataQualityRows
     employeeId: "EMP-X001",
     name: "测试员工",
     activeEmploymentCount: 1,
+    positionRequired: true,
     currentAssignments: [{
       reportingCompanyId: 1,
       departmentId: 1,
@@ -23,6 +24,21 @@ function employee(overrides: Partial<Parameters<typeof evaluateHrDataQualityRows
 
 test("healthy active employee produces no HR data-quality finding", () => {
   assert.deepEqual(evaluateHrDataQualityRows([employee()]), []);
+});
+
+test("advisor and director employments do not require assignment integrity", () => {
+  const findings = evaluateHrDataQualityRows([employee({
+    positionRequired: false,
+    currentAssignments: [{
+      reportingCompanyId: null,
+      departmentId: null,
+      departmentName: null,
+      positionId: null,
+      isPrimary: false,
+      workPercent: null,
+    }],
+  })]);
+  assert.deepEqual(findings, []);
 });
 
 test("HR data-quality rules retain a global fallback for findings without an accountable department", () => {

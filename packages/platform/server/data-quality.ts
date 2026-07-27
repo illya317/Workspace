@@ -4,40 +4,14 @@ import {
   dataQualityEvaluationResponseSchema,
   type DataQualityCheckDefinition,
   type DataQualityEvaluationResponse,
-  type DataQualityFinding,
   type DataQualityTrigger,
 } from "@workspace/platform/data-quality-contract";
 import { DATA_QUALITY_PROVIDER_REGISTRATIONS } from "@workspace/platform/data-quality-provider-registry";
-import {
-  buildDataQualityNotificationGroups,
-  type DataQualityNotificationGroup,
-} from "../data-quality-notification-routing";
 import { callWorkspaceInternalJson } from "./internal-unit-rpc";
-import { sendNotification } from "./notifications";
-import { listEligibleNotificationSubscribers } from "./notification-subscriptions";
-import {
-  dataQualitySeverityIncreased,
-  dataQualitySeverityMeetsThreshold,
-  getDataQualityPolicy,
-  listDataQualityRoutingResourceOptions,
-  type DataQualityPolicy,
-} from "./data-quality-policy";
 import { prisma } from "./prisma";
 
 const PROVIDERS = DATA_QUALITY_PROVIDER_REGISTRATIONS;
 const MAX_MUTATION_ATTEMPTS = 5;
-
-type PreviousFinding = {
-  status: string;
-  severity: string;
-  lastWorkspaceNotifiedAt: Date | null;
-} | null;
-
-type ObservedFinding = {
-  finding: DataQualityFinding;
-  previous: PreviousFinding;
-  reopened: boolean;
-};
 
 export type DataQualityRunResult = {
   runId: number;
@@ -79,7 +53,6 @@ function providerHealthResponse(
       summary: `${providerKey.toUpperCase()} 规则服务调用失败：${failure}`,
       count: 1,
       resourceKey: "settings.admin",
-      href: "/settings/account?tab=subscriptions",
       samples: [],
     }] : [],
   };
@@ -87,7 +60,6 @@ function providerHealthResponse(
 
 async function persistEvaluation(runId: number, response: DataQualityEvaluationResponse) {
   const evaluatedAt = new Date(response.evaluatedAt);
-  const observed: ObservedFinding[] = [];
   let newFindingCount = 0;
   let resolvedFindingCount = 0;
 
@@ -138,8 +110,6 @@ async function persistEvaluation(runId: number, response: DataQualityEvaluationR
         where: { fingerprint: current.fingerprint },
         select: {
           status: true,
-          severity: true,
-          lastWorkspaceNotifiedAt: true,
         },
       });
       const reopened = previous?.status === "resolved";
@@ -177,147 +147,9 @@ async function persistEvaluation(runId: number, response: DataQualityEvaluationR
           lastRunId: runId,
         },
       });
-      observed.push({ finding: current, previous, reopened });
     }
   }
-  return { observed, newFindingCount, resolvedFindingCount };
-}
-
-function notificationCandidates(
-  observed: ObservedFinding[],
-  policy: DataQualityPolicy,
-  now: Date,
-) {
-  const repeatBefore = now.getTime() - policy.notifications.repeatAfterHours * 60 * 60 * 1000;
-  return observed.filter(({ finding, previous, reopened }) => {
-    if (!dataQualitySeverityMeetsThreshold(finding.severity, policy.notifications.minimumSeverity)) return false;
-    if (!previous || reopened || dataQualitySeverityIncreased(previous.severity, finding.severity)) return true;
-    const lastNotifiedAt = previous.lastWorkspaceNotifiedAt;
-    return !lastNotifiedAt || lastNotifiedAt.getTime() <= repeatBefore;
-  }).map(({ finding }) => finding);
-}
-
-type DeliveryGroup = DataQualityNotificationGroup & {
-  resourceLabel: string;
-  departmentName: string | null;
-  href: string;
-};
-
-async function resolveDeliveryGroups(groups: DataQualityNotificationGroup[]): Promise<DeliveryGroup[]> {
-  const departmentIds = [...new Set(groups.flatMap((group) => group.departmentId ? [group.departmentId] : []))];
-  const departments = departmentIds.length > 0
-    ? await prisma.department.findMany({
-        where: { id: { in: departmentIds } },
-        select: { id: true, name: true },
-      })
-    : [];
-  const departmentNames = new Map(departments.map((department) => [department.id, department.name]));
-  const resourceLabels = new Map(listDataQualityRoutingResourceOptions().map((option) => [option.value, option.label]));
-  return groups.map((group) => ({
-    ...group,
-    resourceLabel: group.resourceKey
-      ? resourceLabels.get(group.resourceKey) ?? group.resourceKey
-      : "未归属 L2",
-    departmentName: group.departmentId
-      ? departmentNames.get(group.departmentId) ?? `部门 #${group.departmentId}`
-      : null,
-    href: group.findings.find((finding) => finding.href)?.href ?? "/settings/account?tab=subscriptions",
-  }));
-}
-
-function alertPayload(runId: number, trigger: DataQualityTrigger, group: DeliveryGroup) {
-  const findings = group.findings;
-  return {
-    runId,
-    trigger,
-    checkedAt: new Date().toISOString(),
-    findingCount: findings.length,
-    criticalCount: findings.filter((finding) => finding.severity === "critical").length,
-    warningCount: findings.filter((finding) => finding.severity === "warning").length,
-    scope: {
-      resourceKey: group.resourceKey,
-      resourceLabel: group.resourceLabel,
-      departmentId: group.departmentId,
-      departmentName: group.departmentName,
-    },
-    href: group.href,
-    findings: findings.map((finding) => ({
-      fingerprint: finding.fingerprint,
-      severity: finding.severity,
-      title: finding.title,
-      summary: finding.summary,
-      count: finding.count,
-    })),
-  };
-}
-
-async function deliverWorkspaceAlerts(
-  runId: number,
-  trigger: DataQualityTrigger,
-  policy: DataQualityPolicy,
-  findings: DataQualityFinding[],
-) {
-  if (!policy.notifications.workspace.enabled || findings.length === 0) return;
-  const groups = await resolveDeliveryGroups(buildDataQualityNotificationGroups(findings));
-  for (const group of groups) {
-    const scope = [group.resourceLabel, group.departmentName].filter(Boolean).join(" · ");
-    const resourceKey = group.resourceKey ?? "settings.admin";
-    const subscribers = await listEligibleNotificationSubscribers({
-      eventKey: "platform.businessData.alert",
-      resourceKey,
-    });
-    if (subscribers.length === 0) {
-      await prisma.dataQualityNotificationDelivery.create({
-        data: {
-          runId,
-          channel: "workspace",
-          destination: `${scope} → no-subscribers`,
-          status: "skipped",
-          findingCount: group.findings.length,
-        },
-      });
-      continue;
-    }
-    const destination = `${scope} → ${subscribers.map((subscriber) => subscriber.username).join(",")}`;
-    try {
-      const payload = alertPayload(runId, trigger, group);
-      await Promise.all(subscribers.map((subscriber) => sendNotification({
-        recipientUserId: subscriber.userId,
-        type: "platform.businessData.alert",
-        payload,
-        isImportant: payload.criticalCount > 0,
-        isStrongReminder: payload.criticalCount > 0,
-        requiresAcknowledgement: payload.criticalCount > 0,
-        deliveryContext: {
-          recipientReason: `你订阅了「${group.resourceLabel}」业务资料异常提醒`,
-          resourceKey,
-          scopeId: group.departmentId ? `department:${group.departmentId}` : null,
-          subscriptionId: subscriber.subscriptionId,
-        },
-      })));
-      const sentAt = new Date();
-      await prisma.$transaction([
-        prisma.dataQualityFinding.updateMany({
-          where: { fingerprint: { in: group.findings.map((finding) => finding.fingerprint) } },
-          data: { lastWorkspaceNotifiedAt: sentAt },
-        }),
-        prisma.dataQualityNotificationDelivery.create({
-          data: { runId, channel: "workspace", destination, status: "sent", findingCount: group.findings.length, sentAt },
-        }),
-      ]);
-    } catch (error) {
-      await prisma.dataQualityNotificationDelivery.create({
-        data: {
-          runId,
-          channel: "workspace",
-          destination,
-          status: "failed",
-          findingCount: group.findings.length,
-          error: error instanceof Error ? error.message : String(error),
-        },
-      });
-    }
-  }
+  return { newFindingCount, resolvedFindingCount };
 }
 
 export async function runDataQuality(input: {
@@ -335,7 +167,6 @@ export async function runDataQuality(input: {
     },
     select: { id: true },
   });
-  const observed: ObservedFinding[] = [];
   let newFindingCount = 0;
   let resolvedFindingCount = 0;
   let successfulProviders = 0;
@@ -354,12 +185,10 @@ export async function runDataQuality(input: {
       successfulProviders += 1;
       const persisted = await persistEvaluation(run.id, response);
       response.checks.forEach((check) => evaluatedCheckKeys.add(check.key));
-      observed.push(...persisted.observed);
       newFindingCount += persisted.newFindingCount;
       resolvedFindingCount += persisted.resolvedFindingCount;
       const health = await persistEvaluation(run.id, providerHealthResponse(provider.key, null));
       evaluatedCheckKeys.add(providerHealthCheck(provider.key).key);
-      observed.push(...health.observed);
       newFindingCount += health.newFindingCount;
       resolvedFindingCount += health.resolvedFindingCount;
     } catch (error) {
@@ -371,7 +200,6 @@ export async function runDataQuality(input: {
       });
       const health = await persistEvaluation(run.id, providerHealthResponse(provider.key, message));
       evaluatedCheckKeys.add(providerHealthCheck(provider.key).key);
-      observed.push(...health.observed);
       newFindingCount += health.newFindingCount;
       resolvedFindingCount += health.resolvedFindingCount;
     }
@@ -394,10 +222,6 @@ export async function runDataQuality(input: {
     },
   });
 
-  const policy = await getDataQualityPolicy();
-  const now = new Date();
-  const workspaceFindings = notificationCandidates(observed, policy, now);
-  await deliverWorkspaceAlerts(run.id, input.trigger, policy, workspaceFindings);
   return {
     runId: run.id,
     trigger: input.trigger,

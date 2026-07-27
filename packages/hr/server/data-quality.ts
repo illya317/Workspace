@@ -7,6 +7,7 @@ import type {
 } from "@workspace/platform/data-quality-contract";
 import { prisma } from "@workspace/platform/server/prisma";
 import { currentEmploymentDateWhere, currentOpenEndedDateWhere } from "@workspace/platform/server/relation-registry";
+import { isEmploymentPositionOptionalTitle } from "@workspace/hr/constants/employee-temporal-write-policy";
 import { parseWorkPercent } from "./field-validation";
 
 const CHECKS = [
@@ -22,7 +23,7 @@ const CHECKS = [
     key: "hr.active-employee.current-assignment",
     domain: "hr",
     title: "在职员工当前任职完整",
-    description: "在职员工必须有当前任职，且当前任职中必须且只能有一个主岗。",
+    description: "除顾问、董事外，在职员工必须有当前任职，且当前任职中必须且只能有一个主岗。",
     defaultSeverity: "critical",
     triggerModes: ["manual", "scheduled", "mutation"],
   },
@@ -30,7 +31,7 @@ const CHECKS = [
     key: "hr.current-assignment.organization-complete",
     domain: "hr",
     title: "当前任职组织归属完整",
-    description: "当前任职必须落到任职公司、部门和岗位。",
+    description: "除顾问、董事外，当前任职必须落到任职公司、部门和岗位。",
     defaultSeverity: "warning",
     triggerModes: ["manual", "scheduled", "mutation"],
   },
@@ -38,7 +39,7 @@ const CHECKS = [
     key: "hr.current-assignment.workload-total",
     domain: "hr",
     title: "当前任职工作占比等于 1",
-    description: "同一在职员工的全部当前任职都要填写工作占比，合计必须等于 1。",
+    description: "除顾问、董事外，同一在职员工的全部当前任职都要填写工作占比，合计必须等于 1。",
     defaultSeverity: "critical",
     triggerModes: ["manual", "scheduled", "mutation"],
   },
@@ -49,6 +50,7 @@ type HrDataQualityRow = {
   employeeId: string;
   name: string;
   activeEmploymentCount: number;
+  positionRequired: boolean;
   currentAssignments: Array<{
     reportingCompanyId: number | null;
     departmentId: number | null;
@@ -109,6 +111,7 @@ function findingsByDepartment(
 }
 
 function workloadInvalid(row: HrDataQualityRow) {
+  if (!row.positionRequired) return false;
   if (row.currentAssignments.length === 0) return false;
   const values = row.currentAssignments.map((assignment) => parseWorkPercent(assignment.workPercent));
   if (values.some((value) => value === null || Number.isNaN(value))) return true;
@@ -119,14 +122,20 @@ function workloadInvalid(row: HrDataQualityRow) {
 export function evaluateHrDataQualityRows(rows: HrDataQualityRow[]): DataQualityFinding[] {
   const multipleActiveEmployment = rows.filter((row) => row.activeEmploymentCount > 1);
   const currentAssignmentInvalid = rows.filter((row) => (
-    row.currentAssignments.length === 0
-    || row.currentAssignments.filter((assignment) => assignment.isPrimary).length !== 1
+    row.positionRequired
+    && (
+      row.currentAssignments.length === 0
+      || row.currentAssignments.filter((assignment) => assignment.isPrimary).length !== 1
+    )
   ));
-  const organizationIncomplete = rows.filter((row) => row.currentAssignments.some((assignment) => (
-    assignment.reportingCompanyId === null
-    || assignment.departmentId === null
-    || assignment.positionId === null
-  )));
+  const organizationIncomplete = rows.filter((row) => (
+    row.positionRequired
+    && row.currentAssignments.some((assignment) => (
+      assignment.reportingCompanyId === null
+      || assignment.departmentId === null
+      || assignment.positionId === null
+    ))
+  ));
   const workloadTotalInvalid = rows.filter(workloadInvalid);
   return [
     ...findingsByDepartment(CHECKS[0], multipleActiveEmployment, (count) => `有 ${count} 名员工同时存在多条在职雇佣关系，需要确认唯一有效记录。`),
@@ -143,7 +152,7 @@ export async function evaluateHrDataQuality(): Promise<DataQualityEvaluationResp
       id: true,
       employeeId: true,
       name: true,
-      employments: { where: currentEmploymentDateWhere(), select: { id: true } },
+      employments: { where: currentEmploymentDateWhere(), select: { id: true, title: true } },
       positions: {
         where: currentOpenEndedDateWhere(),
         select: {
@@ -163,6 +172,9 @@ export async function evaluateHrDataQuality(): Promise<DataQualityEvaluationResp
     employeeId: employee.employeeId,
     name: employee.name,
     activeEmploymentCount: employee.employments.length,
+    positionRequired: !employee.employments.every((employment) => (
+      isEmploymentPositionOptionalTitle(employment.title)
+    )),
     currentAssignments: employee.positions.map((assignment) => ({
       ...assignment,
       departmentName: assignment.department?.name ?? null,
