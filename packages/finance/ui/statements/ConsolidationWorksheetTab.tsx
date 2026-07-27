@@ -2,7 +2,7 @@
 
 import {
   PageSurface,
-  createMessageSection,
+  createAnalysisSection,
   createPageBody,
   createPageTableSection,
   createStatusSection,
@@ -20,16 +20,19 @@ import type {
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
-  consolidationWorkpaperEntities,
+  adjustmentComparisonExpandedRow,
+  createAdjustmentComparisonColumns,
+} from "./consolidation-columns";
+import {
   consolidationWorkpaperAdjustmentAmounts,
-  consolidationWorkpaperEntityAmount,
   consolidationWorkpaperEntryEffects,
   consolidationWorkpaperLines,
   type ConsolidationWorkpaperEntryEffect,
 } from "./consolidation-workpaper-model";
-import type { ConsolidationTabProps } from "./ConsolidationTabs";
+import type { ConsolidationTabProps } from "./statement-ui-types";
 import { useConsolidatedReport } from "./useConsolidatedReport";
 import { downloadStatementWorkbook } from "./statement-download";
+import { useConsolidationDecisionWorkspace } from "./useConsolidationDecisionWorkspace";
 
 const ENTRY_EFFECT_COLUMNS: DataSurfaceColumnSpec<ConsolidationWorkpaperEntryEffect>[] = [
   { key: "entry", label: "抵销分录", required: true, width: "lg", cell: (row) => row.title },
@@ -51,7 +54,7 @@ function expandedWorkpaperRow(
     kind: "group",
     direction: "column",
     items: [
-      { kind: "text", value: "下列为直接写入本报表行的已批准抵销分录；派生合计、税务影响及归属重算反映在上方调整与抵销金额中。", tone: "muted", wrap: "wrap" },
+      { kind: "text", value: "下列为直接写入本报表行的合并凭证；确认前为草稿预览，确认后随报表一并冻结。", tone: "muted", wrap: "wrap" },
       { kind: "data", data: {
         kind: "table",
         rows: effects,
@@ -70,16 +73,29 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
   const feedback = useFeedback();
   const reportType = props.reportType;
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
+  const [comparisonExpandedKeys, setComparisonExpandedKeys] = useState<Set<string>>(new Set());
   const [downloading, setDownloading] = useState(false);
   const batch = data?.batch ?? null;
   const output = useConsolidatedReport(batch?.id ?? null, batch?.status ?? null);
-  const entities = useMemo(() => consolidationWorkpaperEntities(output.report), [output.report]);
-  const companyNameByCode = useMemo(() => new Map(
-    (data?.entities ?? []).map((entity) => [entity.code, entity.name]),
-  ), [data?.entities]);
+  const workspace = useConsolidationDecisionWorkspace({
+    data,
+    capabilities: props.capabilities,
+    onRefresh: props.onRefresh,
+    onBatchDeleted: props.onBatchDeleted,
+  });
   const statement = output.report?.statements.find((item) => item.reportType === reportType) ?? null;
-  const workpaperLines = useMemo(() => statement ? consolidationWorkpaperLines(statement) : [], [statement]);
+  const workpaperLines = useMemo(() => statement ? consolidationWorkpaperLines(statement).filter((line) => {
+    const adjustment = consolidationWorkpaperAdjustmentAmounts(line);
+    return Math.abs(adjustment.debit) >= 0.005 || Math.abs(adjustment.credit) >= 0.005;
+  }) : [], [statement]);
   const entries = batch?.entries ?? [];
+  const sourceExceptions = (data?.adjustmentComparisons ?? []).filter((row) =>
+    row.reviewStatus === "exception"
+    || row.status === "missingCounterpart"
+    || row.status === "unresolved"
+    || row.status === "pendingCalculation",
+  );
+  const comparisonColumns = createAdjustmentComparisonColumns({ expandedKeys: comparisonExpandedKeys });
   const canExport = props.capabilities.canExport;
   const parentName = data?.scope.parent?.name || "合并主体";
 
@@ -100,6 +116,7 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
 
   useEffect(() => {
     setExpandedKeys(new Set());
+    setComparisonExpandedKeys(new Set());
   }, [batch?.id, reportType]);
 
   const columns = useMemo<DataSurfaceColumnSpec<ConsolidatedOutputLine>[]>(() => [
@@ -117,21 +134,12 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
         ],
       }),
     },
-    ...entities.map((entity): DataSurfaceColumnSpec<ConsolidatedOutputLine> => {
-      const displayName = companyNameByCode.get(entity.companyCode) ?? entity.companyName;
-      return {
-        key: `entity-${entity.entitySnapshotId}`,
-        label: <span title={entity.companyName}>{entity.companyCode} {displayName}</span>,
-        width: "md",
-        cell: (line) => ({ kind: "amount", value: consolidationWorkpaperEntityAmount(line, entity.entitySnapshotId) }),
-      };
-    }),
     { key: "source", label: "个别报表合计", required: true, width: "md", cell: (line) => ({ kind: "amount", value: line.sourceAmount }) },
     { key: "elimination-debit", label: "抵销借方", required: true, width: "md", cell: (line) => ({ kind: "amount", value: consolidationWorkpaperAdjustmentAmounts(line).debit, showZero: false }) },
     { key: "elimination-credit", label: "抵销贷方", required: true, width: "md", cell: (line) => ({ kind: "amount", value: consolidationWorkpaperAdjustmentAmounts(line).credit, showZero: false }) },
     { key: "consolidated", label: "合并数", required: true, width: "md", cell: (line) => ({ kind: "amount", value: line.amount }) },
     { key: "comparative", label: "比较数", required: true, width: "md", cell: (line) => ({ kind: "amount", value: line.previousAmount }) },
-  ], [companyNameByCode, entities, expandedKeys]);
+  ], [expandedKeys]);
 
   const toolbar = {
     items: [
@@ -171,10 +179,28 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
     })];
   } else {
     sections = [
-      ...(entities.length === 0 ? [createMessageSection("consolidation-workpaper-history-note", {
-        tone: "muted",
-        content: "该历史冻结快照未保存逐主体贡献，底稿仅展示个别报表汇总、调整与抵销、合并数和比较数。",
+      ...(sourceExceptions.length > 0 ? [createAnalysisSection("consolidation-source-exceptions", {
+        title: "合并凭证来源与例外",
+        sections: [createPageTableSection("consolidation-source-exception-table", {
+          rows: sourceExceptions,
+          columns: comparisonColumns,
+          visibleColumns: comparisonColumns.map((column) => column.key),
+          rowKey: (row) => row.key,
+          onRowClick: (row) => setComparisonExpandedKeys((current) => {
+            const next = new Set(current);
+            if (next.has(row.key)) next.delete(row.key);
+            else next.add(row.key);
+            return next;
+          }),
+          expandedRowKeys: comparisonExpandedKeys,
+          expandedRow: adjustmentComparisonExpandedRow,
+          rowState: () => "warning",
+          presentation: { density: "compact", cellWrap: "wrap" },
+          scroll: { x: true },
+          emptyText: "当前没有来源例外",
+        })],
       })] : []),
+      ...workspace.lifecycleSections(props.onWorkpaperConfirmed),
       createPageTableSection("consolidation-workpaper-table", {
         rows: workpaperLines,
         columns,
@@ -191,7 +217,7 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
         rowState: (line) => Math.abs(line.adjustmentAmount) >= 0.01 ? "warning" : "normal",
         presentation: { density: "compact", cellWrap: "nowrap" },
         scroll: { x: true },
-        emptyText: "当前报表没有底稿行",
+        emptyText: "当前报表没有抵销借方或抵销贷方",
       }),
     ];
   }

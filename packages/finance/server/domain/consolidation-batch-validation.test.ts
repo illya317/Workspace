@@ -74,6 +74,17 @@ test("requires an independent batch reviewer", () => {
   assert.deepEqual(independent, { ok: true, data: { nextStatus: "reviewed" } });
 });
 
+test("allows an authorized workpaper confirmation to lock a draft directly", () => {
+  const result = validateConsolidationBatchTransition({
+    status: "draft",
+    createdBy: 9,
+    submittedBy: null,
+    reviewedBy: null,
+    contributorUserIds: [9],
+  }, "lock", 9);
+  assert.deepEqual(result, { ok: true, data: { nextStatus: "locked" } });
+});
+
 test("accepts automatic refresh and preparation completion intents", () => {
   const result = buildSaveConsolidationSourcesCommand(3, {
     expectedRevision: 1,

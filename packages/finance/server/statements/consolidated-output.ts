@@ -17,6 +17,7 @@ import {
   sumLineAmounts,
   translatedCurrentMonthAmounts,
 } from "./consolidated-line-amounts";
+import { cnyPerForeignUnit, historicalEquityRate } from "./consolidation-frozen-rates";
 
 type FrozenReportLine = Omit<ConsolidatedOutputLine, "sourceAmount" | "adjustmentAmount">;
 
@@ -35,7 +36,6 @@ const HISTORICAL_CAPITAL_LINE_CODES = new Set([
 ]);
 const TRANSLATION_DIFFERENCE_LINE_CODE = "otherComprehensiveIncome";
 
-type FrozenRate = ConsolidationReplayPackage["exchangeRates"][number];
 type EntityTranslationPolicy = {
   currency: "CNY";
 } | {
@@ -108,17 +108,6 @@ function parseFrozenLine(value: unknown): FrozenReportLine | null {
   };
 }
 
-function cnyPerForeignUnit(rate: FrozenRate): DomainValidationResult<number> {
-  if (rate.baseCurrency.toUpperCase() !== "CAD" || rate.quoteCurrency.toUpperCase() !== "CNY") {
-    return failCommand("当前合并输出仅支持 CAD/CNY 冻结汇率", 409, "exchangeRates");
-  }
-  const normalized = Number(rate.rate);
-  if (!Number.isFinite(normalized) || normalized <= 0) {
-    return failCommand("批次冻结汇率不是有效正数", 409, "exchangeRates");
-  }
-  return okCommand(normalized);
-}
-
 function entityAppliedRate(
   replay: ConsolidationReplayPackage,
   entitySnapshotId: number,
@@ -137,37 +126,6 @@ function entityAppliedRate(
   return cnyPerForeignUnit(matches[0]!);
 }
 
-function entityHistoricalCapitalRate(
-  replay: ConsolidationReplayPackage,
-  entitySnapshotId: number,
-  periodBasis: "current" | "comparative",
-): DomainValidationResult<number | null> {
-  const bindings = replay.exchangeRates.flatMap((rate) => rate.applications
-    .filter((application) => (
-      (application.applicationType === "historicalInvestment" || application.applicationType === "historicalCapital")
-      && application.periodBasis === periodBasis
-      && application.entitySnapshotId === entitySnapshotId
-    ))
-    .map((application) => ({ rate, application })));
-  if (bindings.length === 0) return okCommand(null);
-  let originalAmountTotal = 0;
-  let translatedAmountTotal = 0;
-  for (const binding of bindings) {
-    if (binding.rate.rateKind !== "historicalInvestment" && binding.rate.rateKind !== "centralParity") {
-      return failCommand(`CAD 实体 ${entitySnapshotId} 的投资日应用引用了非历史汇率`, 409, "rateApplications");
-    }
-    const originalAmount = binding.application.voucher?.originalAmount ?? binding.application.capitalOriginalAmount;
-    if (originalAmount === null || originalAmount === undefined || !Number.isFinite(originalAmount) || originalAmount <= 0) {
-      return failCommand(`CAD 实体 ${entitySnapshotId} 的权益资本历史汇率缺少有效原币金额`, 409, "rateApplications");
-    }
-    const normalizedRate = cnyPerForeignUnit(binding.rate);
-    if (!normalizedRate.ok) return normalizedRate;
-    originalAmountTotal += originalAmount;
-    translatedAmountTotal += originalAmount * normalizedRate.data;
-  }
-  return okCommand(translatedAmountTotal / originalAmountTotal);
-}
-
 function buildEntityTranslationPolicy(
   replay: ConsolidationReplayPackage,
   entitySnapshotId: number,
@@ -184,9 +142,9 @@ function buildEntityTranslationPolicy(
   }
   const comparativeClosing = entityAppliedRate(replay, entitySnapshotId, "comparative");
   if (!comparativeClosing.ok) return comparativeClosing;
-  const historicalCapital = entityHistoricalCapitalRate(replay, entitySnapshotId, "current");
+  const historicalCapital = historicalEquityRate(replay.exchangeRates, entitySnapshotId, "current");
   if (!historicalCapital.ok) return historicalCapital;
-  const comparativeHistoricalCapital = entityHistoricalCapitalRate(replay, entitySnapshotId, "comparative");
+  const comparativeHistoricalCapital = historicalEquityRate(replay.exchangeRates, entitySnapshotId, "comparative");
   if (!comparativeHistoricalCapital.ok) return comparativeHistoricalCapital;
   const entity = replay.entities.find((candidate) => candidate.id === entitySnapshotId);
   return okCommand({

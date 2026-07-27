@@ -1,4 +1,11 @@
-export type ConsolidationWorkpaperView = "preparation" | "eliminations" | "workpaper" | "report";
+import type {
+  PageSurfaceTabBarSpec,
+  SurfaceToolbarItem,
+  SurfaceToolbarItems,
+} from "@workspace/core/ui";
+import type { ConsolidationOverview, StatementReportType } from "@workspace/finance/types";
+
+export type ConsolidationWorkpaperView = "preparation" | "workpaper" | "report";
 
 export interface ConsolidationCapabilities {
   canCreate: boolean;
@@ -10,4 +17,19 @@ export interface ConsolidationCapabilities {
   canReject: boolean;
   canLock: boolean;
   canExport: boolean;
+}
+
+export interface ConsolidationTabProps {
+  capabilities: ConsolidationCapabilities;
+  data: ConsolidationOverview | null;
+  error: string | null;
+  loading: boolean;
+  sharedToolbarItems: SurfaceToolbarItems;
+  reportType: StatementReportType;
+  reportTypeToolbarItem: SurfaceToolbarItem;
+  onRefresh: (freshBatch?: NonNullable<ConsolidationOverview["batch"]>) => void;
+  onBatchDeleted: () => void;
+  onStartWorkpaper: () => void;
+  onWorkpaperConfirmed: () => void;
+  navigation: PageSurfaceTabBarSpec;
 }

@@ -5,6 +5,7 @@ import type {
 
 export const CONSOLIDATION_ENTRY_TYPES: readonly ConsolidationEntryType[] = [
   "investmentEquity",
+  "reclassification",
   "nonControllingInterest",
   "intercompanyBalance",
   "internalTrading",

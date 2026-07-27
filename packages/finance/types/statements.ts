@@ -17,6 +17,7 @@ export type ConsolidationBatchEventAction = ConsolidationBatchLifecycleAction
 export type ConsolidationEntryStatus = "draft" | "submitted" | "approved" | "reversed";
 export type ConsolidationEntryType =
   | "investmentEquity"
+  | "reclassification"
   | "nonControllingInterest"
   | "intercompanyBalance"
   | "internalTrading"

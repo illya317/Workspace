@@ -10,8 +10,9 @@ import {
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 import { resolveUserBusinessActorName } from "@workspace/platform/server/user-identity";
-import { loadConsolidationBatchRow } from "./consolidation-dto";
+import { consolidationBatchSnapshot, loadConsolidationBatchRow } from "./consolidation-dto";
 import {
   appendConsolidationBatchEvent,
   claimConsolidationBatchRevision,
@@ -20,6 +21,8 @@ import {
 import { loadConsolidationVoucherMatchGroups } from "./consolidation-voucher-matches";
 import { consolidationSourcesReady } from "./consolidation-source-coverage";
 import { loadConsolidationCompanyDirectory } from "./consolidation-company-directory";
+import { buildRemittanceFxEntries } from "./consolidation-remittance-fx-entries";
+import { buildOpeningCapitalReclassificationEntries } from "./consolidation-opening-capital-reclassification";
 
 class GenerationError extends Error {
   constructor(message: string, readonly status = 400) {
@@ -93,9 +96,7 @@ function entryLines(
     ...group.rightFacts.map((fact) => ({ fact, side: "right" as const, entity: rightEntity, counterparty: leftEntity })),
   ].map(({ fact, side, entity, counterparty }, index) => {
     if (!fact.lineCode) throw new GenerationError("已匹配凭证存在未映射报表项目", 409);
-    const consolidationAmount = fact.consolidationAmount ?? fact.signedAmount;
-    const amount = Math.abs(Math.round(consolidationAmount * 100) / 100);
-    const entryCurrency = fact.consolidationAmount === undefined ? fact.currencyCode : "CNY";
+    const amount = Math.abs(Math.round(fact.signedAmount * 100) / 100);
     return {
       lineNo: index + 1,
       entitySnapshotId: entity.id,
@@ -104,9 +105,9 @@ function entryLines(
       statementType: "balanceSheet",
       lineCode: fact.lineCode,
       accountCode: fact.accountCode,
-      debit: consolidationAmount < 0 ? amount : 0,
-      credit: consolidationAmount > 0 ? amount : 0,
-      currencyCode: entryCurrency,
+      debit: fact.signedAmount < 0 ? amount : 0,
+      credit: fact.signedAmount > 0 ? amount : 0,
+      currencyCode: fact.currencyCode,
       periodBasis: "current",
       note: `${fact.voucherDate} ${fact.voucherNo} · ${fact.accountCode} ${fact.accountName}`,
       matchSide: side,
@@ -176,18 +177,63 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
     });
     if (!direct.ok) return direct;
 
+    const openingPolicies = getTenantProfile().financeConsolidationPolicies.openingCapitalReclassifications;
+    const directoryCompanyCodes = [...new Set([
+      ...batch.entities.map((entity) => entity.companyCode),
+      ...openingPolicies.map((policy) => policy.payableCounterpartyCompanyCode),
+    ])];
     const [groups, companyDirectory] = await Promise.all([
       loadConsolidationVoucherMatchGroups(batch),
-      loadConsolidationCompanyDirectory(batch.entities.map((entity) => entity.companyCode)),
+      loadConsolidationCompanyDirectory(directoryCompanyCodes),
     ]);
     const entityByCompanyId = new Map(batch.entities.map((entity) => [entity.companyId, {
       ...entity,
       companyName: companyDirectory.displayName(entity.companyId, entity.companyCode, entity.companyName),
     }]));
+    const batchSnapshot = consolidationBatchSnapshot(batch);
+    const openingCounterparties = new Map(openingPolicies.flatMap((policy) => {
+      const company = companyDirectory.find(null, policy.payableCounterpartyCompanyCode);
+      return company ? [[policy.payableCounterpartyCompanyCode, {
+        id: company.id,
+        code: company.code,
+        name: company.fullName || company.name,
+      }] as const] : [];
+    }));
+    const openingResult = buildOpeningCapitalReclassificationEntries(
+      batchSnapshot,
+      openingPolicies,
+      openingCounterparties,
+    );
+    if (!openingResult.ok) throw new GenerationError(openingResult.issue.message, openingResult.issue.status);
+    const policyEntries = [
+      ...openingResult.data,
+      ...buildRemittanceFxEntries(batchSnapshot),
+    ];
     const existingGroups = await prisma.financeConsolidationMatchGroup.findMany({
       where: { batchId: batch.id },
       include: { entry: { select: { id: true, status: true, generationFingerprint: true } }, sources: { select: { id: true } } },
     });
+    const existingPolicyEntries = await prisma.financeConsolidationEntry.findMany({
+      where: {
+        batchId: batch.id,
+        OR: [
+          { generationKey: { startsWith: "policy:opening-capital-reclassification:" } },
+          { generationKey: { startsWith: "policy:remittance-fx:" } },
+        ],
+      },
+      select: { id: true, status: true, generationKey: true, generationFingerprint: true },
+    });
+    const existingPolicyByKey = new Map(existingPolicyEntries.flatMap((entry) =>
+      entry.generationKey ? [[entry.generationKey, entry] as const] : [],
+    ));
+    const policyCandidates = policyEntries.map((entry) => {
+      const existing = existingPolicyByKey.get(entry.generationKey);
+      return { entry, existing, changed: !existing || existing.generationFingerprint !== entry.generationFingerprint };
+    });
+    const activePolicyKeys = new Set(policyEntries.map((entry) => entry.generationKey));
+    const stalePolicyEntries = existingPolicyEntries.filter((entry) =>
+      !entry.generationKey || !activePolicyKeys.has(entry.generationKey),
+    );
     const existingByKey = new Map(existingGroups.map((group) => [group.generationKey, group]));
     const candidates = groups.map((group) => {
       const sourceFingerprint = groupFingerprint(group);
@@ -204,17 +250,42 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
     });
     const activeKeys = new Set(groups.map((group) => group.generationKey));
     const staleGroups = existingGroups.filter((group) => !activeKeys.has(group.generationKey));
-    const protectedMutation = [...candidates.filter((item) => item.changed).map((item) => item.existing), ...staleGroups]
+    const protectedMatchMutation = [...candidates.filter((item) => item.changed).map((item) => item.existing), ...staleGroups]
       .find((group) => group?.entry && group.entry.status !== "draft");
-    if (protectedMutation) {
+    const protectedPolicyMutation = [
+      ...policyCandidates.filter((item) => item.changed).map((item) => item.existing),
+      ...stalePolicyEntries,
+    ].find((entry) => entry && entry.status !== "draft");
+    if (protectedMatchMutation || protectedPolicyMutation) {
       throw new GenerationError("来源凭证已变化，但已有提交或批准的系统抵销分录；请新建合并批次版本后重新生成", 409);
     }
     const changedCandidates = candidates.filter((item) => item.changed);
-    if (changedCandidates.length === 0 && staleGroups.length === 0) {
+    const changedPolicyCandidates = policyCandidates.filter((item) => item.changed);
+    const generatedTypes = new Set([
+      ...groups.filter((group) => group.status === "matched").map((group) => group.category),
+      ...policyEntries.map((entry) => entry.entryType),
+    ]);
+    const automaticDecisionConclusion = "当前来源未形成可入账的合并凭证";
+    const automaticDecisionEvidence = "系统根据合并凭证生成结果自动记录；单边、差额或缺少外币流水的事项保留来源例外，不进入合并数";
+    const automaticDecisionsChanged = (["investmentEquity", "intercompanyBalance"] as const).some((entryType) => {
+      const controlKey = `elimination:${entryType}` as const;
+      const current = batch.controlDecisions.find((decision) => decision.controlKey === controlKey);
+      if (generatedTypes.has(entryType)) return current?.evidence.startsWith("系统根据合并凭证生成结果") ?? false;
+      if (!current) return true;
+      if (!current.evidence.startsWith("系统根据合并凭证生成结果")) return false;
+      return current.decision !== "notApplicable"
+        || current.conclusion !== automaticDecisionConclusion
+        || current.evidence !== automaticDecisionEvidence;
+    });
+    if (changedCandidates.length === 0
+      && staleGroups.length === 0
+      && changedPolicyCandidates.length === 0
+      && stalePolicyEntries.length === 0
+      && !automaticDecisionsChanged) {
       return serviceOk({
         created: 0,
         updated: 0,
-        unchanged: groups.filter((group) => group.status === "matched").length,
+        unchanged: groups.filter((group) => group.status === "matched").length + policyEntries.length,
         exceptions: groups.filter((group) => group.status !== "matched").length,
         sourceItems: groups.reduce((sum, group) => sum + group.leftFacts.length + group.rightFacts.length, 0),
         batchRevision: batch.revision,
@@ -238,6 +309,11 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
           await tx.financeConsolidationEntry.delete({ where: { id: stale.entry.id } });
         }
         await tx.financeConsolidationMatchGroup.delete({ where: { id: stale.id } });
+      }
+      if (stalePolicyEntries.length > 0) {
+        await tx.financeConsolidationEntry.deleteMany({
+          where: { id: { in: stalePolicyEntries.map((entry) => entry.id) } },
+        });
       }
       for (const candidate of changedCandidates) {
         const { group, sourceFingerprint, status, existing } = candidate;
@@ -306,13 +382,82 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
         }
         await tx.financeConsolidationMatchGroup.update({ where: { id: matchGroup.id }, data: { entryId } });
       }
+      for (const candidate of changedPolicyCandidates) {
+        const data = {
+          entryNo: candidate.entry.entryNo,
+          entryType: candidate.entry.entryType,
+          title: candidate.entry.title,
+          description: candidate.entry.description,
+          evidence: candidate.entry.evidence,
+          matchDifference: candidate.entry.matchDifference,
+          differenceResolution: candidate.entry.differenceResolution,
+          origin: "system",
+          generationKey: candidate.entry.generationKey,
+          generationFingerprint: candidate.entry.generationFingerprint,
+          generatedAt: new Date(),
+          preparedBy: command.userId,
+        };
+        if (candidate.existing) {
+          await tx.financeConsolidationEntryLine.deleteMany({ where: { entryId: candidate.existing.id } });
+          await tx.financeConsolidationEntry.update({
+            where: { id: candidate.existing.id },
+            data: { ...data, lines: { create: candidate.entry.lines } },
+          });
+          updated += 1;
+        } else {
+          await tx.financeConsolidationEntry.create({
+            data: { batchId: batch.id, ...data, lines: { create: candidate.entry.lines } },
+          });
+          created += 1;
+        }
+      }
+      for (const entryType of ["investmentEquity", "intercompanyBalance"] as const) {
+        const controlKey = `elimination:${entryType}` as const;
+        const currentDecision = batch.controlDecisions.find((decision) => decision.controlKey === controlKey);
+        if (generatedTypes.has(entryType)) {
+          await tx.financeConsolidationControlDecision.deleteMany({
+            where: {
+              batchId: batch.id,
+              controlKey,
+              evidence: { startsWith: "系统根据合并凭证生成结果" },
+            },
+          });
+          continue;
+        }
+        if (currentDecision && !currentDecision.evidence.startsWith("系统根据合并凭证生成结果")) continue;
+        if (currentDecision
+          && currentDecision.decision === "notApplicable"
+          && currentDecision.conclusion === automaticDecisionConclusion
+          && currentDecision.evidence === automaticDecisionEvidence) continue;
+        const decisionData = {
+          decision: "notApplicable" as const,
+          conclusion: automaticDecisionConclusion,
+          evidence: automaticDecisionEvidence,
+          decidedBy: command.userId,
+          decidedAt: new Date(),
+        };
+        if (currentDecision) {
+          await tx.financeConsolidationControlDecision.update({
+            where: { id: currentDecision.id },
+            data: decisionData,
+          });
+        } else {
+          await tx.financeConsolidationControlDecision.create({
+            data: {
+              batchId: batch.id,
+              controlKey,
+              ...decisionData,
+            },
+          });
+        }
+      }
       await appendConsolidationBatchEvent(tx, {
         batchId: batch.id,
         eventType: "mutation",
         action: "entry.generate",
         fromStatus: "draft",
         toStatus: "draft",
-        note: `按凭证明细自动匹配：新增 ${created}，更新 ${updated}，待复核 ${groups.filter((group) => group.status !== "matched").length}`,
+        note: `生成合并凭证：新增 ${created}，更新 ${updated}，来源待补 ${groups.filter((group) => group.status !== "matched").length}`,
         actorUserId: command.userId,
         actorName,
         batchRevision,
@@ -322,13 +467,18 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
             status: group.status,
             sourceVoucherItemIds: [...group.leftFacts, ...group.rightFacts].map((fact) => fact.itemId),
           })),
+          policyEntries: policyEntries.map((entry) => ({
+            generationKey: entry.generationKey,
+            generationFingerprint: entry.generationFingerprint,
+          })),
         }),
       });
       return { created, updated, batchRevision };
     });
     return serviceOk({
       ...result,
-      unchanged: candidates.filter((item) => !item.changed && item.group.status === "matched").length,
+      unchanged: candidates.filter((item) => !item.changed && item.group.status === "matched").length
+        + policyCandidates.filter((item) => !item.changed).length,
       exceptions: groups.filter((group) => group.status !== "matched").length,
       sourceItems: groups.reduce((sum, group) => sum + group.leftFacts.length + group.rightFacts.length, 0),
     });

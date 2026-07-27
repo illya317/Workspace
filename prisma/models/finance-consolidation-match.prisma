@@ -59,7 +59,7 @@ model FinanceVoucherCompanyMappingRule {
   voucherDate       String?
   voucherNo         String?
   matchText         String?
-  matchingPolicy    String   @default("direct") // direct | aggregateCnyMirror
+  matchingPolicy    String   @default("direct") // direct；历史 aggregateCnyMirror 值仅用于识别被投资方，不参与金额折算
   priority          Int      @default(100)
   evidence          String
   isActive          Boolean  @default(true)

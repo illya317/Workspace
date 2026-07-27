@@ -14,6 +14,7 @@ import {
 
 const ENTRY_TYPES = [
   "investmentEquity",
+  "reclassification",
   "nonControllingInterest",
   "intercompanyBalance",
   "internalTrading",

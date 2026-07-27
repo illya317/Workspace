@@ -79,11 +79,11 @@ export function useConsolidationCommands(
     return prepared.batch;
   }
 
-  async function startEliminations(resolveBatch: () => Promise<DraftBatch>) {
+  async function buildWorkpaper(resolveBatch: () => Promise<DraftBatch>) {
     setBusy(true);
     try {
       const preparedBatch = await prepareAndGenerate(await resolveBatch());
-      feedback.success("合并准备已提交，抵销草稿已自动生成");
+      feedback.success("合并准备已完成，合并工作底稿已生成");
       onRefresh(preparedBatch);
       return true;
     } catch (cause) {
@@ -101,7 +101,7 @@ export function useConsolidationCommands(
       feedback.error("请先在公司关系中维护并表母子公司");
       return false;
     }
-    return startEliminations(async () => {
+    return buildWorkpaper(async () => {
       const payload = await request(
         "/api/modules/finance/statements/consolidation/batches",
         "POST",
@@ -121,7 +121,7 @@ export function useConsolidationCommands(
   async function completePreparation() {
     const batch = data?.batch;
     if (!batch) return false;
-    return startEliminations(async () => batch);
+    return buildWorkpaper(async () => batch);
   }
 
   async function deleteBatch() {
@@ -261,7 +261,12 @@ export function useConsolidationCommands(
     if (!batch) return false;
     const action = nextConsolidationLifecycleAction(batch.status);
     if (!action) return false;
-    const labels = { submit: "已提交复核", review: "已完成独立复核", lock: "已锁定批次", publish: "已发布合并报表" };
+    const labels = {
+      submit: "已提交复核",
+      review: "已完成独立复核",
+      lock: batch.status === "draft" ? "工作底稿已确认，合并报表已生成" : "已锁定批次",
+      publish: "已发布合并报表",
+    };
     return run(() => request(
       `/api/modules/finance/statements/consolidation/batches/${batch.id}/${action}`,
       "POST",

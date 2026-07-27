@@ -29,8 +29,6 @@ function fact(
     currencyCode: overrides.currencyCode ?? "CNY",
     sourceFingerprint: `source-${itemId}`,
     investmentRole: overrides.investmentRole,
-    investmentMatchingPolicy: overrides.investmentMatchingPolicy,
-    consolidationAmount: overrides.consolidationAmount,
   };
 }
 
@@ -94,24 +92,33 @@ test("keeps all N:N voucher evidence and blocks a cross-currency non-wholly-owne
   assert.match(groups[0]?.differenceResolution ?? "", /历史汇率/);
 });
 
-test("matches reviewed cross-currency contribution vouchers by the investor CNY carrying amount", () => {
+test("does not mirror cross-currency equity vouchers to the investor CNY carrying amount", () => {
   const groups = buildInvestmentVoucherMatchGroups([
     fact(1, 2, 5, 600, {
       investmentRole: "investment", currencyCode: "CNY",
-      investmentMatchingPolicy: "aggregateCnyMirror",
     }),
     fact(2, 2, 5, 400, {
       investmentRole: "investment", currencyCode: "CNY",
-      investmentMatchingPolicy: "aggregateCnyMirror",
     }),
     fact(3, 5, null, -150, { investmentRole: "equity", currencyCode: "CAD" }),
     fact(4, 5, null, -50, { investmentRole: "equity", currencyCode: "CAD" }),
   ], [{ investorCompanyId: 2, investeeCompanyId: 5, shareRatio: 0.75 }]);
-  assert.equal(groups[0]?.status, "matched");
+  assert.equal(groups[0]?.status, "unresolved");
   assert.equal(groups[0]?.leftNetAmount, 1000);
-  assert.equal(groups[0]?.rightNetAmount, -1000);
-  assert.deepEqual(groups[0]?.rightFacts.map((item) => item.consolidationAmount), [-750, -250]);
-  assert.match(groups[0]?.matchingRule ?? "", /人民币账面成本汇总镜像/);
+  assert.equal(groups[0]?.rightNetAmount, -200);
+  assert.deepEqual(groups[0]?.requiredActions, ["translateToCny", "allocateNonControllingInterest"]);
+  assert.match(groups[0]?.matchingRule ?? "", /不按一侧账面成本镜像/);
+  assert.match(groups[0]?.differenceResolution ?? "", /历史汇率/);
+});
+
+test("requires CNY translation even when both source ledgers use the same foreign currency", () => {
+  const [group] = buildIntercompanyVoucherMatchGroups([
+    fact(1, 8, 9, 100, { currencyCode: "CAD" }),
+    fact(2, 9, 8, -100, { currencyCode: "CAD" }),
+  ]);
+  assert.equal(group?.status, "unresolved");
+  assert.equal(group?.comparisonCurrencyCode, null);
+  assert.deepEqual(group?.requiredActions, ["translateToCny"]);
 });
 
 test("does not infer an investee when multiple direct relationships have evidence", () => {

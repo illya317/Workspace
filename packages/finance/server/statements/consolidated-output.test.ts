@@ -420,7 +420,7 @@ test("official output only accepts locked or published batches", () => {
   assert.equal(buildConsolidatedOutputFromBatchSnapshot(batchSnapshot("published")).ok, true);
 });
 
-test("period preview excludes unreviewed draft entries", () => {
+test("period preview includes generated draft entries in the workpaper", () => {
   const draft = batchSnapshot("draft");
   draft.entries = draft.entries.map((entry) => ({ ...entry, status: "draft" }));
   draft.controlDecisions = [];
@@ -429,7 +429,7 @@ test("period preview excludes unreviewed draft entries", () => {
   assert.equal(preview.ok, true);
   if (!preview.ok) return;
   assert.equal(preview.data.batch.status, "draft");
-  assert.equal(preview.data.approvedEntryCount, 0);
+  assert.equal(preview.data.approvedEntryCount, 1);
   assert.equal(preview.data.statements.length, 3);
 });
 

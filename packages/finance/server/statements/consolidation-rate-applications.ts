@@ -237,6 +237,31 @@ function originalAmount(row: { originalDebit: Prisma.Decimal | null; originalCre
   return amount > 0 ? amount : null;
 }
 
+export function cadAmountFromDescription(...values: Array<string | null | undefined>) {
+  for (const value of values) {
+    const normalized = value?.replaceAll(",", "").trim();
+    if (!normalized) continue;
+    const match = /(?:CAD\s*)?([0-9]+(?:\.[0-9]+)?)\s*(?:加元|加币|CAD)/i.exec(normalized)
+      ?? /(?:加元|加币|CAD)\s*([0-9]+(?:\.[0-9]+)?)/i.exec(normalized);
+    const amount = match ? Number(match[1]) : 0;
+    if (Number.isFinite(amount) && amount > 0) return money(amount);
+  }
+  return null;
+}
+
+export function resolveCadInvestmentOriginalAmount(input: {
+  investment: { originalDebit: Prisma.Decimal | null; originalCredit: Prisma.Decimal | null; currencyCode: string | null; description: string | null };
+  voucherDescription: string;
+  voucherItems: Array<{ originalDebit: Prisma.Decimal | null; originalCredit: Prisma.Decimal | null; currencyCode: string | null }>;
+}) {
+  const direct = input.investment.currencyCode?.toUpperCase() === "CAD"
+    ? originalAmount(input.investment)
+    : null;
+  if (direct) return direct;
+  const bankFlow = input.voucherItems.find((item) => item.currencyCode?.toUpperCase() === "CAD" && originalAmount(item));
+  return bankFlow ? originalAmount(bankFlow) : cadAmountFromDescription(input.investment.description, input.voucherDescription);
+}
+
 export async function loadCadInvestmentVoucherFacts(
   companyCodes: string[],
   periodEnd: string,
@@ -244,7 +269,6 @@ export async function loadCadInvestmentVoucherFacts(
   if (companyCodes.length === 0) return [];
   const rows = await prisma.financeVoucherItem.findMany({
     where: {
-      currencyCode: "CAD",
       account: { code: { startsWith: "1511" } },
       voucher: { companyCode: { in: companyCodes }, date: { lte: periodEnd } },
     },
@@ -257,21 +281,37 @@ export async function loadCadInvestmentVoucherFacts(
       originalDebit: true,
       originalCredit: true,
       account: { select: { code: true } },
-      voucher: { select: { companyCode: true, voucherNo: true, date: true, description: true } },
+      voucher: {
+        select: {
+          companyCode: true,
+          voucherNo: true,
+          date: true,
+          description: true,
+          items: { select: { currencyCode: true, originalDebit: true, originalCredit: true } },
+        },
+      },
     },
     orderBy: [{ voucher: { date: "asc" } }, { id: "asc" }],
   });
-  return rows.map((row) => ({
-    id: row.id,
-    companyCode: row.voucher.companyCode,
-    voucherNo: row.voucher.voucherNo,
-    voucherDate: row.voucher.date,
-    description: row.description || row.voucher.description,
-    accountCode: row.account.code,
-    bookedAmountCny: Math.max(Math.abs(row.debit), Math.abs(row.credit)),
-    currencyCode: row.currencyCode,
-    originalAmount: originalAmount(row),
-  }));
+  return rows.flatMap((row) => {
+    const amount = resolveCadInvestmentOriginalAmount({
+      investment: row,
+      voucherDescription: row.voucher.description,
+      voucherItems: row.voucher.items,
+    });
+    if (!amount) return [];
+    return [{
+      id: row.id,
+      companyCode: row.voucher.companyCode,
+      voucherNo: row.voucher.voucherNo,
+      voucherDate: row.voucher.date,
+      description: row.description || row.voucher.description,
+      accountCode: row.account.code,
+      bookedAmountCny: Math.max(Math.abs(row.debit), Math.abs(row.credit)),
+      currencyCode: "CAD",
+      originalAmount: amount,
+    }];
+  });
 }
 
 export function parseConsolidationRateApplications(value: unknown): ConsolidationRateApplicationSnapshot[] {
@@ -355,7 +395,7 @@ export async function applyConsolidationRatePolicies(input: {
       recordedAt: rate.recordedAt.toISOString(),
       applications: parseConsolidationRateApplications(rate.applications),
     })),
-    requiredInvestmentVoucherIds: [],
+    requiredInvestmentVoucherIds: investments.map((investment) => investment.id),
     requiredComparativeEntityIds: input.requiredComparativeEntityIds,
   });
   if (!validation.ok) throw new ConsolidationSnapshotError(validation.issue.message, validation.issue.status);

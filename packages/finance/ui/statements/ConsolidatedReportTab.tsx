@@ -14,7 +14,7 @@ import { useCallback, useMemo, useState } from "react";
 import {
   createConsolidatedReportSection,
 } from "./consolidated-report-model";
-import type { ConsolidationTabProps } from "./ConsolidationTabs";
+import type { ConsolidationTabProps } from "./statement-ui-types";
 import { useConsolidatedReport } from "./useConsolidatedReport";
 import { buildConsolidatedStatementAssistantContext } from "./statement-assistant-context";
 import { downloadStatementWorkbook } from "./statement-download";
@@ -102,7 +102,7 @@ export function ConsolidatedReportTab(props: ConsolidationTabProps) {
   } else if (!isOfficial) {
     sections = [createStatusSection("consolidated-report-not-official", {
       kind: "empty",
-      content: "正式合并报表仅展示已锁定或已发布批次。编制和复核过程请在“合并工作底稿”查看预览。",
+      content: "正式合并报表仅展示已确认锁定或已发布批次。确认前请在“合并工作底稿”查看预览。",
     })];
   } else if (output.loading) {
     sections = [createStatusSection("consolidated-report-loading", { kind: "loading", content: "正在读取正式合并报表" })];

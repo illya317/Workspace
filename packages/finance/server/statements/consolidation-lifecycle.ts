@@ -46,6 +46,11 @@ class ConsolidationLifecycleError extends Error {
 
 async function validateSubmissionFacts(batch: NonNullable<Awaited<ReturnType<typeof loadConsolidationBatchRow>>>) {
   const periodEnd = periodEndDate(batch.year, batch.month);
+  const requiredInvestmentVoucherIds = batch.exchangeRates.flatMap((rate) =>
+    parseConsolidationRateApplications(rate.applications)
+      .filter((application) => application.applicationType === "historicalInvestment" && application.periodBasis === "current")
+      .flatMap((application) => application.voucherItemId ? [application.voucherItemId] : []),
+  );
   const result = validateConsolidationSubmission({
     entities: batch.entities.map((entity) => ({
       id: entity.id,
@@ -108,7 +113,7 @@ async function validateSubmissionFacts(batch: NonNullable<Awaited<ReturnType<typ
       balanceSheetLineCode: tax.balanceSheetLineCode,
       counterpartLineCode: tax.counterpartLineCode,
     }))),
-    requiredInvestmentVoucherIds: [],
+    requiredInvestmentVoucherIds,
     periodEnd,
   });
   return result.ok ? null : serviceError(result.issue.message, result.issue.status);
@@ -141,12 +146,14 @@ export async function executeConsolidationBatchLifecycle(command: ConsolidationB
     contributorUserIds,
   }, command.action, command.userId);
   if (!transition.ok) return serviceError(transition.issue.message, transition.issue.status);
-  if (command.action === "submit") {
+  if (command.action === "submit" || command.action === "lock" && batch.status === "draft") {
     const invalid = await validateSubmissionFacts(batch);
     if (invalid) return invalid;
   }
   if (command.action === "lock") {
-    if (batch.entries.some((entry) => entry.status !== "approved")) {
+    if (batch.entries.some((entry) => batch.status === "draft"
+      ? entry.status !== "draft" && entry.status !== "approved"
+      : entry.status !== "approved")) {
       return serviceError("批次仍有未批准抵销分录，不能锁定", 409);
     }
     if (batch.sources.some((source) => source.reportPayload === null || typeof source.reportPayload !== "object")) {
@@ -175,8 +182,21 @@ export async function executeConsolidationBatchLifecycle(command: ConsolidationB
   const now = new Date();
   let preparedOutputSnapshot: PreparedConsolidatedOutputSnapshot | null = null;
   if (command.action === "lock") {
+    const batchSnapshot = consolidationBatchSnapshot(batch);
+    const confirmedSnapshot = batch.status === "draft" ? {
+      ...batchSnapshot,
+      entries: batchSnapshot.entries.map((entry) => entry.status === "draft" ? {
+        ...entry,
+        status: "approved" as const,
+        submittedBy: command.userId,
+        submittedAt: now.toISOString(),
+        approvedBy: command.userId,
+        approvedAt: now.toISOString(),
+        approvalNote: command.note ?? "合并工作底稿确认",
+      } : entry),
+    } : batchSnapshot;
     const output = prepareLockedConsolidatedOutputSnapshot(
-      consolidationBatchSnapshot(batch),
+      confirmedSnapshot,
       command.userId,
       now,
     );
@@ -236,6 +256,18 @@ export async function executeConsolidationBatchLifecycle(command: ConsolidationB
         await tx.financeConsolidationEntry.updateMany({
           where: { batchId: batch.id, status: "submitted" },
           data: { status: "approved", approvedBy: command.userId, approvedAt: now, approvalNote: command.note },
+        });
+      } else if (command.action === "lock" && batch.status === "draft") {
+        await tx.financeConsolidationEntry.updateMany({
+          where: { batchId: batch.id, status: "draft" },
+          data: {
+            status: "approved",
+            submittedBy: command.userId,
+            submittedAt: now,
+            approvedBy: command.userId,
+            approvedAt: now,
+            approvalNote: command.note ?? "合并工作底稿确认",
+          },
         });
       }
       await tx.financeConsolidationBatchEvent.create({

@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import type { ConsolidationVoucherMatchGroup } from "../domain/consolidation-entry-generation";
-import { buildConsolidationAdjustmentComparisons } from "./consolidation-adjustment-comparisons";
+import type { ConsolidationBatchRow } from "./consolidation-dto";
+import {
+  buildConsolidationAdjustmentComparisons,
+  buildTranslationOciComparisons,
+  selectFirstOpeningCapitalRows,
+} from "./consolidation-adjustment-comparisons";
 
 const entities = [
   { companyId: 1, code: "ZX01", name: "母公司", role: "parent" as const },
@@ -23,6 +28,9 @@ function group(status: ConsolidationVoucherMatchGroup["status"]): ConsolidationV
     matchingRule: "凭证明细匹配",
     matchingVersion: "test-v1",
     differenceResolution: status === "matched" ? null : "需核对差额",
+    comparisonCurrencyCode: "CNY",
+    requiredActions: status === "matched" ? [] : ["reconcileDifference"],
+    ownershipShareRatio: null,
     leftFacts: [{
       itemId: 1, voucherId: 11, voucherNo: "记-001", voucherDate: "2026-07-01",
       companyId: 1, counterpartyCompanyId: 2, accountCode: "1122", accountName: "应收账款",
@@ -47,6 +55,10 @@ test("comparison keeps each source voucher line instead of replacing it with bal
   assert.equal(row?.title, "母公司 → 子公司甲 往来款");
   assert.equal(row?.leftCompany, "母公司");
   assert.equal(row?.rightCompany, "子公司甲");
+  assert.equal(row?.leftCurrencyCode, "CNY");
+  assert.equal(row?.rightCurrencyCode, "CNY");
+  assert.equal(row?.differenceCurrencyCode, "CNY");
+  assert.equal(row?.treatmentKind, "eliminate");
 });
 
 test("comparison exposes voucher-level difference", () => {
@@ -55,6 +67,21 @@ test("comparison exposes voucher-level difference", () => {
   assert.equal(row?.difference, 10);
   assert.equal(row?.rightSources[0]?.amount, 90);
   assert.equal(row?.reviewStatus, "exception");
+  assert.equal(row?.treatmentKind, "reconcile");
+});
+
+test("does not present a numeric difference across incomparable currencies", () => {
+  const crossCurrency = group("unresolved");
+  crossCurrency.rightFacts[0] = { ...crossCurrency.rightFacts[0]!, currencyCode: "CAD" };
+  crossCurrency.comparisonCurrencyCode = null;
+  crossCurrency.requiredActions = ["translateToCny", "allocateNonControllingInterest"];
+  crossCurrency.ownershipShareRatio = 0.75;
+  const [row] = buildConsolidationAdjustmentComparisons(entities, [crossCurrency]);
+  assert.equal(row?.leftCurrencyCode, "CNY");
+  assert.equal(row?.rightCurrencyCode, "CAD");
+  assert.equal(row?.differenceCurrencyCode, null);
+  assert.equal(row?.treatmentKind, "translateAndAllocateNonControllingInterest");
+  assert.equal(row?.ownershipShareRatio, 0.75);
 });
 
 test("comparison calculates from all history but only expands the selected year", () => {
@@ -85,4 +112,57 @@ test("comparison exposes persisted review state without losing voucher evidence"
     entry: { id: 18, status: "draft" },
   }]);
   assert.equal(returned?.reviewStatus, "returned");
+});
+
+test("opening capital selection collapses annual account versions by company and account code", () => {
+  const rows = selectFirstOpeningCapitalRows([
+    { id: 1, companyCode: "CA01", openingDebit: 0, openingCredit: 0, account: { id: 11, code: "3001" } },
+    { id: 2, companyCode: "CA01", openingDebit: 0, openingCredit: 100_000, account: { id: 11, code: "3001" } },
+    { id: 3, companyCode: "CA01", openingDebit: 0, openingCredit: 100_000, account: { id: 12, code: "3001" } },
+    { id: 4, companyCode: "CA01", openingDebit: 0, openingCredit: 20_000, account: { id: 13, code: "3002" } },
+  ]);
+
+  assert.deepEqual(rows.map((row) => row.id), [2, 4]);
+});
+
+test("shows OCI as pending before lock and reads the per-entity amount from the locked output", () => {
+  const baseBatch = {
+    year: 2026,
+    month: 6,
+    entities: [{
+      id: 52,
+      companyId: 2,
+      companyName: "子公司甲",
+      isConsolidated: true,
+      functionalCurrency: "CAD",
+      shareRatio: null,
+    }],
+    outputSnapshot: null,
+  } as unknown as ConsolidationBatchRow;
+  const [pending] = buildTranslationOciComparisons(baseBatch, entities);
+  assert.equal(pending?.category, "translation");
+  assert.equal(pending?.status, "pendingCalculation");
+  assert.equal(pending?.differenceCurrencyCode, null);
+  assert.equal(pending?.targetLineCode, "otherComprehensiveIncome");
+
+  const lockedBatch = {
+    ...baseBatch,
+    outputSnapshot: {
+      reportPayload: {
+        statements: [{
+          reportType: "balanceSheet",
+          lines: [{
+            lineCode: "otherComprehensiveIncome",
+            sourceAmount: 321.45,
+            entityAmounts: [{ entitySnapshotId: 52, amount: 321.45 }],
+          }],
+        }],
+      },
+    },
+  } as unknown as ConsolidationBatchRow;
+  const [calculated] = buildTranslationOciComparisons(lockedBatch, entities);
+  assert.equal(calculated?.reviewStatus, "calculated");
+  assert.equal(calculated?.rightAmount, 321.45);
+  assert.equal(calculated?.rightCurrencyCode, "CNY");
+  assert.match(calculated?.entrySummary ?? "", /CNY 321\.45/);
 });

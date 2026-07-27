@@ -203,7 +203,7 @@ model FinanceConsolidationEntry {
   id                    Int       @id @default(autoincrement())
   batchId               Int
   entryNo               String
-  entryType             String // investmentEquity | nonControllingInterest | intercompanyBalance | internalTrading | internalLongTermAsset | incomeDividend | cashFlow
+  entryType             String // investmentEquity | reclassification | nonControllingInterest | intercompanyBalance | internalTrading | internalLongTermAsset | incomeDividend | cashFlow
   title                 String
   description           String?
   evidence              String

@@ -15,7 +15,7 @@ type LifecycleAction = "submit" | "review" | "lock" | "publish";
 export function nextConsolidationLifecycleAction(
   status: ConsolidationBatchSnapshot["status"],
 ): LifecycleAction | null {
-  if (status === "draft") return "submit";
+  if (status === "draft") return "lock";
   if (status === "submitted") return "review";
   if (status === "reviewed") return "lock";
   if (status === "locked") return "publish";

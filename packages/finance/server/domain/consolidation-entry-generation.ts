@@ -15,8 +15,6 @@ export interface ConsolidationVoucherMatchFact {
   currencyCode: string;
   sourceFingerprint: string;
   investmentRole?: "investment" | "equity";
-  investmentMatchingPolicy?: "direct" | "aggregateCnyMirror";
-  consolidationAmount?: number;
 }
 
 export interface ConsolidationVoucherMatchGroup {
@@ -34,7 +32,17 @@ export interface ConsolidationVoucherMatchGroup {
   matchingRule: string;
   matchingVersion: string;
   differenceResolution: string | null;
+  comparisonCurrencyCode: string | null;
+  requiredActions: ConsolidationMatchRequiredAction[];
+  ownershipShareRatio: number | null;
 }
+
+export type ConsolidationMatchRequiredAction =
+  | "identifyCounterpart"
+  | "mapStatementLine"
+  | "translateToCny"
+  | "allocateNonControllingInterest"
+  | "reconcileDifference";
 
 export interface ConsolidationInvestmentRelationship {
   investorCompanyId: number;
@@ -51,25 +59,7 @@ function money(value: number) {
 }
 
 function total(facts: readonly ConsolidationVoucherMatchFact[]) {
-  return money(facts.reduce((sum, fact) => sum + (fact.consolidationAmount ?? fact.signedAmount), 0));
-}
-
-function allocateAggregateMirror(
-  facts: readonly ConsolidationVoucherMatchFact[],
-  targetNetAmount: number,
-) {
-  const sourceNet = money(facts.reduce((sum, fact) => sum + fact.signedAmount, 0));
-  if (cents(sourceNet) === 0) return [...facts];
-  const result: ConsolidationVoucherMatchFact[] = [];
-  let allocated = 0;
-  for (const [index, fact] of facts.entries()) {
-    const consolidationAmount = index === facts.length - 1
-      ? money(targetNetAmount - allocated)
-      : money(fact.signedAmount * targetNetAmount / sourceNet);
-    allocated = money(allocated + consolidationAmount);
-    result.push({ ...fact, consolidationAmount });
-  }
-  return result;
+  return money(facts.reduce((sum, fact) => sum + fact.signedAmount, 0));
 }
 
 function bySourceOrder(
@@ -87,6 +77,11 @@ function hasUnmappedLine(...groups: ReadonlyArray<readonly ConsolidationVoucherM
 
 function hasMixedCurrencies(...groups: ReadonlyArray<readonly ConsolidationVoucherMatchFact[]>) {
   return new Set(groups.flatMap((facts) => facts.map((fact) => fact.currencyCode))).size > 1;
+}
+
+function isCnyComparable(...groups: ReadonlyArray<readonly ConsolidationVoucherMatchFact[]>) {
+  return !hasMixedCurrencies(...groups)
+    && groups.flatMap((facts) => facts).every((fact) => fact.currencyCode.toUpperCase() === "CNY");
 }
 
 /**
@@ -116,7 +111,7 @@ export function buildIntercompanyVoucherMatchGroups(
     const rightNetAmount = total(rightFacts);
     const hasBothSides = leftFacts.length > 0 && rightFacts.length > 0;
     const mapped = !hasUnmappedLine(leftFacts, rightFacts);
-    const comparableCurrency = !hasMixedCurrencies(leftFacts, rightFacts);
+    const comparableCurrency = isCnyComparable(leftFacts, rightFacts);
     const offsets = cents(leftNetAmount) !== 0
       && cents(leftNetAmount) === -cents(rightNetAmount);
     const status = !hasBothSides || !mapped || !comparableCurrency
@@ -146,10 +141,23 @@ export function buildIntercompanyVoucherMatchGroups(
         : !mapped
           ? "存在未映射到合并报表项目的凭证明细"
           : !comparableCurrency
-            ? "双方功能币不一致，当前范围未启用交易级汇率折算，需人工复核"
+            ? "双方金额尚未在人民币列报口径下可比，需先应用有证据的汇率折算"
           : status === "difference"
             ? "双方凭证明细净额不一致，需核对未达、错账或关联公司映射"
             : null,
+      comparisonCurrencyCode: comparableCurrency
+        ? leftFacts[0]?.currencyCode ?? rightFacts[0]?.currencyCode ?? null
+        : null,
+      requiredActions: !hasBothSides
+        ? ["identifyCounterpart"]
+        : !mapped
+          ? ["mapStatementLine"]
+          : !comparableCurrency
+            ? ["translateToCny"]
+            : status === "difference"
+              ? ["reconcileDifference"]
+              : [],
+      ownershipShareRatio: null,
     };
   }).filter((group) => cents(group.leftNetAmount) !== 0 || cents(group.rightNetAmount) !== 0)
     .sort((left, right) => left.generationKey.localeCompare(right.generationKey));
@@ -257,26 +265,22 @@ export function buildInvestmentVoucherMatchGroups(
       ? (equityFactsByCompany.get(relationship.investeeCompanyId) ?? []).sort(bySourceOrder)
       : [];
     if (leftFacts.length === 0 && sourceRightFacts.length === 0) return [];
-    const aggregateCnyMirror = leftFacts.length > 0
-      && leftFacts.every((fact) => fact.investmentMatchingPolicy === "aggregateCnyMirror");
     const leftNetAmount = total(leftFacts);
-    const rightFacts = aggregateCnyMirror
-      ? allocateAggregateMirror(sourceRightFacts, -leftNetAmount)
-      : sourceRightFacts;
+    const rightFacts = sourceRightFacts;
     const rightNetAmount = total(rightFacts);
     const hasBothSides = leftFacts.length > 0 && rightFacts.length > 0;
     const mapped = !hasUnmappedLine(leftFacts, rightFacts);
-    const comparableCurrency = !hasMixedCurrencies(leftFacts, rightFacts);
+    const comparableCurrency = isCnyComparable(leftFacts, rightFacts);
     const whollyOwned = relationship.shareRatio === 1;
-    const offsets = (comparableCurrency || aggregateCnyMirror)
+    const offsets = comparableCurrency
       && cents(leftNetAmount) !== 0
       && cents(leftNetAmount) === -cents(rightNetAmount);
-    const status = !hasBothSides || !mapped || !comparableCurrency && !aggregateCnyMirror || !whollyOwned && !aggregateCnyMirror
+    const status = !hasBothSides || !mapped || !comparableCurrency || !whollyOwned
       ? "unresolved" as const
       : offsets
         ? "matched" as const
         : "difference" as const;
-    const differenceAmount = status === "matched" || !comparableCurrency && !aggregateCnyMirror
+    const differenceAmount = status === "matched" || !comparableCurrency
       ? 0
       : money(Math.abs(leftNetAmount + rightNetAmount));
     const ownershipIssue = relationship.shareRatio === null
@@ -296,18 +300,14 @@ export function buildInvestmentVoucherMatchGroups(
       rightNetAmount,
       matchedAmount: status === "matched" ? money(Math.abs(leftNetAmount)) : 0,
       differenceAmount,
-      matchingRule: aggregateCnyMirror
-        ? "按已核定公司映射归集双方全部凭证明细；外币权益凭证按投资方人民币账面成本汇总镜像，保留每笔原币来源"
-        : "按批次冻结的直接持股关系归集投资方与被投资方全部凭证明细；组内保留 N:N 原始凭证证据",
-      matchingVersion: aggregateCnyMirror ? "investment-aggregate-cny-mirror-v1" : "investment-direct-relationship-nn-v1",
+      matchingRule: "按批次冻结的直接持股关系归集投资方与被投资方全部凭证明细；外币金额仅在存在投资日汇率证据时折合，不按一侧账面成本镜像；组内保留 N:N 原始凭证证据",
+      matchingVersion: "investment-direct-relationship-fx-evidence-v2",
       differenceResolution: !hasBothSides
         ? leftFacts.length === 0 && rightFacts.length === 0
           ? "直接持股关系下未找到投资方或被投资方相关凭证明细"
           : leftFacts.length === 0
             ? "缺少投资方长期股权投资凭证明细"
             : "缺少被投资方实收资本或资本公积凭证明细"
-        : aggregateCnyMirror
-          ? null
         : ownershipIssue && !comparableCurrency
           ? `${ownershipIssue}；双方功能币不同，还需按投资发生日历史汇率折算`
           : ownershipIssue
@@ -318,6 +318,19 @@ export function buildInvestmentVoucherMatchGroups(
               : status === "difference"
                 ? "同币种双方凭证明细净额不一致，需核对投资成本、权益构成或遗漏凭证"
                 : null),
+      comparisonCurrencyCode: comparableCurrency
+        ? leftFacts[0]?.currencyCode ?? rightFacts[0]?.currencyCode ?? null
+        : null,
+      requiredActions: [
+        ...(!hasBothSides ? ["identifyCounterpart" as const] : []),
+        ...(hasBothSides && !mapped ? ["mapStatementLine" as const] : []),
+        ...(hasBothSides && !comparableCurrency ? ["translateToCny" as const] : []),
+        ...(relationship.shareRatio !== 1 ? ["allocateNonControllingInterest" as const] : []),
+        ...(hasBothSides && mapped && comparableCurrency && whollyOwned && status === "difference"
+          ? ["reconcileDifference" as const]
+          : []),
+      ],
+      ownershipShareRatio: relationship.shareRatio,
     }];
   });
 
@@ -338,6 +351,9 @@ export function buildInvestmentVoucherMatchGroups(
       matchingRule: "投资凭证只能按批次冻结的直接持股关系归集，不根据摘要猜测被投资公司",
       matchingVersion: "investment-direct-relationship-nn-v1",
       differenceResolution: "投资方存在多个直接被投资公司，且凭证未携带唯一关联公司证据",
+      comparisonCurrencyCode: leftFacts[0]?.currencyCode ?? null,
+      requiredActions: ["identifyCounterpart"],
+      ownershipShareRatio: null,
     });
   }
   return result.filter((group) => cents(group.leftNetAmount) !== 0 || cents(group.rightNetAmount) !== 0)

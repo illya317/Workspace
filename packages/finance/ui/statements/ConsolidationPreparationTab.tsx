@@ -18,9 +18,7 @@ import {
 import { useCallback, useMemo, useState } from "react";
 
 import { createConsolidationEntityColumns } from "./consolidation-columns";
-import {
-  type ConsolidationTabProps,
-} from "./ConsolidationTabs";
+import type { ConsolidationTabProps } from "./statement-ui-types";
 import { useConsolidationDecisionWorkspace } from "./useConsolidationDecisionWorkspace";
 
 export function ConsolidationPreparationTab(props: ConsolidationTabProps) {
@@ -77,7 +75,7 @@ export function ConsolidationPreparationTab(props: ConsolidationTabProps) {
     })];
   } else {
     sections = [
-      ...workspace.preparationSections(props.onStartEliminations),
+      ...workspace.preparationSections(props.onStartWorkpaper),
       createAnalysisSection("consolidation-scope", {
         title: "合并范围与个别报表",
         sections: [createPageTableSection("consolidation-entity-table", {

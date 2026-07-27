@@ -236,7 +236,7 @@ function automaticDecisions(
   const facts: Array<[ConsolidationControlKey, boolean, string]> = [
     ["scope", batch.entities.length > 1, `系统已冻结 ${batch.entities.length} 个合并主体`],
     ["ownership", ownershipReady, ownershipReady ? "系统已校验直接持股比例" : "直接持股比例尚未完整"],
-    ["sources", sourcesReady, sourcesReady ? "个别三表均已就绪并自动保存快照" : "个别三表尚未全部就绪，不能进入对账抵销"],
+    ["sources", sourcesReady, sourcesReady ? "个别三表均已就绪并自动保存快照" : "个别三表尚未全部就绪，不能生成合并工作底稿"],
     ["fx", hasCompleteFx(batch, preparedRates), hasCompleteFx(batch, preparedRates) ? "本位币与适用汇率已由系统自动采用" : "本位币或适用汇率尚未完整"],
     ["tax", true, "税务影响按当前产品口径不作为准备阶段前置项"],
   ];
@@ -279,7 +279,7 @@ export async function prepareConsolidationSources(rawCommand: SaveConsolidationS
     if (command.input.intent === "completePreparation"
       && !consolidationSourcesReady(batch.entities.length, sourceFacts)) {
       const missingCount = sourceFacts.filter((source) => source.sourceKind === "missing").length;
-      throw new ConsolidationSnapshotError(`还有 ${missingCount} 份单体报表未就绪，不能开始对账与抵销`, 409);
+      throw new ConsolidationSnapshotError(`还有 ${missingCount} 份单体报表未就绪，不能生成合并工作底稿`, 409);
     }
     const companyIdByEntitySnapshotId = new Map(batch.entities.map((entity) => [entity.id, entity.companyId]));
     const currentSourceContent = consolidationSourceContentBatchFingerprint(batch.sources.map((source) => ({

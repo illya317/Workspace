@@ -44,7 +44,6 @@ function mappedInvestmentCompanyId(
     voucherDate: string | null;
     voucherNo: string | null;
     matchText: string | null;
-    matchingPolicy: string;
     priority: number;
   }>,
   item: { voucher: { companyCode: string; date: string; voucherNo: string }; description: string | null },
@@ -60,7 +59,6 @@ function mappedInvestmentCompanyId(
   const selected = matches.find((rule) => rule.priority === highestPriority && rule.linkedCompanyId === companyIds[0]);
   return selected ? {
     companyId: selected.linkedCompanyId,
-    matchingPolicy: selected.matchingPolicy === "aggregateCnyMirror" ? "aggregateCnyMirror" as const : "direct" as const,
   } : null;
 }
 
@@ -87,7 +85,7 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
       },
       select: {
         sourceCompanyCode: true, linkedCompanyId: true, voucherDate: true,
-        voucherNo: true, matchText: true, matchingPolicy: true, priority: true,
+        voucherNo: true, matchText: true, priority: true,
       },
       orderBy: [{ priority: "desc" }, { id: "asc" }],
     }),
@@ -190,7 +188,6 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
         counterpartyCompanyId: investmentCompanyId,
         sourceFingerprint: fingerprint({ source: fact.sourceFingerprint, investmentCompanyId }),
         investmentRole: "investment",
-        investmentMatchingPolicy: investmentMapping?.matchingPolicy ?? "direct",
       });
     }
     if (isEquityLine(mappedLine)) investmentFacts.push({ ...fact, investmentRole: "equity" });

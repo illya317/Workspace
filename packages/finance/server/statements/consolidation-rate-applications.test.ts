@@ -1,7 +1,31 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { aggregateHistoricalCapitalFacts } from "./consolidation-rate-applications";
+import {
+  aggregateHistoricalCapitalFacts,
+  cadAmountFromDescription,
+  resolveCadInvestmentOriginalAmount,
+} from "./consolidation-rate-applications";
+
+test("reads CAD remittance amounts only from explicit original-currency evidence", () => {
+  assert.equal(cadAmountFromDescription("付投资款（321462.29加币）"), 321_462.29);
+  assert.equal(cadAmountFromDescription("CAD 20,000.50 investment"), 20_000.5);
+  assert.equal(cadAmountFromDescription("付投资款 107949.00 元"), null);
+  assert.equal(resolveCadInvestmentOriginalAmount({
+    investment: {
+      originalDebit: null,
+      originalCredit: null,
+      currencyCode: null,
+      description: "付加拿大投资款",
+    },
+    voucherDescription: "",
+    voucherItems: [{
+      originalDebit: null,
+      originalCredit: { toString: () => "20000" } as never,
+      currencyCode: "CAD",
+    }],
+  }), 20_000);
+});
 
 test("aggregates opening capital and posted capital movements by company and occurrence date", () => {
   const facts = aggregateHistoricalCapitalFacts({
