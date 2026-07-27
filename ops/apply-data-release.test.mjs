@@ -117,3 +117,35 @@ test("HR lifecycle compatibility repairs use a pinned private input file", () =>
     sourceRoot: "/srv/private/sources",
   }), /escapes/);
 });
+
+test("HR employment agreement baselines use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "hr-employment-agreement-baseline-v1",
+    parameters: { inputFile: "hr/employment-agreement-baseline.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/hr/employment-agreement-baseline.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "hr-employment-agreement-baseline-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  }), /escapes/);
+});
+
+test("HR social insurance baselines use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "hr-social-insurance-baseline-v1",
+    parameters: { inputFile: "hr/social-insurance-baseline.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/hr/social-insurance-baseline.json"));
+});

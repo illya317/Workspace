@@ -679,12 +679,17 @@ export type PositionDescription = Prisma.PositionDescriptionModel
 export type PositionDescriptionRevision = Prisma.PositionDescriptionRevisionModel
 /**
  * Model EmploymentAgreement
- * 雇佣协议稳定身份。期限与内容版本分别由 Term / Revision 承载，禁止以数组位置充当身份。
+ * 雇佣协议稳定身份。期限与内容版本分别由 Term / Revision 承载，missingFieldsJson 与业务有效状态分离，禁止以数组位置充当身份。
  */
 export type EmploymentAgreement = Prisma.EmploymentAgreementModel
 /**
+ * Model EmploymentAgreementAttachment
+ * 员工协议附件（原件不可变；PDF 压缩件是可替换的派生物，移除只做软删除）。
+ */
+export type EmploymentAgreementAttachment = Prisma.EmploymentAgreementAttachmentModel
+/**
  * Model EmploymentAgreementTerm
- * 雇佣协议的含首尾日有效期间。修正会新增 superseding 期间，原期间保留为历史证据。
+ * 雇佣协议的含首尾日合同期间。允许提前续签形成重叠；旧 baseline 缺失边界时仍按 confirmed 开放边界保留，缺失项登记在 anchor 的 missingFieldsJson。
  */
 export type EmploymentAgreementTerm = Prisma.EmploymentAgreementTermModel
 /**
@@ -702,6 +707,11 @@ export type EmploymentAgreementChange = Prisma.EmploymentAgreementChangeModel
  * 人员生命周期操作账本（事实表，来源于 HR 人员生命周期表单；记录未来生效的入职、调岗、兼岗、汇报变化和离职）
  */
 export type EmployeeLifecycleEvent = Prisma.EmployeeLifecycleEventModel
+/**
+ * Model EmployeePeriodRevision
+ * Employment / EDP 周期修订事实台账（来源于人工修订命令）。正式周期可审计覆盖，但修订原因与前后值必须永久保留。
+ */
+export type EmployeePeriodRevision = Prisma.EmployeePeriodRevisionModel
 /**
  * Model OrganizationStructureChange
  * 组织结构生命周期命令台账；幂等键在 HR 组织事实范围内全局唯一。
@@ -727,6 +737,16 @@ export type PositionReportOverrideEffectiveVersion = Prisma.PositionReportOverri
  * 员工周期绩效评审事实表（来源于 HR 绩效流程归档；Work/OKR/KPI 证据以快照 JSON 固化）
  */
 export type HrPerformanceReview = Prisma.HrPerformanceReviewModel
+/**
+ * Model EmployeeSocialInsurancePeriod
+ * 员工社会保险月份期间（事实表；页面按一整套参保关系维护，不拆分险种）。
+ */
+export type EmployeeSocialInsurancePeriod = Prisma.EmployeeSocialInsurancePeriodModel
+/**
+ * Model EmployeeSocialInsurancePeriodRevision
+ * 社保记录的不可变资料修订；baseline 补缺与既有事实纠错不得覆盖历史证据。
+ */
+export type EmployeeSocialInsurancePeriodRevision = Prisma.EmployeeSocialInsurancePeriodRevisionModel
 /**
  * Model Employee
  * 员工基础信息

@@ -59,6 +59,7 @@ export const CONTRACT_DATE_FIELDS = [
   "thirdContractStartDate",
   "thirdContractEndDate",
   "permanentContractDate",
+  "expiryDate",
   "confidentialityDate",
   "nonCompeteDate",
   "endDate",

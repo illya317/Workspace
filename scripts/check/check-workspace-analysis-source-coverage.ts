@@ -114,6 +114,11 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     reason: "singleRecord",
     description: "单员工协议、期限和修订时间线只服务档案详情；批量分析继续使用已登记的 HR 合同读模型。",
   },
+  "/api/modules/hr/roster/employee-profiles/[id]/social-insurance": {
+    disposition: "excluded",
+    reason: "singleRecord",
+    description: "单员工社会保险参保时间线只服务档案详情；需要批量分析时应另建受治理的分页读模型。",
+  },
   "/api/modules/hr/roster/position-description-templates": {
     disposition: "excluded",
     reason: "controlPlane",
@@ -213,6 +218,7 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/modules/hr/performance/submissions": "workflowControl",
   "/api/modules/hr/roster/autocomplete": "lookupFragment",
   "/api/modules/hr/roster/department-codes": "lookupFragment",
+  "/api/modules/hr/roster/employee-profiles/[id]/agreements/[agreementUid]/attachments/[attachmentUid]/download": "binary",
   "/api/modules/hr/roster/employees/search": "lookupFragment",
   "/api/modules/hr/roster/generated/export": "binary",
   "/api/modules/hr/roster/position-codes": "lookupFragment",

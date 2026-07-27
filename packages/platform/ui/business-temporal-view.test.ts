@@ -16,7 +16,7 @@ const HR_EMPLOYEE_IDENTITY_TEMPORAL = defineBusinessTemporalRegistration({
   records: { authority: [{ kind: "model", model: "CurrentRecord", fields: ["id"], role: "anchor" }] },
   commands: ["change"],
   ui: { asOf: "hidden", upcoming: false, history: false, recordState: false, sourceNavigation: false },
-  policy: { storage: "current", granularity: "instant", futureChanges: "forbid", sameDayChanges: "sequenced", overlaps: "forbid", gaps: "allow", correction: "audited-overwrite", deletion: "never" },
+  policy: { storage: "current", granularity: "instant", futureChanges: "forbid", sameDayChanges: "sequenced", overlaps: "forbid", gaps: "allow", revision: "audited-overwrite", deletion: "never" },
 });
 
 const HR_EMPLOYMENT_TEMPORAL = defineBusinessTemporalRegistration({
@@ -28,7 +28,7 @@ const HR_EMPLOYMENT_TEMPORAL = defineBusinessTemporalRegistration({
   records: { authority: [{ kind: "model", model: "EffectiveRecordVersion", fields: ["id", "validFrom"], role: "period" }] },
   commands: ["schedule", "correct"],
   ui: { asOf: "required", upcoming: true, history: true, recordState: true, sourceNavigation: false },
-  policy: { storage: "effective-version", granularity: "date", futureChanges: "allow", sameDayChanges: "single", overlaps: "forbid", gaps: "allow", correction: "supersede", deletion: "end-date" },
+  policy: { storage: "effective-version", granularity: "date", futureChanges: "allow", sameDayChanges: "single", overlaps: "forbid", gaps: "allow", revision: "supersede", deletion: "end-date" },
 });
 
 const HR_POSITION_DESCRIPTION_TEMPORAL = defineBusinessTemporalRegistration({
@@ -40,7 +40,7 @@ const HR_POSITION_DESCRIPTION_TEMPORAL = defineBusinessTemporalRegistration({
   records: { authority: [{ kind: "model", model: "RevisionRecord", fields: ["id", "revision"], role: "revision" }] },
   commands: ["publish", "supersede"],
   ui: { asOf: "optional", upcoming: true, history: true, recordState: true, sourceNavigation: false },
-  policy: { storage: "revision", granularity: "date", futureChanges: "allow", sameDayChanges: "single", overlaps: "forbid", gaps: "allow", correction: "supersede", deletion: "draft-only" },
+  policy: { storage: "revision", granularity: "date", futureChanges: "allow", sameDayChanges: "single", overlaps: "forbid", gaps: "allow", revision: "supersede", deletion: "draft-only" },
 });
 
 const CAPITAL_OWNERSHIP_LEDGER_TEMPORAL = defineBusinessTemporalRegistration({
@@ -53,7 +53,7 @@ const CAPITAL_OWNERSHIP_LEDGER_TEMPORAL = defineBusinessTemporalRegistration({
   commands: ["append-event"],
   ui: { asOf: "required", upcoming: true, history: true, recordState: true, sourceNavigation: true },
   projection: { eventSource: "ExampleEvent", projection: "ExampleProjection", sourceEventField: "sourceEventId", generationField: "projectionGeneration", runModel: "ExampleProjectionRun", projectorKey: "example.projector", projectorVersion: 1, rebuildAdapterKey: "example.rebuild" },
-  policy: { storage: "event-projection", granularity: "date", futureChanges: "allow", sameDayChanges: "sequenced", overlaps: "forbid", gaps: "allow", correction: "reverse", deletion: "never" },
+  policy: { storage: "event-projection", granularity: "date", futureChanges: "allow", sameDayChanges: "sequenced", overlaps: "forbid", gaps: "allow", revision: "reverse", deletion: "never" },
 });
 
 const item = (key: string, temporalState: "current" | "upcoming" | "past" | "invalid", recordState: "confirmed" | "pending") => ({

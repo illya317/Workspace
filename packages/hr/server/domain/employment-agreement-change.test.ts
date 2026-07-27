@@ -5,22 +5,16 @@ import { employmentAgreementChangeManifest } from "./employment-agreement-change
 
 test("agreement command ledger records effects without copying sensitive clause content", () => {
   const manifest = employmentAgreementChangeManifest({
-    kind: "revise",
+    kind: "correct-existing",
     agreementUid: "agreement-1234",
     expectedVersion: 2,
-    content: {
+    patch: {
       company: "Example",
-      insuranceStatus: null,
-      legalRelation: null,
-      contractType: "labor",
-      employmentForm: null,
-      confidentialityDate: null,
-      nonCompeteDate: null,
     },
     sourceKind: "workspace-ui",
     sourceRef: null,
     reason: "条款变更",
   });
   assert.equal(manifest.agreementUid, "agreement-1234");
-  assert.equal("content" in manifest, false);
+  assert.equal("patch" in manifest, false);
 });

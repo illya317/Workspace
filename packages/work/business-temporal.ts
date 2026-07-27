@@ -40,7 +40,7 @@ export const WORK_PROJECT_MEMBERSHIP_TEMPORAL = defineBusinessTemporalRegistrati
     sameDayChanges: "single",
     overlaps: "forbid",
     gaps: "allow",
-    correction: "supersede",
+    revision: "supersede",
     deletion: "end-date",
   },
   notes: "项目成员通过稳定 membershipUid、受控终结的有效期版本和不可变命令台账维护；命令台账保存请求指纹及 sourceBefore，角色变更/纠错新增版本，任何变更均可重建原始期间且不硬删历史。",

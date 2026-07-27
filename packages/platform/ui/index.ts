@@ -11,6 +11,12 @@ export {
   type BusinessTemporalViewResult,
   type BusinessTemporalViewSpec,
 } from "./business-temporal-view";
+export {
+  createBusinessTemporalRecordSections,
+  type BusinessTemporalRecordDetailSpec,
+  type BusinessTemporalRecordMutationSpec,
+  type BusinessTemporalRecordSectionsSpec,
+} from "./business-temporal-records";
 export * from "./period-dossier";
 export { renderPortalPage } from "./portal-page";
 export {

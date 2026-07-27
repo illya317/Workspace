@@ -1,32 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { SectionShell, createSectionShellSection } from "./ProfileFormControls";
-import { HR_ASSIGNMENT_TEMPORAL } from "@workspace/hr/business-temporal";
+import { HR_ASSIGNMENT_TEMPORAL, HR_EMPLOYMENT_TEMPORAL } from "@workspace/hr/business-temporal";
 import { edpFields, employmentFields, withTenantProfileFieldOptions } from "@workspace/hr/constants";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
-import { createBusinessTemporalView } from "@workspace/platform/ui";
+import { createBusinessTemporalRecordSections, createBusinessTemporalView } from "@workspace/platform/ui";
 import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
-import { createPageBody, BodySurface, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
-import { createEmptyFormSection, createFieldGridSection, createFieldRegionSection, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
+import { createFieldsSection, createPageBody, createPanelSection, BodySurface, type BodySurfaceSectionSpec, type DataSurfaceColumnSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createEmptyFormSection, createFieldGridSection, createFieldRegionSection, fieldGridItems, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
 import { useContractSections } from "./EmployeeProfileContractSection";
 import { deleteActionSpec } from "./EmployeeProfileRowActions";
 export { HistorySection, createHistorySection, type ProfileHistoryEntry } from "./EmployeeProfileHistorySection";
-
-function InlineStatusChip({
-  label,
-  tone = "gray",
-}: {
-  label: string;
-  tone?: "green" | "blue" | "gray";
-}) {
-  const toneClass =
-    tone === "green"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-      : tone === "blue"
-        ? "border-blue-200 bg-blue-50 text-blue-700"
-        : "border-slate-200 bg-slate-100 text-slate-600";
-  return <span className={`inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${toneClass}`}>{label}</span>;
-}
 
 export function RowsSection<T extends RowBase>({
   title,
@@ -76,7 +61,7 @@ interface EmploymentSectionProps {
   asOfDate: string;
   canEdit: boolean;
   saving: string | null;
-  onChange: (field: ProfileField, value: unknown, option?: ReferenceOption) => void;
+  onChange: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
   onAgreementSaved: () => Promise<void>;
   className?: string;
 }
@@ -97,8 +82,20 @@ export function useEmploymentSections({
   className
 }: EmploymentSectionProps): BodySurfaceSectionSpec[] {
   const tenantConfig = useTenantConfig();
-  const fields = withTenantProfileFieldOptions(employmentFields, tenantConfig).filter(field => !["currentCompany", "leaveNote"].includes(field.key));
+  const fields = withTenantProfileFieldOptions(employmentFields, tenantConfig);
   const virtualPersonnelType = tenantConfig.hr.options.virtualEmployeePersonnelType;
+  const [selectedEmploymentKey, setSelectedEmploymentKey] = useState<string | number | null>(null);
+  const selectedEmploymentIndex = employments.findIndex((row) => employmentRecordKey(row) === selectedEmploymentKey);
+  const selectedEmployment = selectedEmploymentIndex >= 0 ? employments[selectedEmploymentIndex] : null;
+
+  useEffect(() => {
+    setSelectedEmploymentKey((existing) => (
+      existing !== null && employments.some((row) => employmentRecordKey(row) === existing)
+        ? existing
+        : null
+    ));
+  }, [employments]);
+
   const contractSections = useContractSections({
     employeeId,
     employments,
@@ -110,36 +107,91 @@ export function useEmploymentSections({
   const sections = !employment
     ? [createEmptyFormSection("employment-empty", "暂无雇佣主档，请在“生命周期”登记入职")]
     : [
-        createFieldRegionSection({
-          key: "employment-status",
-          title: <div className="flex flex-wrap items-center gap-2">
-            <span>任职状态</span>
-            <InlineStatusChip
-              label={employment.temporalState === "current"
-                ? "当前雇佣"
-                : employment.temporalState === "upcoming"
-                  ? "待生效"
-                  : employment.temporalState === "past"
-                    ? "历史雇佣"
-                    : "日期异常"}
-              tone={employment.temporalState === "current"
-                ? "green"
-                : employment.temporalState === "upcoming"
-                  ? "blue"
-                  : "gray"}
-            />
-          </div>,
-          sections: [createFieldGridSection(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
-          const field = fields.find(item => item.key === key);
-          if (field) onChange(field, value, option);
-          }, (field, record) => (
-            field.key === "personnelType"
-            && record.personnelType === virtualPersonnelType
-          ), "employment-fields")],
+        employmentCurrentSummary(employment),
+        ...createBusinessTemporalRecordSections({
+          registration: HR_EMPLOYMENT_TEMPORAL,
+          key: "employment",
+          title: `雇佣记录（${employments.length}）`,
+          rows: employments,
+          columns: employmentRecordColumns(),
+          visibleColumns: ["company", "status", "joinDate", "leaveDate", "personnelType", "rank"],
+          rowKey: employmentRecordKey,
+          selectedKey: selectedEmploymentKey,
+          onSelect: (row) => setSelectedEmploymentKey((existing) => (
+            existing === employmentRecordKey(row) ? null : employmentRecordKey(row)
+          )),
+          detail: selectedEmployment ? {
+            items: fieldGridItems(
+              fields,
+              selectedEmployment as unknown as EditableRecord,
+              !canEdit || saving !== null,
+              (key, value, option) => {
+                const field = fields.find((item) => item.key === key);
+                if (field) onChange(selectedEmploymentIndex, field, value, option);
+              },
+              (field, record) => (
+                field.key === "personnelType"
+                && record.personnelType === virtualPersonnelType
+              ),
+            ),
+            edit: canEdit ? {
+              kind: "edit-existing",
+              targetFields: fields.filter((field) => !field.readOnly).map((field) => field.key),
+              persistence: "page-save",
+            } : undefined,
+          } : undefined,
+          emptyText: "暂无雇佣记录",
         }),
         ...contractSections,
       ];
   return [createSectionShellSection({ title: null, className, sections })];
+}
+
+function employmentRecordKey(row: EmploymentRow): string | number {
+  return row.id ?? `${row.employeeId}:${row.joinDate ?? "open"}:${row.leaveDate ?? "open"}`;
+}
+
+function employmentCurrentSummary(row: EmploymentRow): BodySurfaceSectionSpec {
+  return createPanelSection("employment-current", {
+    title: row.temporalState === "current"
+      ? "当前雇佣"
+      : row.temporalState === "upcoming"
+        ? "待生效雇佣"
+        : "最近雇佣",
+    sections: [createFieldsSection("employment-current-fields", [
+      { kind: "readonly", key: "company", label: "公司", value: row.currentCompany || "未设置" },
+      { kind: "readonly", key: "status", label: "任职状态", value: employmentTemporalLabel(row) },
+      { kind: "readonly", key: "joinDate", label: "入职日期", value: row.joinDate || "未设置" },
+      { kind: "readonly", key: "leaveDate", label: "离职日期", value: row.leaveDate || "—" },
+    ], { layout: { columns: 2 } })],
+  });
+}
+
+function employmentRecordColumns(): Array<DataSurfaceColumnSpec<EmploymentRow>> {
+  return [
+    { key: "company", label: "公司", required: true, cell: (row) => row.currentCompany || "未设置" },
+    {
+      key: "status",
+      label: "任职状态",
+      required: true,
+      cell: (row) => ({
+        kind: "badge",
+        label: employmentTemporalLabel(row),
+        tone: row.temporalState === "current" ? "green" : row.temporalState === "upcoming" ? "blue" : row.temporalState === "invalid" ? "red" : "gray",
+      }),
+    },
+    { key: "joinDate", label: "入职日期", cell: (row) => row.joinDate || "未设置" },
+    { key: "leaveDate", label: "离职日期", cell: (row) => row.leaveDate || "—" },
+    { key: "personnelType", label: "人员类型", cell: (row) => row.personnelType || "未设置" },
+    { key: "rank", label: "职级", cell: (row) => row.rank || "未设置" },
+  ];
+}
+
+function employmentTemporalLabel(row: EmploymentRow) {
+  if (row.temporalState === "current") return row.isActive ? "在职 · 当前" : "当前";
+  if (row.temporalState === "upcoming") return "待生效";
+  if (row.temporalState === "past") return "历史";
+  return "日期异常";
 }
 
 interface EdpSectionProps {
@@ -159,7 +211,7 @@ export function useEdpSections({
 }: EdpSectionProps): BodySurfaceSectionSpec[] {
   const allFields = [...pickFields(edpFields, ["reportingCompanyId", "departmentId", "positionId", "isPrimary", "allocationWeight", "reportToPositionId"]), ...pickFields(edpFields, ["startDate", "endDate"])];
   const sections = rows.length === 0
-    ? [createEmptyFormSection("edp-empty", "暂无岗位记录，请在“生命周期”登记入职或任职变更")]
+    ? [createEmptyFormSection("edp-empty", "暂无岗位记录，请在下方登记入职或任职变更")]
     : createBusinessTemporalView({
         kind: "effective-period",
         registration: HR_ASSIGNMENT_TEMPORAL,

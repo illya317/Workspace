@@ -15,6 +15,7 @@ import { preferredEmployment } from "@workspace/hr/utils/employment-selection";
 import type {
   ContractRow,
   EdpRow,
+  EmployeeSocialInsuranceRow,
   EmployeeProfile,
   EmployeeProfileEmployee,
   EmploymentRow,
@@ -34,8 +35,10 @@ import {
   type EditableRecord,
 } from "./EmployeeProfileUtils";
 import { useEmployeeLifecycleSections } from "./EmployeeLifecycleSection";
+import { useEmployeePeriodRevisionSections } from "./EmployeePeriodRevisionSection";
+import { useEmployeeSocialInsuranceSections } from "./EmployeeSocialInsuranceSection";
 
-type ProfileSection = "basic" | "employment" | "edp" | "lifecycle" | "history";
+export type EmployeeProfileSection = "basic" | "employment" | "socialInsurance" | "assignment" | "history";
 
 export interface EmployeeProfileDirtyState {
   basic: boolean;
@@ -50,12 +53,14 @@ export default function EmployeeProfileView({
   error,
   message,
   canEdit,
+  canRevise,
   saving,
   activeSection,
   onSectionChange,
   dirtyState,
   employments,
   contracts,
+  socialInsurancePeriods,
   edps,
   historyEntries,
   historyLoading,
@@ -68,6 +73,7 @@ export default function EmployeeProfileView({
   onHistoryRefresh,
   onLifecycleSaved,
   onAgreementSaved,
+  onSocialInsuranceSaved,
 }: {
   loading: boolean;
   profile: EmployeeProfile | null;
@@ -75,24 +81,27 @@ export default function EmployeeProfileView({
   error: string | null;
   message: string | null;
   canEdit: boolean;
+  canRevise: boolean;
   saving: string | null;
-  activeSection: ProfileSection;
-  onSectionChange: (section: ProfileSection) => void;
+  activeSection: EmployeeProfileSection;
+  onSectionChange: (section: EmployeeProfileSection) => void;
   dirtyState: EmployeeProfileDirtyState;
   employments: EmploymentRow[];
   contracts: ContractRow[];
+  socialInsurancePeriods: EmployeeSocialInsuranceRow[];
   edps: EdpRow[];
   historyEntries: ProfileHistoryEntry[];
   historyLoading: boolean;
-  expandedHistoryId: number | null;
+  expandedHistoryId: string | number | null;
   setEmployments: Dispatch<SetStateAction<EmploymentRow[]>>;
   onBack: () => void;
   onSaveAll: () => Promise<void>;
   onEmployeeFieldChange: (key: string, value: unknown, option?: ReferenceOption) => void;
-  onHistoryToggle: (id: number) => void;
+  onHistoryToggle: (id: string | number) => void;
   onHistoryRefresh: () => void;
   onLifecycleSaved: () => Promise<void>;
   onAgreementSaved: () => Promise<void>;
+  onSocialInsuranceSaved: () => Promise<void>;
 }) {
   const tenantConfig = useTenantConfig();
   const resolvedEmployeeFields = useMemo(
@@ -100,7 +109,6 @@ export default function EmployeeProfileView({
     [tenantConfig],
   );
   const activeEmployment = preferredEmployment(employments);
-  const activeEmploymentIndex = activeEmployment ? employments.indexOf(activeEmployment) : -1;
   const sectionCardClassName = "border-sky-200 bg-sky-100/30 shadow-none";
   const getEmployeeFields = (keys: string[]) => keys
     .map((key) => resolvedEmployeeFields.find((field) => field.key === key))
@@ -113,8 +121,8 @@ export default function EmployeeProfileView({
   const profileTabs = [
     { key: "basic", label: "基本信息" },
     { key: "employment", label: "雇佣关系" },
-    { key: "edp", label: "部门岗位" },
-    { key: "lifecycle", label: "生命周期" },
+    { key: "socialInsurance", label: "社会保险" },
+    { key: "assignment", label: "任职管理" },
     { key: "history", label: "历史记录" },
   ];
 
@@ -152,7 +160,7 @@ export default function EmployeeProfileView({
     asOfDate: profile?.asOfDate ?? "",
     canEdit,
     saving,
-    onChange: (field, value, option) => setEmployments((rows) => changeEmployment(rows, activeEmploymentIndex, field, value, option)),
+    onChange: (index, field, value, option) => setEmployments((rows) => changeEmployment(rows, index, field, value, option)),
     contracts,
     className: sectionCardClassName,
     onAgreementSaved,
@@ -162,7 +170,16 @@ export default function EmployeeProfileView({
     asOfDate: profile?.asOfDate ?? "",
     className: sectionCardClassName,
   });
+  const periodRevisionSections = useEmployeePeriodRevisionSections({
+    profile,
+    canRevise,
+    onSaved: async () => {
+      await onLifecycleSaved();
+      await Promise.resolve(onHistoryRefresh());
+    },
+  });
   const createHistorySections = [
+    ...periodRevisionSections,
     createHistorySection({
       entries: historyEntries,
       loading: historyLoading,
@@ -173,6 +190,14 @@ export default function EmployeeProfileView({
     }, tenantConfig.localization.businessTimeZone),
   ];
   const lifecycleSections = useEmployeeLifecycleSections({ profile, canEdit, onSaved: onLifecycleSaved });
+  const assignmentSections = [...edpSections, ...lifecycleSections];
+  const socialInsuranceSections = useEmployeeSocialInsuranceSections({
+    employeeId: profile?.employee.id ?? 0,
+    rows: socialInsurancePeriods,
+    asOfDate: profile?.asOfDate ?? "",
+    canEdit,
+    onSaved: onSocialInsuranceSaved,
+  });
 
   const ready = !loading && Boolean(profile && employeeDraft);
 
@@ -190,10 +215,10 @@ export default function EmployeeProfileView({
       ? basicSections
       : activeSection === "employment"
         ? employmentSections
-        : activeSection === "edp"
-          ? edpSections
-          : activeSection === "lifecycle"
-            ? lifecycleSections
+        : activeSection === "socialInsurance"
+          ? socialInsuranceSections
+        : activeSection === "assignment"
+          ? assignmentSections
           : createHistorySections;
 
   return (
@@ -201,7 +226,7 @@ export default function EmployeeProfileView({
       tabbar={ready ? createPageTabBar({
         items: profileTabs,
         active: activeSection,
-        onChange: (key) => onSectionChange(key as ProfileSection),
+        onChange: (key) => onSectionChange(key as EmployeeProfileSection),
       }) : undefined}
       toolbar={ready ? { items: toolbarItems } : undefined}
       body={createPageBody(
@@ -218,8 +243,7 @@ export default function EmployeeProfileView({
   );
 }
 
-function changeEmployment(rows: EmploymentRow[], activeIndex: number, field: ProfileField, value: unknown, option?: ReferenceOption) {
-  const index = activeIndex >= 0 ? activeIndex : 0;
+function changeEmployment(rows: EmploymentRow[], index: number, field: ProfileField, value: unknown, option?: ReferenceOption) {
   if (index < 0) return rows;
   return updateProfileRow(rows, index, field, value, option) as EmploymentRow[];
 }

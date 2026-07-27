@@ -16,6 +16,28 @@ export {
 } from "./agreement-schemas";
 
 export {
+  EmploymentAgreementAttachmentParamsSchema,
+  EmploymentAgreementAttachmentRemoveSchema,
+  EmploymentAgreementAttachmentTargetParamsSchema,
+  EmploymentAgreementAttachmentUploadSchema,
+} from "./employment-agreement-attachment-schemas";
+
+export {
+  downloadEmploymentAgreementAttachment,
+  executeRemoveEmploymentAgreementAttachment,
+  executeUploadEmploymentAgreementAttachment,
+} from "./employment-agreement-attachments";
+
+export {
+  executeEmployeeSocialInsuranceCommand,
+  listEmployeeSocialInsurancePeriods,
+} from "./employee-social-insurance";
+
+export {
+  EmployeeSocialInsuranceCommandSchema,
+} from "./social-insurance-schemas";
+
+export {
   buildCreateHrDepartmentSubmissionRouteCommand,
   buildHrDepartmentSubmissionActionRouteCommand,
   buildListHrDepartmentSubmissionsRouteCommand,
@@ -49,6 +71,7 @@ export {
 } from "./edps";
 
 export { recordEmployeeLifecycleEvent } from "./employee-lifecycle";
+export { reviseEmployeePeriod } from "./employee-period-revisions";
 
 export {
   listEmployees,

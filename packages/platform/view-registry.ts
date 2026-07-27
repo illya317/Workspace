@@ -21,7 +21,7 @@ const basePageViewDefinitions: PageViewDefinition[] = [
           { key: "chart", label: "架构图" },
         ],
       },
-      { key: "department-position", label: "部门岗位", children: [{ key: "active", label: "现用" }, { key: "archived", label: "归档" }, { key: "workflow", label: "流程记录" }] },
+      { key: "department-position", label: "部门岗位", children: [{ key: "active", label: "现用" }, { key: "archived", label: "归档" }] },
       {
         key: "bulk",
         label: "员工信息表",

@@ -1,5 +1,6 @@
 import {
   businessDateWindowContains,
+  businessTemporalRetrospectiveChanges,
   inclusiveBusinessPeriodToWindow,
   LATEST_INCLUSIVE_BUSINESS_DATE,
   parseBusinessDate,
@@ -15,12 +16,17 @@ import { employmentIsActiveOnDate } from "@workspace/platform/server/relation-re
 import { prisma } from "@workspace/platform/server/prisma";
 import { isEmploymentPositionOptionalTitle } from "@workspace/hr/constants/employee-temporal-write-policy";
 import {
+  employeeCanOnboardAt,
+  isHydratableOnboardingPlaceholder,
+} from "@workspace/hr/employee-lifecycle-contract";
+import {
   resolveDefaultEdpReportToPositionId,
   validateEdpReportToPosition,
 } from "../edp-report-to";
 import { parseAllocationWeight, validateEmploymentOption } from "../field-validation";
 import { resolveEdpPositionAssignment } from "./position-report-override-validation";
 import { assignmentPeriodContainsDate } from "./employee-business-temporal";
+import { HR_ASSIGNMENT_TEMPORAL, HR_EMPLOYMENT_TEMPORAL } from "../../business-temporal";
 
 export const EMPLOYEE_LIFECYCLE_EVENT_TYPES = [
   "onboard",
@@ -99,17 +105,7 @@ export interface EmployeeLifecycleCommand {
   };
 }
 
-export function isHydratableOnboardingPlaceholder(
-  employments: ReadonlyArray<{ isActive: boolean; joinDate: string | null; leaveDate: string | null }>,
-  assignmentCount: number,
-  lifecycleEventCount: number,
-) {
-  if (employments.length !== 1 || assignmentCount !== 0 || lifecycleEventCount !== 0) return false;
-  const employment = employments[0]!;
-  return employment.isActive
-    && !employment.joinDate?.trim()
-    && !employment.leaveDate?.trim();
-}
+export { isHydratableOnboardingPlaceholder };
 
 type TimelineRow = Pick<LifecycleAssignmentPeriod, "startDate" | "endDate" | "allocationWeight" | "isPrimary">;
 
@@ -156,14 +152,6 @@ function employmentContainsDate(
     joinDate: employment.joinDate,
     leaveDate: employment.leaveDate,
   }, date);
-}
-
-function employmentPeriodsOverlap(
-  employment: { isActive: boolean; joinDate: string | null; leaveDate: string | null },
-  startDate: string,
-) {
-  if (!employment.joinDate && !employment.leaveDate && !employment.isActive) return false;
-  return !employment.leaveDate || employment.leaveDate >= startDate;
 }
 
 function normalizeDate(
@@ -332,8 +320,17 @@ export async function buildEmployeeLifecycleCommand(
   if (!effectiveDateResult.ok) return effectiveDateResult;
   const effectiveDate = effectiveDateResult.data;
   if (!effectiveDate) return failCommand("生效日期必填");
-  const today = workspaceBusinessDate(new Date());
-  if (effectiveDate < today) return failCommand("生效日期不能早于当前业务日期");
+  const affectedPolicies = eventType === "onboard"
+    ? [HR_EMPLOYMENT_TEMPORAL.policy, HR_ASSIGNMENT_TEMPORAL.policy]
+    : eventType === "offboard"
+      ? [HR_EMPLOYMENT_TEMPORAL.policy]
+      : [HR_ASSIGNMENT_TEMPORAL.policy];
+  if (
+    effectiveDate < workspaceBusinessDate(new Date())
+    && affectedPolicies.some((policy) => businessTemporalRetrospectiveChanges(policy) === "forbid")
+  ) {
+    return failCommand("该类周期不允许补录历史生效日期", 409, "effectiveDate");
+  }
   const assignmentEndDateResult = normalizeDate(
     input.assignmentEndDate,
     "兼岗结束日期",
@@ -399,8 +396,17 @@ export async function buildEmployeeLifecycleCommand(
     ? employee.employments[0]!
     : null;
   if (eventType === "onboard") {
-    if (!onboardingPlaceholder && employee.employments.some((row) => employmentPeriodsOverlap(row, effectiveDate))) {
-      return failCommand("该员工在生效日之后已有重叠的雇佣期间");
+    if (
+      HR_EMPLOYMENT_TEMPORAL.policy.overlaps !== "allow"
+      && !onboardingPlaceholder
+      && !employeeCanOnboardAt({
+        employments: employee.employments,
+        assignmentCount: employee.positions.length,
+        lifecycleEventCount: employee.lifecycleEvents.length,
+        effectiveDate,
+      })
+    ) {
+      return failCommand("该员工已有未结束或未来雇佣记录，不能重复登记入职", 409, "eventType");
     }
   } else if (!activeEmployment) {
     return failCommand("该员工在生效日没有有效雇佣期间");

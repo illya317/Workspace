@@ -37,7 +37,7 @@ export const LIBRARY_DOCUMENT_REVISION_TEMPORAL = defineBusinessTemporalRegistra
     sameDayChanges: "sequenced",
     overlaps: "forbid",
     gaps: "allow",
-    correction: "supersede",
+    revision: "supersede",
     deletion: "draft-only",
   },
   notes: "稳定文档与版本分表已存在；接入统一 adapter 和 UI coverage 后再标记 implemented。",

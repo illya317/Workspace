@@ -63,7 +63,7 @@ export const ADMINISTRATION_CONTRACT_TEMPORAL = defineBusinessTemporalRegistrati
     sameDayChanges: "single",
     overlaps: "forbid",
     gaps: "allow",
-    correction: "supersede",
+    revision: "supersede",
     deletion: "draft-only",
   },
   notes: "ContractRevision 是法定内容权威修订，ContractStateEvent 是三个状态轴权威事件；四类命令均持久化幂等键，Contract 仅保留当前查询投影。未来修订需在生效日显式发布，自动生效调度仍待实现。",

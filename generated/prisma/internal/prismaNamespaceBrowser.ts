@@ -177,15 +177,19 @@ export const ModelName = {
   PositionDescription: 'PositionDescription',
   PositionDescriptionRevision: 'PositionDescriptionRevision',
   EmploymentAgreement: 'EmploymentAgreement',
+  EmploymentAgreementAttachment: 'EmploymentAgreementAttachment',
   EmploymentAgreementTerm: 'EmploymentAgreementTerm',
   EmploymentAgreementRevision: 'EmploymentAgreementRevision',
   EmploymentAgreementChange: 'EmploymentAgreementChange',
   EmployeeLifecycleEvent: 'EmployeeLifecycleEvent',
+  EmployeePeriodRevision: 'EmployeePeriodRevision',
   OrganizationStructureChange: 'OrganizationStructureChange',
   DepartmentEffectiveVersion: 'DepartmentEffectiveVersion',
   PositionEffectiveVersion: 'PositionEffectiveVersion',
   PositionReportOverrideEffectiveVersion: 'PositionReportOverrideEffectiveVersion',
   HrPerformanceReview: 'HrPerformanceReview',
+  EmployeeSocialInsurancePeriod: 'EmployeeSocialInsurancePeriod',
+  EmployeeSocialInsurancePeriodRevision: 'EmployeeSocialInsurancePeriodRevision',
   Employee: 'Employee',
   Employment: 'Employment',
   Company: 'Company',
@@ -2994,6 +2998,8 @@ export const EmploymentAgreementScalarFieldEnum = {
   isPrimary: 'isPrimary',
   sourceKind: 'sourceKind',
   sourceRef: 'sourceRef',
+  missingFieldsJson: 'missingFieldsJson',
+  actualEndDate: 'actualEndDate',
   reason: 'reason',
   version: 'version',
   currentPublishedRevisionId: 'currentPublishedRevisionId',
@@ -3004,6 +3010,34 @@ export const EmploymentAgreementScalarFieldEnum = {
 } as const
 
 export type EmploymentAgreementScalarFieldEnum = (typeof EmploymentAgreementScalarFieldEnum)[keyof typeof EmploymentAgreementScalarFieldEnum]
+
+
+export const EmploymentAgreementAttachmentScalarFieldEnum = {
+  id: 'id',
+  attachmentUid: 'attachmentUid',
+  agreementId: 'agreementId',
+  fileName: 'fileName',
+  mimeType: 'mimeType',
+  originalStoragePath: 'originalStoragePath',
+  originalSizeBytes: 'originalSizeBytes',
+  originalChecksumSha256: 'originalChecksumSha256',
+  optimizedStoragePath: 'optimizedStoragePath',
+  optimizedSizeBytes: 'optimizedSizeBytes',
+  optimizedChecksumSha256: 'optimizedChecksumSha256',
+  optimizationStatus: 'optimizationStatus',
+  optimizationError: 'optimizationError',
+  compressionSavingsRatio: 'compressionSavingsRatio',
+  pageCount: 'pageCount',
+  note: 'note',
+  uploadedBy: 'uploadedBy',
+  uploadedAt: 'uploadedAt',
+  removedBy: 'removedBy',
+  removedAt: 'removedAt',
+  removalReason: 'removalReason',
+  version: 'version'
+} as const
+
+export type EmploymentAgreementAttachmentScalarFieldEnum = (typeof EmploymentAgreementAttachmentScalarFieldEnum)[keyof typeof EmploymentAgreementAttachmentScalarFieldEnum]
 
 
 export const EmploymentAgreementTermScalarFieldEnum = {
@@ -3033,6 +3067,7 @@ export const EmploymentAgreementRevisionScalarFieldEnum = {
   agreementId: 'agreementId',
   revisionNo: 'revisionNo',
   recordState: 'recordState',
+  changeKind: 'changeKind',
   contentJson: 'contentJson',
   supersedesRevisionId: 'supersedesRevisionId',
   sourceKind: 'sourceKind',
@@ -3073,6 +3108,22 @@ export const EmployeeLifecycleEventScalarFieldEnum = {
 } as const
 
 export type EmployeeLifecycleEventScalarFieldEnum = (typeof EmployeeLifecycleEventScalarFieldEnum)[keyof typeof EmployeeLifecycleEventScalarFieldEnum]
+
+
+export const EmployeePeriodRevisionScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  entityType: 'entityType',
+  periodId: 'periodId',
+  expectedVersion: 'expectedVersion',
+  beforeJson: 'beforeJson',
+  afterJson: 'afterJson',
+  reason: 'reason',
+  recordedByUserId: 'recordedByUserId',
+  recordedAt: 'recordedAt'
+} as const
+
+export type EmployeePeriodRevisionScalarFieldEnum = (typeof EmployeePeriodRevisionScalarFieldEnum)[keyof typeof EmployeePeriodRevisionScalarFieldEnum]
 
 
 export const OrganizationStructureChangeScalarFieldEnum = {
@@ -3183,6 +3234,47 @@ export const HrPerformanceReviewScalarFieldEnum = {
 } as const
 
 export type HrPerformanceReviewScalarFieldEnum = (typeof HrPerformanceReviewScalarFieldEnum)[keyof typeof HrPerformanceReviewScalarFieldEnum]
+
+
+export const EmployeeSocialInsurancePeriodScalarFieldEnum = {
+  id: 'id',
+  periodUid: 'periodUid',
+  employeeId: 'employeeId',
+  insuranceStatus: 'insuranceStatus',
+  companyId: 'companyId',
+  companyNameSnapshot: 'companyNameSnapshot',
+  startMonth: 'startMonth',
+  endMonth: 'endMonth',
+  stopReason: 'stopReason',
+  note: 'note',
+  missingFieldsJson: 'missingFieldsJson',
+  recordState: 'recordState',
+  sourceKind: 'sourceKind',
+  sourceRef: 'sourceRef',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  version: 'version'
+} as const
+
+export type EmployeeSocialInsurancePeriodScalarFieldEnum = (typeof EmployeeSocialInsurancePeriodScalarFieldEnum)[keyof typeof EmployeeSocialInsurancePeriodScalarFieldEnum]
+
+
+export const EmployeeSocialInsurancePeriodRevisionScalarFieldEnum = {
+  id: 'id',
+  revisionUid: 'revisionUid',
+  periodId: 'periodId',
+  revisionNo: 'revisionNo',
+  changeKind: 'changeKind',
+  beforeJson: 'beforeJson',
+  afterJson: 'afterJson',
+  reason: 'reason',
+  recordedBy: 'recordedBy',
+  recordedAt: 'recordedAt'
+} as const
+
+export type EmployeeSocialInsurancePeriodRevisionScalarFieldEnum = (typeof EmployeeSocialInsurancePeriodRevisionScalarFieldEnum)[keyof typeof EmployeeSocialInsurancePeriodRevisionScalarFieldEnum]
 
 
 export const EmployeeScalarFieldEnum = {

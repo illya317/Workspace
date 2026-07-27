@@ -62,11 +62,12 @@ async function buildSessionUser(
   const { RESOURCE_KEYS } = await import("@workspace/platform/resources");
   await ensureGrantCache(ctx); // preload all grants for the in-memory fast path
 
-  const [visibleAccess, visibleRead, visibleUpdate, visibleSubmit, visibleConfigure] = await Promise.all([
+  const [visibleAccess, visibleRead, visibleUpdate, visibleSubmit, visibleRevise, visibleConfigure] = await Promise.all([
     getVisibleResourceKeys(ctx, "entry"),
     getVisibleResourceKeys(ctx, "read"),
     getVisibleResourceKeys(ctx, "update"),
     getVisibleResourceKeys(ctx, "submit"),
+    getVisibleResourceKeys(ctx, "revise"),
     getVisibleResourceKeys(ctx, "configure"),
   ]);
   const activeResourceKeySet = new Set(RESOURCE_KEYS);
@@ -74,6 +75,7 @@ async function buildSessionUser(
   const activeVisibleRead = [...visibleRead].filter((key) => activeResourceKeySet.has(key));
   const activeVisibleUpdate = [...visibleUpdate].filter((key) => activeResourceKeySet.has(key));
   const activeVisibleSubmit = [...visibleSubmit].filter((key) => activeResourceKeySet.has(key));
+  const activeVisibleRevise = [...visibleRevise].filter((key) => activeResourceKeySet.has(key));
   const activeVisibleConfigure = [...visibleConfigure].filter((key) => activeResourceKeySet.has(key));
   const allResourceKeys = new Set([
     ...RESOURCE_KEYS,
@@ -81,6 +83,7 @@ async function buildSessionUser(
     ...activeVisibleRead,
     ...activeVisibleUpdate,
     ...activeVisibleSubmit,
+    ...activeVisibleRevise,
     ...activeVisibleConfigure,
   ]);
 
@@ -99,6 +102,7 @@ async function buildSessionUser(
     visibleReadResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleRead,
     visibleUpdateResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleUpdate,
     visibleSubmitResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleSubmit,
+    visibleReviseResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleRevise,
     visibleConfigureResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleConfigure,
     manageableResourceKeys: isAdmin ? [...new Set([...manageableKeys, ...RESOURCE_KEYS])] : [...manageableKeys],
     adminResourceKeys: isAdmin ? [...new Set([...adminKeys, ...RESOURCE_KEYS])] : [...adminKeys],

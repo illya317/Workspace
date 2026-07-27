@@ -5,6 +5,7 @@ import {
   BusinessTemporalContractError,
   businessDateWindowContains,
   businessDateWindowsOverlap,
+  businessTemporalRetrospectiveChanges,
   businessTemporalViewKind,
   classifyInclusiveBusinessPeriod,
   createBusinessTemporalCatalog,
@@ -107,7 +108,7 @@ test("the policy catalog is deterministic and rejects duplicate registrations", 
       sameDayChanges: "single",
       overlaps: "forbid",
       gaps: "allow",
-      correction: "audited-overwrite",
+      revision: "audited-overwrite",
       deletion: "end-date",
     },
   });
@@ -115,6 +116,7 @@ test("the policy catalog is deterministic and rejects duplicate registrations", 
   assert.deepEqual(catalog.keys(), ["hr.employee.employment"]);
   assert.equal(catalog.require("hr.employee.employment"), employment);
   assert.equal(businessTemporalViewKind(employment.policy.storage), "effective-period");
+  assert.equal(businessTemporalRetrospectiveChanges(employment.policy), "allow");
   assert.deepEqual([
     businessTemporalViewKind("current"),
     businessTemporalViewKind("date-enabled"),
@@ -133,6 +135,38 @@ test("the policy catalog is deterministic and rejects duplicate registrations", 
 });
 
 test("registrations fail closed when storage, UI and projection capabilities disagree", () => {
+  assert.throws(
+    () => defineBusinessTemporalRegistration({
+      key: "hr.read-only-period",
+      ownerModuleKey: "hr",
+      resourceKey: "hr.roster",
+      aggregate: "ReadOnlyPeriod",
+      maturity: "partial",
+      records: {
+        authority: [{ kind: "model", model: "ReadOnlyPeriod", fields: ["id"], role: "period" }],
+      },
+      commands: ["correct"],
+      ui: {
+        asOf: "required",
+        upcoming: true,
+        history: true,
+        recordState: true,
+        sourceNavigation: false,
+      },
+      policy: {
+        storage: "effective-version",
+        granularity: "date",
+        futureChanges: "allow",
+        sameDayChanges: "single",
+        overlaps: "forbid",
+        gaps: "allow",
+        revision: "forbid",
+        deletion: "never",
+      },
+    }),
+    (error) => error instanceof BusinessTemporalContractError && error.code === "TEMPORAL_INVALID_POLICY",
+  );
+
   assert.throws(
     () => defineBusinessTemporalRegistration({
       key: "finance.policy",
@@ -163,7 +197,7 @@ test("registrations fail closed when storage, UI and projection capabilities dis
         sameDayChanges: "single",
         overlaps: "forbid",
         gaps: "allow",
-        correction: "supersede",
+        revision: "supersede",
         deletion: "draft-only",
       },
     }),
@@ -210,7 +244,7 @@ test("registrations fail closed when storage, UI and projection capabilities dis
         sameDayChanges: "sequenced",
         overlaps: "forbid",
         gaps: "allow",
-        correction: "reverse",
+        revision: "reverse",
         deletion: "never",
       },
     }),
@@ -250,7 +284,7 @@ test("a runtime module binds one registration to one narrow domain adapter", asy
       sameDayChanges: "sequenced",
       overlaps: "forbid",
       gaps: "allow",
-      correction: "supersede",
+      revision: "supersede",
       deletion: "draft-only",
     },
   });

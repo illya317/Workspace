@@ -375,9 +375,11 @@ export type EmployeeWhereInput = {
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   positions?: Prisma.EDPListRelationFilter
   lifecycleEvents?: Prisma.EmployeeLifecycleEventListRelationFilter
+  periodRevisions?: Prisma.EmployeePeriodRevisionListRelationFilter
   projects?: Prisma.EmployeeProjectListRelationFilter
   projectMembershipChanges?: Prisma.ProjectMembershipChangeListRelationFilter
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeListRelationFilter
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodListRelationFilter
   ownedWorkItems?: Prisma.WorkItemListRelationFilter
   ownedWorkPlans?: Prisma.WorkPlanListRelationFilter
   employments?: Prisma.EmploymentListRelationFilter
@@ -416,9 +418,11 @@ export type EmployeeOrderByWithRelationInput = {
   user?: Prisma.UserOrderByWithRelationInput
   positions?: Prisma.EDPOrderByRelationAggregateInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventOrderByRelationAggregateInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionOrderByRelationAggregateInput
   projects?: Prisma.EmployeeProjectOrderByRelationAggregateInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeOrderByRelationAggregateInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeOrderByRelationAggregateInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodOrderByRelationAggregateInput
   ownedWorkItems?: Prisma.WorkItemOrderByRelationAggregateInput
   ownedWorkPlans?: Prisma.WorkPlanOrderByRelationAggregateInput
   employments?: Prisma.EmploymentOrderByRelationAggregateInput
@@ -460,9 +464,11 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   positions?: Prisma.EDPListRelationFilter
   lifecycleEvents?: Prisma.EmployeeLifecycleEventListRelationFilter
+  periodRevisions?: Prisma.EmployeePeriodRevisionListRelationFilter
   projects?: Prisma.EmployeeProjectListRelationFilter
   projectMembershipChanges?: Prisma.ProjectMembershipChangeListRelationFilter
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeListRelationFilter
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodListRelationFilter
   ownedWorkItems?: Prisma.WorkItemListRelationFilter
   ownedWorkPlans?: Prisma.WorkPlanListRelationFilter
   employments?: Prisma.EmploymentListRelationFilter
@@ -559,9 +565,11 @@ export type EmployeeCreateInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -599,9 +607,11 @@ export type EmployeeUncheckedCreateInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -638,9 +648,11 @@ export type EmployeeUpdateInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -678,9 +690,11 @@ export type EmployeeUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1014,6 +1028,20 @@ export type EmployeeUpdateOneRequiredWithoutLifecycleEventsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutLifecycleEventsInput, Prisma.EmployeeUpdateWithoutLifecycleEventsInput>, Prisma.EmployeeUncheckedUpdateWithoutLifecycleEventsInput>
 }
 
+export type EmployeeCreateNestedOneWithoutPeriodRevisionsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPeriodRevisionsInput, Prisma.EmployeeUncheckedCreateWithoutPeriodRevisionsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPeriodRevisionsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutPeriodRevisionsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPeriodRevisionsInput, Prisma.EmployeeUncheckedCreateWithoutPeriodRevisionsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPeriodRevisionsInput
+  upsert?: Prisma.EmployeeUpsertWithoutPeriodRevisionsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutPeriodRevisionsInput, Prisma.EmployeeUpdateWithoutPeriodRevisionsInput>, Prisma.EmployeeUncheckedUpdateWithoutPeriodRevisionsInput>
+}
+
 export type EmployeeCreateNestedOneWithoutPerformanceReviewsInput = {
   create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPerformanceReviewsInput, Prisma.EmployeeUncheckedCreateWithoutPerformanceReviewsInput>
   connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPerformanceReviewsInput
@@ -1026,6 +1054,20 @@ export type EmployeeUpdateOneRequiredWithoutPerformanceReviewsNestedInput = {
   upsert?: Prisma.EmployeeUpsertWithoutPerformanceReviewsInput
   connect?: Prisma.EmployeeWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutPerformanceReviewsInput, Prisma.EmployeeUpdateWithoutPerformanceReviewsInput>, Prisma.EmployeeUncheckedUpdateWithoutPerformanceReviewsInput>
+}
+
+export type EmployeeCreateNestedOneWithoutSocialInsurancePeriodsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutSocialInsurancePeriodsInput, Prisma.EmployeeUncheckedCreateWithoutSocialInsurancePeriodsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutSocialInsurancePeriodsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutSocialInsurancePeriodsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutSocialInsurancePeriodsInput, Prisma.EmployeeUncheckedCreateWithoutSocialInsurancePeriodsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutSocialInsurancePeriodsInput
+  upsert?: Prisma.EmployeeUpsertWithoutSocialInsurancePeriodsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutSocialInsurancePeriodsInput, Prisma.EmployeeUpdateWithoutSocialInsurancePeriodsInput>, Prisma.EmployeeUncheckedUpdateWithoutSocialInsurancePeriodsInput>
 }
 
 export type EmployeeCreateNestedOneWithoutEmploymentsInput = {
@@ -1154,9 +1196,11 @@ export type EmployeeCreateWithoutUserInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -1193,9 +1237,11 @@ export type EmployeeUncheckedCreateWithoutUserInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1287,9 +1333,11 @@ export type EmployeeCreateWithoutHandledContractsInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -1326,9 +1374,11 @@ export type EmployeeUncheckedCreateWithoutHandledContractsInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1380,9 +1430,11 @@ export type EmployeeUpdateWithoutHandledContractsInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -1419,9 +1471,11 @@ export type EmployeeUncheckedUpdateWithoutHandledContractsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1457,9 +1511,11 @@ export type EmployeeCreateWithoutFinanceShipmentsInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -1496,9 +1552,11 @@ export type EmployeeUncheckedCreateWithoutFinanceShipmentsInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1550,9 +1608,11 @@ export type EmployeeUpdateWithoutFinanceShipmentsInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -1589,9 +1649,11 @@ export type EmployeeUncheckedUpdateWithoutFinanceShipmentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1627,9 +1689,11 @@ export type EmployeeCreateWithoutFinanceSalesSalariesInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -1666,9 +1730,11 @@ export type EmployeeUncheckedCreateWithoutFinanceSalesSalariesInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1720,9 +1786,11 @@ export type EmployeeUpdateWithoutFinanceSalesSalariesInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -1759,9 +1827,11 @@ export type EmployeeUncheckedUpdateWithoutFinanceSalesSalariesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1797,9 +1867,11 @@ export type EmployeeCreateWithoutFinanceWorkshopReportsInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -1836,9 +1908,11 @@ export type EmployeeUncheckedCreateWithoutFinanceWorkshopReportsInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1890,9 +1964,11 @@ export type EmployeeUpdateWithoutFinanceWorkshopReportsInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -1929,9 +2005,11 @@ export type EmployeeUncheckedUpdateWithoutFinanceWorkshopReportsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1967,8 +2045,10 @@ export type EmployeeCreateWithoutEmploymentAgreementChangesInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -2006,8 +2086,10 @@ export type EmployeeUncheckedCreateWithoutEmploymentAgreementChangesInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -2060,8 +2142,10 @@ export type EmployeeUpdateWithoutEmploymentAgreementChangesInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -2099,8 +2183,10 @@ export type EmployeeUncheckedUpdateWithoutEmploymentAgreementChangesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -2136,9 +2222,11 @@ export type EmployeeCreateWithoutLifecycleEventsInput = {
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -2175,9 +2263,11 @@ export type EmployeeUncheckedCreateWithoutLifecycleEventsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -2229,9 +2319,11 @@ export type EmployeeUpdateWithoutLifecycleEventsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -2268,9 +2360,189 @@ export type EmployeeUncheckedUpdateWithoutLifecycleEventsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
+  ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
+  employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
+  financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
+  financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutEmployeeNestedInput
+  performanceReviews?: Prisma.HrPerformanceReviewUncheckedUpdateManyWithoutEmployeeNestedInput
+  ownedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutOwnerEmployeeNestedInput
+  handledContracts?: Prisma.ContractUncheckedUpdateManyWithoutHandlerEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutPeriodRevisionsInput = {
+  employeeId: string
+  idNumber?: string | null
+  otherId?: string | null
+  name: string
+  alias?: string | null
+  gender?: boolean | null
+  birthDate?: string | null
+  ethnicity?: string | null
+  hometown?: string | null
+  politics?: string | null
+  education?: string | null
+  title?: string | null
+  school?: string | null
+  major?: string | null
+  phone?: string | null
+  workStartDate?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
+  positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
+  lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
+  projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
+  employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
+  ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
+  ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
+  employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
+  financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
+  financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutEmployeeInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutEmployeeInput
+  performanceReviews?: Prisma.HrPerformanceReviewCreateNestedManyWithoutEmployeeInput
+  ownedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutOwnerEmployeeInput
+  handledContracts?: Prisma.ContractCreateNestedManyWithoutHandlerEmployeeInput
+}
+
+export type EmployeeUncheckedCreateWithoutPeriodRevisionsInput = {
+  id?: number
+  employeeId: string
+  idNumber?: string | null
+  otherId?: string | null
+  name: string
+  alias?: string | null
+  gender?: boolean | null
+  birthDate?: string | null
+  ethnicity?: string | null
+  hometown?: string | null
+  politics?: string | null
+  education?: string | null
+  title?: string | null
+  school?: string | null
+  major?: string | null
+  phone?: string | null
+  workStartDate?: string | null
+  userId?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
+  lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
+  projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
+  ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
+  ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
+  employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
+  financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
+  financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutEmployeeInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutEmployeeInput
+  performanceReviews?: Prisma.HrPerformanceReviewUncheckedCreateNestedManyWithoutEmployeeInput
+  ownedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutOwnerEmployeeInput
+  handledContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutHandlerEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutPeriodRevisionsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPeriodRevisionsInput, Prisma.EmployeeUncheckedCreateWithoutPeriodRevisionsInput>
+}
+
+export type EmployeeUpsertWithoutPeriodRevisionsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutPeriodRevisionsInput, Prisma.EmployeeUncheckedUpdateWithoutPeriodRevisionsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPeriodRevisionsInput, Prisma.EmployeeUncheckedCreateWithoutPeriodRevisionsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutPeriodRevisionsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutPeriodRevisionsInput, Prisma.EmployeeUncheckedUpdateWithoutPeriodRevisionsInput>
+}
+
+export type EmployeeUpdateWithoutPeriodRevisionsInput = {
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
+  idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  otherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  birthDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ethnicity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hometown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  politics?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  school?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  major?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
+  positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
+  lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
+  projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
+  employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
+  ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
+  ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
+  employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
+  financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
+  financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutEmployeeNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutEmployeeNestedInput
+  performanceReviews?: Prisma.HrPerformanceReviewUpdateManyWithoutEmployeeNestedInput
+  ownedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutOwnerEmployeeNestedInput
+  handledContracts?: Prisma.ContractUpdateManyWithoutHandlerEmployeeNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutPeriodRevisionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
+  idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  otherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  birthDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ethnicity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hometown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  politics?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  school?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  major?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
+  lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
+  projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -2307,9 +2579,11 @@ export type EmployeeCreateWithoutPerformanceReviewsInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -2346,9 +2620,11 @@ export type EmployeeUncheckedCreateWithoutPerformanceReviewsInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -2400,9 +2676,11 @@ export type EmployeeUpdateWithoutPerformanceReviewsInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -2439,6 +2717,185 @@ export type EmployeeUncheckedUpdateWithoutPerformanceReviewsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
+  projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
+  ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
+  employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
+  financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
+  financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutEmployeeNestedInput
+  ownedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutOwnerEmployeeNestedInput
+  handledContracts?: Prisma.ContractUncheckedUpdateManyWithoutHandlerEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutSocialInsurancePeriodsInput = {
+  employeeId: string
+  idNumber?: string | null
+  otherId?: string | null
+  name: string
+  alias?: string | null
+  gender?: boolean | null
+  birthDate?: string | null
+  ethnicity?: string | null
+  hometown?: string | null
+  politics?: string | null
+  education?: string | null
+  title?: string | null
+  school?: string | null
+  major?: string | null
+  phone?: string | null
+  workStartDate?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
+  positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
+  lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
+  projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
+  projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
+  employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
+  ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
+  employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
+  financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
+  financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutEmployeeInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutEmployeeInput
+  performanceReviews?: Prisma.HrPerformanceReviewCreateNestedManyWithoutEmployeeInput
+  ownedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutOwnerEmployeeInput
+  handledContracts?: Prisma.ContractCreateNestedManyWithoutHandlerEmployeeInput
+}
+
+export type EmployeeUncheckedCreateWithoutSocialInsurancePeriodsInput = {
+  id?: number
+  employeeId: string
+  idNumber?: string | null
+  otherId?: string | null
+  name: string
+  alias?: string | null
+  gender?: boolean | null
+  birthDate?: string | null
+  ethnicity?: string | null
+  hometown?: string | null
+  politics?: string | null
+  education?: string | null
+  title?: string | null
+  school?: string | null
+  major?: string | null
+  phone?: string | null
+  workStartDate?: string | null
+  userId?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
+  lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
+  projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
+  ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
+  employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
+  financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
+  financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutEmployeeInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutEmployeeInput
+  performanceReviews?: Prisma.HrPerformanceReviewUncheckedCreateNestedManyWithoutEmployeeInput
+  ownedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutOwnerEmployeeInput
+  handledContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutHandlerEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutSocialInsurancePeriodsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutSocialInsurancePeriodsInput, Prisma.EmployeeUncheckedCreateWithoutSocialInsurancePeriodsInput>
+}
+
+export type EmployeeUpsertWithoutSocialInsurancePeriodsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutSocialInsurancePeriodsInput, Prisma.EmployeeUncheckedUpdateWithoutSocialInsurancePeriodsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutSocialInsurancePeriodsInput, Prisma.EmployeeUncheckedCreateWithoutSocialInsurancePeriodsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutSocialInsurancePeriodsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutSocialInsurancePeriodsInput, Prisma.EmployeeUncheckedUpdateWithoutSocialInsurancePeriodsInput>
+}
+
+export type EmployeeUpdateWithoutSocialInsurancePeriodsInput = {
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
+  idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  otherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  birthDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ethnicity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hometown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  politics?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  school?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  major?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
+  positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
+  lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
+  projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
+  projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
+  employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
+  ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
+  employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
+  financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
+  financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutEmployeeNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutEmployeeNestedInput
+  performanceReviews?: Prisma.HrPerformanceReviewUpdateManyWithoutEmployeeNestedInput
+  ownedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutOwnerEmployeeNestedInput
+  handledContracts?: Prisma.ContractUpdateManyWithoutHandlerEmployeeNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutSocialInsurancePeriodsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
+  idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  otherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  birthDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ethnicity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hometown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  politics?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  school?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  major?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
+  lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -2448,6 +2905,7 @@ export type EmployeeUncheckedUpdateWithoutPerformanceReviewsInput = {
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutEmployeeNestedInput
+  performanceReviews?: Prisma.HrPerformanceReviewUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutOwnerEmployeeNestedInput
   handledContracts?: Prisma.ContractUncheckedUpdateManyWithoutHandlerEmployeeNestedInput
 }
@@ -2477,9 +2935,11 @@ export type EmployeeCreateWithoutEmploymentsInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
@@ -2516,9 +2976,11 @@ export type EmployeeUncheckedCreateWithoutEmploymentsInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
@@ -2570,9 +3032,11 @@ export type EmployeeUpdateWithoutEmploymentsInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
@@ -2609,9 +3073,11 @@ export type EmployeeUncheckedUpdateWithoutEmploymentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -2646,9 +3112,11 @@ export type EmployeeCreateWithoutPositionsInput = {
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -2685,9 +3153,11 @@ export type EmployeeUncheckedCreateWithoutPositionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -2739,9 +3209,11 @@ export type EmployeeUpdateWithoutPositionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -2778,9 +3250,11 @@ export type EmployeeUncheckedUpdateWithoutPositionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -2817,9 +3291,11 @@ export type EmployeeCreateWithoutOwnedKpiAssignmentsInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -2856,9 +3332,11 @@ export type EmployeeUncheckedCreateWithoutOwnedKpiAssignmentsInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -2910,9 +3388,11 @@ export type EmployeeUpdateWithoutOwnedKpiAssignmentsInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -2949,9 +3429,11 @@ export type EmployeeUncheckedUpdateWithoutOwnedKpiAssignmentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -2987,8 +3469,10 @@ export type EmployeeCreateWithoutProjectsInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -3026,8 +3510,10 @@ export type EmployeeUncheckedCreateWithoutProjectsInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -3080,8 +3566,10 @@ export type EmployeeUpdateWithoutProjectsInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -3119,8 +3607,10 @@ export type EmployeeUncheckedUpdateWithoutProjectsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -3157,8 +3647,10 @@ export type EmployeeCreateWithoutProjectMembershipChangesInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
@@ -3196,8 +3688,10 @@ export type EmployeeUncheckedCreateWithoutProjectMembershipChangesInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -3250,8 +3744,10 @@ export type EmployeeUpdateWithoutProjectMembershipChangesInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -3289,8 +3785,10 @@ export type EmployeeUncheckedUpdateWithoutProjectMembershipChangesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -3327,9 +3825,11 @@ export type EmployeeCreateWithoutOwnedWorkPlansInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
@@ -3366,9 +3866,11 @@ export type EmployeeUncheckedCreateWithoutOwnedWorkPlansInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
@@ -3420,9 +3922,11 @@ export type EmployeeUpdateWithoutOwnedWorkPlansInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
@@ -3459,9 +3963,11 @@ export type EmployeeUncheckedUpdateWithoutOwnedWorkPlansInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -3497,9 +4003,11 @@ export type EmployeeCreateWithoutOwnedWorkItemsInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutEmployeeInput
   ownedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
@@ -3536,9 +4044,11 @@ export type EmployeeUncheckedCreateWithoutOwnedWorkItemsInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutEmployeeInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutEmployeeInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutEmployeeInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutEmployeeInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutOwnerInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
@@ -3590,9 +4100,11 @@ export type EmployeeUpdateWithoutOwnedWorkItemsInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
@@ -3629,9 +4141,11 @@ export type EmployeeUncheckedUpdateWithoutOwnedWorkItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -3691,9 +4205,11 @@ export type EmployeeUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
@@ -3730,9 +4246,11 @@ export type EmployeeUncheckedUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   lifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutEmployeeNestedInput
+  periodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectMembershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutEmployeeNestedInput
   employmentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutEmployeeNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNestedInput
   ownedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutOwnerNestedInput
   ownedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -3777,9 +4295,11 @@ export type EmployeeUncheckedUpdateManyWithoutUserInput = {
 export type EmployeeCountOutputType = {
   positions: number
   lifecycleEvents: number
+  periodRevisions: number
   projects: number
   projectMembershipChanges: number
   employmentAgreementChanges: number
+  socialInsurancePeriods: number
   ownedWorkItems: number
   ownedWorkPlans: number
   employments: number
@@ -3794,9 +4314,11 @@ export type EmployeeCountOutputType = {
 export type EmployeeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   positions?: boolean | EmployeeCountOutputTypeCountPositionsArgs
   lifecycleEvents?: boolean | EmployeeCountOutputTypeCountLifecycleEventsArgs
+  periodRevisions?: boolean | EmployeeCountOutputTypeCountPeriodRevisionsArgs
   projects?: boolean | EmployeeCountOutputTypeCountProjectsArgs
   projectMembershipChanges?: boolean | EmployeeCountOutputTypeCountProjectMembershipChangesArgs
   employmentAgreementChanges?: boolean | EmployeeCountOutputTypeCountEmploymentAgreementChangesArgs
+  socialInsurancePeriods?: boolean | EmployeeCountOutputTypeCountSocialInsurancePeriodsArgs
   ownedWorkItems?: boolean | EmployeeCountOutputTypeCountOwnedWorkItemsArgs
   ownedWorkPlans?: boolean | EmployeeCountOutputTypeCountOwnedWorkPlansArgs
   employments?: boolean | EmployeeCountOutputTypeCountEmploymentsArgs
@@ -3835,6 +4357,13 @@ export type EmployeeCountOutputTypeCountLifecycleEventsArgs<ExtArgs extends runt
 /**
  * EmployeeCountOutputType without action
  */
+export type EmployeeCountOutputTypeCountPeriodRevisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmployeePeriodRevisionWhereInput
+}
+
+/**
+ * EmployeeCountOutputType without action
+ */
 export type EmployeeCountOutputTypeCountProjectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.EmployeeProjectWhereInput
 }
@@ -3851,6 +4380,13 @@ export type EmployeeCountOutputTypeCountProjectMembershipChangesArgs<ExtArgs ext
  */
 export type EmployeeCountOutputTypeCountEmploymentAgreementChangesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.EmploymentAgreementChangeWhereInput
+}
+
+/**
+ * EmployeeCountOutputType without action
+ */
+export type EmployeeCountOutputTypeCountSocialInsurancePeriodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmployeeSocialInsurancePeriodWhereInput
 }
 
 /**
@@ -3944,9 +4480,11 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   user?: boolean | Prisma.Employee$userArgs<ExtArgs>
   positions?: boolean | Prisma.Employee$positionsArgs<ExtArgs>
   lifecycleEvents?: boolean | Prisma.Employee$lifecycleEventsArgs<ExtArgs>
+  periodRevisions?: boolean | Prisma.Employee$periodRevisionsArgs<ExtArgs>
   projects?: boolean | Prisma.Employee$projectsArgs<ExtArgs>
   projectMembershipChanges?: boolean | Prisma.Employee$projectMembershipChangesArgs<ExtArgs>
   employmentAgreementChanges?: boolean | Prisma.Employee$employmentAgreementChangesArgs<ExtArgs>
+  socialInsurancePeriods?: boolean | Prisma.Employee$socialInsurancePeriodsArgs<ExtArgs>
   ownedWorkItems?: boolean | Prisma.Employee$ownedWorkItemsArgs<ExtArgs>
   ownedWorkPlans?: boolean | Prisma.Employee$ownedWorkPlansArgs<ExtArgs>
   employments?: boolean | Prisma.Employee$employmentsArgs<ExtArgs>
@@ -4044,9 +4582,11 @@ export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   user?: boolean | Prisma.Employee$userArgs<ExtArgs>
   positions?: boolean | Prisma.Employee$positionsArgs<ExtArgs>
   lifecycleEvents?: boolean | Prisma.Employee$lifecycleEventsArgs<ExtArgs>
+  periodRevisions?: boolean | Prisma.Employee$periodRevisionsArgs<ExtArgs>
   projects?: boolean | Prisma.Employee$projectsArgs<ExtArgs>
   projectMembershipChanges?: boolean | Prisma.Employee$projectMembershipChangesArgs<ExtArgs>
   employmentAgreementChanges?: boolean | Prisma.Employee$employmentAgreementChangesArgs<ExtArgs>
+  socialInsurancePeriods?: boolean | Prisma.Employee$socialInsurancePeriodsArgs<ExtArgs>
   ownedWorkItems?: boolean | Prisma.Employee$ownedWorkItemsArgs<ExtArgs>
   ownedWorkPlans?: boolean | Prisma.Employee$ownedWorkPlansArgs<ExtArgs>
   employments?: boolean | Prisma.Employee$employmentsArgs<ExtArgs>
@@ -4071,9 +4611,11 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     user: Prisma.$UserPayload<ExtArgs> | null
     positions: Prisma.$EDPPayload<ExtArgs>[]
     lifecycleEvents: Prisma.$EmployeeLifecycleEventPayload<ExtArgs>[]
+    periodRevisions: Prisma.$EmployeePeriodRevisionPayload<ExtArgs>[]
     projects: Prisma.$EmployeeProjectPayload<ExtArgs>[]
     projectMembershipChanges: Prisma.$ProjectMembershipChangePayload<ExtArgs>[]
     employmentAgreementChanges: Prisma.$EmploymentAgreementChangePayload<ExtArgs>[]
+    socialInsurancePeriods: Prisma.$EmployeeSocialInsurancePeriodPayload<ExtArgs>[]
     ownedWorkItems: Prisma.$WorkItemPayload<ExtArgs>[]
     ownedWorkPlans: Prisma.$WorkPlanPayload<ExtArgs>[]
     employments: Prisma.$EmploymentPayload<ExtArgs>[]
@@ -4505,9 +5047,11 @@ export interface Prisma__EmployeeClient<T, Null = never, ExtArgs extends runtime
   user<T extends Prisma.Employee$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   positions<T extends Prisma.Employee$positionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$positionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EDPPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   lifecycleEvents<T extends Prisma.Employee$lifecycleEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$lifecycleEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeLifecycleEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  periodRevisions<T extends Prisma.Employee$periodRevisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$periodRevisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeePeriodRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projects<T extends Prisma.Employee$projectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projectMembershipChanges<T extends Prisma.Employee$projectMembershipChangesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$projectMembershipChangesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectMembershipChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   employmentAgreementChanges<T extends Prisma.Employee$employmentAgreementChangesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$employmentAgreementChangesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmploymentAgreementChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  socialInsurancePeriods<T extends Prisma.Employee$socialInsurancePeriodsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$socialInsurancePeriodsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeSocialInsurancePeriodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ownedWorkItems<T extends Prisma.Employee$ownedWorkItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$ownedWorkItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ownedWorkPlans<T extends Prisma.Employee$ownedWorkPlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$ownedWorkPlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   employments<T extends Prisma.Employee$employmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$employmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmploymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5037,6 +5581,30 @@ export type Employee$lifecycleEventsArgs<ExtArgs extends runtime.Types.Extension
 }
 
 /**
+ * Employee.periodRevisions
+ */
+export type Employee$periodRevisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmployeePeriodRevision
+   */
+  select?: Prisma.EmployeePeriodRevisionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmployeePeriodRevision
+   */
+  omit?: Prisma.EmployeePeriodRevisionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeePeriodRevisionInclude<ExtArgs> | null
+  where?: Prisma.EmployeePeriodRevisionWhereInput
+  orderBy?: Prisma.EmployeePeriodRevisionOrderByWithRelationInput | Prisma.EmployeePeriodRevisionOrderByWithRelationInput[]
+  cursor?: Prisma.EmployeePeriodRevisionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmployeePeriodRevisionScalarFieldEnum | Prisma.EmployeePeriodRevisionScalarFieldEnum[]
+}
+
+/**
  * Employee.projects
  */
 export type Employee$projectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -5106,6 +5674,30 @@ export type Employee$employmentAgreementChangesArgs<ExtArgs extends runtime.Type
   take?: number
   skip?: number
   distinct?: Prisma.EmploymentAgreementChangeScalarFieldEnum | Prisma.EmploymentAgreementChangeScalarFieldEnum[]
+}
+
+/**
+ * Employee.socialInsurancePeriods
+ */
+export type Employee$socialInsurancePeriodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmployeeSocialInsurancePeriod
+   */
+  select?: Prisma.EmployeeSocialInsurancePeriodSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmployeeSocialInsurancePeriod
+   */
+  omit?: Prisma.EmployeeSocialInsurancePeriodOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeSocialInsurancePeriodInclude<ExtArgs> | null
+  where?: Prisma.EmployeeSocialInsurancePeriodWhereInput
+  orderBy?: Prisma.EmployeeSocialInsurancePeriodOrderByWithRelationInput | Prisma.EmployeeSocialInsurancePeriodOrderByWithRelationInput[]
+  cursor?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmployeeSocialInsurancePeriodScalarFieldEnum | Prisma.EmployeeSocialInsurancePeriodScalarFieldEnum[]
 }
 
 /**

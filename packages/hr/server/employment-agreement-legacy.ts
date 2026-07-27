@@ -97,6 +97,7 @@ export function buildLegacyAgreementRows(
         revisionUid: `legacy-revision:${fingerprint}`,
         revisionNo: 1,
         recordState: "confirmed",
+        changeKind: "legacy",
         content,
         supersedesRevisionUid: null,
         reason: "Employment.contracts legacy JSON 只读投影",
@@ -125,6 +126,7 @@ export function buildLegacyAgreementRows(
         thirdContractStartDate: terms[2]?.effectiveFrom ?? null,
         thirdContractEndDate: terms[2]?.effectiveThrough ?? null,
         permanentContractDate: terms.find((term) => term.termKind === "permanent")?.effectiveFrom ?? null,
+        expiryDate: terms.at(-1)?.effectiveThrough ?? null,
         confidentialityDate: content.confidentialityDate,
         nonCompeteDate: content.nonCompeteDate,
         endDate: text(record.endDate),
@@ -135,9 +137,11 @@ export function buildLegacyAgreementRows(
         version: null,
         source: "legacy-json",
         migrationState: ambiguousFingerprints.has(fingerprint) ? "legacy-ambiguous" : "legacy-read-only",
+        missingFields: [],
         currentRevisionUid: revision.revisionUid,
         terms,
         revisions: [revision],
+        attachments: [],
       });
     }
   }

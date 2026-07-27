@@ -510,15 +510,19 @@ export const ModelName = {
   PositionDescription: 'PositionDescription',
   PositionDescriptionRevision: 'PositionDescriptionRevision',
   EmploymentAgreement: 'EmploymentAgreement',
+  EmploymentAgreementAttachment: 'EmploymentAgreementAttachment',
   EmploymentAgreementTerm: 'EmploymentAgreementTerm',
   EmploymentAgreementRevision: 'EmploymentAgreementRevision',
   EmploymentAgreementChange: 'EmploymentAgreementChange',
   EmployeeLifecycleEvent: 'EmployeeLifecycleEvent',
+  EmployeePeriodRevision: 'EmployeePeriodRevision',
   OrganizationStructureChange: 'OrganizationStructureChange',
   DepartmentEffectiveVersion: 'DepartmentEffectiveVersion',
   PositionEffectiveVersion: 'PositionEffectiveVersion',
   PositionReportOverrideEffectiveVersion: 'PositionReportOverrideEffectiveVersion',
   HrPerformanceReview: 'HrPerformanceReview',
+  EmployeeSocialInsurancePeriod: 'EmployeeSocialInsurancePeriod',
+  EmployeeSocialInsurancePeriodRevision: 'EmployeeSocialInsurancePeriodRevision',
   Employee: 'Employee',
   Employment: 'Employment',
   Company: 'Company',
@@ -643,7 +647,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "erpDueDiligenceSubmission" | "erpDueDiligenceEvidenceAttachment" | "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "ownershipInterest" | "ownershipProjectionRun" | "companyRegistryChange" | "companyRegistryOwnershipParticipant" | "shareCapitalEvent" | "shareCapitalTransaction" | "shareCapitalSnapshotPosition" | "shareholderGroup" | "shareholderGroupMembership" | "contractRevision" | "contractStateEvent" | "contractCategory" | "contract" | "contractAttachment" | "contractRecord" | "dataQualityRun" | "dataQualityCheckState" | "dataQualityFinding" | "dataQualityNotificationDelivery" | "dataQualityEvaluationRequest" | "documentTemplateSpace" | "documentTemplate" | "partyLegalFactRevision" | "party" | "partyNameHistory" | "externalPartyProfile" | "externalPartyRole" | "externalPartyRolePeriod" | "externalPartySourceMapping" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeCashFlowAllocationAdjustment" | "financeConsolidationEntryLine" | "financeConsolidationMatchGroup" | "financeConsolidationMatchSource" | "financeVoucherCompanyMappingRule" | "financeConsolidationOutputSnapshot" | "financeConsolidationScopeSelection" | "financeConsolidationBatch" | "financeCompanyCurrencyPolicy" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeCounterpartyClassification" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemSettlement" | "financeOpenItemAuxiliary" | "financeGroupAccount" | "financeAccountingPolicyVersion" | "financeGroupAccountRevision" | "financeGroupAccountMapping" | "financeReadableSourcePackage" | "financeReadableImportRun" | "financeSourceLedgerMapping" | "financeAccountAuxiliaryRequirement" | "financeSourcePeriodStatus" | "financeSourceSubsystemStatus" | "financeAccountLineage" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeStatementVoucherExclusion" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "financeBalanceReclassAdjustmentHistory" | "reclassResult" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "positionDescriptionRevision" | "employmentAgreement" | "employmentAgreementTerm" | "employmentAgreementRevision" | "employmentAgreementChange" | "employeeLifecycleEvent" | "organizationStructureChange" | "departmentEffectiveVersion" | "positionEffectiveVersion" | "positionReportOverrideEffectiveVersion" | "hrPerformanceReview" | "employee" | "employment" | "company" | "department" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "inventoryReceiptReport" | "inventoryReceiptProductWorkPoint" | "inventoryReceiptReportEvent" | "inventoryReceiptBatch" | "inventoryReceiptOutput" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "mutationImpactBatch" | "mutationImpactEffect" | "notificationSubscription" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "product" | "productSourceMapping" | "productionQcBatch" | "productionQcFieldValue" | "productionQcSignature" | "productionQcAuditEvent" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "workKpiDefinition" | "workKpiAssignment" | "workKpiResultSnapshot" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectMembershipChange" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workspaceAnalysisTemplate" | "workspaceAnalysisTemplateRevision"
+    modelProps: "erpDueDiligenceSubmission" | "erpDueDiligenceEvidenceAttachment" | "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "ownershipInterest" | "ownershipProjectionRun" | "companyRegistryChange" | "companyRegistryOwnershipParticipant" | "shareCapitalEvent" | "shareCapitalTransaction" | "shareCapitalSnapshotPosition" | "shareholderGroup" | "shareholderGroupMembership" | "contractRevision" | "contractStateEvent" | "contractCategory" | "contract" | "contractAttachment" | "contractRecord" | "dataQualityRun" | "dataQualityCheckState" | "dataQualityFinding" | "dataQualityNotificationDelivery" | "dataQualityEvaluationRequest" | "documentTemplateSpace" | "documentTemplate" | "partyLegalFactRevision" | "party" | "partyNameHistory" | "externalPartyProfile" | "externalPartyRole" | "externalPartyRolePeriod" | "externalPartySourceMapping" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeCashFlowAllocationAdjustment" | "financeConsolidationEntryLine" | "financeConsolidationMatchGroup" | "financeConsolidationMatchSource" | "financeVoucherCompanyMappingRule" | "financeConsolidationOutputSnapshot" | "financeConsolidationScopeSelection" | "financeConsolidationBatch" | "financeCompanyCurrencyPolicy" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeCounterpartyClassification" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemSettlement" | "financeOpenItemAuxiliary" | "financeGroupAccount" | "financeAccountingPolicyVersion" | "financeGroupAccountRevision" | "financeGroupAccountMapping" | "financeReadableSourcePackage" | "financeReadableImportRun" | "financeSourceLedgerMapping" | "financeAccountAuxiliaryRequirement" | "financeSourcePeriodStatus" | "financeSourceSubsystemStatus" | "financeAccountLineage" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeStatementVoucherExclusion" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "financeBalanceReclassAdjustmentHistory" | "reclassResult" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "positionDescriptionRevision" | "employmentAgreement" | "employmentAgreementAttachment" | "employmentAgreementTerm" | "employmentAgreementRevision" | "employmentAgreementChange" | "employeeLifecycleEvent" | "employeePeriodRevision" | "organizationStructureChange" | "departmentEffectiveVersion" | "positionEffectiveVersion" | "positionReportOverrideEffectiveVersion" | "hrPerformanceReview" | "employeeSocialInsurancePeriod" | "employeeSocialInsurancePeriodRevision" | "employee" | "employment" | "company" | "department" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "inventoryReceiptReport" | "inventoryReceiptProductWorkPoint" | "inventoryReceiptReportEvent" | "inventoryReceiptBatch" | "inventoryReceiptOutput" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "mutationImpactBatch" | "mutationImpactEffect" | "notificationSubscription" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "product" | "productSourceMapping" | "productionQcBatch" | "productionQcFieldValue" | "productionQcSignature" | "productionQcAuditEvent" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "workKpiDefinition" | "workKpiAssignment" | "workKpiResultSnapshot" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectMembershipChange" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workspaceAnalysisTemplate" | "workspaceAnalysisTemplateRevision"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -9971,6 +9975,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    EmploymentAgreementAttachment: {
+      payload: Prisma.$EmploymentAgreementAttachmentPayload<ExtArgs>
+      fields: Prisma.EmploymentAgreementAttachmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmploymentAgreementAttachmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmploymentAgreementAttachmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmploymentAgreementAttachmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmploymentAgreementAttachmentPayload>
+        }
+        findFirst: {
+          args: Prisma.EmploymentAgreementAttachmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmploymentAgreementAttachmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmploymentAgreementAttachmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmploymentAgreementAttachmentPayload>
+        }
+        findMany: {
+          args: Prisma.EmploymentAgreementAttachmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmploymentAgreementAttachmentPayload>[]
+        }
+        create: {
+          args: Prisma.EmploymentAgreementAttachmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmploymentAgreementAttachmentPayload>
+        }
+        createMany: {
+          args: Prisma.EmploymentAgreementAttachmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmploymentAgreementAttachmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmploymentAgreementAttachmentPayload>[]
+        }
+        delete: {
+          args: Prisma.EmploymentAgreementAttachmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmploymentAgreementAttachmentPayload>
+        }
+        update: {
+          args: Prisma.EmploymentAgreementAttachmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmploymentAgreementAttachmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmploymentAgreementAttachmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmploymentAgreementAttachmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmploymentAgreementAttachmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmploymentAgreementAttachmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmploymentAgreementAttachmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmploymentAgreementAttachmentPayload>
+        }
+        aggregate: {
+          args: Prisma.EmploymentAgreementAttachmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmploymentAgreementAttachment>
+        }
+        groupBy: {
+          args: Prisma.EmploymentAgreementAttachmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmploymentAgreementAttachmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmploymentAgreementAttachmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmploymentAgreementAttachmentCountAggregateOutputType> | number
+        }
+      }
+    }
     EmploymentAgreementTerm: {
       payload: Prisma.$EmploymentAgreementTermPayload<ExtArgs>
       fields: Prisma.EmploymentAgreementTermFieldRefs
@@ -10264,6 +10342,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.EmployeeLifecycleEventCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.EmployeeLifecycleEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    EmployeePeriodRevision: {
+      payload: Prisma.$EmployeePeriodRevisionPayload<ExtArgs>
+      fields: Prisma.EmployeePeriodRevisionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmployeePeriodRevisionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePeriodRevisionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmployeePeriodRevisionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePeriodRevisionPayload>
+        }
+        findFirst: {
+          args: Prisma.EmployeePeriodRevisionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePeriodRevisionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmployeePeriodRevisionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePeriodRevisionPayload>
+        }
+        findMany: {
+          args: Prisma.EmployeePeriodRevisionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePeriodRevisionPayload>[]
+        }
+        create: {
+          args: Prisma.EmployeePeriodRevisionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePeriodRevisionPayload>
+        }
+        createMany: {
+          args: Prisma.EmployeePeriodRevisionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmployeePeriodRevisionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePeriodRevisionPayload>[]
+        }
+        delete: {
+          args: Prisma.EmployeePeriodRevisionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePeriodRevisionPayload>
+        }
+        update: {
+          args: Prisma.EmployeePeriodRevisionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePeriodRevisionPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmployeePeriodRevisionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmployeePeriodRevisionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmployeePeriodRevisionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePeriodRevisionPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmployeePeriodRevisionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePeriodRevisionPayload>
+        }
+        aggregate: {
+          args: Prisma.EmployeePeriodRevisionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmployeePeriodRevision>
+        }
+        groupBy: {
+          args: Prisma.EmployeePeriodRevisionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeePeriodRevisionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmployeePeriodRevisionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeePeriodRevisionCountAggregateOutputType> | number
         }
       }
     }
@@ -10634,6 +10786,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.HrPerformanceReviewCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.HrPerformanceReviewCountAggregateOutputType> | number
+        }
+      }
+    }
+    EmployeeSocialInsurancePeriod: {
+      payload: Prisma.$EmployeeSocialInsurancePeriodPayload<ExtArgs>
+      fields: Prisma.EmployeeSocialInsurancePeriodFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmployeeSocialInsurancePeriodFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmployeeSocialInsurancePeriodFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodPayload>
+        }
+        findFirst: {
+          args: Prisma.EmployeeSocialInsurancePeriodFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmployeeSocialInsurancePeriodFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodPayload>
+        }
+        findMany: {
+          args: Prisma.EmployeeSocialInsurancePeriodFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodPayload>[]
+        }
+        create: {
+          args: Prisma.EmployeeSocialInsurancePeriodCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodPayload>
+        }
+        createMany: {
+          args: Prisma.EmployeeSocialInsurancePeriodCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmployeeSocialInsurancePeriodCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodPayload>[]
+        }
+        delete: {
+          args: Prisma.EmployeeSocialInsurancePeriodDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodPayload>
+        }
+        update: {
+          args: Prisma.EmployeeSocialInsurancePeriodUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmployeeSocialInsurancePeriodDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmployeeSocialInsurancePeriodUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmployeeSocialInsurancePeriodUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmployeeSocialInsurancePeriodUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodPayload>
+        }
+        aggregate: {
+          args: Prisma.EmployeeSocialInsurancePeriodAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmployeeSocialInsurancePeriod>
+        }
+        groupBy: {
+          args: Prisma.EmployeeSocialInsurancePeriodGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeSocialInsurancePeriodGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmployeeSocialInsurancePeriodCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeSocialInsurancePeriodCountAggregateOutputType> | number
+        }
+      }
+    }
+    EmployeeSocialInsurancePeriodRevision: {
+      payload: Prisma.$EmployeeSocialInsurancePeriodRevisionPayload<ExtArgs>
+      fields: Prisma.EmployeeSocialInsurancePeriodRevisionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodRevisionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodRevisionPayload>
+        }
+        findFirst: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodRevisionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodRevisionPayload>
+        }
+        findMany: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodRevisionPayload>[]
+        }
+        create: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodRevisionPayload>
+        }
+        createMany: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodRevisionPayload>[]
+        }
+        delete: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodRevisionPayload>
+        }
+        update: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodRevisionPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodRevisionPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSocialInsurancePeriodRevisionPayload>
+        }
+        aggregate: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmployeeSocialInsurancePeriodRevision>
+        }
+        groupBy: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeSocialInsurancePeriodRevisionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmployeeSocialInsurancePeriodRevisionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeSocialInsurancePeriodRevisionCountAggregateOutputType> | number
         }
       }
     }
@@ -21423,6 +21723,8 @@ export const EmploymentAgreementScalarFieldEnum = {
   isPrimary: 'isPrimary',
   sourceKind: 'sourceKind',
   sourceRef: 'sourceRef',
+  missingFieldsJson: 'missingFieldsJson',
+  actualEndDate: 'actualEndDate',
   reason: 'reason',
   version: 'version',
   currentPublishedRevisionId: 'currentPublishedRevisionId',
@@ -21433,6 +21735,34 @@ export const EmploymentAgreementScalarFieldEnum = {
 } as const
 
 export type EmploymentAgreementScalarFieldEnum = (typeof EmploymentAgreementScalarFieldEnum)[keyof typeof EmploymentAgreementScalarFieldEnum]
+
+
+export const EmploymentAgreementAttachmentScalarFieldEnum = {
+  id: 'id',
+  attachmentUid: 'attachmentUid',
+  agreementId: 'agreementId',
+  fileName: 'fileName',
+  mimeType: 'mimeType',
+  originalStoragePath: 'originalStoragePath',
+  originalSizeBytes: 'originalSizeBytes',
+  originalChecksumSha256: 'originalChecksumSha256',
+  optimizedStoragePath: 'optimizedStoragePath',
+  optimizedSizeBytes: 'optimizedSizeBytes',
+  optimizedChecksumSha256: 'optimizedChecksumSha256',
+  optimizationStatus: 'optimizationStatus',
+  optimizationError: 'optimizationError',
+  compressionSavingsRatio: 'compressionSavingsRatio',
+  pageCount: 'pageCount',
+  note: 'note',
+  uploadedBy: 'uploadedBy',
+  uploadedAt: 'uploadedAt',
+  removedBy: 'removedBy',
+  removedAt: 'removedAt',
+  removalReason: 'removalReason',
+  version: 'version'
+} as const
+
+export type EmploymentAgreementAttachmentScalarFieldEnum = (typeof EmploymentAgreementAttachmentScalarFieldEnum)[keyof typeof EmploymentAgreementAttachmentScalarFieldEnum]
 
 
 export const EmploymentAgreementTermScalarFieldEnum = {
@@ -21462,6 +21792,7 @@ export const EmploymentAgreementRevisionScalarFieldEnum = {
   agreementId: 'agreementId',
   revisionNo: 'revisionNo',
   recordState: 'recordState',
+  changeKind: 'changeKind',
   contentJson: 'contentJson',
   supersedesRevisionId: 'supersedesRevisionId',
   sourceKind: 'sourceKind',
@@ -21502,6 +21833,22 @@ export const EmployeeLifecycleEventScalarFieldEnum = {
 } as const
 
 export type EmployeeLifecycleEventScalarFieldEnum = (typeof EmployeeLifecycleEventScalarFieldEnum)[keyof typeof EmployeeLifecycleEventScalarFieldEnum]
+
+
+export const EmployeePeriodRevisionScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  entityType: 'entityType',
+  periodId: 'periodId',
+  expectedVersion: 'expectedVersion',
+  beforeJson: 'beforeJson',
+  afterJson: 'afterJson',
+  reason: 'reason',
+  recordedByUserId: 'recordedByUserId',
+  recordedAt: 'recordedAt'
+} as const
+
+export type EmployeePeriodRevisionScalarFieldEnum = (typeof EmployeePeriodRevisionScalarFieldEnum)[keyof typeof EmployeePeriodRevisionScalarFieldEnum]
 
 
 export const OrganizationStructureChangeScalarFieldEnum = {
@@ -21612,6 +21959,47 @@ export const HrPerformanceReviewScalarFieldEnum = {
 } as const
 
 export type HrPerformanceReviewScalarFieldEnum = (typeof HrPerformanceReviewScalarFieldEnum)[keyof typeof HrPerformanceReviewScalarFieldEnum]
+
+
+export const EmployeeSocialInsurancePeriodScalarFieldEnum = {
+  id: 'id',
+  periodUid: 'periodUid',
+  employeeId: 'employeeId',
+  insuranceStatus: 'insuranceStatus',
+  companyId: 'companyId',
+  companyNameSnapshot: 'companyNameSnapshot',
+  startMonth: 'startMonth',
+  endMonth: 'endMonth',
+  stopReason: 'stopReason',
+  note: 'note',
+  missingFieldsJson: 'missingFieldsJson',
+  recordState: 'recordState',
+  sourceKind: 'sourceKind',
+  sourceRef: 'sourceRef',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  version: 'version'
+} as const
+
+export type EmployeeSocialInsurancePeriodScalarFieldEnum = (typeof EmployeeSocialInsurancePeriodScalarFieldEnum)[keyof typeof EmployeeSocialInsurancePeriodScalarFieldEnum]
+
+
+export const EmployeeSocialInsurancePeriodRevisionScalarFieldEnum = {
+  id: 'id',
+  revisionUid: 'revisionUid',
+  periodId: 'periodId',
+  revisionNo: 'revisionNo',
+  changeKind: 'changeKind',
+  beforeJson: 'beforeJson',
+  afterJson: 'afterJson',
+  reason: 'reason',
+  recordedBy: 'recordedBy',
+  recordedAt: 'recordedAt'
+} as const
+
+export type EmployeeSocialInsurancePeriodRevisionScalarFieldEnum = (typeof EmployeeSocialInsurancePeriodRevisionScalarFieldEnum)[keyof typeof EmployeeSocialInsurancePeriodRevisionScalarFieldEnum]
 
 
 export const EmployeeScalarFieldEnum = {
@@ -24145,15 +24533,19 @@ export type GlobalOmitConfig = {
   positionDescription?: Prisma.PositionDescriptionOmit
   positionDescriptionRevision?: Prisma.PositionDescriptionRevisionOmit
   employmentAgreement?: Prisma.EmploymentAgreementOmit
+  employmentAgreementAttachment?: Prisma.EmploymentAgreementAttachmentOmit
   employmentAgreementTerm?: Prisma.EmploymentAgreementTermOmit
   employmentAgreementRevision?: Prisma.EmploymentAgreementRevisionOmit
   employmentAgreementChange?: Prisma.EmploymentAgreementChangeOmit
   employeeLifecycleEvent?: Prisma.EmployeeLifecycleEventOmit
+  employeePeriodRevision?: Prisma.EmployeePeriodRevisionOmit
   organizationStructureChange?: Prisma.OrganizationStructureChangeOmit
   departmentEffectiveVersion?: Prisma.DepartmentEffectiveVersionOmit
   positionEffectiveVersion?: Prisma.PositionEffectiveVersionOmit
   positionReportOverrideEffectiveVersion?: Prisma.PositionReportOverrideEffectiveVersionOmit
   hrPerformanceReview?: Prisma.HrPerformanceReviewOmit
+  employeeSocialInsurancePeriod?: Prisma.EmployeeSocialInsurancePeriodOmit
+  employeeSocialInsurancePeriodRevision?: Prisma.EmployeeSocialInsurancePeriodRevisionOmit
   employee?: Prisma.EmployeeOmit
   employment?: Prisma.EmploymentOmit
   company?: Prisma.CompanyOmit

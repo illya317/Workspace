@@ -13,6 +13,7 @@ function toHRUser(user: Awaited<ReturnType<typeof requireRouteAccess>>): HRUser 
     name: user.employeeName ?? "未绑定员工",
     visibleResourceKeys: user.visibleResourceKeys || [],
     visibleUpdateResourceKeys: user.visibleUpdateResourceKeys || [],
+    visibleReviseResourceKeys: user.visibleReviseResourceKeys || [],
     isAdmin: user.isSuperAdmin ?? false,
     company: user.company ?? null,
   };

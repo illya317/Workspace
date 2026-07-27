@@ -2,6 +2,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { getTenantCompanies } from "@workspace/platform/server/tenant-config";
 import { listEmploymentAgreementsForEmployee } from "./employment-agreements";
+import { listEmployeeSocialInsurancePeriods } from "./employee-social-insurance";
 import { employeeWhereFromKey } from "./employee-profile-key";
 import {
   assignmentTemporalPosition,
@@ -54,7 +55,7 @@ export async function getEmployeeProfileByKey(key: string) {
   const employeeId = employee.id;
   const businessDate = workspaceBusinessDate(new Date());
 
-  const [employments, edps, lifecycleEvents, contracts] = await Promise.all([
+  const [employments, edps, lifecycleEvents, contracts, socialInsurancePeriods] = await Promise.all([
     prisma.employment.findMany({
       where: { employeeId },
       orderBy: [{ isActive: "desc" }, { id: "desc" }],
@@ -84,6 +85,7 @@ export async function getEmployeeProfileByKey(key: string) {
       take: 100,
     }),
     listEmploymentAgreementsForEmployee(employeeId, businessDate),
+    listEmployeeSocialInsurancePeriods(employeeId),
   ]);
   const classifiedEmployments = classifyEmploymentsByPreference(employments, businessDate);
   const classifiedEdps = edps.map((edp) => ({
@@ -153,6 +155,7 @@ export async function getEmployeeProfileByKey(key: string) {
       },
       employments: classifiedEmployments.map(({ employment, temporalState }) => ({
         id: employment.id,
+        version: employment.version,
         employeeId: employment.employeeId,
         isActive: temporalState === "current",
         currentCompany: findPrimaryContractCompany(contracts, employment.id) ?? employment.currentCompany,
@@ -167,8 +170,10 @@ export async function getEmployeeProfileByKey(key: string) {
         temporalState,
       })),
       contracts,
+      socialInsurancePeriods,
       edps: classifiedEdps.map(({ edp, temporalState }) => ({
         id: edp.id,
+        version: edp.version,
         employeeId: edp.employeeId,
         reportingCompanyId: edp.reportingCompanyId,
         reportingCompanyName: edp.reportingCompany?.party.name ?? null,

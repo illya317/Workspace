@@ -6,16 +6,29 @@ Owner: Architecture / Platform / Data
 
 这里使用 **Business Temporal**，不使用裸 `Lifecycle`。仓库内 `Lifecycle` 已用于模块启停、关系删除、Action 归档等语义；业务有效时间不能与这些状态机混在一起。
 
-## 四个必须分开的维度
+## 五个必须分开的维度
 
 | 维度 | 回答的问题 | 典型字段 |
 |---|---|---|
 | 有效时间 valid time | 这条事实在业务上何时成立？ | `validFrom`, `validToExclusive`, `effectiveOn` |
 | 记录时间 transaction time | 系统在什么时候、由谁知道或修改了它？ | `recordedAt`, `createdAt`, `editedAt`, `recordedBy` |
-| 记录状态 record state | 草稿、待批、确认、取消、冲销，或旧数据无法判定？ | `draft`, `pending`, `confirmed`, `cancelled`, `reversed`, `unknown` |
+| 记录状态 record state | 业务事实是草稿、待批、确认、取消、冲销，还是其业务状态本身确实无法判定？ | `draft`, `pending`, `confirmed`, `cancelled`, `reversed`, `unknown` |
+| 数据质量 data quality | 哪些契约必填字段缺失、哪些来源值仅为空？ | `missingFieldsJson`, quality finding |
 | 对象生命周期 | 对象可用、停用、归档、删除？ | `isArchived`, Relation / Action lifecycle policy |
 
-`EditHistory` 解决“谁在何时改了什么”，不能代替业务有效期间；审批状态也不能推导某日的业务事实。`temporalState`（过去、当前、待生效）与 `recordState`（草稿、确认、取消等）必须分别返回和展示。
+`EditHistory` 解决“谁在何时改了什么”，不能代替业务有效期间；审批状态也不能推导某日的业务事实。`temporalState`（过去、当前、待生效）、`recordState`（草稿、确认、取消等）和数据质量必须分别保存。来源字段缺失不能借用 `recordState = unknown` 表达，更不能据此把一个已经存在的 baseline 事实判成无效。
+
+## 三项必须由 policy 声明的写入能力
+
+每个期间聚合必须在 `BusinessTemporalPolicy` 明确声明以下语义，service/domain validator 必须消费同一 registration，不能在 route 或表单里另写一份日期规则：
+
+| policy | 语义 | 默认值 |
+|---|---|---|
+| `overlaps` | 周期能否重叠；`by-slot` 表示按业务槽位及占比约束 | 无默认值，必须声明 |
+| `retrospectiveChanges` | 能否补录或追溯到当前业务日以前 | `allow`；禁止必须显式声明 |
+| `revision` | 已登记周期能否修订，以及采用审计覆盖、supersede 或 reverse | 无默认值，必须声明；`forbid` 时不得暴露 `correct` |
+
+“允许追溯”不等于绕过校验：历史补录仍须满足期间包含、重叠/槽位、expected revision、权限与下游影响约束。修订也不等于删除原事实；至少保留修订原因、操作者、记录时间和前后值。需要审批时，修订 command 仍经同一 ActionContract，不能另开一个直接写库入口。
 
 ## 先判定是否需要生命周期
 
@@ -56,8 +69,50 @@ Owner: Architecture / Platform / Data
 - [Microsoft Dynamics 365 Finance Date effectivity](https://learn.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/dev-tools/date-effectivity) 同时提供 Current、AsOfDate、AsOfDateRange 查询，以及 CreateNewTimePeriod、Correction、EffectiveBased 写入模式。对应本 Contract 把普通变化、历史纠错和 effective-based 写入拆成不同命令。
 - [SAP S/4HANA Business Partner Role](https://help.sap.com/docs/SAP_S4HANA_CLOUD/f86dc2eb1f8b48c880a7607213104b27/981e51b7ed7349c693d54587acf3b2a4.html) 把角色可用期作为独立事实，期限到期后自动停用；[Business Partner Relationship Validities](https://help.sap.com/docs/SAP_S4HANA_CLOUD/f86dc2eb1f8b48c880a7607213104b27/55e4bab7d2ba4ed999da41038e22c2e0.html?version=Latest) 还按关系类别声明“可有空洞但不得重叠”等 time constraint。对应本 Contract 的 `date-enabled` 角色期间与按槽位 overlap/gap policy。
 - [SAP Business Partner Change History](https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/74b0b157c81944ffaac6ebc07245b9dc/db663b5856de0846e10000000a441470.html) 证明 change documents 适合回答字段审计，但与关系/角色 validity 是两类数据；这也是本 Contract 明确禁止用 `EditHistory` 替代 valid time 的原因。
+- [SAP S/4HANA Migration Staging Tables](https://help.sap.com/docs/SAP_S4HANA_CLOUD/d5699934e7004d048c4801b552f3b013/47082e0d2baf40f5854f429dea179706.html) 允许除 key、mandatory 和需要非空默认值的字段外保持空值；[Oracle HCM Data Loader](https://docs.oracle.com/en/cloud/saas/human-resources/fahdl/how-data-is-loaded-using-hcm-data-loader.html) 将源数据先放入 staging，合法对象写入应用表，错误对象保留错误信息后修正。对应本 Contract 的 baseline 原则是“兼容记录必须进入权威表、缺失字段单独登记、硬冲突隔离”，不是“只读 JSON 永不入库”。
 
 对 Oracle 文档中 correction 可覆盖既有物理记录的做法，本项目采用更严格的合规口径：关键法定事实、合同、组织和协议纠错仍追加 superseding record，并记录 reason、actor、transaction time；只有 registration 显式选择 `audited-overwrite` 的低风险事实才允许原地纠错。
+
+## Baseline 写入与缺失字段查询
+
+只要一个历史事实可以建立稳定身份、归属明确且不违反硬性业务规则，就必须在上线前通过受控数据发布写入 registration 声明的权威 model。baseline 不是在线读取 fallback，也不能推迟到用户首次保存时才建档。原始 JSON、文件或旧表可以作为不可变来源证据保留，但不得继续充当正常业务读取的第二事实源。
+
+登记 baseline 的聚合必须声明 `BusinessTemporalBaselinePolicy`，并遵守以下统一语义：
+
+| 情况 | 入库与查询 |
+|---|---|
+| 缺少无效、取消或作废标记 | 不凭空推断负面状态；按 `confirmed` 保留，除非来源存在明确相反证据 |
+| 缺少 `validFrom` | 作为开放下界保留并写数据质量标记；普通查询仍包含该事实 |
+| 缺少 `validThrough` | 作为开放上界保留，不推断已经终止 |
+| 缺少非必填普通属性 | 字段保存 `null` 并登记数据质量；只展示真实缺失项，不标记 `baseline-incomplete`，不影响查询或保存 |
+| 缺少契约必填字段 | 事实仍写入权威表，字段路径写入 `missingFieldsJson`；只有实际依赖该字段的动作失败关闭 |
+| 普通 current / history 查询 | 包含字段不完整的 baseline，不把它伪装成新记录或从结果中排除 |
+| 依赖精确边界的自动化 | 对缺失的对应边界失败关闭，先补录再执行续签、终止、合规或结算动作 |
+| 稳定身份重复、归属/FK 冲突、无法解析、期限倒置 | 隔离到异常清单，不写入错误事实，也不得静默丢弃 |
+
+“开放边界”是为了在历史证据不完整时保留业务连续性，不代表系统知道一个虚构日期。数据质量标记必须与业务有效状态分开。`missingFieldsJson` 保存实际缺失字段，`requiredFields` 只决定哪些缺失会形成 `baseline-incomplete` 和动作阻断；非必填字段为空可以显示真实字段名的非阻断提示，但不得被读取层解释成期限不完整。默认业务页面不展示 `legacy`、`baseline`、来源 fingerprint 或内部质量状态。
+
+枚举状态与日期边界也必须分开保存。以 HR 社保 baseline 为例，来源明确写出的“已参保、已停保、未参保、已退休”是业务状态事实；缺少公司、参保月或停保月只形成字段级质量标记，不能把整条记录排除，也不能用“结束月份是否为空”覆盖来源状态。反过来，来源没有提供社保事实时，也不能仅因合同有效就推断员工已参保。查询采用“保留已知正面事实、不凭空推断负面或另一枚举状态”的口径。
+
+字段必填性也必须是可执行契约：同一个 field contract 同时驱动请求 schema、domain validator 和表单 `required`。只要字段在页面出现，就必须满足 `star === required`：标星必填、必填必标星；未标星字段为空不得触发必填错误、`baseline-incomplete` 或变更阻断，但可以显示非阻断的数据质量提示。禁止 UI、导入脚本和 service 各自维护一份必填字段列表。
+
+### Baseline 补缺、纠错与业务变化
+
+baseline 的“字段缺失”和“既有事实错误”是两个独立维度，不能共用一个全量保存命令。登记 baseline 的聚合必须同时声明并执行：
+
+| 通道 | 允许修改 | 禁止行为 | 持久化要求 |
+|---|---|---|---|
+| `supplement-missing` | 仅允许 patch `missingFieldsJson` 当前列出的字段 | 不得覆盖任何已有值，不得顺手修改未列为缺失的字段 | 合并当前权威版本后追加 revision/event，清除已经补齐的质量标记 |
+| `correct-existing` | 仅允许修正已有事实 | 不得同时填补缺失字段，不得伪装成现实业务变化 | 必须填写原因，保存 before/after、actor、transaction time 并追加 superseding 记录 |
+| 现实业务变化 | 新主体、新关系、新期间或新的法律文件 | 不得通过纠错命令重写历史 baseline | 创建新的 lifecycle fact，并按其有效时间和身份规则处理 |
+
+`BusinessTemporalBaselinePolicy` 使用 `missingFieldCompletion = separate-patch-command`、`existingFactCorrection = separate-audited-command` 与 `businessChange = new-lifecycle-fact` 声明这组三分法。Platform 的 `validateBusinessTemporalBaselineMutation` 是所有领域复用的语义 gate；领域模块仍负责字段值、引用、权限和事务校验。
+
+Baseline 资料页必须同时执行展示 contract：`missingFieldPresentation = inline-editable`、`knownFieldPresentation = read-only`、`existingFactCorrectionPresentation = explicit-mode`。也就是缺失字段直接在原资料位置保持可填写，其他字段原位只读，不再为“补充资料”复制一套表单或提供单独 edit 入口；保存仍执行独立 supplement patch。纠正已有事实才通过显式修正模式进入，并且不能同时开放缺失字段。
+
+周期型事实的标准页面格式是“当前状态摘要 → 全部生命周期记录表 → 选中行下展开详情”。记录表初始必须全部收起，不能因为某条记录是 current 就自动选中；点击哪一行，权威详情和编辑区就直接展开在该行下方，再次点击同一行收起，不另加重复标题，也不堆到整张表之后。记录表必须包含形成当前摘要的来源行，且不能为某个业务包另造记录卡、补充弹窗或第二套编辑器。采用该格式的 registration 必须声明 `ui.recordView.presentation=expandable-record-list`、实现模块路径和 registration binding；`npm run business-temporal:check` 会读取实现模块，未调用 `createBusinessTemporalRecordSections` 或绑定错误时直接失败，不能只写文档而继续保留手工表格。
+
+公共 UI 通过 `createBusinessTemporalRecordSections` 接收列、选中键、详情字段及互斥的 `edit` / `mutation` 配置。已有普通字段编辑声明 `edit-existing`，并明确使用页面统一保存还是行内保存；行内保存必须自带动作。baseline 补缺或纠错声明 `mutation`：`supplement-missing` 会校验目标字段仍在 `missingFields` 且 registration 允许原位补缺，然后才渲染保存动作。没有 `edit` 或 `mutation` 时详情只读。普通字段编辑和 baseline 补缺不得在同一记录详情同时启用；业务包只负责字段值、domain validator 和持久化 adapter，不负责重新解释这些交互语义。
 
 ## 命令，不是通用 CRUD
 
@@ -67,6 +122,8 @@ Owner: Architecture / Platform / Data
 |---|---|---|
 | `schedule / insert-effective` | 从生效日 D 创建新期间，并按 policy 关闭或保留相邻期间 | effective date、影响预览、expected revision、幂等键 |
 | `correct` | 修正已记录切片，不表达一次新的业务变化 | 独立权限、reason、expected revision、transaction-time 审计 |
+| `supplement-missing` | 补齐 baseline 已登记的缺失字段，不改变既有事实 | patch-only、字段必须仍在质量标记中、expected revision、幂等键 |
+| `correct-existing` | 纠正 baseline 或正式记录中已经存在的属性事实 | 独立表单、reason、before/after、expected revision、append-only supersede |
 | `end-date` | 从 D 起不再可用，但保留此前事实 | 终止原因、D-1 / D 边界预览、下游影响检查 |
 | `cancel-future` | 取消尚未开始的计划变化 | 显式 cancelled provenance；不得静默物理删除 |
 | `supersede / reverse / void` | 用新 revision 或 event 替代、冲正原事实 | append-only 链接到原记录并可追踪原因 |
@@ -117,10 +174,10 @@ editedAt/editedBy     correction provenance when policy permits overwrite
 - 关闭旧期间、创建新期间、写业务变更记录和审计在同一事务完成。
 - commit 使用 expected revision；可重试入口使用 idempotency key。
 - 未来变化的取消有显式 provenance，不通过物理删除来假装从未发生。
-- 历史更正使用独立 correction command，要求原因；普通字段 CRUD 不得绕过期间 invariant。
+- 历史更正使用独立 revision/correct command，要求原因；普通字段 CRUD 不得绕过期间 invariant。
 - current 状态由 `asOf` 查询推导；`isCurrent`/`isActive` 若保留只能作为可重建投影，不能成为第二事实源。
 
-若数据库暂时只能保存包含式 `startDate/endDate`，领域 adapter 负责转换，并将 registration 标记为 `partial`。不要为了统一外观伪造未知历史；迁移前事实无法还原时，明确记录 `unknown` / baseline provenance。
+若数据库暂时只能保存包含式 `startDate/endDate`，领域 adapter 负责转换，并将 registration 标记为 `partial`。不要为了统一外观伪造未知日期；迁移来源无法还原的字段写入独立数据质量清单。只有业务状态本身确实无法判断时才允许 `recordState = unknown`，不能用它代替“字段缺失”。
 
 ## Revision 与 Event 表补充
 
@@ -140,7 +197,7 @@ Event-projection 只有满足以下条件才可登记：
 每个已接入聚合在所属业务包登记：
 
 - 稳定 `key`、owner module、aggregate；
-- `storage` 与 future/same-day/overlap/gap/correction/deletion policy；
+- `storage` 与 future/retrospective/same-day/overlap/gap/revision/deletion policy；
 - 唯一 `sourceOfTruth` 和补充记录；
 - `maturity: implemented | partial | planned` 及未闭环说明。
 
@@ -181,7 +238,7 @@ UI 硬规则：
 
 ### 完成判定与成熟度
 
-生命周期改造的工程完成条件是：目标聚合已经选择唯一事实源和存储模板，登记明确的写命令与 UI 能力，在线写入不能绕过领域 seam，schema/migration 与模块文档同步，并且全局 registry 与受保护模型检查通过。`npm run business-temporal:check` 是这组条件的常驻门禁；当前 catalog 固定覆盖 15 个登记项、23 个受保护模型，且没有 `planned` 登记。
+生命周期改造的工程完成条件是：目标聚合已经选择唯一事实源和存储模板，登记明确的写命令与 UI 能力，在线写入不能绕过领域 seam，schema/migration 与模块文档同步，并且全局 registry 与受保护模型检查通过。`npm run business-temporal:check` 是这组条件的常驻门禁；当前 catalog 固定覆盖 16 个登记项、23 个受保护模型，且没有 `planned` 登记。
 
 `maturity: partial` 不表示目标聚合仍可继续走普通 CRUD，也不能用来跳过门禁。它表示登记备注中仍存在可命名的兼容来源、租户历史基线、批量导入、独立权限或运行时 adapter/UI coverage 缺口；这些缺口没有关闭前不得改成 `implemented`。因此“工程改造完成”和“所有租户历史已被人工确认”是两个不同结论：前者由代码、migration、UI 和检查证明，后者必须由每个环境的只读 preflight 与受控数据发布证明。
 
@@ -195,15 +252,16 @@ UI 硬规则：
 | Department / Position / 汇报关系 | 稳定 anchor + append-only effective version + `OrganizationStructureChange` 命令台账；当前字段仅作业务日缓存 | `effective-version`, partial；主 HR 入口已接入，旧编码/Platform 兼容写入口待关闭 |
 | Work 项目成员 | 稳定 membership identity + 受控终结的有效版本 + 不可变 `ProjectMembershipChange`；旧行终结前的完整 `sourceBefore` 固化在命令台账 | `effective-version`, partial；写命令已收口并可重建原始期间，历史兼容读取仍保留 |
 | 岗位说明书 | 稳定说明书 anchor + immutable `PositionDescriptionRevision` + revision 责任节点 | `revision`, partial；旧资料以未知历史基线迁入 |
-| EmploymentAgreement | 稳定协议 anchor + 不重叠 term + immutable revision + 幂等命令台账 | `effective-version` + `revision`, partial；legacy `Employment.contracts` 只作待核对来源 |
+| EmploymentAgreement | 稳定协议 anchor + 可重叠 term + immutable revision + 幂等命令台账 | `effective-version` + `revision`, partial；允许提前续签与历史补录，历史 baseline 预写权威表，`Employment.contracts` 只作审计证据 |
+| EmployeeSocialInsurancePeriod | 显式社保状态 + 月份期间 + immutable supplement revision | `effective-version`, partial；全部历史状态预写权威表，选中记录后通过标准 lifecycle record mutation 补齐缺失字段 |
 | Administration Contract | 稳定合同 anchor + immutable `ContractRevision` + 签署/履约/归档 typed state events | `revision` + event，partial；现有状态字段只作当前投影 |
 | External Party 法定事实 | `PartyLegalFactRevision` 是 append-only 事实源，Party / Company 同名字段是当前投影 | `revision`, partial；线上 External 与 Capital 公司写入已走同一 Platform seam |
 | External Party Role | 稳定 role anchor + `ExternalPartyRolePeriod` 可用期；`isActive` 只作当前投影 | `date-enabled`, partial；正式 ERP 导入在 handler 接入前 fail closed |
 | Capital ownership | `ShareCapitalEvent` 是账本；`OwnershipInterest` 是可从空库重建的带 generation/provenance 投影 | `event-projection`, partial；人工直写投影已关闭 |
 
-HR adapter 位于 `packages/hr/server/domain/employee-business-temporal.ts`。Employment 的创建、删除及 `isActive/joinDate/leaveDate` 修改，EDP 的创建、修改、删除与员工详情整组保存，均已从公开 route、ActionContract 和 UI 中关闭；Employee、Employment、EDP、EmployeeProject 也不允许通过通用审计恢复重建。结构变化只允许进入员工“生命周期”命令。Employment 仍保留办公地点、人员类型、职级、职务、离职原因与备注的当前资料修正；EDP 在 reason + expected revision 的历史纠错命令完成前保持只读。详情、合同归属和合同筛选统一按租户业务日选择 current → 最近 upcoming → 最近 past 的雇佣期间；多条 current 或仅有非法期间时，隐式合同归属写入失败关闭。
+HR adapter 位于 `packages/hr/server/domain/employee-business-temporal.ts`。Employment 的创建、删除及普通 `isActive/joinDate/leaveDate` 修改，EDP 的创建、修改、删除与员工详情整组保存，均已从公开 CRUD、ActionContract 和 UI 中关闭；Employee、Employment、EDP、EmployeeProject 也不允许通过通用审计恢复重建。结构变化进入员工“生命周期”命令；既有 Employment / EDP 周期纠错进入独立 period revision command，要求 reason 与 expected revision，并把前后值写入 `EmployeePeriodRevision` 事实台账后展示在员工历史记录中。Employment 仍保留办公地点、人员类型、职级、职务、离职原因与备注的当前资料修正。详情、合同归属和合同筛选统一按租户业务日选择 current → 最近 upcoming → 最近 past 的雇佣期间；多条 current 或仅有非法期间时，隐式合同归属写入失败关闭。
 
-该 employee adapter 仍有意标记为 `partial`：未来变化的取消仍会物理删除部分 EDP projection row，事件 payload 缺少完整 effect manifest、before/source 与幂等键，Employment 资料修正也没有显式 correction reason 和调用方 expected revision，`EmployeeLifecycleEvent` 因而不能从空库重放。项目成员已独立迁到受控 command seam，不再属于这个缺口；成员期间行可以被命令终结或标记 superseded，但不可变命令台账会保存终结前完整快照和新版本引用，不能把期间行本身误称为 append-only。员工身份没有独立 draft 状态，所以在线 hard delete API 已移除；离职必须走生命周期，账号停用必须走独立账号管理，二者不能互相代替。这些缺口必须在后续迁移中显式关闭，不能通过改名宣称已完成。
+该 employee adapter 仍有意标记为 `partial`：未来变化的取消仍会物理删除部分 EDP projection row，事件 payload 缺少完整 effect manifest、before/source 与幂等键，period revision 目前是带永久原因台账的 audited overwrite 而不是 append-only effective row，`EmployeeLifecycleEvent` 因而仍不能从空库重放。修订已经登记 ActionContract，当前只允许直接执行；若以后启用审批，必须先提供该 payload 的 workflow adapter，direct service 会失败关闭。项目成员已独立迁到受控 command seam，不再属于这个缺口；成员期间行可以被命令终结或标记 superseded，但不可变命令台账会保存终结前完整快照和新版本引用，不能把期间行本身误称为 append-only。员工身份没有独立 draft 状态，所以在线 hard delete API 已移除；离职必须走生命周期，账号停用必须走独立账号管理，二者不能互相代替。
 
 权限主体投影已改为按同一租户业务日过滤 Employment 与 EDP，不再直接把 raw `Employment.isActive` 或全部历史/未来岗位当作当前授权事实。其他报表、搜索和组织归属读取仍需按迁移顺序逐项盘点。
 
@@ -216,12 +274,12 @@ HR/Work 交界的项目成员权限也必须同时满足：账号关联员工存
 | 当前对象 / 事实 | 目标形态 | 判断与迁移重点 |
 |---|---|---|
 | `Employee`、`Party`、`Company` 的身份 anchor | `current` | 保留稳定 ID、版本和技术审计；人员离职或企业停用不删除身份。 |
-| `Employment`、`EDP` | `effective-version` | 已接入但仍为 partial；补历史纠错、取消 provenance、幂等、数据库期间约束。 |
+| `Employment`、`EDP` | `effective-version` | 已接入但仍为 partial；历史纠错已有 reason、expected revision 和事实台账，仍需补取消 provenance、幂等、数据库期间约束与可选审批 adapter。 |
 | `EmployeeProject` 项目成员可用性 | `effective-version`，partial | membership identity、角色与期间已一起版本化；受控终结保留完整 `sourceBefore`，幂等 ledger、expected revision、Serializable transaction、非重叠数据库约束和 history UI 已落地。 |
 | `Department`、`Position`、`PositionReportOverride` 的名称、归属、上级和汇报规则 | `effective-version`，partial | 已使用稳定 anchor + 类型化不可变版本、幂等命令台账、expected sequence、Serializable 写入与延期 overlap 约束；主 HR UI 返回 as-of/current/upcoming/history，旧编码与 Platform 兼容写入口关闭后再标记 implemented。 |
 | `DepartmentManagerEmployee` | 不应成为独立事实源 | 只保存 `Department.managerPositionId`；负责人姓名从该岗位在业务日有效的 EDP 占有人派生。迁移在 drop 前证明旧表每一条人员映射都能由现有权威推导，任何潜在丢失都失败关闭并保留旧表；旧兼容表缺行不反向削弱既有负责人岗位事实。 |
 | `PositionDescription` | `revision`，partial | 已拆稳定 header、immutable revision 与 revision-scoped 责任节点；存量仅建立来源明确的现状基线，不伪造迁移前历史。 |
-| `Employment.contracts` JSON | 稳定协议 anchor + effective term + revision，partial | `EmploymentAgreement` / Term / Revision / Change 已落地；旧 JSON 不按数组下标自动伪造身份，交由 preflight/import 显式核对。 |
+| `Employment.contracts` JSON | 稳定协议 anchor + contract term + revision，partial | `EmploymentAgreement` / Term / Revision / Change 已落地；提前续签允许合同期间重叠，新合同按开始日期自动归属唯一 Employment。受控 baseline 在上线前把所有无硬冲突记录写入正式表；缺状态按 `confirmed`，缺开始/结束按开放边界，实际缺失字段写入 `EmploymentAgreement.missingFieldsJson`，只有 contract 必填字段缺失形成动作阻断。普通查询仍包含这些合同；旧 JSON 只保留为审计证据，不作为在线事实源。 |
 | Administration `Contract` | anchor + `revision` + typed state event，partial | 正文、签署、履约、归档已分轴；所有命令要求幂等键，修订与事件 append-only，旧状态字段只作投影。 |
 | Party / Company 法定名称、法人、证件和登记事实 | `revision` + current projection，partial | External 与 Capital 共用 Platform legal-fact seam；当前字段只作投影/cache，旧 ERP execute 路径 fail closed。 |
 | `ExternalPartyRole` 客户/供应商可用性 | `date-enabled`，partial | 可用期独立于法定事实；支持 current/as-of/upcoming/history、纠错、取消未来和终止，禁止直接改 `isActive`。 |

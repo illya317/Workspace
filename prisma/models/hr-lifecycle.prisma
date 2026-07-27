@@ -14,3 +14,22 @@ model EmployeeLifecycleEvent {
   @@index([employeeId, effectiveDate])
   @@index([eventType, effectiveDate])
 }
+
+/// Employment / EDP 周期修订事实台账（来源于人工修订命令）。正式周期可审计覆盖，但修订原因与前后值必须永久保留。
+model EmployeePeriodRevision {
+  id              String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  employeeId      Int
+  entityType      String
+  periodId        Int
+  expectedVersion Int
+  beforeJson      String
+  afterJson       String
+  reason          String
+  recordedByUserId Int
+  recordedAt      DateTime @default(now())
+  employee        Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  recordedBy      User     @relation("EmployeePeriodRevisionRecorder", fields: [recordedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([employeeId, recordedAt])
+  @@index([entityType, periodId, recordedAt])
+}

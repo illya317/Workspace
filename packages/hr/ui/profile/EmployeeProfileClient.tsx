@@ -4,14 +4,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
 import { useFeedback } from "@workspace/core/ui";
-import { hrCanEdit, type HRUser } from "@workspace/hr/types";
+import { hrCanEdit, hrCanRevise, type HRUser } from "@workspace/hr/types";
 import {
   edpFields,
   employeeFields,
   employmentFields,
 } from "@workspace/hr/constants";
 import type { ProfileHistoryEntry } from "./EmployeeProfileSections";
-import EmployeeProfileView from "./EmployeeProfileView";
+import EmployeeProfileView, { type EmployeeProfileSection } from "./EmployeeProfileView";
 import {
   applyDateFields,
   sameDraft,
@@ -30,8 +30,6 @@ import type {
 } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
 
-type ProfileSection = "basic" | "employment" | "edp" | "lifecycle" | "history";
-
 export default function EmployeeProfileClient({
   employeeId,
   onDirtyChange,
@@ -43,15 +41,16 @@ export default function EmployeeProfileClient({
 }) {
   const router = useRouter();
   const canEdit = hrCanEdit(user);
+  const canRevise = hrCanRevise(user);
   const [profile, setProfile] = useState<EmployeeProfile | null>(null);
   const [employeeDraft, setEmployeeDraft] = useState<EmployeeProfileEmployee | null>(null);
   const [employments, setEmployments] = useState<EmploymentRow[]>([]);
   const [contracts, setContracts] = useState<ContractRow[]>([]);
   const [edps, setEdps] = useState<EdpRow[]>([]);
   const [historyEntries, setHistoryEntries] = useState<ProfileHistoryEntry[]>([]);
-  const [expandedHistoryId, setExpandedHistoryId] = useState<number | null>(null);
+  const [expandedHistoryId, setExpandedHistoryId] = useState<string | number | null>(null);
   const [historyLoading, setHistoryLoading] = useState(false);
-  const [activeSection, setActiveSection] = useState<ProfileSection>("basic");
+  const [activeSection, setActiveSection] = useState<EmployeeProfileSection>("basic");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -157,7 +156,7 @@ export default function EmployeeProfileClient({
     if (canLeave) router.push("/hr/roster");
   }
 
-  function changeSection(section: ProfileSection) {
+  function changeSection(section: EmployeeProfileSection) {
     if (section === activeSection) return;
     setActiveSection(section);
   }
@@ -182,12 +181,14 @@ export default function EmployeeProfileClient({
       error={error}
       message={message}
       canEdit={canEdit}
+      canRevise={canRevise}
       saving={saving}
       activeSection={activeSection}
       onSectionChange={changeSection}
       dirtyState={dirtyState}
       employments={employments}
       contracts={contracts}
+      socialInsurancePeriods={profile?.socialInsurancePeriods ?? []}
       edps={edps}
       historyEntries={historyEntries}
       historyLoading={historyLoading}
@@ -200,6 +201,7 @@ export default function EmployeeProfileClient({
       onHistoryRefresh={loadHistory}
       onLifecycleSaved={load}
       onAgreementSaved={load}
+      onSocialInsuranceSaved={load}
     />
   );
 }

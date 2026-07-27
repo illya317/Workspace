@@ -26,9 +26,11 @@ model Employee {
   user                   User?                       @relation("EmployeeUser", fields: [userId], references: [id])
   positions              EDP[]                       @relation("EmployeePositions")
   lifecycleEvents        EmployeeLifecycleEvent[]
+  periodRevisions        EmployeePeriodRevision[]
   projects               EmployeeProject[]
   projectMembershipChanges ProjectMembershipChange[]
   employmentAgreementChanges EmploymentAgreementChange[] @relation("EmploymentAgreementChangeEmployee")
+  socialInsurancePeriods EmployeeSocialInsurancePeriod[]
   ownedWorkItems         WorkItem[]                  @relation("WorkItemOwner")
   ownedWorkPlans         WorkPlan[]                  @relation("WorkPlanOwner")
   employments            Employment[]
@@ -97,6 +99,7 @@ model Company {
   financeCurrencyPolicy             FinanceCompanyCurrencyPolicy?
   externalPartySourceMappings       ExternalPartySourceMapping[]
   ownedContracts                    Contract[]                         @relation("ContractOwningCompany")
+  socialInsurancePeriods            EmployeeSocialInsurancePeriod[]
 }
 /// 组织单元树（兼容名 Department；含 G/M 层级关系与负责人岗位）
 model Department {

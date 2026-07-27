@@ -40,6 +40,7 @@ export interface EmployeeProfile {
   summary: EmployeeProfileSummary;
   employments: EmploymentRow[];
   contracts: ContractRow[];
+  socialInsurancePeriods: EmployeeSocialInsuranceRow[];
   edps: EdpRow[];
   lifecycleEvents: EmployeeLifecycleEventRow[];
 }
@@ -81,6 +82,7 @@ export interface EmployeeProfileSummary {
 
 export interface EmploymentRow {
   id?: number;
+  version: number;
   employeeId: number;
   isActive: boolean;
   currentCompany: string | null;
@@ -115,6 +117,7 @@ export interface ContractRow {
   thirdContractStartDate: string | null;
   thirdContractEndDate: string | null;
   permanentContractDate: string | null;
+  expiryDate: string | null;
   confidentialityDate: string | null;
   nonCompeteDate: string | null;
   endDate: string | null;
@@ -122,17 +125,59 @@ export interface ContractRow {
   temporalState: BusinessTemporalPosition;
   version: number | null;
   source: "normalized" | "legacy-json";
-  migrationState: "normalized" | "legacy-read-only" | "legacy-ambiguous";
+  migrationState: "normalized" | "baseline" | "baseline-incomplete" | "legacy-read-only" | "legacy-ambiguous";
+  missingFields: EmploymentAgreementMissingField[];
   currentRevisionUid: string | null;
   terms: EmploymentAgreementTermRow[];
   revisions: EmploymentAgreementRevisionRow[];
+  attachments: EmploymentAgreementAttachmentRow[];
+}
+
+export interface EmploymentAgreementAttachmentRow {
+  attachmentUid: string;
+  fileName: string;
+  mimeType: string;
+  originalSizeBytes: number;
+  optimizedSizeBytes: number | null;
+  optimizationStatus: "not_applicable" | "optimized" | "retained_original" | "failed";
+  optimizationError: string | null;
+  compressionSavingsRatio: number | null;
+  pageCount: number | null;
+  note: string | null;
+  uploadedByName: string | null;
+  uploadedAt: string;
+  removedAt: string | null;
+  removalReason: string | null;
+  version: number;
+}
+
+export interface EmployeeSocialInsuranceRow {
+  periodUid: string;
+  companyId: number | null;
+  companyName: string | null;
+  insuranceStatus: "insured" | "stopped" | "uninsured" | "retired";
+  startMonth: string | null;
+  endMonth: string | null;
+  status: "insured" | "stopped" | "uninsured" | "retired";
+  stopReason: string | null;
+  note: string | null;
+  missingFields: string[];
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EmploymentAgreementMissingField {
+  path: string;
+  label: string;
+  required: boolean;
 }
 
 export interface EmploymentAgreementTermRow {
   termUid: string;
   sequence: number;
   termKind: "initial" | "renewal" | "permanent" | "legacy";
-  effectiveFrom: string;
+  effectiveFrom: string | null;
   effectiveThrough: string | null;
   recordState: "confirmed" | "cancelled" | "superseded" | "voided" | "unknown";
   temporalState: BusinessTemporalPosition;
@@ -144,6 +189,7 @@ export interface EmploymentAgreementRevisionRow {
   revisionUid: string;
   revisionNo: number;
   recordState: "draft" | "confirmed" | "cancelled" | "superseded" | "unknown";
+  changeKind: "initial" | "baseline-import" | "supplement" | "correction" | "amendment" | "revision" | "legacy";
   content: {
     company: string | null;
     insuranceStatus: string | null;
@@ -160,6 +206,7 @@ export interface EmploymentAgreementRevisionRow {
 
 export interface EdpRow {
   id?: number;
+  version: number;
   employeeId: number;
   reportingCompanyId: number | null;
   reportingCompanyName?: string | null;

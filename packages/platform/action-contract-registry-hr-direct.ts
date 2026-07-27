@@ -4,7 +4,7 @@ import {
   type ActionMutationDomainBindingReference,
   type ActionMutationDomainReferenceContract,
 } from "./action-contract";
-import { registeredActionFacts } from "./action-contract-registry-helpers";
+import { registeredActionFacts, registeredImport } from "./action-contract-registry-helpers";
 
 const domain = (validatorKey: string, commitKey: string): ActionMutationDomainBindingReference => ({
   validatorKey,
@@ -162,6 +162,28 @@ export const HR_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetadataLi
     "packages/hr/server/domain/employment-agreement-validation.buildEmploymentAgreementCommand",
     "packages/hr/server/employment-agreements.executeEmploymentAgreementCommand",
   ), "custom", { targetIdKey: "employeeId", versionKey: "expectedVersion", referencePolicy: "domain" }),
+  lifecycle("hr.roster.socialInsurance.command", "EmployeeSocialInsurancePeriod", domain(
+    "packages/hr/server/domain/employee-social-insurance-validation.buildEmployeeSocialInsuranceCommand",
+    "packages/hr/server/employee-social-insurance.executeEmployeeSocialInsuranceCommand",
+  ), "custom", { targetIdKey: "employeeId", versionKey: "expectedVersion", referencePolicy: "domain" }),
+  registeredImport({
+    key: "hr.roster.employmentAgreementAttachment.upload",
+    activeEntity: "EmploymentAgreementAttachment",
+    transport: "file",
+    result: "records",
+    domain: domain(
+      "packages/hr/server/domain/employment-agreement-attachment-validation.buildEmploymentAgreementAttachmentUploadCommand",
+      "packages/hr/server/employment-agreement-attachments.executeUploadEmploymentAgreementAttachment",
+    ),
+  }),
+  lifecycle("hr.roster.employmentAgreementAttachment.remove", "EmploymentAgreementAttachment", domain(
+    "packages/hr/server/domain/employment-agreement-attachment-validation.buildEmploymentAgreementAttachmentRemoveCommand",
+    "packages/hr/server/employment-agreement-attachments.executeRemoveEmploymentAgreementAttachment",
+  ), "custom", { targetIdKey: "attachmentUid", deleteMode: "soft", referencePolicy: "domain" }),
+  lifecycle("hr.roster.employeePeriod.revise", "EmployeeTemporalPeriod", domain(
+    "packages/hr/server/domain/employee-period-revision-validation.buildEmployeePeriodRevisionCommand",
+    "packages/hr/server/employee-period-revisions.reviseEmployeePeriod",
+  ), "custom", { targetIdKey: "periodId", versionKey: "expectedVersion", referencePolicy: "domain" }),
   write("hr.roster.employeeProfile.lifecycle.record", "EmployeeLifecycleEvent", domain(
     "packages/hr/server/domain/employee-lifecycle-validation.buildEmployeeLifecycleCommand",
     "packages/hr/server/employee-lifecycle.recordEmployeeLifecycleEvent",

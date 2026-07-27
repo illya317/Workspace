@@ -1,4 +1,4 @@
-/// 雇佣协议稳定身份。期限与内容版本分别由 Term / Revision 承载，禁止以数组位置充当身份。
+/// 雇佣协议稳定身份。期限与内容版本分别由 Term / Revision 承载，missingFieldsJson 与业务有效状态分离，禁止以数组位置充当身份。
 model EmploymentAgreement {
   id                         Int                           @id @default(autoincrement())
   agreementUid               String                        @unique @default(dbgenerated("(gen_random_uuid())::text"))
@@ -7,6 +7,8 @@ model EmploymentAgreement {
   isPrimary                  Boolean                       @default(false)
   sourceKind                 String                        @default("workspace")
   sourceRef                  String?
+  missingFieldsJson          String                        @default("[]")
+  actualEndDate              String?
   reason                     String?
   version                    Int                           @default(1)
   currentPublishedRevisionId Int?                          @unique
@@ -18,20 +20,53 @@ model EmploymentAgreement {
   currentPublishedRevision   EmploymentAgreementRevision?  @relation("EmploymentAgreementCurrentRevision", fields: [currentPublishedRevisionId], references: [id], onDelete: Restrict)
   revisions                  EmploymentAgreementRevision[] @relation("EmploymentAgreementRevisions")
   terms                      EmploymentAgreementTerm[]
+  attachments                EmploymentAgreementAttachment[]
   changes                    EmploymentAgreementChange[]    @relation("EmploymentAgreementChangeAgreement")
 
   @@index([employmentId, recordState])
   @@index([employmentId, isPrimary, recordState])
 }
 
-/// 雇佣协议的含首尾日有效期间。修正会新增 superseding 期间，原期间保留为历史证据。
+/// 员工协议附件（原件不可变；PDF 压缩件是可替换的派生物，移除只做软删除）。
+model EmploymentAgreementAttachment {
+  id                       Int                 @id @default(autoincrement())
+  attachmentUid            String              @unique @default(uuid())
+  agreementId              Int
+  fileName                 String
+  mimeType                 String
+  originalStoragePath      String
+  originalSizeBytes        Int
+  originalChecksumSha256   String
+  optimizedStoragePath     String?
+  optimizedSizeBytes       Int?
+  optimizedChecksumSha256  String?
+  optimizationStatus       String              @default("not_applicable")
+  optimizationError        String?
+  compressionSavingsRatio  Decimal?            @db.Decimal(8, 6)
+  pageCount                Int?
+  note                     String?
+  uploadedBy               Int?
+  uploadedAt               DateTime            @default(now())
+  removedBy                Int?
+  removedAt                DateTime?
+  removalReason            String?
+  version                  Int                 @default(1)
+  agreement                EmploymentAgreement @relation(fields: [agreementId], references: [id], onDelete: Restrict)
+  uploader                 User?               @relation("EmploymentAgreementAttachmentUploader", fields: [uploadedBy], references: [id], onDelete: SetNull)
+  remover                  User?               @relation("EmploymentAgreementAttachmentRemover", fields: [removedBy], references: [id], onDelete: SetNull)
+
+  @@index([agreementId, removedAt, uploadedAt])
+  @@index([optimizationStatus])
+}
+
+/// 雇佣协议的含首尾日合同期间。允许提前续签形成重叠；旧 baseline 缺失边界时仍按 confirmed 开放边界保留，缺失项登记在 anchor 的 missingFieldsJson。
 model EmploymentAgreementTerm {
   id             Int                        @id @default(autoincrement())
   termUid        String                     @unique @default(dbgenerated("(gen_random_uuid())::text"))
   agreementId    Int
   sequence       Int
   termKind       String                     @default("initial")
-  effectiveFrom  String
+  effectiveFrom  String?
   effectiveThrough String?
   recordState    String                     @default("confirmed")
   changeKind     String                     @default("schedule")
@@ -57,6 +92,7 @@ model EmploymentAgreementRevision {
   agreementId            Int
   revisionNo             Int
   recordState            String                        @default("draft")
+  changeKind             String                        @default("initial")
   contentJson            String
   supersedesRevisionId   Int?
   sourceKind             String                        @default("workspace")

@@ -341,6 +341,7 @@ export type CompanyWhereInput = {
   financeCurrencyPolicy?: Prisma.XOR<Prisma.FinanceCompanyCurrencyPolicyNullableScalarRelationFilter, Prisma.FinanceCompanyCurrencyPolicyWhereInput> | null
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingListRelationFilter
   ownedContracts?: Prisma.ContractListRelationFilter
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodListRelationFilter
 }
 
 export type CompanyOrderByWithRelationInput = {
@@ -374,6 +375,7 @@ export type CompanyOrderByWithRelationInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyOrderByWithRelationInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingOrderByRelationAggregateInput
   ownedContracts?: Prisma.ContractOrderByRelationAggregateInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodOrderByRelationAggregateInput
 }
 
 export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -410,6 +412,7 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   financeCurrencyPolicy?: Prisma.XOR<Prisma.FinanceCompanyCurrencyPolicyNullableScalarRelationFilter, Prisma.FinanceCompanyCurrencyPolicyWhereInput> | null
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingListRelationFilter
   ownedContracts?: Prisma.ContractListRelationFilter
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodListRelationFilter
 }, "id" | "partyId" | "code">
 
 export type CompanyOrderByWithAggregationInput = {
@@ -489,6 +492,7 @@ export type CompanyCreateInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateInput = {
@@ -521,6 +525,7 @@ export type CompanyUncheckedCreateInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUpdateInput = {
@@ -552,6 +557,7 @@ export type CompanyUpdateInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateInput = {
@@ -584,6 +590,7 @@ export type CompanyUncheckedUpdateInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateManyInput = {
@@ -906,6 +913,22 @@ export type CompanyUpdateOneWithoutFinanceAuxiliaryMembersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutFinanceAuxiliaryMembersInput, Prisma.CompanyUpdateWithoutFinanceAuxiliaryMembersInput>, Prisma.CompanyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput>
 }
 
+export type CompanyCreateNestedOneWithoutSocialInsurancePeriodsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutSocialInsurancePeriodsInput, Prisma.CompanyUncheckedCreateWithoutSocialInsurancePeriodsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutSocialInsurancePeriodsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneWithoutSocialInsurancePeriodsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutSocialInsurancePeriodsInput, Prisma.CompanyUncheckedCreateWithoutSocialInsurancePeriodsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutSocialInsurancePeriodsInput
+  upsert?: Prisma.CompanyUpsertWithoutSocialInsurancePeriodsInput
+  disconnect?: Prisma.CompanyWhereInput | boolean
+  delete?: Prisma.CompanyWhereInput | boolean
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutSocialInsurancePeriodsInput, Prisma.CompanyUpdateWithoutSocialInsurancePeriodsInput>, Prisma.CompanyUncheckedUpdateWithoutSocialInsurancePeriodsInput>
+}
+
 export type CompanyCreateNestedOneWithoutReportingEdpsInput = {
   create?: Prisma.XOR<Prisma.CompanyCreateWithoutReportingEdpsInput, Prisma.CompanyUncheckedCreateWithoutReportingEdpsInput>
   connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutReportingEdpsInput
@@ -964,6 +987,7 @@ export type CompanyCreateWithoutIssuedOwnershipsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutIssuedOwnershipsInput = {
@@ -995,6 +1019,7 @@ export type CompanyUncheckedCreateWithoutIssuedOwnershipsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutIssuedOwnershipsInput = {
@@ -1041,6 +1066,7 @@ export type CompanyUpdateWithoutIssuedOwnershipsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutIssuedOwnershipsInput = {
@@ -1072,6 +1098,7 @@ export type CompanyUncheckedUpdateWithoutIssuedOwnershipsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutOwnershipProjectionRunsInput = {
@@ -1102,6 +1129,7 @@ export type CompanyCreateWithoutOwnershipProjectionRunsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutOwnershipProjectionRunsInput = {
@@ -1133,6 +1161,7 @@ export type CompanyUncheckedCreateWithoutOwnershipProjectionRunsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutOwnershipProjectionRunsInput = {
@@ -1179,6 +1208,7 @@ export type CompanyUpdateWithoutOwnershipProjectionRunsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutOwnershipProjectionRunsInput = {
@@ -1210,6 +1240,7 @@ export type CompanyUncheckedUpdateWithoutOwnershipProjectionRunsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutRegistryChangesInput = {
@@ -1240,6 +1271,7 @@ export type CompanyCreateWithoutRegistryChangesInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutRegistryChangesInput = {
@@ -1271,6 +1303,7 @@ export type CompanyUncheckedCreateWithoutRegistryChangesInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutRegistryChangesInput = {
@@ -1317,6 +1350,7 @@ export type CompanyUpdateWithoutRegistryChangesInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutRegistryChangesInput = {
@@ -1348,6 +1382,7 @@ export type CompanyUncheckedUpdateWithoutRegistryChangesInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutShareCapitalEventsInput = {
@@ -1378,6 +1413,7 @@ export type CompanyCreateWithoutShareCapitalEventsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutShareCapitalEventsInput = {
@@ -1409,6 +1445,7 @@ export type CompanyUncheckedCreateWithoutShareCapitalEventsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutShareCapitalEventsInput = {
@@ -1455,6 +1492,7 @@ export type CompanyUpdateWithoutShareCapitalEventsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutShareCapitalEventsInput = {
@@ -1486,6 +1524,7 @@ export type CompanyUncheckedUpdateWithoutShareCapitalEventsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutShareholderGroupsInput = {
@@ -1516,6 +1555,7 @@ export type CompanyCreateWithoutShareholderGroupsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutShareholderGroupsInput = {
@@ -1547,6 +1587,7 @@ export type CompanyUncheckedCreateWithoutShareholderGroupsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutShareholderGroupsInput = {
@@ -1593,6 +1634,7 @@ export type CompanyUpdateWithoutShareholderGroupsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutShareholderGroupsInput = {
@@ -1624,6 +1666,7 @@ export type CompanyUncheckedUpdateWithoutShareholderGroupsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutOwnedContractsInput = {
@@ -1654,6 +1697,7 @@ export type CompanyCreateWithoutOwnedContractsInput = {
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutLinkedCompanyInput
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutOwnedContractsInput = {
@@ -1685,6 +1729,7 @@ export type CompanyUncheckedCreateWithoutOwnedContractsInput = {
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutLinkedCompanyInput
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutOwnedContractsInput = {
@@ -1731,6 +1776,7 @@ export type CompanyUpdateWithoutOwnedContractsInput = {
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithoutLinkedCompanyNestedInput
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutOwnedContractsInput = {
@@ -1762,6 +1808,7 @@ export type CompanyUncheckedUpdateWithoutOwnedContractsInput = {
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutLinkedCompanyNestedInput
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutPartyInput = {
@@ -1792,6 +1839,7 @@ export type CompanyCreateWithoutPartyInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutPartyInput = {
@@ -1823,6 +1871,7 @@ export type CompanyUncheckedCreateWithoutPartyInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutPartyInput = {
@@ -1869,6 +1918,7 @@ export type CompanyUpdateWithoutPartyInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutPartyInput = {
@@ -1900,6 +1950,7 @@ export type CompanyUncheckedUpdateWithoutPartyInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutExternalPartySourceMappingsInput = {
@@ -1930,6 +1981,7 @@ export type CompanyCreateWithoutExternalPartySourceMappingsInput = {
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutLinkedCompanyInput
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutExternalPartySourceMappingsInput = {
@@ -1961,6 +2013,7 @@ export type CompanyUncheckedCreateWithoutExternalPartySourceMappingsInput = {
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutLinkedCompanyInput
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutExternalPartySourceMappingsInput = {
@@ -2007,6 +2060,7 @@ export type CompanyUpdateWithoutExternalPartySourceMappingsInput = {
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithoutLinkedCompanyNestedInput
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutExternalPartySourceMappingsInput = {
@@ -2038,6 +2092,7 @@ export type CompanyUncheckedUpdateWithoutExternalPartySourceMappingsInput = {
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutLinkedCompanyNestedInput
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutFinanceVoucherCompanyMappingRulesInput = {
@@ -2068,6 +2123,7 @@ export type CompanyCreateWithoutFinanceVoucherCompanyMappingRulesInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutFinanceVoucherCompanyMappingRulesInput = {
@@ -2099,6 +2155,7 @@ export type CompanyUncheckedCreateWithoutFinanceVoucherCompanyMappingRulesInput 
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutFinanceVoucherCompanyMappingRulesInput = {
@@ -2145,6 +2202,7 @@ export type CompanyUpdateWithoutFinanceVoucherCompanyMappingRulesInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutFinanceVoucherCompanyMappingRulesInput = {
@@ -2176,6 +2234,7 @@ export type CompanyUncheckedUpdateWithoutFinanceVoucherCompanyMappingRulesInput 
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutFinanceCurrencyPolicyInput = {
@@ -2206,6 +2265,7 @@ export type CompanyCreateWithoutFinanceCurrencyPolicyInput = {
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutLinkedCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutFinanceCurrencyPolicyInput = {
@@ -2237,6 +2297,7 @@ export type CompanyUncheckedCreateWithoutFinanceCurrencyPolicyInput = {
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutLinkedCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutFinanceCurrencyPolicyInput = {
@@ -2283,6 +2344,7 @@ export type CompanyUpdateWithoutFinanceCurrencyPolicyInput = {
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithoutLinkedCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutFinanceCurrencyPolicyInput = {
@@ -2314,6 +2376,7 @@ export type CompanyUncheckedUpdateWithoutFinanceCurrencyPolicyInput = {
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutLinkedCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutFinanceAuxiliaryMembersInput = {
@@ -2344,6 +2407,7 @@ export type CompanyCreateWithoutFinanceAuxiliaryMembersInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutFinanceAuxiliaryMembersInput = {
@@ -2375,6 +2439,7 @@ export type CompanyUncheckedCreateWithoutFinanceAuxiliaryMembersInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutFinanceAuxiliaryMembersInput = {
@@ -2421,6 +2486,7 @@ export type CompanyUpdateWithoutFinanceAuxiliaryMembersInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput = {
@@ -2448,6 +2514,149 @@ export type CompanyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput = {
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutLinkedCompanyNestedInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutSocialInsurancePeriodsInput = {
+  code: string
+  description?: string | null
+  registeredCapital?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  managementGroup: string
+  codePoolCode?: string | null
+  isActive?: boolean
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  party: Prisma.PartyCreateNestedOneWithoutCompanyInput
+  issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
+  shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
+  positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
+  reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutLinkedCompanyInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutSocialInsurancePeriodsInput = {
+  id?: number
+  partyId: number
+  code: string
+  description?: string | null
+  registeredCapital?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  managementGroup: string
+  codePoolCode?: string | null
+  isActive?: boolean
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
+  shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
+  reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutLinkedCompanyInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutSocialInsurancePeriodsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutSocialInsurancePeriodsInput, Prisma.CompanyUncheckedCreateWithoutSocialInsurancePeriodsInput>
+}
+
+export type CompanyUpsertWithoutSocialInsurancePeriodsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutSocialInsurancePeriodsInput, Prisma.CompanyUncheckedUpdateWithoutSocialInsurancePeriodsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutSocialInsurancePeriodsInput, Prisma.CompanyUncheckedCreateWithoutSocialInsurancePeriodsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutSocialInsurancePeriodsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutSocialInsurancePeriodsInput, Prisma.CompanyUncheckedUpdateWithoutSocialInsurancePeriodsInput>
+}
+
+export type CompanyUpdateWithoutSocialInsurancePeriodsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
+  issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
+  shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
+  reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithoutLinkedCompanyNestedInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutSocialInsurancePeriodsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  partyId?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
+  shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
+  reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
   financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutLinkedCompanyNestedInput
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
@@ -2482,6 +2691,7 @@ export type CompanyCreateWithoutReportingEdpsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutReportingEdpsInput = {
@@ -2513,6 +2723,7 @@ export type CompanyUncheckedCreateWithoutReportingEdpsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutReportingEdpsInput = {
@@ -2559,6 +2770,7 @@ export type CompanyUpdateWithoutReportingEdpsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutReportingEdpsInput = {
@@ -2590,6 +2802,7 @@ export type CompanyUncheckedUpdateWithoutReportingEdpsInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutPositionReportOverridesInput = {
@@ -2620,6 +2833,7 @@ export type CompanyCreateWithoutPositionReportOverridesInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutPositionReportOverridesInput = {
@@ -2651,6 +2865,7 @@ export type CompanyUncheckedCreateWithoutPositionReportOverridesInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutPositionReportOverridesInput = {
@@ -2697,6 +2912,7 @@ export type CompanyUpdateWithoutPositionReportOverridesInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutPositionReportOverridesInput = {
@@ -2728,6 +2944,7 @@ export type CompanyUncheckedUpdateWithoutPositionReportOverridesInput = {
   financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
   externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 
@@ -2747,6 +2964,7 @@ export type CompanyCountOutputType = {
   financeVoucherCompanyMappingRules: number
   externalPartySourceMappings: number
   ownedContracts: number
+  socialInsurancePeriods: number
 }
 
 export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2761,6 +2979,7 @@ export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   financeVoucherCompanyMappingRules?: boolean | CompanyCountOutputTypeCountFinanceVoucherCompanyMappingRulesArgs
   externalPartySourceMappings?: boolean | CompanyCountOutputTypeCountExternalPartySourceMappingsArgs
   ownedContracts?: boolean | CompanyCountOutputTypeCountOwnedContractsArgs
+  socialInsurancePeriods?: boolean | CompanyCountOutputTypeCountSocialInsurancePeriodsArgs
 }
 
 /**
@@ -2850,6 +3069,13 @@ export type CompanyCountOutputTypeCountOwnedContractsArgs<ExtArgs extends runtim
   where?: Prisma.ContractWhereInput
 }
 
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountSocialInsurancePeriodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmployeeSocialInsurancePeriodWhereInput
+}
+
 
 export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2882,6 +3108,7 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   financeCurrencyPolicy?: boolean | Prisma.Company$financeCurrencyPolicyArgs<ExtArgs>
   externalPartySourceMappings?: boolean | Prisma.Company$externalPartySourceMappingsArgs<ExtArgs>
   ownedContracts?: boolean | Prisma.Company$ownedContractsArgs<ExtArgs>
+  socialInsurancePeriods?: boolean | Prisma.Company$socialInsurancePeriodsArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["company"]>
 
@@ -2962,6 +3189,7 @@ export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   financeCurrencyPolicy?: boolean | Prisma.Company$financeCurrencyPolicyArgs<ExtArgs>
   externalPartySourceMappings?: boolean | Prisma.Company$externalPartySourceMappingsArgs<ExtArgs>
   ownedContracts?: boolean | Prisma.Company$ownedContractsArgs<ExtArgs>
+  socialInsurancePeriods?: boolean | Prisma.Company$socialInsurancePeriodsArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CompanyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2987,6 +3215,7 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     financeCurrencyPolicy: Prisma.$FinanceCompanyCurrencyPolicyPayload<ExtArgs> | null
     externalPartySourceMappings: Prisma.$ExternalPartySourceMappingPayload<ExtArgs>[]
     ownedContracts: Prisma.$ContractPayload<ExtArgs>[]
+    socialInsurancePeriods: Prisma.$EmployeeSocialInsurancePeriodPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -3413,6 +3642,7 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
   financeCurrencyPolicy<T extends Prisma.Company$financeCurrencyPolicyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$financeCurrencyPolicyArgs<ExtArgs>>): Prisma.Prisma__FinanceCompanyCurrencyPolicyClient<runtime.Types.Result.GetResult<Prisma.$FinanceCompanyCurrencyPolicyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   externalPartySourceMappings<T extends Prisma.Company$externalPartySourceMappingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$externalPartySourceMappingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExternalPartySourceMappingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ownedContracts<T extends Prisma.Company$ownedContractsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$ownedContractsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  socialInsurancePeriods<T extends Prisma.Company$socialInsurancePeriodsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$socialInsurancePeriodsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeSocialInsurancePeriodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4140,6 +4370,30 @@ export type Company$ownedContractsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.ContractScalarFieldEnum | Prisma.ContractScalarFieldEnum[]
+}
+
+/**
+ * Company.socialInsurancePeriods
+ */
+export type Company$socialInsurancePeriodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmployeeSocialInsurancePeriod
+   */
+  select?: Prisma.EmployeeSocialInsurancePeriodSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmployeeSocialInsurancePeriod
+   */
+  omit?: Prisma.EmployeeSocialInsurancePeriodOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeSocialInsurancePeriodInclude<ExtArgs> | null
+  where?: Prisma.EmployeeSocialInsurancePeriodWhereInput
+  orderBy?: Prisma.EmployeeSocialInsurancePeriodOrderByWithRelationInput | Prisma.EmployeeSocialInsurancePeriodOrderByWithRelationInput[]
+  cursor?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmployeeSocialInsurancePeriodScalarFieldEnum | Prisma.EmployeeSocialInsurancePeriodScalarFieldEnum[]
 }
 
 /**

@@ -2468,7 +2468,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "precision",
-                                      description: "可选值：date / datetime / time。",
+                                      description: "可选值：date / datetime / month / time。",
                                       children: [
                                         {
                                           name: "date",
@@ -2476,6 +2476,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "datetime",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "month",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -4074,7 +4078,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "precision",
-                                              description: "可选值：date / datetime / time。",
+                                              description: "可选值：date / datetime / month / time。",
                                               children: [
                                                 {
                                                   name: "date",
@@ -4082,6 +4086,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "datetime",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "month",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -10780,7 +10788,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "precision",
-                                                      description: "可选值：date / datetime / time。",
+                                                      description: "可选值：date / datetime / month / time。",
                                                       children: [
                                                         {
                                                           name: "date",
@@ -10788,6 +10796,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "datetime",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "month",
                                                           description: "字面量取值。",
                                                         },
                                                         {
@@ -12386,7 +12398,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "precision",
-                                                              description: "可选值：date / datetime / time。",
+                                                              description: "可选值：date / datetime / month / time。",
                                                               children: [
                                                                 {
                                                                   name: "date",
@@ -12394,6 +12406,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "datetime",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "month",
                                                                   description: "字面量取值。",
                                                                 },
                                                                 {
@@ -20670,7 +20686,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "precision",
-                                                      description: "可选值：date / datetime / time。",
+                                                      description: "可选值：date / datetime / month / time。",
                                                       children: [
                                                         {
                                                           name: "date",
@@ -20678,6 +20694,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "datetime",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "month",
                                                           description: "字面量取值。",
                                                         },
                                                         {
@@ -22276,7 +22296,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "precision",
-                                                              description: "可选值：date / datetime / time。",
+                                                              description: "可选值：date / datetime / month / time。",
                                                               children: [
                                                                 {
                                                                   name: "date",
@@ -22284,6 +22304,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "datetime",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "month",
                                                                   description: "字面量取值。",
                                                                 },
                                                                 {
@@ -30608,7 +30632,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "precision",
-                                                  description: "可选值：date / datetime / time。",
+                                                  description: "可选值：date / datetime / month / time。",
                                                   children: [
                                                     {
                                                       name: "date",
@@ -30616,6 +30640,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "datetime",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "month",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -32214,7 +32242,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "precision",
-                                                          description: "可选值：date / datetime / time。",
+                                                          description: "可选值：date / datetime / month / time。",
                                                           children: [
                                                             {
                                                               name: "date",
@@ -32222,6 +32250,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "datetime",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "month",
                                                               description: "字面量取值。",
                                                             },
                                                             {
@@ -43618,7 +43650,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "precision",
-                                  description: "可选值：date / datetime / time。",
+                                  description: "可选值：date / datetime / month / time。",
                                   children: [
                                     {
                                       name: "date",
@@ -43626,6 +43658,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "datetime",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "month",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -45224,7 +45260,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "precision",
-                                          description: "可选值：date / datetime / time。",
+                                          description: "可选值：date / datetime / month / time。",
                                           children: [
                                             {
                                               name: "date",
@@ -45232,6 +45268,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "datetime",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "month",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -47232,7 +47272,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "precision",
-                                  description: "可选值：date / datetime / time。",
+                                  description: "可选值：date / datetime / month / time。",
                                   children: [
                                     {
                                       name: "date",
@@ -47240,6 +47280,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "datetime",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "month",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -48838,7 +48882,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "precision",
-                                          description: "可选值：date / datetime / time。",
+                                          description: "可选值：date / datetime / month / time。",
                                           children: [
                                             {
                                               name: "date",
@@ -48846,6 +48890,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "datetime",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "month",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -50950,7 +50998,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "precision",
-                                  description: "可选值：date / datetime / time。",
+                                  description: "可选值：date / datetime / month / time。",
                                   children: [
                                     {
                                       name: "date",
@@ -50958,6 +51006,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "datetime",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "month",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -52556,7 +52608,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "precision",
-                                          description: "可选值：date / datetime / time。",
+                                          description: "可选值：date / datetime / month / time。",
                                           children: [
                                             {
                                               name: "date",
@@ -52564,6 +52616,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "datetime",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "month",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -54774,7 +54830,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "precision",
-                                  description: "可选值：date / datetime / time。",
+                                  description: "可选值：date / datetime / month / time。",
                                   children: [
                                     {
                                       name: "date",
@@ -54782,6 +54838,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "datetime",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "month",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -56380,7 +56440,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "precision",
-                                          description: "可选值：date / datetime / time。",
+                                          description: "可选值：date / datetime / month / time。",
                                           children: [
                                             {
                                               name: "date",
@@ -56388,6 +56448,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "datetime",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "month",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -58404,7 +58468,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
         },
         {
           name: "precision",
-          description: "可选值：date / datetime / time。",
+          description: "可选值：date / datetime / month / time。",
           children: [
             {
               name: "date",
@@ -58412,6 +58476,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
             },
             {
               name: "datetime",
+              description: "字面量取值。",
+            },
+            {
+              name: "month",
               description: "字面量取值。",
             },
             {
@@ -61354,7 +61422,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "precision",
-                                                  description: "可选值：date / datetime / time。",
+                                                  description: "可选值：date / datetime / month / time。",
                                                   children: [
                                                     {
                                                       name: "date",
@@ -61362,6 +61430,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "datetime",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "month",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -62960,7 +63032,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "precision",
-                                                          description: "可选值：date / datetime / time。",
+                                                          description: "可选值：date / datetime / month / time。",
                                                           children: [
                                                             {
                                                               name: "date",
@@ -62968,6 +63040,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "datetime",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "month",
                                                               description: "字面量取值。",
                                                             },
                                                             {
@@ -69666,7 +69742,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "precision",
-                                                                  description: "可选值：date / datetime / time。",
+                                                                  description: "可选值：date / datetime / month / time。",
                                                                   children: [
                                                                     {
                                                                       name: "date",
@@ -69674,6 +69750,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "datetime",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "month",
                                                                       description: "字面量取值。",
                                                                     },
                                                                     {
@@ -71272,7 +71352,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                         },
                                                                         {
                                                                           name: "precision",
-                                                                          description: "可选值：date / datetime / time。",
+                                                                          description: "可选值：date / datetime / month / time。",
                                                                           children: [
                                                                             {
                                                                               name: "date",
@@ -71280,6 +71360,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                             },
                                                                             {
                                                                               name: "datetime",
+                                                                              description: "字面量取值。",
+                                                                            },
+                                                                            {
+                                                                              name: "month",
                                                                               description: "字面量取值。",
                                                                             },
                                                                             {
@@ -79556,7 +79640,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "precision",
-                                                                  description: "可选值：date / datetime / time。",
+                                                                  description: "可选值：date / datetime / month / time。",
                                                                   children: [
                                                                     {
                                                                       name: "date",
@@ -79564,6 +79648,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "datetime",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "month",
                                                                       description: "字面量取值。",
                                                                     },
                                                                     {
@@ -81162,7 +81250,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                         },
                                                                         {
                                                                           name: "precision",
-                                                                          description: "可选值：date / datetime / time。",
+                                                                          description: "可选值：date / datetime / month / time。",
                                                                           children: [
                                                                             {
                                                                               name: "date",
@@ -81170,6 +81258,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                             },
                                                                             {
                                                                               name: "datetime",
+                                                                              description: "字面量取值。",
+                                                                            },
+                                                                            {
+                                                                              name: "month",
                                                                               description: "字面量取值。",
                                                                             },
                                                                             {
@@ -89494,7 +89586,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "precision",
-                                                              description: "可选值：date / datetime / time。",
+                                                              description: "可选值：date / datetime / month / time。",
                                                               children: [
                                                                 {
                                                                   name: "date",
@@ -89502,6 +89594,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "datetime",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "month",
                                                                   description: "字面量取值。",
                                                                 },
                                                                 {
@@ -91100,7 +91196,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "precision",
-                                                                      description: "可选值：date / datetime / time。",
+                                                                      description: "可选值：date / datetime / month / time。",
                                                                       children: [
                                                                         {
                                                                           name: "date",
@@ -91108,6 +91204,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                         },
                                                                         {
                                                                           name: "datetime",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                        {
+                                                                          name: "month",
                                                                           description: "字面量取值。",
                                                                         },
                                                                         {

@@ -11,7 +11,6 @@ import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 import type { SessionUser } from "@workspace/platform/types";
 import type { HRUser } from "@workspace/hr/types";
 import type { RosterGeneratedVariant } from "@workspace/hr/types";
-import { HrDepartmentWorkflowPage } from "./tabs/department-position/department-workflow";
 import type { RosterSurfaceTabBarProps } from "./roster-surface";
 
 const GenericTableTab = dynamic(() => import("./tabs/GenericTableTab"));
@@ -39,6 +38,7 @@ function toHRUser(user: SessionUser): HRUser {
     visibleResourceKeys: user.visibleResourceKeys || [],
     visibleUpdateResourceKeys: user.visibleUpdateResourceKeys || [],
     visibleSubmitResourceKeys: user.visibleSubmitResourceKeys || [],
+    visibleReviseResourceKeys: user.visibleReviseResourceKeys || [],
     isAdmin: user.isSuperAdmin ?? false,
     company: user.company ?? null,
   };
@@ -162,15 +162,6 @@ export default function HRClient({
   }
 
   if (renderedView === "department-position") {
-    if (renderedChild === "workflow") {
-      return (
-        <HrDepartmentWorkflowPage
-          currentUserId={hrUser.id}
-          navigation={surface.tabbar}
-          notify={(toast) => feedback.notify(toast.message, toast.type)}
-        />
-      );
-    }
     return (
       <DepartmentPositionTab
         user={hrUser}

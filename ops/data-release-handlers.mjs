@@ -68,8 +68,44 @@ function hrLifecycleCompatibilityCommand(execution, context) {
   };
 }
 
+function hrEmploymentAgreementBaselineCommand(execution, context) {
+  const parameters = execution.parameters;
+  if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
+    || Object.keys(parameters).sort().join(",") !== "inputFile") {
+    fail("hr-employment-agreement-baseline-v1 parameters must contain only inputFile");
+  }
+  const inputFile = relativeSourcePath(parameters.inputFile, "hr-employment-agreement-baseline-v1 inputFile");
+  return {
+    executable: process.execPath,
+    args: [
+      path.join(context.repositoryRoot, "scripts/repair/repair-hr-employment-agreement-baseline.mjs"),
+      "--execute",
+      `--input-file=${path.join(context.sourceRoot, inputFile)}`,
+    ],
+  };
+}
+
+function hrSocialInsuranceBaselineCommand(execution, context) {
+  const parameters = execution.parameters;
+  if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
+    || Object.keys(parameters).sort().join(",") !== "inputFile") {
+    fail("hr-social-insurance-baseline-v1 parameters must contain only inputFile");
+  }
+  const inputFile = relativeSourcePath(parameters.inputFile, "hr-social-insurance-baseline-v1 inputFile");
+  return {
+    executable: process.execPath,
+    args: [
+      path.join(context.repositoryRoot, "scripts/repair/repair-hr-social-insurance-baseline.mjs"),
+      "--execute",
+      `--input-file=${path.join(context.sourceRoot, inputFile)}`,
+    ],
+  };
+}
+
 const HANDLERS = new Map([
   ["finance-reviewed-origin-mappings-v1", financeReviewedOriginMappingsCommand],
+  ["hr-employment-agreement-baseline-v1", hrEmploymentAgreementBaselineCommand],
+  ["hr-social-insurance-baseline-v1", hrSocialInsuranceBaselineCommand],
   ["hr-lifecycle-compatibility-v1", hrLifecycleCompatibilityCommand],
   ["product-master-v1", productMasterCommand],
 ]);

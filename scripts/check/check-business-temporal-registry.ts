@@ -71,6 +71,27 @@ export function validateBusinessTemporalRegistry(
         }
       }
     }
+    if (registration.ui.recordView) {
+      const recordView = registration.ui.recordView;
+      const moduleFile = path.resolve(input.repositoryRoot, recordView.modulePath);
+      const exists = input.fileExists ?? fs.existsSync;
+      if (!exists(moduleFile)) {
+        errors.push(`${registration.key}: recordView modulePath 不存在: ${recordView.modulePath}`);
+      } else {
+        const readFile = input.readFile ?? ((file: string) => fs.readFileSync(file, "utf8"));
+        const source = readFile(moduleFile);
+        if (!/createBusinessTemporalRecordSections\s*\(/.test(source)) {
+          errors.push(`${registration.key}: recordView 必须调用 createBusinessTemporalRecordSections`);
+        }
+        const escapedBinding = recordView.registrationBinding.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const bindingMatches = source.match(new RegExp(`registration\\s*:\\s*${escapedBinding}\\b`, "g")) ?? [];
+        if (bindingMatches.length === 0) {
+          errors.push(`${registration.key}: recordView 未绑定 ${recordView.registrationBinding}`);
+        } else if (bindingMatches.length > 1) {
+          errors.push(`${registration.key}: recordView 同时存在 ${bindingMatches.length} 套 ${recordView.registrationBinding} 展示，必须只保留标准展开行`);
+        }
+      }
+    }
     if (registration.maturity === "implemented" && registration.implementation) {
       const moduleFile = path.resolve(input.repositoryRoot, registration.implementation.modulePath);
       const exists = input.fileExists ?? fs.existsSync;

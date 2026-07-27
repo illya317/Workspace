@@ -6,6 +6,7 @@ import {
 import { isAllowedHrOption, normalizeProfessionalTitle, tenantHrFieldOptions } from "@workspace/hr/constants/field-options";
 import { getTenantPublicConfig } from "@workspace/platform/server/tenant-config";
 import { normalizePhoneValue, validateChineseIdNumber } from "@workspace/hr/utils/identity";
+import { STANDARD_EMPLOYMENT_AGREEMENT_TYPES } from "@workspace/hr/constants";
 
 export { isValidDateValue, rejectInvalidDateField };
 
@@ -60,7 +61,7 @@ export function validateEmploymentOption(field: string, value: unknown) {
 export function validateContractOption(field: string, value: unknown) {
   const options = tenantHrFieldOptions(getTenantPublicConfig());
   if (field === "legalRelation" && !isAllowedHrOption(value, options.legalRelations)) return null;
-  if (field === "contractType" && !isAllowedHrOption(value, options.contractTypes)) return null;
+  if (field === "contractType" && !isAllowedHrOption(value, [...options.contractTypes, ...STANDARD_EMPLOYMENT_AGREEMENT_TYPES])) return null;
   if (field === "employmentForm" && !isAllowedHrOption(value, options.employmentForms)) return null;
   if (field === "insuranceStatus" && !isAllowedHrOption(value, options.insuranceStatuses)) return null;
   return { field, value };

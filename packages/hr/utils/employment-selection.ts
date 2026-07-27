@@ -1,9 +1,12 @@
 import type { BusinessTemporalPosition } from "@workspace/platform/contracts/business-temporal";
 
-type TemporalEmployment = {
+type EmploymentPeriod = {
   id?: number;
   joinDate?: string | null;
   leaveDate?: string | null;
+};
+
+type TemporalEmployment = EmploymentPeriod & {
   temporalState: BusinessTemporalPosition;
 };
 
@@ -43,4 +46,29 @@ export function orderEmploymentsByPreference<T extends TemporalEmployment>(rows:
 
 export function preferredEmployment<T extends TemporalEmployment>(rows: readonly T[]): T | null {
   return orderEmploymentsByPreference(rows)[0] ?? null;
+}
+
+export function employmentsContainingDate<T extends EmploymentPeriod>(
+  rows: readonly T[],
+  date: string,
+): T[] {
+  return rows.filter((row) => (
+    row.id != null
+    && (!row.joinDate || row.joinDate <= date)
+    && (!row.leaveDate || row.leaveDate >= date)
+  ));
+}
+
+export function employmentForAgreementDate(
+  employments: readonly EmploymentPeriod[],
+  effectiveFrom: string,
+): { ok: true; id: number } | { ok: false; message: string } {
+  const matches = employmentsContainingDate(employments, effectiveFrom);
+  if (matches.length === 0) {
+    return { ok: false, message: "合同开始日期不在任何雇佣期间内，请先补录或修订雇佣周期" };
+  }
+  if (matches.length > 1) {
+    return { ok: false, message: "合同开始日期命中多条雇佣周期，请先修订重叠的雇佣历史" };
+  }
+  return { ok: true, id: matches[0]!.id! };
 }

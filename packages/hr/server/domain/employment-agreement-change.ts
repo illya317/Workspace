@@ -7,7 +7,6 @@ export function employmentAgreementChangeManifest(command: EmploymentAgreementCo
     agreementUid: "agreementUid" in command ? command.agreementUid : null,
     employmentId: command.kind === "create" ? command.employmentId : null,
     termUid: "termUid" in command ? command.termUid : null,
-    revisionUid: command.kind === "publish" ? command.revisionUid : null,
     effectiveFrom: "effectiveFrom" in command ? command.effectiveFrom : null,
     effectiveThrough: "effectiveThrough" in command ? command.effectiveThrough : null,
     sourceKind: command.sourceKind,

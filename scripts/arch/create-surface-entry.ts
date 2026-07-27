@@ -118,7 +118,10 @@ export function findCreateSurfaceEntryViolationsInSource(fileName: string, text:
         return;
       }
       const kinds = objectValues(node, "kind");
-      const toolbarCreate = kinds.includes("create") && !hasProperty(node, "create");
+      const toolbarCreate = kinds.includes("create")
+        && !hasProperty(node, "create")
+        && hasProperty(node, "key")
+        && hasProperty(node, "onClick");
       if (toolbarCreate) add(node, "toolbar-create", "kind=create");
       const labels = objectValues(node, "label").filter((label) => CREATE_ENTRY_LABEL.test(label));
       const icons = objectValues(node, "icon");
@@ -146,6 +149,7 @@ export function checkCreateSurfaceEntries() {
       { key: "increment", label: "增加", icon: "add" },
       { key: "decrement", label: "减少", icon: "delete-minus" },
       { kind: "create", create: { trigger: "toolbar", presentation: "inline" } },
+      { kind: "create", agreementUid: "", employmentId: null },
     ];
   `);
   if (safeRegression.length) {

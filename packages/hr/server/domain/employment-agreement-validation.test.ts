@@ -3,7 +3,7 @@ import test from "node:test";
 
 import {
   buildEmploymentAgreementCommand,
-  employmentAgreementPeriodsOverlap,
+  validateEmploymentAgreementMissingFields,
 } from "./employment-agreement-validation";
 
 test("builds a normalized agreement create command", () => {
@@ -45,23 +45,43 @@ test("requires optimistic version for commands targeting an agreement", () => {
   if (!result.ok) assert.equal(result.issue.field, "expectedVersion");
 });
 
-test("detects inclusive overlap including a shared end date", () => {
-  assert.equal(employmentAgreementPeriodsOverlap(
-    { effectiveFrom: "2026-01-01", effectiveThrough: "2026-06-30" },
-    { effectiveFrom: "2026-06-30", effectiveThrough: "2026-12-31" },
-  ), true);
-  assert.equal(employmentAgreementPeriodsOverlap(
-    { effectiveFrom: "2026-01-01", effectiveThrough: "2026-06-30" },
-    { effectiveFrom: "2026-07-01", effectiveThrough: "2026-12-31" },
-  ), false);
+test("accepts a renewal period even when it starts before the prior contract ends", () => {
+  const result = buildEmploymentAgreementCommand({
+    kind: "renew",
+    agreementUid: "agreement-001",
+    expectedVersion: 2,
+    effectiveFrom: "2026-06-01",
+    effectiveThrough: "2027-05-31",
+  });
+  assert.equal(result.ok, true);
 });
 
-test("validates publish revision identity", () => {
+test("requires a reason when supplementing baseline fields", () => {
   const invalid = buildEmploymentAgreementCommand({
-    kind: "publish",
+    kind: "supplement-missing",
     agreementUid: "agreement-001",
     expectedVersion: 1,
-    revisionUid: "short",
+    patch: { legalRelation: "劳动关系" },
   });
   assert.equal(invalid.ok, false);
+  if (!invalid.ok) assert.equal(invalid.issue.field, "reason");
+});
+
+test("builds a patch command without inventing unchanged fields", () => {
+  const result = buildEmploymentAgreementCommand({
+    kind: "correct-existing",
+    agreementUid: "agreement-001",
+    expectedVersion: 1,
+    patch: { company: "测试公司" },
+    reason: "修正主体录入",
+  });
+  assert.equal(result.ok, true);
+  if (result.ok && result.data.kind === "correct-existing") {
+    assert.deepEqual(result.data.patch, { company: "测试公司" });
+  }
+});
+
+test("validates the persisted baseline missing-field projection", () => {
+  const result = validateEmploymentAgreementMissingFields(["content.company", "content.company"]);
+  assert.deepEqual(result.ok ? result.data : null, ["content.company"]);
 });

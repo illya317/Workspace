@@ -1,3 +1,11 @@
+import type { BusinessTemporalBaselinePolicy } from "./business-temporal-baseline";
+import {
+  businessTemporalUiPolicyError,
+  type BusinessTemporalUiPolicy,
+} from "./business-temporal-ui";
+
+export type { BusinessTemporalUiPolicy } from "./business-temporal-ui";
+
 export const BUSINESS_TEMPORAL_STORAGE_KINDS = [
   "current",
   "date-enabled",
@@ -5,7 +13,6 @@ export const BUSINESS_TEMPORAL_STORAGE_KINDS = [
   "revision",
   "event-projection",
 ] as const;
-
 export type BusinessTemporalStorageKind = typeof BUSINESS_TEMPORAL_STORAGE_KINDS[number];
 export const BUSINESS_TEMPORAL_VIEW_KINDS = [
   "current-audit",
@@ -39,19 +46,15 @@ export type BusinessTemporalRecordState =
   | "reversed"
   | "voided"
   | "unknown";
-
 export type BusinessTemporalErrorCode =
   | "TEMPORAL_INVALID_DATE"
   | "TEMPORAL_INVALID_PERIOD"
   | "TEMPORAL_INVALID_POLICY"
   | "TEMPORAL_DUPLICATE_POLICY"
   | "TEMPORAL_POLICY_NOT_FOUND";
-
 declare const businessDateBrand: unique symbol;
-
 /** A tenant business calendar date, never an instant or browser-local timestamp. */
 export type BusinessDate = string & { readonly [businessDateBrand]: "BusinessDate" };
-
 /** Latest date that can be stored as an inclusive end and still convert to an exclusive end. */
 export const LATEST_INCLUSIVE_BUSINESS_DATE = "9999-12-30" as BusinessDate;
 
@@ -70,19 +73,20 @@ export interface BusinessTemporalPolicy {
   storage: BusinessTemporalStorageKind;
   granularity: "date" | "instant";
   futureChanges: "allow" | "forbid";
+  /** Whether a command may be recorded with an effective date before the current business date. Defaults to allow. */
+  retrospectiveChanges?: "allow" | "forbid";
   sameDayChanges: "single" | "sequenced";
   overlaps: "allow" | "forbid" | "by-slot";
   gaps: "allow" | "forbid";
-  correction: "audited-overwrite" | "supersede" | "reverse";
+  /** How an already-recorded temporal fact is revised. `forbid` removes the revise capability entirely. */
+  revision: "forbid" | "audited-overwrite" | "supersede" | "reverse";
   deletion: "draft-only" | "cancel-future" | "end-date" | "never";
 }
 
-export interface BusinessTemporalUiPolicy {
-  asOf: "hidden" | "optional" | "required";
-  upcoming: boolean;
-  history: boolean;
-  recordState: boolean;
-  sourceNavigation: boolean;
+export function businessTemporalRetrospectiveChanges(
+  policy: BusinessTemporalPolicy,
+): "allow" | "forbid" {
+  return policy.retrospectiveChanges ?? "allow";
 }
 
 export interface BusinessTemporalProjectionPolicy {
@@ -140,6 +144,7 @@ export interface BusinessTemporalRegistration {
   commands: readonly BusinessTemporalCommandKind[];
   ui: BusinessTemporalUiPolicy;
   records: BusinessTemporalRecordPolicy;
+  baseline?: BusinessTemporalBaselinePolicy;
   projection?: BusinessTemporalProjectionPolicy;
   implementation?: BusinessTemporalImplementationPolicy;
   notes?: string;
@@ -476,6 +481,9 @@ export function assertBusinessTemporalRegistration(
       invalidTemporalPolicy(registration.key, `${source.model} 的 legacy JSON field 不能为空`);
     }
   }
+  if (registration.baseline && !recordSources.some((source) => source.role === "legacy-source")) {
+    invalidTemporalPolicy(registration.key, "baseline policy 必须登记 legacy-source 作为迁移证据");
+  }
   if (registration.maturity !== "planned" && registration.commands.length === 0) {
     invalidTemporalPolicy(registration.key, "已接入或部分接入的聚合必须声明业务命令能力");
   }
@@ -488,6 +496,9 @@ export function assertBusinessTemporalRegistration(
   }
   if (new Set(registration.commands).size !== registration.commands.length) {
     invalidTemporalPolicy(registration.key, "commands 不能重复");
+  }
+  if (registration.policy.revision === "forbid" && registration.commands.includes("correct")) {
+    invalidTemporalPolicy(registration.key, "revision=forbid 时不能声明 correct 命令");
   }
   if (registration.policy.storage === "event-projection") {
     const projection = registration.projection;
@@ -517,6 +528,8 @@ export function assertBusinessTemporalRegistration(
   if (!registration.ui.history && registration.policy.storage !== "current" && registration.maturity !== "planned") {
     invalidTemporalPolicy(registration.key, "已接入的时间事实必须暴露历史视图");
   }
+  const uiPolicyError = businessTemporalUiPolicyError(registration.ui);
+  if (uiPolicyError) invalidTemporalPolicy(registration.key, uiPolicyError);
 }
 
 export function businessTemporalSourceKey(source: BusinessTemporalSource) {

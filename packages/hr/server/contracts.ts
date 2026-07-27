@@ -105,6 +105,11 @@ function contractSourceSql(isActive: boolean | undefined, businessDate: string) 
         END
       ) WITH ORDINALITY AS contract("value", "ordinality")
       WHERE e."contractsJson" IS NOT NULL
+        AND NOT EXISTS (
+          SELECT 1 FROM "EmploymentAgreement" baseline
+          WHERE baseline."employmentId" = e."id"
+            AND baseline."sourceKind" = 'legacy-baseline'
+        )
     ), contract_rows AS (
       SELECT * FROM normalized_rows
       UNION ALL
@@ -196,9 +201,13 @@ export async function getContracts(options: {
     return (employmentTemporalPosition(employment, businessDate) === "current") === (options.isActive === "true");
   });
   const positionByEmploymentId = new Map(scoped.map((employment) => [employment.id, employment.employee?.positions ?? []]));
+  const normalizedRows = await listAllNormalizedEmploymentAgreementRows(businessDate);
+  const baselineEmploymentIds = new Set(normalizedRows
+    .filter((row) => row.migrationState === "baseline" || row.migrationState === "baseline-incomplete")
+    .map((row) => row.employmentId));
   let rows = [
-    ...(await listAllNormalizedEmploymentAgreementRows(businessDate)),
-    ...buildLegacyAgreementRows(scoped.map((employment) => ({
+    ...normalizedRows,
+    ...buildLegacyAgreementRows(scoped.filter((employment) => !baselineEmploymentIds.has(employment.id)).map((employment) => ({
     id: employment.id,
     contracts: employment.contracts,
     employee: employment.employee,

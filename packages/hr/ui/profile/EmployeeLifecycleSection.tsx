@@ -13,6 +13,10 @@ import {
 } from "@workspace/core/ui";
 import { edpFields, employmentFields, withTenantProfileFieldOptions } from "@workspace/hr/constants";
 import { isEmploymentPositionOptionalTitle } from "@workspace/hr/constants/employee-temporal-write-policy";
+import {
+  employeeCanOnboardAt,
+  employeeEmploymentContainsDate,
+} from "@workspace/hr/employee-lifecycle-contract";
 import type {
   EdpRow,
   EmployeeLifecycleEventRow,
@@ -98,10 +102,31 @@ function applySource(draft: LifecycleDraft, source: EdpRow | null): LifecycleDra
   };
 }
 
+function canOnboard(profile: EmployeeProfile | null, effectiveDate: string) {
+  return Boolean(profile && employeeCanOnboardAt({
+    employments: profile.employments,
+    assignmentCount: profile.edps.length,
+    lifecycleEventCount: profile.lifecycleEvents.length,
+    effectiveDate,
+  }));
+}
+
+function hasEmployment(profile: EmployeeProfile | null, effectiveDate: string) {
+  return Boolean(profile?.employments.some((employment) => (
+    employeeEmploymentContainsDate(employment, effectiveDate)
+  )));
+}
+
+function initialEventType(profile: EmployeeProfile | null, date: string, source: EdpRow | null): EmployeeLifecycleEventType {
+  if (source) return "transfer";
+  if (canOnboard(profile, date)) return "onboard";
+  return "offboard";
+}
+
 function initialDraft(profile: EmployeeProfile | null, date: string): LifecycleDraft {
   const source = eligibleSources(profile, date).find((row) => row.isPrimary) ?? eligibleSources(profile, date)[0] ?? null;
   return applySource({
-    eventType: source ? "transfer" : "onboard",
+    eventType: initialEventType(profile, date, source),
     effectiveDate: date,
     reason: null,
     sourceAssignmentId: null,
@@ -180,6 +205,15 @@ export function useEmployeeLifecycleSections({
   const selectableSourceRows = draft.eventType === "primary_change"
     ? sourceRows.filter((row) => !row.isPrimary)
     : sourceRows;
+  const onboardAllowed = canOnboard(profile, draft.effectiveDate);
+  const employmentAvailable = hasEmployment(profile, draft.effectiveDate);
+  const eventOptions = EVENT_OPTIONS.filter((option) => {
+    if (option.value === "onboard") return onboardAllowed;
+    if (option.value === "offboard") return employmentAvailable;
+    if (!employmentAvailable || sourceRows.length === 0) return false;
+    if (option.value === "primary_change") return sourceRows.some((row) => !row.isPrimary);
+    return true;
+  });
   const resolvedEmploymentFields = useMemo(
     () => withTenantProfileFieldOptions(employmentFields, tenantConfig),
     [tenantConfig],
@@ -196,6 +230,12 @@ export function useEmployeeLifecycleSections({
           : current.eventType === "primary_change"
             ? eligible.find((row) => !row.isPrimary) ?? null
             : eligible.find((row) => row.isPrimary) ?? eligible[0] ?? null;
+        if (current.eventType === "onboard" && !canOnboard(profile, effectiveDate)) {
+          const eventType: EmployeeLifecycleEventType = source ? "transfer" : "offboard";
+          return eventType === "transfer"
+            ? applySource({ ...current, eventType, effectiveDate }, source)
+            : { ...current, eventType, effectiveDate, sourceAssignmentId: null };
+        }
         return current.eventType === "onboard" || current.eventType === "offboard" || current.eventType === "concurrent_assignment"
           ? { ...current, effectiveDate, ...(current.eventType === "concurrent_assignment" ? { sourceAssignmentId: null } : {}) }
           : applySource({ ...current, effectiveDate }, source);
@@ -258,7 +298,7 @@ export function useEmployeeLifecycleSections({
         valueType: "string",
         control: "choice",
         state: canEdit ? "normal" : "disabled",
-        options: { source: "static", items: EVENT_OPTIONS, visibleCount: 5 },
+        options: { source: "static", items: eventOptions, visibleCount: Math.max(1, eventOptions.length) },
       },
       value: draft.eventType,
       onChange: (value) => changeEventType(String(value) as EmployeeLifecycleEventType),

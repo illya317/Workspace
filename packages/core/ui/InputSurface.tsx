@@ -277,6 +277,7 @@ export function InputSurfaceRenderer({
         displayValue={maskedDisplayValue}
         minDate={spec.validation?.minDate}
         maxDate={spec.validation?.maxDate}
+        precision={spec.precision === "month" ? "month" : "date"}
         disabled={disabled}
         readOnly={resolvedReadOnly}
         title={title}

@@ -13,6 +13,7 @@
 
 ## 当前资料
 
+- `hr-employment-contracts.md`：员工当前合同、历史合同、期限修订和历史数据缺失处理说明。
 - `reference/education-data.md`：教育学校/专业/QS 数据源说明。
 - `reference/casc/`：财务报表列报和会计准则参考资料。
 

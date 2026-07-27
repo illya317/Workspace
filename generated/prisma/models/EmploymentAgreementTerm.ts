@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model EmploymentAgreementTerm
- * 雇佣协议的含首尾日有效期间。修正会新增 superseding 期间，原期间保留为历史证据。
+ * 雇佣协议的含首尾日合同期间。允许提前续签形成重叠；旧 baseline 缺失边界时仍按 confirmed 开放边界保留，缺失项登记在 anchor 的 missingFieldsJson。
  */
 export type EmploymentAgreementTermModel = runtime.Types.Result.DefaultSelection<Prisma.$EmploymentAgreementTermPayload>
 
@@ -261,7 +261,7 @@ export type EmploymentAgreementTermGroupByOutputType = {
   agreementId: number
   sequence: number
   termKind: string
-  effectiveFrom: string
+  effectiveFrom: string | null
   effectiveThrough: string | null
   recordState: string
   changeKind: string
@@ -302,7 +302,7 @@ export type EmploymentAgreementTermWhereInput = {
   agreementId?: Prisma.IntFilter<"EmploymentAgreementTerm"> | number
   sequence?: Prisma.IntFilter<"EmploymentAgreementTerm"> | number
   termKind?: Prisma.StringFilter<"EmploymentAgreementTerm"> | string
-  effectiveFrom?: Prisma.StringFilter<"EmploymentAgreementTerm"> | string
+  effectiveFrom?: Prisma.StringNullableFilter<"EmploymentAgreementTerm"> | string | null
   effectiveThrough?: Prisma.StringNullableFilter<"EmploymentAgreementTerm"> | string | null
   recordState?: Prisma.StringFilter<"EmploymentAgreementTerm"> | string
   changeKind?: Prisma.StringFilter<"EmploymentAgreementTerm"> | string
@@ -323,7 +323,7 @@ export type EmploymentAgreementTermOrderByWithRelationInput = {
   agreementId?: Prisma.SortOrder
   sequence?: Prisma.SortOrder
   termKind?: Prisma.SortOrder
-  effectiveFrom?: Prisma.SortOrder
+  effectiveFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   effectiveThrough?: Prisma.SortOrderInput | Prisma.SortOrder
   recordState?: Prisma.SortOrder
   changeKind?: Prisma.SortOrder
@@ -348,7 +348,7 @@ export type EmploymentAgreementTermWhereUniqueInput = Prisma.AtLeast<{
   agreementId?: Prisma.IntFilter<"EmploymentAgreementTerm"> | number
   sequence?: Prisma.IntFilter<"EmploymentAgreementTerm"> | number
   termKind?: Prisma.StringFilter<"EmploymentAgreementTerm"> | string
-  effectiveFrom?: Prisma.StringFilter<"EmploymentAgreementTerm"> | string
+  effectiveFrom?: Prisma.StringNullableFilter<"EmploymentAgreementTerm"> | string | null
   effectiveThrough?: Prisma.StringNullableFilter<"EmploymentAgreementTerm"> | string | null
   recordState?: Prisma.StringFilter<"EmploymentAgreementTerm"> | string
   changeKind?: Prisma.StringFilter<"EmploymentAgreementTerm"> | string
@@ -369,7 +369,7 @@ export type EmploymentAgreementTermOrderByWithAggregationInput = {
   agreementId?: Prisma.SortOrder
   sequence?: Prisma.SortOrder
   termKind?: Prisma.SortOrder
-  effectiveFrom?: Prisma.SortOrder
+  effectiveFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   effectiveThrough?: Prisma.SortOrderInput | Prisma.SortOrder
   recordState?: Prisma.SortOrder
   changeKind?: Prisma.SortOrder
@@ -395,7 +395,7 @@ export type EmploymentAgreementTermScalarWhereWithAggregatesInput = {
   agreementId?: Prisma.IntWithAggregatesFilter<"EmploymentAgreementTerm"> | number
   sequence?: Prisma.IntWithAggregatesFilter<"EmploymentAgreementTerm"> | number
   termKind?: Prisma.StringWithAggregatesFilter<"EmploymentAgreementTerm"> | string
-  effectiveFrom?: Prisma.StringWithAggregatesFilter<"EmploymentAgreementTerm"> | string
+  effectiveFrom?: Prisma.StringNullableWithAggregatesFilter<"EmploymentAgreementTerm"> | string | null
   effectiveThrough?: Prisma.StringNullableWithAggregatesFilter<"EmploymentAgreementTerm"> | string | null
   recordState?: Prisma.StringWithAggregatesFilter<"EmploymentAgreementTerm"> | string
   changeKind?: Prisma.StringWithAggregatesFilter<"EmploymentAgreementTerm"> | string
@@ -411,7 +411,7 @@ export type EmploymentAgreementTermCreateInput = {
   termUid?: string
   sequence: number
   termKind?: string
-  effectiveFrom: string
+  effectiveFrom?: string | null
   effectiveThrough?: string | null
   recordState?: string
   changeKind?: string
@@ -431,7 +431,7 @@ export type EmploymentAgreementTermUncheckedCreateInput = {
   agreementId: number
   sequence: number
   termKind?: string
-  effectiveFrom: string
+  effectiveFrom?: string | null
   effectiveThrough?: string | null
   recordState?: string
   changeKind?: string
@@ -448,7 +448,7 @@ export type EmploymentAgreementTermUpdateInput = {
   termUid?: Prisma.StringFieldUpdateOperationsInput | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   termKind?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveThrough?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
   changeKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -468,7 +468,7 @@ export type EmploymentAgreementTermUncheckedUpdateInput = {
   agreementId?: Prisma.IntFieldUpdateOperationsInput | number
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   termKind?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveThrough?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
   changeKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -487,7 +487,7 @@ export type EmploymentAgreementTermCreateManyInput = {
   agreementId: number
   sequence: number
   termKind?: string
-  effectiveFrom: string
+  effectiveFrom?: string | null
   effectiveThrough?: string | null
   recordState?: string
   changeKind?: string
@@ -503,7 +503,7 @@ export type EmploymentAgreementTermUpdateManyMutationInput = {
   termUid?: Prisma.StringFieldUpdateOperationsInput | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   termKind?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveThrough?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
   changeKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -520,7 +520,7 @@ export type EmploymentAgreementTermUncheckedUpdateManyInput = {
   agreementId?: Prisma.IntFieldUpdateOperationsInput | number
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   termKind?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveThrough?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
   changeKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -726,7 +726,7 @@ export type EmploymentAgreementTermCreateWithoutAgreementInput = {
   termUid?: string
   sequence: number
   termKind?: string
-  effectiveFrom: string
+  effectiveFrom?: string | null
   effectiveThrough?: string | null
   recordState?: string
   changeKind?: string
@@ -744,7 +744,7 @@ export type EmploymentAgreementTermUncheckedCreateWithoutAgreementInput = {
   termUid?: string
   sequence: number
   termKind?: string
-  effectiveFrom: string
+  effectiveFrom?: string | null
   effectiveThrough?: string | null
   recordState?: string
   changeKind?: string
@@ -792,7 +792,7 @@ export type EmploymentAgreementTermScalarWhereInput = {
   agreementId?: Prisma.IntFilter<"EmploymentAgreementTerm"> | number
   sequence?: Prisma.IntFilter<"EmploymentAgreementTerm"> | number
   termKind?: Prisma.StringFilter<"EmploymentAgreementTerm"> | string
-  effectiveFrom?: Prisma.StringFilter<"EmploymentAgreementTerm"> | string
+  effectiveFrom?: Prisma.StringNullableFilter<"EmploymentAgreementTerm"> | string | null
   effectiveThrough?: Prisma.StringNullableFilter<"EmploymentAgreementTerm"> | string | null
   recordState?: Prisma.StringFilter<"EmploymentAgreementTerm"> | string
   changeKind?: Prisma.StringFilter<"EmploymentAgreementTerm"> | string
@@ -808,7 +808,7 @@ export type EmploymentAgreementTermCreateWithoutSupersededByInput = {
   termUid?: string
   sequence: number
   termKind?: string
-  effectiveFrom: string
+  effectiveFrom?: string | null
   effectiveThrough?: string | null
   recordState?: string
   changeKind?: string
@@ -827,7 +827,7 @@ export type EmploymentAgreementTermUncheckedCreateWithoutSupersededByInput = {
   agreementId: number
   sequence: number
   termKind?: string
-  effectiveFrom: string
+  effectiveFrom?: string | null
   effectiveThrough?: string | null
   recordState?: string
   changeKind?: string
@@ -848,7 +848,7 @@ export type EmploymentAgreementTermCreateWithoutSupersedesInput = {
   termUid?: string
   sequence: number
   termKind?: string
-  effectiveFrom: string
+  effectiveFrom?: string | null
   effectiveThrough?: string | null
   recordState?: string
   changeKind?: string
@@ -867,7 +867,7 @@ export type EmploymentAgreementTermUncheckedCreateWithoutSupersedesInput = {
   agreementId: number
   sequence: number
   termKind?: string
-  effectiveFrom: string
+  effectiveFrom?: string | null
   effectiveThrough?: string | null
   recordState?: string
   changeKind?: string
@@ -904,7 +904,7 @@ export type EmploymentAgreementTermUpdateWithoutSupersededByInput = {
   termUid?: Prisma.StringFieldUpdateOperationsInput | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   termKind?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveThrough?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
   changeKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -923,7 +923,7 @@ export type EmploymentAgreementTermUncheckedUpdateWithoutSupersededByInput = {
   agreementId?: Prisma.IntFieldUpdateOperationsInput | number
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   termKind?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveThrough?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
   changeKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -956,7 +956,7 @@ export type EmploymentAgreementTermCreateManyAgreementInput = {
   termUid?: string
   sequence: number
   termKind?: string
-  effectiveFrom: string
+  effectiveFrom?: string | null
   effectiveThrough?: string | null
   recordState?: string
   changeKind?: string
@@ -972,7 +972,7 @@ export type EmploymentAgreementTermUpdateWithoutAgreementInput = {
   termUid?: Prisma.StringFieldUpdateOperationsInput | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   termKind?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveThrough?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
   changeKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -990,7 +990,7 @@ export type EmploymentAgreementTermUncheckedUpdateWithoutAgreementInput = {
   termUid?: Prisma.StringFieldUpdateOperationsInput | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   termKind?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveThrough?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
   changeKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1008,7 +1008,7 @@ export type EmploymentAgreementTermUncheckedUpdateManyWithoutAgreementInput = {
   termUid?: Prisma.StringFieldUpdateOperationsInput | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   termKind?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveThrough?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
   changeKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1026,7 +1026,7 @@ export type EmploymentAgreementTermCreateManySupersedesInput = {
   agreementId: number
   sequence: number
   termKind?: string
-  effectiveFrom: string
+  effectiveFrom?: string | null
   effectiveThrough?: string | null
   recordState?: string
   changeKind?: string
@@ -1041,7 +1041,7 @@ export type EmploymentAgreementTermUpdateWithoutSupersedesInput = {
   termUid?: Prisma.StringFieldUpdateOperationsInput | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   termKind?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveThrough?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
   changeKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1060,7 +1060,7 @@ export type EmploymentAgreementTermUncheckedUpdateWithoutSupersedesInput = {
   agreementId?: Prisma.IntFieldUpdateOperationsInput | number
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   termKind?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveThrough?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
   changeKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1078,7 +1078,7 @@ export type EmploymentAgreementTermUncheckedUpdateManyWithoutSupersedesInput = {
   agreementId?: Prisma.IntFieldUpdateOperationsInput | number
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   termKind?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveThrough?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
   changeKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1229,7 +1229,7 @@ export type $EmploymentAgreementTermPayload<ExtArgs extends runtime.Types.Extens
     agreementId: number
     sequence: number
     termKind: string
-    effectiveFrom: string
+    effectiveFrom: string | null
     effectiveThrough: string | null
     recordState: string
     changeKind: string

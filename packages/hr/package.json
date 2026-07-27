@@ -6,6 +6,9 @@
   "exports": {
     ".": "./index.ts",
     "./business-temporal": "./business-temporal.ts",
+    "./employee-lifecycle-contract": "./employee-lifecycle-contract.ts",
+    "./employee-social-insurance-contract": "./employee-social-insurance-contract.ts",
+    "./employment-agreement-field-contract": "./employment-agreement-field-contract.ts",
     "./constants": "./constants/index.ts",
     "./constants/*": "./constants/*.ts",
     "./constants/tab-configs": "./constants/tab-configs/index.ts",

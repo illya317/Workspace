@@ -2,6 +2,7 @@ import { tenantHrFieldOptions } from "@workspace/hr/constants/field-options";
 import { tenantHrSchoolOptions } from "@workspace/hr/constants/school-options";
 import type { TenantPublicConfig } from "@workspace/platform/tenant-config";
 import type { ProfileField } from "../types/profile";
+import { STANDARD_EMPLOYMENT_AGREEMENT_TYPES } from "./social-insurance";
 
 export const employeeFields: ProfileField[] = [
   { key: "employeeId", label: "员工编号", required: true, readOnly: true },
@@ -38,22 +39,19 @@ export const employmentFields: ProfileField[] = [
 ];
 
 export const contractFields: ProfileField[] = [
-  { key: "company", label: "公司", type: "fk", entity: "company", fkKey: "hr.company", valueFrom: "name" },
-  { key: "isPrimary", label: "主合同", type: "boolean" },
-  { key: "insuranceStatus", label: "参保状态", type: "select" },
+  { key: "company", label: "用工主体", type: "fk", entity: "company", fkKey: "hr.company", valueFrom: "name" },
   { key: "legalRelation", label: "法律关系", type: "select" },
-  { key: "contractType", label: "合同类型", type: "select" },
+  { key: "contractType", label: "协议类型", type: "select" },
   { key: "employmentForm", label: "用工形式", type: "select" },
   { key: "firstContractStartDate", label: "首签开始", type: "date" },
-  { key: "firstContractEndDate", label: "首签结束", type: "date" },
+  { key: "firstContractEndDate", label: "首签到期", type: "date" },
   { key: "secondContractStartDate", label: "续签一开始", type: "date" },
-  { key: "secondContractEndDate", label: "续签一结束", type: "date" },
+  { key: "secondContractEndDate", label: "续签一到期", type: "date" },
   { key: "thirdContractStartDate", label: "续签二开始", type: "date" },
-  { key: "thirdContractEndDate", label: "续签二结束", type: "date" },
+  { key: "thirdContractEndDate", label: "续签二到期", type: "date" },
   { key: "permanentContractDate", label: "无固定期限", type: "date" },
-  { key: "confidentialityDate", label: "保密协议", type: "date" },
-  { key: "nonCompeteDate", label: "竞业限制", type: "date" },
-  { key: "endDate", label: "终止日期", type: "date", readOnly: true },
+  { key: "expiryDate", label: "到期日期", type: "date", readOnly: true },
+  { key: "endDate", label: "结束日期", type: "date", readOnly: true },
 ];
 
 export const edpFields: ProfileField[] = [
@@ -83,7 +81,7 @@ export function withTenantProfileFieldOptions(fields: ProfileField[], config: Te
       : field.key === "leaveReason" ? options.leaveReasons
       : field.key === "insuranceStatus" ? options.insuranceStatuses
       : field.key === "legalRelation" ? options.legalRelations
-      : field.key === "contractType" ? options.contractTypes
+      : field.key === "contractType" ? [...new Set([...options.contractTypes, ...STANDARD_EMPLOYMENT_AGREEMENT_TYPES])]
       : field.key === "employmentForm" ? options.employmentForms
       : field.options;
     return {

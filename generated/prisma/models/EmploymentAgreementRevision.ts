@@ -48,6 +48,7 @@ export type EmploymentAgreementRevisionMinAggregateOutputType = {
   agreementId: number | null
   revisionNo: number | null
   recordState: string | null
+  changeKind: string | null
   contentJson: string | null
   supersedesRevisionId: number | null
   sourceKind: string | null
@@ -63,6 +64,7 @@ export type EmploymentAgreementRevisionMaxAggregateOutputType = {
   agreementId: number | null
   revisionNo: number | null
   recordState: string | null
+  changeKind: string | null
   contentJson: string | null
   supersedesRevisionId: number | null
   sourceKind: string | null
@@ -78,6 +80,7 @@ export type EmploymentAgreementRevisionCountAggregateOutputType = {
   agreementId: number
   revisionNo: number
   recordState: number
+  changeKind: number
   contentJson: number
   supersedesRevisionId: number
   sourceKind: number
@@ -111,6 +114,7 @@ export type EmploymentAgreementRevisionMinAggregateInputType = {
   agreementId?: true
   revisionNo?: true
   recordState?: true
+  changeKind?: true
   contentJson?: true
   supersedesRevisionId?: true
   sourceKind?: true
@@ -126,6 +130,7 @@ export type EmploymentAgreementRevisionMaxAggregateInputType = {
   agreementId?: true
   revisionNo?: true
   recordState?: true
+  changeKind?: true
   contentJson?: true
   supersedesRevisionId?: true
   sourceKind?: true
@@ -141,6 +146,7 @@ export type EmploymentAgreementRevisionCountAggregateInputType = {
   agreementId?: true
   revisionNo?: true
   recordState?: true
+  changeKind?: true
   contentJson?: true
   supersedesRevisionId?: true
   sourceKind?: true
@@ -243,6 +249,7 @@ export type EmploymentAgreementRevisionGroupByOutputType = {
   agreementId: number
   revisionNo: number
   recordState: string
+  changeKind: string
   contentJson: string
   supersedesRevisionId: number | null
   sourceKind: string
@@ -281,6 +288,7 @@ export type EmploymentAgreementRevisionWhereInput = {
   agreementId?: Prisma.IntFilter<"EmploymentAgreementRevision"> | number
   revisionNo?: Prisma.IntFilter<"EmploymentAgreementRevision"> | number
   recordState?: Prisma.StringFilter<"EmploymentAgreementRevision"> | string
+  changeKind?: Prisma.StringFilter<"EmploymentAgreementRevision"> | string
   contentJson?: Prisma.StringFilter<"EmploymentAgreementRevision"> | string
   supersedesRevisionId?: Prisma.IntNullableFilter<"EmploymentAgreementRevision"> | number | null
   sourceKind?: Prisma.StringFilter<"EmploymentAgreementRevision"> | string
@@ -300,6 +308,7 @@ export type EmploymentAgreementRevisionOrderByWithRelationInput = {
   agreementId?: Prisma.SortOrder
   revisionNo?: Prisma.SortOrder
   recordState?: Prisma.SortOrder
+  changeKind?: Prisma.SortOrder
   contentJson?: Prisma.SortOrder
   supersedesRevisionId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
@@ -323,6 +332,7 @@ export type EmploymentAgreementRevisionWhereUniqueInput = Prisma.AtLeast<{
   agreementId?: Prisma.IntFilter<"EmploymentAgreementRevision"> | number
   revisionNo?: Prisma.IntFilter<"EmploymentAgreementRevision"> | number
   recordState?: Prisma.StringFilter<"EmploymentAgreementRevision"> | string
+  changeKind?: Prisma.StringFilter<"EmploymentAgreementRevision"> | string
   contentJson?: Prisma.StringFilter<"EmploymentAgreementRevision"> | string
   supersedesRevisionId?: Prisma.IntNullableFilter<"EmploymentAgreementRevision"> | number | null
   sourceKind?: Prisma.StringFilter<"EmploymentAgreementRevision"> | string
@@ -342,6 +352,7 @@ export type EmploymentAgreementRevisionOrderByWithAggregationInput = {
   agreementId?: Prisma.SortOrder
   revisionNo?: Prisma.SortOrder
   recordState?: Prisma.SortOrder
+  changeKind?: Prisma.SortOrder
   contentJson?: Prisma.SortOrder
   supersedesRevisionId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
@@ -365,6 +376,7 @@ export type EmploymentAgreementRevisionScalarWhereWithAggregatesInput = {
   agreementId?: Prisma.IntWithAggregatesFilter<"EmploymentAgreementRevision"> | number
   revisionNo?: Prisma.IntWithAggregatesFilter<"EmploymentAgreementRevision"> | number
   recordState?: Prisma.StringWithAggregatesFilter<"EmploymentAgreementRevision"> | string
+  changeKind?: Prisma.StringWithAggregatesFilter<"EmploymentAgreementRevision"> | string
   contentJson?: Prisma.StringWithAggregatesFilter<"EmploymentAgreementRevision"> | string
   supersedesRevisionId?: Prisma.IntNullableWithAggregatesFilter<"EmploymentAgreementRevision"> | number | null
   sourceKind?: Prisma.StringWithAggregatesFilter<"EmploymentAgreementRevision"> | string
@@ -378,6 +390,7 @@ export type EmploymentAgreementRevisionCreateInput = {
   revisionUid?: string
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   sourceKind?: string
   sourceRef?: string | null
@@ -396,6 +409,7 @@ export type EmploymentAgreementRevisionUncheckedCreateInput = {
   agreementId: number
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   supersedesRevisionId?: number | null
   sourceKind?: string
@@ -411,6 +425,7 @@ export type EmploymentAgreementRevisionUpdateInput = {
   revisionUid?: Prisma.StringFieldUpdateOperationsInput | string
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -429,6 +444,7 @@ export type EmploymentAgreementRevisionUncheckedUpdateInput = {
   agreementId?: Prisma.IntFieldUpdateOperationsInput | number
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   supersedesRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -446,6 +462,7 @@ export type EmploymentAgreementRevisionCreateManyInput = {
   agreementId: number
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   supersedesRevisionId?: number | null
   sourceKind?: string
@@ -459,6 +476,7 @@ export type EmploymentAgreementRevisionUpdateManyMutationInput = {
   revisionUid?: Prisma.StringFieldUpdateOperationsInput | string
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -473,6 +491,7 @@ export type EmploymentAgreementRevisionUncheckedUpdateManyInput = {
   agreementId?: Prisma.IntFieldUpdateOperationsInput | number
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   supersedesRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -508,6 +527,7 @@ export type EmploymentAgreementRevisionCountOrderByAggregateInput = {
   agreementId?: Prisma.SortOrder
   revisionNo?: Prisma.SortOrder
   recordState?: Prisma.SortOrder
+  changeKind?: Prisma.SortOrder
   contentJson?: Prisma.SortOrder
   supersedesRevisionId?: Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
@@ -531,6 +551,7 @@ export type EmploymentAgreementRevisionMaxOrderByAggregateInput = {
   agreementId?: Prisma.SortOrder
   revisionNo?: Prisma.SortOrder
   recordState?: Prisma.SortOrder
+  changeKind?: Prisma.SortOrder
   contentJson?: Prisma.SortOrder
   supersedesRevisionId?: Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
@@ -546,6 +567,7 @@ export type EmploymentAgreementRevisionMinOrderByAggregateInput = {
   agreementId?: Prisma.SortOrder
   revisionNo?: Prisma.SortOrder
   recordState?: Prisma.SortOrder
+  changeKind?: Prisma.SortOrder
   contentJson?: Prisma.SortOrder
   supersedesRevisionId?: Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
@@ -683,6 +705,7 @@ export type EmploymentAgreementRevisionCreateWithoutCurrentForAgreementInput = {
   revisionUid?: string
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   sourceKind?: string
   sourceRef?: string | null
@@ -700,6 +723,7 @@ export type EmploymentAgreementRevisionUncheckedCreateWithoutCurrentForAgreement
   agreementId: number
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   supersedesRevisionId?: number | null
   sourceKind?: string
@@ -719,6 +743,7 @@ export type EmploymentAgreementRevisionCreateWithoutAgreementInput = {
   revisionUid?: string
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   sourceKind?: string
   sourceRef?: string | null
@@ -735,6 +760,7 @@ export type EmploymentAgreementRevisionUncheckedCreateWithoutAgreementInput = {
   revisionUid?: string
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   supersedesRevisionId?: number | null
   sourceKind?: string
@@ -771,6 +797,7 @@ export type EmploymentAgreementRevisionUpdateWithoutCurrentForAgreementInput = {
   revisionUid?: Prisma.StringFieldUpdateOperationsInput | string
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -788,6 +815,7 @@ export type EmploymentAgreementRevisionUncheckedUpdateWithoutCurrentForAgreement
   agreementId?: Prisma.IntFieldUpdateOperationsInput | number
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   supersedesRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -823,6 +851,7 @@ export type EmploymentAgreementRevisionScalarWhereInput = {
   agreementId?: Prisma.IntFilter<"EmploymentAgreementRevision"> | number
   revisionNo?: Prisma.IntFilter<"EmploymentAgreementRevision"> | number
   recordState?: Prisma.StringFilter<"EmploymentAgreementRevision"> | string
+  changeKind?: Prisma.StringFilter<"EmploymentAgreementRevision"> | string
   contentJson?: Prisma.StringFilter<"EmploymentAgreementRevision"> | string
   supersedesRevisionId?: Prisma.IntNullableFilter<"EmploymentAgreementRevision"> | number | null
   sourceKind?: Prisma.StringFilter<"EmploymentAgreementRevision"> | string
@@ -836,6 +865,7 @@ export type EmploymentAgreementRevisionCreateWithoutSupersededByInput = {
   revisionUid?: string
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   sourceKind?: string
   sourceRef?: string | null
@@ -853,6 +883,7 @@ export type EmploymentAgreementRevisionUncheckedCreateWithoutSupersededByInput =
   agreementId: number
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   supersedesRevisionId?: number | null
   sourceKind?: string
@@ -872,6 +903,7 @@ export type EmploymentAgreementRevisionCreateWithoutSupersedesInput = {
   revisionUid?: string
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   sourceKind?: string
   sourceRef?: string | null
@@ -889,6 +921,7 @@ export type EmploymentAgreementRevisionUncheckedCreateWithoutSupersedesInput = {
   agreementId: number
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   sourceKind?: string
   sourceRef?: string | null
@@ -924,6 +957,7 @@ export type EmploymentAgreementRevisionUpdateWithoutSupersededByInput = {
   revisionUid?: Prisma.StringFieldUpdateOperationsInput | string
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -941,6 +975,7 @@ export type EmploymentAgreementRevisionUncheckedUpdateWithoutSupersededByInput =
   agreementId?: Prisma.IntFieldUpdateOperationsInput | number
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   supersedesRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -972,6 +1007,7 @@ export type EmploymentAgreementRevisionCreateManyAgreementInput = {
   revisionUid?: string
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   supersedesRevisionId?: number | null
   sourceKind?: string
@@ -985,6 +1021,7 @@ export type EmploymentAgreementRevisionUpdateWithoutAgreementInput = {
   revisionUid?: Prisma.StringFieldUpdateOperationsInput | string
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1001,6 +1038,7 @@ export type EmploymentAgreementRevisionUncheckedUpdateWithoutAgreementInput = {
   revisionUid?: Prisma.StringFieldUpdateOperationsInput | string
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   supersedesRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1017,6 +1055,7 @@ export type EmploymentAgreementRevisionUncheckedUpdateManyWithoutAgreementInput 
   revisionUid?: Prisma.StringFieldUpdateOperationsInput | string
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   supersedesRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1032,6 +1071,7 @@ export type EmploymentAgreementRevisionCreateManySupersedesInput = {
   agreementId: number
   revisionNo: number
   recordState?: string
+  changeKind?: string
   contentJson: string
   sourceKind?: string
   sourceRef?: string | null
@@ -1044,6 +1084,7 @@ export type EmploymentAgreementRevisionUpdateWithoutSupersedesInput = {
   revisionUid?: Prisma.StringFieldUpdateOperationsInput | string
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1061,6 +1102,7 @@ export type EmploymentAgreementRevisionUncheckedUpdateWithoutSupersedesInput = {
   agreementId?: Prisma.IntFieldUpdateOperationsInput | number
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1077,6 +1119,7 @@ export type EmploymentAgreementRevisionUncheckedUpdateManyWithoutSupersedesInput
   agreementId?: Prisma.IntFieldUpdateOperationsInput | number
   revisionNo?: Prisma.IntFieldUpdateOperationsInput | number
   recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
   contentJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1122,6 +1165,7 @@ export type EmploymentAgreementRevisionSelect<ExtArgs extends runtime.Types.Exte
   agreementId?: boolean
   revisionNo?: boolean
   recordState?: boolean
+  changeKind?: boolean
   contentJson?: boolean
   supersedesRevisionId?: boolean
   sourceKind?: boolean
@@ -1142,6 +1186,7 @@ export type EmploymentAgreementRevisionSelectCreateManyAndReturn<ExtArgs extends
   agreementId?: boolean
   revisionNo?: boolean
   recordState?: boolean
+  changeKind?: boolean
   contentJson?: boolean
   supersedesRevisionId?: boolean
   sourceKind?: boolean
@@ -1159,6 +1204,7 @@ export type EmploymentAgreementRevisionSelectUpdateManyAndReturn<ExtArgs extends
   agreementId?: boolean
   revisionNo?: boolean
   recordState?: boolean
+  changeKind?: boolean
   contentJson?: boolean
   supersedesRevisionId?: boolean
   sourceKind?: boolean
@@ -1176,6 +1222,7 @@ export type EmploymentAgreementRevisionSelectScalar = {
   agreementId?: boolean
   revisionNo?: boolean
   recordState?: boolean
+  changeKind?: boolean
   contentJson?: boolean
   supersedesRevisionId?: boolean
   sourceKind?: boolean
@@ -1185,7 +1232,7 @@ export type EmploymentAgreementRevisionSelectScalar = {
   createdAt?: boolean
 }
 
-export type EmploymentAgreementRevisionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "revisionUid" | "agreementId" | "revisionNo" | "recordState" | "contentJson" | "supersedesRevisionId" | "sourceKind" | "sourceRef" | "reason" | "createdBy" | "createdAt", ExtArgs["result"]["employmentAgreementRevision"]>
+export type EmploymentAgreementRevisionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "revisionUid" | "agreementId" | "revisionNo" | "recordState" | "changeKind" | "contentJson" | "supersedesRevisionId" | "sourceKind" | "sourceRef" | "reason" | "createdBy" | "createdAt", ExtArgs["result"]["employmentAgreementRevision"]>
 export type EmploymentAgreementRevisionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   agreement?: boolean | Prisma.EmploymentAgreementDefaultArgs<ExtArgs>
   currentForAgreement?: boolean | Prisma.EmploymentAgreementRevision$currentForAgreementArgs<ExtArgs>
@@ -1216,6 +1263,7 @@ export type $EmploymentAgreementRevisionPayload<ExtArgs extends runtime.Types.Ex
     agreementId: number
     revisionNo: number
     recordState: string
+    changeKind: string
     contentJson: string
     supersedesRevisionId: number | null
     sourceKind: string
@@ -1655,6 +1703,7 @@ export interface EmploymentAgreementRevisionFieldRefs {
   readonly agreementId: Prisma.FieldRef<"EmploymentAgreementRevision", 'Int'>
   readonly revisionNo: Prisma.FieldRef<"EmploymentAgreementRevision", 'Int'>
   readonly recordState: Prisma.FieldRef<"EmploymentAgreementRevision", 'String'>
+  readonly changeKind: Prisma.FieldRef<"EmploymentAgreementRevision", 'String'>
   readonly contentJson: Prisma.FieldRef<"EmploymentAgreementRevision", 'String'>
   readonly supersedesRevisionId: Prisma.FieldRef<"EmploymentAgreementRevision", 'Int'>
   readonly sourceKind: Prisma.FieldRef<"EmploymentAgreementRevision", 'String'>

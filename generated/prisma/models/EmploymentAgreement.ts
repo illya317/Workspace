@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model EmploymentAgreement
- * 雇佣协议稳定身份。期限与内容版本分别由 Term / Revision 承载，禁止以数组位置充当身份。
+ * 雇佣协议稳定身份。期限与内容版本分别由 Term / Revision 承载，missingFieldsJson 与业务有效状态分离，禁止以数组位置充当身份。
  */
 export type EmploymentAgreementModel = runtime.Types.Result.DefaultSelection<Prisma.$EmploymentAgreementPayload>
 
@@ -52,6 +52,8 @@ export type EmploymentAgreementMinAggregateOutputType = {
   isPrimary: boolean | null
   sourceKind: string | null
   sourceRef: string | null
+  missingFieldsJson: string | null
+  actualEndDate: string | null
   reason: string | null
   version: number | null
   currentPublishedRevisionId: number | null
@@ -69,6 +71,8 @@ export type EmploymentAgreementMaxAggregateOutputType = {
   isPrimary: boolean | null
   sourceKind: string | null
   sourceRef: string | null
+  missingFieldsJson: string | null
+  actualEndDate: string | null
   reason: string | null
   version: number | null
   currentPublishedRevisionId: number | null
@@ -86,6 +90,8 @@ export type EmploymentAgreementCountAggregateOutputType = {
   isPrimary: number
   sourceKind: number
   sourceRef: number
+  missingFieldsJson: number
+  actualEndDate: number
   reason: number
   version: number
   currentPublishedRevisionId: number
@@ -123,6 +129,8 @@ export type EmploymentAgreementMinAggregateInputType = {
   isPrimary?: true
   sourceKind?: true
   sourceRef?: true
+  missingFieldsJson?: true
+  actualEndDate?: true
   reason?: true
   version?: true
   currentPublishedRevisionId?: true
@@ -140,6 +148,8 @@ export type EmploymentAgreementMaxAggregateInputType = {
   isPrimary?: true
   sourceKind?: true
   sourceRef?: true
+  missingFieldsJson?: true
+  actualEndDate?: true
   reason?: true
   version?: true
   currentPublishedRevisionId?: true
@@ -157,6 +167,8 @@ export type EmploymentAgreementCountAggregateInputType = {
   isPrimary?: true
   sourceKind?: true
   sourceRef?: true
+  missingFieldsJson?: true
+  actualEndDate?: true
   reason?: true
   version?: true
   currentPublishedRevisionId?: true
@@ -261,6 +273,8 @@ export type EmploymentAgreementGroupByOutputType = {
   isPrimary: boolean
   sourceKind: string
   sourceRef: string | null
+  missingFieldsJson: string
+  actualEndDate: string | null
   reason: string | null
   version: number
   currentPublishedRevisionId: number | null
@@ -301,6 +315,8 @@ export type EmploymentAgreementWhereInput = {
   isPrimary?: Prisma.BoolFilter<"EmploymentAgreement"> | boolean
   sourceKind?: Prisma.StringFilter<"EmploymentAgreement"> | string
   sourceRef?: Prisma.StringNullableFilter<"EmploymentAgreement"> | string | null
+  missingFieldsJson?: Prisma.StringFilter<"EmploymentAgreement"> | string
+  actualEndDate?: Prisma.StringNullableFilter<"EmploymentAgreement"> | string | null
   reason?: Prisma.StringNullableFilter<"EmploymentAgreement"> | string | null
   version?: Prisma.IntFilter<"EmploymentAgreement"> | number
   currentPublishedRevisionId?: Prisma.IntNullableFilter<"EmploymentAgreement"> | number | null
@@ -312,6 +328,7 @@ export type EmploymentAgreementWhereInput = {
   currentPublishedRevision?: Prisma.XOR<Prisma.EmploymentAgreementRevisionNullableScalarRelationFilter, Prisma.EmploymentAgreementRevisionWhereInput> | null
   revisions?: Prisma.EmploymentAgreementRevisionListRelationFilter
   terms?: Prisma.EmploymentAgreementTermListRelationFilter
+  attachments?: Prisma.EmploymentAgreementAttachmentListRelationFilter
   changes?: Prisma.EmploymentAgreementChangeListRelationFilter
 }
 
@@ -323,6 +340,8 @@ export type EmploymentAgreementOrderByWithRelationInput = {
   isPrimary?: Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
   sourceRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  missingFieldsJson?: Prisma.SortOrder
+  actualEndDate?: Prisma.SortOrderInput | Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   currentPublishedRevisionId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -334,6 +353,7 @@ export type EmploymentAgreementOrderByWithRelationInput = {
   currentPublishedRevision?: Prisma.EmploymentAgreementRevisionOrderByWithRelationInput
   revisions?: Prisma.EmploymentAgreementRevisionOrderByRelationAggregateInput
   terms?: Prisma.EmploymentAgreementTermOrderByRelationAggregateInput
+  attachments?: Prisma.EmploymentAgreementAttachmentOrderByRelationAggregateInput
   changes?: Prisma.EmploymentAgreementChangeOrderByRelationAggregateInput
 }
 
@@ -349,6 +369,8 @@ export type EmploymentAgreementWhereUniqueInput = Prisma.AtLeast<{
   isPrimary?: Prisma.BoolFilter<"EmploymentAgreement"> | boolean
   sourceKind?: Prisma.StringFilter<"EmploymentAgreement"> | string
   sourceRef?: Prisma.StringNullableFilter<"EmploymentAgreement"> | string | null
+  missingFieldsJson?: Prisma.StringFilter<"EmploymentAgreement"> | string
+  actualEndDate?: Prisma.StringNullableFilter<"EmploymentAgreement"> | string | null
   reason?: Prisma.StringNullableFilter<"EmploymentAgreement"> | string | null
   version?: Prisma.IntFilter<"EmploymentAgreement"> | number
   createdBy?: Prisma.IntNullableFilter<"EmploymentAgreement"> | number | null
@@ -359,6 +381,7 @@ export type EmploymentAgreementWhereUniqueInput = Prisma.AtLeast<{
   currentPublishedRevision?: Prisma.XOR<Prisma.EmploymentAgreementRevisionNullableScalarRelationFilter, Prisma.EmploymentAgreementRevisionWhereInput> | null
   revisions?: Prisma.EmploymentAgreementRevisionListRelationFilter
   terms?: Prisma.EmploymentAgreementTermListRelationFilter
+  attachments?: Prisma.EmploymentAgreementAttachmentListRelationFilter
   changes?: Prisma.EmploymentAgreementChangeListRelationFilter
 }, "id" | "agreementUid" | "currentPublishedRevisionId">
 
@@ -370,6 +393,8 @@ export type EmploymentAgreementOrderByWithAggregationInput = {
   isPrimary?: Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
   sourceRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  missingFieldsJson?: Prisma.SortOrder
+  actualEndDate?: Prisma.SortOrderInput | Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   currentPublishedRevisionId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -395,6 +420,8 @@ export type EmploymentAgreementScalarWhereWithAggregatesInput = {
   isPrimary?: Prisma.BoolWithAggregatesFilter<"EmploymentAgreement"> | boolean
   sourceKind?: Prisma.StringWithAggregatesFilter<"EmploymentAgreement"> | string
   sourceRef?: Prisma.StringNullableWithAggregatesFilter<"EmploymentAgreement"> | string | null
+  missingFieldsJson?: Prisma.StringWithAggregatesFilter<"EmploymentAgreement"> | string
+  actualEndDate?: Prisma.StringNullableWithAggregatesFilter<"EmploymentAgreement"> | string | null
   reason?: Prisma.StringNullableWithAggregatesFilter<"EmploymentAgreement"> | string | null
   version?: Prisma.IntWithAggregatesFilter<"EmploymentAgreement"> | number
   currentPublishedRevisionId?: Prisma.IntNullableWithAggregatesFilter<"EmploymentAgreement"> | number | null
@@ -410,6 +437,8 @@ export type EmploymentAgreementCreateInput = {
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   createdBy?: number | null
@@ -420,6 +449,7 @@ export type EmploymentAgreementCreateInput = {
   currentPublishedRevision?: Prisma.EmploymentAgreementRevisionCreateNestedOneWithoutCurrentForAgreementInput
   revisions?: Prisma.EmploymentAgreementRevisionCreateNestedManyWithoutAgreementInput
   terms?: Prisma.EmploymentAgreementTermCreateNestedManyWithoutAgreementInput
+  attachments?: Prisma.EmploymentAgreementAttachmentCreateNestedManyWithoutAgreementInput
   changes?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutAgreementInput
 }
 
@@ -431,6 +461,8 @@ export type EmploymentAgreementUncheckedCreateInput = {
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   currentPublishedRevisionId?: number | null
@@ -440,6 +472,7 @@ export type EmploymentAgreementUncheckedCreateInput = {
   updatedAt?: Date | string
   revisions?: Prisma.EmploymentAgreementRevisionUncheckedCreateNestedManyWithoutAgreementInput
   terms?: Prisma.EmploymentAgreementTermUncheckedCreateNestedManyWithoutAgreementInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUncheckedCreateNestedManyWithoutAgreementInput
   changes?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutAgreementInput
 }
 
@@ -449,6 +482,8 @@ export type EmploymentAgreementUpdateInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -459,6 +494,7 @@ export type EmploymentAgreementUpdateInput = {
   currentPublishedRevision?: Prisma.EmploymentAgreementRevisionUpdateOneWithoutCurrentForAgreementNestedInput
   revisions?: Prisma.EmploymentAgreementRevisionUpdateManyWithoutAgreementNestedInput
   terms?: Prisma.EmploymentAgreementTermUpdateManyWithoutAgreementNestedInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUpdateManyWithoutAgreementNestedInput
   changes?: Prisma.EmploymentAgreementChangeUpdateManyWithoutAgreementNestedInput
 }
 
@@ -470,6 +506,8 @@ export type EmploymentAgreementUncheckedUpdateInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   currentPublishedRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -479,6 +517,7 @@ export type EmploymentAgreementUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revisions?: Prisma.EmploymentAgreementRevisionUncheckedUpdateManyWithoutAgreementNestedInput
   terms?: Prisma.EmploymentAgreementTermUncheckedUpdateManyWithoutAgreementNestedInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUncheckedUpdateManyWithoutAgreementNestedInput
   changes?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutAgreementNestedInput
 }
 
@@ -490,6 +529,8 @@ export type EmploymentAgreementCreateManyInput = {
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   currentPublishedRevisionId?: number | null
@@ -505,6 +546,8 @@ export type EmploymentAgreementUpdateManyMutationInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -521,6 +564,8 @@ export type EmploymentAgreementUncheckedUpdateManyInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   currentPublishedRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -538,6 +583,8 @@ export type EmploymentAgreementCountOrderByAggregateInput = {
   isPrimary?: Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
   sourceRef?: Prisma.SortOrder
+  missingFieldsJson?: Prisma.SortOrder
+  actualEndDate?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   version?: Prisma.SortOrder
   currentPublishedRevisionId?: Prisma.SortOrder
@@ -564,6 +611,8 @@ export type EmploymentAgreementMaxOrderByAggregateInput = {
   isPrimary?: Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
   sourceRef?: Prisma.SortOrder
+  missingFieldsJson?: Prisma.SortOrder
+  actualEndDate?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   version?: Prisma.SortOrder
   currentPublishedRevisionId?: Prisma.SortOrder
@@ -581,6 +630,8 @@ export type EmploymentAgreementMinOrderByAggregateInput = {
   isPrimary?: Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
   sourceRef?: Prisma.SortOrder
+  missingFieldsJson?: Prisma.SortOrder
+  actualEndDate?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   version?: Prisma.SortOrder
   currentPublishedRevisionId?: Prisma.SortOrder
@@ -617,6 +668,20 @@ export type EmploymentAgreementListRelationFilter = {
 
 export type EmploymentAgreementOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type EmploymentAgreementCreateNestedOneWithoutAttachmentsInput = {
+  create?: Prisma.XOR<Prisma.EmploymentAgreementCreateWithoutAttachmentsInput, Prisma.EmploymentAgreementUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.EmploymentAgreementCreateOrConnectWithoutAttachmentsInput
+  connect?: Prisma.EmploymentAgreementWhereUniqueInput
+}
+
+export type EmploymentAgreementUpdateOneRequiredWithoutAttachmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmploymentAgreementCreateWithoutAttachmentsInput, Prisma.EmploymentAgreementUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.EmploymentAgreementCreateOrConnectWithoutAttachmentsInput
+  upsert?: Prisma.EmploymentAgreementUpsertWithoutAttachmentsInput
+  connect?: Prisma.EmploymentAgreementWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmploymentAgreementUpdateToOneWithWhereWithoutAttachmentsInput, Prisma.EmploymentAgreementUpdateWithoutAttachmentsInput>, Prisma.EmploymentAgreementUncheckedUpdateWithoutAttachmentsInput>
 }
 
 export type EmploymentAgreementCreateNestedOneWithoutTermsInput = {
@@ -737,12 +802,14 @@ export type EmploymentAgreementUncheckedUpdateManyWithoutEmploymentNestedInput =
   deleteMany?: Prisma.EmploymentAgreementScalarWhereInput | Prisma.EmploymentAgreementScalarWhereInput[]
 }
 
-export type EmploymentAgreementCreateWithoutTermsInput = {
+export type EmploymentAgreementCreateWithoutAttachmentsInput = {
   agreementUid?: string
   recordState?: string
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   createdBy?: number | null
@@ -752,6 +819,109 @@ export type EmploymentAgreementCreateWithoutTermsInput = {
   employment: Prisma.EmploymentCreateNestedOneWithoutAgreementsInput
   currentPublishedRevision?: Prisma.EmploymentAgreementRevisionCreateNestedOneWithoutCurrentForAgreementInput
   revisions?: Prisma.EmploymentAgreementRevisionCreateNestedManyWithoutAgreementInput
+  terms?: Prisma.EmploymentAgreementTermCreateNestedManyWithoutAgreementInput
+  changes?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutAgreementInput
+}
+
+export type EmploymentAgreementUncheckedCreateWithoutAttachmentsInput = {
+  id?: number
+  agreementUid?: string
+  employmentId: number
+  recordState?: string
+  isPrimary?: boolean
+  sourceKind?: string
+  sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
+  reason?: string | null
+  version?: number
+  currentPublishedRevisionId?: number | null
+  createdBy?: number | null
+  updatedBy?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.EmploymentAgreementRevisionUncheckedCreateNestedManyWithoutAgreementInput
+  terms?: Prisma.EmploymentAgreementTermUncheckedCreateNestedManyWithoutAgreementInput
+  changes?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutAgreementInput
+}
+
+export type EmploymentAgreementCreateOrConnectWithoutAttachmentsInput = {
+  where: Prisma.EmploymentAgreementWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmploymentAgreementCreateWithoutAttachmentsInput, Prisma.EmploymentAgreementUncheckedCreateWithoutAttachmentsInput>
+}
+
+export type EmploymentAgreementUpsertWithoutAttachmentsInput = {
+  update: Prisma.XOR<Prisma.EmploymentAgreementUpdateWithoutAttachmentsInput, Prisma.EmploymentAgreementUncheckedUpdateWithoutAttachmentsInput>
+  create: Prisma.XOR<Prisma.EmploymentAgreementCreateWithoutAttachmentsInput, Prisma.EmploymentAgreementUncheckedCreateWithoutAttachmentsInput>
+  where?: Prisma.EmploymentAgreementWhereInput
+}
+
+export type EmploymentAgreementUpdateToOneWithWhereWithoutAttachmentsInput = {
+  where?: Prisma.EmploymentAgreementWhereInput
+  data: Prisma.XOR<Prisma.EmploymentAgreementUpdateWithoutAttachmentsInput, Prisma.EmploymentAgreementUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type EmploymentAgreementUpdateWithoutAttachmentsInput = {
+  agreementUid?: Prisma.StringFieldUpdateOperationsInput | string
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employment?: Prisma.EmploymentUpdateOneRequiredWithoutAgreementsNestedInput
+  currentPublishedRevision?: Prisma.EmploymentAgreementRevisionUpdateOneWithoutCurrentForAgreementNestedInput
+  revisions?: Prisma.EmploymentAgreementRevisionUpdateManyWithoutAgreementNestedInput
+  terms?: Prisma.EmploymentAgreementTermUpdateManyWithoutAgreementNestedInput
+  changes?: Prisma.EmploymentAgreementChangeUpdateManyWithoutAgreementNestedInput
+}
+
+export type EmploymentAgreementUncheckedUpdateWithoutAttachmentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  agreementUid?: Prisma.StringFieldUpdateOperationsInput | string
+  employmentId?: Prisma.IntFieldUpdateOperationsInput | number
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  currentPublishedRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.EmploymentAgreementRevisionUncheckedUpdateManyWithoutAgreementNestedInput
+  terms?: Prisma.EmploymentAgreementTermUncheckedUpdateManyWithoutAgreementNestedInput
+  changes?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutAgreementNestedInput
+}
+
+export type EmploymentAgreementCreateWithoutTermsInput = {
+  agreementUid?: string
+  recordState?: string
+  isPrimary?: boolean
+  sourceKind?: string
+  sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
+  reason?: string | null
+  version?: number
+  createdBy?: number | null
+  updatedBy?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employment: Prisma.EmploymentCreateNestedOneWithoutAgreementsInput
+  currentPublishedRevision?: Prisma.EmploymentAgreementRevisionCreateNestedOneWithoutCurrentForAgreementInput
+  revisions?: Prisma.EmploymentAgreementRevisionCreateNestedManyWithoutAgreementInput
+  attachments?: Prisma.EmploymentAgreementAttachmentCreateNestedManyWithoutAgreementInput
   changes?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutAgreementInput
 }
 
@@ -763,6 +933,8 @@ export type EmploymentAgreementUncheckedCreateWithoutTermsInput = {
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   currentPublishedRevisionId?: number | null
@@ -771,6 +943,7 @@ export type EmploymentAgreementUncheckedCreateWithoutTermsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   revisions?: Prisma.EmploymentAgreementRevisionUncheckedCreateNestedManyWithoutAgreementInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUncheckedCreateNestedManyWithoutAgreementInput
   changes?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutAgreementInput
 }
 
@@ -796,6 +969,8 @@ export type EmploymentAgreementUpdateWithoutTermsInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -805,6 +980,7 @@ export type EmploymentAgreementUpdateWithoutTermsInput = {
   employment?: Prisma.EmploymentUpdateOneRequiredWithoutAgreementsNestedInput
   currentPublishedRevision?: Prisma.EmploymentAgreementRevisionUpdateOneWithoutCurrentForAgreementNestedInput
   revisions?: Prisma.EmploymentAgreementRevisionUpdateManyWithoutAgreementNestedInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUpdateManyWithoutAgreementNestedInput
   changes?: Prisma.EmploymentAgreementChangeUpdateManyWithoutAgreementNestedInput
 }
 
@@ -816,6 +992,8 @@ export type EmploymentAgreementUncheckedUpdateWithoutTermsInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   currentPublishedRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -824,6 +1002,7 @@ export type EmploymentAgreementUncheckedUpdateWithoutTermsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revisions?: Prisma.EmploymentAgreementRevisionUncheckedUpdateManyWithoutAgreementNestedInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUncheckedUpdateManyWithoutAgreementNestedInput
   changes?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutAgreementNestedInput
 }
 
@@ -833,6 +1012,8 @@ export type EmploymentAgreementCreateWithoutRevisionsInput = {
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   createdBy?: number | null
@@ -842,6 +1023,7 @@ export type EmploymentAgreementCreateWithoutRevisionsInput = {
   employment: Prisma.EmploymentCreateNestedOneWithoutAgreementsInput
   currentPublishedRevision?: Prisma.EmploymentAgreementRevisionCreateNestedOneWithoutCurrentForAgreementInput
   terms?: Prisma.EmploymentAgreementTermCreateNestedManyWithoutAgreementInput
+  attachments?: Prisma.EmploymentAgreementAttachmentCreateNestedManyWithoutAgreementInput
   changes?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutAgreementInput
 }
 
@@ -853,6 +1035,8 @@ export type EmploymentAgreementUncheckedCreateWithoutRevisionsInput = {
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   currentPublishedRevisionId?: number | null
@@ -861,6 +1045,7 @@ export type EmploymentAgreementUncheckedCreateWithoutRevisionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   terms?: Prisma.EmploymentAgreementTermUncheckedCreateNestedManyWithoutAgreementInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUncheckedCreateNestedManyWithoutAgreementInput
   changes?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutAgreementInput
 }
 
@@ -875,6 +1060,8 @@ export type EmploymentAgreementCreateWithoutCurrentPublishedRevisionInput = {
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   createdBy?: number | null
@@ -884,6 +1071,7 @@ export type EmploymentAgreementCreateWithoutCurrentPublishedRevisionInput = {
   employment: Prisma.EmploymentCreateNestedOneWithoutAgreementsInput
   revisions?: Prisma.EmploymentAgreementRevisionCreateNestedManyWithoutAgreementInput
   terms?: Prisma.EmploymentAgreementTermCreateNestedManyWithoutAgreementInput
+  attachments?: Prisma.EmploymentAgreementAttachmentCreateNestedManyWithoutAgreementInput
   changes?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutAgreementInput
 }
 
@@ -895,6 +1083,8 @@ export type EmploymentAgreementUncheckedCreateWithoutCurrentPublishedRevisionInp
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   createdBy?: number | null
@@ -903,6 +1093,7 @@ export type EmploymentAgreementUncheckedCreateWithoutCurrentPublishedRevisionInp
   updatedAt?: Date | string
   revisions?: Prisma.EmploymentAgreementRevisionUncheckedCreateNestedManyWithoutAgreementInput
   terms?: Prisma.EmploymentAgreementTermUncheckedCreateNestedManyWithoutAgreementInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUncheckedCreateNestedManyWithoutAgreementInput
   changes?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutAgreementInput
 }
 
@@ -928,6 +1119,8 @@ export type EmploymentAgreementUpdateWithoutRevisionsInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -937,6 +1130,7 @@ export type EmploymentAgreementUpdateWithoutRevisionsInput = {
   employment?: Prisma.EmploymentUpdateOneRequiredWithoutAgreementsNestedInput
   currentPublishedRevision?: Prisma.EmploymentAgreementRevisionUpdateOneWithoutCurrentForAgreementNestedInput
   terms?: Prisma.EmploymentAgreementTermUpdateManyWithoutAgreementNestedInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUpdateManyWithoutAgreementNestedInput
   changes?: Prisma.EmploymentAgreementChangeUpdateManyWithoutAgreementNestedInput
 }
 
@@ -948,6 +1142,8 @@ export type EmploymentAgreementUncheckedUpdateWithoutRevisionsInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   currentPublishedRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -956,6 +1152,7 @@ export type EmploymentAgreementUncheckedUpdateWithoutRevisionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   terms?: Prisma.EmploymentAgreementTermUncheckedUpdateManyWithoutAgreementNestedInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUncheckedUpdateManyWithoutAgreementNestedInput
   changes?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutAgreementNestedInput
 }
 
@@ -976,6 +1173,8 @@ export type EmploymentAgreementUpdateWithoutCurrentPublishedRevisionInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -985,6 +1184,7 @@ export type EmploymentAgreementUpdateWithoutCurrentPublishedRevisionInput = {
   employment?: Prisma.EmploymentUpdateOneRequiredWithoutAgreementsNestedInput
   revisions?: Prisma.EmploymentAgreementRevisionUpdateManyWithoutAgreementNestedInput
   terms?: Prisma.EmploymentAgreementTermUpdateManyWithoutAgreementNestedInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUpdateManyWithoutAgreementNestedInput
   changes?: Prisma.EmploymentAgreementChangeUpdateManyWithoutAgreementNestedInput
 }
 
@@ -996,6 +1196,8 @@ export type EmploymentAgreementUncheckedUpdateWithoutCurrentPublishedRevisionInp
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1004,6 +1206,7 @@ export type EmploymentAgreementUncheckedUpdateWithoutCurrentPublishedRevisionInp
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revisions?: Prisma.EmploymentAgreementRevisionUncheckedUpdateManyWithoutAgreementNestedInput
   terms?: Prisma.EmploymentAgreementTermUncheckedUpdateManyWithoutAgreementNestedInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUncheckedUpdateManyWithoutAgreementNestedInput
   changes?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutAgreementNestedInput
 }
 
@@ -1013,6 +1216,8 @@ export type EmploymentAgreementCreateWithoutChangesInput = {
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   createdBy?: number | null
@@ -1023,6 +1228,7 @@ export type EmploymentAgreementCreateWithoutChangesInput = {
   currentPublishedRevision?: Prisma.EmploymentAgreementRevisionCreateNestedOneWithoutCurrentForAgreementInput
   revisions?: Prisma.EmploymentAgreementRevisionCreateNestedManyWithoutAgreementInput
   terms?: Prisma.EmploymentAgreementTermCreateNestedManyWithoutAgreementInput
+  attachments?: Prisma.EmploymentAgreementAttachmentCreateNestedManyWithoutAgreementInput
 }
 
 export type EmploymentAgreementUncheckedCreateWithoutChangesInput = {
@@ -1033,6 +1239,8 @@ export type EmploymentAgreementUncheckedCreateWithoutChangesInput = {
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   currentPublishedRevisionId?: number | null
@@ -1042,6 +1250,7 @@ export type EmploymentAgreementUncheckedCreateWithoutChangesInput = {
   updatedAt?: Date | string
   revisions?: Prisma.EmploymentAgreementRevisionUncheckedCreateNestedManyWithoutAgreementInput
   terms?: Prisma.EmploymentAgreementTermUncheckedCreateNestedManyWithoutAgreementInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUncheckedCreateNestedManyWithoutAgreementInput
 }
 
 export type EmploymentAgreementCreateOrConnectWithoutChangesInput = {
@@ -1066,6 +1275,8 @@ export type EmploymentAgreementUpdateWithoutChangesInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1076,6 +1287,7 @@ export type EmploymentAgreementUpdateWithoutChangesInput = {
   currentPublishedRevision?: Prisma.EmploymentAgreementRevisionUpdateOneWithoutCurrentForAgreementNestedInput
   revisions?: Prisma.EmploymentAgreementRevisionUpdateManyWithoutAgreementNestedInput
   terms?: Prisma.EmploymentAgreementTermUpdateManyWithoutAgreementNestedInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUpdateManyWithoutAgreementNestedInput
 }
 
 export type EmploymentAgreementUncheckedUpdateWithoutChangesInput = {
@@ -1086,6 +1298,8 @@ export type EmploymentAgreementUncheckedUpdateWithoutChangesInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   currentPublishedRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1095,6 +1309,7 @@ export type EmploymentAgreementUncheckedUpdateWithoutChangesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revisions?: Prisma.EmploymentAgreementRevisionUncheckedUpdateManyWithoutAgreementNestedInput
   terms?: Prisma.EmploymentAgreementTermUncheckedUpdateManyWithoutAgreementNestedInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUncheckedUpdateManyWithoutAgreementNestedInput
 }
 
 export type EmploymentAgreementCreateWithoutEmploymentInput = {
@@ -1103,6 +1318,8 @@ export type EmploymentAgreementCreateWithoutEmploymentInput = {
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   createdBy?: number | null
@@ -1112,6 +1329,7 @@ export type EmploymentAgreementCreateWithoutEmploymentInput = {
   currentPublishedRevision?: Prisma.EmploymentAgreementRevisionCreateNestedOneWithoutCurrentForAgreementInput
   revisions?: Prisma.EmploymentAgreementRevisionCreateNestedManyWithoutAgreementInput
   terms?: Prisma.EmploymentAgreementTermCreateNestedManyWithoutAgreementInput
+  attachments?: Prisma.EmploymentAgreementAttachmentCreateNestedManyWithoutAgreementInput
   changes?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutAgreementInput
 }
 
@@ -1122,6 +1340,8 @@ export type EmploymentAgreementUncheckedCreateWithoutEmploymentInput = {
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   currentPublishedRevisionId?: number | null
@@ -1131,6 +1351,7 @@ export type EmploymentAgreementUncheckedCreateWithoutEmploymentInput = {
   updatedAt?: Date | string
   revisions?: Prisma.EmploymentAgreementRevisionUncheckedCreateNestedManyWithoutAgreementInput
   terms?: Prisma.EmploymentAgreementTermUncheckedCreateNestedManyWithoutAgreementInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUncheckedCreateNestedManyWithoutAgreementInput
   changes?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutAgreementInput
 }
 
@@ -1171,6 +1392,8 @@ export type EmploymentAgreementScalarWhereInput = {
   isPrimary?: Prisma.BoolFilter<"EmploymentAgreement"> | boolean
   sourceKind?: Prisma.StringFilter<"EmploymentAgreement"> | string
   sourceRef?: Prisma.StringNullableFilter<"EmploymentAgreement"> | string | null
+  missingFieldsJson?: Prisma.StringFilter<"EmploymentAgreement"> | string
+  actualEndDate?: Prisma.StringNullableFilter<"EmploymentAgreement"> | string | null
   reason?: Prisma.StringNullableFilter<"EmploymentAgreement"> | string | null
   version?: Prisma.IntFilter<"EmploymentAgreement"> | number
   currentPublishedRevisionId?: Prisma.IntNullableFilter<"EmploymentAgreement"> | number | null
@@ -1187,6 +1410,8 @@ export type EmploymentAgreementCreateManyEmploymentInput = {
   isPrimary?: boolean
   sourceKind?: string
   sourceRef?: string | null
+  missingFieldsJson?: string
+  actualEndDate?: string | null
   reason?: string | null
   version?: number
   currentPublishedRevisionId?: number | null
@@ -1202,6 +1427,8 @@ export type EmploymentAgreementUpdateWithoutEmploymentInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1211,6 +1438,7 @@ export type EmploymentAgreementUpdateWithoutEmploymentInput = {
   currentPublishedRevision?: Prisma.EmploymentAgreementRevisionUpdateOneWithoutCurrentForAgreementNestedInput
   revisions?: Prisma.EmploymentAgreementRevisionUpdateManyWithoutAgreementNestedInput
   terms?: Prisma.EmploymentAgreementTermUpdateManyWithoutAgreementNestedInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUpdateManyWithoutAgreementNestedInput
   changes?: Prisma.EmploymentAgreementChangeUpdateManyWithoutAgreementNestedInput
 }
 
@@ -1221,6 +1449,8 @@ export type EmploymentAgreementUncheckedUpdateWithoutEmploymentInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   currentPublishedRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1230,6 +1460,7 @@ export type EmploymentAgreementUncheckedUpdateWithoutEmploymentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revisions?: Prisma.EmploymentAgreementRevisionUncheckedUpdateManyWithoutAgreementNestedInput
   terms?: Prisma.EmploymentAgreementTermUncheckedUpdateManyWithoutAgreementNestedInput
+  attachments?: Prisma.EmploymentAgreementAttachmentUncheckedUpdateManyWithoutAgreementNestedInput
   changes?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutAgreementNestedInput
 }
 
@@ -1240,6 +1471,8 @@ export type EmploymentAgreementUncheckedUpdateManyWithoutEmploymentInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  actualEndDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   currentPublishedRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1257,12 +1490,14 @@ export type EmploymentAgreementUncheckedUpdateManyWithoutEmploymentInput = {
 export type EmploymentAgreementCountOutputType = {
   revisions: number
   terms: number
+  attachments: number
   changes: number
 }
 
 export type EmploymentAgreementCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   revisions?: boolean | EmploymentAgreementCountOutputTypeCountRevisionsArgs
   terms?: boolean | EmploymentAgreementCountOutputTypeCountTermsArgs
+  attachments?: boolean | EmploymentAgreementCountOutputTypeCountAttachmentsArgs
   changes?: boolean | EmploymentAgreementCountOutputTypeCountChangesArgs
 }
 
@@ -1293,6 +1528,13 @@ export type EmploymentAgreementCountOutputTypeCountTermsArgs<ExtArgs extends run
 /**
  * EmploymentAgreementCountOutputType without action
  */
+export type EmploymentAgreementCountOutputTypeCountAttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmploymentAgreementAttachmentWhereInput
+}
+
+/**
+ * EmploymentAgreementCountOutputType without action
+ */
 export type EmploymentAgreementCountOutputTypeCountChangesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.EmploymentAgreementChangeWhereInput
 }
@@ -1306,6 +1548,8 @@ export type EmploymentAgreementSelect<ExtArgs extends runtime.Types.Extensions.I
   isPrimary?: boolean
   sourceKind?: boolean
   sourceRef?: boolean
+  missingFieldsJson?: boolean
+  actualEndDate?: boolean
   reason?: boolean
   version?: boolean
   currentPublishedRevisionId?: boolean
@@ -1317,6 +1561,7 @@ export type EmploymentAgreementSelect<ExtArgs extends runtime.Types.Extensions.I
   currentPublishedRevision?: boolean | Prisma.EmploymentAgreement$currentPublishedRevisionArgs<ExtArgs>
   revisions?: boolean | Prisma.EmploymentAgreement$revisionsArgs<ExtArgs>
   terms?: boolean | Prisma.EmploymentAgreement$termsArgs<ExtArgs>
+  attachments?: boolean | Prisma.EmploymentAgreement$attachmentsArgs<ExtArgs>
   changes?: boolean | Prisma.EmploymentAgreement$changesArgs<ExtArgs>
   _count?: boolean | Prisma.EmploymentAgreementCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employmentAgreement"]>
@@ -1329,6 +1574,8 @@ export type EmploymentAgreementSelectCreateManyAndReturn<ExtArgs extends runtime
   isPrimary?: boolean
   sourceKind?: boolean
   sourceRef?: boolean
+  missingFieldsJson?: boolean
+  actualEndDate?: boolean
   reason?: boolean
   version?: boolean
   currentPublishedRevisionId?: boolean
@@ -1348,6 +1595,8 @@ export type EmploymentAgreementSelectUpdateManyAndReturn<ExtArgs extends runtime
   isPrimary?: boolean
   sourceKind?: boolean
   sourceRef?: boolean
+  missingFieldsJson?: boolean
+  actualEndDate?: boolean
   reason?: boolean
   version?: boolean
   currentPublishedRevisionId?: boolean
@@ -1367,6 +1616,8 @@ export type EmploymentAgreementSelectScalar = {
   isPrimary?: boolean
   sourceKind?: boolean
   sourceRef?: boolean
+  missingFieldsJson?: boolean
+  actualEndDate?: boolean
   reason?: boolean
   version?: boolean
   currentPublishedRevisionId?: boolean
@@ -1376,12 +1627,13 @@ export type EmploymentAgreementSelectScalar = {
   updatedAt?: boolean
 }
 
-export type EmploymentAgreementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "agreementUid" | "employmentId" | "recordState" | "isPrimary" | "sourceKind" | "sourceRef" | "reason" | "version" | "currentPublishedRevisionId" | "createdBy" | "updatedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["employmentAgreement"]>
+export type EmploymentAgreementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "agreementUid" | "employmentId" | "recordState" | "isPrimary" | "sourceKind" | "sourceRef" | "missingFieldsJson" | "actualEndDate" | "reason" | "version" | "currentPublishedRevisionId" | "createdBy" | "updatedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["employmentAgreement"]>
 export type EmploymentAgreementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employment?: boolean | Prisma.EmploymentDefaultArgs<ExtArgs>
   currentPublishedRevision?: boolean | Prisma.EmploymentAgreement$currentPublishedRevisionArgs<ExtArgs>
   revisions?: boolean | Prisma.EmploymentAgreement$revisionsArgs<ExtArgs>
   terms?: boolean | Prisma.EmploymentAgreement$termsArgs<ExtArgs>
+  attachments?: boolean | Prisma.EmploymentAgreement$attachmentsArgs<ExtArgs>
   changes?: boolean | Prisma.EmploymentAgreement$changesArgs<ExtArgs>
   _count?: boolean | Prisma.EmploymentAgreementCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1401,6 +1653,7 @@ export type $EmploymentAgreementPayload<ExtArgs extends runtime.Types.Extensions
     currentPublishedRevision: Prisma.$EmploymentAgreementRevisionPayload<ExtArgs> | null
     revisions: Prisma.$EmploymentAgreementRevisionPayload<ExtArgs>[]
     terms: Prisma.$EmploymentAgreementTermPayload<ExtArgs>[]
+    attachments: Prisma.$EmploymentAgreementAttachmentPayload<ExtArgs>[]
     changes: Prisma.$EmploymentAgreementChangePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1411,6 +1664,8 @@ export type $EmploymentAgreementPayload<ExtArgs extends runtime.Types.Extensions
     isPrimary: boolean
     sourceKind: string
     sourceRef: string | null
+    missingFieldsJson: string
+    actualEndDate: string | null
     reason: string | null
     version: number
     currentPublishedRevisionId: number | null
@@ -1816,6 +2071,7 @@ export interface Prisma__EmploymentAgreementClient<T, Null = never, ExtArgs exte
   currentPublishedRevision<T extends Prisma.EmploymentAgreement$currentPublishedRevisionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmploymentAgreement$currentPublishedRevisionArgs<ExtArgs>>): Prisma.Prisma__EmploymentAgreementRevisionClient<runtime.Types.Result.GetResult<Prisma.$EmploymentAgreementRevisionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   revisions<T extends Prisma.EmploymentAgreement$revisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmploymentAgreement$revisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmploymentAgreementRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   terms<T extends Prisma.EmploymentAgreement$termsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmploymentAgreement$termsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmploymentAgreementTermPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  attachments<T extends Prisma.EmploymentAgreement$attachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmploymentAgreement$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmploymentAgreementAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   changes<T extends Prisma.EmploymentAgreement$changesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmploymentAgreement$changesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmploymentAgreementChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1853,6 +2109,8 @@ export interface EmploymentAgreementFieldRefs {
   readonly isPrimary: Prisma.FieldRef<"EmploymentAgreement", 'Boolean'>
   readonly sourceKind: Prisma.FieldRef<"EmploymentAgreement", 'String'>
   readonly sourceRef: Prisma.FieldRef<"EmploymentAgreement", 'String'>
+  readonly missingFieldsJson: Prisma.FieldRef<"EmploymentAgreement", 'String'>
+  readonly actualEndDate: Prisma.FieldRef<"EmploymentAgreement", 'String'>
   readonly reason: Prisma.FieldRef<"EmploymentAgreement", 'String'>
   readonly version: Prisma.FieldRef<"EmploymentAgreement", 'Int'>
   readonly currentPublishedRevisionId: Prisma.FieldRef<"EmploymentAgreement", 'Int'>
@@ -2325,6 +2583,30 @@ export type EmploymentAgreement$termsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.EmploymentAgreementTermScalarFieldEnum | Prisma.EmploymentAgreementTermScalarFieldEnum[]
+}
+
+/**
+ * EmploymentAgreement.attachments
+ */
+export type EmploymentAgreement$attachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmploymentAgreementAttachment
+   */
+  select?: Prisma.EmploymentAgreementAttachmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmploymentAgreementAttachment
+   */
+  omit?: Prisma.EmploymentAgreementAttachmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmploymentAgreementAttachmentInclude<ExtArgs> | null
+  where?: Prisma.EmploymentAgreementAttachmentWhereInput
+  orderBy?: Prisma.EmploymentAgreementAttachmentOrderByWithRelationInput | Prisma.EmploymentAgreementAttachmentOrderByWithRelationInput[]
+  cursor?: Prisma.EmploymentAgreementAttachmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmploymentAgreementAttachmentScalarFieldEnum | Prisma.EmploymentAgreementAttachmentScalarFieldEnum[]
 }
 
 /**

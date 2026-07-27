@@ -89,7 +89,7 @@ export const CAPITAL_OWNERSHIP_LEDGER_TEMPORAL = defineBusinessTemporalRegistrat
     sameDayChanges: "sequenced",
     overlaps: "forbid",
     gaps: "allow",
-    correction: "reverse",
+    revision: "reverse",
     deletion: "never",
   },
   notes: "按发行主体全量重建已统一收口并保存来源事件、关闭事件、generation、账本摘要和 projector 版本；财务并表范围已通过受控确认快照追加命令写入，通用股权事件追加/确认与冲销入口仍待建设。",
