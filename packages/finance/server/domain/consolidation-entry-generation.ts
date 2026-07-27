@@ -13,6 +13,7 @@ export interface ConsolidationVoucherMatchFact {
   description: string | null;
   lineCode: string | null;
   signedAmount: number;
+  matchedSignedAmount?: number;
   currencyCode: string;
   sourceFingerprint: string;
   investmentRole?: "investment" | "equity";
@@ -51,6 +52,21 @@ export interface ConsolidationInvestmentRelationship {
   shareRatio: number | null;
 }
 
+export function intercompanyPresentationAccountCode(input: {
+  sourceAccountCode: string;
+  reclassTargetAccountCode: string | null;
+  balanceDirection: string;
+  signedAmount: number;
+}) {
+  const closingSide = input.signedAmount > 0 ? "debit" : input.signedAmount < 0 ? "credit" : null;
+  const hasAbnormalBalance = closingSide !== null
+    && (input.balanceDirection === "debit" || input.balanceDirection === "credit")
+    && closingSide !== input.balanceDirection;
+  return hasAbnormalBalance && input.reclassTargetAccountCode
+    ? input.reclassTargetAccountCode
+    : input.sourceAccountCode;
+}
+
 function cents(value: number) {
   return Math.round(value * 100);
 }
@@ -85,9 +101,61 @@ function isCnyComparable(...groups: ReadonlyArray<readonly ConsolidationVoucherM
     && groups.flatMap((facts) => facts).every((fact) => fact.currencyCode.toUpperCase() === "CNY");
 }
 
+function allocateOppositeFacts(
+  leftFacts: readonly ConsolidationVoucherMatchFact[],
+  rightFacts: readonly ConsolidationVoucherMatchFact[],
+) {
+  const allocatedCents = new Map<ConsolidationVoucherMatchFact, number>();
+  const allocate = (
+    left: readonly ConsolidationVoucherMatchFact[],
+    right: readonly ConsolidationVoucherMatchFact[],
+  ) => {
+    let leftIndex = 0;
+    let rightIndex = 0;
+    let leftRemaining = left[0] ? Math.abs(cents(left[0].signedAmount)) : 0;
+    let rightRemaining = right[0] ? Math.abs(cents(right[0].signedAmount)) : 0;
+    while (leftIndex < left.length && rightIndex < right.length) {
+      const amount = Math.min(leftRemaining, rightRemaining);
+      const leftFact = left[leftIndex]!;
+      const rightFact = right[rightIndex]!;
+      allocatedCents.set(leftFact, (allocatedCents.get(leftFact) ?? 0) + amount);
+      allocatedCents.set(rightFact, (allocatedCents.get(rightFact) ?? 0) + amount);
+      leftRemaining -= amount;
+      rightRemaining -= amount;
+      if (leftRemaining === 0) {
+        leftIndex += 1;
+        leftRemaining = left[leftIndex] ? Math.abs(cents(left[leftIndex]!.signedAmount)) : 0;
+      }
+      if (rightRemaining === 0) {
+        rightIndex += 1;
+        rightRemaining = right[rightIndex] ? Math.abs(cents(right[rightIndex]!.signedAmount)) : 0;
+      }
+    }
+  };
+  allocate(
+    leftFacts.filter((fact) => cents(fact.signedAmount) > 0),
+    rightFacts.filter((fact) => cents(fact.signedAmount) < 0),
+  );
+  allocate(
+    leftFacts.filter((fact) => cents(fact.signedAmount) < 0),
+    rightFacts.filter((fact) => cents(fact.signedAmount) > 0),
+  );
+  const withAllocations = (facts: readonly ConsolidationVoucherMatchFact[]) => facts.map((fact) => {
+    const amount = allocatedCents.get(fact) ?? 0;
+    return { ...fact, matchedSignedAmount: amount === 0 ? 0 : money(Math.sign(fact.signedAmount) * amount / 100) };
+  });
+  return {
+    leftFacts: withAllocations(leftFacts),
+    rightFacts: withAllocations(rightFacts),
+    matchedAmount: money([...allocatedCents.entries()]
+      .filter(([fact]) => leftFacts.includes(fact))
+      .reduce((sum, [, amount]) => sum + amount, 0) / 100),
+  };
+}
+
 /**
  * Builds one closing-balance match group per company pair. Every auxiliary balance
- * remains visible in the group, and only exactly offsetting two-sided groups are matched.
+ * remains visible; exactly offsetting portions are allocated even when a residual remains.
  */
 export function buildIntercompanyVoucherMatchGroups(
   facts: readonly ConsolidationVoucherMatchFact[],
@@ -119,6 +187,9 @@ export function buildIntercompanyVoucherMatchGroups(
       : offsets
         ? "matched" as const
         : "difference" as const;
+    const partial = status === "difference"
+      ? allocateOppositeFacts(leftFacts, rightFacts)
+      : { leftFacts, rightFacts, matchedAmount: status === "matched" ? money(Math.abs(leftNetAmount)) : 0 };
     const differenceAmount = status === "matched"
       ? 0
       : money(Math.abs(leftNetAmount + rightNetAmount));
@@ -128,14 +199,14 @@ export function buildIntercompanyVoucherMatchGroups(
       status,
       leftCompanyId,
       rightCompanyId,
-      leftFacts,
-      rightFacts,
+      leftFacts: partial.leftFacts,
+      rightFacts: partial.rightFacts,
       leftNetAmount,
       rightNetAmount,
-      matchedAmount: status === "matched" ? money(Math.abs(leftNetAmount)) : 0,
+      matchedAmount: partial.matchedAmount,
       differenceAmount,
-      matchingRule: "按关联公司外键汇总双方期末辅助余额；双方净额方向相反且人民币金额一致",
-      matchingVersion: "auxiliary-closing-balance-pair-v1",
+      matchingRule: "按关联公司外键汇总双方期末辅助余额；双方同方向可抵销金额先行匹配，未匹配余额继续保留差异",
+      matchingVersion: "auxiliary-closing-balance-pair-v2",
       differenceResolution: !hasBothSides
         ? "缺少对方公司期末辅助余额"
         : !mapped
@@ -143,7 +214,9 @@ export function buildIntercompanyVoucherMatchGroups(
           : !comparableCurrency
             ? "双方金额尚未在人民币列报口径下可比，需先应用有证据的汇率折算"
           : status === "difference"
-            ? "双方期末辅助余额不一致，需核对未达、错账或关联公司映射"
+            ? partial.matchedAmount > 0
+              ? `已匹配抵销 ${partial.matchedAmount.toFixed(2)} 元；剩余差异需核对未达、错账或关联公司映射`
+              : "双方期末辅助余额方向或金额不一致，需核对未达、错账或关联公司映射"
             : null,
       comparisonCurrencyCode: comparableCurrency
         ? leftFacts[0]?.currencyCode ?? rightFacts[0]?.currencyCode ?? null

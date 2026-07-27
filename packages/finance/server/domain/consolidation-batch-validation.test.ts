@@ -136,7 +136,7 @@ test("submission requires immutable three-statement snapshots and explicit no-it
   assert.equal(result.ok, true);
 });
 
-test("defers NCI allocation while the active scope is investment and intercompany only", () => {
+test("requires an NCI allocation or explicit conclusion for a partially owned subsidiary", () => {
   const base = {
     entities: [
       { id: 1, companyId: 101, role: "parent", shareRatio: 1, functionalCurrency: "CNY", currencyEvidence: "境内经营" },
@@ -163,7 +163,8 @@ test("defers NCI allocation while the active scope is investment and intercompan
     periodEnd: "2026-06-30",
   };
   const result = validateConsolidationSubmission({ ...base, entries: [] });
-  assert.equal(result.ok, true);
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.issue.field, "elimination:nonControllingInterest");
 });
 
 test("return requires a revision, a reason, and an independent executor", () => {
