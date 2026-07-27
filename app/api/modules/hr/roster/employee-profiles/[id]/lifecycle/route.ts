@@ -9,7 +9,7 @@ const nullablePositiveId = z.coerce.number().int().positive().nullable().optiona
 const nullableText = z.string().nullable().optional();
 
 const lifecycleBodySchema = z.object({
-  eventType: z.enum(["onboard", "transfer", "concurrent_assignment", "reporting_change", "offboard"]),
+  eventType: z.enum(["onboard", "transfer", "concurrent_assignment", "allocation_change", "primary_change", "reporting_change", "offboard"]),
   effectiveDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   reason: nullableText,
   sourceAssignmentId: nullablePositiveId,
@@ -19,7 +19,7 @@ const lifecycleBodySchema = z.object({
   positionId: nullablePositiveId,
   positionReportOverrideId: nullablePositiveId,
   reportToPositionId: nullablePositiveId,
-  workPercent: nullableText,
+  allocationWeight: z.union([z.string(), z.number()]).nullable().optional(),
   officeLocation: nullableText,
   personnelType: nullableText,
   rank: nullableText,
@@ -27,13 +27,16 @@ const lifecycleBodySchema = z.object({
   leaveReason: nullableText,
   leaveNote: nullableText,
 }).superRefine((value, context) => {
-  if (
-    value.eventType === "offboard"
-    || (value.eventType === "onboard" && isEmploymentPositionOptionalTitle(value.title))
-  ) return;
-  for (const field of ["reportingCompanyId", "departmentId", "positionId", "workPercent"] as const) {
+  if (value.eventType === "onboard" && isEmploymentPositionOptionalTitle(value.title)) return;
+  const placementRequired = ["onboard", "transfer", "concurrent_assignment"].includes(value.eventType);
+  for (const field of placementRequired ? ["reportingCompanyId", "departmentId", "positionId"] as const : []) {
     if (value[field] !== null && value[field] !== undefined && value[field] !== "") continue;
     context.addIssue({ code: "custom", path: [field], message: `${field} required` });
+  }
+  if (["onboard", "concurrent_assignment", "allocation_change"].includes(value.eventType)) {
+    if (value.allocationWeight === null || value.allocationWeight === undefined || value.allocationWeight === "") {
+      context.addIssue({ code: "custom", path: ["allocationWeight"], message: "allocationWeight required" });
+    }
   }
 });
 

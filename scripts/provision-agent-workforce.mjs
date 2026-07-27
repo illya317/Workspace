@@ -424,7 +424,7 @@ async function ensureEmployment(client, runtime, foundation, spec, identity) {
 async function ensureCurrentAssignment(client, runtime, foundation, spec, identity, position) {
   if (identity.employeeId === null || position.id === null) {
     addAction(runtime.actions, "create", "EmployeePosition", spec.employeeId, [
-      "reportingCompanyId", "departmentId", "positionId", "isPrimary", "workPercent", "reportTo",
+      "reportingCompanyId", "departmentId", "positionId", "isPrimary", "allocationWeight", "reportTo",
     ]);
     return;
   }
@@ -435,7 +435,7 @@ async function ensureCurrentAssignment(client, runtime, foundation, spec, identi
   const lock = runtime.lockRows ? " FOR UPDATE" : "";
   const rows = (await client.query(
     `SELECT id, "reportingCompanyId", "departmentId", "positionId", "positionReportOverrideId", "isPrimary",
-            "startDate", "endDate", "reportTo", "workPercent"
+            "startDate", "endDate", "reportTo", "allocationWeight"
      FROM "EmployeePosition"
      WHERE "employeeId" = $1
      ORDER BY id${lock}`,
@@ -461,14 +461,14 @@ async function ensureCurrentAssignment(client, runtime, foundation, spec, identi
       );
     }
     addAction(runtime.actions, "create", "EmployeePosition", spec.employeeId, [
-      "reportingCompanyId", "departmentId", "positionId", "isPrimary", "workPercent", "reportTo",
+      "reportingCompanyId", "departmentId", "positionId", "isPrimary", "allocationWeight", "reportTo",
     ]);
     if (runtime.apply) {
       await client.query(
         `INSERT INTO "EmployeePosition"
            ("employeeId", "reportingCompanyId", "departmentId", "positionId", "positionReportOverrideId", "isPrimary",
-            "endDate", "reportTo", "workPercent", "editedBy", "editedAt")
-         VALUES ($1, $2, $3, $4, NULL, TRUE, NULL, $5, '1', $6, CURRENT_TIMESTAMP)`,
+            "endDate", "reportTo", "allocationWeight", "editedBy", "editedAt")
+         VALUES ($1, $2, $3, $4, NULL, TRUE, NULL, $5, '100', $6, CURRENT_TIMESTAMP)`,
         [
           identity.employeeId,
           foundation.reportingCompanyId,
@@ -497,7 +497,7 @@ async function ensureCurrentAssignment(client, runtime, foundation, spec, identi
     !numericId(assignment.departmentId)
     || !numericId(assignment.positionId)
     || assignment.isPrimary !== true
-    || Number(assignment.workPercent) !== 1
+    || Number(assignment.allocationWeight) !== 100
   ) {
     throw new ProvisioningError(
       `employee ${spec.employeeId} current EmployeePosition violates required placement fields`,

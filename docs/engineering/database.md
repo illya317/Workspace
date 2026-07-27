@@ -3389,7 +3389,7 @@
 | endDate | String? | - |  |
 | reportTo | String? | - |  |
 | reportToPositionId | Int? | - |  |
-| workPercent | String? | - |  |
+| allocationWeight | String? | - |  |
 | editedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |
 | version | Int | @default(1) |  |

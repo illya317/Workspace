@@ -47,7 +47,7 @@ import/    # HR 导入解析、清洗和校验流程
 - `scripts/check/hr-business-temporal-preflight.ts`：上线前在同一只读快照内扫描 Employment / EDP / EmployeeProject 期间与当前态一致性；开放结束必须为 `null`，通过 `npm run hr:temporal:preflight -- --as-of YYYY-MM-DD` 执行。
 - `scripts/repair/repair-hr-lifecycle-compatibility.mjs`：受 `hr-lifecycle-compatibility-v1` 私有数据发布 handler 调用，按精确版本和历史证据修复可确定的旧 Employment / EDP 期间矛盾，并写入审计快照；不接受任意 SQL 或模糊匹配。
 - `server/employee-history.ts`：员工详情历史记录聚合。
-- `server/field-validation.ts`：HR 字段日期、选项、身份证、公司名和工作占比校验。
+- `server/field-validation.ts`：HR 字段日期、选项、身份证、公司名、岗位投入权重与折算占比派生。
 - `server/position-description-template-store.ts`：岗位说明书视图模板读写。
 - `server/position-descriptions.ts`：岗位说明书树、列表、详情和保存。
 - `server/positions.ts`：岗位列表、创建、更新和删除。

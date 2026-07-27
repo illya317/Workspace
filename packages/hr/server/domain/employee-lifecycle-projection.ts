@@ -10,16 +10,18 @@ export type AssignmentProjectionCommand = {
   effectiveDate: string;
   sourceAssignment: LifecycleAssignmentPeriod | null;
   targetAssignment: LifecycleAssignmentPeriod | null;
-  sourceRemainingWorkPercent: string | null;
+  previousPrimaryAssignment: LifecycleAssignmentPeriod | null;
+  previousPrimaryTarget: LifecycleAssignmentPeriod | null;
+  restoredPrimaryAssignment: LifecycleAssignmentPeriod | null;
   assignmentEndDate: string | null;
 };
 
 export type AssignmentProjectionPeriod = Omit<
   LifecycleAssignmentPeriod,
-  "positionId" | "workPercent"
+  "positionId" | "allocationWeight"
 > & {
   positionId: number | null;
-  workPercent: string | null;
+  allocationWeight: string | null;
 };
 
 export function offboardPeriodDisposition(
@@ -55,29 +57,23 @@ export function projectEmployeeAssignmentLifecycle(
       return [row];
     });
   }
+  if (command.eventType === "concurrent_assignment") return target ? [...rows, target] : rows;
   if (!source || !target) return rows;
+  if (command.eventType === "primary_change") {
+    const previousPrimary = command.previousPrimaryAssignment;
+    const previousPrimaryTarget = command.previousPrimaryTarget;
+    if (!previousPrimary?.id || !previousPrimaryTarget) return rows;
+    const closedIds = new Set([source.id, previousPrimary.id]);
+    return [
+      ...rows.filter((row) => !row.id || !closedIds.has(row.id)),
+      { ...source, endDate: shiftBusinessDate(command.effectiveDate, -1) },
+      { ...previousPrimary, endDate: shiftBusinessDate(command.effectiveDate, -1) },
+      previousPrimaryTarget,
+      target,
+      ...(command.restoredPrimaryAssignment ? [command.restoredPrimaryAssignment] : []),
+    ];
+  }
   const withoutSource = rows.filter((row) => row.id !== source.id);
   const closed = { ...source, endDate: shiftBusinessDate(command.effectiveDate, -1) };
-  if (command.eventType === "transfer" || command.eventType === "reporting_change") {
-    return [...withoutSource, closed, target];
-  }
-  if (!command.sourceRemainingWorkPercent) return rows;
-  const continuedSource: LifecycleAssignmentPeriod = {
-    ...source,
-    id: null,
-    version: 0,
-    startDate: command.effectiveDate,
-    endDate: command.assignmentEndDate ?? source.endDate,
-    workPercent: command.sourceRemainingWorkPercent,
-  };
-  const projected = [...withoutSource, closed, continuedSource, target];
-  if (!command.assignmentEndDate) return projected;
-  const restoreDate = shiftBusinessDate(command.assignmentEndDate, 1);
-  if (source.endDate && restoreDate > source.endDate) return projected;
-  return [...projected, {
-    ...source,
-    id: null,
-    version: 0,
-    startDate: restoreDate,
-  }];
+  return [...withoutSource, closed, target];
 }

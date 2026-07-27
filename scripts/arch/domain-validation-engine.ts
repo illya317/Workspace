@@ -67,7 +67,7 @@ const WRITE_FUNCTION_PREFIXES = [
 
 const LOW_LEVEL_RULE_TOKENS = [
   "validateFkValue",
-  "parseWorkPercent",
+  "parseAllocationWeight",
   "isValidDateValue",
   "rejectInvalidDateField",
   "validateEdpReportTo",

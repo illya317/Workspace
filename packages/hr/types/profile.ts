@@ -174,7 +174,8 @@ export interface EdpRow {
   endDate: string | null;
   reportTo: string | null;
   reportToPositionId: number | null;
-  workPercent: string | null;
+  allocationWeight: string | null;
+  allocationPercent: number | null;
   temporalState: BusinessTemporalPosition;
 }
 
@@ -182,6 +183,8 @@ export type EmployeeLifecycleEventType =
   | "onboard"
   | "transfer"
   | "concurrent_assignment"
+  | "allocation_change"
+  | "primary_change"
   | "reporting_change"
   | "offboard";
 

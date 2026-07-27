@@ -58,7 +58,7 @@ export type WorkDepartmentHomeEmployee = {
   departmentCode: string;
   positionNames: string[];
   isPrimary: boolean;
-  workPercent: string | null;
+  allocationWeight: string | null;
   personnelType: string | null;
   rank: string | null;
   title: string | null;
@@ -343,7 +343,7 @@ function employeeTableSection(employees: WorkDepartmentHomeEmployee[], empty: st
         value(employee.name),
         value(`${employee.departmentCode} ${employee.departmentName}`),
         value(displayPositionText(employee.positionNames.join("、"))),
-        value([employee.isPrimary ? "主岗" : null, employee.workPercent, employee.rank || employee.title || employee.personnelType].filter(Boolean).join(" · ") || "-"),
+        value([employee.isPrimary ? "主岗" : null, employee.allocationWeight ? `权重 ${employee.allocationWeight}` : null, employee.rank || employee.title || employee.personnelType].filter(Boolean).join(" · ") || "-"),
         value(employee.joinDate || "-"),
       ]),
     ],

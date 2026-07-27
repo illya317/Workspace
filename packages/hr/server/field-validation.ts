@@ -66,11 +66,25 @@ export function validateContractOption(field: string, value: unknown) {
   return { field, value };
 }
 
-export function parseWorkPercent(value: unknown) {
+export function parseAllocationWeight(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
-  const text = String(value).trim();
-  const numberText = text.endsWith("%") ? text.slice(0, -1).trim() : text;
-  const parsed = Number(numberText);
+  const parsed = Number(String(value).trim());
   if (!Number.isFinite(parsed)) return Number.NaN;
-  return text.endsWith("%") ? parsed / 100 : parsed;
+  return parsed;
+}
+
+export function deriveAllocationPercent(
+  weight: unknown,
+  activeWeights: readonly unknown[],
+) {
+  const parsedWeight = parseAllocationWeight(weight);
+  const parsedWeights = activeWeights.map(parseAllocationWeight);
+  if (
+    parsedWeight === null
+    || Number.isNaN(parsedWeight)
+    || parsedWeight <= 0
+    || parsedWeights.some((value) => value === null || Number.isNaN(value) || value <= 0)
+  ) return null;
+  const total = parsedWeights.reduce<number>((sum, value) => sum + (value ?? 0), 0);
+  return total > 0 ? parsedWeight / total : null;
 }

@@ -366,7 +366,7 @@ test("HR owner dispatches every registered stable list source and projects only 
   const cases = [
     ["hr.employees", ["employeeId", "idNumber"], {}],
     ["hr.employments", ["employeeName", "leaveReason"], {}],
-    ["hr.edps", ["employeeName", "departmentName"], {}],
+    ["hr.edps", ["employeeName", "departmentName"], {}, 2],
     ["hr.contracts", ["employeeName", "contractType"], {}],
     ["hr.departments", ["name", "headcount"], {}],
     ["hr.department-descriptions", ["parentCode", "path", "numberValue"], {}],
@@ -387,12 +387,13 @@ test("HR owner dispatches every registered stable list source and projects only 
     ["hr.performance-reporting", ["audienceType", "audienceName", "reportingStatus"], {}],
   ] as const;
 
-  for (const [sourceKey, fields, parameters] of cases) {
+  for (const [sourceKey, fields, parameters, sourceVersion] of cases) {
     const result = await loadHrWorkspaceAnalysisSource(request({
       sourceKey,
       targetType: "personal",
       fields: [...fields],
       parameters,
+      sourceVersion,
     }));
     assert.deepEqual(Object.keys(result.rows[0] ?? {}), [...fields]);
   }
@@ -532,7 +533,7 @@ function request(input: {
   targetType: WorkspaceAnalysisSourceLoadRequest["targetType"];
   targetId?: number;
   fields: string[];
-  parameters?: Record<string, string | number | boolean>;
+  parameters?: Record<string, string | number | boolean>; sourceVersion?: number;
 }): WorkspaceAnalysisSourceLoadRequest {
   return {
     requesterId: 7,
@@ -540,7 +541,7 @@ function request(input: {
     targetId: input.targetId ?? 12,
     ownerUnitId: "hr",
     sourceKey: input.sourceKey,
-    sourceVersion: 1,
+    sourceVersion: input.sourceVersion ?? 1,
     parameters: input.parameters ?? {},
     fields: input.fields,
     limits: { maxRows: 100, maxGroups: 20, pageSize: 100, maxPages: 1, maxBytes: 100_000, timeoutMs: 1_000 },

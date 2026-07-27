@@ -60,7 +60,7 @@ function assignmentData(row: LifecycleAssignmentPeriod, userId: number): Prisma.
     endDate: row.endDate,
     reportTo: row.reportTo,
     reportToPositionId: row.reportToPositionId,
-    workPercent: row.workPercent,
+    allocationWeight: row.allocationWeight,
     editedBy: userId,
   };
 }
@@ -244,31 +244,27 @@ async function applyAssignmentChange(
       cancelledProjectMembershipIds: futureMemberships.map((membership) => membership.id),
     };
   }
-  if (!source || !target) throw new LifecycleConcurrentUpdateError();
-  await updateSourceAssignment(tx, source, command.effectiveDate, command.userId);
-  if (command.eventType === "transfer" || command.eventType === "reporting_change") {
+  if (command.eventType === "concurrent_assignment") {
+    if (!target) throw new LifecycleConcurrentUpdateError();
     return { createdIds: [await createAssignment(tx, target, command.userId)], cancelledIds: [], cancelledProjectMembershipIds: [] };
   }
-  if (!command.sourceRemainingWorkPercent) throw new LifecycleConcurrentUpdateError();
-  const continuedSource = {
-    ...source,
-    id: null,
-    version: 0,
-    startDate: command.effectiveDate,
-    endDate: command.assignmentEndDate ?? source.endDate,
-    workPercent: command.sourceRemainingWorkPercent,
-  };
-  const createdIds = [
-    await createAssignment(tx, continuedSource, command.userId),
-    await createAssignment(tx, target, command.userId),
-  ];
-  if (command.assignmentEndDate) {
-    const restoreDate = shiftBusinessDate(command.assignmentEndDate, 1);
-    if (!source.endDate || restoreDate <= source.endDate) {
-      createdIds.push(await createAssignment(tx, { ...source, id: null, version: 0, startDate: restoreDate }, command.userId));
+  if (!source || !target) throw new LifecycleConcurrentUpdateError();
+  await updateSourceAssignment(tx, source, command.effectiveDate, command.userId);
+  if (command.eventType === "primary_change") {
+    const previousPrimary = command.previousPrimaryAssignment;
+    const previousPrimaryTarget = command.previousPrimaryTarget;
+    if (!previousPrimary || !previousPrimaryTarget) throw new LifecycleConcurrentUpdateError();
+    await updateSourceAssignment(tx, previousPrimary, command.effectiveDate, command.userId);
+    const createdIds = [
+      await createAssignment(tx, previousPrimaryTarget, command.userId),
+      await createAssignment(tx, target, command.userId),
+    ];
+    if (command.restoredPrimaryAssignment) {
+      createdIds.push(await createAssignment(tx, command.restoredPrimaryAssignment, command.userId));
     }
+    return { createdIds, cancelledIds: [], cancelledProjectMembershipIds: [] };
   }
-  return { createdIds, cancelledIds: [], cancelledProjectMembershipIds: [] };
+  return { createdIds: [await createAssignment(tx, target, command.userId)], cancelledIds: [], cancelledProjectMembershipIds: [] };
 }
 
 async function applyEmploymentChange(tx: Prisma.TransactionClient, command: EmployeeLifecycleCommand) {
@@ -362,15 +358,15 @@ async function assertAssignmentProjection(
       endDate: true,
       reportTo: true,
       reportToPositionId: true,
-      workPercent: true,
+      allocationWeight: true,
     },
   });
   const projectedRows = projectEmployeeAssignmentLifecycle(command, existingRows);
   const relevantRows = projectedRows.filter((row) => !row.endDate || row.endDate >= command.effectiveDate);
-  if (relevantRows.some((row) => !row.positionId || !row.workPercent)) {
-    throw new LifecycleInvariantError("生效日之后存在岗位、工作占比不完整的任职记录，请先修正资料");
+  if (relevantRows.some((row) => !row.positionId || !row.allocationWeight)) {
+    throw new LifecycleInvariantError("生效日之后存在岗位、投入权重不完整的任职记录，请先修正资料");
   }
-  const periods = relevantRows as Array<typeof relevantRows[number] & { positionId: number; workPercent: string }>;
+  const periods = relevantRows as Array<typeof relevantRows[number] & { positionId: number; allocationWeight: string }>;
   const timelineError = validateAssignmentTimeline(periods, command.effectiveDate, {
     requireAssignmentAtFromDate: command.eventType !== "offboard" && command.targetAssignment !== null,
   });
@@ -401,6 +397,7 @@ export async function recordEmployeeLifecycleEvent(
           reason: validated.data.reason,
           detailsJson: JSON.stringify({
             sourceAssignmentId: validated.data.sourceAssignment?.id ?? null,
+            previousPrimaryAssignmentId: validated.data.previousPrimaryAssignment?.id ?? null,
             createdAssignmentIds: assignmentResult.createdIds,
             cancelledAssignmentIds: assignmentResult.cancelledIds,
             cancelledProjectMembershipIds: assignmentResult.cancelledProjectMembershipIds,

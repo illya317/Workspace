@@ -3311,7 +3311,7 @@ export const EDPScalarFieldEnum = {
   endDate: 'endDate',
   reportTo: 'reportTo',
   reportToPositionId: 'reportToPositionId',
-  workPercent: 'workPercent',
+  allocationWeight: 'allocationWeight',
   editedBy: 'editedBy',
   editedAt: 'editedAt',
   version: 'version'

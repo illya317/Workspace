@@ -157,7 +157,7 @@ export function useEdpSections({
   asOfDate,
   className
 }: EdpSectionProps): BodySurfaceSectionSpec[] {
-  const allFields = [...pickFields(edpFields, ["reportingCompanyId", "departmentId", "positionId", "isPrimary", "workPercent", "reportToPositionId"]), ...pickFields(edpFields, ["startDate", "endDate"])];
+  const allFields = [...pickFields(edpFields, ["reportingCompanyId", "departmentId", "positionId", "isPrimary", "allocationWeight", "reportToPositionId"]), ...pickFields(edpFields, ["startDate", "endDate"])];
   const sections = rows.length === 0
     ? [createEmptyFormSection("edp-empty", "暂无岗位记录，请在“生命周期”登记入职或任职变更")]
     : createBusinessTemporalView({
@@ -167,7 +167,7 @@ export function useEdpSections({
         items: rows.map((row, index) => ({
           key: row.id ?? `new-edp-${index}`,
           title: `${row.positionName || `岗位记录 #${row.id}`}${row.isPrimary ? " · 主岗" : ""}`,
-          description: `${row.departmentName || "未设置部门"} · 占比 ${row.workPercent || "未设置"}`,
+          description: `${row.departmentName || "未设置部门"} · 权重 ${row.allocationWeight || "未设置"}${row.allocationPercent == null ? "" : ` · 当前折算 ${(row.allocationPercent * 100).toFixed(2)}%`}`,
           validFrom: row.startDate,
           validThrough: row.endDate,
           temporalState: row.temporalState,

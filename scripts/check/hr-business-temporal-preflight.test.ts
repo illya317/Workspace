@@ -32,7 +32,7 @@ function edp(overrides: Partial<EdpPreflightRow> = {}): EdpPreflightRow {
     isPrimary: true,
     startDate: "2026-01-01",
     endDate: null,
-    workPercent: "1",
+    allocationWeight: "100",
     ...overrides,
   };
 }
@@ -146,31 +146,30 @@ test("blank legacy bounds use the same open-period semantics as runtime adapters
 
 test("EDP overlap is scoped to the same company department and position slot", () => {
   const result = analyze([employment()], [
-    edp({ id: 10, positionId: 1, isPrimary: true, workPercent: "50%" }),
-    edp({ id: 11, positionId: 1, isPrimary: false, workPercent: "0.5", startDate: "2026-06-01" }),
-    edp({ id: 12, positionId: 2, isPrimary: false, workPercent: "0.5", startDate: "2026-06-01" }),
+    edp({ id: 10, positionId: 1, isPrimary: true, allocationWeight: "100" }),
+    edp({ id: 11, positionId: 1, isPrimary: false, allocationWeight: "40", startDate: "2026-06-01" }),
+    edp({ id: 12, positionId: 2, isPrimary: false, allocationWeight: "30", startDate: "2026-06-01" }),
   ]);
   assert.deepEqual(result.findings.filter((item) => item.code === "edp.slot_overlap").map((item) => item.recordIds), [[10, 11]]);
 });
 
-test("current assignment checks enforce one primary role and a 100 percent total", () => {
+test("current assignment checks enforce one primary role without requiring weights to total 100", () => {
   const result = analyze([employment()], [
-    edp({ id: 10, positionId: 1, isPrimary: false, workPercent: "0.4" }),
-    edp({ id: 11, positionId: 2, isPrimary: false, workPercent: "0.5" }),
+    edp({ id: 10, positionId: 1, isPrimary: false, allocationWeight: "100" }),
+    edp({ id: 11, positionId: 2, isPrimary: false, allocationWeight: "40" }),
   ]);
   assert.deepEqual(result.findings.filter((item) => item.code.startsWith("edp.current_")).map((item) => item.code), [
     "edp.current_primary_count",
-    "edp.current_work_percent_total",
   ]);
 });
 
 test("invalid allocation and assignment without current employment are reported without a false total", () => {
   const result = analyze([
     employment({ isActive: false, joinDate: "2025-01-01", leaveDate: "2025-12-31" }),
-  ], [edp({ workPercent: "120%" })]);
+  ], [edp({ allocationWeight: "0" })]);
   assert.deepEqual(result.findings.map((item) => item.code), [
     "edp.current_without_employment",
-    "edp.invalid_work_percent",
+    "edp.invalid_allocation_weight",
   ]);
 });
 

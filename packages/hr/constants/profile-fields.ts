@@ -63,7 +63,7 @@ export const edpFields: ProfileField[] = [
   { key: "isPrimary", label: "主岗", type: "boolean" },
   { key: "startDate", label: "开始日期", type: "date" },
   { key: "endDate", label: "结束日期", type: "date" },
-  { key: "workPercent", label: "工作占比", type: "percent", required: true },
+  { key: "allocationWeight", label: "岗位投入权重", type: "number", required: true },
   { key: "reportToPositionId", label: "汇报岗位", type: "fk", entity: "position", fkKey: "hr.edp.reportToPosition", displayKey: "reportTo", activeOnly: true },
 ];
 

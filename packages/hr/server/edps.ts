@@ -60,7 +60,7 @@ export async function listEdps(input: {
         endDate: edp.endDate,
         reportTo: edp.reportToPosition?.name ?? null,
         reportToPositionId: edp.reportToPositionId,
-        workPercent: edp.workPercent,
+        allocationWeight: edp.allocationWeight,
       })),
       total,
     };
@@ -111,7 +111,7 @@ export async function listEdps(input: {
       endDate: edp.endDate,
       reportTo: edp.reportToPosition?.name ?? null,
       reportToPositionId: edp.reportToPositionId,
-      workPercent: edp.workPercent,
+      allocationWeight: edp.allocationWeight,
     };
   });
 

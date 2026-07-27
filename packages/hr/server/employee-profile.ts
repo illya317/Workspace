@@ -9,6 +9,7 @@ import {
   employmentSummaryState,
 } from "./domain/employee-business-temporal";
 import { employeeLifecycleEventState, strictIntegerArray } from "./domain/employee-lifecycle-state";
+import { deriveAllocationPercent } from "./field-validation";
 
 export { employeeWhereFromKey } from "./employee-profile-key";
 
@@ -99,6 +100,7 @@ export async function getEmployeeProfileByKey(key: string) {
   const activeEdps = classifiedEdps
     .filter((item) => item.temporalState === "current")
     .map((item) => item.edp);
+  const activeAllocationWeights = activeEdps.map((item) => item.allocationWeight);
   const primaryEdp = activeEdps.find((item) => item.isPrimary) ?? activeEdps[0] ?? null;
   const parsedLifecycleEvents = lifecycleEvents.map((event) => ({ event, details: parseLifecycleDetails(event.detailsJson) }));
   const cancelledAssignmentIds = new Set(parsedLifecycleEvents.flatMap(({ details }) => {
@@ -181,7 +183,10 @@ export async function getEmployeeProfileByKey(key: string) {
         endDate: edp.endDate,
         reportToPositionId: edp.reportToPositionId,
         reportTo: edp.reportToPosition?.name ?? null,
-        workPercent: edp.workPercent,
+        allocationWeight: edp.allocationWeight,
+        allocationPercent: temporalState === "current"
+          ? deriveAllocationPercent(edp.allocationWeight, activeAllocationWeights)
+          : null,
         temporalState,
       })),
       lifecycleEvents: parsedLifecycleEvents.map(({ event, details }) => ({

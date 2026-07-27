@@ -16,7 +16,7 @@ function employee(overrides: Partial<Parameters<typeof evaluateHrDataQualityRows
       departmentName: "测试部门",
       positionId: 1,
       isPrimary: true,
-      workPercent: "1",
+      allocationWeight: "100",
     }],
     ...overrides,
   };
@@ -35,7 +35,7 @@ test("advisor and director employments do not require assignment integrity", () 
       departmentName: null,
       positionId: null,
       isPrimary: false,
-      workPercent: null,
+      allocationWeight: null,
     }],
   })]);
   assert.deepEqual(findings, []);
@@ -50,14 +50,14 @@ test("HR data-quality rules retain a global fallback for findings without an acc
       departmentName: null,
       positionId: null,
       isPrimary: false,
-      workPercent: "0.5",
+      allocationWeight: null,
     }],
   })]);
   assert.deepEqual(findings.map((finding) => finding.checkKey), [
     "hr.active-employment.unique",
     "hr.active-employee.current-assignment",
     "hr.current-assignment.organization-complete",
-    "hr.current-assignment.workload-total",
+    "hr.current-assignment.allocation-weight",
   ]);
   assert.ok(findings.every((finding) => finding.count === 1));
   assert.ok(findings.every((finding) => finding.fingerprint.endsWith(":global")));
@@ -77,7 +77,7 @@ test("HR data-quality rules split findings by accountable department", () => {
         departmentName: "第二部门",
         positionId: 2,
         isPrimary: true,
-        workPercent: "1",
+        allocationWeight: "100",
       }],
     }),
   ]).filter((finding) => finding.checkKey === "hr.active-employment.unique");

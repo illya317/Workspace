@@ -69,7 +69,7 @@ export interface EDP {
   startDate: string | null;
   endDate: string | null;
   reportTo: string | null;
-  workPercent: number | null;
+  allocationWeight: number | null;
 }
 
 export interface Employment {

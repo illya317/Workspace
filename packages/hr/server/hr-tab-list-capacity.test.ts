@@ -92,7 +92,7 @@ mockModule("@workspace/platform/server/prisma", {
             startDate: null,
             endDate: null,
             reportTo: null,
-            workPercent: "1",
+            allocationWeight: "100",
           }];
         },
       },

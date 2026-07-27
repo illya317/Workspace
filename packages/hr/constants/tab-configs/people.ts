@@ -110,7 +110,7 @@ const edpFields: FieldConfig[] = [
   { key: "startDate", label: "开始日期", editable: false, type: "date" },
   { key: "endDate", label: "结束日期", editable: false, type: "date" },
   { key: "reportTo", label: "汇报岗位", editable: false, defaultVisible: true },
-  { key: "workPercent", label: "工作占比", editable: false, defaultVisible: true },
+  { key: "allocationWeight", label: "岗位投入权重", editable: false, defaultVisible: true },
 ];
 
 export const edpConfig: TabConfig = {

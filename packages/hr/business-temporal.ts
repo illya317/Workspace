@@ -108,7 +108,7 @@ export const HR_ASSIGNMENT_TEMPORAL = defineBusinessTemporalRegistration({
         "isPrimary",
         "startDate",
         "endDate",
-        "workPercent",
+        "allocationWeight",
         "version",
       ],
       role: "period",

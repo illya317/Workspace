@@ -32,7 +32,7 @@ export type EdpPreflightRow = {
   isPrimary: boolean;
   startDate: string | null;
   endDate: string | null;
-  workPercent: string | null;
+  allocationWeight: string | null;
 };
 
 export type EmployeeProjectPreflightRow = {
@@ -100,14 +100,10 @@ function periodsOverlap(left: Period, right: Period) {
   return businessDateWindowsOverlap(left.window, right.window);
 }
 
-function parseWorkPercent(value: string | null) {
+function parseAllocationWeight(value: string | null) {
   if (value === null || value.trim() === "") return null;
-  const text = value.trim();
-  const percentage = text.endsWith("%");
-  const number = Number(percentage ? text.slice(0, -1).trim() : text);
-  if (!Number.isFinite(number)) return null;
-  const normalized = percentage ? number / 100 : number;
-  return normalized > 0 && normalized <= 1 ? normalized : null;
+  const number = Number(value.trim());
+  return Number.isFinite(number) && number > 0 ? number : null;
 }
 
 function byEmployee<T extends { employeeId: number }>(rows: readonly T[]) {
@@ -208,7 +204,7 @@ function inspectEdpRows(
   findings: HrTemporalPreflightFinding[],
 ) {
   const periods = new Map<number, Period>();
-  const workPercents = new Map<number, number | null>();
+  const allocationWeights = new Map<number, number | null>();
   for (const row of rows) {
     const start = normalizedBound(row.startDate);
     const end = normalizedBound(row.endDate);
@@ -227,10 +223,10 @@ function inspectEdpRows(
       }
     }
     periods.set(row.id, period);
-    const workPercent = parseWorkPercent(row.workPercent);
-    workPercents.set(row.id, workPercent);
-    if (workPercent === null) {
-      findings.push(finding(row, "edp.invalid_work_percent", "EDP", [row.id], `工作占比缺失或不在 (0, 1]：${JSON.stringify(row.workPercent)}`));
+    const allocationWeight = parseAllocationWeight(row.allocationWeight);
+    allocationWeights.set(row.id, allocationWeight);
+    if (allocationWeight === null) {
+      findings.push(finding(row, "edp.invalid_allocation_weight", "EDP", [row.id], `岗位投入权重缺失或不大于 0：${JSON.stringify(row.allocationWeight)}`));
     }
   }
 
@@ -255,7 +251,7 @@ function inspectEdpRows(
       }
     }
   }
-  return { periods, workPercents };
+  return { periods, allocationWeights };
 }
 
 function inspectProjectMembershipRows(
@@ -355,13 +351,6 @@ function inspectCurrentState(
     const primaryCount = currentAssignments.filter((row) => row.isPrimary).length;
     if (primaryCount !== 1) {
       findings.push(finding(identity, "edp.current_primary_count", "EDP", currentAssignments.map((row) => row.id), `${asOfDate} 当前任职主岗数量为 ${primaryCount}，应为 1`));
-    }
-    const percentages = currentAssignments.map((row) => edpState.workPercents.get(row.id) ?? null);
-    if (percentages.every((value): value is number => value !== null)) {
-      const total = percentages.reduce((sum, value) => sum + value, 0);
-      if (Math.abs(total - 1) > 0.0001) {
-        findings.push(finding(identity, "edp.current_work_percent_total", "EDP", currentAssignments.map((row) => row.id), `${asOfDate} 当前任职工作占比合计为 ${(total * 100).toFixed(2)}%，应为 100%`));
-      }
     }
   }
 }
@@ -478,7 +467,7 @@ async function loadRowsReadOnly() {
     const edps = await client.query<EdpPreflightRow>(`
       SELECT ep."id", ep."employeeId", e."employeeId" AS "employeeCode", e."name" AS "employeeName",
         ep."reportingCompanyId", ep."departmentId", ep."positionId", ep."isPrimary",
-        ep."startDate", ep."endDate", ep."workPercent"
+        ep."startDate", ep."endDate", ep."allocationWeight"
       FROM "EmployeePosition" ep
       JOIN "Employee" e ON e."id" = ep."employeeId"
       ORDER BY ep."employeeId", ep."id"

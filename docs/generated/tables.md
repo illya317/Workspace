@@ -3204,7 +3204,7 @@
 | `endDate` | String |  |  |  |
 | `reportTo` | String |  |  |  |
 | `reportToPositionId` | Int |  | FK | → Position.id |
-| `workPercent` | String |  |  |  |
+| `allocationWeight` | String |  |  |  |
 | `editedBy` | Int |  |  |  |
 | `editedAt` | DateTime |  |  |  |
 | `version` | Int | * |  |  |

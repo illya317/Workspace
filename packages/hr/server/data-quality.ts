@@ -8,7 +8,7 @@ import type {
 import { prisma } from "@workspace/platform/server/prisma";
 import { currentEmploymentDateWhere, currentOpenEndedDateWhere } from "@workspace/platform/server/relation-registry";
 import { isEmploymentPositionOptionalTitle } from "@workspace/hr/constants/employee-temporal-write-policy";
-import { parseWorkPercent } from "./field-validation";
+import { parseAllocationWeight } from "./field-validation";
 
 const CHECKS = [
   {
@@ -36,10 +36,10 @@ const CHECKS = [
     triggerModes: ["manual", "scheduled", "mutation"],
   },
   {
-    key: "hr.current-assignment.workload-total",
+    key: "hr.current-assignment.allocation-weight",
     domain: "hr",
-    title: "当前任职工作占比等于 1",
-    description: "除顾问、董事外，同一在职员工的全部当前任职都要填写工作占比，合计必须等于 1。",
+    title: "当前任职投入权重有效",
+    description: "除顾问、董事外，同一在职员工的全部当前任职都要填写大于 0 的岗位投入权重。",
     defaultSeverity: "critical",
     triggerModes: ["manual", "scheduled", "mutation"],
   },
@@ -57,7 +57,7 @@ type HrDataQualityRow = {
     departmentName: string | null;
     positionId: number | null;
     isPrimary: boolean;
-    workPercent: string | null;
+    allocationWeight: string | null;
   }>;
 };
 
@@ -110,13 +110,11 @@ function findingsByDepartment(
   }));
 }
 
-function workloadInvalid(row: HrDataQualityRow) {
+function allocationWeightInvalid(row: HrDataQualityRow) {
   if (!row.positionRequired) return false;
   if (row.currentAssignments.length === 0) return false;
-  const values = row.currentAssignments.map((assignment) => parseWorkPercent(assignment.workPercent));
-  if (values.some((value) => value === null || Number.isNaN(value))) return true;
-  const total = values.reduce<number>((sum, value) => sum + (value ?? 0), 0);
-  return Math.abs(total - 1) > 0.0001;
+  const values = row.currentAssignments.map((assignment) => parseAllocationWeight(assignment.allocationWeight));
+  return values.some((value) => value === null || Number.isNaN(value) || value <= 0);
 }
 
 export function evaluateHrDataQualityRows(rows: HrDataQualityRow[]): DataQualityFinding[] {
@@ -136,12 +134,12 @@ export function evaluateHrDataQualityRows(rows: HrDataQualityRow[]): DataQuality
       || assignment.positionId === null
     ))
   ));
-  const workloadTotalInvalid = rows.filter(workloadInvalid);
+  const invalidAllocationWeights = rows.filter(allocationWeightInvalid);
   return [
     ...findingsByDepartment(CHECKS[0], multipleActiveEmployment, (count) => `有 ${count} 名员工同时存在多条在职雇佣关系，需要确认唯一有效记录。`),
     ...findingsByDepartment(CHECKS[1], currentAssignmentInvalid, (count) => `有 ${count} 名在职员工缺少当前任职，或主岗数量不等于 1。`),
     ...findingsByDepartment(CHECKS[2], organizationIncomplete, (count) => `有 ${count} 名在职员工的当前任职缺少公司、部门或岗位。`),
-    ...findingsByDepartment(CHECKS[3], workloadTotalInvalid, (count) => `有 ${count} 名在职员工的当前任职工作占比缺失或合计不等于 1。`),
+    ...findingsByDepartment(CHECKS[3], invalidAllocationWeights, (count) => `有 ${count} 名在职员工的当前任职投入权重缺失或不大于 0。`),
   ];
 }
 
@@ -161,7 +159,7 @@ export async function evaluateHrDataQuality(): Promise<DataQualityEvaluationResp
           department: { select: { name: true } },
           positionId: true,
           isPrimary: true,
-          workPercent: true,
+          allocationWeight: true,
         },
       },
     },

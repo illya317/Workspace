@@ -41,7 +41,7 @@
 
 岗位职责条目从 `PositionDescription.details.duties` 同步到 `PositionResponsibilityNode`。该表只索引职责大类和小类，保存稳定 `nodeKey`、说明书版本、更新时间、JSON 路径和文本 hash；岗位说明书 JSON 仍是正文来源。Work/OKR 引用职责时不得靠 JSON 下标，必须引用职责节点并保存当时的职责文本快照。
 
-FUN 职能岗位不复制到应用部门。`Position.departmentId` 继续表示岗位主数据归属，所有职能岗位统一归属 FUN 线；特殊应用和跨公司汇报通过 `PositionReportOverride(positionId, companyId, departmentId)` 维护，唯一键是岗位、汇报公司、应用部门。维护入口语义为岗位详情里的“特殊汇报”，组织架构页不承载写入。生命周期命令创建普通员工任职期间时先确定 `EDP.reportingCompanyId`（默认从员工当前/主合同公司解析，并支持租户公司 aliases），再选实际部门和岗位；`reportingCompanyId`、`departmentId`、`positionId`、`workPercent` 都是新任职的必填事实。`Employment.title` 为“顾问”或“董事”时允许合法没有 EDP，不要求岗位、组织归属或工作占比。候选岗位 = 本部门岗位 + 对该公司和部门启用的 FUN 特殊汇报岗位。选择 FUN 岗位后 `EDP.departmentId` 写实际部门，`EDP.positionReportOverrideId` 指向命中的特殊汇报规则。员工直接上级优先取 `PositionReportOverride.reportToPositionId`；没有命中特殊汇报时，普通岗位取实际组织的负责人岗位，负责人岗位取上级组织的负责人岗位，不回退 `PositionDescription.reportToPositionId`。
+FUN 职能岗位不复制到应用部门。`Position.departmentId` 继续表示岗位主数据归属，所有职能岗位统一归属 FUN 线；特殊应用和跨公司汇报通过 `PositionReportOverride(positionId, companyId, departmentId)` 维护，唯一键是岗位、汇报公司、应用部门。维护入口语义为岗位详情里的“特殊汇报”，组织架构页不承载写入。生命周期命令创建普通员工任职期间时先确定 `EDP.reportingCompanyId`（默认从员工当前/主合同公司解析，并支持租户公司 aliases），再选实际部门和岗位；`reportingCompanyId`、`departmentId`、`positionId`、`allocationWeight` 都是新任职的必填事实。`allocationWeight` 是大于 0 的相对投入权重，不要求合计为 100；查询业务日的折算占比由当日全部有效任职权重归一化派生，不入库。`Employment.title` 为“顾问”或“董事”时允许合法没有 EDP，不要求岗位、组织归属或投入权重。候选岗位 = 本部门岗位 + 对该公司和部门启用的 FUN 特殊汇报岗位。选择 FUN 岗位后 `EDP.departmentId` 写实际部门，`EDP.positionReportOverrideId` 指向命中的特殊汇报规则。员工直接上级优先取 `PositionReportOverride.reportToPositionId`；没有命中特殊汇报时，普通岗位取实际组织的负责人岗位，负责人岗位取上级组织的负责人岗位，不回退 `PositionDescription.reportToPositionId`。
 
 服务器旧库处理顺序：
 1. 上线前备份数据库，并导出 `PositionDescription` 的旧 `code/name/departmentName/reportTo` 和 `DepartmentDescription` 的旧 `code/name` 作为审计 CSV。
@@ -56,7 +56,7 @@ FUN 职能岗位不复制到应用部门。`Position.departmentId` 继续表示�
 
 `Employment` 是雇佣期间事实，`EDP` 是员工任职期间事实，两个期间均使用包含首尾日的日期区间。入职日 D 从 D 当天生效；调岗、汇报关系变化和兼岗在 D 创建新任职片段，原任职片段自动截止到 D-1；离职事件的生效日 D 表示从 D 起不再在职，因此雇佣、任职和当前项目成员期间截止到 D-1。当前态统一按租户业务时区和期间字段即时派生，只有完全没有入离职日期的旧雇佣记录才回退 `Employment.isActive`，不得依赖定时任务把未来记录翻成当前。
 
-HR 数据质量 Provider 继续把雇佣、当前任职、组织归属和工作占比完整性作为内部巡检与迁移 preflight；这些都是系统不变量，不注册为个人通知或可订阅事件。新任职必须有汇报公司、部门、岗位和工作占比；除离职外的生命周期变更在生效日必须仍有当前任职，且当前任职必须且只能有一个主岗、工作占比合计为 100%。生命周期事务提交成功后仍可按 Employee 触发重评，用于发现存量导入和非标准写入遗留问题，但不得向用户发送“订阅提醒”。
+HR 数据质量 Provider 继续把雇佣、当前任职、组织归属和投入权重完整性作为内部巡检与迁移 preflight；这些都是系统不变量，不注册为个人通知或可订阅事件。新任职必须有汇报公司、部门、岗位和大于 0 的投入权重；除离职外的生命周期变更在生效日必须仍有当前任职，且当前任职必须且只能有一个主岗。主岗与权重相互独立，不要求主岗权重最大。生命周期事务提交成功后仍可按 Employee 触发重评，用于发现存量导入和非标准写入遗留问题，但不得向用户发送“订阅提醒”。
 
 员工详情的“生命周期”页签是人员结构变化的唯一在线入口，通过 `PUT /api/modules/hr/roster/employee-profiles/[id]/lifecycle` 登记入职、调岗、兼岗、汇报关系变化和离职。route 只校验请求形状并调用 HR service；domain validator 校验生效日期、来源任职、目标岗位、汇报岗位和所有未来期间边界上的工作占比/唯一主岗，service 在同一事务内拆分 `Employment` / `EDP` 期间并写入不可变 `EmployeeLifecycleEvent` 台账。离职先投影再校验结果；合法未来记录取消，当前记录和非法但仍开放的旧记录均截止到 D-1，避免旧字符串查询在未来重新把脏记录识别为当前。普通 Employment 页面只修正办公地点、人员类型、职级、职务、离职原因与备注；`isActive/joinDate/leaveDate` 只读。EDP 页面整体只读，历史纠错要等带 reason 与 expected revision 的专用 command，不能借普通 CRUD 或审计恢复绕过期间规则。
 
@@ -76,7 +76,7 @@ HR 数据质量 Provider 继续把雇佣、当前任职、组织归属和工作�
 - 生命周期：登记未来生效的入职、调岗、兼岗、汇报关系变化和离职，并查看待生效/已生效事件台账。
 - 历史记录：读取 `EditHistory`，展示编辑人、编辑时间、实体、版本和字段级变更。
 
-发布任何 Employment / EDP 生命周期迁移前必须执行 `npm run hr:temporal:preflight -- --as-of YYYY-MM-DD`。preflight 在同一 `REPEATABLE READ READ ONLY` 快照内报告 Employment、EDP 和 EmployeeProject 的非法/倒置期间与高日期哨兵，检查 Employment 重叠与 stale flag、EDP 同槽位重叠、工作占比、当前雇佣/任职一致性，以及当前项目成员是否存在当前 Employment；包含式开放结束必须为 `null`。发现问题必须先走受控数据发布批次，不能临时恢复普通 EDP CRUD。新增 migration 合入本地开发分支后必须重启 `npm run dev`，或显式执行 `scripts/runtime/run-with-repo-node.sh npx --no-install prisma migrate deploy --schema=./prisma`，不能只生成 Prisma Client 而让 dev 数据库继续停留在旧 migration 状态。
+发布任何 Employment / EDP 生命周期迁移前必须执行 `npm run hr:temporal:preflight -- --as-of YYYY-MM-DD`。preflight 在同一 `REPEATABLE READ READ ONLY` 快照内报告 Employment、EDP 和 EmployeeProject 的非法/倒置期间与高日期哨兵，检查 Employment 重叠与 stale flag、EDP 同槽位重叠、投入权重、当前雇佣/任职一致性，以及当前项目成员是否存在当前 Employment；包含式开放结束必须为 `null`。发现问题必须先走受控数据发布批次，不能临时恢复普通 EDP CRUD。新增 migration 合入本地开发分支后必须重启 `npm run dev`，或显式执行 `scripts/runtime/run-with-repo-node.sh npx --no-install prisma migrate deploy --schema=./prisma`，不能只生成 Prisma Client 而让 dev 数据库继续停留在旧 migration 状态。
 
 `员工信息表` 下每个 Tab 是一个独立的 `*Tab.tsx` 组件：
 

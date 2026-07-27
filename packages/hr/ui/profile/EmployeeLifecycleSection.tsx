@@ -30,6 +30,8 @@ const EVENT_OPTIONS: Array<{ value: EmployeeLifecycleEventType; label: string }>
   { value: "onboard", label: "入职" },
   { value: "transfer", label: "调岗" },
   { value: "concurrent_assignment", label: "兼岗" },
+  { value: "allocation_change", label: "投入调整" },
+  { value: "primary_change", label: "主岗变更" },
   { value: "reporting_change", label: "汇报关系变化" },
   { value: "offboard", label: "离职" },
 ];
@@ -50,7 +52,7 @@ type LifecycleDraft = EditableRecord & {
   positionReportOverrideId: number | null;
   reportToPositionId: number | null;
   reportTo: string | null;
-  workPercent: string | null;
+  allocationWeight: number | string | null;
   officeLocation: string | null;
   personnelType: string | null;
   rank: string | null;
@@ -92,7 +94,7 @@ function applySource(draft: LifecycleDraft, source: EdpRow | null): LifecycleDra
     positionReportOverrideId: source.positionReportOverrideId ?? null,
     reportToPositionId: source.reportToPositionId,
     reportTo: source.reportTo,
-    workPercent: source.workPercent,
+    allocationWeight: source.allocationWeight,
   };
 }
 
@@ -114,7 +116,7 @@ function initialDraft(profile: EmployeeProfile | null, date: string): LifecycleD
     positionReportOverrideId: null,
     reportToPositionId: null,
     reportTo: null,
-    workPercent: "1",
+    allocationWeight: 100,
     officeLocation: null,
     personnelType: null,
     rank: null,
@@ -151,7 +153,7 @@ function lifecycleEventBadges(event: EmployeeLifecycleEventRow) {
 }
 
 function periodLabel(row: EdpRow) {
-  return `${row.positionName || "未命名岗位"} · ${row.departmentName || "未设置部门"} · ${row.startDate || "不限"} 至 ${row.endDate || "长期"}`;
+  return `${row.positionName || "未命名岗位"} · ${row.departmentName || "未设置部门"} · 权重 ${row.allocationWeight || "未设置"} · ${row.startDate || "不限"} 至 ${row.endDate || "长期"}`;
 }
 
 export function useEmployeeLifecycleSections({
@@ -175,6 +177,9 @@ export function useEmployeeLifecycleSections({
     () => eligibleSources(profile, draft.effectiveDate),
     [draft.effectiveDate, profile],
   );
+  const selectableSourceRows = draft.eventType === "primary_change"
+    ? sourceRows.filter((row) => !row.isPrimary)
+    : sourceRows;
   const resolvedEmploymentFields = useMemo(
     () => withTenantProfileFieldOptions(employmentFields, tenantConfig),
     [tenantConfig],
@@ -185,11 +190,14 @@ export function useEmployeeLifecycleSections({
       if (key === "effectiveDate") {
         const effectiveDate = String(value ?? "");
         const currentSource = profile?.edps.find((row) => row.id === current.sourceAssignmentId) ?? null;
-        const source = currentSource && eligibleSources(profile, effectiveDate).some((row) => row.id === currentSource.id)
+        const eligible = eligibleSources(profile, effectiveDate);
+        const source = currentSource && eligible.some((row) => row.id === currentSource.id)
           ? currentSource
-          : eligibleSources(profile, effectiveDate).find((row) => row.isPrimary) ?? eligibleSources(profile, effectiveDate)[0] ?? null;
-        return current.eventType === "onboard" || current.eventType === "offboard"
-          ? { ...current, effectiveDate }
+          : current.eventType === "primary_change"
+            ? eligible.find((row) => !row.isPrimary) ?? null
+            : eligible.find((row) => row.isPrimary) ?? eligible[0] ?? null;
+        return current.eventType === "onboard" || current.eventType === "offboard" || current.eventType === "concurrent_assignment"
+          ? { ...current, effectiveDate, ...(current.eventType === "concurrent_assignment" ? { sourceAssignmentId: null } : {}) }
           : applySource({ ...current, effectiveDate }, source);
       }
       if (key === "sourceAssignmentId") {
@@ -209,9 +217,16 @@ export function useEmployeeLifecycleSections({
         ?? null;
       const base = { ...current, eventType, assignmentEndDate: null, leaveReason: null, leaveNote: null };
       if (eventType === "onboard") {
-        return { ...base, sourceAssignmentId: null, workPercent: "1", reportToPositionId: null, reportTo: null };
+        return { ...base, sourceAssignmentId: null, allocationWeight: 100, reportToPositionId: null, reportTo: null };
       }
       if (eventType === "offboard") return { ...base, sourceAssignmentId: null };
+      if (eventType === "concurrent_assignment") {
+        return { ...base, sourceAssignmentId: null, allocationWeight: 40, reportToPositionId: null, reportTo: null };
+      }
+      if (eventType === "primary_change") {
+        const nextPrimary = eligibleSources(profile, current.effectiveDate).find((row) => !row.isPrimary) ?? null;
+        return applySource(base, nextPrimary);
+      }
       return applySource(base, source);
     });
   }
@@ -265,15 +280,15 @@ export function useEmployeeLifecycleSections({
     spec: {
       valueType: "number",
       control: "choice",
-      state: canEdit && sourceRows.length > 0 ? "normal" : "disabled",
+      state: canEdit && selectableSourceRows.length > 0 ? "normal" : "disabled",
       options: {
         source: "static",
-        items: sourceRows.map((row) => ({ value: String(row.id), label: periodLabel(row) })),
+        items: selectableSourceRows.map((row) => ({ value: String(row.id), label: periodLabel(row) })),
         visibleCount: 5,
       },
     },
     value: draft.sourceAssignmentId == null ? "" : String(draft.sourceAssignmentId),
-    placeholder: sourceRows.length > 0 ? "选择来源岗位" : "生效日没有可变更岗位",
+    placeholder: selectableSourceRows.length > 0 ? "选择来源岗位" : "生效日没有可变更岗位",
     onChange: (value) => setField("sourceAssignmentId", value),
   };
 
@@ -283,7 +298,7 @@ export function useEmployeeLifecycleSections({
   const employmentKeys = ["personnelType", "rank", "title", "officeLocation"];
   const targetItems = targetFields.map((field) => profileFieldSpec(field, draft, !canEdit, setField));
   const employmentItems = employmentKeys.map((key) => profileFieldSpec(fieldByKey(resolvedEmploymentFields, key), draft, !canEdit, setField));
-  const percentItem = profileFieldSpec(fieldByKey(edpFields, "workPercent"), draft, !canEdit, setField);
+  const weightItem = profileFieldSpec(fieldByKey(edpFields, "allocationWeight"), draft, !canEdit, setField);
   const reasonItem = profileFieldSpec(lifecycleTextField, draft, !canEdit, setField);
   const requiredLeaveReasonField = {
     ...fieldByKey(resolvedEmploymentFields, "leaveReason"),
@@ -293,11 +308,15 @@ export function useEmployeeLifecycleSections({
     && isEmploymentPositionOptionalTitle(draft.title);
 
   const eventItems: FormSurfaceItemSpec[] = draft.eventType === "onboard"
-    ? [...(positionOptionalOnboard ? [] : [...targetItems, percentItem]), ...employmentItems]
+    ? [...(positionOptionalOnboard ? [] : [...targetItems, weightItem]), ...employmentItems]
     : draft.eventType === "transfer"
       ? [sourceItem, ...targetItems]
       : draft.eventType === "concurrent_assignment"
-        ? [sourceItem, ...targetItems, percentItem, profileFieldSpec(assignmentEndField, draft, !canEdit, setField)]
+        ? [...targetItems, weightItem, profileFieldSpec(assignmentEndField, draft, !canEdit, setField)]
+        : draft.eventType === "allocation_change"
+          ? [sourceItem, weightItem]
+          : draft.eventType === "primary_change"
+            ? [{ ...sourceItem, label: "新主岗", placeholder: selectableSourceRows.length > 0 ? "选择新主岗" : "生效日没有可切换岗位" }]
         : draft.eventType === "reporting_change"
           ? [sourceItem, profileFieldSpec(fieldByKey(edpFields, "reportToPositionId"), draft, !canEdit, setField)]
           : [
@@ -307,7 +326,7 @@ export function useEmployeeLifecycleSections({
 
   return [
     createMessageSection("lifecycle-guidance", {
-      content: "生效日当天启用新状态；旧任职、旧汇报关系和离职前雇佣期间会自动截止到前一天。未来变更可提前登记。",
+      content: "生效日当天启用新状态；岗位投入只维护相对权重，折算占比由系统按当日有效岗位自动计算。历史补登记会校验雇佣、任职期间和唯一主岗。",
     }),
     createPanelSection("lifecycle-editor", {
       sections: [createFieldsSection("lifecycle-fields", [...commonItems, ...eventItems, reasonItem], {
@@ -328,12 +347,12 @@ export function useEmployeeLifecycleSections({
         density: "compact",
         empty: { content: "暂无生命周期事件", compact: true },
         items: (profile?.lifecycleEvents ?? []).map((event) => ({
-          key: event.id,
-          title: `${eventLabel(event.eventType)} · ${event.effectiveDate}`,
-          description: event.reason || "未填写变更说明",
-          meta: `${event.recordedByName} · 登记于 ${new Intl.DateTimeFormat("zh-CN", { timeZone: tenantConfig.localization.businessTimeZone, dateStyle: "medium", timeStyle: "short" }).format(new Date(event.recordedAt))}`,
-          badges: lifecycleEventBadges(event),
-        })),
+            key: event.id,
+            title: `${eventLabel(event.eventType)} · ${event.effectiveDate}`,
+            description: event.reason || "未填写变更说明",
+            meta: `${event.recordedByName} · 登记于 ${new Intl.DateTimeFormat("zh-CN", { timeZone: tenantConfig.localization.businessTimeZone, dateStyle: "medium", timeStyle: "short" }).format(new Date(event.recordedAt))}`,
+            badges: lifecycleEventBadges(event),
+          })),
       })],
     }),
   ];

@@ -87,7 +87,7 @@ type EdpListRow = {
   startDate: string | null;
   endDate: string | null;
   reportTo: string | null;
-  workPercent: string | null;
+  allocationWeight: string | null;
 };
 
 type DepartmentListRow = {
@@ -233,7 +233,7 @@ export const HR_EMPLOYMENTS_ANALYSIS_SOURCE = defineWorkspaceAnalysisReadModel<E
 
 export const HR_EDPS_ANALYSIS_SOURCE = defineWorkspaceAnalysisReadModel<EdpListRow>()({
   sourceKey: "hr.edps",
-  version: 1,
+  version: 2,
   label: "HR 部门岗位关系",
   description: "以一条员工—部门—岗位关系为粒度，复用 EDP 列表的稳定分页读取。",
   apiPath: "/api/modules/hr/roster/edps",
@@ -258,7 +258,7 @@ export const HR_EDPS_ANALYSIS_SOURCE = defineWorkspaceAnalysisReadModel<EdpListR
     startDate: field({ label: "开始日期", description: "该部门岗位关系的开始日期。", valueKind: "date", sensitivity: "confidential" }),
     endDate: field({ label: "结束日期", description: "该部门岗位关系的结束日期。", valueKind: "date", sensitivity: "confidential" }),
     reportTo: field({ label: "直接上级", description: "EDP 公开列表返回的直接上级展示值。", valueKind: "text", sensitivity: "confidential" }),
-    workPercent: field({ label: "工作占比", description: "EDP 维护的原始工作占比文本。", valueKind: "text", sensitivity: "internal" }),
+    allocationWeight: field({ label: "岗位投入权重", description: "EDP 维护的正数相对投入权重；折算占比按查询业务日动态派生。", valueKind: "text", sensitivity: "internal" }),
   },
   pagination: defaultPagination,
   limits: defaultLimits,

@@ -3,6 +3,7 @@ import {
   inclusiveBusinessPeriodToWindow,
   LATEST_INCLUSIVE_BUSINESS_DATE,
   parseBusinessDate,
+  shiftBusinessDate,
 } from "@workspace/platform/contracts/business-temporal";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import {
@@ -17,7 +18,7 @@ import {
   resolveDefaultEdpReportToPositionId,
   validateEdpReportToPosition,
 } from "../edp-report-to";
-import { parseWorkPercent, validateEmploymentOption } from "../field-validation";
+import { parseAllocationWeight, validateEmploymentOption } from "../field-validation";
 import { resolveEdpPositionAssignment } from "./position-report-override-validation";
 import { assignmentPeriodContainsDate } from "./employee-business-temporal";
 
@@ -25,6 +26,8 @@ export const EMPLOYEE_LIFECYCLE_EVENT_TYPES = [
   "onboard",
   "transfer",
   "concurrent_assignment",
+  "allocation_change",
+  "primary_change",
   "reporting_change",
   "offboard",
 ] as const;
@@ -42,7 +45,7 @@ export interface EmployeeLifecycleInput {
   positionId?: unknown;
   positionReportOverrideId?: unknown;
   reportToPositionId?: unknown;
-  workPercent?: unknown;
+  allocationWeight?: unknown;
   officeLocation?: unknown;
   personnelType?: unknown;
   rank?: unknown;
@@ -64,7 +67,7 @@ export interface LifecycleAssignmentPeriod {
   endDate: string | null;
   reportTo: string | null;
   reportToPositionId: number | null;
-  workPercent: string;
+  allocationWeight: string;
 }
 
 export interface EmployeeLifecycleCommand {
@@ -75,7 +78,9 @@ export interface EmployeeLifecycleCommand {
   reason: string | null;
   sourceAssignment: LifecycleAssignmentPeriod | null;
   targetAssignment: LifecycleAssignmentPeriod | null;
-  sourceRemainingWorkPercent: string | null;
+  previousPrimaryAssignment: LifecycleAssignmentPeriod | null;
+  previousPrimaryTarget: LifecycleAssignmentPeriod | null;
+  restoredPrimaryAssignment: LifecycleAssignmentPeriod | null;
   assignmentEndDate: string | null;
   employment: {
     id: number;
@@ -106,7 +111,7 @@ export function isHydratableOnboardingPlaceholder(
     && !employment.leaveDate?.trim();
 }
 
-type TimelineRow = Pick<LifecycleAssignmentPeriod, "startDate" | "endDate" | "workPercent" | "isPrimary">;
+type TimelineRow = Pick<LifecycleAssignmentPeriod, "startDate" | "endDate" | "allocationWeight" | "isPrimary">;
 
 export function validateAssignmentChange(
   eventType: "transfer" | "reporting_change",
@@ -216,12 +221,10 @@ export function validateAssignmentTimeline(
       }
       continue;
     }
-    const percentages = active.map((row) => parseWorkPercent(row.workPercent));
-    if (percentages.some((value) => value === null || Number.isNaN(value))) {
-      return `${date} 生效的岗位工作占比必须完整填写`;
+    const weights = active.map((row) => parseAllocationWeight(row.allocationWeight));
+    if (weights.some((value) => value === null || Number.isNaN(value) || value <= 0)) {
+      return `${date} 生效的岗位投入权重必须完整填写且大于 0`;
     }
-    const total = percentages.reduce<number>((sum, value) => sum + (value ?? 0), 0);
-    if (Math.abs(total - 1) > 0.0001) return `${date} 生效的岗位工作占比合计必须为 100%，当前为 ${(total * 100).toFixed(2)}%`;
     if (active.filter((row) => row.isPrimary).length !== 1) return `${date} 生效的岗位必须且只能有一个主岗`;
   }
   return null;
@@ -279,10 +282,10 @@ async function normalizeTargetAssignment(
         positionReportOverrideId: assignment.data.positionReportOverrideId,
       }));
   if (!reportToPosition.ok) return reportToPosition;
-  const workPercent = text(input.workPercent) ?? defaults?.workPercent ?? null;
-  const parsedPercent = parseWorkPercent(workPercent);
-  if (!workPercent || parsedPercent === null || Number.isNaN(parsedPercent) || parsedPercent <= 0 || parsedPercent > 1) {
-    return failCommand("工作占比必须大于 0 且不超过 100%", 400, "workPercent");
+  const allocationWeight = text(input.allocationWeight) ?? defaults?.allocationWeight ?? null;
+  const parsedWeight = parseAllocationWeight(allocationWeight);
+  if (!allocationWeight || parsedWeight === null || Number.isNaN(parsedWeight) || parsedWeight <= 0) {
+    return failCommand("岗位投入权重必须大于 0", 400, "allocationWeight");
   }
   return okCommand({
     id: null,
@@ -297,8 +300,24 @@ async function normalizeTargetAssignment(
     endDate: defaults?.endDate ?? null,
     reportTo: null,
     reportToPositionId: reportToPosition.data,
-    workPercent,
+    allocationWeight,
   });
+}
+
+function withAllocationWeight(
+  source: LifecycleAssignmentPeriod,
+  value: unknown,
+  effectiveDate: string,
+): DomainValidationResult<LifecycleAssignmentPeriod> {
+  const allocationWeight = text(value);
+  const parsedWeight = parseAllocationWeight(allocationWeight);
+  if (!allocationWeight || parsedWeight === null || Number.isNaN(parsedWeight) || parsedWeight <= 0) {
+    return failCommand("岗位投入权重必须大于 0", 400, "allocationWeight");
+  }
+  if (allocationWeight === source.allocationWeight) {
+    return failCommand("岗位投入权重未发生变化", 400, "allocationWeight");
+  }
+  return okCommand({ ...source, id: null, version: 0, startDate: effectiveDate, allocationWeight });
 }
 
 export async function buildEmployeeLifecycleCommand(
@@ -346,7 +365,7 @@ export async function buildEmployeeLifecycleCommand(
           endDate: true,
           reportTo: true,
           reportToPositionId: true,
-          workPercent: true,
+          allocationWeight: true,
         },
       },
       lifecycleEvents: { select: { id: true }, take: 1 },
@@ -359,13 +378,14 @@ export async function buildEmployeeLifecycleCommand(
   const source = sourceAssignmentId
     ? employee.positions.find((row) => row.id === sourceAssignmentId) ?? null
     : null;
-  if (eventType !== "onboard" && eventType !== "offboard") {
-    if (!source || !source.positionId || !source.workPercent) return failCommand("请选择生效日覆盖中的来源岗位", 400, "sourceAssignmentId");
+  const sourceRequired = ["transfer", "allocation_change", "primary_change", "reporting_change"].includes(eventType);
+  if (sourceRequired) {
+    if (!source || !source.positionId || !source.allocationWeight) return failCommand("请选择生效日覆盖中的来源岗位", 400, "sourceAssignmentId");
     if (!assignmentPeriodContainsDate(source, effectiveDate)) return failCommand("来源岗位在生效日不处于有效期间");
     if (source.startDate && source.startDate >= effectiveDate) return failCommand("生效日必须晚于来源岗位开始日期");
   }
-  const sourceAssignment: LifecycleAssignmentPeriod | null = source?.positionId && source.workPercent
-    ? { ...source, positionId: source.positionId, workPercent: source.workPercent }
+  const sourceAssignment: LifecycleAssignmentPeriod | null = source?.positionId && source.allocationWeight
+    ? { ...source, positionId: source.positionId, allocationWeight: source.allocationWeight }
     : null;
 
   const activeEmployments = employee.employments.filter((row) => employmentContainsDate(row, effectiveDate));
@@ -389,7 +409,9 @@ export async function buildEmployeeLifecycleCommand(
   }
 
   let targetAssignment: LifecycleAssignmentPeriod | null = null;
-  let sourceRemainingWorkPercent: string | null = null;
+  let previousPrimaryAssignment: LifecycleAssignmentPeriod | null = null;
+  let previousPrimaryTarget: LifecycleAssignmentPeriod | null = null;
+  let restoredPrimaryAssignment: LifecycleAssignmentPeriod | null = null;
   if (eventType === "onboard" && isEmploymentPositionOptionalTitle(employmentFields.data.title)) {
     targetAssignment = null;
   } else if (eventType === "onboard" || eventType === "transfer") {
@@ -403,16 +425,43 @@ export async function buildEmployeeLifecycleCommand(
   } else if (eventType === "concurrent_assignment") {
     const target = await normalizeTargetAssignment(employeeId, input, effectiveDate);
     if (!target.ok) return target;
-    const sourcePercent = parseWorkPercent(source!.workPercent);
-    const concurrentPercent = parseWorkPercent(target.data.workPercent);
-    if (!sourcePercent || !concurrentPercent || concurrentPercent >= sourcePercent) {
-      return failCommand("兼岗占比必须小于来源岗位当前占比", 400, "workPercent");
+    if (assignmentEndDate && activeEmployment?.leaveDate && assignmentEndDate > activeEmployment.leaveDate) {
+      return failCommand("兼岗结束日期不能晚于雇佣结束日期", 400, "assignmentEndDate");
     }
-    if (assignmentEndDate && source!.endDate && assignmentEndDate > source!.endDate) {
-      return failCommand("兼岗结束日期不能晚于来源岗位结束日期", 400, "assignmentEndDate");
+    targetAssignment = { ...target.data, isPrimary: false, endDate: assignmentEndDate };
+  } else if (eventType === "allocation_change") {
+    const target = withAllocationWeight(sourceAssignment!, input.allocationWeight, effectiveDate);
+    if (!target.ok) return target;
+    targetAssignment = target.data;
+  } else if (eventType === "primary_change") {
+    if (sourceAssignment!.isPrimary) return failCommand("所选岗位已经是主岗", 400, "sourceAssignmentId");
+    const activeAssignments = employee.positions.filter((row) => assignmentPeriodContainsDate(row, effectiveDate));
+    const currentPrimary = activeAssignments.find((row) => row.isPrimary && row.positionId && row.allocationWeight) ?? null;
+    if (!currentPrimary?.positionId || !currentPrimary.allocationWeight) return failCommand("生效日没有可切换的当前主岗", 409);
+    if (currentPrimary.startDate && currentPrimary.startDate >= effectiveDate) {
+      return failCommand("主岗变更生效日必须晚于当前主岗开始日期", 400, "effectiveDate");
     }
-    sourceRemainingWorkPercent = String(Number((sourcePercent - concurrentPercent).toFixed(6)));
-    targetAssignment = { ...target.data, isPrimary: false, endDate: assignmentEndDate ?? source!.endDate };
+    previousPrimaryAssignment = { ...currentPrimary, positionId: currentPrimary.positionId, allocationWeight: currentPrimary.allocationWeight };
+    targetAssignment = { ...sourceAssignment!, id: null, version: 0, startDate: effectiveDate, isPrimary: true };
+    const temporaryEnd = sourceAssignment!.endDate && (!currentPrimary.endDate || sourceAssignment!.endDate < currentPrimary.endDate)
+      ? sourceAssignment!.endDate
+      : currentPrimary.endDate;
+    previousPrimaryTarget = {
+      ...previousPrimaryAssignment,
+      id: null,
+      version: 0,
+      startDate: effectiveDate,
+      endDate: temporaryEnd,
+      isPrimary: false,
+    };
+    if (sourceAssignment!.endDate && (!currentPrimary.endDate || sourceAssignment!.endDate < currentPrimary.endDate)) {
+      restoredPrimaryAssignment = {
+        ...previousPrimaryAssignment,
+        id: null,
+        version: 0,
+        startDate: shiftBusinessDate(sourceAssignment!.endDate, 1),
+      };
+    }
   } else if (eventType === "reporting_change") {
     const target = await normalizeTargetAssignment(employeeId, input, effectiveDate, sourceAssignment!, "explicit");
     if (!target.ok) return target;
@@ -436,7 +485,9 @@ export async function buildEmployeeLifecycleCommand(
     reason: text(input.reason),
     sourceAssignment,
     targetAssignment,
-    sourceRemainingWorkPercent,
+    previousPrimaryAssignment,
+    previousPrimaryTarget,
+    restoredPrimaryAssignment,
     assignmentEndDate,
     employment: eventType === "onboard" ? onboardingPlaceholder : activeEmployment,
     employmentFields: employmentFields.data,
