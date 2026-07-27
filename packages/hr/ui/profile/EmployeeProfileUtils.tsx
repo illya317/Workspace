@@ -1,6 +1,5 @@
 "use client";
 
-import { ProfileFieldInput } from "./ProfileFormControls";
 import type { ContractRow, ProfileField } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
 
@@ -46,45 +45,6 @@ export function applyDateFields<T extends EditableRecord>(item: T, fields: Profi
     if (field.type === "date") next[field.key] = toInputDate(next[field.key]);
   }
   return next as T;
-}
-
-export function fieldGrid(
-  fields: ProfileField[],
-  record: EditableRecord,
-  disabled: boolean,
-  onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
-  isFieldDisabled?: (field: ProfileField, record: EditableRecord) => boolean,
-  gridClassName = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-) {
-  const defaultGrid = gridClassName === "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
-  return (
-    <div className={`grid gap-3 ${gridClassName}`}>
-      {fields.map((field) => {
-        const disabledByStatus = record.isActive === true && (field.key === "leaveDate" || field.key === "leaveReason" || field.key === "leaveNote");
-        const disabledByRule = isFieldDisabled?.(field, record) ?? false;
-        const wide = field.span === "wide";
-        return (
-          <div
-            key={field.key}
-            className={wide && defaultGrid ? "sm:col-span-2 lg:col-span-3" : ""}
-          >
-            <div className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-500">
-              <span>{field.label}</span>
-              {field.required ? <span className="text-red-500">*</span> : null}
-            </div>
-            <ProfileFieldInput
-              field={field}
-              value={field.type === "lunarBirthday" ? record.birthDate : record[field.key]}
-              record={record}
-              displayValue={field.displayKey ? String(record[field.displayKey] || "") : undefined}
-              disabled={disabled || field.readOnly || disabledByStatus || disabledByRule}
-              onChange={onChange}
-            />
-          </div>
-        );
-      })}
-    </div>
-  );
 }
 
 export function normalizeForDirty(value: unknown): unknown {
