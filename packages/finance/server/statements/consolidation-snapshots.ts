@@ -123,10 +123,17 @@ async function generateFrozenReportPayload(
   });
 }
 
+interface ConsolidationRelationshipLoadOptions {
+  includeAllRelations: boolean;
+  strictTopology: boolean;
+  requireSubsidiary: boolean;
+  inclusionByCompanyId?: ReadonlyMap<number, boolean>;
+}
+
 async function loadConsolidationRelationshipFacts(
   parentCompanyId: number,
   asOfDate: string,
-  includeCandidates: boolean,
+  options: ConsolidationRelationshipLoadOptions,
 ) {
   const asOf = new Date(`${asOfDate}T23:59:59.999Z`);
   const [parent, relations] = await Promise.all([
@@ -136,7 +143,7 @@ async function loadConsolidationRelationshipFacts(
     }),
     prisma.ownershipInterest.findMany({
       where: {
-        ...(includeCandidates
+        ...(options.includeAllRelations
           ? { owner: { company: { isNot: null } } }
           : { isConsolidated: true }),
         AND: [
@@ -183,13 +190,16 @@ async function loadConsolidationRelationshipFacts(
     for (const relation of byParent.get(currentParentId) ?? []) {
       const ownerCompany = relation.owner.company;
       if (!ownerCompany) throw new ConsolidationSnapshotError("并表股权关系的持股方不是内部公司", 409);
+      const included = options.inclusionByCompanyId?.get(relation.issuerCompanyId)
+        ?? relation.isConsolidated;
+      if (options.strictTopology && !included) continue;
       if (path.has(relation.issuerCompanyId)) {
-        if (!includeCandidates) throw new ConsolidationSnapshotError("并表公司关系存在循环持股，不能创建批次", 409);
+        if (options.strictTopology) throw new ConsolidationSnapshotError("并表公司关系存在循环持股，不能创建批次", 409);
         continue;
       }
       const existingOwner = ownerByCompany.get(relation.issuerCompanyId);
       if (existingOwner && existingOwner !== ownerCompany.id) {
-        if (!includeCandidates) {
+        if (options.strictTopology) {
           throw new ConsolidationSnapshotError("同一并表公司存在多个直接持股方，需先确认法律持股链路", 409);
         }
         continue;
@@ -209,7 +219,7 @@ async function loadConsolidationRelationshipFacts(
         relationEffectiveTo: relation.effectiveTo,
         relationVersion: relation.version,
         shareRatio: relation.shareRatio,
-        isConsolidated: relation.isConsolidated,
+        isConsolidated: included,
         functionalCurrency: null,
         currencyEvidence: null,
         currencyDecidedBy: null,
@@ -218,7 +228,7 @@ async function loadConsolidationRelationshipFacts(
     }
   };
   visit(parentCompanyId, new Set([parentCompanyId]));
-  if (!includeCandidates && facts.length === 1) {
+  if (options.requireSubsidiary && facts.length === 1) {
     throw new ConsolidationSnapshotError("母公司没有已标记并表的子公司", 409);
   }
   const [baseCurrencies, currencyPolicies] = await Promise.all([
@@ -268,11 +278,32 @@ async function loadConsolidationRelationshipFacts(
 }
 
 export function loadConsolidationScopeFacts(parentCompanyId: number, asOfDate: string) {
-  return loadConsolidationRelationshipFacts(parentCompanyId, asOfDate, false);
+  return loadConsolidationRelationshipFacts(parentCompanyId, asOfDate, {
+    includeAllRelations: false,
+    strictTopology: true,
+    requireSubsidiary: true,
+  });
 }
 
 export function loadConsolidationCandidateFacts(parentCompanyId: number, asOfDate: string) {
-  return loadConsolidationRelationshipFacts(parentCompanyId, asOfDate, true);
+  return loadConsolidationRelationshipFacts(parentCompanyId, asOfDate, {
+    includeAllRelations: true,
+    strictTopology: false,
+    requireSubsidiary: false,
+  });
+}
+
+export function loadConsolidationScopeFactsWithOverrides(
+  parentCompanyId: number,
+  asOfDate: string,
+  inclusionByCompanyId: ReadonlyMap<number, boolean>,
+) {
+  return loadConsolidationRelationshipFacts(parentCompanyId, asOfDate, {
+    includeAllRelations: true,
+    strictTopology: true,
+    requireSubsidiary: false,
+    inclusionByCompanyId,
+  });
 }
 
 async function loadSourceFact(

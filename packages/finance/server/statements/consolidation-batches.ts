@@ -14,7 +14,6 @@ import {
 import {
   ConsolidationSnapshotError,
   type ConsolidationRateFact,
-  loadConsolidationScopeFacts,
   loadInitialSourceFacts,
   loadAvailableRateFacts,
   periodEndDate,
@@ -38,6 +37,7 @@ import {
   loadHistoricalCapitalFacts,
 } from "./consolidation-rate-applications";
 import { consolidationSourcesReady } from "./consolidation-source-coverage";
+import { loadFinanceConsolidationScope } from "./consolidation-scope-selections";
 
 function snapshotError(cause: unknown) {
   if (cause instanceof ConsolidationSnapshotError) return serviceError(cause.message, cause.status);
@@ -207,10 +207,13 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
     if (existing) return serviceOk({ batch: consolidationBatchSnapshot(existing), created: false });
     const selectedPeriodEnd = periodEndDate(command.input.year, command.input.month);
     const comparativePeriodEnd = comparativePeriodEndDate(selectedPeriodEnd);
-    const scope = await loadConsolidationScopeFacts(
-      command.input.parentCompanyId,
-      selectedPeriodEnd,
-    );
+    const { scope } = await loadFinanceConsolidationScope({
+      parentCompanyId: command.input.parentCompanyId,
+      year: command.input.year,
+      month: command.input.month,
+      periodKind: command.input.periodKind,
+    }, selectedPeriodEnd);
+    if (scope.length === 1) throw new ConsolidationSnapshotError("本次报表至少需要纳入一个子公司", 409);
     const scopeFingerprint = consolidationScopeFingerprint(scope);
     const sources = await loadInitialSourceFacts(
       scope,
@@ -374,6 +377,14 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
         });
         sourceSnapshotIdByCompanyAndReportType.set(`${source.companyId}:${source.reportType}`, snapshot.id);
       }
+      await tx.financeConsolidationScopeSelection.deleteMany({
+        where: {
+          parentCompanyId: command.input.parentCompanyId,
+          year: command.input.year,
+          month: command.input.month,
+          periodKind: command.input.periodKind,
+        },
+      });
       const currentRate = latestRateAtOrBefore(rates, selectedPeriodEnd);
       const comparativeRate = latestRateAtOrBefore(rates, comparativePeriodEnd);
       const comparativeCompanyIds = new Set(sources.filter(sourceHasNonzeroPreviousAmount).map((source) => source.companyId));

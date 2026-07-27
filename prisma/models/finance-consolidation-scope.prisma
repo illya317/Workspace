@@ -1,0 +1,18 @@
+/// 单次合并报表生成前的主体选择（临时事实，来源于财务人员在合并准备页的期间级选择；创建批次后消费并清除）。
+model FinanceConsolidationScopeSelection {
+  id                Int      @id @default(autoincrement())
+  parentCompanyId   Int
+  year              Int
+  month             Int
+  periodKind        String   @default("month")
+  companyId         Int
+  relationId        Int
+  relationVersion   Int
+  included          Boolean
+  selectedBy        Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+
+  @@unique([parentCompanyId, year, month, periodKind, companyId], map: "FinanceConsolidationScopeSelection_scope_company_key")
+  @@index([parentCompanyId, year, month, periodKind], map: "FinanceConsolidationScopeSelection_scope_idx")
+}

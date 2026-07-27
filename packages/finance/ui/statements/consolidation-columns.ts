@@ -18,14 +18,15 @@ function comparisonSide(
   account: string,
   direction: "借" | "贷" | "—",
   amount: number,
+  currencyCode: string | null,
 ): DataSurfaceDisplaySpec {
   return {
     kind: "stack",
     gap: "xs",
     items: [
       { kind: "text", value: company, emphasis: "medium", wrap: "wrap" },
-      { kind: "text", value: `${account} · ${direction === "—" ? "无余额" : `${direction}方余额`}`, tone: "muted", wrap: "wrap" },
-      { kind: "amount", value: amount },
+      { kind: "text", value: `${account} · ${direction === "—" ? "计算结果" : `${direction}方余额`}`, tone: "muted", wrap: "wrap" },
+      { kind: "text", value: currencyCode ? `${currencyCode} ${amount.toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "不可直接比较", font: "mono", emphasis: "strong" },
     ],
   };
 }
@@ -45,9 +46,14 @@ function sourceVoucherCell(source: AdjustmentSource | null): DataSurfaceCellSpec
     { kind: "text", value: `${source.accountCode} ${source.accountName}${source.description ? ` · ${source.description}` : ""}`, tone: "muted", wrap: "wrap" },
     { kind: "group", items: [
       { kind: "badge", label: source.direction, tone: "gray" },
-      { kind: "amount", value: source.amount },
-      { kind: "text", value: source.currencyCode, tone: "muted" },
+      { kind: "text", value: `${source.currencyCode} ${source.amount.toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, font: "mono", emphasis: "strong" },
     ] },
+    ...(source.transactionRate === undefined ? [] : [{
+      kind: "text" as const,
+      value: `汇率 ${source.transactionRate}${source.rateDate ? ` · ${source.rateDate}` : ""}${source.rateSource ? ` · ${source.rateSource}` : ""}`,
+      tone: "muted" as const,
+      wrap: "wrap" as const,
+    }]),
     ...(source.consolidationAmountCny === undefined ? [] : [{
       kind: "text" as const,
       value: `抵销折合 CNY ${source.consolidationAmountCny.toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
@@ -100,9 +106,11 @@ function comparisonReviewCell(
 ): DataSurfaceCellSpec {
   const label = row.reviewStatus === "approved" ? "已通过"
     : row.reviewStatus === "returned" ? "已退回"
-      : row.reviewStatus === "exception" ? "例外（不阻断）" : row.entryId ? "待审阅" : "正在生成";
-  const tone = row.reviewStatus === "approved" ? "green"
-    : row.reviewStatus === "returned" ? "red" : "amber";
+      : row.reviewStatus === "calculated" ? "已计算"
+        : row.reviewStatus === "informational" ? "待锁定计算"
+          : row.reviewStatus === "exception" ? "待处理" : row.entryId ? "待审阅" : "待生成";
+  const tone = row.reviewStatus === "approved" || row.reviewStatus === "calculated" ? "green"
+    : row.reviewStatus === "returned" ? "red" : row.reviewStatus === "informational" ? "gray" : "amber";
   const entryLines = row.entrySummary.split("；").filter(Boolean).map((line) => ({
     kind: "text" as const,
     value: line,
@@ -111,10 +119,17 @@ function comparisonReviewCell(
   }));
   return { kind: "group", direction: "column", items: [
     { kind: "group", items: [
-      { kind: "text", value: "差额", tone: "muted", emphasis: "medium" },
-      { kind: "amount", value: row.difference },
+      { kind: "text", value: "可比差额", tone: "muted", emphasis: "medium" },
+      { kind: "text", value: row.differenceCurrencyCode
+        ? `${row.differenceCurrencyCode} ${row.difference.toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+        : "不可直接比较", font: "mono", emphasis: "strong" },
     ] },
-    { kind: "text", value: "拟抵销分录", tone: "muted", emphasis: "medium" },
+    { kind: "text", value: "处理结果", tone: "muted", emphasis: "medium" },
+    { kind: "badge", label: row.treatmentLabel, tone },
+    { kind: "text", value: row.treatmentDetail, tone: "muted", wrap: "wrap" },
+    ...(row.targetLineLabel ? [{ kind: "text" as const, value: `去向：${row.targetLineLabel}`, tone: "muted" as const, wrap: "wrap" as const }] : []),
+    ...(row.ownershipShareRatio == null ? [] : [{ kind: "text" as const, value: `直接持股 ${(row.ownershipShareRatio * 100).toFixed(2)}%`, tone: "muted" as const }]),
+    { kind: "text", value: "处理依据", tone: "muted", emphasis: "medium" },
     ...entryLines,
     { kind: "badge", label, tone },
   ] };
@@ -129,12 +144,12 @@ export function createAdjustmentComparisonColumns(
     { kind: "text", value: `${row.displayPeriodLabel || "本期"}：账面一 ${row.leftSources.length} 笔，账面二 ${row.rightSources.length} 笔；以前年度各 ${row.leftHistoricalSourceCount ?? 0} / ${row.rightHistoricalSourceCount ?? 0} 笔已折叠`, tone: "muted" },
   ] }) },
   { key: "left", label: "账面一", required: true, cell: (row) => comparisonSide(
-    row.leftCompany, row.leftAccount, row.leftDirection, row.leftAmount,
+    row.leftCompany, row.leftAccount, row.leftDirection, row.leftAmount, row.leftCurrencyCode,
   ) },
   { key: "right", label: "账面二", required: true, cell: (row) => comparisonSide(
-    row.rightCompany, row.rightAccount, row.rightDirection, row.rightAmount,
+    row.rightCompany, row.rightAccount, row.rightDirection, row.rightAmount, row.rightCurrencyCode,
   ) },
-  { key: "review", label: "抵销与审阅", required: true, cell: (row) => comparisonReviewCell(row) },
+  { key: "review", label: "处理与审阅", required: true, cell: (row) => comparisonReviewCell(row) },
   ];
 }
 
@@ -185,7 +200,7 @@ export function createConsolidationEntityColumns(input: {
   },
   {
     key: "consolidated",
-    label: "并表",
+    label: "本次并表",
     required: true,
     width: "sm",
     cell: (row) => {
@@ -199,10 +214,10 @@ export function createConsolidationEntityColumns(input: {
         kind: "action",
         action: {
           key: `consolidation-${row.relationId ?? row.companyId ?? row.code}`,
-          label: row.isConsolidated ? "已并表" : "未并表",
+          label: row.isConsolidated ? "本次纳入" : "本次不纳入",
           title: disabled
-            ? row.isConsolidated ? "已并表" : "未并表"
-            : row.isConsolidated ? "已并表，点击移出" : "未并表，点击纳入",
+            ? row.isConsolidated ? "本次纳入" : "本次不纳入"
+            : row.isConsolidated ? "本次纳入，点击移出" : "本次不纳入，点击纳入",
           icon: row.isConsolidated ? "check" : "x",
           presentation: "glyph",
           tone: row.isConsolidated ? "green" : "slate",

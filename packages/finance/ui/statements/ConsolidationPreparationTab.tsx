@@ -10,11 +10,11 @@ import {
   type BodySurfaceSectionSpec,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
-import type { ConsolidationEntityCoverage } from "@workspace/finance/types";
 import {
-  CONSOLIDATION_SCOPE_UPDATE_API_PATH,
-  type ConsolidationScopeUpdateRequest,
-} from "@workspace/platform/contracts/consolidation-scope";
+  FINANCE_CONSOLIDATION_SCOPE_SELECTION_API_PATH,
+  type ConsolidationEntityCoverage,
+  type SaveFinanceConsolidationScopeSelectionInput,
+} from "@workspace/finance/types";
 import { useCallback, useMemo, useState } from "react";
 
 import { createConsolidationEntityColumns } from "./consolidation-columns";
@@ -37,20 +37,25 @@ export function ConsolidationPreparationTab(props: ConsolidationTabProps) {
     if (!data || row.relationId === null || row.relationVersion === null || included === row.isConsolidated) return;
     setBusyRelationId(row.relationId);
     try {
-      const command: ConsolidationScopeUpdateRequest = {
+      if (!row.companyId || !data.scope.parentCompanyId) return;
+      const command: SaveFinanceConsolidationScopeSelectionInput = {
+        parentCompanyId: data.scope.parentCompanyId,
+        year: data.scope.year,
+        month: data.scope.month,
+        periodKind: data.scope.periodKind,
+        companyId: row.companyId,
         relationId: row.relationId,
-        expectedVersion: row.relationVersion,
+        expectedRelationVersion: row.relationVersion,
         included,
-        effectiveDate: data.fxPolicy.periodEndDate,
       };
-      const response = await fetch(workspacePath(CONSOLIDATION_SCOPE_UPDATE_API_PATH), {
-        method: "POST",
+      const response = await fetch(workspacePath(FINANCE_CONSOLIDATION_SCOPE_SELECTION_API_PATH), {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(command),
       });
       const payload = await response.json().catch(() => null) as { error?: string } | null;
       if (!response.ok) throw new Error(payload?.error || "并表范围保存失败");
-      feedback.success(`${row.name}已${included ? "纳入" : "移出"}合并范围`);
+      feedback.success(`${row.name}已${included ? "纳入" : "移出"}本次报表`);
       onRefresh();
     } catch (cause) {
       feedback.error(cause instanceof Error ? cause.message : "并表范围保存失败");

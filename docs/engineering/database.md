@@ -271,6 +271,7 @@
 | editedWorkpapers | FinanceStatementWorkpaper[] | @relation("WorkpaperEditor") |  |
 | notifications | Notification[] | @relation("NotificationRecipient") |  |
 | createdNotifications | Notification[] | @relation("NotificationActor") |  |
+| notificationSubscriptions | NotificationSubscription[] | - |  |
 | permissionGrantLedgerEvents | PermissionGrantLedgerEvent[] | @relation("PermissionGrantLedgerActor") |  |
 | submittedApprovalRequests | ApprovalRequest[] | @relation("ApprovalRequestSubmitter") |  |
 | resolvedApprovalRequests | ApprovalRequest[] | @relation("ApprovalRequestResolver") |  |
@@ -392,6 +393,10 @@
 | body | String | - |  |
 | href | String? | - |  |
 | payloadJson | String? | - |  |
+| recipientReason | String? | - |  |
+| resourceKey | String? | - |  |
+| scopeId | String? | - |  |
+| subscriptionId | Int? | - |  |
 | isImportant | Boolean | @default(false) |  |
 | isStrongReminder | Boolean | @default(false) |  |
 | requiresAcknowledgement | Boolean | @default(false) |  |
@@ -403,6 +408,7 @@
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | recipient | User | @relation("NotificationRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade) |  |
 | actor | User? | @relation("NotificationActor", fields: [actorUserId], references: [id], onDelete: SetNull) |  |
+| subscription | NotificationSubscription? | @relation(fields: [subscriptionId], references: [id], onDelete: SetNull) |  |
 
 ### OwnershipInterest
 
@@ -1504,6 +1510,23 @@
 | reportPayload | Json | - |  |
 | generatedAt | DateTime | @default(now()) |  |
 | batch | FinanceConsolidationBatch | @relation(fields: [batchId], references: [id], onDelete: Restrict) |  |
+
+### FinanceConsolidationScopeSelection
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| parentCompanyId | Int | - |  |
+| year | Int | - |  |
+| month | Int | - |  |
+| periodKind | String | @default("month") |  |
+| companyId | Int | - |  |
+| relationId | Int | - |  |
+| relationVersion | Int | - |  |
+| included | Boolean | - |  |
+| selectedBy | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
 
 ### FinanceConsolidationBatch
 
@@ -4383,6 +4406,21 @@
 | changedInBatch | Boolean | @default(false) | false 表示已处于目标状态，本批次未改写 |
 | createdAt | DateTime | @default(now()) |  |
 | batch | MutationImpactBatch | @relation(fields: [batchId], references: [id], onDelete: Cascade) |  |
+
+### NotificationSubscription
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| userId | Int | - |  |
+| eventKey | String | - |  |
+| enabled | Boolean | @default(true) |  |
+| channel | String | @default("workspace") |  |
+| cadence | String | @default("immediate") |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| user | User | @relation(fields: [userId], references: [id], onDelete: Cascade) |  |
+| notifications | Notification[] | - |  |
 
 ### OpenApiClient
 

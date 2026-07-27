@@ -340,6 +340,11 @@ export type FinanceVoucherCompanyMappingRule = Prisma.FinanceVoucherCompanyMappi
  */
 export type FinanceConsolidationOutputSnapshot = Prisma.FinanceConsolidationOutputSnapshotModel
 /**
+ * Model FinanceConsolidationScopeSelection
+ * 单次合并报表生成前的主体选择（临时事实，来源于财务人员在合并准备页的期间级选择；创建批次后消费并清除）。
+ */
+export type FinanceConsolidationScopeSelection = Prisma.FinanceConsolidationScopeSelectionModel
+/**
  * Model FinanceConsolidationBatch
  * 合并报表批次（事实头，来源于人工创建/复核生命周期）。每个版本冻结范围、来源、汇率和抵销事实。
  */

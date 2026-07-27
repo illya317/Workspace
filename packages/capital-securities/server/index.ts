@@ -17,10 +17,6 @@ export {
   OwnershipProjectionRebuildError,
   type OwnershipProjectionRebuildReceipt,
 } from "./ownership-projection";
-export {
-  buildSetConsolidationInclusionRouteCommand,
-  setConsolidationInclusion,
-} from "./consolidation-inclusion";
 export { buildOwnershipProjectionRebuildCommand } from "./domain/ownership-projection-rebuild";
 export * from "./workspace-analysis-sources";
 export * from "./workspace-analysis-source-access";

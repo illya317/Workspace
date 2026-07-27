@@ -9,3 +9,4 @@ export type * from "./management-analysis";
 export * from "./operational-analysis";
 export type * from "./statements";
 export type * from "./consolidation-adjustment";
+export * from "./consolidation-scope";

@@ -115,6 +115,7 @@ export const ModelName = {
   FinanceConsolidationMatchSource: 'FinanceConsolidationMatchSource',
   FinanceVoucherCompanyMappingRule: 'FinanceVoucherCompanyMappingRule',
   FinanceConsolidationOutputSnapshot: 'FinanceConsolidationOutputSnapshot',
+  FinanceConsolidationScopeSelection: 'FinanceConsolidationScopeSelection',
   FinanceConsolidationBatch: 'FinanceConsolidationBatch',
   FinanceCompanyCurrencyPolicy: 'FinanceCompanyCurrencyPolicy',
   FinanceConsolidationBatchEvent: 'FinanceConsolidationBatchEvent',
@@ -1674,6 +1675,24 @@ export const FinanceConsolidationOutputSnapshotScalarFieldEnum = {
 } as const
 
 export type FinanceConsolidationOutputSnapshotScalarFieldEnum = (typeof FinanceConsolidationOutputSnapshotScalarFieldEnum)[keyof typeof FinanceConsolidationOutputSnapshotScalarFieldEnum]
+
+
+export const FinanceConsolidationScopeSelectionScalarFieldEnum = {
+  id: 'id',
+  parentCompanyId: 'parentCompanyId',
+  year: 'year',
+  month: 'month',
+  periodKind: 'periodKind',
+  companyId: 'companyId',
+  relationId: 'relationId',
+  relationVersion: 'relationVersion',
+  included: 'included',
+  selectedBy: 'selectedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceConsolidationScopeSelectionScalarFieldEnum = (typeof FinanceConsolidationScopeSelectionScalarFieldEnum)[keyof typeof FinanceConsolidationScopeSelectionScalarFieldEnum]
 
 
 export const FinanceConsolidationBatchScalarFieldEnum = {

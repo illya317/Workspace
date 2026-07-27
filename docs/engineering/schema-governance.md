@@ -6,7 +6,7 @@
 - 所有 model 必须按领域放在 `prisma/models/*.prisma`。
 - 禁止把新 model 直接写回 `prisma/schema.prisma`。
 
-当前领域划分（56 个 model 文件、243 个 model；逐字段关系以 `docs/generated/tables.md` 为准）：
+当前领域划分（57 个 model 文件、244 个 model；逐字段关系以 `docs/generated/tables.md` 为准）：
 
 | 文件 | 领域 | 模型 |
 |------|------|------|
@@ -24,6 +24,7 @@
 | `finance-consolidation-entry-line.prisma` | 合并抵销分录行 | FinanceConsolidationEntryLine |
 | `finance-consolidation-match.prisma` | 合并匹配组、来源与公司映射规则 | FinanceConsolidationMatchGroup, FinanceConsolidationMatchSource, FinanceVoucherCompanyMappingRule |
 | `finance-consolidation-output.prisma` | 合并输出快照 | FinanceConsolidationOutputSnapshot |
+| `finance-consolidation-scope.prisma` | 单次合并报表范围准备 | FinanceConsolidationScopeSelection |
 | `finance-consolidation.prisma` | 合并批次、快照、汇率与抵销 | FinanceConsolidationBatch, FinanceCompanyCurrencyPolicy, FinanceConsolidationBatchEvent, FinanceConsolidationControlDecision, FinanceConsolidationEntitySnapshot, FinanceConsolidationSourceSnapshot, FinanceConsolidationRateSnapshot, FinanceConsolidationEntry, FinanceConsolidationTaxEffect |
 | `finance-cost.prisma` | 成本管理 | FinanceDataImport, FinanceShipment, FinanceSalesSalary, FinanceCostStructureRow, FinanceCostAnalysisRow, FinanceWorkshopReport |
 | `finance-dimensions.prisma` | 辅助核算、往来分类与未清项 | FinanceAuxiliaryMember, FinanceCounterpartyClassification, FinanceVoucherItemAuxiliary, FinanceAuxiliaryBalance, FinanceAuxiliaryBalanceMember, FinanceOpenItem, FinanceOpenItemSettlement, FinanceOpenItemAuxiliary |

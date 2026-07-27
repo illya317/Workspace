@@ -4,10 +4,9 @@ import { StatementsClient } from "@workspace/finance/ui";
 
 export default async function FinanceStatementsPage() {
   const user = await requireRouteAccess("/finance/statements");
-  const [canCreate, canUpdate, canUpdateConsolidationScope, canDelete, canSubmit, canApprove, canReject, canLock, canExport] = await Promise.all([
+  const [canCreate, canUpdate, canDelete, canSubmit, canApprove, canReject, canLock, canExport] = await Promise.all([
     evaluatePermissionAction(user.id, "finance.statements", "create"),
     evaluatePermissionAction(user.id, "finance.statements", "update"),
-    evaluatePermissionAction(user.id, "capitalSecurities.governance", "update"),
     evaluatePermissionAction(user.id, "finance.statements", "delete"),
     evaluatePermissionAction(user.id, "finance.statements", "submit"),
     evaluatePermissionAction(user.id, "finance.statements", "approve"),
@@ -20,6 +19,6 @@ export default async function FinanceStatementsPage() {
     title: "财务报表",
     backHref: "/finance",
     user,
-    children: <StatementsClient capabilities={{ canCreate, canUpdate, canUpdateConsolidationScope, canDelete, canSubmit, canApprove, canReject, canLock, canExport }} />,
+    children: <StatementsClient capabilities={{ canCreate, canUpdate, canUpdateConsolidationScope: canUpdate, canDelete, canSubmit, canApprove, canReject, canLock, canExport }} />,
   });
 }
