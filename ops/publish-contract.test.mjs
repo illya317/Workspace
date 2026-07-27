@@ -61,7 +61,8 @@ test("CNB release identity is source parent plus exact injection files", () => {
 
 test("prepare runs aggregate full CI and E2E once while deploy only consumes exact-tree evidence", () => {
   assert.match(publish, /NEXT_PUBLIC_BUILD_VERSION="\$RELEASE_SOURCE_SHA" BUILD_VERSION="\$RELEASE_SOURCE_SHA" npm run check:ci/);
-  assert.match(publish, /local-release-gate\.sh" --receipt "\$LOCAL_RELEASE_GATE_RECEIPT_FILE"/);
+  assert.match(publish, /"\$RELEASE_WORKTREE\/ops\/local-release-gate\.sh" --receipt "\$LOCAL_RELEASE_GATE_RECEIPT_FILE"/);
+  assert.doesNotMatch(publish, /"\$SCRIPT_DIR\/local-release-gate\.sh" --receipt/);
   assert.match(publish, /复用当前 tree 已通过的完整 CI \+ E2E prepare 回执/);
   assert.ok(
     publish.indexOf("local-release-gate-receipt.mjs")

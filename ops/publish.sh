@@ -87,7 +87,7 @@ case "${1:-}" in
     )
     echo "==> 复用已验证 production build，运行一次性数据库迁移/seed 与全量 E2E..."
     WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" \
-      "$SCRIPT_DIR/local-release-gate.sh" --receipt "$LOCAL_RELEASE_GATE_RECEIPT_FILE"
+      "$RELEASE_WORKTREE/ops/local-release-gate.sh" --receipt "$LOCAL_RELEASE_GATE_RECEIPT_FILE"
     node "$SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
       --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
       --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null
