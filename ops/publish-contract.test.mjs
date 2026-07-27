@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 
 const publish = readFileSync(new URL("./publish.sh", import.meta.url), "utf8");
@@ -23,18 +26,23 @@ test("prepare owns local checks and deploy has one receipt-only CNB production p
   const githubSetup = publish.indexOf('GITHUB_REMOTE_NAME=');
   assert.ok(dispatch >= 0 && dispatch < githubSetup);
   assert.match(publish, /prepare\)[\s\S]*?npm run check:ci[\s\S]*?local-release-gate\.sh" --receipt/);
-  assert.match(publish, /deploy\)[\s\S]*?local-release-gate-receipt\.mjs" verify[\s\S]*?exec "\$SCRIPT_DIR\/publish-cnb\.sh" "\$\{deploy_args\[@\]\}"/);
+  assert.match(publish, /deploy\)[\s\S]*?local-release-gate-receipt\.mjs" verify[\s\S]*?exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh" "\$\{deploy_args\[@\]\}"/);
   assert.doesNotMatch(publish.slice(publish.indexOf("deploy)")), /upload-data-release\.sh/);
   assert.doesNotMatch(publish, /--full|hotfix|publish-hotfix/i);
   assert.equal(existsSync(new URL("./publish-hotfix.sh", import.meta.url)), false);
   assert.equal(existsSync(new URL("./hotfix-remote-build.sh", import.meta.url)), false);
-  assert.match(publish, /if \[ "\$\{#deploy_args\[@\]\}" -eq 0 \]; then\s+exec "\$SCRIPT_DIR\/publish-cnb\.sh"/);
+  assert.match(publish, /if \[ "\$\{#deploy_args\[@\]\}" -eq 0 \]; then\s+exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);
 });
 
-test("deploy promotes main into the dedicated release worktree by fast-forward only", () => {
-  const promote = publish.indexOf('promote-release-branch.sh"');
+test("prepare alone promotes main into the dedicated release worktree by fast-forward only", () => {
+  const promote = publish.indexOf('"$SCRIPT_DIR/promote-release-branch.sh" promote');
   const prepareFunction = publish.indexOf("prepare_release_worktree() {");
   assert.ok(prepareFunction >= 0 && prepareFunction < promote);
+  const deploy = publish.slice(publish.indexOf("  deploy)"));
+  assert.match(deploy, /load_prepared_release_worktree/);
+  assert.doesNotMatch(deploy, /prepare_release_worktree/);
+  assert.match(promoteRelease, /promote\|verify/);
+  assert.match(promoteRelease, /if \[ "\$MODE" = "verify" \]/);
   assert.match(promoteRelease, /RELEASE_PROMOTION_BRANCH="\$\{RELEASE_PROMOTION_BRANCH:-main\}"/);
   assert.match(promoteRelease, /git merge-base --is-ancestor "\$release_sha" "\$candidate_sha"/);
   assert.match(promoteRelease, /git merge --ff-only "\$RELEASE_PROMOTION_BRANCH"/);
@@ -44,6 +52,52 @@ test("deploy promotes main into the dedicated release worktree by fast-forward o
   assert.match(publish, /RELEASE_CI_ENV_FILE/);
   assert.match(publish, /ln -s "\$RELEASE_CI_ENV_FILE" "\$release_env_target"/);
   assert.match(publish, /release \.env 必须是指向受控 CI 环境文件的符号链接/);
+});
+
+test("deploy keeps the prepared release frozen when main advances", () => {
+  const root = mkdtempSync(join(tmpdir(), "workspace-frozen-release-"));
+  const repository = join(root, "repository");
+  const releaseWorktree = join(root, "release");
+  const envFile = join(root, "ops.env");
+  const runGit = (...args) => execFileSync("git", args, { cwd: repository, stdio: "pipe" });
+  try {
+    execFileSync("git", ["init", "--initial-branch=main", repository], { stdio: "pipe" });
+    runGit("config", "user.name", "Release Contract Test");
+    runGit("config", "user.email", "release-contract@example.invalid");
+    writeFileSync(join(repository, "candidate.txt"), "one\n");
+    runGit("add", "candidate.txt");
+    runGit("commit", "-m", "initial");
+    runGit("branch", "release");
+    runGit("worktree", "add", releaseWorktree, "release");
+
+    writeFileSync(join(repository, "candidate.txt"), "two\n");
+    runGit("add", "candidate.txt");
+    runGit("commit", "-m", "prepared candidate");
+    const preparedSha = runGit("rev-parse", "HEAD").toString().trim();
+    writeFileSync(
+      envFile,
+      `RELEASE_SOURCE_DIR=${releaseWorktree}\nRELEASE_BRANCH=release\nRELEASE_PROMOTION_BRANCH=main\n`,
+    );
+    execFileSync("bash", [new URL("./promote-release-branch.sh", import.meta.url).pathname, "promote"], {
+      env: { ...process.env, OPS_ENV_FILE: envFile },
+      stdio: "pipe",
+    });
+    assert.equal(execFileSync("git", ["-C", releaseWorktree, "rev-parse", "HEAD"]).toString().trim(), preparedSha);
+
+    writeFileSync(join(repository, "candidate.txt"), "three\n");
+    runGit("add", "candidate.txt");
+    runGit("commit", "-m", "later main");
+    const laterMainSha = runGit("rev-parse", "HEAD").toString().trim();
+    assert.notEqual(laterMainSha, preparedSha);
+
+    execFileSync("bash", [new URL("./promote-release-branch.sh", import.meta.url).pathname, "verify"], {
+      env: { ...process.env, OPS_ENV_FILE: envFile },
+      stdio: "pipe",
+    });
+    assert.equal(execFileSync("git", ["-C", releaseWorktree, "rev-parse", "HEAD"]).toString().trim(), preparedSha);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("CNB deployment path contains no GitHub transport or deployment API", () => {
@@ -70,6 +124,7 @@ test("prepare runs aggregate full CI and E2E once while deploy only consumes exa
   );
   assert.ok(publish.indexOf("npm run check:ci") < publish.indexOf('local-release-gate.sh" --receipt'));
   assert.doesNotMatch(publishCnb, /npm run check:ci|npm run test:e2e|local-release-gate\.sh" --receipt/);
+  assert.match(publish.slice(publish.indexOf("  deploy)")), /exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);
   assert.match(publishCnb, /local-release-gate-receipt\.mjs" verify/);
   assert.match(publishCnb, /deploy 不运行编译或测试/);
   for (const source of [releaseToCnb, deploy]) {

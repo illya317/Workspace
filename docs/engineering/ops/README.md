@@ -14,6 +14,9 @@ trusted pipeline internals rather than local alternatives to this operator entry
 
 Production release requires an exact-tree local full-CI receipt, then goes directly to CNB. GitHub
 PR/CI remains available for collaboration but is not queried or awaited by the deploy path.
+Only `publish.sh prepare` may fast-forward the dedicated release worktree from `main`. The subsequent
+`deploy` freezes and consumes that prepared release HEAD, and runs its verification and CNB stages
+from the same tree even if `main` advances in between.
 
 Repository-owned runtime dependency contracts:
 

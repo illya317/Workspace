@@ -20,8 +20,8 @@ Operations 负责 CI、部署、环境和脚本运行态。
 - 维护 CI、check、runtime、deploy、本地开发命令相关文档，确保命令说明和 `package.json` / workflow 一致。
 - 维护 deploy graph 与生成 App 的运行契约：根 `app/`/registry 是事实源，`apps/*` 只通过生成器更新，并由 `deploy:apps:check` 阻断漂移。
 - 生产维护遵循本地优先：代码、migration、文档和检查在本地完成。生产发布由当前 Git tree 的本地 `check:ci` 通过记录和 CNB Linux 目标 artifact 构建完成；本地记录不绑定调用方 Node 小版本或操作系统。GitHub PR/CI 是协作入口，不是生产发布依赖。
-- CNB 不作为代码调试窗口。先用 `ops/publish.sh prepare` 在本地一次性收集 CI/编译/E2E 问题并取得精确 tree 回执；只有零错误后才能运行 `ops/publish.sh deploy`。deploy 只消费回执，禁止自动补跑或重跑本地检查。
-- 多 agent 共用 main 时，pre-commit 的快照和缓存键只绑定 `HEAD + staged index + 检查环境`；其他 agent 的 unstaged/untracked 写入从一开始就不参与身份计算，不拒绝提交，也不使已通过缓存失效。部署仍只读取提交后的 main tree 并快进到干净 release worktree。
+- CNB 不作为代码调试窗口。先用 `ops/publish.sh prepare` 在本地一次性收集 CI/编译/E2E 问题并取得精确 tree 回执；只有零错误后才能运行 `ops/publish.sh deploy`。prepare 是唯一允许把 release 快进到 main 的阶段；deploy 冻结使用已 prepare 的 release HEAD，即使 main 随后前进也不得再次 promotion。deploy 只消费回执，禁止自动补跑或重跑本地检查。
+- 多 agent 共用 main 时，pre-commit 的快照和缓存键只绑定 `HEAD + staged index + 检查环境`；其他 agent 的 unstaged/untracked 写入从一开始就不参与身份计算，不拒绝提交，也不使已通过缓存失效。`prepare` 只读取提交后的 main tree 并快进到干净 release worktree；`deploy` 固定消费该已验证候选。
 
 ## 禁止
 
@@ -39,7 +39,7 @@ Operations 负责 CI、部署、环境和脚本运行态。
 
 ## 生产发布
 
-- Full 与单 unit 的唯一 operator 入口仍是 `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy`，但调用前必须先对同一候选运行 `ops/publish.sh prepare`；Profile/Fleet 的 prepare/promote/rollback 命令只允许受信发布流水线调用，不是本地旁路入口。私有配置以 `SOURCE_DIR` 指向日常 `main` 工作区、`RELEASE_SOURCE_DIR` 指向专用 worktree、`RELEASE_CI_ENV_FILE` 指向本机受控 CI 环境文件。两步都只读取本地 `main` ref 的已提交 HEAD，完全忽略日常工作区的未提交/未跟踪文件。release worktree 只以忽略的 `.env` 符号链接复用 CI/本地数据库配置，只允许从 `main` 快进。`prepare` 优先复用同 source/tree 的完整 release-gate 回执；没有回执时才聚合运行本地 CI，并复用 production build 完成全量 E2E。`deploy` 只验证该精确 tree 回执后触发 CNB。
+- Full 与单 unit 的唯一 operator 入口仍是 `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy`，但调用前必须先对同一候选运行 `ops/publish.sh prepare`；Profile/Fleet 的 prepare/promote/rollback 命令只允许受信发布流水线调用，不是本地旁路入口。私有配置以 `SOURCE_DIR` 指向日常 `main` 工作区、`RELEASE_SOURCE_DIR` 指向专用 worktree、`RELEASE_CI_ENV_FILE` 指向本机受控 CI 环境文件。两步完全忽略日常工作区的未提交/未跟踪文件。release worktree 只以忽略的 `.env` 符号链接复用 CI/本地数据库配置，并且只有 `prepare` 允许从 `main` 快进；`deploy` 读取干净的现有 release HEAD，不追随两步之间新增的 main 提交。`prepare` 优先复用同 source/tree 的完整 release-gate 回执；没有回执时才聚合运行本地 CI，并复用 production build 完成全量 E2E。`deploy` 从冻结 release tree 调用后续校验和 CNB 脚本，只验证该精确 tree 回执后触发 CNB。
 - CNB 按 release metadata 构建目标 Linux artifact：Full 为 canonical monolith standalone，单 unit 为 graph/contract 约束的独立制品。已验证 artifact 交给统一部署器按目标执行或复验 control-plane，再完成不可变 release 目录、原子切换、健康检查和失败回滚；服务器不从源码重建生产 artifact。
 - Full 成功切流必须生成并原子提交一个无 `activeUnits`、无独立路由的 Gateway generation，让全部公网模块统一回落到本次 monolith；不得保留上一次单 unit/Profile 的公开 override。后续单 unit/Profile 部署再显式建立新的 override。
 - `deployed-release.json` 只记录 CNB runtime/canonical source、artifact 与 deployment 证据。候选必须是当前部署 source 的后代；同 source 为 no-op，回退或分叉直接阻断。

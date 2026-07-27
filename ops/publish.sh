@@ -32,7 +32,7 @@ usage() {
 EOF
 }
 
-prepare_release_worktree() {
+initialize_release_worktree() {
   RELEASE_WORKTREE="${RELEASE_SOURCE_DIR:-${SOURCE_DIR:-}}"
   : "${RELEASE_WORKTREE:?RELEASE_SOURCE_DIR not set in $OPS_ENV_FILE}"
   RELEASE_CI_ENV_FILE="${RELEASE_CI_ENV_FILE:-${SOURCE_DIR:-}/.env}"
@@ -51,9 +51,27 @@ prepare_release_worktree() {
     ln -s "$RELEASE_CI_ENV_FILE" "$release_env_target"
   fi
 
-  "$SCRIPT_DIR/promote-release-branch.sh"
+  RELEASE_SCRIPT_DIR="$RELEASE_WORKTREE/ops"
+  [ -x "$RELEASE_SCRIPT_DIR/promote-release-branch.sh" ] || {
+    echo "[错误] release worktree 缺少可执行的候选选择器"; exit 1;
+  }
+}
+
+capture_release_identity() {
   RELEASE_SOURCE_SHA="$(git -C "$RELEASE_WORKTREE" rev-parse HEAD)"
   RELEASE_SOURCE_TREE="$(git -C "$RELEASE_WORKTREE" rev-parse 'HEAD^{tree}')"
+}
+
+prepare_release_worktree() {
+  initialize_release_worktree
+  "$SCRIPT_DIR/promote-release-branch.sh" promote
+  capture_release_identity
+}
+
+load_prepared_release_worktree() {
+  initialize_release_worktree
+  "$RELEASE_SCRIPT_DIR/promote-release-branch.sh" verify
+  capture_release_identity
 }
 
 validate_local_release_inputs() {
@@ -61,9 +79,9 @@ validate_local_release_inputs() {
   : "${WORKSPACE_CONFIG_DIR:?WORKSPACE_CONFIG_DIR not set in $OPS_ENV_FILE}"
   CNB_REAL_CNB_YML="${CNB_REAL_CNB_YML:-$WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml}"
   [ -f "$CNB_REAL_CNB_YML" ] || { echo "[错误] 真实 CNB 配置文件不存在: $CNB_REAL_CNB_YML"; exit 1; }
-  node "$SCRIPT_DIR/validate-cnb-release-config.mjs" "$CNB_REAL_CNB_YML"
+  node "$RELEASE_SCRIPT_DIR/validate-cnb-release-config.mjs" "$CNB_REAL_CNB_YML"
   OPS_ENV_FILE="$OPS_ENV_FILE" WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" \
-    "$SCRIPT_DIR/sync-tenant-config.sh" --dry-run --source-sha "$RELEASE_SOURCE_SHA"
+    "$RELEASE_SCRIPT_DIR/sync-tenant-config.sh" --dry-run --source-sha "$RELEASE_SOURCE_SHA"
 }
 
 case "${1:-}" in
@@ -73,7 +91,7 @@ case "${1:-}" in
     prepare_release_worktree
     validate_local_release_inputs
     LOCAL_RELEASE_GATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/local-release-gate.json"
-    if node "$SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
+    if node "$RELEASE_SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
       --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
       --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null 2>&1; then
       echo "==> 复用当前 tree 已通过的完整 CI + E2E prepare 回执；未重复运行检查。"
@@ -88,7 +106,7 @@ case "${1:-}" in
     echo "==> 复用已验证 production build，运行一次性数据库迁移/seed 与全量 E2E..."
     WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" \
       "$RELEASE_WORKTREE/ops/local-release-gate.sh" --receipt "$LOCAL_RELEASE_GATE_RECEIPT_FILE"
-    node "$SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
+    node "$RELEASE_SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
       --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
       --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null
     echo "==> prepare 完成：当前 tree 已通过完整 CI + E2E；未连接 CNB，未触发生产部署。"
@@ -117,10 +135,10 @@ esac
 case "${1:-}" in
   deploy)
     shift
-    prepare_release_worktree
+    load_prepared_release_worktree
     validate_local_release_inputs
     LOCAL_RELEASE_GATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/local-release-gate.json"
-    if ! node "$SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
+    if ! node "$RELEASE_SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
       --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
       --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null; then
       echo "[错误] 当前 release tree 没有有效 prepare 回执；拒绝进入 CNB。" >&2
@@ -132,9 +150,9 @@ case "${1:-}" in
     deploy_args=("$@")
     candidate_sha="$RELEASE_SOURCE_SHA"
     if [ -f "$RELEASE_PROCESS_TIMING_FILE" ]; then
-      node "$SCRIPT_DIR/release-process-timing.mjs" resume --file "$RELEASE_PROCESS_TIMING_FILE" >/dev/null
+      node "$RELEASE_SCRIPT_DIR/release-process-timing.mjs" resume --file "$RELEASE_PROCESS_TIMING_FILE" >/dev/null
     fi
-    release_session="$(node "$SCRIPT_DIR/release-process-timing.mjs" begin \
+    release_session="$(node "$RELEASE_SCRIPT_DIR/release-process-timing.mjs" begin \
       --file "$RELEASE_PROCESS_TIMING_FILE" \
       --repository-root "$RELEASE_WORKTREE" \
       --source-sha "$candidate_sha")"
@@ -144,9 +162,9 @@ case "${1:-}" in
       console.log(`==> release 流程计时：第 ${session.releaseAttemptCount} 次尝试，完整累计 ${session.releaseProcessSeconds}s`);
     ' "$release_session"
     if [ "${#deploy_args[@]}" -eq 0 ]; then
-      exec "$SCRIPT_DIR/publish-cnb.sh"
+      exec "$RELEASE_SCRIPT_DIR/publish-cnb.sh"
     fi
-    exec "$SCRIPT_DIR/publish-cnb.sh" "${deploy_args[@]}"
+    exec "$RELEASE_SCRIPT_DIR/publish-cnb.sh" "${deploy_args[@]}"
     ;;
 esac
 
