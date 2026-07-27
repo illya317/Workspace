@@ -149,7 +149,7 @@ export default function EmployeeProfileView({
     employment: activeEmployment,
     employeeId: profile?.employee.id ?? 0,
     employments,
-    asOfDate: profile?.asOfDate ?? "invalid",
+    asOfDate: profile?.asOfDate ?? "",
     canEdit,
     saving,
     onChange: (field, value, option) => setEmployments((rows) => changeEmployment(rows, activeEmploymentIndex, field, value, option)),
@@ -159,7 +159,7 @@ export default function EmployeeProfileView({
   });
   const edpSections = useEdpSections({
     rows: edps,
-    asOfDate: profile?.asOfDate ?? "invalid",
+    asOfDate: profile?.asOfDate ?? "",
     className: sectionCardClassName,
   });
   const createHistorySections = [

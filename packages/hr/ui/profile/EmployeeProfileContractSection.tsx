@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   createFieldsSection,
@@ -88,12 +88,15 @@ export function useContractSections({
   const normalized = useMemo(() => rows.filter((row) => row.source === "normalized"), [rows]);
   const normalizedKey = normalized.map((row) => `${row.agreementUid}:${row.version}`).join("|");
   const [draft, setDraft] = useState<AgreementDraft>(() => initialDraft(employments, normalized, asOfDate));
+  const draftAsOfDateRef = useRef(asOfDate);
   const [saving, setSaving] = useState(false);
   const selected = normalized.find((row) => row.agreementUid === draft.agreementUid) ?? normalized[0] ?? null;
 
   useEffect(() => {
-    if (normalized.length === 0) return;
-    if (draft.agreementUid && normalized.some((row) => row.agreementUid === draft.agreementUid)) return;
+    const asOfDateChanged = draftAsOfDateRef.current !== asOfDate;
+    draftAsOfDateRef.current = asOfDate;
+    if (normalized.length === 0 && !asOfDateChanged) return;
+    if (!asOfDateChanged && draft.agreementUid && normalized.some((row) => row.agreementUid === draft.agreementUid)) return;
     setDraft(initialDraft(employments, normalized, asOfDate));
   }, [asOfDate, draft.agreementUid, employments, normalized, normalizedKey]);
 
