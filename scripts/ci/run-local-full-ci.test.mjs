@@ -32,8 +32,8 @@ function createHarness({ statuses = ["", ""], trees = [tree, tree], env = {}, su
     cwd: "/workspace",
     env,
     git,
-    runSuites: (suiteNames) => {
-      suiteCalls.push(suiteNames);
+    runSuites: (suiteNames, options) => {
+      suiteCalls.push({ suiteNames, options });
       return suiteStatus;
     },
     writeReceipt: (file, receipt) => writes.push({ file, receipt }),
@@ -46,7 +46,8 @@ test("clean local full CI records one exact-tree receipt after the suite passes"
   const result = createHarness();
 
   assert.equal(result.status, 0);
-  assert.deepEqual(result.suiteCalls, [["ci"]]);
+  assert.deepEqual(result.suiteCalls.map(({ suiteNames }) => suiteNames), [["ci"]]);
+  assert.equal(result.suiteCalls[0].options.collectFailures, true);
   assert.equal(result.writes.length, 1);
   assert.equal(result.writes[0].file, "/workspace/.git/workspace-local-full-ci.json");
   assert.equal(result.writes[0].receipt.treeSha, tree);
@@ -57,7 +58,7 @@ test("dirty or staged input runs the suite without writing a receipt", () => {
   const result = createHarness({ statuses: ["M package.json"] });
 
   assert.equal(result.status, 0);
-  assert.deepEqual(result.suiteCalls, [["ci"]]);
+  assert.deepEqual(result.suiteCalls.map(({ suiteNames }) => suiteNames), [["ci"]]);
   assert.equal(result.writes.length, 0);
 });
 
@@ -70,7 +71,7 @@ test("CI and PRE_COMMIT_FULL never let the wrapper write a HEAD receipt", () => 
   for (const env of [{ CI: "true" }, { PRE_COMMIT_FULL: "1" }]) {
     const result = createHarness({ env, statuses: [], trees: [] });
     assert.equal(result.status, 0);
-    assert.deepEqual(result.suiteCalls, [["ci"]]);
+    assert.deepEqual(result.suiteCalls.map(({ suiteNames }) => suiteNames), [["ci"]]);
     assert.equal(result.writes.length, 0);
     assert.equal(result.gitCalls.length, 0);
   }

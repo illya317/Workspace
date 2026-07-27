@@ -12,6 +12,7 @@ source "$OPS_ENV_FILE"
 SOURCE_DIR="${RELEASE_SOURCE_DIR:-${SOURCE_DIR:-}}"
 WORKSPACE_CONFIG_DIR="${WORKSPACE_CONFIG_DIR:-${LOCAL_WORKSPACE_CONFIG_DIR:-}}"
 export WORKSPACE_CONFIG_DIR
+CNB_REAL_CNB_YML="${CNB_REAL_CNB_YML:-$WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml}"
 
 : "${SOURCE_DIR:?SOURCE_DIR not set in $OPS_ENV_FILE}"
 : "${RELEASE_BRANCH:?RELEASE_BRANCH not set in $OPS_ENV_FILE}"
@@ -34,14 +35,12 @@ DEPLOY_UNIT_ID=""
 DEPLOY_UNIT_MODE=""
 DEPLOY_WAIT_SECONDS="${DEPLOY_WAIT_SECONDS:-1800}"
 LOCAL_PREFLIGHT_DURATION_SECONDS=0
-LOCAL_CI_DURATION_SECONDS=0
 TENANT_SYNC_DURATION_SECONDS=0
 RELEASE_TRIGGER_DURATION_SECONDS=0
 RELEASE_PROCESS_SECONDS=0
 RELEASE_ATTEMPT_COUNT=1
 RELEASE_PROCESS_STARTED_AT=""
 RELEASE_PROCESS_TIMING_FILE="${RELEASE_PROCESS_TIMING_FILE:-}"
-CI_TIMING_ACTIVE=0
 TMP_DIR=""
 TMP_KEY=""
 SERVER_READ_KEY=""
@@ -152,7 +151,6 @@ PY"; then
 
 cleanup() {
   local exit_code=$?
-  exclude_ci_from_release_process
   if [ "$exit_code" -ne 0 ]; then
     record_failed_deploy_attempt "$exit_code" || true
   fi
@@ -161,16 +159,6 @@ cleanup() {
   return "$exit_code"
 }
 trap cleanup EXIT
-
-exclude_ci_from_release_process() {
-  [ "$CI_TIMING_ACTIVE" = "1" ] || return 0
-  local duration_seconds
-  duration_seconds="$(($(date +%s) - LOCAL_CI_STARTED_EPOCH_SECONDS))"
-  node "$SCRIPT_DIR/release-process-timing.mjs" exclude \
-    --file "$RELEASE_PROCESS_TIMING_FILE" \
-    --seconds "$duration_seconds" >/dev/null
-  CI_TIMING_ACTIVE=0
-}
 
 prepare_server_read_key() {
   if [ -n "${KEY:-}" ] && [ -f "$KEY" ]; then
@@ -288,6 +276,18 @@ cd "$SOURCE_DIR"
 
 SOURCE_SHA="$(git rev-parse HEAD)"
 SOURCE_TREE="$(git rev-parse 'HEAD^{tree}')"
+LOCAL_RELEASE_GATE_RECEIPT_FILE="${LOCAL_RELEASE_GATE_RECEIPT_FILE:-$SOURCE_DIR/.cache/release-check/local-release-gate.json}"
+[ -f "$CNB_REAL_CNB_YML" ] || { echo "[错误] 真实 CNB 配置文件不存在: $CNB_REAL_CNB_YML"; exit 1; }
+node "$SCRIPT_DIR/validate-cnb-release-config.mjs" "$CNB_REAL_CNB_YML"
+OPS_ENV_FILE="$OPS_ENV_FILE" WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" \
+  "$SCRIPT_DIR/sync-tenant-config.sh" --dry-run --source-sha "$SOURCE_SHA"
+if ! node "$SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
+  --source "$SOURCE_SHA" --tree "$SOURCE_TREE" \
+  --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null; then
+  echo "[错误] 当前 release tree 没有有效 prepare 回执；拒绝进入 CNB。" >&2
+  echo "[提示] 先运行: OPS_ENV_FILE=$OPS_ENV_FILE ops/publish.sh prepare" >&2
+  exit 1
+fi
 DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS="$(date +%s)"
 PUBLISH_STARTED_EPOCH_SECONDS="$DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS"
 PUBLISH_STARTED_AT="$(date '+%Y-%m-%d %H:%M:%S %z')"
@@ -392,16 +392,7 @@ fi
 
 LOCAL_PREFLIGHT_DURATION_SECONDS="$(($(date +%s) - LOCAL_PREFLIGHT_STARTED_EPOCH_SECONDS))"
 
-LOCAL_RELEASE_GATE_RECEIPT_FILE="$TMP_DIR/local-release-gate.json"
-LOCAL_CI_STARTED_EPOCH_SECONDS="$(date +%s)"
-CI_TIMING_ACTIVE=1
-echo "==> 运行发布前本地 production build + 全量 E2E（复用长期缓存，不复用旧通过结果）..."
-"$SCRIPT_DIR/local-release-gate.sh" --receipt "$LOCAL_RELEASE_GATE_RECEIPT_FILE"
-[ -z "$(git status --short)" ] || { echo "[错误] 本地发布检查后工作区发生变化"; git status --short; exit 1; }
-test "$(git rev-parse 'HEAD^{tree}')" = "$SOURCE_TREE"
-LOCAL_CI_DURATION_SECONDS="$(($(date +%s) - LOCAL_CI_STARTED_EPOCH_SECONDS))"
-exclude_ci_from_release_process
-echo "==> 本地发布检查完成：$(format_duration "$LOCAL_CI_DURATION_SECONDS")（计入本次部署尝试总耗时）"
+echo "==> 已复用当前 tree 的本地 prepare 回执；deploy 不运行编译或测试。"
 
 if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   echo "==> 同步并校验本次部署使用的租户配置..."

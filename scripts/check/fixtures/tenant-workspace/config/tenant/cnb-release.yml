@@ -42,6 +42,7 @@ cnb-release:
           imports:
             - https://cnb.cool/<owner>/<env-repo>/-/blob/main/server-prod.yaml
           env:
+            EXPECTED_CNB_REPOSITORY: ""
             REMOTE_DIR: ""
             REMOTE_WORKSPACE_CONFIG_DIR: ""
             HEALTHCHECK_URL: ""

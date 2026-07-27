@@ -159,11 +159,23 @@ const validLocalTiming = localTiming
 if (metadata.schemaVersion !== 1
   || metadata.source?.commitSha !== sha
   || metadata.source?.treeSha !== tree
-  || metadata.localReleaseGate?.schemaVersion !== 1
+  || metadata.localReleaseGate?.schemaVersion !== 2
   || metadata.localReleaseGate?.kind !== 'workspace-local-release-gate'
   || metadata.localReleaseGate?.status !== 'passed'
   || metadata.localReleaseGate?.command !== 'ops/local-release-gate.sh'
+  || metadata.localReleaseGate?.sourceSha !== sha
   || metadata.localReleaseGate?.treeSha !== tree
+  || JSON.stringify(metadata.localReleaseGate?.checks) !== JSON.stringify([
+    'full-ci',
+    'disposable-postgresql-migrations',
+    'resource-seed',
+    'playwright-e2e',
+  ])
+  || metadata.localReleaseGate?.fullCi?.schemaVersion !== 1
+  || metadata.localReleaseGate?.fullCi?.kind !== 'workspace-local-full-ci'
+  || metadata.localReleaseGate?.fullCi?.status !== 'passed'
+  || metadata.localReleaseGate?.fullCi?.command !== 'npm run check:ci'
+  || metadata.localReleaseGate?.fullCi?.treeSha !== tree
   || !Number.isFinite(Date.parse(metadata.localReleaseGate?.completedAt ?? ''))
   || metadata.cnb?.repository !== repository
   || metadata.cnb?.sourceBranch !== branch

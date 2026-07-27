@@ -21,6 +21,21 @@ node ops/prune-local-check-cache.mjs
 mkdir -p .cache/release-check/playwright
 export PLAYWRIGHT_BROWSERS_PATH="$REPOSITORY_ROOT/.cache/release-check/playwright"
 
+SOURCE_SHA="$(git rev-parse HEAD)"
+SOURCE_TREE="$(git rev-parse 'HEAD^{tree}')"
+FULL_CI_RECEIPT_FILE="$(git rev-parse --git-path workspace-local-full-ci.json)"
+if ! node scripts/ci/local-full-ci-receipt.mjs verify \
+  --tree "$SOURCE_TREE" --file "$FULL_CI_RECEIPT_FILE" >/dev/null; then
+  echo "[错误] 缺少当前 source tree 的全量 CI 回执；先运行 npm run check:ci" >&2
+  exit 1
+fi
+if [ ! -f .next/BUILD_ID ] || [ "$(cat .next/BUILD_ID)" != "$SOURCE_SHA" ]; then
+  echo "[错误] 当前全量 CI 没有留下 BUILD_ID 等于 source SHA 的 production build" >&2
+  exit 1
+fi
+mkdir -p "$(dirname "$RECEIPT_FILE")"
+rm -f "$RECEIPT_FILE"
+
 database_name="workspace_release_$(date +%Y%m%d%H%M%S)_$$_e2e"
 case "$database_name" in (*[!a-zA-Z0-9_]*) echo "[错误] 一次性数据库名称不安全"; exit 1;; esac
 admin_url="$(node --input-type=module - <<'NODE'
@@ -54,22 +69,11 @@ unset SHADOW_DATABASE_URL
 
 npx prisma migrate deploy --schema=./prisma >/dev/null
 npm run db:seed:resources >/dev/null
-npm run build
 npx playwright install chromium
-PLAYWRIGHT_STANDALONE_SKIP_BUILD=1 CI=1 npm run test:e2e
+PLAYWRIGHT_STANDALONE_SKIP_BUILD=1 PLAYWRIGHT_STANDALONE_COMMIT="$SOURCE_SHA" CI=1 npm run test:e2e
 
-SOURCE_SHA="$(git rev-parse HEAD)" SOURCE_TREE="$(git rev-parse 'HEAD^{tree}')" RECEIPT_FILE="$RECEIPT_FILE" node <<'NODE'
-const fs = require("node:fs");
-const receipt = {
-  schemaVersion: 1,
-  kind: "workspace-local-release-gate",
-  status: "passed",
-  command: "ops/local-release-gate.sh",
-  sourceSha: process.env.SOURCE_SHA,
-  treeSha: process.env.SOURCE_TREE,
-  checks: ["production-build", "playwright-e2e"],
-  completedAt: new Date().toISOString(),
-  cache: { sourceHashInvalidation: false, retentionDays: 7 },
-};
-fs.writeFileSync(process.env.RECEIPT_FILE, `${JSON.stringify(receipt, null, 2)}\n`, { mode: 0o600 });
-NODE
+node ops/local-release-gate-receipt.mjs create \
+  --source "$SOURCE_SHA" \
+  --tree "$SOURCE_TREE" \
+  --full-ci "$FULL_CI_RECEIPT_FILE" \
+  --output "$RECEIPT_FILE"

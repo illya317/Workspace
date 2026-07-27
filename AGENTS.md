@@ -59,5 +59,6 @@ This version has breaking changes — APIs, conventions, and file structure may 
 14. **本机任务默认串行**：除非用户对当前任务明确要求并行或多 agent，不启动 subagent，不并发执行 npm 检查、测试、构建、Prisma generate 或 dev server。同一时间只允许一个重任务；发现已有同类进程时等待或复用，不再启动第二个。
 15. **本地类型检查默认不运行**：普通开发、修复、review 和 commit 收口都不主动运行任何 `typecheck:*`。只在用户明确要求、任务直接修改 TypeScript 工程/类型基础设施或正在定位具体编译错误时做本地诊断，CI/发布门禁依然保留权威类型检查。例外执行前必须先告知用户，且只串行跑一次最小 `typecheck:scope`；无法界定单一 scope 时才使用 `typecheck:quick`，`typecheck:full` 只用于 CI/发布。禁止直接调用 TypeScript CLI 或绕过项目锁。
 16. **UI 文案默认克制**：字段标签和选项已经能表达语义时，不再补解释、实现路径或技术细节；仅在防误操作、不可逆后果、合规要求或非显然约束下保留必要提示。
+17. **CNB 不是代码调试窗口**：正式发布必须先单独运行 `ops/publish.sh prepare`，在本地聚合跑完完整 CI、production build 和全量 E2E，并取得当前 Git tree 的发布回执；`ops/publish.sh deploy` 只消费该回执，缺失或过期立即退出，禁止为了暴露下一个编译/测试错误而反复触发 CNB。
 
 检查命令按 `docs/engineering/checks.md` 选择，本地默认串行执行。如用户例外启用多 agent，由 Coordinator/Integrator 按顺序做一次最终统一验证，各 agent 不重复跑重检查。

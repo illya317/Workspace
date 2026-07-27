@@ -18,14 +18,12 @@ test("shell variables next to non-ASCII punctuation use explicit braces", () => 
   }
 });
 
-test("deploy has one Full CNB production path", () => {
+test("prepare owns local checks and deploy has one receipt-only CNB production path", () => {
   const dispatch = publish.indexOf('case "${1:-}" in');
   const githubSetup = publish.indexOf('GITHUB_REMOTE_NAME=');
   assert.ok(dispatch >= 0 && dispatch < githubSetup);
-  assert.match(
-    publish,
-    /deploy\)[\s\S]*?promote-release-branch\.sh[\s\S]*?exec "\$SCRIPT_DIR\/publish-cnb\.sh" "\$\{deploy_args\[@\]\}"/,
-  );
+  assert.match(publish, /prepare\)[\s\S]*?npm run check:ci[\s\S]*?local-release-gate\.sh" --receipt/);
+  assert.match(publish, /deploy\)[\s\S]*?local-release-gate-receipt\.mjs" verify[\s\S]*?exec "\$SCRIPT_DIR\/publish-cnb\.sh" "\$\{deploy_args\[@\]\}"/);
   assert.doesNotMatch(publish.slice(publish.indexOf("deploy)")), /upload-data-release\.sh/);
   assert.doesNotMatch(publish, /--full|hotfix|publish-hotfix/i);
   assert.equal(existsSync(new URL("./publish-hotfix.sh", import.meta.url)), false);
@@ -35,13 +33,13 @@ test("deploy has one Full CNB production path", () => {
 
 test("deploy promotes main into the dedicated release worktree by fast-forward only", () => {
   const promote = publish.indexOf('promote-release-branch.sh"');
-  const deploy = publish.indexOf('exec "$SCRIPT_DIR/publish-cnb.sh"');
-  assert.ok(promote >= 0 && promote < deploy);
+  const prepareFunction = publish.indexOf("prepare_release_worktree() {");
+  assert.ok(prepareFunction >= 0 && prepareFunction < promote);
   assert.match(promoteRelease, /RELEASE_PROMOTION_BRANCH="\$\{RELEASE_PROMOTION_BRANCH:-main\}"/);
   assert.match(promoteRelease, /git merge-base --is-ancestor "\$release_sha" "\$candidate_sha"/);
   assert.match(promoteRelease, /git merge --ff-only "\$RELEASE_PROMOTION_BRANCH"/);
   assert.doesNotMatch(promoteRelease, /--force|reset --hard|merge --no-ff/);
-  assert.match(publish, /git -C "\$RELEASE_WORKTREE" rev-parse main/);
+  assert.match(publish, /git -C "\$RELEASE_WORKTREE" rev-parse HEAD/);
   assert.doesNotMatch(publish, /git -C .*SOURCE_DIR.*status/);
   assert.match(publish, /RELEASE_CI_ENV_FILE/);
   assert.match(publish, /ln -s "\$RELEASE_CI_ENV_FILE" "\$release_env_target"/);
@@ -61,29 +59,33 @@ test("CNB release identity is source parent plus exact injection files", () => {
   assert.match(deploy, /RELEASE_CNB_INJECTION_SHA/);
 });
 
-test("CNB deployment runs one local production build and full E2E gate", () => {
-  assert.match(publishCnb, /local-release-gate\.sh" --receipt/);
-  assert.doesNotMatch(publishCnb, /npm run check:ci|local-full-ci-receipt/);
+test("prepare runs aggregate full CI and E2E once while deploy only consumes exact-tree evidence", () => {
+  assert.match(publish, /NEXT_PUBLIC_BUILD_VERSION="\$RELEASE_SOURCE_SHA" BUILD_VERSION="\$RELEASE_SOURCE_SHA" npm run check:ci/);
+  assert.match(publish, /local-release-gate\.sh" --receipt "\$LOCAL_RELEASE_GATE_RECEIPT_FILE"/);
+  assert.match(publish, /复用当前 tree 已通过的完整 CI \+ E2E prepare 回执/);
   assert.ok(
-    publishCnb.indexOf("local-release-gate.sh")
-      < publishCnb.indexOf('METADATA_FILE="$TMP_DIR/cnb-release.json"'),
+    publish.indexOf("local-release-gate-receipt.mjs")
+      < publish.indexOf('rm -f "$LOCAL_RELEASE_GATE_RECEIPT_FILE"'),
   );
+  assert.ok(publish.indexOf("npm run check:ci") < publish.indexOf('local-release-gate.sh" --receipt'));
+  assert.doesNotMatch(publishCnb, /npm run check:ci|npm run test:e2e|local-release-gate\.sh" --receipt/);
+  assert.match(publishCnb, /local-release-gate-receipt\.mjs" verify/);
+  assert.match(publishCnb, /deploy 不运行编译或测试/);
   for (const source of [releaseToCnb, deploy]) {
+    assert.match(source, /metadata\.localReleaseGate\?\.schemaVersion !== 2/);
+    assert.match(source, /metadata\.localReleaseGate\?\.sourceSha !== sha/);
     assert.match(source, /metadata\.localReleaseGate\?\.treeSha !== tree/);
     assert.match(source, /metadata\.localReleaseGate\?\.command !== 'ops\/local-release-gate\.sh'/);
+    assert.match(source, /metadata\.localReleaseGate\?\.fullCi\?\.command !== 'npm run check:ci'/);
   }
 });
 
-test("CNB production preflight fails before full CI and release trigger", () => {
+test("CNB production preflight fails before the release trigger without rerunning local checks", () => {
   assert.match(publishCnb, /production-deploy-preflight\.mjs/);
   assert.match(publishCnb, /maintenance-deploy/);
   assert.match(publishCnb, /production-bootstrap-in-progress\.json/);
   assert.match(publishCnb, /printf 'maintenance:'; sed -n 's\/\^sourceSha=\/\/p'/);
   assert.match(publishCnb, /"maintenance:\$SOURCE_SHA"\)/);
-  assert.ok(
-    publishCnb.indexOf("production-deploy-preflight.mjs")
-      < publishCnb.indexOf("local-release-gate.sh"),
-  );
   assert.ok(
     publishCnb.indexOf("production-deploy-preflight.mjs")
       < publishCnb.indexOf('release_args=(--metadata "$METADATA_FILE"'),
@@ -119,25 +121,26 @@ test("private data transfer is an explicit command outside deployment", () => {
   assert.doesNotMatch(uploadDataRelease, /data-release-sources[^\n]*rm|data-release-manifests[^\n]*rm/);
 });
 
-test("real CNB deploy syncs verified tenant config after CI and before release trigger", () => {
+test("private release inputs validate before local checks and real deploy syncs before trigger", () => {
   assert.match(publishCnb, /WORKSPACE_CONFIG_DIR="\$\{WORKSPACE_CONFIG_DIR:-\$\{LOCAL_WORKSPACE_CONFIG_DIR:-\}\}"/);
   assert.match(releaseToCnb, /WORKSPACE_CONFIG_DIR="\$\{WORKSPACE_CONFIG_DIR:-\$\{LOCAL_WORKSPACE_CONFIG_DIR:-\}\}"/);
   assert.match(publishCnb, /sync-tenant-config\.sh" --source-sha "\$SOURCE_SHA"/);
-  const ciReceipt = publishCnb.lastIndexOf("local-release-gate.sh");
-  const tenantSync = publishCnb.indexOf('sync-tenant-config.sh" --source-sha "$SOURCE_SHA"');
+  const localReceipt = publishCnb.indexOf("local-release-gate-receipt.mjs");
+  const tenantSync = publishCnb.lastIndexOf('sync-tenant-config.sh" --source-sha "$SOURCE_SHA"');
   const releaseTrigger = publishCnb.indexOf('release-to-cnb.sh" "${release_args[@]}"');
-  assert.ok(ciReceipt >= 0 && ciReceipt < tenantSync);
+  assert.ok(localReceipt >= 0 && localReceipt < tenantSync);
   assert.ok(tenantSync < releaseTrigger);
   const syncBlock = publishCnb.slice(publishCnb.lastIndexOf("if [", tenantSync), tenantSync);
   assert.match(syncBlock, /PRINT_COMMAND_ONLY" = "0/);
   assert.match(syncTenantConfig, /--conditions=react-server --import tsx/);
   assert.match(syncTenantConfig, /tenant\.getTenantConfig\(\)/);
   assert.match(releaseToCnb, /validate-cnb-release-config\.mjs" "\$CNB_REAL_CNB_YML"/);
+  assert.ok(publish.indexOf("validate_local_release_inputs") < publish.indexOf("npm run check:ci"));
 });
 
 test("CNB records the full deployment attempt and keeps release-processing timing separate", () => {
   assert.match(publish, /release-process-timing\.mjs" begin/);
-  assert.match(publishCnb, /release-process-timing\.mjs" exclude/);
+  assert.doesNotMatch(publishCnb, /release-process-timing\.mjs" exclude/);
   assert.match(publishCnb, /release-process-timing\.mjs" snapshot/);
   assert.match(publishCnb, /release-process-timing\.mjs" complete/);
   assert.match(publishCnb, /DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS="\$\(date \+%s\)"/);
@@ -152,7 +155,10 @@ test("CNB records the full deployment attempt and keeps release-processing timin
   assert.match(publishCnb, /Ops 总耗时/);
   assert.match(publishCnb, /main 处理与 CI 已排除/);
   assert.match(publishCnb, /cnb-build-timing-summary\.mjs --input/);
-  assert.ok(publishCnb.indexOf("DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS=") < publishCnb.indexOf("local-release-gate.sh"));
+  assert.ok(
+    publishCnb.indexOf("local-release-gate-receipt.mjs")
+      < publishCnb.indexOf('DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS="$(date +%s)"'),
+  );
   assert.ok(
     publishCnb.indexOf("CNB-native 生产部署完成")
       < publishCnb.lastIndexOf('print_deploy_timing_summary "$FORMAL_DEPLOY_DURATION"'),

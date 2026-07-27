@@ -251,11 +251,13 @@ export function runCheckSuites(
     now = () => performance.now(),
     stdout = process.stdout,
     stderr = process.stderr,
+    collectFailures = false,
   } = {},
 ) {
   let plan = resolveCheckPlan(suiteNames);
   const suiteStartedAt = now();
   const warningFailures = [];
+  const blockingFailures = [];
   const taskCache = createTaskCache({ cwd, env });
   const cachedTasks = new Map(
     plan.tasks
@@ -319,8 +321,12 @@ export function runCheckSuites(
     }
     if (result.status !== 0) {
       stderr.write(`✗ ${task.label} failed in ${duration}.\n`);
-      stderr.write(`Check suite stopped after ${formatDuration(Math.max(0, now() - suiteStartedAt))}.\n`);
-      return result.status ?? 1;
+      if (!collectFailures) {
+        stderr.write(`Check suite stopped after ${formatDuration(Math.max(0, now() - suiteStartedAt))}.\n`);
+        return result.status ?? 1;
+      }
+      blockingFailures.push({ label: task.label, status: result.status ?? 1 });
+      continue;
     }
     taskCache.write(task, "passed", durationMs);
     stdout.write(`✓ ${task.label} completed in ${duration}.\n`);
@@ -329,6 +335,14 @@ export function runCheckSuites(
   const warningNote = warningFailures.length > 0
     ? `; warning-only findings: ${warningFailures.join(", ")}`
     : "";
+  if (blockingFailures.length > 0) {
+    stderr.write(`\n✗ Check suite completed with ${blockingFailures.length} blocking failure(s) in ${formatDuration(Math.max(0, now() - suiteStartedAt))}.\n`);
+    for (const failure of blockingFailures) {
+      stderr.write(`  - ${failure.label} (exit ${failure.status})\n`);
+    }
+    stderr.write("Fix the complete list above, then rerun; successful exact-input tasks remain reusable.\n");
+    return blockingFailures[0].status;
+  }
   stdout.write(`\n✓ Check suite completed in ${formatDuration(Math.max(0, now() - suiteStartedAt))}${warningNote}.\n`);
   return 0;
 }

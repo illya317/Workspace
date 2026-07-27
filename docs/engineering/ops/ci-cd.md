@@ -110,18 +110,23 @@ npm run test:e2e:latency
 2. Git 跟踪的 `ops/publish.sh push`（桌面私有目录只保留加载 `.env` 的薄 wrapper）以 `origin/main..HEAD` 运行自适应本地 gate，把 staging SHA 交给受信任的 `Promote candidate` workflow；workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上显式触发 CI，不直推 `main` 或 CNB。
 3. 对命中 CODEOWNERS 的质量策略路径，由 repository owner 审批 bot-authored PR；这解决单 owner 对自己所开 PR 无法批准的问题，但不虚构“独立第二人”审查。旧批准会在后续 push 后失效；配置未要求通用批准数或 last-push 第二人批准。
 4. PR/merge-group 按受保护 base 分类并由 `CI / required` 聚合。GitHub Actions 在无 E2E/整站发布请求时上传受影响 unit artifacts；需要 E2E 或整站 artifact 时上传 canonical monolith，并只在同一 CI run 内交给 E2E。这些 CI artifacts 不发布 prerelease，也不参与生产部署。
-5. `publish.sh deploy` 是 Full/单 unit 的唯一生产 operator 入口；Profile/Fleet 只经受信内部入口运行。开发集成使用 `main`，生产候选使用专用 worktree 的 `release`。入口只允许把干净的 `release` 从本地 `main` 快进，拒绝分叉、合并提交和覆盖历史。生产预检后固定执行一次 `ops/local-release-gate.sh`：使用一次性 PostgreSQL 数据库完成 production build 和全部 E2E，结束后删除数据库并检查 Playwright 进程。缓存无条件跨 source 复用，但旧通过结果不能跳过本次检查。通过后同步租户运行配置并生成绑定 source SHA/tree 与本地门禁回执的 `.cnb-release.json`。数据批次不在此路径中，发布脚本也不读取 GitHub。
-6. Git 跟踪的 `ops/cnb-release.yml` 只定义可复用流水线形状；租户实际的 CNB env import、服务器目录和健康检查地址由 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 管理。发布脚本读取并校验该租户文件；`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
-7. CNB 在 injection checkout 中恢复或安装依赖，并按 release metadata 构建 Full canonical standalone 或单 unit artifact。packager 绑定 parent source SHA/tree、目标、BUILD_ID、contract/graph，生成 manifest/tgz；统一部署器在上传前校验 manifest、artifact hash、migration set 和注入身份，全程不访问 GitHub。
-8. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准。candidate 必须是 bootstrap baseline 或已部署 source 的后代，同 source 是 no-op，回退或分叉直接阻断。
-9. `publish.sh` 在专用 release worktree 维护跨失败重试的流程计时会话。单次部署尝试从本地生产预检/E2E 前开始，经过 CNB 构建、传输和切换，直到成功、失败或取消；三种结果都会写服务器 Bot 事件和部署历史，`durationSeconds` 不再因失败而缺失。release 流程累计耗时仍单独记录，便于区分修复等待与一次部署尝试。
-10. 当前部署历史覆盖 Full、单 unit shadow/activate/rollback 和 Profile promotion：事件追加到生产 `.workspace/deployment-history/deployments.ndjson`，同时保留逐次 JSON 与 `latest.json`。Profile promotion 当前只记录目标范围与本次 promotion duration，没有接入 `publish.sh` 的跨重试 release-process timing；Profile rollback 当前只切回上一 Gateway generation，尚未写部署事件或历史，这是通知/审计缺口，不能描述成已经完整留痕。Operations 不运行定时分析，只在用户要求时按需查询。生产记录按相应事件保存可用的 CNB/source/artifact/Gateway 证据，不创建 GitHub Deployment。
+5. `publish.sh prepare` 是正式发布前唯一的本地诊断入口。它先快进专用 `release` worktree，立即校验私有 CNB YAML 与租户运行配置；当前 source/tree 已有完整 release-gate 回执时直接复用，不重复运行检查。否则以 collect-all 模式运行完整 `check:ci`：独立静态、Node、type 和 build 步骤即使有失败也继续执行并在末尾统一列出。相同 snapshot 上已通过的步骤会在修复后复用；全部通过后，`ops/local-release-gate.sh` 复用该 production standalone build，在一次性 PostgreSQL 数据库完成 migration、seed 和全量 E2E。只有全部为零错误时才写入绑定 source SHA、tree 和嵌套 full-CI 证据的 release-gate 回执。该命令不连接 CNB 或生产。
+6. `publish.sh deploy` 是 Full/单 unit 的唯一生产 operator 入口；Profile/Fleet 只经受信内部入口运行。它再次快进并校验 release worktree、廉价私有配置和当前 tree 的 prepare 回执；回执缺失、过期或属于另一 tree 时立即退出并要求重新 `prepare`。deploy 不运行 production build、typecheck、Node test 或 E2E，CNB 不承担代码诊断。
+7. Git 跟踪的 `ops/cnb-release.yml` 只定义可复用流水线形状；租户实际的 CNB env import、服务器目录和健康检查地址由 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 管理。发布脚本读取并校验该租户文件；`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
+8. CNB 在 injection checkout 中恢复或安装依赖，并按 release metadata 构建 Full canonical standalone 或单 unit artifact。packager 绑定 parent source SHA/tree、目标、BUILD_ID、contract/graph，生成 manifest/tgz；统一部署器在上传前校验 manifest、artifact hash、migration set 和注入身份，全程不访问 GitHub。
+9. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准。candidate 必须是 bootstrap baseline 或已部署 source 的后代，同 source 是 no-op，回退或分叉直接阻断。
+10. `publish.sh` 在专用 release worktree 维护跨失败重试的流程计时会话。单次部署尝试从 prepare 回执和本地廉价 preflight 通过后开始，经过只读生产预检、CNB 构建、传输和切换，直到成功、失败或取消；三种结果都会写服务器 Bot 事件和部署历史。完整 CI/E2E 属于 `prepare`，不计入 deploy 尝试，也不能因部署重试而重复执行。
+11. 当前部署历史覆盖 Full、单 unit shadow/activate/rollback 和 Profile promotion：事件追加到生产 `.workspace/deployment-history/deployments.ndjson`，同时保留逐次 JSON 与 `latest.json`。Profile promotion 当前只记录目标范围与本次 promotion duration，没有接入 `publish.sh` 的跨重试 release-process timing；Profile rollback 当前只切回上一 Gateway generation，尚未写部署事件或历史，这是通知/审计缺口，不能描述成已经完整留痕。Operations 不运行定时分析，只在用户要求时按需查询。生产记录按相应事件保存可用的 CNB/source/artifact/Gateway 证据，不创建 GitHub Deployment。
 
 生产基线不可读、不是候选祖先、migration 区间无法证明、manifest 或 artifact hash 不匹配时一律阻断。
 
 ## 生产发布
 
 ```bash
+# 本地一次性发现全部 CI/编译/E2E 问题并写入当前 tree 回执；不连接 CNB/生产
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare
+
+# 只消费已通过的 prepare 回执并执行生产发布
 OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy
 
 # active 单元公开部署并切换公网 Gateway

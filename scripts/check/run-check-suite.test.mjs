@@ -45,6 +45,26 @@ test("suite runner executes each resolved task once and stops on the first failu
   assert.equal(calls.length, 2);
 });
 
+test("aggregate suite mode runs every independent task and summarizes all blocking failures", () => {
+  const calls = [];
+  const output = [];
+  const status = runCheckSuites(["contracts"], {
+    createTaskCache: () => ({ read() { return null; }, write() {} }),
+    spawn: () => {
+      calls.push(calls.length + 1);
+      return { status: calls.length === 2 ? 7 : calls.length === 5 ? 9 : 0 };
+    },
+    stdout: { write(value) { output.push(value); } },
+    stderr: { write(value) { output.push(value); } },
+    collectFailures: true,
+  });
+
+  assert.equal(status, 7);
+  assert.equal(calls.length, resolveCheckPlan(["contracts"]).tasks.length);
+  assert.match(output.join(""), /2 blocking failure\(s\)/);
+  assert.match(output.join(""), /Fix the complete list above/);
+});
+
 test("suite runner skips reusable tasks and preserves cached warning semantics", () => {
   const calls = [];
   const writes = [];

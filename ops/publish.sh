@@ -14,6 +14,7 @@ usage() {
   cat <<'EOF'
 用法:
   OPS_ENV_FILE=/path/to/ops/.env publish.sh push
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh prepare
   OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy
   OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy [CNB 部署选项]
   OPS_ENV_FILE=/path/to/ops/.env publish.sh data upload|verify|status --id RELEASE_ID
@@ -21,7 +22,8 @@ usage() {
 
 模式:
   push           对当前提交跑自适应本地 gate；GitHub bot 创建候选 PR
-  deploy         将 main 快进到专用 release worktree后执行 Full 或单模块 CNB 部署
+  prepare        在 release worktree 聚合运行完整 CI/E2E，生成当前 tree 的发布回执；不连接 CNB 或生产
+  deploy         只消费 prepare 回执，执行 Full 或单模块 CNB 部署；不运行编译或测试
   data           校验并上传私有数据发布源；上传只进入受控暂存区，不执行数据库写入
   timing         在处理 main 前暂停 Ops 计时；恢复 release 工作时继续累计
 
@@ -30,7 +32,68 @@ usage() {
 EOF
 }
 
+prepare_release_worktree() {
+  RELEASE_WORKTREE="${RELEASE_SOURCE_DIR:-${SOURCE_DIR:-}}"
+  : "${RELEASE_WORKTREE:?RELEASE_SOURCE_DIR not set in $OPS_ENV_FILE}"
+  RELEASE_CI_ENV_FILE="${RELEASE_CI_ENV_FILE:-${SOURCE_DIR:-}/.env}"
+  : "${RELEASE_CI_ENV_FILE:?RELEASE_CI_ENV_FILE not set in $OPS_ENV_FILE}"
+  [ -f "$RELEASE_CI_ENV_FILE" ] || { echo "[错误] release CI 环境文件不存在: $RELEASE_CI_ENV_FILE"; exit 1; }
+
+  release_env_target="$RELEASE_WORKTREE/.env"
+  if [ -L "$release_env_target" ]; then
+    [ "$(readlink "$release_env_target")" = "$RELEASE_CI_ENV_FILE" ] || {
+      echo "[错误] release .env 未指向受控 CI 环境文件"; exit 1;
+    }
+  elif [ -e "$release_env_target" ]; then
+    echo "[错误] release .env 必须是指向受控 CI 环境文件的符号链接"
+    exit 1
+  else
+    ln -s "$RELEASE_CI_ENV_FILE" "$release_env_target"
+  fi
+
+  "$SCRIPT_DIR/promote-release-branch.sh"
+  RELEASE_SOURCE_SHA="$(git -C "$RELEASE_WORKTREE" rev-parse HEAD)"
+  RELEASE_SOURCE_TREE="$(git -C "$RELEASE_WORKTREE" rev-parse 'HEAD^{tree}')"
+}
+
+validate_local_release_inputs() {
+  WORKSPACE_CONFIG_DIR="${WORKSPACE_CONFIG_DIR:-${LOCAL_WORKSPACE_CONFIG_DIR:-}}"
+  : "${WORKSPACE_CONFIG_DIR:?WORKSPACE_CONFIG_DIR not set in $OPS_ENV_FILE}"
+  CNB_REAL_CNB_YML="${CNB_REAL_CNB_YML:-$WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml}"
+  [ -f "$CNB_REAL_CNB_YML" ] || { echo "[错误] 真实 CNB 配置文件不存在: $CNB_REAL_CNB_YML"; exit 1; }
+  node "$SCRIPT_DIR/validate-cnb-release-config.mjs" "$CNB_REAL_CNB_YML"
+  OPS_ENV_FILE="$OPS_ENV_FILE" WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" \
+    "$SCRIPT_DIR/sync-tenant-config.sh" --dry-run --source-sha "$RELEASE_SOURCE_SHA"
+}
+
 case "${1:-}" in
+  prepare)
+    shift
+    [ "$#" = "0" ] || { echo "[错误] prepare 不接受额外参数"; exit 2; }
+    prepare_release_worktree
+    validate_local_release_inputs
+    LOCAL_RELEASE_GATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/local-release-gate.json"
+    if node "$SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
+      --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
+      --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null 2>&1; then
+      echo "==> 复用当前 tree 已通过的完整 CI + E2E prepare 回执；未重复运行检查。"
+      exit 0
+    fi
+    rm -f "$LOCAL_RELEASE_GATE_RECEIPT_FILE"
+    echo "==> 聚合运行当前 release tree 的完整 CI；本轮会继续收集所有独立失败..."
+    (
+      cd "$RELEASE_WORKTREE"
+      NEXT_PUBLIC_BUILD_VERSION="$RELEASE_SOURCE_SHA" BUILD_VERSION="$RELEASE_SOURCE_SHA" npm run check:ci
+    )
+    echo "==> 复用已验证 production build，运行一次性数据库迁移/seed 与全量 E2E..."
+    WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" \
+      "$SCRIPT_DIR/local-release-gate.sh" --receipt "$LOCAL_RELEASE_GATE_RECEIPT_FILE"
+    node "$SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
+      --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
+      --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null
+    echo "==> prepare 完成：当前 tree 已通过完整 CI + E2E；未连接 CNB，未触发生产部署。"
+    exit 0
+    ;;
   data)
     shift
     exec "$SCRIPT_DIR/upload-data-release.sh" "$@"
@@ -54,14 +117,20 @@ esac
 case "${1:-}" in
   deploy)
     shift
-    RELEASE_WORKTREE="${RELEASE_SOURCE_DIR:-${SOURCE_DIR:-}}"
-    : "${RELEASE_WORKTREE:?RELEASE_SOURCE_DIR not set in $OPS_ENV_FILE}"
-    RELEASE_CI_ENV_FILE="${RELEASE_CI_ENV_FILE:-${SOURCE_DIR:-}/.env}"
-    : "${RELEASE_CI_ENV_FILE:?RELEASE_CI_ENV_FILE not set in $OPS_ENV_FILE}"
-    [ -f "$RELEASE_CI_ENV_FILE" ] || { echo "[错误] release CI 环境文件不存在: $RELEASE_CI_ENV_FILE"; exit 1; }
+    prepare_release_worktree
+    validate_local_release_inputs
+    LOCAL_RELEASE_GATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/local-release-gate.json"
+    if ! node "$SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
+      --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
+      --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null; then
+      echo "[错误] 当前 release tree 没有有效 prepare 回执；拒绝进入 CNB。" >&2
+      echo "[提示] 先运行: OPS_ENV_FILE=$OPS_ENV_FILE ops/publish.sh prepare" >&2
+      exit 1
+    fi
+    export LOCAL_RELEASE_GATE_RECEIPT_FILE
     RELEASE_PROCESS_TIMING_FILE="${RELEASE_PROCESS_TIMING_FILE:-$RELEASE_WORKTREE/.cache/release-process-timing.json}"
     deploy_args=("$@")
-    candidate_sha="$(git -C "$RELEASE_WORKTREE" rev-parse main)"
+    candidate_sha="$RELEASE_SOURCE_SHA"
     if [ -f "$RELEASE_PROCESS_TIMING_FILE" ]; then
       node "$SCRIPT_DIR/release-process-timing.mjs" resume --file "$RELEASE_PROCESS_TIMING_FILE" >/dev/null
     fi
@@ -74,18 +143,6 @@ case "${1:-}" in
       const session = JSON.parse(process.argv[1]);
       console.log(`==> release 流程计时：第 ${session.releaseAttemptCount} 次尝试，完整累计 ${session.releaseProcessSeconds}s`);
     ' "$release_session"
-    release_env_target="$RELEASE_WORKTREE/.env"
-    if [ -L "$release_env_target" ]; then
-      [ "$(readlink "$release_env_target")" = "$RELEASE_CI_ENV_FILE" ] || {
-        echo "[错误] release .env 未指向受控 CI 环境文件"; exit 1;
-      }
-    elif [ -e "$release_env_target" ]; then
-      echo "[错误] release .env 必须是指向受控 CI 环境文件的符号链接"
-      exit 1
-    else
-      ln -s "$RELEASE_CI_ENV_FILE" "$release_env_target"
-    fi
-    "$SCRIPT_DIR/promote-release-branch.sh"
     if [ "${#deploy_args[@]}" -eq 0 ]; then
       exec "$SCRIPT_DIR/publish-cnb.sh"
     fi
@@ -112,7 +169,7 @@ with_github_proxy() {
 case "${1:-}" in
   push) shift ;;
   -h|--help) usage; exit 0 ;;
-  *) echo "[错误] 请指定模式: push 或 deploy"; usage; exit 1 ;;
+  *) echo "[错误] 请指定模式: push、prepare 或 deploy"; usage; exit 1 ;;
 esac
 [ "$#" = "0" ] || { echo "[错误] push 不接受额外参数"; exit 1; }
 
