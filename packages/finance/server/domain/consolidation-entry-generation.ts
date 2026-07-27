@@ -103,7 +103,7 @@ export function buildIntercompanyVoucherMatchGroups(
     else grouped.set(key, [fact]);
   }
 
-  return [...grouped.entries()].map(([pairKey, rows]) => {
+  return [...grouped.entries()].map(([pairKey, rows]): ConsolidationVoucherMatchGroup => {
     const [leftCompanyId, rightCompanyId] = pairKey.split(":").map(Number) as [number, number];
     const leftFacts = rows.filter((fact) => fact.companyId === leftCompanyId).sort(bySourceOrder);
     const rightFacts = rows.filter((fact) => fact.companyId === rightCompanyId).sort(bySourceOrder);
