@@ -8,8 +8,16 @@ import {
   buildUpdateFinanceGroupAccountCommand,
 } from "../../domain/group-chart-validation";
 
+const defaultConsolidationFields = {
+  consolidationRole: "none" as const,
+  counterpartyRequirement: "none" as const,
+  movementType: "closingBalance" as const,
+  translationRateType: "closing" as const,
+};
+
 test("group-account creation enforces Chinese category code prefixes", () => {
   const valid = buildCreateFinanceGroupAccountCommand({
+    ...defaultConsolidationFields,
     userId: 1,
     code: "5301",
     name: "研发支出",
@@ -22,6 +30,7 @@ test("group-account creation enforces Chinese category code prefixes", () => {
   assert.equal(valid.ok, true);
 
   const invalid = buildCreateFinanceGroupAccountCommand({
+    ...defaultConsolidationFields,
     userId: 1,
     code: "4301",
     name: "研发支出",
@@ -76,6 +85,7 @@ test("group-account deletion requires positive identity fields", () => {
 
 test("group-account update no longer accepts review status changes", () => {
   const result = buildUpdateFinanceGroupAccountCommand({
+    ...defaultConsolidationFields,
     userId: 1,
     groupAccountId: 8,
     code: "660201",

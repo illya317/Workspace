@@ -1,12 +1,10 @@
-import {
-  createPageDataSection,
-  createPanelSection,
-  type BodySurfaceSectionSpec,
-  type DataSurfaceCellSpec,
-  type DataSurfaceColumnSpec,
-  type DataSurfaceLooseRow,
-  type FormSurfaceActionSpec,
-  type FormSurfaceItemSpec,
+import type {
+  BodySurfaceSectionSpec,
+  DataSurfaceCellSpec,
+  DataSurfaceColumnSpec,
+  DataSurfaceLooseRow,
+  FormSurfaceActionSpec,
+  FormSurfaceItemSpec,
 } from "@workspace/core/ui";
 import {
   validateBusinessTemporalBaselineMutation,
@@ -61,23 +59,31 @@ export function createBusinessTemporalRecordSections<T extends DataSurfaceLooseR
   validateRecordViewSpec(spec.registration);
   validateMutationSpec(spec.registration, spec.detail?.mutation);
   validateEditSpec(spec.registration, spec.detail?.edit, spec.detail?.mutation);
-  const sections: BodySurfaceSectionSpec[] = [createPanelSection(`${spec.key}-records`, {
-    title: spec.title,
-    sections: [createPageDataSection(`${spec.key}-table`, {
-      kind: "table",
-      rows: spec.rows,
-      columns: spec.columns,
-      visibleColumns: spec.visibleColumns,
-      rowKey: spec.rowKey,
-      onRowClick: spec.onSelect,
-      rowState: (row) => spec.rowKey(row) === spec.selectedKey ? "selected" : "normal",
-      expandedRowKey: spec.detail ? spec.selectedKey : null,
-      expandedRow: spec.detail ? () => expandedRecordDetail(spec.detail!) : undefined,
-      presentation: { density: "compact", header: "tinted", rowHover: "interactive" },
-      emptyText: spec.emptyText ?? "暂无记录",
-    })],
-  })];
-  return sections;
+  const table: BodySurfaceSectionSpec = {
+    key: `${spec.key}-table`,
+    body: {
+      kind: "data",
+      data: {
+        kind: "table",
+        rows: spec.rows,
+        columns: spec.columns,
+        visibleColumns: spec.visibleColumns,
+        rowKey: spec.rowKey,
+        onRowClick: spec.onSelect,
+        rowState: (row) => spec.rowKey(row) === spec.selectedKey ? "selected" : "normal",
+        expandedRowKey: spec.detail ? spec.selectedKey : null,
+        expandedRow: spec.detail ? () => expandedRecordDetail(spec.detail!) : undefined,
+        presentation: { density: "compact", header: "tinted", rowHover: "interactive" },
+        emptyText: spec.emptyText ?? "暂无记录",
+      },
+    },
+  };
+  return [{
+    key: `${spec.key}-records`,
+    label: spec.title,
+    header: { title: spec.title },
+    body: { kind: "section", layout: "stack", sections: [table] },
+  }];
 }
 
 function expandedRecordDetail(detail: BusinessTemporalRecordDetailSpec): DataSurfaceCellSpec {
