@@ -81,6 +81,7 @@ export const page_api_registry_entries = [
             description: "结构化表格；简单行与带桌面列宽的简单矩阵在移动端转纵向记录卡片，只有复杂跨行跨列表格保留可横向浏览的二维结构。",
             children: [
               { name: "rows", description: "结构化单元格矩阵。" },
+              { name: "action", description: "结构化单元格动作；可声明点击、禁用、语义色和悬停进入/离开回调，跨单元格业务关系仍由调用方计算。" },
               { name: "frame", description: "结构化表格边框。" },
               { name: "scroll", description: "结构化表格滚动区域。" },
             ],

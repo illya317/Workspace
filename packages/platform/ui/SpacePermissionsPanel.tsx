@@ -15,6 +15,7 @@ import { createPermissionActionMatrixSurface } from "./PermissionActionMatrixGri
 import {
   getPermissionActionRecordSortScore,
   sortPermissionSubjectsByScore,
+  type PermissionMatrixHoveredAction,
 } from "./permission-matrix-model";
 
 type PermissionSource = "direct" | "position" | "department" | "ancestor" | "implied" | "implicit" | "child" | null;
@@ -139,6 +140,7 @@ export function useSpacePermissionsSections<TTarget>({
   const [loading, setLoading] = useState(false);
   const [savingKey, setSavingKey] = useState<string | null>(null);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(() => new Set());
+  const [hoveredAction, setHoveredAction] = useState<PermissionMatrixHoveredAction | null>(null);
   const targetKey = useMemo(() => spacePermissionTargetKey(target), [target]);
   const filteredData = useMemo(() => {
     if (!data) return null;
@@ -224,6 +226,7 @@ export function useSpacePermissionsSections<TTarget>({
 
   useEffect(() => {
     setExpandedRows(new Set());
+    setHoveredAction(null);
   }, [targetKey]);
 
   const toggleExpand = useCallback((subjectKey: string) => {
@@ -287,6 +290,8 @@ export function useSpacePermissionsSections<TTarget>({
         canToggleAction: (subject) => Boolean(
           filteredData.canManageUserGrants && subject.extra?.hasUser && subject.extra?.userId,
         ),
+        hoveredAction,
+        onHoveredActionChange: setHoveredAction,
         savingKey,
         visibleActionKeys: filteredData.resourceActions,
       }) },

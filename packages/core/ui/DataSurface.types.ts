@@ -116,6 +116,8 @@ export interface DataSurfaceCellActionSpec extends DataSurfaceCommandSpec {
   stopPropagation?: boolean;
   presentation?: "button" | "glyph";
   tone?: DataSurfaceBadgeTone;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 export type DataSurfaceRowActionSpec = SurfaceDataRowActionSpec;

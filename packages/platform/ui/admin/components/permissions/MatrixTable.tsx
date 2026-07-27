@@ -110,6 +110,8 @@ export function createPermissionMatrixSection({ s }: MatrixTableProps): BodySurf
       onToggleExpand: (subject) => s.toggleRowExpand(subject.id),
       onToggleAction: (subject, state) => s.toggleGrant(subject, state.actionKey),
       canToggleAction: (subject) => s.subjectType !== "user" || (s.canManageUserGrants && Boolean(subject.extra?.hasUser)),
+      hoveredAction: s.hoveredAction,
+      onHoveredActionChange: s.setHoveredAction,
       visibleActionKeys: s.resourceActions,
     }) },
   };

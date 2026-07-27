@@ -3,6 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
 import type { Subject, SubjectType, PermissionActionKey, PermissionActionRecord } from "../types";
+import type { PermissionMatrixHoveredAction } from "../../permission-matrix-model";
 import { usePermissionFilters } from "./usePermissionFilters";
 
 export type PermissionsTabState = ReturnType<typeof usePermissionsTab>;
@@ -30,6 +31,7 @@ export function usePermissionsTab(
   const [actionRecords, setActionRecords] = useState<Record<number, PermissionActionRecord>>({});
   const [resourceActions, setResourceActions] = useState<PermissionActionKey[]>([]);
   const [loading, setLoading] = useState(false);
+  const [hoveredAction, setHoveredAction] = useState<PermissionMatrixHoveredAction | null>(null);
 
   const loadData = useCallback(async () => {
     if (!enabled) return;
@@ -60,6 +62,10 @@ export function usePermissionsTab(
     if (!enabled) return;
     loadData();
   }, [enabled, loadData]);
+
+  useEffect(() => {
+    setHoveredAction(null);
+  }, [selectedResource, subjectType]);
 
   const getPermissionRecord = useCallback(
     (subject: Subject) => actionRecords[subject.id] ?? null,
@@ -191,6 +197,7 @@ export function usePermissionsTab(
     page: filters.page, pageSize: filters.pageSize, totalPages: filters.totalPages, totalSubjects: filters.totalSubjects,
     setPage: filters.setPage, setPageSize: filters.setPageSize,
     expandedRows: filters.expandedRows, toggleRowExpand: filters.toggleRowExpand,
+    hoveredAction, setHoveredAction,
     getPermissionRecord, getActionState, toggleGrant,
     canManageUserGrants,
     updateAccountLogin, resetAccountApiKey,

@@ -705,11 +705,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                             },
                             {
-                              name: "__@iterator@108",
+                              name: "__@iterator@106",
                               description: "Iterator",
                             },
                             {
-                              name: "__@unscopables@110",
+                              name: "__@unscopables@108",
                               description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                             },
                           ],
@@ -945,7 +945,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                 },
                                 {
-                                  name: "__@iterator@108",
+                                  name: "__@iterator@106",
                                   description: "Iterator",
                                 },
                                 {
@@ -1199,7 +1199,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                             },
                             {
-                              name: "__@iterator@108",
+                              name: "__@iterator@106",
                               description: "Iterator",
                             },
                             {
@@ -1429,7 +1429,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                             },
                             {
-                              name: "__@iterator@108",
+                              name: "__@iterator@106",
                               description: "Iterator",
                             },
                             {
@@ -1923,7 +1923,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                 },
                                 {
-                                  name: "__@iterator@108",
+                                  name: "__@iterator@106",
                                   description: "Iterator",
                                 },
                                 {
@@ -9017,11 +9017,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@106",
                                               description: "Iterator",
                                             },
                                             {
-                                              name: "__@unscopables@110",
+                                              name: "__@unscopables@108",
                                               description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                             },
                                           ],
@@ -9257,7 +9257,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                 },
                                                 {
-                                                  name: "__@iterator@108",
+                                                  name: "__@iterator@106",
                                                   description: "Iterator",
                                                 },
                                                 {
@@ -9511,7 +9511,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@106",
                                               description: "Iterator",
                                             },
                                             {
@@ -9741,7 +9741,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@106",
                                               description: "Iterator",
                                             },
                                             {
@@ -10235,7 +10235,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                 },
                                                 {
-                                                  name: "__@iterator@108",
+                                                  name: "__@iterator@106",
                                                   description: "Iterator",
                                                 },
                                                 {
@@ -18907,11 +18907,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@106",
                                               description: "Iterator",
                                             },
                                             {
-                                              name: "__@unscopables@110",
+                                              name: "__@unscopables@108",
                                               description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                             },
                                           ],
@@ -19147,7 +19147,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                 },
                                                 {
-                                                  name: "__@iterator@108",
+                                                  name: "__@iterator@106",
                                                   description: "Iterator",
                                                 },
                                                 {
@@ -19401,7 +19401,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@106",
                                               description: "Iterator",
                                             },
                                             {
@@ -19631,7 +19631,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@106",
                                               description: "Iterator",
                                             },
                                             {
@@ -20125,7 +20125,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                 },
                                                 {
-                                                  name: "__@iterator@108",
+                                                  name: "__@iterator@106",
                                                   description: "Iterator",
                                                 },
                                                 {
@@ -28845,11 +28845,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                         },
                                         {
-                                          name: "__@iterator@108",
+                                          name: "__@iterator@106",
                                           description: "Iterator",
                                         },
                                         {
-                                          name: "__@unscopables@110",
+                                          name: "__@unscopables@108",
                                           description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                         },
                                       ],
@@ -29085,7 +29085,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@106",
                                               description: "Iterator",
                                             },
                                             {
@@ -29339,7 +29339,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                         },
                                         {
-                                          name: "__@iterator@108",
+                                          name: "__@iterator@106",
                                           description: "Iterator",
                                         },
                                         {
@@ -29569,7 +29569,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                         },
                                         {
-                                          name: "__@iterator@108",
+                                          name: "__@iterator@106",
                                           description: "Iterator",
                                         },
                                         {
@@ -30063,7 +30063,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@106",
                                               description: "Iterator",
                                             },
                                             {
@@ -40553,11 +40553,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                   description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                 },
                 {
-                  name: "__@iterator@108",
+                  name: "__@iterator@106",
                   description: "Iterator",
                 },
                 {
-                  name: "__@unscopables@110",
+                  name: "__@unscopables@108",
                   description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                 },
               ],
@@ -40793,7 +40793,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                       description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                     },
                     {
-                      name: "__@iterator@108",
+                      name: "__@iterator@106",
                       description: "Iterator",
                     },
                     {
@@ -41047,7 +41047,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                 },
                 {
-                  name: "__@iterator@108",
+                  name: "__@iterator@106",
                   description: "Iterator",
                 },
                 {
@@ -41277,7 +41277,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                 },
                 {
-                  name: "__@iterator@108",
+                  name: "__@iterator@106",
                   description: "Iterator",
                 },
                 {
@@ -42647,7 +42647,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                       description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                     },
                     {
-                      name: "__@iterator@108",
+                      name: "__@iterator@106",
                       description: "Iterator",
                     },
                     {
@@ -59591,11 +59591,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                         },
                                         {
-                                          name: "__@iterator@108",
+                                          name: "__@iterator@106",
                                           description: "Iterator",
                                         },
                                         {
-                                          name: "__@unscopables@110",
+                                          name: "__@unscopables@108",
                                           description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                         },
                                       ],
@@ -59831,7 +59831,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@106",
                                               description: "Iterator",
                                             },
                                             {
@@ -60085,7 +60085,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                         },
                                         {
-                                          name: "__@iterator@108",
+                                          name: "__@iterator@106",
                                           description: "Iterator",
                                         },
                                         {
@@ -60315,7 +60315,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                         },
                                         {
-                                          name: "__@iterator@108",
+                                          name: "__@iterator@106",
                                           description: "Iterator",
                                         },
                                         {
@@ -60809,7 +60809,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@106",
                                               description: "Iterator",
                                             },
                                             {
@@ -67903,11 +67903,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@106",
                                                           description: "Iterator",
                                                         },
                                                         {
-                                                          name: "__@unscopables@110",
+                                                          name: "__@unscopables@108",
                                                           description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                                         },
                                                       ],
@@ -68143,7 +68143,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                             },
                                                             {
-                                                              name: "__@iterator@108",
+                                                              name: "__@iterator@106",
                                                               description: "Iterator",
                                                             },
                                                             {
@@ -68397,7 +68397,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@106",
                                                           description: "Iterator",
                                                         },
                                                         {
@@ -68627,7 +68627,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@106",
                                                           description: "Iterator",
                                                         },
                                                         {
@@ -69121,7 +69121,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                             },
                                                             {
-                                                              name: "__@iterator@108",
+                                                              name: "__@iterator@106",
                                                               description: "Iterator",
                                                             },
                                                             {
@@ -77793,11 +77793,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@106",
                                                           description: "Iterator",
                                                         },
                                                         {
-                                                          name: "__@unscopables@110",
+                                                          name: "__@unscopables@108",
                                                           description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                                         },
                                                       ],
@@ -78033,7 +78033,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                             },
                                                             {
-                                                              name: "__@iterator@108",
+                                                              name: "__@iterator@106",
                                                               description: "Iterator",
                                                             },
                                                             {
@@ -78287,7 +78287,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@106",
                                                           description: "Iterator",
                                                         },
                                                         {
@@ -78517,7 +78517,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@106",
                                                           description: "Iterator",
                                                         },
                                                         {
@@ -79011,7 +79011,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                             },
                                                             {
-                                                              name: "__@iterator@108",
+                                                              name: "__@iterator@106",
                                                               description: "Iterator",
                                                             },
                                                             {
@@ -87731,11 +87731,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                       description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                                     },
                                                     {
-                                                      name: "__@iterator@108",
+                                                      name: "__@iterator@106",
                                                       description: "Iterator",
                                                     },
                                                     {
-                                                      name: "__@unscopables@110",
+                                                      name: "__@unscopables@108",
                                                       description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                                     },
                                                   ],
@@ -87971,7 +87971,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@106",
                                                           description: "Iterator",
                                                         },
                                                         {
@@ -88225,7 +88225,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                       description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                     },
                                                     {
-                                                      name: "__@iterator@108",
+                                                      name: "__@iterator@106",
                                                       description: "Iterator",
                                                     },
                                                     {
@@ -88455,7 +88455,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                       description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                     },
                                                     {
-                                                      name: "__@iterator@108",
+                                                      name: "__@iterator@106",
                                                       description: "Iterator",
                                                     },
                                                     {
@@ -88949,7 +88949,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@106",
                                                           description: "Iterator",
                                                         },
                                                         {

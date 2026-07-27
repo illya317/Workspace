@@ -145,6 +145,7 @@ export function useAgentPermissionPolicyTab({
       visibleActionKeys: PERMISSION_ACTION_KEYS,
       columns: AGENT_POLICY_COLUMNS,
       layout: "singleSubjectDetails",
+      previewImpliedActions: false,
     })),
     visibility: "desktop" as const,
     header: {

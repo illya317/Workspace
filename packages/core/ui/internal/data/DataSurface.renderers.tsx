@@ -218,8 +218,7 @@ function renderCellAction(action: DataSurfaceCellActionSpec) {
       {action.label}
     </CommandButton>
   );
-  if (action.stopPropagation === false) return button;
-  return <span className="inline-flex" onClick={(event) => event.stopPropagation()}>{button}</span>;
+  return <span className="inline-flex" onClick={action.stopPropagation === false ? undefined : (event) => event.stopPropagation()} onMouseEnter={action.onMouseEnter} onMouseLeave={action.onMouseLeave}>{button}</span>;
 }
 
 function renderCell(value: ReactNode | DataSurfaceCellSpec): ReactNode {

@@ -1,4 +1,7 @@
-import type { PermissionActionKey } from "@workspace/platform/permission-actions";
+import {
+  actionImplies,
+  type PermissionActionKey,
+} from "@workspace/platform/permission-actions";
 
 export type PermissionMatrixColumnMode = "chain" | "siblings";
 export type PermissionMatrixSource = "direct" | "position" | "department" | "ancestor" | "implied" | "system" | "entry" | "implicit" | "child" | "policy" | null;
@@ -9,6 +12,11 @@ export interface PermissionMatrixColumn {
   columnLabel: string;
   actions: PermissionActionKey[];
   mode?: PermissionMatrixColumnMode;
+}
+
+export interface PermissionMatrixHoveredAction {
+  subjectKey: string;
+  actionKey: PermissionActionKey;
 }
 
 export interface PermissionActionStateLike {
@@ -127,5 +135,18 @@ export function permissionSourceTone(source: PermissionMatrixSource): Permission
   if (source === "position" || source === "department") return "red";
   if (source === "ancestor" || source === "implied") return "blue";
   if (source === "entry" || source === "child") return "yellow";
+  return "gray";
+}
+
+export function permissionActionPreviewTone(
+  state: PermissionActionStateLike,
+  hoveredActionKey: PermissionActionKey | null,
+): PermissionSourceTone {
+  if (state.has) return permissionSourceTone(state.source ?? null);
+  if (
+    hoveredActionKey
+    && hoveredActionKey !== state.actionKey
+    && actionImplies(hoveredActionKey, state.actionKey)
+  ) return "blue";
   return "gray";
 }

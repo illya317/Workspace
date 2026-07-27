@@ -33,9 +33,15 @@ import { getNaturalSpaceActionProfileActionKeys } from "../../packages/platform/
 import {
   getPermissionMatrixVisibleColumnActions,
   PERMISSION_MATRIX_ACTION_COLUMNS,
+  permissionActionPreviewTone,
   permissionSourceTone,
   summarizePermissionActionColumn,
 } from "../../packages/platform/ui/permission-matrix-model";
+import {
+  createPermissionActionMatrixSurface,
+  type PermissionMatrixActionState,
+  type PermissionMatrixRecord,
+} from "../../packages/platform/ui/PermissionActionMatrixGrid";
 
 assert.equal(actionImplies("delete", "update"), false);
 assert.equal(actionImplies("delete", "create"), false);
@@ -50,6 +56,83 @@ assert.equal(actionImplies("submit", "entry"), true);
 assert.equal(actionImplies("approve", "reject"), false);
 assert.equal(actionImplies("approve", "submit"), false);
 assert.equal(actionImplies("approve", "create"), false);
+
+assert.equal(
+  permissionActionPreviewTone({ actionKey: "read", has: false }, "update"),
+  "blue",
+  "hovering update should preview its ungranted read child in blue",
+);
+assert.equal(
+  permissionActionPreviewTone({ actionKey: "entry", has: false }, "update"),
+  "blue",
+  "hovering update should preview its ungranted entry child in blue",
+);
+assert.equal(
+  permissionActionPreviewTone({ actionKey: "create", has: false }, "delete"),
+  "gray",
+  "hovering delete must not preview unrelated create",
+);
+assert.equal(
+  permissionActionPreviewTone({ actionKey: "read", has: true, source: "direct" }, "update"),
+  "green",
+  "hover preview must not overwrite an existing direct grant tone",
+);
+
+const hoverPreviewRecord: PermissionMatrixRecord<PermissionMatrixActionState> = {
+  actionStates: Object.fromEntries(PERMISSION_ACTION_KEYS.map((actionKey) => [actionKey, {
+    actionKey,
+    has: false,
+    source: null,
+    sourceActionKey: null,
+    sourceResourceKey: null,
+    directGrantable: true,
+    pendingResourceMapping: false,
+  }])) as PermissionMatrixRecord<PermissionMatrixActionState>["actionStates"],
+};
+const hoveredChanges: Array<{ subjectKey: string; actionKey: PermissionActionKey } | null> = [];
+const hoverPreviewSurface = createPermissionActionMatrixSurface({
+  subjects: [{ id: "subject-1" }],
+  subjectColumnLabel: "",
+  getSubjectKey: (subject) => subject.id,
+  renderSubject: () => ({ kind: "text", value: "" }),
+  getRecord: () => hoverPreviewRecord,
+  expandedKeys: new Set<string>(),
+  onToggleExpand: () => undefined,
+  visibleActionKeys: ["entry", "read", "update"],
+  columns: [{ key: "basic", columnLabel: "基础权限", actions: ["entry", "read", "update"] }],
+  layout: "singleSubjectDetails",
+  hoveredAction: { subjectKey: "subject-1", actionKey: "update" },
+  onHoveredActionChange: (hovered) => hoveredChanges.push(hovered),
+});
+assert.equal(hoverPreviewSurface.kind, "structured", "permission matrix surface should stay structured");
+const hoverPreviewActions = hoverPreviewSurface.kind === "structured"
+  ? hoverPreviewSurface.rows.flatMap((row) => row.flatMap((cell) => {
+      const content = cell.content;
+      return typeof content === "object" && content && "kind" in content && content.kind === "action"
+        ? [content.action]
+        : [];
+    }))
+  : [];
+const updatePreviewAction = hoverPreviewActions.find((action) => action.key === "subject-1:update");
+const readPreviewAction = hoverPreviewActions.find((action) => action.key === "subject-1:read");
+const entryPreviewAction = hoverPreviewActions.find((action) => action.key === "subject-1:entry");
+assert.equal(
+  Boolean(
+    updatePreviewAction?.title?.includes("授权后同时获得：")
+    && updatePreviewAction.title.includes("查看")
+    && updatePreviewAction.title.includes("进入")
+  ),
+  true,
+  "parent action tooltip should name implied children",
+);
+assert.equal(readPreviewAction?.tone, "blue", "hovered update should preview read in blue");
+assert.equal(entryPreviewAction?.tone, "blue", "hovered update should preview entry in blue");
+updatePreviewAction?.onMouseEnter?.();
+updatePreviewAction?.onMouseLeave?.();
+assert.deepEqual(hoveredChanges, [
+  { subjectKey: "subject-1", actionKey: "update" },
+  null,
+], "parent action hover callbacks should set and clear the shared preview state");
 
 assert.equal(canMutatePermissionGrantAction("grant", false), true, "grant managers may re-grant grant after resource guard passes");
 assert.equal(canMutatePermissionGrantAction("grant", true), true, "root admin may maintain grant");
