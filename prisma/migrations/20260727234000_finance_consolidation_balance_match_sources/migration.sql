@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 ALTER TABLE "FinanceConsolidationMatchSource"
 ADD COLUMN "sourceKind" TEXT NOT NULL DEFAULT 'voucher',
 ADD COLUMN "auxiliaryBalanceId" INTEGER;

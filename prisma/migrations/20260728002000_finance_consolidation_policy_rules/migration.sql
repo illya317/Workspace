@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 ALTER TABLE "FinanceGroupAccountRevision"
 ADD COLUMN "consolidationRole" TEXT NOT NULL DEFAULT 'none',
 ADD COLUMN "counterpartyRequirement" TEXT NOT NULL DEFAULT 'none',

@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 UPDATE "EmploymentAgreement"

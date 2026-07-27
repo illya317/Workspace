@@ -1,3 +1,5 @@
+-- workspace:migration-mode=expand
+
 UPDATE "EmploymentAgreement"
 SET "missingFieldsJson" = COALESCE((
   SELECT jsonb_agg(field ORDER BY field)

@@ -1,3 +1,5 @@
+-- workspace:migration-mode=expand
+
 CREATE TABLE "FinanceConsolidationAdjustmentRule" (
     "id" SERIAL NOT NULL,
     "batchId" INTEGER NOT NULL,

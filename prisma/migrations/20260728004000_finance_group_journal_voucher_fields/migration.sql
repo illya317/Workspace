@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 ALTER TABLE "FinanceConsolidationEntry"
   ADD COLUMN "postingDate" TEXT,
   ADD COLUMN "documentType" TEXT NOT NULL DEFAULT 'groupAdjustment',

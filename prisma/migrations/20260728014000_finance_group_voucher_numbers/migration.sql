@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 -- Replace legacy hash-based automatic consolidation entry numbers with the
 -- period/type/sequence format used by normal accounting vouchers.
 UPDATE "FinanceConsolidationEntry"

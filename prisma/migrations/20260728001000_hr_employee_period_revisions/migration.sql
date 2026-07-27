@@ -1,3 +1,5 @@
+-- workspace:migration-mode=expand
+
 CREATE TABLE "EmployeePeriodRevision" (
     "id" TEXT NOT NULL DEFAULT (gen_random_uuid())::text,
     "employeeId" INTEGER NOT NULL,

@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 WITH baseline_quality AS (
   SELECT
     agreement.id,

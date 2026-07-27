@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 ALTER TABLE "EmployeePosition"
 RENAME COLUMN "workPercent" TO "allocationWeight";
 

@@ -1,4 +1,4 @@
--- workspace:migration-mode=expand
+-- workspace:migration-mode=maintenance
 -- Preserve incomplete legacy agreement baselines without inventing dates.
 -- Contract terms may overlap because a renewal can be signed before the prior term ends.
 

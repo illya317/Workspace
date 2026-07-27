@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 ALTER TABLE "EmploymentAgreement"
 ADD COLUMN "actualEndDate" TEXT;
 

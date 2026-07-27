@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 -- Consolidation entries are one voucher class. Normalize any remaining legacy
 -- manual or policy identifiers into the same period/type/sequence namespace.
 UPDATE "FinanceConsolidationEntry"

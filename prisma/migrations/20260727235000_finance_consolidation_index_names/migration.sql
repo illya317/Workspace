@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 ALTER INDEX "FinanceConsolidationAdjustmentRuleLine_ruleId_statementType_per"
 RENAME TO "FinanceConsolidationAdjustmentRuleLine_ruleId_statementType_idx";
 
