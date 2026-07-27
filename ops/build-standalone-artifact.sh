@@ -250,6 +250,7 @@ copy_data_release_files() {
   cp -R generated .next/standalone/
   cp -R scripts/import .next/standalone/scripts/
   cp -R scripts/lib .next/standalone/scripts/
+  cp -R scripts/repair .next/standalone/scripts/
   test -f .next/standalone/ops/data-release.mjs
   test -f .next/standalone/ops/apply-data-release.mjs
   test -f .next/standalone/ops/data-release-handlers.mjs
@@ -257,6 +258,7 @@ copy_data_release_files() {
   test -f .next/standalone/ops/prisma-genesis-cutover.mjs
   test -f .next/standalone/tsconfig.json
   test -f .next/standalone/tsconfig.base.json
+  test -f .next/standalone/scripts/repair/repair-hr-lifecycle-compatibility.mjs
   if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
     cmp .cnb-release.json .next/standalone/.cnb-release.json
   fi

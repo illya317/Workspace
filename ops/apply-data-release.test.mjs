@@ -97,3 +97,23 @@ test("finance reviewed-origin repairs use a pinned private input file", () => {
     sourceRoot: "/srv/private/sources",
   }), /escapes/);
 });
+
+test("HR lifecycle compatibility repairs use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "hr-lifecycle-compatibility-v1",
+    parameters: { inputFile: "hr/lifecycle-compatibility.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/hr/lifecycle-compatibility.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "hr-lifecycle-compatibility-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  }), /escapes/);
+});

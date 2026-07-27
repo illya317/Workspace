@@ -94,6 +94,18 @@ export interface EmployeeLifecycleCommand {
   };
 }
 
+export function isHydratableOnboardingPlaceholder(
+  employments: ReadonlyArray<{ isActive: boolean; joinDate: string | null; leaveDate: string | null }>,
+  assignmentCount: number,
+  lifecycleEventCount: number,
+) {
+  if (employments.length !== 1 || assignmentCount !== 0 || lifecycleEventCount !== 0) return false;
+  const employment = employments[0]!;
+  return employment.isActive
+    && !employment.joinDate?.trim()
+    && !employment.leaveDate?.trim();
+}
+
 type TimelineRow = Pick<LifecycleAssignmentPeriod, "startDate" | "endDate" | "workPercent" | "isPrimary">;
 
 export function validateAssignmentChange(
@@ -337,6 +349,7 @@ export async function buildEmployeeLifecycleCommand(
           workPercent: true,
         },
       },
+      lifecycleEvents: { select: { id: true }, take: 1 },
     },
   });
   if (!employee) return failCommand("员工不存在", 404);
@@ -357,8 +370,16 @@ export async function buildEmployeeLifecycleCommand(
 
   const activeEmployments = employee.employments.filter((row) => employmentContainsDate(row, effectiveDate));
   const activeEmployment = activeEmployments[0] ?? null;
+  const onboardingPlaceholder = eventType === "onboard"
+    && isHydratableOnboardingPlaceholder(
+      employee.employments,
+      employee.positions.length,
+      employee.lifecycleEvents.length,
+    )
+    ? employee.employments[0]!
+    : null;
   if (eventType === "onboard") {
-    if (employee.employments.some((row) => employmentPeriodsOverlap(row, effectiveDate))) {
+    if (!onboardingPlaceholder && employee.employments.some((row) => employmentPeriodsOverlap(row, effectiveDate))) {
       return failCommand("该员工在生效日之后已有重叠的雇佣期间");
     }
   } else if (!activeEmployment) {
@@ -417,7 +438,7 @@ export async function buildEmployeeLifecycleCommand(
     targetAssignment,
     sourceRemainingWorkPercent,
     assignmentEndDate,
-    employment: activeEmployment,
+    employment: eventType === "onboard" ? onboardingPlaceholder : activeEmployment,
     employmentFields: employmentFields.data,
   });
 }

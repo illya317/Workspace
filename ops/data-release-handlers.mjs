@@ -51,8 +51,26 @@ function financeReviewedOriginMappingsCommand(execution, context) {
   };
 }
 
+function hrLifecycleCompatibilityCommand(execution, context) {
+  const parameters = execution.parameters;
+  if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
+    || Object.keys(parameters).sort().join(",") !== "inputFile") {
+    fail("hr-lifecycle-compatibility-v1 parameters must contain only inputFile");
+  }
+  const inputFile = relativeSourcePath(parameters.inputFile, "hr-lifecycle-compatibility-v1 inputFile");
+  return {
+    executable: process.execPath,
+    args: [
+      path.join(context.repositoryRoot, "scripts/repair/repair-hr-lifecycle-compatibility.mjs"),
+      "--execute",
+      `--input-file=${path.join(context.sourceRoot, inputFile)}`,
+    ],
+  };
+}
+
 const HANDLERS = new Map([
   ["finance-reviewed-origin-mappings-v1", financeReviewedOriginMappingsCommand],
+  ["hr-lifecycle-compatibility-v1", hrLifecycleCompatibilityCommand],
   ["product-master-v1", productMasterCommand],
 ]);
 

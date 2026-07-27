@@ -274,6 +274,33 @@ async function applyAssignmentChange(
 async function applyEmploymentChange(tx: Prisma.TransactionClient, command: EmployeeLifecycleCommand) {
   if (command.eventType === "onboard") {
     const today = workspaceBusinessDate(new Date());
+    if (command.employment) {
+      await ensureEditHistoryBaseline("Employment", command.employment.id, command.userId, tx);
+      const updated = await tx.employment.updateMany({
+        where: {
+          id: command.employment.id,
+          employeeId: command.employeeId,
+          version: command.employment.version,
+          isActive: true,
+          joinDate: null,
+          leaveDate: null,
+        },
+        data: {
+          isActive: command.effectiveDate <= today,
+          joinDate: command.effectiveDate,
+          ...(command.employmentFields.officeLocation === null ? {} : { officeLocation: command.employmentFields.officeLocation }),
+          ...(command.employmentFields.personnelType === null ? {} : { personnelType: command.employmentFields.personnelType }),
+          ...(command.employmentFields.rank === null ? {} : { rank: command.employmentFields.rank }),
+          ...(command.employmentFields.title === null ? {} : { title: command.employmentFields.title }),
+          editedBy: command.userId,
+          editedAt: new Date(),
+          version: { increment: 1 },
+        },
+      });
+      if (updated.count !== 1) throw new LifecycleConcurrentUpdateError();
+      await snapshotHistory("Employment", command.employment.id, command.userId, tx);
+      return command.employment.id;
+    }
     const existing = await tx.employment.findMany({
       where: { employeeId: command.employeeId },
       select: { isActive: true, joinDate: true, leaveDate: true },
