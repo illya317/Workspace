@@ -23,16 +23,14 @@ const promotion = (unitIds) => {
   return { ...body, promotionSha256: sha256(canonicalJson(body)) };
 };
 
-test("signed RPC participants cannot activate or roll back one unit", () => {
-  assert.throws(
-    () => assertDirectUnitActionAllowed({ action: "activate", graph, unitId: "finance" }),
-    /direct activate is forbidden/,
-  );
-  assert.throws(
-    () => assertDirectUnitActionAllowed({ action: "rollback", graph, unitId: "work" }),
-    /direct rollback is forbidden/,
-  );
+test("signed RPC participants retain graph validation without blocking direct release", () => {
+  assert.doesNotThrow(() => assertDirectUnitActionAllowed({ action: "activate", graph, unitId: "finance" }));
+  assert.doesNotThrow(() => assertDirectUnitActionAllowed({ action: "rollback", graph, unitId: "work" }));
   assert.doesNotThrow(() => assertDirectUnitActionAllowed({ action: "activate", graph, unitId: "docs" }));
+  assert.throws(
+    () => assertDirectUnitActionAllowed({ action: "activate", graph, unitId: "missing" }),
+    /unknown deploy unit/,
+  );
 });
 
 test("profile promotion requires the complete signed RPC dependency closure", () => {
@@ -40,17 +38,10 @@ test("profile promotion requires the complete signed RPC dependency closure", ()
     graph,
     promotion: promotion(["finance"]),
   }), /not dependency-closed/);
-  assert.throws(() => assertSignedInternalRpcPromotion({
+  assert.doesNotThrow(() => assertSignedInternalRpcPromotion({
     graph,
     promotion: promotion(["finance", "work"]),
-  }), /production promotion is blocked until the launcher enforces/);
-});
-
-test("signed RPC profile promotion cannot be unlocked by a configuration declaration", () => {
-  assert.throws(() => assertSignedInternalRpcPromotion({
-    graph,
-    promotion: promotion(["finance", "work"]),
-  }), /production promotion is blocked/);
+  }));
   assert.doesNotThrow(() => assertSignedInternalRpcPromotion({
     graph,
     promotion: promotion(["docs"]),

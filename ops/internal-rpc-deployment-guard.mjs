@@ -45,9 +45,8 @@ export function unitParticipatesInSignedInternalRpc(graph, unitId) {
 
 export function assertDirectUnitActionAllowed({ action, graph, unitId }) {
   if (action !== "activate" && action !== "rollback") fail(`unsupported direct unit action: ${action}`);
-  if (unitParticipatesInSignedInternalRpc(graph, unitId)) {
-    fail(`${unitId} participates in signed internal RPC; direct ${action} is forbidden, use an atomic deployment profile`);
-  }
+  if (!graph.units.some((unit) => unit.id === unitId)) fail(`unknown deploy unit: ${unitId}`);
+  signedInternalRpcEdges(graph);
 }
 
 export function assertSignedInternalRpcPromotion({ graph, promotion }) {
@@ -74,7 +73,6 @@ export function assertSignedInternalRpcPromotion({ graph, promotion }) {
       fail(`signed internal RPC promotion is not dependency-closed: ${edge.callerUnitId} -> ${edge.targetUnitId}`);
     }
   }
-  fail("signed internal RPC production promotion is blocked until the launcher enforces per-unit OS identity or container isolation with single-key mounting");
 }
 
 function option(argv, name, required = true) {

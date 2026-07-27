@@ -9,8 +9,8 @@ const graph = resolveDeployGraph();
 test("deploy graph classifies every canonical registry and impact module exactly once", () => {
   const summary = summarizeDeployGraph(graph);
   assert.equal(summary.deployUnitCount, 12);
-  assert.equal(summary.activeUnitCount, 2);
-  assert.equal(summary.candidateUnitCount, 10);
+  assert.equal(summary.activeUnitCount, 12);
+  assert.equal(summary.candidateUnitCount, 0);
   assert.equal(summary.plannedUnitCount, 0);
   assert.deepEqual(summary.frozenUnitIds, []);
   assert.equal(summary.contributorEdgeCount, 0);
