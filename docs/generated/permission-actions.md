@@ -2,7 +2,7 @@
 
 # 全项目权限 Action 授权手册
 
-当前共 20 个 permission action、101 个资源策略、189 个已注册 BusinessAction。
+当前共 20 个 permission action、101 个资源策略、190 个已注册 BusinessAction。
 
 事实来源：`action-registry.ts`、`permission-resource-policy.ts`、`module-registry.ts` 与 `business-action-registry.ts`。业务写入的状态、校验和持久化细节继续以 `action-contracts.md` 为准。
 
@@ -771,14 +771,14 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 
 类型：业务资源 · 页面：`/capital-securities/governance` · scope：全局
 
-资源说明：create/update cover G-line organizations and legal-company master data. Equity/control relationships are projected from governed capital data releases rather than edited through governance APIs. Position, position-description, and employee-assignment writes remain under HR.
+资源说明：create/update cover G-line organizations, legal-company master data, and governed consolidation-control events. OwnershipInterest remains a read-only projection; Position, position-description, and employee-assignment writes remain under HR.
 
 | Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
 |---|---|---|---|---|
 | `capitalSecurities.governance.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
 | `capitalSecurities.governance.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
 | `capitalSecurities.governance.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：新建治理组织（`capitalSecurities.governance.organization.create`；POST /api/modules/capitalSecurities/governance/organizations）<br>直接执行：新建公司（`capitalSecurities.governance.company.create`；POST /api/modules/capitalSecurities/governance/companies） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
-| `capitalSecurities.governance.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：保存治理组织（`capitalSecurities.governance.organization.save`；PUT /api/modules/capitalSecurities/governance/organizations）<br>直接执行：更新公司（`capitalSecurities.governance.company.update`；PUT /api/modules/capitalSecurities/governance/companies）<br>直接执行：重建股权投影（`capitalSecurities.governance.ownershipProjection.rebuild`；POST /api/modules/capitalSecurities/governance/ownership-projections/rebuild） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `capitalSecurities.governance.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：保存治理组织（`capitalSecurities.governance.organization.save`；PUT /api/modules/capitalSecurities/governance/organizations）<br>直接执行：更新公司（`capitalSecurities.governance.company.update`；PUT /api/modules/capitalSecurities/governance/companies）<br>直接执行：重建股权投影（`capitalSecurities.governance.ownershipProjection.rebuild`；POST /api/modules/capitalSecurities/governance/ownership-projections/rebuild）<br>直接执行：调整并表范围（`capitalSecurities.governance.consolidationScope.update`；POST /api/modules/capitalSecurities/governance/ownership-interests/consolidation） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `capitalSecurities.governance.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
 #### 投资人关系（`capitalSecurities.investors`）

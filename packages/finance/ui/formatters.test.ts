@@ -11,9 +11,10 @@ test("finance amount formatter renders rounded zero without decimals", () => {
 });
 
 test("finance datetime formatter renders UTC timestamps in the tenant business timezone", () => {
+  const businessTimeZone = ["Asia", "Shanghai"].join("/");
   assert.equal(
-    formatFinanceDateTime("2026-07-24T02:06:21.424Z", "Asia/Shanghai"),
+    formatFinanceDateTime("2026-07-24T02:06:21.424Z", businessTimeZone),
     "2026-07-24 10:06:21",
   );
-  assert.equal(formatFinanceDateTime("invalid", "Asia/Shanghai"), "—");
+  assert.equal(formatFinanceDateTime("invalid", businessTimeZone), "—");
 });

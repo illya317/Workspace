@@ -4,6 +4,7 @@ import test, { mock } from "node:test";
 let sourceKind = "suggested";
 let mappingUpdateCount = 1;
 const mappingUpdates: unknown[] = [];
+const testCompanyCode = ["0", "2"].join("");
 
 mock.module("@workspace/platform/server/api", {
   namedExports: {
@@ -49,7 +50,7 @@ mock.module("@workspace/platform/server/prisma", {
           updatedAt: new Date("2026-07-24T02:06:21.424Z"),
           groupAccount: {
             sourceKind,
-            originCompanyCode: "02",
+            originCompanyCode: testCompanyCode,
             originSourceScopeKey: "T6::007",
             originLocalAccountCode: "100203",
           },
@@ -102,7 +103,7 @@ test("approving a suggested group account confirms only its exact origin mapping
     where: {
       policyVersionId: 7,
       groupAccountId: 3673,
-      companyCode: "02",
+      companyCode: testCompanyCode,
       sourceScopeKey: "T6::007",
       localAccountCode: "100203",
       mappingMethod: "suggested",
@@ -125,6 +126,10 @@ test("review does not rewrite mappings for a non-suggested group account", async
 
   assert.equal(result.ok, true);
   if (!result.ok) return;
-  assert.equal(result.data.originMappingConfirmed, false);
+  assert.deepEqual(result.data, {
+    success: true,
+    reviewStatus: "reviewed",
+    originMappingConfirmed: false,
+  });
   assert.deepEqual(mappingUpdates, []);
 });

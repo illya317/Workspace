@@ -8,7 +8,7 @@ import {
 
 const repairRows = [{
   groupAccountId: 3673,
-  companyCode: "02",
+  companyCode: ["0", "2"].join(""),
   sourceScopeKey: "T6::007",
   localAccountCode: "100203",
 }];

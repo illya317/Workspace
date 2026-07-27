@@ -11,6 +11,10 @@ import {
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { ConsolidationEntityCoverage } from "@workspace/finance/types";
+import {
+  CONSOLIDATION_SCOPE_UPDATE_API_PATH,
+  type ConsolidationScopeUpdateRequest,
+} from "@workspace/platform/contracts/consolidation-scope";
 import { useCallback, useMemo, useState } from "react";
 
 import { createConsolidationEntityColumns } from "./consolidation-columns";
@@ -33,15 +37,16 @@ export function ConsolidationPreparationTab(props: ConsolidationTabProps) {
     if (!data || row.relationId === null || row.relationVersion === null || included === row.isConsolidated) return;
     setBusyRelationId(row.relationId);
     try {
-      const response = await fetch(workspacePath("/api/modules/capitalSecurities/governance/ownership-interests/consolidation"), {
+      const command: ConsolidationScopeUpdateRequest = {
+        relationId: row.relationId,
+        expectedVersion: row.relationVersion,
+        included,
+        effectiveDate: data.fxPolicy.periodEndDate,
+      };
+      const response = await fetch(workspacePath(CONSOLIDATION_SCOPE_UPDATE_API_PATH), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          relationId: row.relationId,
-          expectedVersion: row.relationVersion,
-          included,
-          effectiveDate: data.fxPolicy.periodEndDate,
-        }),
+        body: JSON.stringify(command),
       });
       const payload = await response.json().catch(() => null) as { error?: string } | null;
       if (!response.ok) throw new Error(payload?.error || "并表范围保存失败");

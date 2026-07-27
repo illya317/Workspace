@@ -56,7 +56,7 @@ async function executeConsolidationInclusion(
   database: ConsolidationDatabase,
 ) {
   const validated = buildSetConsolidationInclusionCommand(command, command.actorUserId);
-  if (!validated.ok) return serviceError(validated.error, validated.status);
+  if (!validated.ok) return serviceError(validated.issue.message, validated.issue.status);
   const input = validated.data;
 
   const direct = await assertBusinessActionDirectExecutionAllowed({
