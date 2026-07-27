@@ -13,6 +13,7 @@ const entryLineSchema = z.object({
   statementType: z.enum(["balanceSheet", "incomeStatement", "cashFlow"]),
   lineCode: z.string().trim().min(1).max(200),
   accountCode: z.string().trim().max(100).nullable().optional(),
+  groupAccountId: z.number().int().positive().nullable().optional(),
   debit: z.number().nonnegative(),
   credit: z.number().nonnegative(),
   currencyCode: z.string().trim().min(3).max(3).optional(),
@@ -22,13 +23,18 @@ const entryLineSchema = z.object({
   sourceKind: z.enum(["auxiliaryBalance", "openItem", "cashFlowAllocation", "workpaper", "voucher"]).nullable().optional(),
   sourceRecordId: z.number().int().positive().nullable().optional(),
   counterpartyEntitySnapshotId: z.number().int().positive().nullable().optional(),
+  counterpartyCompanyId: z.number().int().positive().nullable().optional(),
 });
 const entrySchema = z.object({
   expectedRevision: z.number().int().positive(),
   entryId: z.number().int().positive().nullable().optional(),
   entryNo: z.string().trim().min(1).max(100),
+  postingDate: z.string().date().optional(),
+  documentType: z.enum(["groupAdjustment", "elimination", "reclassification"]).optional(),
+  postingLevel: z.enum(["10", "20", "30"]).optional(),
   entryType: z.enum([
     "investmentEquity",
+    "reclassification",
     "nonControllingInterest",
     "intercompanyBalance",
     "internalTrading",

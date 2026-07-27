@@ -103,6 +103,10 @@ export async function advanceFinanceAccountingPolicyVersionInTransaction(
       parentGroupAccountId: revision.parentGroupAccountId,
       isActive: revision.isActive,
       reviewStatus: revision.reviewStatus,
+      consolidationRole: revision.consolidationRole,
+      counterpartyRequirement: revision.counterpartyRequirement,
+      movementType: revision.movementType,
+      translationRateType: revision.translationRateType,
     })) });
   }
   if (mappings.length) {
@@ -137,6 +141,39 @@ export async function advanceFinanceAccountingPolicyVersionInTransaction(
       confirmedAt: rule.confirmedAt,
       note: rule.note,
     })) });
+  }
+  const consolidationRules = await tx.financeConsolidationRule.findMany({
+    where: { policyVersionId: current.id },
+    include: { selectors: { orderBy: [{ side: "asc" }, { sequence: "asc" }] } },
+  });
+  for (const rule of consolidationRules) {
+    await tx.financeConsolidationRule.create({ data: {
+      policyVersionId: next.id,
+      ruleCode: rule.ruleCode,
+      name: rule.name,
+      ruleType: rule.ruleType,
+      dataBasis: rule.dataBasis,
+      matchMode: rule.matchMode,
+      amountMode: rule.amountMode,
+      postingSide: rule.postingSide,
+      differenceHandling: rule.differenceHandling,
+      toleranceAmount: rule.toleranceAmount,
+      currencyRateType: rule.currencyRateType,
+      enabled: rule.enabled,
+      priority: rule.priority,
+      sourceKind: rule.sourceKind,
+      note: rule.note,
+      createdBy: rule.createdBy,
+      updatedBy: rule.updatedBy,
+      selectors: { create: rule.selectors.map((selector) => ({
+        side: selector.side,
+        sequence: selector.sequence,
+        selectorType: selector.selectorType,
+        consolidationRole: selector.consolidationRole,
+        groupAccountId: selector.groupAccountId,
+        includeChildren: selector.includeChildren,
+      })) },
+    } });
   }
   return next;
 }

@@ -38,6 +38,7 @@ interface FinanceFiltersProps {
   showSearch?: boolean;
   showPageSize?: boolean;
   showCompanyYear?: boolean;
+  allowPeriodWithoutCompany?: boolean;
   columns?: SurfaceColumnOptionSpec[];
   visibleColumns?: string[];
   onColumnsChange?: (visible: string[]) => void;
@@ -62,6 +63,7 @@ export function useFinanceFilterToolbarItems({
   showSearch = true,
   showPageSize = true,
   showCompanyYear = true,
+  allowPeriodWithoutCompany = false,
   columns,
   visibleColumns,
   onColumnsChange,
@@ -107,7 +109,11 @@ export function useFinanceFilterToolbarItems({
     const precision = showMonth && onMonthChange ? "month" as const : "year" as const;
     const selectedYear = Number(yearFilter);
     const selectedMonth = precision === "month" ? Number(monthFilter) : 12;
-    const companyPeriods = periods.filter((period) => period.companyCode === companyFilter);
+    const companyPeriods = companyFilter
+      ? periods.filter((period) => period.companyCode === companyFilter)
+      : allowPeriodWithoutCompany
+        ? periods
+        : [];
     const navigationPeriods = precision === "month"
       ? companyPeriods
       : [...new Set(companyPeriods.map((period) => period.year))].map((year) => ({

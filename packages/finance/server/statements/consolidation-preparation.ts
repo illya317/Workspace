@@ -139,8 +139,7 @@ async function loadAutomaticRateFacts(
     const directCandidates = investor
       ? cadEntities.filter((entity) => entity.directParentCompanyId === investor.companyId)
       : [];
-    const candidates = directCandidates.length > 0 ? directCandidates : cadEntities;
-    return candidates.length === 1 ? [{ investment, entity: candidates[0]! }] : [];
+    return directCandidates.length === 1 ? [{ investment, entity: directCandidates[0]! }] : [];
   });
   const targetDates = [
     selectedPeriodEnd,
@@ -199,6 +198,7 @@ async function loadAutomaticRateFacts(
   const { rates } = await applyConsolidationRatePolicies({
     periodEnd: selectedPeriodEnd,
     requiredComparativeEntityIds,
+    requiredInvestmentVoucherIds: mappedInvestments.map(({ investment }) => investment.id),
     companyCodes: batch.entities.map((entity) => entity.companyCode),
     entities: batch.entities,
     currencyPolicies,
@@ -289,7 +289,7 @@ export async function prepareConsolidationSources(rawCommand: SaveConsolidationS
     const nextSourceContent = consolidationSourceContentBatchFingerprint(sourceFacts);
     const sourcesChanged = currentSourceContent !== nextSourceContent;
     let preparedRates: ConsolidationRateFact[] | null = null;
-    if (sourcesChanged || !hasCompleteFx(batch, null)) {
+    if (command.input.intent === "refresh" || sourcesChanged || !hasCompleteFx(batch, null)) {
       try {
         preparedRates = await loadAutomaticRateFacts(batch, sourceFacts, command.userId);
       } catch (cause) {

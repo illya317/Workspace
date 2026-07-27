@@ -40,12 +40,16 @@ export async function reviewConsolidationEntry(rawCommand: ReviewConsolidationEn
   if (batch.revision !== command.expectedRevision) return serviceError("合并批次内容已变化，请刷新后重试", 409);
   const entry = batch.entries.find((item) => item.id === command.entryId);
   const group = batch.matchGroups.find((item) => item.entryId === command.entryId);
-  if (!entry || !group) return serviceError("抵销分录不是当前批次自动匹配生成的审阅事项", 409);
+  if (!entry) return serviceError("集团凭证不属于当前批次", 404);
   const target = validateConsolidationEntryReviewTarget(command.action, {
     batchStatus: batch.status,
     entryOrigin: entry.origin,
+    entryStatus: entry.status,
     generationKey: entry.generationKey,
-    matchStatus: group.status,
+    matchStatus: group?.status ?? null,
+    evidence: entry.evidence,
+    preparedBy: entry.preparedBy,
+    reviewerId: command.userId,
   });
   if (!target.ok) return serviceError(target.issue.message, target.issue.status);
   const direct = await assertBusinessActionDirectExecutionAllowed({
@@ -72,10 +76,12 @@ export async function reviewConsolidationEntry(rawCommand: ReviewConsolidationEn
       });
       if (!batchRevision) throw new EntryReviewError("合并批次已被提交或被其他人修改，请刷新后重试");
       const approved = command.action === "approve";
-      await tx.financeConsolidationMatchGroup.update({
-        where: { id: group.id },
-        data: { status: target.data.matchStatus },
-      });
+      if (group && target.data.matchStatus) {
+        await tx.financeConsolidationMatchGroup.update({
+          where: { id: group.id },
+          data: { status: target.data.matchStatus },
+        });
+      }
       await tx.financeConsolidationEntry.update({
         where: { id: entry.id },
         data: approved ? {
@@ -108,7 +114,7 @@ export async function reviewConsolidationEntry(rawCommand: ReviewConsolidationEn
           entryId: entry.id,
           generationKey: entry.generationKey,
           previousEntryStatus: entry.status,
-          previousMatchStatus: group.status,
+          previousMatchStatus: group?.status ?? null,
           nextEntryStatus: target.data.entryStatus,
           nextMatchStatus: target.data.matchStatus,
         }),

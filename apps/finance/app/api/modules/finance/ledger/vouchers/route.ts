@@ -29,6 +29,9 @@ const listVouchersSchema = z.object({
   keyword: z.string().default(""),
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().positive().max(200).default(50),
+  voucherKind: z.enum(["standard", "group"]).default("standard"),
+  documentType: z.enum(["groupAdjustment", "elimination", "reclassification"]).optional(),
+  origin: z.enum(["manual", "system"]).optional(),
 });
 
 const voucherItemSchema = z.object({

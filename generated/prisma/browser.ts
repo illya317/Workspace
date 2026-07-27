@@ -326,7 +326,7 @@ export type FinanceConsolidationEntryLine = Prisma.FinanceConsolidationEntryLine
 export type FinanceConsolidationMatchGroup = Prisma.FinanceConsolidationMatchGroupModel
 /**
  * Model FinanceConsolidationMatchSource
- * 合并抵销匹配组的凭证分录来源（事实；allocatedAmount 允许同一来源在不同组中拆分）。
+ * 合并抵销匹配组来源（事实；资产负债表往来使用期末辅助余额，投资权益仍可使用凭证明细）。
  */
 export type FinanceConsolidationMatchSource = Prisma.FinanceConsolidationMatchSourceModel
 /**
@@ -474,6 +474,16 @@ export type FinanceAccountingPolicyVersion = Prisma.FinanceAccountingPolicyVersi
  * 版本内集团科目属性快照（配置事实：集团科目身份稳定，编码、名称和层级按版本生效）
  */
 export type FinanceGroupAccountRevision = Prisma.FinanceGroupAccountRevisionModel
+/**
+ * Model FinanceConsolidationRule
+ * 版本化合并规则主数据。规则是长期会计政策，批次运行后生成可见集团凭证或待处理异常；规则本身不在工作底稿复核。
+ */
+export type FinanceConsolidationRule = Prisma.FinanceConsolidationRuleModel
+/**
+ * Model FinanceConsolidationRuleSelector
+ * 合并规则的来源、对方和差额科目选择器；优先使用集团科目角色，也允许锁定具体集团科目。
+ */
+export type FinanceConsolidationRuleSelector = Prisma.FinanceConsolidationRuleSelectorModel
 /**
  * Model FinanceGroupAccountMapping
  * 公司科目到集团科目的持久化映射/复核项（配置事实：正常同步后必须有 groupAccountId）

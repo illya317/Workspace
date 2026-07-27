@@ -86,7 +86,7 @@ function buildSheet(
   statement: ConsolidatedStatementOutput,
   entityColumns: ConsolidatedOutputEntityAmount[],
 ) {
-  const columnCount = entityColumns.length + 6;
+  const columnCount = entityColumns.length + 5;
   const rows: Array<Array<string | number>> = [
     [`合并${statement.label}工作底稿`, ...Array.from({ length: columnCount - 1 }, () => "")],
     [
@@ -102,7 +102,6 @@ function buildSheet(
       "抵销借方",
       "抵销贷方",
       "合并数",
-      "比较数",
     ],
     ...workpaperLines(statement).map((line) => {
       const adjustment = adjustmentAmounts(line);
@@ -115,7 +114,6 @@ function buildSheet(
         adjustment.debit,
         adjustment.credit,
         line.amount,
-        line.previousAmount,
       ];
     }),
   ];
@@ -127,7 +125,6 @@ function buildSheet(
     { wch: 18 },
     { wch: 16 },
     { wch: 16 },
-    { wch: 18 },
     { wch: 18 },
   ];
   worksheet["!autofilter"] = { ref: `A3:${XLSX.utils.encode_col(columnCount - 1)}${rows.length}` };

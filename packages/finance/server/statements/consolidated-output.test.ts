@@ -498,7 +498,6 @@ test("frozen output rejects changed report payloads instead of silently recomput
   if (frozen.ok) return;
   assert.match(frozen.issue.message, /指纹不一致/);
 });
-
 test("frozen output requires its lock-time input fingerprint", () => {
   const generatedAt = new Date("2027-01-04T08:09:10.123Z");
   const prepared = prepareLockedConsolidatedOutputSnapshot(batchSnapshot("reviewed"), 19, generatedAt);

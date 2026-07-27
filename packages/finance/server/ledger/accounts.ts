@@ -114,7 +114,9 @@ export async function listFinanceAccounts(input: ListFinanceAccountsInput) {
     const filtered = attached.accounts.filter((account) => !keyword
       || matchText(account.code, keyword)
       || matchText(account.name, keyword))
-      .filter((account) => !input.reviewStatus || account.reviewStatus === input.reviewStatus);
+      .filter((account) => !input.reviewStatus
+        || account.reviewStatus === input.reviewStatus
+        || (input.reviewStatus === "pending_review" && account.reviewStatus === "pending_delete"));
     const total = filtered.length;
     const totalPages = Math.ceil(total / pageSize);
     const skip = (page - 1) * pageSize;

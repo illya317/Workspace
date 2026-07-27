@@ -2,7 +2,6 @@
 
 import {
   PageSurface,
-  createAnalysisSection,
   createPageBody,
   createPageTableSection,
   createStatusSection,
@@ -19,10 +18,6 @@ import type {
 } from "@workspace/finance/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  adjustmentComparisonExpandedRow,
-  createAdjustmentComparisonColumns,
-} from "./consolidation-columns";
 import {
   consolidationWorkpaperAdjustmentAmounts,
   consolidationWorkpaperEntryEffects,
@@ -54,7 +49,7 @@ function expandedWorkpaperRow(
     kind: "group",
     direction: "column",
     items: [
-      { kind: "text", value: "下列为直接写入本报表行的合并凭证；确认前为草稿预览，确认后随报表一并冻结。", tone: "muted", wrap: "wrap" },
+      { kind: "text", value: "下列为直接写入本报表行的集团凭证；批次锁定后随报表一并冻结。", tone: "muted", wrap: "wrap" },
       { kind: "data", data: {
         kind: "table",
         rows: effects,
@@ -73,10 +68,9 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
   const feedback = useFeedback();
   const reportType = props.reportType;
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
-  const [comparisonExpandedKeys, setComparisonExpandedKeys] = useState<Set<string>>(new Set());
   const [downloading, setDownloading] = useState(false);
   const batch = data?.batch ?? null;
-  const output = useConsolidatedReport(batch?.id ?? null, batch?.status ?? null);
+  const output = useConsolidatedReport(batch?.id ?? null, batch?.status ?? null, batch?.revision ?? null);
   const workspace = useConsolidationDecisionWorkspace({
     data,
     capabilities: props.capabilities,
@@ -89,13 +83,6 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
     return Math.abs(adjustment.debit) >= 0.005 || Math.abs(adjustment.credit) >= 0.005;
   }) : [], [statement]);
   const entries = batch?.entries ?? [];
-  const sourceExceptions = (data?.adjustmentComparisons ?? []).filter((row) =>
-    row.reviewStatus === "exception"
-    || row.status === "missingCounterpart"
-    || row.status === "unresolved"
-    || row.status === "pendingCalculation",
-  );
-  const comparisonColumns = createAdjustmentComparisonColumns({ expandedKeys: comparisonExpandedKeys });
   const canExport = props.capabilities.canExport;
   const parentName = data?.scope.parent?.name || "合并主体";
 
@@ -116,7 +103,6 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
 
   useEffect(() => {
     setExpandedKeys(new Set());
-    setComparisonExpandedKeys(new Set());
   }, [batch?.id, reportType]);
 
   const columns = useMemo<DataSurfaceColumnSpec<ConsolidatedOutputLine>[]>(() => [
@@ -138,7 +124,6 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
     { key: "elimination-debit", label: "抵销借方", required: true, width: "md", cell: (line) => ({ kind: "amount", value: consolidationWorkpaperAdjustmentAmounts(line).debit, showZero: false }) },
     { key: "elimination-credit", label: "抵销贷方", required: true, width: "md", cell: (line) => ({ kind: "amount", value: consolidationWorkpaperAdjustmentAmounts(line).credit, showZero: false }) },
     { key: "consolidated", label: "合并数", required: true, width: "md", cell: (line) => ({ kind: "amount", value: line.amount }) },
-    { key: "comparative", label: "比较数", required: true, width: "md", cell: (line) => ({ kind: "amount", value: line.previousAmount }) },
   ], [expandedKeys]);
 
   const toolbar = {
@@ -179,27 +164,6 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
     })];
   } else {
     sections = [
-      ...(sourceExceptions.length > 0 ? [createAnalysisSection("consolidation-source-exceptions", {
-        title: "合并凭证来源与例外",
-        sections: [createPageTableSection("consolidation-source-exception-table", {
-          rows: sourceExceptions,
-          columns: comparisonColumns,
-          visibleColumns: comparisonColumns.map((column) => column.key),
-          rowKey: (row) => row.key,
-          onRowClick: (row) => setComparisonExpandedKeys((current) => {
-            const next = new Set(current);
-            if (next.has(row.key)) next.delete(row.key);
-            else next.add(row.key);
-            return next;
-          }),
-          expandedRowKeys: comparisonExpandedKeys,
-          expandedRow: adjustmentComparisonExpandedRow,
-          rowState: () => "warning",
-          presentation: { density: "compact", cellWrap: "wrap" },
-          scroll: { x: true },
-          emptyText: "当前没有来源例外",
-        })],
-      })] : []),
       ...workspace.lifecycleSections(props.onWorkpaperConfirmed),
       createPageTableSection("consolidation-workpaper-table", {
         rows: workpaperLines,

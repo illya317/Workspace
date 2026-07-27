@@ -11,7 +11,11 @@ interface ConsolidatedReportResponse {
   report: ConsolidatedReportOutputPackage;
 }
 
-export function useConsolidatedReport(batchId: number | null, status: ConsolidationBatchStatus | null) {
+export function useConsolidatedReport(
+  batchId: number | null,
+  status: ConsolidationBatchStatus | null,
+  revision: number | null = null,
+) {
   const [report, setReport] = useState<ConsolidatedReportOutputPackage | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +55,7 @@ export function useConsolidatedReport(batchId: number | null, status: Consolidat
       });
 
     return () => controller.abort();
-  }, [batchId, status]);
+  }, [batchId, revision, status]);
 
   return { report, loading, error };
 }

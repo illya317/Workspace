@@ -345,6 +345,7 @@ export type FinanceAuxiliaryBalanceWhereInput = {
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
   members?: Prisma.FinanceAuxiliaryBalanceMemberListRelationFilter
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceListRelationFilter
 }
 
 export type FinanceAuxiliaryBalanceOrderByWithRelationInput = {
@@ -369,6 +370,7 @@ export type FinanceAuxiliaryBalanceOrderByWithRelationInput = {
   account?: Prisma.FinanceAccountOrderByWithRelationInput
   members?: Prisma.FinanceAuxiliaryBalanceMemberOrderByRelationAggregateInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineOrderByRelationAggregateInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceOrderByRelationAggregateInput
 }
 
 export type FinanceAuxiliaryBalanceWhereUniqueInput = Prisma.AtLeast<{
@@ -397,6 +399,7 @@ export type FinanceAuxiliaryBalanceWhereUniqueInput = Prisma.AtLeast<{
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
   members?: Prisma.FinanceAuxiliaryBalanceMemberListRelationFilter
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceListRelationFilter
 }, "id" | "sourceSystem_sourceDatabase_sourceKey">
 
 export type FinanceAuxiliaryBalanceOrderByWithAggregationInput = {
@@ -463,6 +466,7 @@ export type FinanceAuxiliaryBalanceCreateInput = {
   account: Prisma.FinanceAccountCreateNestedOneWithoutAuxiliaryBalancesInput
   members?: Prisma.FinanceAuxiliaryBalanceMemberCreateNestedManyWithoutBalanceInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceAuxiliaryBalanceInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutAuxiliaryBalanceInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedCreateInput = {
@@ -484,6 +488,7 @@ export type FinanceAuxiliaryBalanceUncheckedCreateInput = {
   updatedAt?: Date | string
   members?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedCreateNestedManyWithoutBalanceInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceAuxiliaryBalanceInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutAuxiliaryBalanceInput
 }
 
 export type FinanceAuxiliaryBalanceUpdateInput = {
@@ -504,6 +509,7 @@ export type FinanceAuxiliaryBalanceUpdateInput = {
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutAuxiliaryBalancesNestedInput
   members?: Prisma.FinanceAuxiliaryBalanceMemberUpdateManyWithoutBalanceNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceAuxiliaryBalanceNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutAuxiliaryBalanceNestedInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedUpdateInput = {
@@ -525,6 +531,7 @@ export type FinanceAuxiliaryBalanceUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedUpdateManyWithoutBalanceNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceAuxiliaryBalanceNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutAuxiliaryBalanceNestedInput
 }
 
 export type FinanceAuxiliaryBalanceCreateManyInput = {
@@ -705,6 +712,22 @@ export type FinanceAuxiliaryBalanceUpdateOneWithoutConsolidationEntryLinesNested
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAuxiliaryBalanceUpdateToOneWithWhereWithoutConsolidationEntryLinesInput, Prisma.FinanceAuxiliaryBalanceUpdateWithoutConsolidationEntryLinesInput>, Prisma.FinanceAuxiliaryBalanceUncheckedUpdateWithoutConsolidationEntryLinesInput>
 }
 
+export type FinanceAuxiliaryBalanceCreateNestedOneWithoutConsolidationMatchSourcesInput = {
+  create?: Prisma.XOR<Prisma.FinanceAuxiliaryBalanceCreateWithoutConsolidationMatchSourcesInput, Prisma.FinanceAuxiliaryBalanceUncheckedCreateWithoutConsolidationMatchSourcesInput>
+  connectOrCreate?: Prisma.FinanceAuxiliaryBalanceCreateOrConnectWithoutConsolidationMatchSourcesInput
+  connect?: Prisma.FinanceAuxiliaryBalanceWhereUniqueInput
+}
+
+export type FinanceAuxiliaryBalanceUpdateOneWithoutConsolidationMatchSourcesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAuxiliaryBalanceCreateWithoutConsolidationMatchSourcesInput, Prisma.FinanceAuxiliaryBalanceUncheckedCreateWithoutConsolidationMatchSourcesInput>
+  connectOrCreate?: Prisma.FinanceAuxiliaryBalanceCreateOrConnectWithoutConsolidationMatchSourcesInput
+  upsert?: Prisma.FinanceAuxiliaryBalanceUpsertWithoutConsolidationMatchSourcesInput
+  disconnect?: Prisma.FinanceAuxiliaryBalanceWhereInput | boolean
+  delete?: Prisma.FinanceAuxiliaryBalanceWhereInput | boolean
+  connect?: Prisma.FinanceAuxiliaryBalanceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAuxiliaryBalanceUpdateToOneWithWhereWithoutConsolidationMatchSourcesInput, Prisma.FinanceAuxiliaryBalanceUpdateWithoutConsolidationMatchSourcesInput>, Prisma.FinanceAuxiliaryBalanceUncheckedUpdateWithoutConsolidationMatchSourcesInput>
+}
+
 export type FinanceAuxiliaryBalanceCreateNestedOneWithoutMembersInput = {
   create?: Prisma.XOR<Prisma.FinanceAuxiliaryBalanceCreateWithoutMembersInput, Prisma.FinanceAuxiliaryBalanceUncheckedCreateWithoutMembersInput>
   connectOrCreate?: Prisma.FinanceAuxiliaryBalanceCreateOrConnectWithoutMembersInput
@@ -862,6 +885,7 @@ export type FinanceAuxiliaryBalanceCreateWithoutConsolidationEntryLinesInput = {
   period: Prisma.FinancePeriodCreateNestedOneWithoutAuxiliaryBalancesInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutAuxiliaryBalancesInput
   members?: Prisma.FinanceAuxiliaryBalanceMemberCreateNestedManyWithoutBalanceInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutAuxiliaryBalanceInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedCreateWithoutConsolidationEntryLinesInput = {
@@ -882,6 +906,7 @@ export type FinanceAuxiliaryBalanceUncheckedCreateWithoutConsolidationEntryLines
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedCreateNestedManyWithoutBalanceInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutAuxiliaryBalanceInput
 }
 
 export type FinanceAuxiliaryBalanceCreateOrConnectWithoutConsolidationEntryLinesInput = {
@@ -917,6 +942,7 @@ export type FinanceAuxiliaryBalanceUpdateWithoutConsolidationEntryLinesInput = {
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutAuxiliaryBalancesNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutAuxiliaryBalancesNestedInput
   members?: Prisma.FinanceAuxiliaryBalanceMemberUpdateManyWithoutBalanceNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutAuxiliaryBalanceNestedInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedUpdateWithoutConsolidationEntryLinesInput = {
@@ -937,6 +963,105 @@ export type FinanceAuxiliaryBalanceUncheckedUpdateWithoutConsolidationEntryLines
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedUpdateManyWithoutBalanceNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutAuxiliaryBalanceNestedInput
+}
+
+export type FinanceAuxiliaryBalanceCreateWithoutConsolidationMatchSourcesInput = {
+  companyCode: string
+  sourceSystem: string
+  sourceDatabase: string
+  sourceKey: string
+  openingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  import: Prisma.FinanceLedgerImportCreateNestedOneWithoutAuxiliaryBalancesInput
+  period: Prisma.FinancePeriodCreateNestedOneWithoutAuxiliaryBalancesInput
+  account: Prisma.FinanceAccountCreateNestedOneWithoutAuxiliaryBalancesInput
+  members?: Prisma.FinanceAuxiliaryBalanceMemberCreateNestedManyWithoutBalanceInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceAuxiliaryBalanceInput
+}
+
+export type FinanceAuxiliaryBalanceUncheckedCreateWithoutConsolidationMatchSourcesInput = {
+  id?: number
+  importId: number
+  periodId: number
+  accountId: number
+  companyCode: string
+  sourceSystem: string
+  sourceDatabase: string
+  sourceKey: string
+  openingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedCreateNestedManyWithoutBalanceInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceAuxiliaryBalanceInput
+}
+
+export type FinanceAuxiliaryBalanceCreateOrConnectWithoutConsolidationMatchSourcesInput = {
+  where: Prisma.FinanceAuxiliaryBalanceWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAuxiliaryBalanceCreateWithoutConsolidationMatchSourcesInput, Prisma.FinanceAuxiliaryBalanceUncheckedCreateWithoutConsolidationMatchSourcesInput>
+}
+
+export type FinanceAuxiliaryBalanceUpsertWithoutConsolidationMatchSourcesInput = {
+  update: Prisma.XOR<Prisma.FinanceAuxiliaryBalanceUpdateWithoutConsolidationMatchSourcesInput, Prisma.FinanceAuxiliaryBalanceUncheckedUpdateWithoutConsolidationMatchSourcesInput>
+  create: Prisma.XOR<Prisma.FinanceAuxiliaryBalanceCreateWithoutConsolidationMatchSourcesInput, Prisma.FinanceAuxiliaryBalanceUncheckedCreateWithoutConsolidationMatchSourcesInput>
+  where?: Prisma.FinanceAuxiliaryBalanceWhereInput
+}
+
+export type FinanceAuxiliaryBalanceUpdateToOneWithWhereWithoutConsolidationMatchSourcesInput = {
+  where?: Prisma.FinanceAuxiliaryBalanceWhereInput
+  data: Prisma.XOR<Prisma.FinanceAuxiliaryBalanceUpdateWithoutConsolidationMatchSourcesInput, Prisma.FinanceAuxiliaryBalanceUncheckedUpdateWithoutConsolidationMatchSourcesInput>
+}
+
+export type FinanceAuxiliaryBalanceUpdateWithoutConsolidationMatchSourcesInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  openingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  import?: Prisma.FinanceLedgerImportUpdateOneRequiredWithoutAuxiliaryBalancesNestedInput
+  period?: Prisma.FinancePeriodUpdateOneRequiredWithoutAuxiliaryBalancesNestedInput
+  account?: Prisma.FinanceAccountUpdateOneRequiredWithoutAuxiliaryBalancesNestedInput
+  members?: Prisma.FinanceAuxiliaryBalanceMemberUpdateManyWithoutBalanceNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceAuxiliaryBalanceNestedInput
+}
+
+export type FinanceAuxiliaryBalanceUncheckedUpdateWithoutConsolidationMatchSourcesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  importId?: Prisma.IntFieldUpdateOperationsInput | number
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  accountId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  openingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedUpdateManyWithoutBalanceNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceAuxiliaryBalanceNestedInput
 }
 
 export type FinanceAuxiliaryBalanceCreateWithoutMembersInput = {
@@ -956,6 +1081,7 @@ export type FinanceAuxiliaryBalanceCreateWithoutMembersInput = {
   period: Prisma.FinancePeriodCreateNestedOneWithoutAuxiliaryBalancesInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutAuxiliaryBalancesInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceAuxiliaryBalanceInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutAuxiliaryBalanceInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedCreateWithoutMembersInput = {
@@ -976,6 +1102,7 @@ export type FinanceAuxiliaryBalanceUncheckedCreateWithoutMembersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceAuxiliaryBalanceInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutAuxiliaryBalanceInput
 }
 
 export type FinanceAuxiliaryBalanceCreateOrConnectWithoutMembersInput = {
@@ -1011,6 +1138,7 @@ export type FinanceAuxiliaryBalanceUpdateWithoutMembersInput = {
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutAuxiliaryBalancesNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutAuxiliaryBalancesNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceAuxiliaryBalanceNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutAuxiliaryBalanceNestedInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedUpdateWithoutMembersInput = {
@@ -1031,6 +1159,7 @@ export type FinanceAuxiliaryBalanceUncheckedUpdateWithoutMembersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceAuxiliaryBalanceNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutAuxiliaryBalanceNestedInput
 }
 
 export type FinanceAuxiliaryBalanceCreateWithoutImportInput = {
@@ -1050,6 +1179,7 @@ export type FinanceAuxiliaryBalanceCreateWithoutImportInput = {
   account: Prisma.FinanceAccountCreateNestedOneWithoutAuxiliaryBalancesInput
   members?: Prisma.FinanceAuxiliaryBalanceMemberCreateNestedManyWithoutBalanceInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceAuxiliaryBalanceInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutAuxiliaryBalanceInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedCreateWithoutImportInput = {
@@ -1070,6 +1200,7 @@ export type FinanceAuxiliaryBalanceUncheckedCreateWithoutImportInput = {
   updatedAt?: Date | string
   members?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedCreateNestedManyWithoutBalanceInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceAuxiliaryBalanceInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutAuxiliaryBalanceInput
 }
 
 export type FinanceAuxiliaryBalanceCreateOrConnectWithoutImportInput = {
@@ -1137,6 +1268,7 @@ export type FinanceAuxiliaryBalanceCreateWithoutAccountInput = {
   period: Prisma.FinancePeriodCreateNestedOneWithoutAuxiliaryBalancesInput
   members?: Prisma.FinanceAuxiliaryBalanceMemberCreateNestedManyWithoutBalanceInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceAuxiliaryBalanceInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutAuxiliaryBalanceInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedCreateWithoutAccountInput = {
@@ -1157,6 +1289,7 @@ export type FinanceAuxiliaryBalanceUncheckedCreateWithoutAccountInput = {
   updatedAt?: Date | string
   members?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedCreateNestedManyWithoutBalanceInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceAuxiliaryBalanceInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutAuxiliaryBalanceInput
 }
 
 export type FinanceAuxiliaryBalanceCreateOrConnectWithoutAccountInput = {
@@ -1202,6 +1335,7 @@ export type FinanceAuxiliaryBalanceCreateWithoutPeriodInput = {
   account: Prisma.FinanceAccountCreateNestedOneWithoutAuxiliaryBalancesInput
   members?: Prisma.FinanceAuxiliaryBalanceMemberCreateNestedManyWithoutBalanceInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceAuxiliaryBalanceInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutAuxiliaryBalanceInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedCreateWithoutPeriodInput = {
@@ -1222,6 +1356,7 @@ export type FinanceAuxiliaryBalanceUncheckedCreateWithoutPeriodInput = {
   updatedAt?: Date | string
   members?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedCreateNestedManyWithoutBalanceInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceAuxiliaryBalanceInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutAuxiliaryBalanceInput
 }
 
 export type FinanceAuxiliaryBalanceCreateOrConnectWithoutPeriodInput = {
@@ -1285,6 +1420,7 @@ export type FinanceAuxiliaryBalanceUpdateWithoutImportInput = {
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutAuxiliaryBalancesNestedInput
   members?: Prisma.FinanceAuxiliaryBalanceMemberUpdateManyWithoutBalanceNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceAuxiliaryBalanceNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutAuxiliaryBalanceNestedInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedUpdateWithoutImportInput = {
@@ -1305,6 +1441,7 @@ export type FinanceAuxiliaryBalanceUncheckedUpdateWithoutImportInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedUpdateManyWithoutBalanceNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceAuxiliaryBalanceNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutAuxiliaryBalanceNestedInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutImportInput = {
@@ -1360,6 +1497,7 @@ export type FinanceAuxiliaryBalanceUpdateWithoutAccountInput = {
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutAuxiliaryBalancesNestedInput
   members?: Prisma.FinanceAuxiliaryBalanceMemberUpdateManyWithoutBalanceNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceAuxiliaryBalanceNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutAuxiliaryBalanceNestedInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedUpdateWithoutAccountInput = {
@@ -1380,6 +1518,7 @@ export type FinanceAuxiliaryBalanceUncheckedUpdateWithoutAccountInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedUpdateManyWithoutBalanceNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceAuxiliaryBalanceNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutAuxiliaryBalanceNestedInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountInput = {
@@ -1435,6 +1574,7 @@ export type FinanceAuxiliaryBalanceUpdateWithoutPeriodInput = {
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutAuxiliaryBalancesNestedInput
   members?: Prisma.FinanceAuxiliaryBalanceMemberUpdateManyWithoutBalanceNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceAuxiliaryBalanceNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutAuxiliaryBalanceNestedInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedUpdateWithoutPeriodInput = {
@@ -1455,6 +1595,7 @@ export type FinanceAuxiliaryBalanceUncheckedUpdateWithoutPeriodInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedUpdateManyWithoutBalanceNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceAuxiliaryBalanceNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutAuxiliaryBalanceNestedInput
 }
 
 export type FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodInput = {
@@ -1483,11 +1624,13 @@ export type FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodInput = {
 export type FinanceAuxiliaryBalanceCountOutputType = {
   members: number
   consolidationEntryLines: number
+  consolidationMatchSources: number
 }
 
 export type FinanceAuxiliaryBalanceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | FinanceAuxiliaryBalanceCountOutputTypeCountMembersArgs
   consolidationEntryLines?: boolean | FinanceAuxiliaryBalanceCountOutputTypeCountConsolidationEntryLinesArgs
+  consolidationMatchSources?: boolean | FinanceAuxiliaryBalanceCountOutputTypeCountConsolidationMatchSourcesArgs
 }
 
 /**
@@ -1514,6 +1657,13 @@ export type FinanceAuxiliaryBalanceCountOutputTypeCountConsolidationEntryLinesAr
   where?: Prisma.FinanceConsolidationEntryLineWhereInput
 }
 
+/**
+ * FinanceAuxiliaryBalanceCountOutputType without action
+ */
+export type FinanceAuxiliaryBalanceCountOutputTypeCountConsolidationMatchSourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationMatchSourceWhereInput
+}
+
 
 export type FinanceAuxiliaryBalanceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1537,6 +1687,7 @@ export type FinanceAuxiliaryBalanceSelect<ExtArgs extends runtime.Types.Extensio
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   members?: boolean | Prisma.FinanceAuxiliaryBalance$membersArgs<ExtArgs>
   consolidationEntryLines?: boolean | Prisma.FinanceAuxiliaryBalance$consolidationEntryLinesArgs<ExtArgs>
+  consolidationMatchSources?: boolean | Prisma.FinanceAuxiliaryBalance$consolidationMatchSourcesArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAuxiliaryBalanceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAuxiliaryBalance"]>
 
@@ -1610,6 +1761,7 @@ export type FinanceAuxiliaryBalanceInclude<ExtArgs extends runtime.Types.Extensi
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   members?: boolean | Prisma.FinanceAuxiliaryBalance$membersArgs<ExtArgs>
   consolidationEntryLines?: boolean | Prisma.FinanceAuxiliaryBalance$consolidationEntryLinesArgs<ExtArgs>
+  consolidationMatchSources?: boolean | Prisma.FinanceAuxiliaryBalance$consolidationMatchSourcesArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAuxiliaryBalanceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceAuxiliaryBalanceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1631,6 +1783,7 @@ export type $FinanceAuxiliaryBalancePayload<ExtArgs extends runtime.Types.Extens
     account: Prisma.$FinanceAccountPayload<ExtArgs>
     members: Prisma.$FinanceAuxiliaryBalanceMemberPayload<ExtArgs>[]
     consolidationEntryLines: Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>[]
+    consolidationMatchSources: Prisma.$FinanceConsolidationMatchSourcePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2048,6 +2201,7 @@ export interface Prisma__FinanceAuxiliaryBalanceClient<T, Null = never, ExtArgs 
   account<T extends Prisma.FinanceAccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   members<T extends Prisma.FinanceAuxiliaryBalance$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAuxiliaryBalance$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAuxiliaryBalanceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   consolidationEntryLines<T extends Prisma.FinanceAuxiliaryBalance$consolidationEntryLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAuxiliaryBalance$consolidationEntryLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  consolidationMatchSources<T extends Prisma.FinanceAuxiliaryBalance$consolidationMatchSourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAuxiliaryBalance$consolidationMatchSourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationMatchSourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2539,6 +2693,30 @@ export type FinanceAuxiliaryBalance$consolidationEntryLinesArgs<ExtArgs extends 
   take?: number
   skip?: number
   distinct?: Prisma.FinanceConsolidationEntryLineScalarFieldEnum | Prisma.FinanceConsolidationEntryLineScalarFieldEnum[]
+}
+
+/**
+ * FinanceAuxiliaryBalance.consolidationMatchSources
+ */
+export type FinanceAuxiliaryBalance$consolidationMatchSourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationMatchSource
+   */
+  select?: Prisma.FinanceConsolidationMatchSourceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationMatchSource
+   */
+  omit?: Prisma.FinanceConsolidationMatchSourceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationMatchSourceInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationMatchSourceWhereInput
+  orderBy?: Prisma.FinanceConsolidationMatchSourceOrderByWithRelationInput | Prisma.FinanceConsolidationMatchSourceOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationMatchSourceScalarFieldEnum | Prisma.FinanceConsolidationMatchSourceScalarFieldEnum[]
 }
 
 /**

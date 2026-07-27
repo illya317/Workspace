@@ -1,0 +1,5 @@
+ALTER INDEX "FinanceConsolidationAdjustmentRuleLine_ruleId_statementType_per"
+RENAME TO "FinanceConsolidationAdjustmentRuleLine_ruleId_statementType_idx";
+
+ALTER INDEX "FinanceConsolidationMatchSource_matchGroupId_auxiliaryBalanceId"
+RENAME TO "FinanceConsolidationMatchSource_matchGroupId_auxiliaryBalan_key";

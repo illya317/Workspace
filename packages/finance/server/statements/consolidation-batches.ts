@@ -132,6 +132,9 @@ function cloneEntryData(
 ) {
   return {
     entryNo: entry.entryNo,
+    postingDate: entry.postingDate,
+    documentType: entry.documentType,
+    postingLevel: entry.postingLevel,
     entryType: entry.entryType,
     title: entry.title,
     description: entry.description,
@@ -150,6 +153,7 @@ function cloneEntryData(
         statementType: line.statementType,
         lineCode: line.lineCode,
         accountCode: line.accountCode,
+        groupAccountId: line.groupAccountId,
         debit: line.debit,
         credit: line.credit,
         currencyCode: line.currencyCode,

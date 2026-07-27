@@ -32,6 +32,7 @@ export type FinanceConsolidationEntryLineAvgAggregateOutputType = {
   lineNo: number | null
   entitySnapshotId: number | null
   companyId: number | null
+  groupAccountId: number | null
   debit: runtime.Decimal | null
   credit: runtime.Decimal | null
   sourceAmount: runtime.Decimal | null
@@ -50,6 +51,7 @@ export type FinanceConsolidationEntryLineSumAggregateOutputType = {
   lineNo: number | null
   entitySnapshotId: number | null
   companyId: number | null
+  groupAccountId: number | null
   debit: runtime.Decimal | null
   credit: runtime.Decimal | null
   sourceAmount: runtime.Decimal | null
@@ -72,6 +74,7 @@ export type FinanceConsolidationEntryLineMinAggregateOutputType = {
   statementType: string | null
   lineCode: string | null
   accountCode: string | null
+  groupAccountId: number | null
   debit: runtime.Decimal | null
   credit: runtime.Decimal | null
   currencyCode: string | null
@@ -103,6 +106,7 @@ export type FinanceConsolidationEntryLineMaxAggregateOutputType = {
   statementType: string | null
   lineCode: string | null
   accountCode: string | null
+  groupAccountId: number | null
   debit: runtime.Decimal | null
   credit: runtime.Decimal | null
   currencyCode: string | null
@@ -134,6 +138,7 @@ export type FinanceConsolidationEntryLineCountAggregateOutputType = {
   statementType: number
   lineCode: number
   accountCode: number
+  groupAccountId: number
   debit: number
   credit: number
   currencyCode: number
@@ -163,6 +168,7 @@ export type FinanceConsolidationEntryLineAvgAggregateInputType = {
   lineNo?: true
   entitySnapshotId?: true
   companyId?: true
+  groupAccountId?: true
   debit?: true
   credit?: true
   sourceAmount?: true
@@ -181,6 +187,7 @@ export type FinanceConsolidationEntryLineSumAggregateInputType = {
   lineNo?: true
   entitySnapshotId?: true
   companyId?: true
+  groupAccountId?: true
   debit?: true
   credit?: true
   sourceAmount?: true
@@ -203,6 +210,7 @@ export type FinanceConsolidationEntryLineMinAggregateInputType = {
   statementType?: true
   lineCode?: true
   accountCode?: true
+  groupAccountId?: true
   debit?: true
   credit?: true
   currencyCode?: true
@@ -234,6 +242,7 @@ export type FinanceConsolidationEntryLineMaxAggregateInputType = {
   statementType?: true
   lineCode?: true
   accountCode?: true
+  groupAccountId?: true
   debit?: true
   credit?: true
   currencyCode?: true
@@ -265,6 +274,7 @@ export type FinanceConsolidationEntryLineCountAggregateInputType = {
   statementType?: true
   lineCode?: true
   accountCode?: true
+  groupAccountId?: true
   debit?: true
   credit?: true
   currencyCode?: true
@@ -383,6 +393,7 @@ export type FinanceConsolidationEntryLineGroupByOutputType = {
   statementType: string
   lineCode: string
   accountCode: string | null
+  groupAccountId: number | null
   debit: runtime.Decimal
   credit: runtime.Decimal
   currencyCode: string
@@ -437,6 +448,7 @@ export type FinanceConsolidationEntryLineWhereInput = {
   statementType?: Prisma.StringFilter<"FinanceConsolidationEntryLine"> | string
   lineCode?: Prisma.StringFilter<"FinanceConsolidationEntryLine"> | string
   accountCode?: Prisma.StringNullableFilter<"FinanceConsolidationEntryLine"> | string | null
+  groupAccountId?: Prisma.IntNullableFilter<"FinanceConsolidationEntryLine"> | number | null
   debit?: Prisma.DecimalFilter<"FinanceConsolidationEntryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFilter<"FinanceConsolidationEntryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFilter<"FinanceConsolidationEntryLine"> | string
@@ -464,6 +476,7 @@ export type FinanceConsolidationEntryLineWhereInput = {
   sourceOpenItem?: Prisma.XOR<Prisma.FinanceOpenItemNullableScalarRelationFilter, Prisma.FinanceOpenItemWhereInput> | null
   sourceCashFlowAllocation?: Prisma.XOR<Prisma.FinanceCashFlowAllocationNullableScalarRelationFilter, Prisma.FinanceCashFlowAllocationWhereInput> | null
   sourceVoucherItem?: Prisma.XOR<Prisma.FinanceVoucherItemNullableScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput> | null
+  groupAccount?: Prisma.XOR<Prisma.FinanceGroupAccountNullableScalarRelationFilter, Prisma.FinanceGroupAccountWhereInput> | null
 }
 
 export type FinanceConsolidationEntryLineOrderByWithRelationInput = {
@@ -476,6 +489,7 @@ export type FinanceConsolidationEntryLineOrderByWithRelationInput = {
   statementType?: Prisma.SortOrder
   lineCode?: Prisma.SortOrder
   accountCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  groupAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   debit?: Prisma.SortOrder
   credit?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
@@ -503,6 +517,7 @@ export type FinanceConsolidationEntryLineOrderByWithRelationInput = {
   sourceOpenItem?: Prisma.FinanceOpenItemOrderByWithRelationInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationOrderByWithRelationInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemOrderByWithRelationInput
+  groupAccount?: Prisma.FinanceGroupAccountOrderByWithRelationInput
 }
 
 export type FinanceConsolidationEntryLineWhereUniqueInput = Prisma.AtLeast<{
@@ -519,6 +534,7 @@ export type FinanceConsolidationEntryLineWhereUniqueInput = Prisma.AtLeast<{
   statementType?: Prisma.StringFilter<"FinanceConsolidationEntryLine"> | string
   lineCode?: Prisma.StringFilter<"FinanceConsolidationEntryLine"> | string
   accountCode?: Prisma.StringNullableFilter<"FinanceConsolidationEntryLine"> | string | null
+  groupAccountId?: Prisma.IntNullableFilter<"FinanceConsolidationEntryLine"> | number | null
   debit?: Prisma.DecimalFilter<"FinanceConsolidationEntryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFilter<"FinanceConsolidationEntryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFilter<"FinanceConsolidationEntryLine"> | string
@@ -546,6 +562,7 @@ export type FinanceConsolidationEntryLineWhereUniqueInput = Prisma.AtLeast<{
   sourceOpenItem?: Prisma.XOR<Prisma.FinanceOpenItemNullableScalarRelationFilter, Prisma.FinanceOpenItemWhereInput> | null
   sourceCashFlowAllocation?: Prisma.XOR<Prisma.FinanceCashFlowAllocationNullableScalarRelationFilter, Prisma.FinanceCashFlowAllocationWhereInput> | null
   sourceVoucherItem?: Prisma.XOR<Prisma.FinanceVoucherItemNullableScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput> | null
+  groupAccount?: Prisma.XOR<Prisma.FinanceGroupAccountNullableScalarRelationFilter, Prisma.FinanceGroupAccountWhereInput> | null
 }, "id" | "entryId_lineNo">
 
 export type FinanceConsolidationEntryLineOrderByWithAggregationInput = {
@@ -558,6 +575,7 @@ export type FinanceConsolidationEntryLineOrderByWithAggregationInput = {
   statementType?: Prisma.SortOrder
   lineCode?: Prisma.SortOrder
   accountCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  groupAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   debit?: Prisma.SortOrder
   credit?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
@@ -597,6 +615,7 @@ export type FinanceConsolidationEntryLineScalarWhereWithAggregatesInput = {
   statementType?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationEntryLine"> | string
   lineCode?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationEntryLine"> | string
   accountCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceConsolidationEntryLine"> | string | null
+  groupAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceConsolidationEntryLine"> | number | null
   debit?: Prisma.DecimalWithAggregatesFilter<"FinanceConsolidationEntryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalWithAggregatesFilter<"FinanceConsolidationEntryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationEntryLine"> | string
@@ -646,6 +665,7 @@ export type FinanceConsolidationEntryLineCreateInput = {
   sourceOpenItem?: Prisma.FinanceOpenItemCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationEntryLinesInput
+  groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutConsolidationEntryLinesInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedCreateInput = {
@@ -658,6 +678,7 @@ export type FinanceConsolidationEntryLineUncheckedCreateInput = {
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -707,6 +728,7 @@ export type FinanceConsolidationEntryLineUpdateInput = {
   sourceOpenItem?: Prisma.FinanceOpenItemUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationEntryLinesNestedInput
+  groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutConsolidationEntryLinesNestedInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedUpdateInput = {
@@ -719,6 +741,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateInput = {
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -750,6 +773,7 @@ export type FinanceConsolidationEntryLineCreateManyInput = {
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -803,6 +827,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateManyInput = {
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -849,6 +874,7 @@ export type FinanceConsolidationEntryLineCountOrderByAggregateInput = {
   statementType?: Prisma.SortOrder
   lineCode?: Prisma.SortOrder
   accountCode?: Prisma.SortOrder
+  groupAccountId?: Prisma.SortOrder
   debit?: Prisma.SortOrder
   credit?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
@@ -876,6 +902,7 @@ export type FinanceConsolidationEntryLineAvgOrderByAggregateInput = {
   lineNo?: Prisma.SortOrder
   entitySnapshotId?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
+  groupAccountId?: Prisma.SortOrder
   debit?: Prisma.SortOrder
   credit?: Prisma.SortOrder
   sourceAmount?: Prisma.SortOrder
@@ -898,6 +925,7 @@ export type FinanceConsolidationEntryLineMaxOrderByAggregateInput = {
   statementType?: Prisma.SortOrder
   lineCode?: Prisma.SortOrder
   accountCode?: Prisma.SortOrder
+  groupAccountId?: Prisma.SortOrder
   debit?: Prisma.SortOrder
   credit?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
@@ -929,6 +957,7 @@ export type FinanceConsolidationEntryLineMinOrderByAggregateInput = {
   statementType?: Prisma.SortOrder
   lineCode?: Prisma.SortOrder
   accountCode?: Prisma.SortOrder
+  groupAccountId?: Prisma.SortOrder
   debit?: Prisma.SortOrder
   credit?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
@@ -956,6 +985,7 @@ export type FinanceConsolidationEntryLineSumOrderByAggregateInput = {
   lineNo?: Prisma.SortOrder
   entitySnapshotId?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
+  groupAccountId?: Prisma.SortOrder
   debit?: Prisma.SortOrder
   credit?: Prisma.SortOrder
   sourceAmount?: Prisma.SortOrder
@@ -1262,6 +1292,48 @@ export type FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceOpenIte
   deleteMany?: Prisma.FinanceConsolidationEntryLineScalarWhereInput | Prisma.FinanceConsolidationEntryLineScalarWhereInput[]
 }
 
+export type FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntryLineCreateWithoutGroupAccountInput, Prisma.FinanceConsolidationEntryLineUncheckedCreateWithoutGroupAccountInput> | Prisma.FinanceConsolidationEntryLineCreateWithoutGroupAccountInput[] | Prisma.FinanceConsolidationEntryLineUncheckedCreateWithoutGroupAccountInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationEntryLineCreateOrConnectWithoutGroupAccountInput | Prisma.FinanceConsolidationEntryLineCreateOrConnectWithoutGroupAccountInput[]
+  createMany?: Prisma.FinanceConsolidationEntryLineCreateManyGroupAccountInputEnvelope
+  connect?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput | Prisma.FinanceConsolidationEntryLineWhereUniqueInput[]
+}
+
+export type FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntryLineCreateWithoutGroupAccountInput, Prisma.FinanceConsolidationEntryLineUncheckedCreateWithoutGroupAccountInput> | Prisma.FinanceConsolidationEntryLineCreateWithoutGroupAccountInput[] | Prisma.FinanceConsolidationEntryLineUncheckedCreateWithoutGroupAccountInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationEntryLineCreateOrConnectWithoutGroupAccountInput | Prisma.FinanceConsolidationEntryLineCreateOrConnectWithoutGroupAccountInput[]
+  createMany?: Prisma.FinanceConsolidationEntryLineCreateManyGroupAccountInputEnvelope
+  connect?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput | Prisma.FinanceConsolidationEntryLineWhereUniqueInput[]
+}
+
+export type FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntryLineCreateWithoutGroupAccountInput, Prisma.FinanceConsolidationEntryLineUncheckedCreateWithoutGroupAccountInput> | Prisma.FinanceConsolidationEntryLineCreateWithoutGroupAccountInput[] | Prisma.FinanceConsolidationEntryLineUncheckedCreateWithoutGroupAccountInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationEntryLineCreateOrConnectWithoutGroupAccountInput | Prisma.FinanceConsolidationEntryLineCreateOrConnectWithoutGroupAccountInput[]
+  upsert?: Prisma.FinanceConsolidationEntryLineUpsertWithWhereUniqueWithoutGroupAccountInput | Prisma.FinanceConsolidationEntryLineUpsertWithWhereUniqueWithoutGroupAccountInput[]
+  createMany?: Prisma.FinanceConsolidationEntryLineCreateManyGroupAccountInputEnvelope
+  set?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput | Prisma.FinanceConsolidationEntryLineWhereUniqueInput[]
+  disconnect?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput | Prisma.FinanceConsolidationEntryLineWhereUniqueInput[]
+  delete?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput | Prisma.FinanceConsolidationEntryLineWhereUniqueInput[]
+  connect?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput | Prisma.FinanceConsolidationEntryLineWhereUniqueInput[]
+  update?: Prisma.FinanceConsolidationEntryLineUpdateWithWhereUniqueWithoutGroupAccountInput | Prisma.FinanceConsolidationEntryLineUpdateWithWhereUniqueWithoutGroupAccountInput[]
+  updateMany?: Prisma.FinanceConsolidationEntryLineUpdateManyWithWhereWithoutGroupAccountInput | Prisma.FinanceConsolidationEntryLineUpdateManyWithWhereWithoutGroupAccountInput[]
+  deleteMany?: Prisma.FinanceConsolidationEntryLineScalarWhereInput | Prisma.FinanceConsolidationEntryLineScalarWhereInput[]
+}
+
+export type FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntryLineCreateWithoutGroupAccountInput, Prisma.FinanceConsolidationEntryLineUncheckedCreateWithoutGroupAccountInput> | Prisma.FinanceConsolidationEntryLineCreateWithoutGroupAccountInput[] | Prisma.FinanceConsolidationEntryLineUncheckedCreateWithoutGroupAccountInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationEntryLineCreateOrConnectWithoutGroupAccountInput | Prisma.FinanceConsolidationEntryLineCreateOrConnectWithoutGroupAccountInput[]
+  upsert?: Prisma.FinanceConsolidationEntryLineUpsertWithWhereUniqueWithoutGroupAccountInput | Prisma.FinanceConsolidationEntryLineUpsertWithWhereUniqueWithoutGroupAccountInput[]
+  createMany?: Prisma.FinanceConsolidationEntryLineCreateManyGroupAccountInputEnvelope
+  set?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput | Prisma.FinanceConsolidationEntryLineWhereUniqueInput[]
+  disconnect?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput | Prisma.FinanceConsolidationEntryLineWhereUniqueInput[]
+  delete?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput | Prisma.FinanceConsolidationEntryLineWhereUniqueInput[]
+  connect?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput | Prisma.FinanceConsolidationEntryLineWhereUniqueInput[]
+  update?: Prisma.FinanceConsolidationEntryLineUpdateWithWhereUniqueWithoutGroupAccountInput | Prisma.FinanceConsolidationEntryLineUpdateWithWhereUniqueWithoutGroupAccountInput[]
+  updateMany?: Prisma.FinanceConsolidationEntryLineUpdateManyWithWhereWithoutGroupAccountInput | Prisma.FinanceConsolidationEntryLineUpdateManyWithWhereWithoutGroupAccountInput[]
+  deleteMany?: Prisma.FinanceConsolidationEntryLineScalarWhereInput | Prisma.FinanceConsolidationEntryLineScalarWhereInput[]
+}
+
 export type FinanceConsolidationEntryLineCreateNestedManyWithoutSourceVoucherItemInput = {
   create?: Prisma.XOR<Prisma.FinanceConsolidationEntryLineCreateWithoutSourceVoucherItemInput, Prisma.FinanceConsolidationEntryLineUncheckedCreateWithoutSourceVoucherItemInput> | Prisma.FinanceConsolidationEntryLineCreateWithoutSourceVoucherItemInput[] | Prisma.FinanceConsolidationEntryLineUncheckedCreateWithoutSourceVoucherItemInput[]
   connectOrCreate?: Prisma.FinanceConsolidationEntryLineCreateOrConnectWithoutSourceVoucherItemInput | Prisma.FinanceConsolidationEntryLineCreateOrConnectWithoutSourceVoucherItemInput[]
@@ -1331,6 +1403,7 @@ export type FinanceConsolidationEntryLineCreateWithoutSourceCashFlowAllocationIn
   sourceAuxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceOpenItem?: Prisma.FinanceOpenItemCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationEntryLinesInput
+  groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutConsolidationEntryLinesInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedCreateWithoutSourceCashFlowAllocationInput = {
@@ -1343,6 +1416,7 @@ export type FinanceConsolidationEntryLineUncheckedCreateWithoutSourceCashFlowAll
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -1402,6 +1476,7 @@ export type FinanceConsolidationEntryLineScalarWhereInput = {
   statementType?: Prisma.StringFilter<"FinanceConsolidationEntryLine"> | string
   lineCode?: Prisma.StringFilter<"FinanceConsolidationEntryLine"> | string
   accountCode?: Prisma.StringNullableFilter<"FinanceConsolidationEntryLine"> | string | null
+  groupAccountId?: Prisma.IntNullableFilter<"FinanceConsolidationEntryLine"> | number | null
   debit?: Prisma.DecimalFilter<"FinanceConsolidationEntryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFilter<"FinanceConsolidationEntryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFilter<"FinanceConsolidationEntryLine"> | string
@@ -1450,6 +1525,7 @@ export type FinanceConsolidationEntryLineCreateWithoutEntityInput = {
   sourceOpenItem?: Prisma.FinanceOpenItemCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationEntryLinesInput
+  groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutConsolidationEntryLinesInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedCreateWithoutEntityInput = {
@@ -1461,6 +1537,7 @@ export type FinanceConsolidationEntryLineUncheckedCreateWithoutEntityInput = {
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -1519,6 +1596,7 @@ export type FinanceConsolidationEntryLineCreateWithoutCounterpartyEntityInput = 
   sourceOpenItem?: Prisma.FinanceOpenItemCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationEntryLinesInput
+  groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutConsolidationEntryLinesInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedCreateWithoutCounterpartyEntityInput = {
@@ -1531,6 +1609,7 @@ export type FinanceConsolidationEntryLineUncheckedCreateWithoutCounterpartyEntit
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -1620,6 +1699,7 @@ export type FinanceConsolidationEntryLineCreateWithoutSourceSnapshotInput = {
   sourceOpenItem?: Prisma.FinanceOpenItemCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationEntryLinesInput
+  groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutConsolidationEntryLinesInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedCreateWithoutSourceSnapshotInput = {
@@ -1632,6 +1712,7 @@ export type FinanceConsolidationEntryLineUncheckedCreateWithoutSourceSnapshotInp
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -1705,6 +1786,7 @@ export type FinanceConsolidationEntryLineCreateWithoutEntryInput = {
   sourceOpenItem?: Prisma.FinanceOpenItemCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationEntryLinesInput
+  groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutConsolidationEntryLinesInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedCreateWithoutEntryInput = {
@@ -1716,6 +1798,7 @@ export type FinanceConsolidationEntryLineUncheckedCreateWithoutEntryInput = {
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -1790,6 +1873,7 @@ export type FinanceConsolidationEntryLineCreateWithoutSourceAuxiliaryBalanceInpu
   sourceOpenItem?: Prisma.FinanceOpenItemCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationEntryLinesInput
+  groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutConsolidationEntryLinesInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedCreateWithoutSourceAuxiliaryBalanceInput = {
@@ -1802,6 +1886,7 @@ export type FinanceConsolidationEntryLineUncheckedCreateWithoutSourceAuxiliaryBa
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -1875,6 +1960,7 @@ export type FinanceConsolidationEntryLineCreateWithoutSourceOpenItemInput = {
   sourceAuxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationEntryLinesInput
+  groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutConsolidationEntryLinesInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedCreateWithoutSourceOpenItemInput = {
@@ -1887,6 +1973,7 @@ export type FinanceConsolidationEntryLineUncheckedCreateWithoutSourceOpenItemInp
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -1933,6 +2020,93 @@ export type FinanceConsolidationEntryLineUpdateManyWithWhereWithoutSourceOpenIte
   data: Prisma.XOR<Prisma.FinanceConsolidationEntryLineUpdateManyMutationInput, Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceOpenItemInput>
 }
 
+export type FinanceConsolidationEntryLineCreateWithoutGroupAccountInput = {
+  lineNo: number
+  companyId: number
+  companyCode: string
+  statementType: string
+  lineCode: string
+  accountCode?: string | null
+  debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currencyCode?: string
+  periodBasis?: string
+  note?: string | null
+  matchSide?: string | null
+  sourceKind?: string | null
+  sourceId?: string | null
+  sourceFingerprint?: string | null
+  sourceAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sourceCurrency?: string | null
+  counterpartyCompanyId?: number | null
+  createdAt?: Date | string
+  entry: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutLinesInput
+  entity: Prisma.FinanceConsolidationEntitySnapshotCreateNestedOneWithoutEntryLinesInput
+  counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedOneWithoutCounterpartyEntryLinesInput
+  sourceSnapshot?: Prisma.FinanceConsolidationSourceSnapshotCreateNestedOneWithoutMatchedEntryLinesInput
+  sourceAuxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceCreateNestedOneWithoutConsolidationEntryLinesInput
+  sourceOpenItem?: Prisma.FinanceOpenItemCreateNestedOneWithoutConsolidationEntryLinesInput
+  sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationCreateNestedOneWithoutConsolidationEntryLinesInput
+  sourceVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationEntryLinesInput
+}
+
+export type FinanceConsolidationEntryLineUncheckedCreateWithoutGroupAccountInput = {
+  id?: number
+  entryId: number
+  lineNo: number
+  entitySnapshotId: number
+  companyId: number
+  companyCode: string
+  statementType: string
+  lineCode: string
+  accountCode?: string | null
+  debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currencyCode?: string
+  periodBasis?: string
+  note?: string | null
+  matchSide?: string | null
+  sourceKind?: string | null
+  sourceId?: string | null
+  sourceFingerprint?: string | null
+  sourceAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sourceCurrency?: string | null
+  counterpartyEntitySnapshotId?: number | null
+  counterpartyCompanyId?: number | null
+  sourceSnapshotId?: number | null
+  sourceAuxiliaryBalanceId?: number | null
+  sourceOpenItemId?: number | null
+  sourceCashFlowAllocationId?: number | null
+  sourceVoucherItemId?: number | null
+  createdAt?: Date | string
+}
+
+export type FinanceConsolidationEntryLineCreateOrConnectWithoutGroupAccountInput = {
+  where: Prisma.FinanceConsolidationEntryLineWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntryLineCreateWithoutGroupAccountInput, Prisma.FinanceConsolidationEntryLineUncheckedCreateWithoutGroupAccountInput>
+}
+
+export type FinanceConsolidationEntryLineCreateManyGroupAccountInputEnvelope = {
+  data: Prisma.FinanceConsolidationEntryLineCreateManyGroupAccountInput | Prisma.FinanceConsolidationEntryLineCreateManyGroupAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceConsolidationEntryLineUpsertWithWhereUniqueWithoutGroupAccountInput = {
+  where: Prisma.FinanceConsolidationEntryLineWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceConsolidationEntryLineUpdateWithoutGroupAccountInput, Prisma.FinanceConsolidationEntryLineUncheckedUpdateWithoutGroupAccountInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntryLineCreateWithoutGroupAccountInput, Prisma.FinanceConsolidationEntryLineUncheckedCreateWithoutGroupAccountInput>
+}
+
+export type FinanceConsolidationEntryLineUpdateWithWhereUniqueWithoutGroupAccountInput = {
+  where: Prisma.FinanceConsolidationEntryLineWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationEntryLineUpdateWithoutGroupAccountInput, Prisma.FinanceConsolidationEntryLineUncheckedUpdateWithoutGroupAccountInput>
+}
+
+export type FinanceConsolidationEntryLineUpdateManyWithWhereWithoutGroupAccountInput = {
+  where: Prisma.FinanceConsolidationEntryLineScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationEntryLineUpdateManyMutationInput, Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountInput>
+}
+
 export type FinanceConsolidationEntryLineCreateWithoutSourceVoucherItemInput = {
   lineNo: number
   companyId: number
@@ -1960,6 +2134,7 @@ export type FinanceConsolidationEntryLineCreateWithoutSourceVoucherItemInput = {
   sourceAuxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceOpenItem?: Prisma.FinanceOpenItemCreateNestedOneWithoutConsolidationEntryLinesInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationCreateNestedOneWithoutConsolidationEntryLinesInput
+  groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutConsolidationEntryLinesInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedCreateWithoutSourceVoucherItemInput = {
@@ -1972,6 +2147,7 @@ export type FinanceConsolidationEntryLineUncheckedCreateWithoutSourceVoucherItem
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -2028,6 +2204,7 @@ export type FinanceConsolidationEntryLineCreateManySourceCashFlowAllocationInput
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -2075,6 +2252,7 @@ export type FinanceConsolidationEntryLineUpdateWithoutSourceCashFlowAllocationIn
   sourceAuxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceOpenItem?: Prisma.FinanceOpenItemUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationEntryLinesNestedInput
+  groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutConsolidationEntryLinesNestedInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedUpdateWithoutSourceCashFlowAllocationInput = {
@@ -2087,6 +2265,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateWithoutSourceCashFlowAll
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2117,6 +2296,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceCashFlo
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2146,6 +2326,7 @@ export type FinanceConsolidationEntryLineCreateManyEntityInput = {
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -2177,6 +2358,7 @@ export type FinanceConsolidationEntryLineCreateManyCounterpartyEntityInput = {
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -2224,6 +2406,7 @@ export type FinanceConsolidationEntryLineUpdateWithoutEntityInput = {
   sourceOpenItem?: Prisma.FinanceOpenItemUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationEntryLinesNestedInput
+  groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutConsolidationEntryLinesNestedInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedUpdateWithoutEntityInput = {
@@ -2235,6 +2418,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateWithoutEntityInput = {
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2265,6 +2449,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntityInput =
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2313,6 +2498,7 @@ export type FinanceConsolidationEntryLineUpdateWithoutCounterpartyEntityInput = 
   sourceOpenItem?: Prisma.FinanceOpenItemUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationEntryLinesNestedInput
+  groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutConsolidationEntryLinesNestedInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedUpdateWithoutCounterpartyEntityInput = {
@@ -2325,6 +2511,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateWithoutCounterpartyEntit
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2355,6 +2542,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyE
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2385,6 +2573,7 @@ export type FinanceConsolidationEntryLineCreateManySourceSnapshotInput = {
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -2432,6 +2621,7 @@ export type FinanceConsolidationEntryLineUpdateWithoutSourceSnapshotInput = {
   sourceOpenItem?: Prisma.FinanceOpenItemUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationEntryLinesNestedInput
+  groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutConsolidationEntryLinesNestedInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedUpdateWithoutSourceSnapshotInput = {
@@ -2444,6 +2634,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateWithoutSourceSnapshotInp
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2474,6 +2665,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceSnapsho
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2503,6 +2695,7 @@ export type FinanceConsolidationEntryLineCreateManyEntryInput = {
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -2551,6 +2744,7 @@ export type FinanceConsolidationEntryLineUpdateWithoutEntryInput = {
   sourceOpenItem?: Prisma.FinanceOpenItemUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationEntryLinesNestedInput
+  groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutConsolidationEntryLinesNestedInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedUpdateWithoutEntryInput = {
@@ -2562,6 +2756,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateWithoutEntryInput = {
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2592,6 +2787,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntryInput = 
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2623,6 +2819,7 @@ export type FinanceConsolidationEntryLineCreateManySourceAuxiliaryBalanceInput =
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -2670,6 +2867,7 @@ export type FinanceConsolidationEntryLineUpdateWithoutSourceAuxiliaryBalanceInpu
   sourceOpenItem?: Prisma.FinanceOpenItemUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationEntryLinesNestedInput
+  groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutConsolidationEntryLinesNestedInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedUpdateWithoutSourceAuxiliaryBalanceInput = {
@@ -2682,6 +2880,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateWithoutSourceAuxiliaryBa
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2712,6 +2911,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceAuxilia
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2742,6 +2942,7 @@ export type FinanceConsolidationEntryLineCreateManySourceOpenItemInput = {
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -2789,6 +2990,7 @@ export type FinanceConsolidationEntryLineUpdateWithoutSourceOpenItemInput = {
   sourceAuxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationEntryLinesNestedInput
+  groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutConsolidationEntryLinesNestedInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedUpdateWithoutSourceOpenItemInput = {
@@ -2801,6 +3003,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateWithoutSourceOpenItemInp
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2831,6 +3034,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceOpenIte
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2851,6 +3055,129 @@ export type FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceOpenIte
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type FinanceConsolidationEntryLineCreateManyGroupAccountInput = {
+  id?: number
+  entryId: number
+  lineNo: number
+  entitySnapshotId: number
+  companyId: number
+  companyCode: string
+  statementType: string
+  lineCode: string
+  accountCode?: string | null
+  debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currencyCode?: string
+  periodBasis?: string
+  note?: string | null
+  matchSide?: string | null
+  sourceKind?: string | null
+  sourceId?: string | null
+  sourceFingerprint?: string | null
+  sourceAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sourceCurrency?: string | null
+  counterpartyEntitySnapshotId?: number | null
+  counterpartyCompanyId?: number | null
+  sourceSnapshotId?: number | null
+  sourceAuxiliaryBalanceId?: number | null
+  sourceOpenItemId?: number | null
+  sourceCashFlowAllocationId?: number | null
+  sourceVoucherItemId?: number | null
+  createdAt?: Date | string
+}
+
+export type FinanceConsolidationEntryLineUpdateWithoutGroupAccountInput = {
+  lineNo?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  statementType?: Prisma.StringFieldUpdateOperationsInput | string
+  lineCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  periodBasis?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchSide?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sourceCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  counterpartyCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entry?: Prisma.FinanceConsolidationEntryUpdateOneRequiredWithoutLinesNestedInput
+  entity?: Prisma.FinanceConsolidationEntitySnapshotUpdateOneRequiredWithoutEntryLinesNestedInput
+  counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotUpdateOneWithoutCounterpartyEntryLinesNestedInput
+  sourceSnapshot?: Prisma.FinanceConsolidationSourceSnapshotUpdateOneWithoutMatchedEntryLinesNestedInput
+  sourceAuxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceUpdateOneWithoutConsolidationEntryLinesNestedInput
+  sourceOpenItem?: Prisma.FinanceOpenItemUpdateOneWithoutConsolidationEntryLinesNestedInput
+  sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationUpdateOneWithoutConsolidationEntryLinesNestedInput
+  sourceVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationEntryLinesNestedInput
+}
+
+export type FinanceConsolidationEntryLineUncheckedUpdateWithoutGroupAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  entryId?: Prisma.IntFieldUpdateOperationsInput | number
+  lineNo?: Prisma.IntFieldUpdateOperationsInput | number
+  entitySnapshotId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  statementType?: Prisma.StringFieldUpdateOperationsInput | string
+  lineCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  periodBasis?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchSide?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sourceCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  counterpartyEntitySnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  counterpartyCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceAuxiliaryBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOpenItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceCashFlowAllocationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceVoucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  entryId?: Prisma.IntFieldUpdateOperationsInput | number
+  lineNo?: Prisma.IntFieldUpdateOperationsInput | number
+  entitySnapshotId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  statementType?: Prisma.StringFieldUpdateOperationsInput | string
+  lineCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  periodBasis?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchSide?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  sourceCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  counterpartyEntitySnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  counterpartyCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceAuxiliaryBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOpenItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceCashFlowAllocationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceVoucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type FinanceConsolidationEntryLineCreateManySourceVoucherItemInput = {
   id?: number
   entryId: number
@@ -2861,6 +3188,7 @@ export type FinanceConsolidationEntryLineCreateManySourceVoucherItemInput = {
   statementType: string
   lineCode: string
   accountCode?: string | null
+  groupAccountId?: number | null
   debit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: string
@@ -2908,6 +3236,7 @@ export type FinanceConsolidationEntryLineUpdateWithoutSourceVoucherItemInput = {
   sourceAuxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceOpenItem?: Prisma.FinanceOpenItemUpdateOneWithoutConsolidationEntryLinesNestedInput
   sourceCashFlowAllocation?: Prisma.FinanceCashFlowAllocationUpdateOneWithoutConsolidationEntryLinesNestedInput
+  groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutConsolidationEntryLinesNestedInput
 }
 
 export type FinanceConsolidationEntryLineUncheckedUpdateWithoutSourceVoucherItemInput = {
@@ -2920,6 +3249,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateWithoutSourceVoucherItem
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2950,6 +3280,7 @@ export type FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceVoucher
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   lineCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   debit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   credit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2982,6 +3313,7 @@ export type FinanceConsolidationEntryLineSelect<ExtArgs extends runtime.Types.Ex
   statementType?: boolean
   lineCode?: boolean
   accountCode?: boolean
+  groupAccountId?: boolean
   debit?: boolean
   credit?: boolean
   currencyCode?: boolean
@@ -3009,6 +3341,7 @@ export type FinanceConsolidationEntryLineSelect<ExtArgs extends runtime.Types.Ex
   sourceOpenItem?: boolean | Prisma.FinanceConsolidationEntryLine$sourceOpenItemArgs<ExtArgs>
   sourceCashFlowAllocation?: boolean | Prisma.FinanceConsolidationEntryLine$sourceCashFlowAllocationArgs<ExtArgs>
   sourceVoucherItem?: boolean | Prisma.FinanceConsolidationEntryLine$sourceVoucherItemArgs<ExtArgs>
+  groupAccount?: boolean | Prisma.FinanceConsolidationEntryLine$groupAccountArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationEntryLine"]>
 
 export type FinanceConsolidationEntryLineSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -3021,6 +3354,7 @@ export type FinanceConsolidationEntryLineSelectCreateManyAndReturn<ExtArgs exten
   statementType?: boolean
   lineCode?: boolean
   accountCode?: boolean
+  groupAccountId?: boolean
   debit?: boolean
   credit?: boolean
   currencyCode?: boolean
@@ -3048,6 +3382,7 @@ export type FinanceConsolidationEntryLineSelectCreateManyAndReturn<ExtArgs exten
   sourceOpenItem?: boolean | Prisma.FinanceConsolidationEntryLine$sourceOpenItemArgs<ExtArgs>
   sourceCashFlowAllocation?: boolean | Prisma.FinanceConsolidationEntryLine$sourceCashFlowAllocationArgs<ExtArgs>
   sourceVoucherItem?: boolean | Prisma.FinanceConsolidationEntryLine$sourceVoucherItemArgs<ExtArgs>
+  groupAccount?: boolean | Prisma.FinanceConsolidationEntryLine$groupAccountArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationEntryLine"]>
 
 export type FinanceConsolidationEntryLineSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -3060,6 +3395,7 @@ export type FinanceConsolidationEntryLineSelectUpdateManyAndReturn<ExtArgs exten
   statementType?: boolean
   lineCode?: boolean
   accountCode?: boolean
+  groupAccountId?: boolean
   debit?: boolean
   credit?: boolean
   currencyCode?: boolean
@@ -3087,6 +3423,7 @@ export type FinanceConsolidationEntryLineSelectUpdateManyAndReturn<ExtArgs exten
   sourceOpenItem?: boolean | Prisma.FinanceConsolidationEntryLine$sourceOpenItemArgs<ExtArgs>
   sourceCashFlowAllocation?: boolean | Prisma.FinanceConsolidationEntryLine$sourceCashFlowAllocationArgs<ExtArgs>
   sourceVoucherItem?: boolean | Prisma.FinanceConsolidationEntryLine$sourceVoucherItemArgs<ExtArgs>
+  groupAccount?: boolean | Prisma.FinanceConsolidationEntryLine$groupAccountArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationEntryLine"]>
 
 export type FinanceConsolidationEntryLineSelectScalar = {
@@ -3099,6 +3436,7 @@ export type FinanceConsolidationEntryLineSelectScalar = {
   statementType?: boolean
   lineCode?: boolean
   accountCode?: boolean
+  groupAccountId?: boolean
   debit?: boolean
   credit?: boolean
   currencyCode?: boolean
@@ -3120,7 +3458,7 @@ export type FinanceConsolidationEntryLineSelectScalar = {
   createdAt?: boolean
 }
 
-export type FinanceConsolidationEntryLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "entryId" | "lineNo" | "entitySnapshotId" | "companyId" | "companyCode" | "statementType" | "lineCode" | "accountCode" | "debit" | "credit" | "currencyCode" | "periodBasis" | "note" | "matchSide" | "sourceKind" | "sourceId" | "sourceFingerprint" | "sourceAmount" | "sourceCurrency" | "counterpartyEntitySnapshotId" | "counterpartyCompanyId" | "sourceSnapshotId" | "sourceAuxiliaryBalanceId" | "sourceOpenItemId" | "sourceCashFlowAllocationId" | "sourceVoucherItemId" | "createdAt", ExtArgs["result"]["financeConsolidationEntryLine"]>
+export type FinanceConsolidationEntryLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "entryId" | "lineNo" | "entitySnapshotId" | "companyId" | "companyCode" | "statementType" | "lineCode" | "accountCode" | "groupAccountId" | "debit" | "credit" | "currencyCode" | "periodBasis" | "note" | "matchSide" | "sourceKind" | "sourceId" | "sourceFingerprint" | "sourceAmount" | "sourceCurrency" | "counterpartyEntitySnapshotId" | "counterpartyCompanyId" | "sourceSnapshotId" | "sourceAuxiliaryBalanceId" | "sourceOpenItemId" | "sourceCashFlowAllocationId" | "sourceVoucherItemId" | "createdAt", ExtArgs["result"]["financeConsolidationEntryLine"]>
 export type FinanceConsolidationEntryLineInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   entry?: boolean | Prisma.FinanceConsolidationEntryDefaultArgs<ExtArgs>
   entity?: boolean | Prisma.FinanceConsolidationEntitySnapshotDefaultArgs<ExtArgs>
@@ -3130,6 +3468,7 @@ export type FinanceConsolidationEntryLineInclude<ExtArgs extends runtime.Types.E
   sourceOpenItem?: boolean | Prisma.FinanceConsolidationEntryLine$sourceOpenItemArgs<ExtArgs>
   sourceCashFlowAllocation?: boolean | Prisma.FinanceConsolidationEntryLine$sourceCashFlowAllocationArgs<ExtArgs>
   sourceVoucherItem?: boolean | Prisma.FinanceConsolidationEntryLine$sourceVoucherItemArgs<ExtArgs>
+  groupAccount?: boolean | Prisma.FinanceConsolidationEntryLine$groupAccountArgs<ExtArgs>
 }
 export type FinanceConsolidationEntryLineIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   entry?: boolean | Prisma.FinanceConsolidationEntryDefaultArgs<ExtArgs>
@@ -3140,6 +3479,7 @@ export type FinanceConsolidationEntryLineIncludeCreateManyAndReturn<ExtArgs exte
   sourceOpenItem?: boolean | Prisma.FinanceConsolidationEntryLine$sourceOpenItemArgs<ExtArgs>
   sourceCashFlowAllocation?: boolean | Prisma.FinanceConsolidationEntryLine$sourceCashFlowAllocationArgs<ExtArgs>
   sourceVoucherItem?: boolean | Prisma.FinanceConsolidationEntryLine$sourceVoucherItemArgs<ExtArgs>
+  groupAccount?: boolean | Prisma.FinanceConsolidationEntryLine$groupAccountArgs<ExtArgs>
 }
 export type FinanceConsolidationEntryLineIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   entry?: boolean | Prisma.FinanceConsolidationEntryDefaultArgs<ExtArgs>
@@ -3150,6 +3490,7 @@ export type FinanceConsolidationEntryLineIncludeUpdateManyAndReturn<ExtArgs exte
   sourceOpenItem?: boolean | Prisma.FinanceConsolidationEntryLine$sourceOpenItemArgs<ExtArgs>
   sourceCashFlowAllocation?: boolean | Prisma.FinanceConsolidationEntryLine$sourceCashFlowAllocationArgs<ExtArgs>
   sourceVoucherItem?: boolean | Prisma.FinanceConsolidationEntryLine$sourceVoucherItemArgs<ExtArgs>
+  groupAccount?: boolean | Prisma.FinanceConsolidationEntryLine$groupAccountArgs<ExtArgs>
 }
 
 export type $FinanceConsolidationEntryLinePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3163,6 +3504,7 @@ export type $FinanceConsolidationEntryLinePayload<ExtArgs extends runtime.Types.
     sourceOpenItem: Prisma.$FinanceOpenItemPayload<ExtArgs> | null
     sourceCashFlowAllocation: Prisma.$FinanceCashFlowAllocationPayload<ExtArgs> | null
     sourceVoucherItem: Prisma.$FinanceVoucherItemPayload<ExtArgs> | null
+    groupAccount: Prisma.$FinanceGroupAccountPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -3174,6 +3516,7 @@ export type $FinanceConsolidationEntryLinePayload<ExtArgs extends runtime.Types.
     statementType: string
     lineCode: string
     accountCode: string | null
+    groupAccountId: number | null
     debit: runtime.Decimal
     credit: runtime.Decimal
     currencyCode: string
@@ -3595,6 +3938,7 @@ export interface Prisma__FinanceConsolidationEntryLineClient<T, Null = never, Ex
   sourceOpenItem<T extends Prisma.FinanceConsolidationEntryLine$sourceOpenItemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntryLine$sourceOpenItemArgs<ExtArgs>>): Prisma.Prisma__FinanceOpenItemClient<runtime.Types.Result.GetResult<Prisma.$FinanceOpenItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sourceCashFlowAllocation<T extends Prisma.FinanceConsolidationEntryLine$sourceCashFlowAllocationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntryLine$sourceCashFlowAllocationArgs<ExtArgs>>): Prisma.Prisma__FinanceCashFlowAllocationClient<runtime.Types.Result.GetResult<Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sourceVoucherItem<T extends Prisma.FinanceConsolidationEntryLine$sourceVoucherItemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntryLine$sourceVoucherItemArgs<ExtArgs>>): Prisma.Prisma__FinanceVoucherItemClient<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  groupAccount<T extends Prisma.FinanceConsolidationEntryLine$groupAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntryLine$groupAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceGroupAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceGroupAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3633,6 +3977,7 @@ export interface FinanceConsolidationEntryLineFieldRefs {
   readonly statementType: Prisma.FieldRef<"FinanceConsolidationEntryLine", 'String'>
   readonly lineCode: Prisma.FieldRef<"FinanceConsolidationEntryLine", 'String'>
   readonly accountCode: Prisma.FieldRef<"FinanceConsolidationEntryLine", 'String'>
+  readonly groupAccountId: Prisma.FieldRef<"FinanceConsolidationEntryLine", 'Int'>
   readonly debit: Prisma.FieldRef<"FinanceConsolidationEntryLine", 'Decimal'>
   readonly credit: Prisma.FieldRef<"FinanceConsolidationEntryLine", 'Decimal'>
   readonly currencyCode: Prisma.FieldRef<"FinanceConsolidationEntryLine", 'String'>
@@ -4164,6 +4509,25 @@ export type FinanceConsolidationEntryLine$sourceVoucherItemArgs<ExtArgs extends 
    */
   include?: Prisma.FinanceVoucherItemInclude<ExtArgs> | null
   where?: Prisma.FinanceVoucherItemWhereInput
+}
+
+/**
+ * FinanceConsolidationEntryLine.groupAccount
+ */
+export type FinanceConsolidationEntryLine$groupAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceGroupAccount
+   */
+  select?: Prisma.FinanceGroupAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceGroupAccount
+   */
+  omit?: Prisma.FinanceGroupAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceGroupAccountInclude<ExtArgs> | null
+  where?: Prisma.FinanceGroupAccountWhereInput
 }
 
 /**

@@ -321,6 +321,7 @@ export function parseConsolidationRateApplications(value: unknown): Consolidatio
 export async function applyConsolidationRatePolicies(input: {
   periodEnd: string;
   requiredComparativeEntityIds: number[];
+  requiredInvestmentVoucherIds: number[];
   companyCodes: string[];
   entities: { id: number }[];
   currencyPolicies: ConsolidationCurrencyPolicyFact[];
@@ -337,6 +338,7 @@ export async function applyConsolidationRatePolicies(input: {
   const rateById = new Map(input.rateFacts.map((rate) => [rate.exchangeRateId, rate]));
   const investments = await loadCadInvestmentVoucherFacts(input.companyCodes, input.periodEnd);
   const investmentById = new Map(investments.map((investment) => [investment.id, investment]));
+  const requiredInvestmentVoucherIds = input.requiredInvestmentVoucherIds.filter((id) => investmentById.has(id));
   const applicationsByRateId = new Map<number, ConsolidationRateApplicationSnapshot[]>();
   for (const application of input.rateApplications) {
     const entityPolicy = policyByEntityId.get(application.entitySnapshotId);
@@ -395,7 +397,7 @@ export async function applyConsolidationRatePolicies(input: {
       recordedAt: rate.recordedAt.toISOString(),
       applications: parseConsolidationRateApplications(rate.applications),
     })),
-    requiredInvestmentVoucherIds: investments.map((investment) => investment.id),
+    requiredInvestmentVoucherIds,
     requiredComparativeEntityIds: input.requiredComparativeEntityIds,
   });
   if (!validation.ok) throw new ConsolidationSnapshotError(validation.issue.message, validation.issue.status);

@@ -10,7 +10,6 @@ import {
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
-import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 import { resolveUserBusinessActorName } from "@workspace/platform/server/user-identity";
 import { consolidationBatchSnapshot, loadConsolidationBatchRow } from "./consolidation-dto";
 import {
@@ -22,7 +21,10 @@ import { loadConsolidationVoucherMatchGroups } from "./consolidation-voucher-mat
 import { consolidationSourcesReady } from "./consolidation-source-coverage";
 import { loadConsolidationCompanyDirectory } from "./consolidation-company-directory";
 import { buildRemittanceFxEntries } from "./consolidation-remittance-fx-entries";
-import { buildOpeningCapitalReclassificationEntries } from "./consolidation-opening-capital-reclassification";
+import {
+  groupVoucherNumber,
+  nextGroupVoucherSequence,
+} from "./group-voucher-numbering";
 
 class GenerationError extends Error {
   constructor(message: string, readonly status = 400) {
@@ -74,7 +76,9 @@ function groupSources(
     return {
       entitySnapshotId: entity.id,
       counterpartyEntitySnapshotId: counterparty?.id ?? null,
-      voucherItemId: fact.itemId,
+      sourceKind: fact.sourceKind ?? "voucher",
+      voucherItemId: fact.sourceKind === "auxiliaryBalance" ? null : fact.itemId,
+      auxiliaryBalanceId: fact.sourceKind === "auxiliaryBalance" ? fact.itemId : null,
       matchSide: side,
       sourceAmount: fact.signedAmount,
       allocatedAmount: Math.abs(fact.signedAmount),
@@ -109,16 +113,19 @@ function entryLines(
       credit: fact.signedAmount > 0 ? amount : 0,
       currencyCode: fact.currencyCode,
       periodBasis: "current",
-      note: `${fact.voucherDate} ${fact.voucherNo} · ${fact.accountCode} ${fact.accountName}`,
+      note: fact.sourceKind === "auxiliaryBalance"
+        ? `${fact.voucherDate} 期末辅助余额 · ${fact.accountCode} ${fact.accountName}`
+        : `${fact.voucherDate} ${fact.voucherNo} · ${fact.accountCode} ${fact.accountName}`,
       matchSide: side,
-      sourceKind: "voucher",
-      sourceId: `voucher:${fact.itemId}`,
+      sourceKind: fact.sourceKind ?? "voucher",
+      sourceId: `${fact.sourceKind ?? "voucher"}:${fact.itemId}`,
       sourceFingerprint: fact.sourceFingerprint,
       sourceAmount: Math.abs(Math.round(fact.signedAmount * 100) / 100),
       sourceCurrency: fact.currencyCode,
       counterpartyEntitySnapshotId: counterparty.id,
       counterpartyCompanyId: counterparty.companyId,
-      sourceVoucherItemId: fact.itemId,
+      sourceVoucherItemId: fact.sourceKind === "auxiliaryBalance" ? null : fact.itemId,
+      sourceAuxiliaryBalanceId: fact.sourceKind === "auxiliaryBalance" ? fact.itemId : null,
     };
   });
 }
@@ -131,11 +138,13 @@ function entryData(
 ) {
   const sourceCount = group.leftFacts.length + group.rightFacts.length;
   return {
-    entryNo: `${group.category === "investmentEquity" ? "AUTO-INV" : "AUTO-IC"}-${fingerprint(group.generationKey).slice(0, 10).toUpperCase()}`,
     entryType: group.category,
     title: entryTitle(group, entityByCompanyId),
-    description: `按 ${sourceCount} 条凭证明细形成 ${group.leftFacts.length}:${group.rightFacts.length} 匹配；未使用期末余额替代凭证。`,
-    evidence: `${group.matchingRule}；来源凭证明细 ID：${[...group.leftFacts, ...group.rightFacts].map((fact) => fact.itemId).join("、")}`,
+    description: group.category === "intercompanyBalance"
+      ? `按 ${sourceCount} 条期末辅助余额形成 ${group.leftFacts.length}:${group.rightFacts.length} 匹配。`
+      : `按 ${sourceCount} 条凭证明细形成 ${group.leftFacts.length}:${group.rightFacts.length} 匹配。`,
+    evidence: `${group.matchingRule}；来源记录：${[...group.leftFacts, ...group.rightFacts]
+      .map((fact) => `${fact.sourceKind ?? "voucher"}:${fact.itemId}`).join("、")}`,
     matchDifference: group.differenceAmount,
     differenceResolution: group.differenceResolution ?? "双方凭证明细净额一致",
     origin: "system",
@@ -150,6 +159,10 @@ function persistedStatus(group: ConsolidationVoucherMatchGroup, existing: { stat
   return existing && existing.sourceFingerprint === groupFingerprint(group) && ["accepted", "rejected"].includes(existing.status)
     ? existing.status
     : group.status;
+}
+
+function batchPostingDate(year: number, month: number) {
+  return new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
 }
 
 export async function generateConsolidationEntries(rawCommand: GenerateConsolidationEntriesCommand) {
@@ -177,11 +190,7 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
     });
     if (!direct.ok) return direct;
 
-    const openingPolicies = getTenantProfile().financeConsolidationPolicies.openingCapitalReclassifications;
-    const directoryCompanyCodes = [...new Set([
-      ...batch.entities.map((entity) => entity.companyCode),
-      ...openingPolicies.map((policy) => policy.payableCounterpartyCompanyCode),
-    ])];
+    const directoryCompanyCodes = [...new Set(batch.entities.map((entity) => entity.companyCode))];
     const [groups, companyDirectory] = await Promise.all([
       loadConsolidationVoucherMatchGroups(batch),
       loadConsolidationCompanyDirectory(directoryCompanyCodes),
@@ -190,28 +199,20 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
       ...entity,
       companyName: companyDirectory.displayName(entity.companyId, entity.companyCode, entity.companyName),
     }]));
-    const batchSnapshot = consolidationBatchSnapshot(batch);
-    const openingCounterparties = new Map(openingPolicies.flatMap((policy) => {
-      const company = companyDirectory.find(null, policy.payableCounterpartyCompanyCode);
-      return company ? [[policy.payableCounterpartyCompanyCode, {
-        id: company.id,
-        code: company.code,
-        name: company.fullName || company.name,
-      }] as const] : [];
-    }));
-    const openingResult = buildOpeningCapitalReclassificationEntries(
-      batchSnapshot,
-      openingPolicies,
-      openingCounterparties,
-    );
-    if (!openingResult.ok) throw new GenerationError(openingResult.issue.message, openingResult.issue.status);
-    const policyEntries = [
-      ...openingResult.data,
-      ...buildRemittanceFxEntries(batchSnapshot),
-    ];
+    const policyEntries = buildRemittanceFxEntries(consolidationBatchSnapshot(batch), groups);
     const existingGroups = await prisma.financeConsolidationMatchGroup.findMany({
       where: { batchId: batch.id },
-      include: { entry: { select: { id: true, status: true, generationFingerprint: true } }, sources: { select: { id: true } } },
+      include: {
+        entry: {
+          select: {
+            id: true,
+            entryNo: true,
+            status: true,
+            generationFingerprint: true,
+          },
+        },
+        sources: { select: { id: true } },
+      },
     });
     const existingPolicyEntries = await prisma.financeConsolidationEntry.findMany({
       where: {
@@ -221,7 +222,13 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
           { generationKey: { startsWith: "policy:remittance-fx:" } },
         ],
       },
-      select: { id: true, status: true, generationKey: true, generationFingerprint: true },
+      select: {
+        id: true,
+        entryNo: true,
+        status: true,
+        generationKey: true,
+        generationFingerprint: true,
+      },
     });
     const existingPolicyByKey = new Map(existingPolicyEntries.flatMap((entry) =>
       entry.generationKey ? [[entry.generationKey, entry] as const] : [],
@@ -303,6 +310,20 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
       if (!batchRevision) throw new GenerationError("合并批次已被提交或被其他人修改，请刷新后重试", 409);
       let created = 0;
       let updated = 0;
+      const existingEntryNumbers = await tx.financeConsolidationEntry.findMany({
+        where: { batchId: batch.id },
+        select: { entryNo: true },
+      });
+      let nextEntrySequence = nextGroupVoucherSequence(
+        existingEntryNumbers.map((entry) => entry.entryNo),
+        batch.year,
+        batch.month,
+      );
+      const allocateEntryNumber = () => groupVoucherNumber(
+        batch.year,
+        batch.month,
+        nextEntrySequence++,
+      );
       for (const stale of staleGroups) {
         if (stale.entry) {
           await tx.financeConsolidationMatchGroup.update({ where: { id: stale.id }, data: { entryId: null } });
@@ -361,6 +382,7 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
         }
         if (group.status !== "matched") continue;
         const data = entryData(group, sourceFingerprint, command.userId, entityByCompanyId);
+        const postingDate = batchPostingDate(batch.year, batch.month);
         const lines = entryLines(group, entityByCompanyId);
         const currentEntry = existing?.entry;
         let entryId: number;
@@ -368,13 +390,30 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
           await tx.financeConsolidationEntryLine.deleteMany({ where: { entryId: currentEntry.id } });
           await tx.financeConsolidationEntry.update({
             where: { id: currentEntry.id },
-            data: { ...data, lines: { create: lines } },
+            data: {
+              ...data,
+              entryNo: currentEntry.entryNo.startsWith("AUTO-")
+                ? allocateEntryNumber()
+                : currentEntry.entryNo,
+              postingDate,
+              documentType: "elimination",
+              postingLevel: "20",
+              lines: { create: lines },
+            },
           });
           entryId = currentEntry.id;
           updated += 1;
         } else {
           const entry = await tx.financeConsolidationEntry.create({
-            data: { batchId: batch.id, ...data, lines: { create: lines } },
+            data: {
+              batchId: batch.id,
+              entryNo: allocateEntryNumber(),
+              ...data,
+              postingDate,
+              documentType: "elimination",
+              postingLevel: "20",
+              lines: { create: lines },
+            },
             select: { id: true },
           });
           entryId = entry.id;
@@ -384,7 +423,6 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
       }
       for (const candidate of changedPolicyCandidates) {
         const data = {
-          entryNo: candidate.entry.entryNo,
           entryType: candidate.entry.entryType,
           title: candidate.entry.title,
           description: candidate.entry.description,
@@ -396,17 +434,31 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
           generationFingerprint: candidate.entry.generationFingerprint,
           generatedAt: new Date(),
           preparedBy: command.userId,
+          postingDate: batchPostingDate(batch.year, batch.month),
+          documentType: candidate.entry.documentType,
+          postingLevel: candidate.entry.postingLevel,
         };
         if (candidate.existing) {
           await tx.financeConsolidationEntryLine.deleteMany({ where: { entryId: candidate.existing.id } });
           await tx.financeConsolidationEntry.update({
             where: { id: candidate.existing.id },
-            data: { ...data, lines: { create: candidate.entry.lines } },
+            data: {
+              ...data,
+              entryNo: candidate.existing.entryNo.startsWith("AUTO-")
+                ? allocateEntryNumber()
+                : candidate.existing.entryNo,
+              lines: { create: candidate.entry.lines },
+            },
           });
           updated += 1;
         } else {
           await tx.financeConsolidationEntry.create({
-            data: { batchId: batch.id, ...data, lines: { create: candidate.entry.lines } },
+            data: {
+              batchId: batch.id,
+              entryNo: allocateEntryNumber(),
+              ...data,
+              lines: { create: candidate.entry.lines },
+            },
           });
           created += 1;
         }

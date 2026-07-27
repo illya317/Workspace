@@ -37,7 +37,7 @@ export const FINANCE_ACCOUNTING_POLICY_TEMPORAL = defineBusinessTemporalRegistra
     sameDayChanges: "single",
     overlaps: "forbid",
     gaps: "allow",
-    correction: "supersede",
+    revision: "supersede",
     deletion: "draft-only",
   },
   notes: "已有版本/修订分表；统一 adapter 与 UI coverage 完成前标记 partial。",

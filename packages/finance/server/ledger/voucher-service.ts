@@ -6,6 +6,11 @@ import {
   buildVoucherUpdateCommand,
   buildVoucherWriteCommand,
 } from "../domain/finance-validation";
+import { consolidationEntryReviewBlockReason } from "../domain/consolidation-entry-validation";
+import {
+  groupVoucherAccountName,
+  groupVoucherCompanySummary,
+} from "./group-voucher-presentation";
 
 interface VoucherItemInput {
   accountId: unknown;
@@ -23,6 +28,9 @@ export interface ListVouchersInput {
   keyword?: string;
   page: number;
   pageSize: number;
+  voucherKind?: "standard" | "group";
+  documentType?: "groupAdjustment" | "elimination" | "reclassification";
+  origin?: "manual" | "system";
 }
 
 const voucherListInclude = {
@@ -85,6 +93,7 @@ function validateBalancedVoucher(items: VoucherItemInput[]) {
 }
 
 export async function listVouchers(input: ListVouchersInput) {
+  if (input.voucherKind === "group") return listGroupJournals(input);
   const where: Prisma.FinanceVoucherWhereInput = {};
   if (input.periodId) where.periodId = input.periodId;
   if (input.status) where.status = input.status;
@@ -131,6 +140,150 @@ export async function listVouchers(input: ListVouchersInput) {
   ]);
   const vouchers = rows.map(toVoucherListDto);
 
+  return {
+    data: vouchers,
+    total,
+    page: input.page,
+    pageSize: input.pageSize,
+    totalPages: Math.ceil(total / input.pageSize),
+    vouchers,
+  };
+}
+
+async function listGroupJournals(input: ListVouchersInput) {
+  const where: Prisma.FinanceConsolidationEntryWhereInput = {};
+  if (input.status) where.status = input.status;
+  if (input.documentType) where.documentType = input.documentType;
+  if (input.origin) where.origin = input.origin;
+  if (input.companyCode) where.lines = { some: { companyCode: input.companyCode } };
+  if (input.year !== undefined || input.month !== undefined) {
+    where.batch = {
+      ...(input.year !== undefined ? { year: input.year } : {}),
+      ...(input.month !== undefined ? { month: input.month } : {}),
+    };
+  }
+  if (input.keyword) {
+    where.OR = [
+      { entryNo: { contains: input.keyword, mode: "insensitive" } },
+      { title: { contains: input.keyword, mode: "insensitive" } },
+      { description: { contains: input.keyword, mode: "insensitive" } },
+      { evidence: { contains: input.keyword, mode: "insensitive" } },
+    ];
+  }
+  const skip = (input.page - 1) * input.pageSize;
+  const [rows, total] = await Promise.all([
+    prisma.financeConsolidationEntry.findMany({
+      where,
+      orderBy: [{ postingDate: "desc" }, { entryNo: "desc" }, { id: "desc" }],
+      skip,
+      take: input.pageSize,
+      include: {
+        batch: { select: { id: true, year: true, month: true, revision: true } },
+        lines: {
+          orderBy: { lineNo: "asc" },
+          include: {
+            entity: { select: { companyId: true, companyName: true } },
+            counterpartyEntity: { select: { companyId: true, companyName: true } },
+            groupAccount: { select: { id: true, code: true, name: true } },
+          },
+        },
+      },
+    }),
+    prisma.financeConsolidationEntry.count({ where }),
+  ]);
+  const companyIds = [...new Set(rows.flatMap((row) => row.lines.flatMap((line) => [
+    line.entity.companyId,
+    line.counterpartyEntity?.companyId,
+    line.counterpartyCompanyId,
+  ])).filter((companyId): companyId is number => Boolean(companyId)))];
+  const companies = companyIds.length
+    ? await prisma.company.findMany({
+        where: { id: { in: companyIds } },
+        select: {
+          id: true,
+          party: { select: { name: true, fullName: true } },
+        },
+      })
+    : [];
+  const companyNameById = new Map(companies.map((company) => [
+    company.id,
+    company.party.name || company.party.fullName,
+  ]));
+  const vouchers = rows.map((entry) => {
+    const items = entry.lines.map((line) => {
+      const entityName = companyNameById.get(line.entity.companyId) ?? line.entity.companyName;
+      const counterpartyName = line.counterpartyEntity
+        ? companyNameById.get(line.counterpartyEntity.companyId) ?? line.counterpartyEntity.companyName
+        : line.counterpartyCompanyId
+          ? companyNameById.get(line.counterpartyCompanyId) ?? null
+          : null;
+      return {
+        id: line.id,
+        accountId: line.groupAccountId ?? 0,
+        account: {
+          id: line.groupAccount?.id ?? 0,
+          code: line.groupAccount?.code || line.accountCode || line.lineCode,
+          name: line.groupAccount?.name || groupVoucherAccountName(line.lineCode),
+        },
+        debit: Number(line.debit),
+        credit: Number(line.credit),
+        description: line.note || entry.title,
+        sortOrder: line.lineNo,
+        relatedEntity: counterpartyName,
+        entityName,
+        counterpartyName,
+        sourceEvidence: line.sourceKind
+          ? `${line.sourceKind}${line.sourceId ? ` · ${line.sourceId}` : ""}`
+          : entry.evidence,
+        entitySnapshotId: line.entitySnapshotId,
+        statementType: line.statementType as "balanceSheet" | "incomeStatement" | "cashFlow",
+        lineCode: line.lineCode,
+        accountCode: line.accountCode,
+        groupAccountId: line.groupAccountId,
+        currencyCode: line.currencyCode,
+        periodBasis: line.periodBasis as "current" | "comparative",
+        note: line.note,
+        matchSide: line.matchSide as "left" | "right" | null,
+        sourceKind: line.sourceKind as "auxiliaryBalance" | "openItem" | "cashFlowAllocation" | "workpaper" | "voucher" | null,
+        sourceRecordId: line.sourceAuxiliaryBalanceId
+          ?? line.sourceOpenItemId
+          ?? line.sourceCashFlowAllocationId
+          ?? line.sourceSnapshotId
+          ?? line.sourceVoucherItemId
+          ?? null,
+        counterpartyEntitySnapshotId: line.counterpartyEntitySnapshotId,
+        counterpartyCompanyId: line.counterpartyCompanyId,
+      };
+    });
+    return {
+      id: entry.id,
+      voucherNo: entry.entryNo,
+      date: entry.postingDate,
+      periodId: 0,
+      period: { id: 0, year: Number(entry.postingDate.slice(0, 4)), month: Number(entry.postingDate.slice(5, 7)) },
+      description: groupVoucherCompanySummary(items),
+      totalDebit: entry.lines.reduce((sum, line) => sum + Number(line.debit), 0),
+      totalCredit: entry.lines.reduce((sum, line) => sum + Number(line.credit), 0),
+      status: entry.status,
+      companyCode: null,
+      voucherKind: "group" as const,
+      documentType: entry.documentType as "groupAdjustment" | "elimination" | "reclassification",
+      postingLevel: entry.postingLevel as "10" | "20" | "30",
+      origin: entry.origin as "manual" | "system",
+      entryType: entry.entryType,
+      title: entry.title,
+      entryDescription: entry.description,
+      evidence: entry.evidence,
+      batchId: entry.batch.id,
+      batchRevision: entry.batch.revision,
+      reviewBlockReason: consolidationEntryReviewBlockReason({
+        entryOrigin: entry.origin,
+        evidence: entry.evidence,
+      }),
+      cashFlowAllocations: [],
+      items,
+    };
+  });
   return {
     data: vouchers,
     total,

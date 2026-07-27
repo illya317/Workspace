@@ -19,7 +19,7 @@ export default function LedgerClient({
   canDelete,
   canRevise,
   canExport,
-  canApprove,
+  canApproveLedger,
   defaultScope,
   user,
 }: {
@@ -28,7 +28,7 @@ export default function LedgerClient({
   canDelete: boolean;
   canRevise: boolean;
   canExport: boolean;
-  canApprove: boolean;
+  canApproveLedger: boolean;
   defaultScope: FinanceLedgerDefaultScope | null;
   user: SessionUser;
 }) {
@@ -60,14 +60,22 @@ export default function LedgerClient({
   return (
     <>
       {activeTab === "accounts" && activeNestedChild === "group-accounts"
-        ? <GroupAccountTab canRevise={canRevise} canDelete={canDelete} canApprove={canApprove} {...pageChrome} />
+        ? <GroupAccountTab canRevise={canRevise} canDelete={canDelete} canApprove={canApproveLedger} {...pageChrome} />
         : activeTab === "accounts"
           ? <AccountTab canRevise={canRevise} canExport={canExport} defaultScope={defaultScope} {...pageChrome} />
           : null}
-      {activeTab === "vouchers" && <VoucherTab canExport={canExport} defaultScope={defaultScope} {...pageChrome} />}
+      {activeTab === "vouchers" && activeNestedChild === "reclassification"
+        ? <ReclassTab canExport={canExport} defaultScope={defaultScope} {...pageChrome} />
+        : activeTab === "vouchers"
+          ? <VoucherTab
+              canExport={activeNestedChild === "company" ? canExport : false}
+              defaultScope={defaultScope}
+              voucherKind={activeNestedChild === "consolidation" ? "group" : "standard"}
+              {...pageChrome}
+            />
+          : null}
       {activeTab === "ledger" && <LedgerTab canExport={canExport} defaultScope={defaultScope} {...pageChrome} />}
       {activeTab === "counterparty" && <CounterpartyBalanceTab canExport={canExport} category={counterpartyCategory(activeNestedChild)} defaultScope={defaultScope} {...pageChrome} />}
-      {activeTab === "reclass" && <ReclassTab canRevise={canRevise} canExport={canExport} defaultScope={defaultScope} {...pageChrome} />}
       {activeTab === "depreciation" && <AssetScheduleTab canCreate={canCreate} canUpdate={canUpdate} canRevise={canRevise} defaultScope={defaultScope} {...pageChrome} />}
     </>
   );

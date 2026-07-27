@@ -142,6 +142,8 @@ export const ModelName = {
   FinanceGroupAccount: 'FinanceGroupAccount',
   FinanceAccountingPolicyVersion: 'FinanceAccountingPolicyVersion',
   FinanceGroupAccountRevision: 'FinanceGroupAccountRevision',
+  FinanceConsolidationRule: 'FinanceConsolidationRule',
+  FinanceConsolidationRuleSelector: 'FinanceConsolidationRuleSelector',
   FinanceGroupAccountMapping: 'FinanceGroupAccountMapping',
   FinanceReadableSourcePackage: 'FinanceReadableSourcePackage',
   FinanceReadableImportRun: 'FinanceReadableImportRun',
@@ -1586,6 +1588,7 @@ export const FinanceConsolidationEntryLineScalarFieldEnum = {
   statementType: 'statementType',
   lineCode: 'lineCode',
   accountCode: 'accountCode',
+  groupAccountId: 'groupAccountId',
   debit: 'debit',
   credit: 'credit',
   currencyCode: 'currencyCode',
@@ -1637,7 +1640,9 @@ export const FinanceConsolidationMatchSourceScalarFieldEnum = {
   matchGroupId: 'matchGroupId',
   entitySnapshotId: 'entitySnapshotId',
   counterpartyEntitySnapshotId: 'counterpartyEntitySnapshotId',
+  sourceKind: 'sourceKind',
   voucherItemId: 'voucherItemId',
+  auxiliaryBalanceId: 'auxiliaryBalanceId',
   matchSide: 'matchSide',
   sourceAmount: 'sourceAmount',
   allocatedAmount: 'allocatedAmount',
@@ -1863,6 +1868,9 @@ export const FinanceConsolidationEntryScalarFieldEnum = {
   id: 'id',
   batchId: 'batchId',
   entryNo: 'entryNo',
+  postingDate: 'postingDate',
+  documentType: 'documentType',
+  postingLevel: 'postingLevel',
   entryType: 'entryType',
   title: 'title',
   description: 'description',
@@ -2267,11 +2275,56 @@ export const FinanceGroupAccountRevisionScalarFieldEnum = {
   reviewStatus: 'reviewStatus',
   reviewedBy: 'reviewedBy',
   reviewedAt: 'reviewedAt',
+  consolidationRole: 'consolidationRole',
+  counterpartyRequirement: 'counterpartyRequirement',
+  movementType: 'movementType',
+  translationRateType: 'translationRateType',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type FinanceGroupAccountRevisionScalarFieldEnum = (typeof FinanceGroupAccountRevisionScalarFieldEnum)[keyof typeof FinanceGroupAccountRevisionScalarFieldEnum]
+
+
+export const FinanceConsolidationRuleScalarFieldEnum = {
+  id: 'id',
+  policyVersionId: 'policyVersionId',
+  ruleCode: 'ruleCode',
+  name: 'name',
+  ruleType: 'ruleType',
+  dataBasis: 'dataBasis',
+  matchMode: 'matchMode',
+  amountMode: 'amountMode',
+  postingSide: 'postingSide',
+  differenceHandling: 'differenceHandling',
+  toleranceAmount: 'toleranceAmount',
+  currencyRateType: 'currencyRateType',
+  enabled: 'enabled',
+  priority: 'priority',
+  sourceKind: 'sourceKind',
+  note: 'note',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceConsolidationRuleScalarFieldEnum = (typeof FinanceConsolidationRuleScalarFieldEnum)[keyof typeof FinanceConsolidationRuleScalarFieldEnum]
+
+
+export const FinanceConsolidationRuleSelectorScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  side: 'side',
+  sequence: 'sequence',
+  selectorType: 'selectorType',
+  consolidationRole: 'consolidationRole',
+  groupAccountId: 'groupAccountId',
+  includeChildren: 'includeChildren',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceConsolidationRuleSelectorScalarFieldEnum = (typeof FinanceConsolidationRuleSelectorScalarFieldEnum)[keyof typeof FinanceConsolidationRuleSelectorScalarFieldEnum]
 
 
 export const FinanceGroupAccountMappingScalarFieldEnum = {

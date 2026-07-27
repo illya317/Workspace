@@ -9,6 +9,7 @@ model FinanceConsolidationEntryLine {
   statementType                String // balanceSheet | incomeStatement | cashFlow
   lineCode                     String
   accountCode                  String?
+  groupAccountId               Int?
   debit                        Decimal  @default(0) @db.Decimal(20, 2)
   credit                       Decimal  @default(0) @db.Decimal(20, 2)
   currencyCode                 String   @default("CNY")
@@ -37,6 +38,7 @@ model FinanceConsolidationEntryLine {
   sourceOpenItem           FinanceOpenItem?                    @relation(fields: [sourceOpenItemId], references: [id], onDelete: Restrict)
   sourceCashFlowAllocation FinanceCashFlowAllocation?          @relation(fields: [sourceCashFlowAllocationId], references: [id], onDelete: Restrict)
   sourceVoucherItem        FinanceVoucherItem?                 @relation(fields: [sourceVoucherItemId], references: [id], onDelete: Restrict)
+  groupAccount             FinanceGroupAccount?                @relation(fields: [groupAccountId], references: [id], onDelete: Restrict)
 
   @@unique([entryId, lineNo])
   @@index([entitySnapshotId, statementType, lineCode])
@@ -46,4 +48,5 @@ model FinanceConsolidationEntryLine {
   @@index([sourceOpenItemId])
   @@index([sourceCashFlowAllocationId])
   @@index([sourceVoucherItemId])
+  @@index([groupAccountId])
 }

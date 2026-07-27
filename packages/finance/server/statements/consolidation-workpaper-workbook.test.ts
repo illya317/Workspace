@@ -91,14 +91,14 @@ test("consolidation workpaper workbook exports the three complete workpaper matr
   assert.equal(balance.E3?.v, "抵销借方");
   assert.equal(balance.F3?.v, "抵销贷方");
   assert.equal(balance.G3?.v, "合并数");
-  assert.equal(balance.H3?.v, "比较数");
+  assert.equal(balance.H3, undefined);
   assert.equal(balance.B4?.v, 70);
   assert.equal(balance.C4?.v, 40);
   assert.equal(balance.D4?.v, 110);
   assert.equal(balance.E4?.v, 0);
   assert.equal(balance.F4?.v, 5);
   assert.equal(balance.G4?.v, 115);
-  assert.equal(balance.H4?.v, 90);
+  assert.equal(balance.H4, undefined);
 
   const income = workbook.Sheets["利润表底稿"]!;
   assert.equal(income.E4?.v, 0);

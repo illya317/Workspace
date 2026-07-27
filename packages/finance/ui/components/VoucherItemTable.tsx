@@ -12,6 +12,9 @@ interface VoucherItem {
   credit: number;
   description: string | null;
   relatedEntity?: string | null;
+  entityName?: string | null;
+  counterpartyName?: string | null;
+  sourceEvidence?: string | null;
   cashFlowAllocations?: VoucherCashFlowAllocation[];
 }
 
@@ -80,6 +83,24 @@ export function getBaseItemColumns(): DataSurfaceColumnSpec<VoucherItemRow>[] {
       defaultVisible: false,
       cell: (row) => row.relatedEntity || "-",
     },
+  ];
+}
+
+export function getGroupItemColumns(): DataSurfaceColumnSpec<VoucherItemRow>[] {
+  const base = getBaseItemColumns().filter((column) => (
+    !["accountCode", "accountName", "description", "cashFlowDetail", "relatedEntity"].includes(column.key)
+  ));
+  return [
+    base[0]!,
+    {
+      key: "account",
+      label: "科目",
+      required: true,
+      cell: (row) => [row.account?.name, row.account?.code].filter(Boolean).join(" · ") || "-",
+    },
+    { key: "entity", label: "合并主体", required: true, cell: (row) => row.entityName || "-" },
+    { key: "counterparty", label: "对方主体", required: true, cell: (row) => row.counterpartyName || "-" },
+    ...base.slice(1),
   ];
 }
 

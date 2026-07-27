@@ -69,6 +69,14 @@ export interface ReviewConsolidationEntryCommand {
   note: string | null;
 }
 
+export function consolidationEntryReviewBlockReason(facts: {
+  entryOrigin: string | null;
+  evidence: string | null;
+}) {
+  if (facts.entryOrigin !== "manual" || !facts.evidence?.includes("待补证")) return null;
+  return "来源仍标记为待补证；补齐来源并更新集团凭证后才能复核";
+}
+
 export function buildReviewConsolidationEntryCommand(
   action: ConsolidationEntryReviewAction,
   batchIdValue: unknown,
@@ -98,13 +106,34 @@ export function validateConsolidationEntryReviewTarget(
   facts: {
     batchStatus: string;
     entryOrigin: string | null;
+    entryStatus: string;
     generationKey: string | null;
     matchStatus: string | null;
+    evidence?: string | null;
+    preparedBy?: number | null;
+    reviewerId?: number | null;
   },
-): DomainValidationResult<{ entryStatus: "approved" | "draft"; matchStatus: "accepted" | "rejected" }> {
+): DomainValidationResult<{ entryStatus: "approved" | "draft"; matchStatus: "accepted" | "rejected" | null }> {
   if (facts.batchStatus !== "draft") return failCommand("只有草稿批次允许逐项审阅抵销分录", 409, "status");
+  if (action === "approve" && facts.preparedBy && facts.reviewerId === facts.preparedBy) {
+    return failCommand("集团凭证编制人与复核人必须分离", 409, "reviewerId");
+  }
+  const reviewBlockReason = consolidationEntryReviewBlockReason({
+    entryOrigin: facts.entryOrigin,
+    evidence: facts.evidence ?? null,
+  });
+  if (action === "approve" && reviewBlockReason) {
+    return failCommand(reviewBlockReason, 409, "evidence");
+  }
+  if (facts.entryOrigin === "manual" && !facts.generationKey && !facts.matchStatus) {
+    if (action === "approve" && facts.entryStatus !== "draft") return failCommand("该集团凭证已经复核", 409, "status");
+    if (action === "return" && facts.entryStatus !== "approved") return failCommand("只有已复核集团凭证可以退回", 409, "status");
+    return okCommand(action === "approve"
+      ? { entryStatus: "approved", matchStatus: null }
+      : { entryStatus: "draft", matchStatus: null });
+  }
   if (facts.entryOrigin !== "system" || !facts.generationKey || !facts.matchStatus) {
-    return failCommand("抵销分录不是当前批次自动匹配生成的审阅事项", 409, "entryId");
+    return failCommand("集团凭证不是可审阅事项", 409, "entryId");
   }
   if (action === "approve" && !["matched", "rejected"].includes(facts.matchStatus)) {
     return failCommand(facts.matchStatus === "accepted" ? "该抵销分录已经通过审阅" : "当前匹配结果不能通过审阅", 409, "status");
@@ -211,10 +240,16 @@ export function buildSaveConsolidationEntryCommand(
   }
   if (!ENTRY_TYPES.includes(raw.entryType)) return failCommand("抵销分录类型无效", 400, "entryType");
   const entryNo = text(raw.entryNo);
+  const postingDate = text(raw.postingDate) || null;
+  const documentType = raw.documentType ?? "groupAdjustment";
+  const postingLevel = raw.postingLevel ?? "30";
   const title = text(raw.title);
   const description = text(raw.description) || null;
   const evidence = text(raw.evidence);
   if (!entryNo) return failCommand("抵销分录编号不能为空", 400, "entryNo");
+  if (postingDate && !/^\d{4}-\d{2}-\d{2}$/.test(postingDate)) return failCommand("凭证日期格式无效", 400, "postingDate");
+  if (!["groupAdjustment", "elimination", "reclassification"].includes(documentType)) return failCommand("集团凭证类型无效", 400, "documentType");
+  if (!["10", "20", "30"].includes(postingLevel)) return failCommand("集团凭证层级无效", 400, "postingLevel");
   if (!title) return failCommand("抵销分录标题不能为空", 400, "title");
   if (!evidence) return failCommand("抵销分录必须填写证据", 400, "evidence");
   if (MATCHED_ENTRY_TYPES.has(raw.entryType as "intercompanyBalance" | "internalTrading" | "cashFlow") && !description) {
@@ -248,6 +283,8 @@ export function buildSaveConsolidationEntryCommand(
       : null;
     const sourceRecordId = line.sourceRecordId == null ? null : positiveId(line.sourceRecordId);
     const counterpartyEntitySnapshotId = line.counterpartyEntitySnapshotId == null ? null : positiveId(line.counterpartyEntitySnapshotId);
+    const counterpartyCompanyId = line.counterpartyCompanyId == null ? null : positiveId(line.counterpartyCompanyId);
+    const groupAccountId = line.groupAccountId == null ? null : positiveId(line.groupAccountId);
     const periodBasis = line.periodBasis === "comparative" ? "comparative" : "current";
     if (line.sourceRecordId != null && !sourceRecordId) {
       return failCommand(`第${index + 1}行来源记录无效`, 400, "sourceRecordId");
@@ -255,6 +292,8 @@ export function buildSaveConsolidationEntryCommand(
     if (line.counterpartyEntitySnapshotId != null && !counterpartyEntitySnapshotId) {
       return failCommand(`第${index + 1}行对方主体无效`, 400, "counterpartyEntitySnapshotId");
     }
+    if (line.counterpartyCompanyId != null && !counterpartyCompanyId) return failCommand(`第${index + 1}行对方公司无效`, 400, "counterpartyCompanyId");
+    if (line.groupAccountId != null && !groupAccountId) return failCommand(`第${index + 1}行集团科目无效`, 400, "groupAccountId");
     if (MATCHED_ENTRY_TYPES.has(raw.entryType as "intercompanyBalance" | "internalTrading" | "cashFlow")) {
       if (!matchSide || !sourceKind || !sourceRecordId || !counterpartyEntitySnapshotId) {
         return failCommand(`第${index + 1}行必须选择匹配侧、来源记录和对方主体`, 400, "matching");
@@ -268,6 +307,7 @@ export function buildSaveConsolidationEntryCommand(
       statementType: line.statementType,
       lineCode,
       accountCode: text(line.accountCode) || null,
+      groupAccountId,
       debit,
       credit,
       currencyCode: (text(line.currencyCode) || "CNY").toUpperCase(),
@@ -277,6 +317,7 @@ export function buildSaveConsolidationEntryCommand(
       sourceKind,
       sourceRecordId,
       counterpartyEntitySnapshotId,
+      counterpartyCompanyId,
     });
   }
   if (debitCents !== creditCents) return failCommand("抵销分录借贷不平衡", 400, "lines");
@@ -288,6 +329,9 @@ export function buildSaveConsolidationEntryCommand(
       expectedRevision,
       entryId,
       entryNo,
+      postingDate: postingDate ?? undefined,
+      documentType,
+      postingLevel,
       entryType: raw.entryType,
       title,
       description,

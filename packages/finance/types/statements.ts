@@ -295,6 +295,9 @@ export interface ConsolidationTaxEffectSnapshot {
 export interface ConsolidationEntrySnapshot {
   id: number;
   entryNo: string;
+  postingDate: string;
+  documentType: "groupAdjustment" | "elimination" | "reclassification";
+  postingLevel: "10" | "20" | "30";
   entryType: ConsolidationEntryType;
   title: string;
   description: string | null;
@@ -413,6 +416,7 @@ export interface ConsolidationEntryLineInput {
   statementType: StatementReportType;
   lineCode: string;
   accountCode?: string | null;
+  groupAccountId?: number | null;
   debit: number;
   credit: number;
   currencyCode?: string;
@@ -422,12 +426,16 @@ export interface ConsolidationEntryLineInput {
   sourceKind?: ConsolidationMatchSourceKind | null;
   sourceRecordId?: number | null;
   counterpartyEntitySnapshotId?: number | null;
+  counterpartyCompanyId?: number | null;
 }
 
 export interface SaveConsolidationEntryInput {
   expectedRevision: number;
   entryId?: number | null;
   entryNo: string;
+  postingDate?: string;
+  documentType?: ConsolidationEntrySnapshot["documentType"];
+  postingLevel?: ConsolidationEntrySnapshot["postingLevel"];
   entryType: ConsolidationEntryType;
   title: string;
   description?: string | null;

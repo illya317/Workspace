@@ -224,7 +224,8 @@ export function useConsolidationDecisionWorkspace(input: {
           key: action,
           action: action === "submit" ? "submit" : action === "review" ? "approve" : "confirm",
           label: labels[action],
-          disabled: commands.busy || (action === "submit" ? !capabilities.canSubmit : action === "lock" ? !capabilities.canLock : !capabilities.canApprove),
+          disabled: commands.busy
+            || (action === "submit" ? !capabilities.canSubmit : action === "lock" ? !capabilities.canLock : !capabilities.canApprove),
           onClick: () => void commands.advanceLifecycle().then((saved) => {
             if (saved && action === "lock") onConfirmed?.();
           }),

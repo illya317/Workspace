@@ -14,5 +14,10 @@ export const REVIEW_STATUS_FILTER_OPTIONS = [
   { value: "confirmed", label: "已确认" },
   { value: "reviewed", label: "已复核" },
   { value: "pending_review", label: "待复核" },
-  { value: "pending_delete", label: "待删除" },
+] as const;
+
+export const GROUP_ACCOUNT_USAGE_FILTER_OPTIONS = [
+  { value: "", label: "全部科目" },
+  { value: "consolidation", label: "合并科目" },
+  { value: "reclassification", label: "重分类科目" },
 ] as const;

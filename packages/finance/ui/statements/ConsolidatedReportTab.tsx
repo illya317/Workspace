@@ -31,7 +31,7 @@ export function ConsolidatedReportTab(props: ConsolidationTabProps) {
   const scopeYear = data?.scope.year ?? null;
   const scopeMonth = data?.scope.month ?? null;
   const canExport = props.capabilities.canExport;
-  const output = useConsolidatedReport(isOfficial ? batchId : null, batchStatus);
+  const output = useConsolidatedReport(isOfficial ? batchId : null, batchStatus, data?.batch?.revision ?? null);
   const parentName = data?.scope.parent?.name || "合并主体";
   const assistantContext = isOfficial && batchId && scopeYear && scopeMonth ? buildConsolidatedStatementAssistantContext({
     batchId,

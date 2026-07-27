@@ -4,6 +4,9 @@ export interface Account {
   name: string;
 }
 
+export const WORKSPACE_VOUCHER_SOURCE_SYSTEM = "WORKSPACE";
+export const SUPPLEMENTAL_VOUCHER_TYPE_NAME = "补录凭证";
+
 export interface VoucherItem {
   id: number;
   accountId: number;
@@ -13,6 +16,22 @@ export interface VoucherItem {
   description: string;
   sortOrder: number;
   relatedEntity?: string | null;
+  entityName?: string | null;
+  counterpartyName?: string | null;
+  sourceEvidence?: string | null;
+  entitySnapshotId?: number;
+  statementType?: "balanceSheet" | "incomeStatement" | "cashFlow";
+  lineCode?: string;
+  accountCode?: string | null;
+  groupAccountId?: number | null;
+  currencyCode?: string;
+  periodBasis?: "current" | "comparative";
+  note?: string | null;
+  matchSide?: "left" | "right" | null;
+  sourceKind?: "auxiliaryBalance" | "openItem" | "cashFlowAllocation" | "workpaper" | "voucher" | null;
+  sourceRecordId?: number | null;
+  counterpartyEntitySnapshotId?: number | null;
+  counterpartyCompanyId?: number | null;
 }
 
 export interface VoucherCashFlowAllocation {
@@ -44,8 +63,23 @@ export interface Voucher {
   totalCredit: number;
   status: string;
   companyCode: string | null;
+  sourceSystem?: string | null;
+  voucherTypeCode?: string | null;
+  voucherTypeName?: string | null;
+  isAdjustment?: boolean;
   items: VoucherItem[];
   cashFlowAllocations?: VoucherCashFlowAllocation[];
+  voucherKind?: "standard" | "group";
+  documentType?: "groupAdjustment" | "elimination" | "reclassification";
+  postingLevel?: "10" | "20" | "30";
+  origin?: "manual" | "system";
+  batchId?: number;
+  batchRevision?: number;
+  reviewBlockReason?: string | null;
+  entryType?: import("./statements").ConsolidationEntryType;
+  title?: string;
+  entryDescription?: string | null;
+  evidence?: string;
 }
 
 export interface VoucherResponse {

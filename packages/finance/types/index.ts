@@ -1,7 +1,12 @@
 export type * from "./reclass";
 export type * from "./ledger";
+export {
+  SUPPLEMENTAL_VOUCHER_TYPE_NAME,
+  WORKSPACE_VOUCHER_SOURCE_SYSTEM,
+} from "./ledger";
 export type * from "./cost";
 export type * from "./group-account";
+export type * from "./consolidation-rule";
 export type * from "./assets";
 export * from "./auxiliary-reclass";
 export type * from "./fund-flow";

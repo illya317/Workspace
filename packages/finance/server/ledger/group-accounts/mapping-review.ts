@@ -48,7 +48,7 @@ export function diagnoseGroupAccountMapping(input: GroupMappingReviewInput): Gro
     return diagnosis("reviewed", "已由财务人员按集团科目口径复核", false, []);
   }
   if (input.localAccountCode === current.code && namesMatch && attributesMatch) {
-    return diagnosis("confirmed", "科目编码、名称、类别和余额方向一致", false, []);
+    return diagnosis("pending_review", "科目编码、名称、类别和余额方向一致，等待财务人员复核", true, []);
   }
 
   const suggestions = rankSuggestions(input);

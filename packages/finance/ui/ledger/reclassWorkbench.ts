@@ -7,12 +7,6 @@ import { formatFinanceAmount } from "../formatters";
 export type ReclassWorkbenchFilter = "all" | "pending" | "automatic" | "manual" | "no_process" | "historical";
 export type GroupRuleStatusFilter = "all" | "reclassified" | "no_reclass" | "unconfirmed";
 
-export interface ReclassTargetOption {
-  value: string;
-  label: string;
-  searchText?: string;
-}
-
 export function reclassBasisLabel(basis: ReclassBasis) {
   return basis === "counterparty_gross" ? "按户逐户" : "科目净额";
 }
@@ -43,13 +37,7 @@ export function filterReclassEntries(entries: readonly ReclassEntry[], filter: R
   });
 }
 
-export function createReclassWorkbenchColumns(input: {
-  canRevise: boolean;
-  editMode: boolean;
-  targetOptionsForRow: (row: ReclassEntry) => ReclassTargetOption[];
-  targetValue: (row: ReclassEntry) => string;
-  onTargetChange: (row: ReclassEntry, value: string) => void;
-}): DataSurfaceColumnSpec<ReclassEntry>[] {
+export function createReclassWorkbenchColumns(): DataSurfaceColumnSpec<ReclassEntry>[] {
   return [
     {
       key: "account",
@@ -126,33 +114,8 @@ export function createReclassWorkbenchColumns(input: {
       required: true,
       width: "lg",
       cell: (row) => {
-        if (input.editMode && isRuleEditable(row, input.canRevise)) {
-          return {
-            kind: "input",
-            spec: {
-              valueType: "string",
-              control: "choice",
-              options: { source: "static", items: input.targetOptionsForRow(row), visibleCount: 8 },
-            },
-            value: input.targetValue(row),
-            onChange: (value) => input.onTargetChange(row, String(value ?? "")),
-            placeholder: "输入科目编码或名称",
-            emptyText: "无匹配科目",
-            density: "compact",
-          };
-        }
         const label = targetLabel(row);
-        if (!isRuleEditable(row, input.canRevise)) return label ? { kind: "text", value: label } : { kind: "empty" };
-        return {
-          kind: "selectionGrid",
-          options: [{ value: row.id, label: label || "选择目标科目" }],
-          mode: "readOnly",
-          presentation: "card",
-          columns: 1,
-          layout: "fixed",
-          truncate: true,
-          ariaLabel: `配置科目 ${row.accountCode} 的目标科目`,
-        };
+        return label ? { kind: "text", value: label } : { kind: "empty" };
       },
     },
     {
@@ -163,14 +126,6 @@ export function createReclassWorkbenchColumns(input: {
       cell: (row) => statusBadge(row),
     },
   ];
-}
-
-function isRuleEditable(row: ReclassEntry, canRevise: boolean) {
-  return canRevise
-    && row.sourceType !== "legacy_voucher"
-    && (row.classification === "reclass_candidate" || row.classification === "pending_review")
-    && row.status !== "historical"
-    && (row.stale || (row.currentAbnormalAmount !== null && row.currentAbnormalAmount > 0));
 }
 
 function classificationBadge(row: ReclassEntry) {

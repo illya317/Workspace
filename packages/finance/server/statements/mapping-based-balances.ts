@@ -1,6 +1,10 @@
 /** M10a: mapping-based balance aggregation with residual leaf. residual = own - children sum. */
 import { prisma } from "@workspace/platform/server/prisma";
 import {
+  SUPPLEMENTAL_VOUCHER_TYPE_NAME,
+  WORKSPACE_VOUCHER_SOURCE_SYSTEM,
+} from "@workspace/finance/types";
+import {
   buildFixedBalanceLineSideMap,
   buildFixedBalanceAssignments,
 } from "./config/fixed-balance-definition";
@@ -174,6 +178,55 @@ export async function aggregateMappingBasedBalances(
         credit: r.credit,
         net: r.debit - r.credit,
       });
+    }
+  }
+
+  // A historical Workspace supplement predating the active ERP balance baseline
+  // cannot be rolled into that immutable source snapshot. Apply it as a durable
+  // ledger overlay at every later balance-sheet point instead of mutating ERP
+  // balances or encoding a one-off consolidation amount.
+  const baseline = await prisma.financeBalanceSnapshot.findFirst({
+    where: {
+      companyCode,
+      snapshotType: "baseline",
+      isActive: true,
+      year: { lte: year },
+    },
+    select: { year: true },
+    orderBy: { year: "desc" },
+  });
+  if (baseline) {
+    const monthText = String(month).padStart(2, "0");
+    const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+    const cutoff = balancePoint === "opening"
+      ? { lt: `${year}-${monthText}-01` }
+      : { lte: `${year}-${monthText}-${String(lastDay).padStart(2, "0")}` };
+    const supplementalItems = await prisma.financeVoucherItem.findMany({
+      where: {
+        voucher: {
+          companyCode,
+          status: "posted",
+          sourceSystem: WORKSPACE_VOUCHER_SOURCE_SYSTEM,
+          voucherTypeName: SUPPLEMENTAL_VOUCHER_TYPE_NAME,
+          date: cutoff,
+          period: { year: { lte: baseline.year } },
+        },
+      },
+      include: { account: { select: { code: true, category: true } } },
+    });
+    for (const item of supplementalItems) {
+      const resolved = resolveMappedLineWithOperator(item.account.code, parentMap, mappingMap, operatorMap);
+      const presentation = resolved ?? (PROFIT_OR_LOSS_CATEGORIES.has(item.account.category)
+        ? { lineCode: "undistributedProfit", operator: "add" as const }
+        : null);
+      if (!presentation) continue;
+      const side = lineSideMap.get(presentation.lineCode) || "debit";
+      const agg = byLine.get(presentation.lineCode) || { debit: 0, credit: 0, accountCodes: [] };
+      applyContribution(agg, {
+        debit: item.debit,
+        credit: item.credit,
+      }, side, presentation.operator, `supplemental:${item.account.code}`);
+      byLine.set(presentation.lineCode, agg);
     }
   }
 

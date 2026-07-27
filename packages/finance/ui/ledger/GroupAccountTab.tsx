@@ -18,6 +18,7 @@ import type {
 import type {
   FinanceGroupAccountCatalogResponse,
   FinanceGroupAccountCatalogRow,
+  FinanceGroupAccountUsage,
   FinanceGroupAccountMappedLocalAccountRow,
   FinanceGroupAccountMappedLocalAccountsResponse,
 } from "@workspace/finance/types";
@@ -41,7 +42,13 @@ import {
   initialExpandedTreeIds,
   mappedAccountSections,
 } from "./groupAccountCatalogPresentation";
-import { REVIEW_STATUS_FILTER_OPTIONS, versionCreatedDate } from "./groupAccountMappingPresentation";
+import { GROUP_ACCOUNT_USAGE_FILTER_OPTIONS, REVIEW_STATUS_FILTER_OPTIONS, versionCreatedDate } from "./groupAccountMappingPresentation";
+import {
+  groupAccountConsolidationRuleSections,
+  groupAccountDraftDirtyParts,
+  groupAccountMasterFields,
+} from "./groupAccountConsolidationRule";
+import { groupAccountReclassSections, useGroupAccountReclassRule } from "./useGroupAccountReclassRule";
 
 export default function GroupAccountTab({
   navigation,
@@ -62,6 +69,7 @@ export default function GroupAccountTab({
   const [error, setError] = useState("");
   const [versionFilter, setVersionFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [accountUsageFilter, setAccountUsageFilter] = useState<"" | FinanceGroupAccountUsage>("");
   const [reviewStatusFilter, setReviewStatusFilter] = useState("");
   const [keyword, setKeyword] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -75,8 +83,23 @@ export default function GroupAccountTab({
     () => response?.treeRows.find((row) => row.id === selectedId) ?? null,
     [response, selectedId],
   );
-  const editDirty = Boolean(selected && editDraft && editDraft.id === selected.id
-    && !sameGroupAccountDraft(editDraft, groupAccountCatalogEditDraft(selected)));
+  const selectedVersionIsCurrent = response?.selectedPolicyVersionId === response?.currentPolicyVersionId;
+  const reclassRule = useGroupAccountReclassRule({
+    policyVersionId: response?.selectedPolicyVersionId ?? null,
+    selectedId,
+    canRevise: Boolean(selectedVersionIsCurrent && canRevise),
+  });
+  const {
+    dirty: reclassRuleDirty,
+    draft: reclassRuleDraft,
+    reload: reloadReclassRule,
+    save: saveReclassRule,
+  } = reclassRule;
+  const groupAccountDirtyParts = selected && editDraft && editDraft.id === selected.id
+    ? groupAccountDraftDirtyParts(editDraft, groupAccountCatalogEditDraft(selected))
+    : { master: false, consolidation: false };
+  const groupAccountDirty = groupAccountDirtyParts.master || groupAccountDirtyParts.consolidation;
+  const editDirty = groupAccountDirty || reclassRuleDirty;
   const feedback = useFeedback({ unsavedChanges: editDirty });
 
   const load = useCallback(async () => {
@@ -85,6 +108,7 @@ export default function GroupAccountTab({
     const query = new URLSearchParams();
     if (versionFilter) query.set("policyVersionId", versionFilter);
     if (categoryFilter) query.set("category", categoryFilter);
+    if (accountUsageFilter) query.set("accountUsage", accountUsageFilter);
     if (reviewStatusFilter) query.set("reviewStatus", reviewStatusFilter);
     if (keyword.trim()) query.set("keyword", keyword.trim());
     try {
@@ -101,7 +125,7 @@ export default function GroupAccountTab({
     } finally {
       setLoading(false);
     }
-  }, [categoryFilter, keyword, reviewStatusFilter, versionFilter]);
+  }, [accountUsageFilter, categoryFilter, keyword, reviewStatusFilter, versionFilter]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -114,7 +138,6 @@ export default function GroupAccountTab({
     setEditDraft(selected ? groupAccountCatalogEditDraft(selected) : null);
   }, [selected]);
 
-  const selectedVersionIsCurrent = response?.selectedPolicyVersionId === response?.currentPolicyVersionId;
   const createGroupAccount = useCallback(async () => {
     if (!createDraft) return;
     setSaving(true);
@@ -134,27 +157,33 @@ export default function GroupAccountTab({
     }
   }, [createDraft, load]);
 
-  const updateGroupAccount = useCallback(async () => {
+  async function updateGroupAccount() {
     if (!editDraft) return;
     setSaving(true);
     try {
-      const { id, ...body } = editDraft;
-      const result = await fetch(workspacePath(`/api/modules/finance/ledger/group-accounts/${id}`), {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await result.json().catch(() => null) as { error?: string } | null;
-      if (!result.ok) throw new Error(data?.error || "集团科目保存失败");
+      if (groupAccountDirty) {
+        const { id, ...body } = editDraft;
+        const result = await fetch(workspacePath(`/api/modules/finance/ledger/group-accounts/${id}`), {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await result.json().catch(() => null) as { error?: string } | null;
+        if (!result.ok) throw new Error(data?.error || "集团科目保存失败");
+      }
+      if (reclassRuleDirty) await saveReclassRule();
       setEditDraft(null);
-      feedback.success("集团科目已保存");
-      await load();
+      feedback.success(groupAccountDirty && reclassRuleDirty ? "集团科目及重分类规则已保存" : reclassRuleDirty ? "重分类规则已保存" : "集团科目已保存");
+      await Promise.all([
+        load(),
+        reloadReclassRule(),
+      ]);
     } catch (cause) {
       feedback.error(cause instanceof Error ? cause.message : "集团科目保存失败");
     } finally {
       setSaving(false);
     }
-  }, [editDraft, feedback, load]);
+  }
 
   const loadMappedAccounts = useCallback(async (row: FinanceGroupAccountCatalogRow) => {
     if (mappedRowsByGroup[row.id] || mappingDetailState[row.id] === "loading" || !response) return;
@@ -272,6 +301,15 @@ export default function GroupAccountTab({
     },
     {
       kind: "select",
+      key: "account-usage",
+      label: "科目范围",
+      value: accountUsageFilter,
+      placeholder: "全部科目",
+      options: [...GROUP_ACCOUNT_USAGE_FILTER_OPTIONS],
+      onChange: (value) => setAccountUsageFilter(value as typeof accountUsageFilter),
+    },
+    {
+      kind: "select",
       key: "review-status",
       label: "复核状态",
       value: reviewStatusFilter,
@@ -323,15 +361,15 @@ export default function GroupAccountTab({
         ? [
             createFieldsSection(
               "group-account-detail",
-              selectedVersionIsCurrent && canRevise
+              groupAccountMasterFields(selectedVersionIsCurrent && canRevise
                 ? groupAccountEditFields(editDraft, setEditDraft)
-                : groupAccountDetailFields(selected, businessTimeZone),
+                : groupAccountDetailFields(selected, businessTimeZone)),
               {
               kind: selectedVersionIsCurrent && canRevise ? "fields" : "detail",
               layout: { columns: 2, density: "compact" },
               header: {
                 title: `${selected.code} ${selected.name}`,
-                description: editDirty ? "有未保存修改" : groupAccountParentDescription(selected),
+                description: groupAccountDirtyParts.master ? "有未保存科目修改" : groupAccountParentDescription(selected),
               },
               actions: [
                 ...(canRevise && selectedVersionIsCurrent ? [{
@@ -339,7 +377,9 @@ export default function GroupAccountTab({
                   action: "save" as const,
                   label: saving ? "保存中..." : "保存",
                   disabled: saving || !editDirty || !editDraft.code.trim()
-                    || !editDraft.name.trim() || !editDraft.currency,
+                    || !editDraft.name.trim() || !editDraft.currency
+                    || (reclassRuleDirty && (reclassRuleDraft?.decision === null
+                      || (reclassRuleDraft?.decision === "reclassify" && reclassRuleDraft.targetGroupAccountId === null))),
                   onClick: () => { void updateGroupAccount(); },
                 }] : []),
                 ...(canDelete && selectedVersionIsCurrent ? [{
@@ -382,6 +422,17 @@ export default function GroupAccountTab({
                   },
                 ] : []),
               ],
+            }),
+            ...groupAccountConsolidationRuleSections({
+              fields: selectedVersionIsCurrent && canRevise
+                ? groupAccountEditFields(editDraft, setEditDraft)
+                : groupAccountDetailFields(selected, businessTimeZone),
+              editable: Boolean(selectedVersionIsCurrent && canRevise),
+              dirty: groupAccountDirtyParts.consolidation,
+            }),
+            ...groupAccountReclassSections({
+              selected,
+              controller: reclassRule,
             }),
             ...mappedAccountSections(
               selected,
@@ -439,23 +490,11 @@ export default function GroupAccountTab({
     />
   );
 }
-
 function groupAccountEditFields(
-  draft: GroupAccountCatalogEditDraft,
-  setDraft: Dispatch<SetStateAction<GroupAccountCatalogEditDraft | null>>,
+  draft: GroupAccountCatalogEditDraft, setDraft: Dispatch<SetStateAction<GroupAccountCatalogEditDraft | null>>,
 ) {
   return groupAccountCatalogEditSections(
     draft,
     (change) => setDraft((current) => current ? { ...current, ...change } : null),
   ).flatMap((section) => section.items);
-}
-
-function sameGroupAccountDraft(left: GroupAccountCatalogEditDraft, right: GroupAccountCatalogEditDraft) {
-  return left.code === right.code
-    && left.name === right.name
-    && left.category === right.category
-    && left.balanceDirection === right.balanceDirection
-    && left.currency === right.currency
-    && left.parentGroupAccountId === right.parentGroupAccountId
-    && left.expectedUpdatedAt === right.expectedUpdatedAt;
 }

@@ -14,6 +14,10 @@ export interface ResolvedFinanceGroupAccount {
   category: string;
   balanceDirection: string;
   parentId: number | null;
+  consolidationRole: string;
+  counterpartyRequirement: string;
+  movementType: string;
+  translationRateType: string;
 }
 
 export interface FinanceAccountingPolicyVersionSelector {
@@ -166,6 +170,10 @@ async function loadVersionGroupAccounts(
     category: revision.category,
     balanceDirection: revision.balanceDirection,
     parentId: revision.parentGroupAccountId,
+    consolidationRole: revision.consolidationRole,
+    counterpartyRequirement: revision.counterpartyRequirement,
+    movementType: revision.movementType,
+    translationRateType: revision.translationRateType,
   }]));
 }
 

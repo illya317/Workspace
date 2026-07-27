@@ -238,6 +238,11 @@
 | archivedContracts | Contract[] | @relation("ContractArchivedBy") |  |
 | uploadedContractAttachments | ContractAttachment[] | @relation("ContractAttachmentUploader") |  |
 | removedContractAttachments | ContractAttachment[] | @relation("ContractAttachmentRemover") |  |
+| uploadedEmploymentAgreementAttachments | EmploymentAgreementAttachment[] | @relation("EmploymentAgreementAttachmentUploader") |  |
+| removedEmploymentAgreementAttachments | EmploymentAgreementAttachment[] | @relation("EmploymentAgreementAttachmentRemover") |  |
+| createdEmployeeSocialInsurancePeriods | EmployeeSocialInsurancePeriod[] | @relation("EmployeeSocialInsuranceCreator") |  |
+| updatedEmployeeSocialInsurancePeriods | EmployeeSocialInsurancePeriod[] | @relation("EmployeeSocialInsuranceUpdater") |  |
+| recordedEmployeeSocialInsuranceRevisions | EmployeeSocialInsurancePeriodRevision[] | @relation("EmployeeSocialInsuranceRevisionRecorder") |  |
 | createdContractRecords | ContractRecord[] | @relation("ContractRecordCreator") |  |
 | editHistories | EditHistory[] | @relation("EditHistoryEditor") |  |
 | employees | Employee[] | @relation("EmployeeUser") |  |
@@ -287,6 +292,7 @@
 | approvedKpiResultSnapshots | WorkKpiResultSnapshot[] | @relation("WorkKpiResultSnapshotApprover") |  |
 | erpDueDiligenceSubmissions | ErpDueDiligenceSubmission[] | @relation("ErpDueDiligenceRespondent") |  |
 | recordedEmployeeLifecycleEvents | EmployeeLifecycleEvent[] | @relation("EmployeeLifecycleEventRecorder") |  |
+| recordedEmployeePeriodRevisions | EmployeePeriodRevision[] | @relation("EmployeePeriodRevisionRecorder") |  |
 | requestedDataQualityRuns | DataQualityRun[] | @relation("DataQualityRunRequester") |  |
 | recordedEmploymentAgreementChanges | EmploymentAgreementChange[] | @relation("EmploymentAgreementChangeActor") |  |
 
@@ -1405,6 +1411,7 @@
 | statementType | String | - | balanceSheet | incomeStatement | cashFlow |
 | lineCode | String | - |  |
 | accountCode | String? | - |  |
+| groupAccountId | Int? | - |  |
 | debit | Decimal | @default(0) @db.Decimal(20, 2) |  |
 | credit | Decimal | @default(0) @db.Decimal(20, 2) |  |
 | currencyCode | String | @default("CNY") |  |
@@ -1432,6 +1439,7 @@
 | sourceOpenItem | FinanceOpenItem? | @relation(fields: [sourceOpenItemId], references: [id], onDelete: Restrict) |  |
 | sourceCashFlowAllocation | FinanceCashFlowAllocation? | @relation(fields: [sourceCashFlowAllocationId], references: [id], onDelete: Restrict) |  |
 | sourceVoucherItem | FinanceVoucherItem? | @relation(fields: [sourceVoucherItemId], references: [id], onDelete: Restrict) |  |
+| groupAccount | FinanceGroupAccount? | @relation(fields: [groupAccountId], references: [id], onDelete: Restrict) |  |
 
 ### FinanceConsolidationMatchGroup
 
@@ -1467,7 +1475,9 @@
 | matchGroupId | Int | - |  |
 | entitySnapshotId | Int | - |  |
 | counterpartyEntitySnapshotId | Int? | - |  |
-| voucherItemId | Int | - |  |
+| sourceKind | String | @default("voucher") | voucher | auxiliaryBalance |
+| voucherItemId | Int? | - |  |
+| auxiliaryBalanceId | Int? | - |  |
 | matchSide | String | - | left | right |
 | sourceAmount | Decimal | @db.Decimal(20, 2) |  |
 | allocatedAmount | Decimal | @db.Decimal(20, 2) |  |
@@ -1477,7 +1487,8 @@
 | matchGroup | FinanceConsolidationMatchGroup | @relation(fields: [matchGroupId], references: [id], onDelete: Cascade) |  |
 | entity | FinanceConsolidationEntitySnapshot | @relation("ConsolidationMatchSourceEntity", fields: [entitySnapshotId], references: [id], onDelete: Restrict) |  |
 | counterpartyEntity | FinanceConsolidationEntitySnapshot? | @relation("ConsolidationMatchSourceCounterparty", fields: [counterpartyEntitySnapshotId], references: [id], onDelete: Restrict) |  |
-| voucherItem | FinanceVoucherItem | @relation(fields: [voucherItemId], references: [id], onDelete: Restrict) |  |
+| voucherItem | FinanceVoucherItem? | @relation(fields: [voucherItemId], references: [id], onDelete: Restrict) |  |
+| auxiliaryBalance | FinanceAuxiliaryBalance? | @relation(fields: [auxiliaryBalanceId], references: [id], onDelete: Restrict) |  |
 
 ### FinanceVoucherCompanyMappingRule
 
@@ -1490,7 +1501,7 @@
 | voucherDate | String? | - |  |
 | voucherNo | String? | - |  |
 | matchText | String? | - |  |
-| matchingPolicy | String | @default("direct") | direct | aggregateCnyMirror |
+| matchingPolicy | String | @default("direct") | direct；历史 aggregateCnyMirror 值仅用于识别被投资方，不参与金额折算 |
 | priority | Int | @default(100) |  |
 | evidence | String | - |  |
 | isActive | Boolean | @default(true) |  |
@@ -1590,7 +1601,7 @@
 | id | Int | @id @default(autoincrement()) |  |
 | batchId | Int | - |  |
 | eventType | String | - | lifecycle | mutation |
-| action | String | - | create | submit | return | review | lock | publish | entry.generate | entry.delete | taxEffect.delete |
+| action | String | - | create | submit | return | review | lock | publish | entry.* | taxEffect.delete |
 | fromStatus | String | - |  |
 | toStatus | String | - |  |
 | note | String? | - |  |
@@ -1714,7 +1725,10 @@
 | id | Int | @id @default(autoincrement()) |  |
 | batchId | Int | - |  |
 | entryNo | String | - |  |
-| entryType | String | - | investmentEquity | nonControllingInterest | intercompanyBalance | internalTrading | internalLongTermAsset | incomeDividend | cashFlow |
+| postingDate | String | - |  |
+| documentType | String | @default("groupAdjustment") | groupAdjustment | elimination | reclassification |
+| postingLevel | String | @default("20") | 10 单边调整 | 20 双边抵销 | 30 集团层调整 |
+| entryType | String | - | investmentEquity | reclassification | nonControllingInterest | intercompanyBalance | internalTrading | internalLongTermAsset | incomeDividend | cashFlow |
 | title | String | - |  |
 | description | String? | - |  |
 | evidence | String | - |  |
@@ -2020,6 +2034,7 @@
 | account | FinanceAccount | @relation(fields: [accountId], references: [id]) |  |
 | members | FinanceAuxiliaryBalanceMember[] | - |  |
 | consolidationEntryLines | FinanceConsolidationEntryLine[] | - |  |
+| consolidationMatchSources | FinanceConsolidationMatchSource[] | - |  |
 
 ### FinanceAuxiliaryBalanceMember
 
@@ -2131,6 +2146,8 @@
 | targetReclassRules | FinanceReclassRule[] | @relation("FinanceReclassRuleTargetGroupAccount") |  |
 | sourceReclassAdjustments | FinanceBalanceReclassAdjustment[] | @relation("FinanceBalanceReclassSourceGroupAccount") |  |
 | targetReclassAdjustments | FinanceBalanceReclassAdjustment[] | @relation("FinanceBalanceReclassTargetGroupAccount") |  |
+| consolidationRuleSelectors | FinanceConsolidationRuleSelector[] | - |  |
+| consolidationEntryLines | FinanceConsolidationEntryLine[] | - |  |
 
 ### FinanceAccountingPolicyVersion
 
@@ -2150,6 +2167,7 @@
 | mappings | FinanceGroupAccountMapping[] | - |  |
 | reclassRules | FinanceReclassRule[] | - |  |
 | reclassAdjustments | FinanceBalanceReclassAdjustment[] | - |  |
+| consolidationRules | FinanceConsolidationRule[] | - |  |
 
 ### FinanceGroupAccountRevision
 
@@ -2170,11 +2188,58 @@
 | reviewStatus | String | @default("confirmed") | confirmed | reviewed | pending_review | pending_delete |
 | reviewedBy | Int? | - |  |
 | reviewedAt | DateTime? | - |  |
+| consolidationRole | String | @default("none") | none | intercompanyReceivable | intercompanyPayable | intercompanyRevenue | intercompanyExpense | investmentInSubsidiary | shareCapital | capitalReserve | dividendReceivable | dividendPayable | inventory | fixedAsset | cashFlow | difference |
+| counterpartyRequirement | String | @default("none") | none | optional | required |
+| movementType | String | @default("closingBalance") | closingBalance | periodMovement | transaction |
+| translationRateType | String | @default("closing") | closing | average | historical | transactionDate |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | policyVersion | FinanceAccountingPolicyVersion | @relation(fields: [policyVersionId], references: [id], onDelete: Restrict) |  |
 | groupAccount | FinanceGroupAccount | @relation("FinanceGroupAccountRevisionAccount", fields: [groupAccountId], references: [id], onDelete: Restrict) |  |
 | parentGroupAccount | FinanceGroupAccount? | @relation("FinanceGroupAccountRevisionParent", fields: [parentGroupAccountId], references: [id], onDelete: Restrict) |  |
+
+### FinanceConsolidationRule
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| policyVersionId | Int | - |  |
+| ruleCode | String | - |  |
+| name | String | - |  |
+| ruleType | String | - | intercompanyBalance | investmentEquity | intercompanyRevenueExpense | intercompanyDividend | inventoryProfit | fixedAssetProfit | internalCashFlow | manualReclassification |
+| dataBasis | String | - | closingBalance | periodMovement | voucher | openItem |
+| matchMode | String | - | partnerAggregate | ownershipChain | documentReference | manual |
+| amountMode | String | - | lowerOfTwoSides | fullSource | netChange | fixed |
+| postingSide | String | @default("both") | both | leading | partner |
+| differenceHandling | String | @default("exception") | exception | postToDifferenceAccount | carryForward |
+| toleranceAmount | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| currencyRateType | String | @default("source") | source | closing | average | historical | transactionDate |
+| enabled | Boolean | @default(true) |  |
+| priority | Int | @default(100) |  |
+| sourceKind | String | @default("manual") | systemDefault | manual |
+| note | String? | - |  |
+| createdBy | Int? | - |  |
+| updatedBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| policyVersion | FinanceAccountingPolicyVersion | @relation(fields: [policyVersionId], references: [id], onDelete: Restrict) |  |
+| selectors | FinanceConsolidationRuleSelector[] | - |  |
+
+### FinanceConsolidationRuleSelector
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| ruleId | Int | - |  |
+| side | String | - | left | right | difference |
+| sequence | Int | - |  |
+| selectorType | String | - | role | groupAccount |
+| consolidationRole | String? | - |  |
+| groupAccountId | Int? | - |  |
+| includeChildren | Boolean | @default(true) |  |
+| createdAt | DateTime | @default(now()) |  |
+| rule | FinanceConsolidationRule | @relation(fields: [ruleId], references: [id], onDelete: Cascade) |  |
+| groupAccount | FinanceGroupAccount? | @relation(fields: [groupAccountId], references: [id], onDelete: Restrict) |  |
 
 ### FinanceGroupAccountMapping
 
@@ -2989,6 +3054,8 @@
 | isPrimary | Boolean | @default(false) |  |
 | sourceKind | String | @default("workspace") |  |
 | sourceRef | String? | - |  |
+| missingFieldsJson | String | @default("[]") |  |
+| actualEndDate | String? | - |  |
 | reason | String? | - |  |
 | version | Int | @default(1) |  |
 | currentPublishedRevisionId | Int? | @unique |  |
@@ -3000,7 +3067,38 @@
 | currentPublishedRevision | EmploymentAgreementRevision? | @relation("EmploymentAgreementCurrentRevision", fields: [currentPublishedRevisionId], references: [id], onDelete: Restrict) |  |
 | revisions | EmploymentAgreementRevision[] | @relation("EmploymentAgreementRevisions") |  |
 | terms | EmploymentAgreementTerm[] | - |  |
+| attachments | EmploymentAgreementAttachment[] | - |  |
 | changes | EmploymentAgreementChange[] | @relation("EmploymentAgreementChangeAgreement") |  |
+
+### EmploymentAgreementAttachment
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| attachmentUid | String | @unique @default(uuid()) |  |
+| agreementId | Int | - |  |
+| fileName | String | - |  |
+| mimeType | String | - |  |
+| originalStoragePath | String | - |  |
+| originalSizeBytes | Int | - |  |
+| originalChecksumSha256 | String | - |  |
+| optimizedStoragePath | String? | - |  |
+| optimizedSizeBytes | Int? | - |  |
+| optimizedChecksumSha256 | String? | - |  |
+| optimizationStatus | String | @default("not_applicable") |  |
+| optimizationError | String? | - |  |
+| compressionSavingsRatio | Decimal? | @db.Decimal(8, 6) |  |
+| pageCount | Int? | - |  |
+| note | String? | - |  |
+| uploadedBy | Int? | - |  |
+| uploadedAt | DateTime | @default(now()) |  |
+| removedBy | Int? | - |  |
+| removedAt | DateTime? | - |  |
+| removalReason | String? | - |  |
+| version | Int | @default(1) |  |
+| agreement | EmploymentAgreement | @relation(fields: [agreementId], references: [id], onDelete: Restrict) |  |
+| uploader | User? | @relation("EmploymentAgreementAttachmentUploader", fields: [uploadedBy], references: [id], onDelete: SetNull) |  |
+| remover | User? | @relation("EmploymentAgreementAttachmentRemover", fields: [removedBy], references: [id], onDelete: SetNull) |  |
 
 ### EmploymentAgreementTerm
 
@@ -3011,7 +3109,7 @@
 | agreementId | Int | - |  |
 | sequence | Int | - |  |
 | termKind | String | @default("initial") |  |
-| effectiveFrom | String | - |  |
+| effectiveFrom | String? | - |  |
 | effectiveThrough | String? | - |  |
 | recordState | String | @default("confirmed") |  |
 | changeKind | String | @default("schedule") |  |
@@ -3034,6 +3132,7 @@
 | agreementId | Int | - |  |
 | revisionNo | Int | - |  |
 | recordState | String | @default("draft") |  |
+| changeKind | String | @default("initial") |  |
 | contentJson | String | - |  |
 | supersedesRevisionId | Int? | - |  |
 | sourceKind | String | @default("workspace") |  |
@@ -3078,6 +3177,23 @@
 | recordedAt | DateTime | @default(now()) |  |
 | employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Cascade) |  |
 | recordedBy | User | @relation("EmployeeLifecycleEventRecorder", fields: [recordedByUserId], references: [id], onDelete: Restrict) |  |
+
+### EmployeePeriodRevision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id @default(dbgenerated("(gen_random_uuid())::text")) |  |
+| employeeId | Int | - |  |
+| entityType | String | - |  |
+| periodId | Int | - |  |
+| expectedVersion | Int | - |  |
+| beforeJson | String | - |  |
+| afterJson | String | - |  |
+| reason | String | - |  |
+| recordedByUserId | Int | - |  |
+| recordedAt | DateTime | @default(now()) |  |
+| employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Restrict) |  |
+| recordedBy | User | @relation("EmployeePeriodRevisionRecorder", fields: [recordedByUserId], references: [id], onDelete: Restrict) |  |
 
 ### OrganizationStructureChange
 
@@ -3198,6 +3314,52 @@
 | hrComment | String | @default("") |  |
 | workEvidenceSnapshotJson | String | @default("{ |  |
 
+### EmployeeSocialInsurancePeriod
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| periodUid | String | @unique @default(uuid()) |  |
+| employeeId | Int | - |  |
+| insuranceStatus | String | @default("insured") |  |
+| companyId | Int? | - |  |
+| companyNameSnapshot | String? | - |  |
+| startMonth | DateTime? | @db.Date |  |
+| endMonth | DateTime? | @db.Date |  |
+| stopReason | String? | - |  |
+| note | String? | - |  |
+| missingFieldsJson | String | @default("[]") |  |
+| recordState | String | @default("confirmed") |  |
+| sourceKind | String | @default("workspace") |  |
+| sourceRef | String? | - |  |
+| createdBy | Int? | - |  |
+| updatedBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| version | Int | @default(1) |  |
+| employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Restrict) |  |
+| company | Company? | @relation(fields: [companyId], references: [id], onDelete: Restrict) |  |
+| creator | User? | @relation("EmployeeSocialInsuranceCreator", fields: [createdBy], references: [id], onDelete: SetNull) |  |
+| updater | User? | @relation("EmployeeSocialInsuranceUpdater", fields: [updatedBy], references: [id], onDelete: SetNull) |  |
+| revisions | EmployeeSocialInsurancePeriodRevision[] | - |  |
+
+### EmployeeSocialInsurancePeriodRevision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| revisionUid | String | @unique @default(uuid()) |  |
+| periodId | Int | - |  |
+| revisionNo | Int | - |  |
+| changeKind | String | - |  |
+| beforeJson | String | - |  |
+| afterJson | String | - |  |
+| reason | String | - |  |
+| recordedBy | Int | - |  |
+| recordedAt | DateTime | @default(now()) |  |
+| period | EmployeeSocialInsurancePeriod | @relation(fields: [periodId], references: [id], onDelete: Restrict) |  |
+| actor | User | @relation("EmployeeSocialInsuranceRevisionRecorder", fields: [recordedBy], references: [id], onDelete: Restrict) |  |
+
 ### Employee
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -3228,9 +3390,11 @@
 | user | User? | @relation("EmployeeUser", fields: [userId], references: [id]) |  |
 | positions | EDP[] | @relation("EmployeePositions") |  |
 | lifecycleEvents | EmployeeLifecycleEvent[] | - |  |
+| periodRevisions | EmployeePeriodRevision[] | - |  |
 | projects | EmployeeProject[] | - |  |
 | projectMembershipChanges | ProjectMembershipChange[] | - |  |
 | employmentAgreementChanges | EmploymentAgreementChange[] | @relation("EmploymentAgreementChangeEmployee") |  |
+| socialInsurancePeriods | EmployeeSocialInsurancePeriod[] | - |  |
 | ownedWorkItems | WorkItem[] | @relation("WorkItemOwner") |  |
 | ownedWorkPlans | WorkPlan[] | @relation("WorkPlanOwner") |  |
 | employments | Employment[] | - |  |
@@ -3299,6 +3463,7 @@
 | financeCurrencyPolicy | FinanceCompanyCurrencyPolicy? | - |  |
 | externalPartySourceMappings | ExternalPartySourceMapping[] | - |  |
 | ownedContracts | Contract[] | @relation("ContractOwningCompany") |  |
+| socialInsurancePeriods | EmployeeSocialInsurancePeriod[] | - |  |
 
 ### Department
 

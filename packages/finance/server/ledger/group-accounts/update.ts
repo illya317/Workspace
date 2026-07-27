@@ -109,6 +109,10 @@ export async function updateFinanceGroupAccount(input: UpdateFinanceGroupAccount
           currency: data.currency,
           subjectLevel,
           parentGroupAccountId: data.parentGroupAccountId,
+          consolidationRole: data.consolidationRole,
+          counterpartyRequirement: data.counterpartyRequirement,
+          movementType: data.movementType,
+          translationRateType: data.translationRateType,
         },
       });
       if (updated.count !== 1) throw new FinanceGroupAccountUpdateConflictError();

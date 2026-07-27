@@ -88,6 +88,7 @@ model FinanceAuxiliaryBalance {
   account        FinanceAccount                  @relation(fields: [accountId], references: [id])
   members        FinanceAuxiliaryBalanceMember[]
   consolidationEntryLines FinanceConsolidationEntryLine[]
+  consolidationMatchSources FinanceConsolidationMatchSource[]
 
   @@unique([sourceSystem, sourceDatabase, sourceKey])
   @@index([importId])

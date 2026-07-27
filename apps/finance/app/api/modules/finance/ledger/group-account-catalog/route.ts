@@ -12,6 +12,7 @@ export const GET = createCommandRoute({
     policyVersionId: z.coerce.number().int().positive().optional(),
     keyword: z.string().trim().max(100).optional(),
     category: z.enum(["asset", "liability", "common", "equity", "cost", "revenue", "expense"]).optional(),
+    accountUsage: z.enum(["consolidation", "reclassification"]).optional(),
     reviewStatus: z.enum(["confirmed", "reviewed", "pending_review", "pending_delete"]).optional(),
   }),
   queryError: "集团科目筛选参数无效",

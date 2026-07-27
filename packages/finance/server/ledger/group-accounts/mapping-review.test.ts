@@ -17,8 +17,8 @@ test("same code and name is trusted only when accounting attributes also match",
     currentGroupAccount: reference(1, "660205", "办公费"),
     candidates: [],
   });
-  assert.equal(exact.reviewClass, "confirmed");
-  assert.equal(exact.needsReview, false);
+  assert.equal(exact.reviewClass, "pending_review");
+  assert.equal(exact.needsReview, true);
 
   const conflict = diagnoseGroupAccountMapping({
     localAccountCode: "660205",
@@ -32,7 +32,7 @@ test("same code and name is trusted only when accounting attributes also match",
   assert.equal(conflict.reviewClass, "pending_review");
 });
 
-test("a system suggestion becomes confirmed when code name and attributes are exact", () => {
+test("an exact system suggestion still waits for financial review", () => {
   const result = diagnoseGroupAccountMapping({
     localAccountCode: "100204",
     localAccountName: "一般---建行大丰支行（加元）",
@@ -42,8 +42,8 @@ test("a system suggestion becomes confirmed when code name and attributes are ex
     currentGroupAccount: reference(1, "100204", "一般---建行大丰支行（加元）", "asset"),
     candidates: [],
   });
-  assert.equal(result.reviewClass, "confirmed");
-  assert.equal(result.needsReview, false);
+  assert.equal(result.reviewClass, "pending_review");
+  assert.equal(result.needsReview, true);
 });
 
 test("unmatched provident-fund accounts suggest nearby compatible reference accounts", () => {

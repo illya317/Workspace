@@ -211,6 +211,7 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates/contract": "recursiveAnalysis",
   "/api/modules/finance/ledger/export": "binary",
   "/api/modules/finance/ledger/group-account-options": "lookupFragment",
+  "/api/modules/finance/ledger/consolidation-rules": "controlPlane",
   "/api/modules/finance/ledger/reclass-results/lookup-period": "lookupFragment",
   "/api/modules/finance/statements/consolidation/batches/[batchId]/entry-source-options": "lookupFragment",
   "/api/modules/finance/statements/consolidation/batches/[batchId]/report/export": "binary",
@@ -466,6 +467,7 @@ function automaticExclusion(route: string): ExcludedCoverage | null {
     return { disposition: "excluded", reason: "controlPlane", description: "账号、权限、配置、凭证和 Agent 运行态属于控制面。" };
   }
   if (/\/spaces(?:\/[^/]+\/[^/]+)?(?:\/permissions)?$/.test(route)
+      || route.endsWith("/consolidation-rules")
       || route.endsWith("/permission-actions")
       || route.endsWith("/okr-control")
       || route.endsWith("/generated-sources")) {

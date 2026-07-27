@@ -85,11 +85,16 @@ const EVENT_ACTION_LABELS: Record<ConsolidationBatchEventSnapshot["action"], str
   "entry.delete": "删除抵销草稿", "taxEffect.delete": "删除税效草稿",
 };
 
+const EVENT_TARGET_LABELS: Record<NonNullable<ConsolidationBatchEventSnapshot["targetType"]>, string> = {
+  entry: "抵销分录",
+  taxEffect: "税务影响",
+};
+
 export const EVENT_COLUMNS: DataSurfaceColumnSpec<ConsolidationBatchEventSnapshot>[] = [
   { key: "revision", label: "修订", required: true, width: "xs", cell: (row) => `r${row.batchRevision}` },
   { key: "action", label: "动作", required: true, width: "md", cell: (row) => EVENT_ACTION_LABELS[row.action] },
   { key: "status", label: "状态变化", width: "md", cell: (row) => row.fromStatus === row.toStatus ? row.toStatus : `${row.fromStatus} → ${row.toStatus}` },
-  { key: "target", label: "对象", width: "sm", cell: (row) => row.targetType && row.targetId ? `${row.targetType} #${row.targetId}` : "批次" },
+  { key: "target", label: "对象", width: "sm", cell: (row) => row.targetType && row.targetId ? `${EVENT_TARGET_LABELS[row.targetType]} #${row.targetId}` : "批次" },
   { key: "actor", label: "处理人", width: "sm", cell: (row) => row.actorName },
   { key: "note", label: "退回/变更原因", width: "xl", cell: (row) => row.note || "—" },
   { key: "time", label: "时间", width: "lg", cell: (row) => new Date(row.createdAt).toLocaleString("zh-CN", { hour12: false }) },

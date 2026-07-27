@@ -961,10 +961,12 @@ export type FinanceVoucherItemCreateNestedOneWithoutConsolidationMatchSourcesInp
   connect?: Prisma.FinanceVoucherItemWhereUniqueInput
 }
 
-export type FinanceVoucherItemUpdateOneRequiredWithoutConsolidationMatchSourcesNestedInput = {
+export type FinanceVoucherItemUpdateOneWithoutConsolidationMatchSourcesNestedInput = {
   create?: Prisma.XOR<Prisma.FinanceVoucherItemCreateWithoutConsolidationMatchSourcesInput, Prisma.FinanceVoucherItemUncheckedCreateWithoutConsolidationMatchSourcesInput>
   connectOrCreate?: Prisma.FinanceVoucherItemCreateOrConnectWithoutConsolidationMatchSourcesInput
   upsert?: Prisma.FinanceVoucherItemUpsertWithoutConsolidationMatchSourcesInput
+  disconnect?: Prisma.FinanceVoucherItemWhereInput | boolean
+  delete?: Prisma.FinanceVoucherItemWhereInput | boolean
   connect?: Prisma.FinanceVoucherItemWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceVoucherItemUpdateToOneWithWhereWithoutConsolidationMatchSourcesInput, Prisma.FinanceVoucherItemUpdateWithoutConsolidationMatchSourcesInput>, Prisma.FinanceVoucherItemUncheckedUpdateWithoutConsolidationMatchSourcesInput>
 }

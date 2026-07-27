@@ -1,0 +1,14 @@
+import { z } from "zod";
+
+import { listFinanceConsolidationRules } from "@workspace/finance/server/ledger/consolidation-rules";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+export const GET = createCommandRoute({
+  querySchema: z.object({
+    policyVersionId: z.coerce.number().int().positive().optional(),
+  }),
+  queryError: "合并规则筛选参数无效",
+  buildCommand: ({ query }) => okCommand(query),
+  action: listFinanceConsolidationRules,
+});

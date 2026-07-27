@@ -150,29 +150,57 @@ test("builds audited per-entry approve and return commands", () => {
   }, 9).ok, false);
 });
 
-test("review target only accepts generated matches in draft batches", () => {
+test("review target accepts generated matches and manual group journals in draft batches", () => {
   assert.deepEqual(validateConsolidationEntryReviewTarget("approve", {
     batchStatus: "draft",
     entryOrigin: "system",
+    entryStatus: "draft",
     generationKey: "pair-1",
     matchStatus: "matched",
   }), { ok: true, data: { entryStatus: "approved", matchStatus: "accepted" } });
   assert.deepEqual(validateConsolidationEntryReviewTarget("return", {
     batchStatus: "draft",
     entryOrigin: "system",
+    entryStatus: "approved",
     generationKey: "pair-1",
     matchStatus: "accepted",
   }), { ok: true, data: { entryStatus: "draft", matchStatus: "rejected" } });
   assert.equal(validateConsolidationEntryReviewTarget("approve", {
     batchStatus: "submitted",
     entryOrigin: "system",
+    entryStatus: "draft",
     generationKey: "pair-1",
     matchStatus: "matched",
   }).ok, false);
-  assert.equal(validateConsolidationEntryReviewTarget("approve", {
+  assert.deepEqual(validateConsolidationEntryReviewTarget("approve", {
     batchStatus: "draft",
     entryOrigin: "manual",
+    entryStatus: "draft",
     generationKey: null,
     matchStatus: null,
-  }).ok, false);
+  }), { ok: true, data: { entryStatus: "approved", matchStatus: null } });
+  const pendingEvidence = validateConsolidationEntryReviewTarget("approve", {
+    batchStatus: "draft",
+    entryOrigin: "manual",
+    entryStatus: "draft",
+    generationKey: null,
+    matchStatus: null,
+    evidence: "固定人民币金额已确认；具体设立日及对应科目待补证。",
+  });
+  assert.equal(pendingEvidence.ok, false);
+  if (!pendingEvidence.ok) {
+    assert.equal(pendingEvidence.issue.field, "evidence");
+    assert.match(pendingEvidence.issue.message, /补齐来源/);
+  }
+  const samePersonReview = validateConsolidationEntryReviewTarget("approve", {
+    batchStatus: "draft",
+    entryOrigin: "manual",
+    entryStatus: "draft",
+    generationKey: null,
+    matchStatus: null,
+    preparedBy: 9,
+    reviewerId: 9,
+  });
+  assert.equal(samePersonReview.ok, false);
+  if (!samePersonReview.ok) assert.match(samePersonReview.issue.message, /编制人与复核人必须分离/);
 });

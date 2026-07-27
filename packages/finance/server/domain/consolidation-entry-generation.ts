@@ -1,6 +1,7 @@
 export type ConsolidationVoucherMatchCategory = "investmentEquity" | "intercompanyBalance";
 
 export interface ConsolidationVoucherMatchFact {
+  sourceKind?: "voucher" | "auxiliaryBalance";
   itemId: number;
   voucherId: number;
   voucherNo: string;
@@ -85,9 +86,8 @@ function isCnyComparable(...groups: ReadonlyArray<readonly ConsolidationVoucherM
 }
 
 /**
- * Builds one voucher-detail match group per company pair. Every source journal line
- * remains visible in the group, so 1:N, N:1 and N:N evidence is not collapsed into
- * an auxiliary closing balance. Only exactly offsetting two-sided groups are matched.
+ * Builds one closing-balance match group per company pair. Every auxiliary balance
+ * remains visible in the group, and only exactly offsetting two-sided groups are matched.
  */
 export function buildIntercompanyVoucherMatchGroups(
   facts: readonly ConsolidationVoucherMatchFact[],
@@ -134,16 +134,16 @@ export function buildIntercompanyVoucherMatchGroups(
       rightNetAmount,
       matchedAmount: status === "matched" ? money(Math.abs(leftNetAmount)) : 0,
       differenceAmount,
-      matchingRule: "按关联公司外键汇总双方全部已记账凭证明细；双方净额方向相反且分币一致",
-      matchingVersion: "voucher-counterparty-pair-v1",
+      matchingRule: "按关联公司外键汇总双方期末辅助余额；双方净额方向相反且人民币金额一致",
+      matchingVersion: "auxiliary-closing-balance-pair-v1",
       differenceResolution: !hasBothSides
-        ? "缺少对方公司凭证明细"
+        ? "缺少对方公司期末辅助余额"
         : !mapped
           ? "存在未映射到合并报表项目的凭证明细"
           : !comparableCurrency
             ? "双方金额尚未在人民币列报口径下可比，需先应用有证据的汇率折算"
           : status === "difference"
-            ? "双方凭证明细净额不一致，需核对未达、错账或关联公司映射"
+            ? "双方期末辅助余额不一致，需核对未达、错账或关联公司映射"
             : null,
       comparisonCurrencyCode: comparableCurrency
         ? leftFacts[0]?.currencyCode ?? rightFacts[0]?.currencyCode ?? null

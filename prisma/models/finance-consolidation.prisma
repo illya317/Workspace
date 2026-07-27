@@ -63,7 +63,7 @@ model FinanceConsolidationBatchEvent {
   id            Int      @id @default(autoincrement())
   batchId       Int
   eventType     String // lifecycle | mutation
-  action        String // create | submit | return | review | lock | publish | entry.generate | entry.delete | taxEffect.delete
+  action        String // create | submit | return | review | lock | publish | entry.* | taxEffect.delete
   fromStatus    String
   toStatus      String
   note          String?
@@ -203,6 +203,9 @@ model FinanceConsolidationEntry {
   id                    Int       @id @default(autoincrement())
   batchId               Int
   entryNo               String
+  postingDate           String
+  documentType          String    @default("groupAdjustment") // groupAdjustment | elimination | reclassification
+  postingLevel          String    @default("20") // 10 单边调整 | 20 双边抵销 | 30 集团层调整
   entryType             String // investmentEquity | reclassification | nonControllingInterest | intercompanyBalance | internalTrading | internalLongTermAsset | incomeDividend | cashFlow
   title                 String
   description           String?
@@ -245,6 +248,7 @@ model FinanceConsolidationEntry {
   @@unique([supersedesEntryId])
   @@unique([reversalOfEntryId])
   @@index([batchId, status, entryType])
+  @@index([postingDate, documentType, status])
   @@index([supersedesEntryId])
   @@index([reversalOfEntryId])
   @@index([predecessorEntryId])

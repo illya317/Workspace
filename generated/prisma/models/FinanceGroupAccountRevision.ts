@@ -60,6 +60,10 @@ export type FinanceGroupAccountRevisionMinAggregateOutputType = {
   reviewStatus: string | null
   reviewedBy: number | null
   reviewedAt: Date | null
+  consolidationRole: string | null
+  counterpartyRequirement: string | null
+  movementType: string | null
+  translationRateType: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -80,6 +84,10 @@ export type FinanceGroupAccountRevisionMaxAggregateOutputType = {
   reviewStatus: string | null
   reviewedBy: number | null
   reviewedAt: Date | null
+  consolidationRole: string | null
+  counterpartyRequirement: string | null
+  movementType: string | null
+  translationRateType: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -100,6 +108,10 @@ export type FinanceGroupAccountRevisionCountAggregateOutputType = {
   reviewStatus: number
   reviewedBy: number
   reviewedAt: number
+  consolidationRole: number
+  counterpartyRequirement: number
+  movementType: number
+  translationRateType: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -140,6 +152,10 @@ export type FinanceGroupAccountRevisionMinAggregateInputType = {
   reviewStatus?: true
   reviewedBy?: true
   reviewedAt?: true
+  consolidationRole?: true
+  counterpartyRequirement?: true
+  movementType?: true
+  translationRateType?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -160,6 +176,10 @@ export type FinanceGroupAccountRevisionMaxAggregateInputType = {
   reviewStatus?: true
   reviewedBy?: true
   reviewedAt?: true
+  consolidationRole?: true
+  counterpartyRequirement?: true
+  movementType?: true
+  translationRateType?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -180,6 +200,10 @@ export type FinanceGroupAccountRevisionCountAggregateInputType = {
   reviewStatus?: true
   reviewedBy?: true
   reviewedAt?: true
+  consolidationRole?: true
+  counterpartyRequirement?: true
+  movementType?: true
+  translationRateType?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -287,6 +311,10 @@ export type FinanceGroupAccountRevisionGroupByOutputType = {
   reviewStatus: string
   reviewedBy: number | null
   reviewedAt: Date | null
+  consolidationRole: string
+  counterpartyRequirement: string
+  movementType: string
+  translationRateType: string
   createdAt: Date
   updatedAt: Date
   _count: FinanceGroupAccountRevisionCountAggregateOutputType | null
@@ -330,6 +358,10 @@ export type FinanceGroupAccountRevisionWhereInput = {
   reviewStatus?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
   reviewedBy?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"FinanceGroupAccountRevision"> | Date | string | null
+  consolidationRole?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  counterpartyRequirement?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  movementType?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  translationRateType?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
   createdAt?: Prisma.DateTimeFilter<"FinanceGroupAccountRevision"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceGroupAccountRevision"> | Date | string
   policyVersion?: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionScalarRelationFilter, Prisma.FinanceAccountingPolicyVersionWhereInput>
@@ -353,6 +385,10 @@ export type FinanceGroupAccountRevisionOrderByWithRelationInput = {
   reviewStatus?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  consolidationRole?: Prisma.SortOrder
+  counterpartyRequirement?: Prisma.SortOrder
+  movementType?: Prisma.SortOrder
+  translationRateType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   policyVersion?: Prisma.FinanceAccountingPolicyVersionOrderByWithRelationInput
@@ -381,6 +417,10 @@ export type FinanceGroupAccountRevisionWhereUniqueInput = Prisma.AtLeast<{
   reviewStatus?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
   reviewedBy?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"FinanceGroupAccountRevision"> | Date | string | null
+  consolidationRole?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  counterpartyRequirement?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  movementType?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  translationRateType?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
   createdAt?: Prisma.DateTimeFilter<"FinanceGroupAccountRevision"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceGroupAccountRevision"> | Date | string
   policyVersion?: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionScalarRelationFilter, Prisma.FinanceAccountingPolicyVersionWhereInput>
@@ -404,6 +444,10 @@ export type FinanceGroupAccountRevisionOrderByWithAggregationInput = {
   reviewStatus?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  consolidationRole?: Prisma.SortOrder
+  counterpartyRequirement?: Prisma.SortOrder
+  movementType?: Prisma.SortOrder
+  translationRateType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FinanceGroupAccountRevisionCountOrderByAggregateInput
@@ -432,6 +476,10 @@ export type FinanceGroupAccountRevisionScalarWhereWithAggregatesInput = {
   reviewStatus?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountRevision"> | string
   reviewedBy?: Prisma.IntNullableWithAggregatesFilter<"FinanceGroupAccountRevision"> | number | null
   reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FinanceGroupAccountRevision"> | Date | string | null
+  consolidationRole?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountRevision"> | string
+  counterpartyRequirement?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountRevision"> | string
+  movementType?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountRevision"> | string
+  translationRateType?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountRevision"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceGroupAccountRevision"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceGroupAccountRevision"> | Date | string
 }
@@ -448,6 +496,10 @@ export type FinanceGroupAccountRevisionCreateInput = {
   reviewStatus?: string
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   policyVersion: Prisma.FinanceAccountingPolicyVersionCreateNestedOneWithoutRevisionsInput
@@ -471,6 +523,10 @@ export type FinanceGroupAccountRevisionUncheckedCreateInput = {
   reviewStatus?: string
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -487,6 +543,10 @@ export type FinanceGroupAccountRevisionUpdateInput = {
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   policyVersion?: Prisma.FinanceAccountingPolicyVersionUpdateOneRequiredWithoutRevisionsNestedInput
@@ -510,6 +570,10 @@ export type FinanceGroupAccountRevisionUncheckedUpdateInput = {
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -530,6 +594,10 @@ export type FinanceGroupAccountRevisionCreateManyInput = {
   reviewStatus?: string
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -546,6 +614,10 @@ export type FinanceGroupAccountRevisionUpdateManyMutationInput = {
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -566,6 +638,10 @@ export type FinanceGroupAccountRevisionUncheckedUpdateManyInput = {
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -606,6 +682,10 @@ export type FinanceGroupAccountRevisionCountOrderByAggregateInput = {
   reviewStatus?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
+  consolidationRole?: Prisma.SortOrder
+  counterpartyRequirement?: Prisma.SortOrder
+  movementType?: Prisma.SortOrder
+  translationRateType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -635,6 +715,10 @@ export type FinanceGroupAccountRevisionMaxOrderByAggregateInput = {
   reviewStatus?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
+  consolidationRole?: Prisma.SortOrder
+  counterpartyRequirement?: Prisma.SortOrder
+  movementType?: Prisma.SortOrder
+  translationRateType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -655,6 +739,10 @@ export type FinanceGroupAccountRevisionMinOrderByAggregateInput = {
   reviewStatus?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
+  consolidationRole?: Prisma.SortOrder
+  counterpartyRequirement?: Prisma.SortOrder
+  movementType?: Prisma.SortOrder
+  translationRateType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -806,6 +894,10 @@ export type FinanceGroupAccountRevisionCreateWithoutGroupAccountInput = {
   reviewStatus?: string
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   policyVersion: Prisma.FinanceAccountingPolicyVersionCreateNestedOneWithoutRevisionsInput
@@ -827,6 +919,10 @@ export type FinanceGroupAccountRevisionUncheckedCreateWithoutGroupAccountInput =
   reviewStatus?: string
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -853,6 +949,10 @@ export type FinanceGroupAccountRevisionCreateWithoutParentGroupAccountInput = {
   reviewStatus?: string
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   policyVersion: Prisma.FinanceAccountingPolicyVersionCreateNestedOneWithoutRevisionsInput
@@ -874,6 +974,10 @@ export type FinanceGroupAccountRevisionUncheckedCreateWithoutParentGroupAccountI
   reviewStatus?: string
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -923,6 +1027,10 @@ export type FinanceGroupAccountRevisionScalarWhereInput = {
   reviewStatus?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
   reviewedBy?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"FinanceGroupAccountRevision"> | Date | string | null
+  consolidationRole?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  counterpartyRequirement?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  movementType?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  translationRateType?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
   createdAt?: Prisma.DateTimeFilter<"FinanceGroupAccountRevision"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceGroupAccountRevision"> | Date | string
 }
@@ -955,6 +1063,10 @@ export type FinanceGroupAccountRevisionCreateWithoutPolicyVersionInput = {
   reviewStatus?: string
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   groupAccount: Prisma.FinanceGroupAccountCreateNestedOneWithoutRevisionsInput
@@ -976,6 +1088,10 @@ export type FinanceGroupAccountRevisionUncheckedCreateWithoutPolicyVersionInput 
   reviewStatus?: string
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1021,6 +1137,10 @@ export type FinanceGroupAccountRevisionCreateManyGroupAccountInput = {
   reviewStatus?: string
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1040,6 +1160,10 @@ export type FinanceGroupAccountRevisionCreateManyParentGroupAccountInput = {
   reviewStatus?: string
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1056,6 +1180,10 @@ export type FinanceGroupAccountRevisionUpdateWithoutGroupAccountInput = {
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   policyVersion?: Prisma.FinanceAccountingPolicyVersionUpdateOneRequiredWithoutRevisionsNestedInput
@@ -1077,6 +1205,10 @@ export type FinanceGroupAccountRevisionUncheckedUpdateWithoutGroupAccountInput =
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1096,6 +1228,10 @@ export type FinanceGroupAccountRevisionUncheckedUpdateManyWithoutGroupAccountInp
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1112,6 +1248,10 @@ export type FinanceGroupAccountRevisionUpdateWithoutParentGroupAccountInput = {
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   policyVersion?: Prisma.FinanceAccountingPolicyVersionUpdateOneRequiredWithoutRevisionsNestedInput
@@ -1133,6 +1273,10 @@ export type FinanceGroupAccountRevisionUncheckedUpdateWithoutParentGroupAccountI
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1152,6 +1296,10 @@ export type FinanceGroupAccountRevisionUncheckedUpdateManyWithoutParentGroupAcco
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1171,6 +1319,10 @@ export type FinanceGroupAccountRevisionCreateManyPolicyVersionInput = {
   reviewStatus?: string
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1187,6 +1339,10 @@ export type FinanceGroupAccountRevisionUpdateWithoutPolicyVersionInput = {
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   groupAccount?: Prisma.FinanceGroupAccountUpdateOneRequiredWithoutRevisionsNestedInput
@@ -1208,6 +1364,10 @@ export type FinanceGroupAccountRevisionUncheckedUpdateWithoutPolicyVersionInput 
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1227,6 +1387,10 @@ export type FinanceGroupAccountRevisionUncheckedUpdateManyWithoutPolicyVersionIn
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1249,6 +1413,10 @@ export type FinanceGroupAccountRevisionSelect<ExtArgs extends runtime.Types.Exte
   reviewStatus?: boolean
   reviewedBy?: boolean
   reviewedAt?: boolean
+  consolidationRole?: boolean
+  counterpartyRequirement?: boolean
+  movementType?: boolean
+  translationRateType?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
@@ -1272,6 +1440,10 @@ export type FinanceGroupAccountRevisionSelectCreateManyAndReturn<ExtArgs extends
   reviewStatus?: boolean
   reviewedBy?: boolean
   reviewedAt?: boolean
+  consolidationRole?: boolean
+  counterpartyRequirement?: boolean
+  movementType?: boolean
+  translationRateType?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
@@ -1295,6 +1467,10 @@ export type FinanceGroupAccountRevisionSelectUpdateManyAndReturn<ExtArgs extends
   reviewStatus?: boolean
   reviewedBy?: boolean
   reviewedAt?: boolean
+  consolidationRole?: boolean
+  counterpartyRequirement?: boolean
+  movementType?: boolean
+  translationRateType?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
@@ -1318,11 +1494,15 @@ export type FinanceGroupAccountRevisionSelectScalar = {
   reviewStatus?: boolean
   reviewedBy?: boolean
   reviewedAt?: boolean
+  consolidationRole?: boolean
+  counterpartyRequirement?: boolean
+  movementType?: boolean
+  translationRateType?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FinanceGroupAccountRevisionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "policyVersionId" | "groupAccountId" | "code" | "name" | "category" | "balanceDirection" | "mnemonicCode" | "currency" | "subjectLevel" | "parentGroupAccountId" | "isActive" | "reviewStatus" | "reviewedBy" | "reviewedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["financeGroupAccountRevision"]>
+export type FinanceGroupAccountRevisionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "policyVersionId" | "groupAccountId" | "code" | "name" | "category" | "balanceDirection" | "mnemonicCode" | "currency" | "subjectLevel" | "parentGroupAccountId" | "isActive" | "reviewStatus" | "reviewedBy" | "reviewedAt" | "consolidationRole" | "counterpartyRequirement" | "movementType" | "translationRateType" | "createdAt" | "updatedAt", ExtArgs["result"]["financeGroupAccountRevision"]>
 export type FinanceGroupAccountRevisionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountDefaultArgs<ExtArgs>
@@ -1362,6 +1542,10 @@ export type $FinanceGroupAccountRevisionPayload<ExtArgs extends runtime.Types.Ex
     reviewStatus: string
     reviewedBy: number | null
     reviewedAt: Date | null
+    consolidationRole: string
+    counterpartyRequirement: string
+    movementType: string
+    translationRateType: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["financeGroupAccountRevision"]>
@@ -1805,6 +1989,10 @@ export interface FinanceGroupAccountRevisionFieldRefs {
   readonly reviewStatus: Prisma.FieldRef<"FinanceGroupAccountRevision", 'String'>
   readonly reviewedBy: Prisma.FieldRef<"FinanceGroupAccountRevision", 'Int'>
   readonly reviewedAt: Prisma.FieldRef<"FinanceGroupAccountRevision", 'DateTime'>
+  readonly consolidationRole: Prisma.FieldRef<"FinanceGroupAccountRevision", 'String'>
+  readonly counterpartyRequirement: Prisma.FieldRef<"FinanceGroupAccountRevision", 'String'>
+  readonly movementType: Prisma.FieldRef<"FinanceGroupAccountRevision", 'String'>
+  readonly translationRateType: Prisma.FieldRef<"FinanceGroupAccountRevision", 'String'>
   readonly createdAt: Prisma.FieldRef<"FinanceGroupAccountRevision", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FinanceGroupAccountRevision", 'DateTime'>
 }

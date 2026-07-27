@@ -109,6 +109,9 @@ function entrySnapshot(row: ConsolidationBatchRow["entries"][number]): Consolida
   return {
     id: row.id,
     entryNo: row.entryNo,
+    postingDate: row.postingDate,
+    documentType: row.documentType as ConsolidationEntrySnapshot["documentType"],
+    postingLevel: row.postingLevel as ConsolidationEntrySnapshot["postingLevel"],
     entryType: row.entryType as ConsolidationEntrySnapshot["entryType"],
     title: row.title,
     description: row.description,

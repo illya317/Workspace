@@ -77,6 +77,10 @@ export async function createFinanceGroupAccount(input: CreateFinanceGroupAccount
         parentGroupAccountId: data.parentGroupAccountId,
         isActive: true,
         reviewStatus: "pending_review",
+        consolidationRole: data.consolidationRole,
+        counterpartyRequirement: data.counterpartyRequirement,
+        movementType: data.movementType,
+        translationRateType: data.translationRateType,
       } });
       return created;
     });

@@ -173,7 +173,9 @@ export function reclassRuleReadOnlyItems(candidate: RuleCandidate, targetLabel: 
       : "未确认";
   return [
     readOnlyDetail("decision", "处理方式", decisionLabel),
-    readOnlyDetail("basis", "计算口径", reclassBasisLabel(candidate.existingBasis ?? candidate.defaultBasis)),
+    ...(candidate.effectiveDecision === "reclassify"
+      ? [readOnlyDetail("basis", "计算口径", reclassBasisLabel(candidate.existingBasis ?? candidate.defaultBasis))]
+      : []),
   ];
 }
 
@@ -210,36 +212,38 @@ export function reclassRuleFormItems(input: {
         });
       },
     },
-    ...(draft.decision === "reclassify" ? [{
-      key: "targetGroupAccountId",
-      label: "目标科目",
-      required: true,
-      spec: {
-        valueType: "string" as const,
-        control: "choice" as const,
-        options: { source: "static" as const, items: input.targetOptions, visibleCount: 8 },
+    ...(draft.decision === "reclassify" ? [
+      {
+        key: "targetGroupAccountId",
+        label: "目标科目",
+        required: true,
+        spec: {
+          valueType: "string" as const,
+          control: "choice" as const,
+          options: { source: "static" as const, items: input.targetOptions, visibleCount: 8 },
+        },
+        value: draft.targetGroupAccountId === null ? "" : String(draft.targetGroupAccountId),
+        placeholder: "选择目标科目",
+        emptyText: "无匹配科目",
+        onChange: (value: unknown) => input.onChange({ targetGroupAccountId: value ? Number(value) : null }),
       },
-      value: draft.targetGroupAccountId === null ? "" : String(draft.targetGroupAccountId),
-      placeholder: "选择目标科目",
-      emptyText: "无匹配科目",
-      onChange: (value: unknown) => input.onChange({ targetGroupAccountId: value ? Number(value) : null }),
-    }] : []),
-    {
-      key: "basis",
-      label: "计算口径",
-      required: true,
-      spec: {
-        valueType: "string",
-        control: "choice",
-        options: { source: "static", items: [
-          { value: "account_net", label: "按科目净额" },
-          { value: "counterparty_gross", label: "按往来户逐户", disabled: !candidate.hasAuxiliaryFacts },
-        ] },
+      {
+        key: "basis",
+        label: "计算口径",
+        required: true,
+        spec: {
+          valueType: "string" as const,
+          control: "choice" as const,
+          options: { source: "static" as const, items: [
+            { value: "account_net", label: "按科目净额" },
+            { value: "counterparty_gross", label: "按往来户逐户", disabled: !candidate.hasAuxiliaryFacts },
+          ] },
+        },
+        value: draft.basis,
+        hint: candidate.hasAuxiliaryFacts ? undefined : "该科目无辅助余额事实，暂不能按往来户逐户",
+        onChange: (value: unknown) => input.onChange({ basis: value === "counterparty_gross" ? "counterparty_gross" : "account_net" }),
       },
-      value: draft.basis,
-      hint: candidate.hasAuxiliaryFacts ? undefined : "该科目无辅助余额事实，暂不能按往来户逐户",
-      onChange: (value) => input.onChange({ basis: value === "counterparty_gross" ? "counterparty_gross" : "account_net" }),
-    },
+    ] : []),
   ];
 }
 

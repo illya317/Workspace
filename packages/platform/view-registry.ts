@@ -89,24 +89,24 @@ const basePageViewDefinitions: PageViewDefinition[] = [
           { key: "group-accounts", label: "集团科目" },
         ],
       },
-      { key: "vouchers", label: "凭证明细" },
-      { key: "ledger", label: "余额表" },
+      {
+        key: "vouchers",
+        label: "凭证明细",
+        children: [
+          { key: "company", label: "公司明细" },
+          { key: "reclassification", label: "重分类明细" },
+          { key: "consolidation", label: "合并明细" },
+        ],
+      },
+      { key: "ledger", label: "科目余额" },
       {
         key: "counterparty",
-        label: "应收应付",
+        label: "往来款项",
         children: [
           { key: "ar", label: "应收" },
           { key: "ap", label: "应付" },
           { key: "otherAr", label: "其他应收" },
           { key: "otherAp", label: "其他应付" },
-        ],
-      },
-      {
-        key: "reclass",
-        label: "重分类",
-        children: [
-          { key: "rules", label: "科目规则" },
-          { key: "adjustments", label: "重分类调整" },
         ],
       },
       {

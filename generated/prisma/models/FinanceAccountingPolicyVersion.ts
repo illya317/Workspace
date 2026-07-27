@@ -264,6 +264,7 @@ export type FinanceAccountingPolicyVersionWhereInput = {
   mappings?: Prisma.FinanceGroupAccountMappingListRelationFilter
   reclassRules?: Prisma.FinanceReclassRuleListRelationFilter
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentListRelationFilter
+  consolidationRules?: Prisma.FinanceConsolidationRuleListRelationFilter
 }
 
 export type FinanceAccountingPolicyVersionOrderByWithRelationInput = {
@@ -281,6 +282,7 @@ export type FinanceAccountingPolicyVersionOrderByWithRelationInput = {
   mappings?: Prisma.FinanceGroupAccountMappingOrderByRelationAggregateInput
   reclassRules?: Prisma.FinanceReclassRuleOrderByRelationAggregateInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentOrderByRelationAggregateInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleOrderByRelationAggregateInput
 }
 
 export type FinanceAccountingPolicyVersionWhereUniqueInput = Prisma.AtLeast<{
@@ -301,6 +303,7 @@ export type FinanceAccountingPolicyVersionWhereUniqueInput = Prisma.AtLeast<{
   mappings?: Prisma.FinanceGroupAccountMappingListRelationFilter
   reclassRules?: Prisma.FinanceReclassRuleListRelationFilter
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentListRelationFilter
+  consolidationRules?: Prisma.FinanceConsolidationRuleListRelationFilter
 }, "id" | "versionNo" | "code">
 
 export type FinanceAccountingPolicyVersionOrderByWithAggregationInput = {
@@ -351,6 +354,7 @@ export type FinanceAccountingPolicyVersionCreateInput = {
   mappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutPolicyVersionInput
   reclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutPolicyVersionInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutPolicyVersionInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleCreateNestedManyWithoutPolicyVersionInput
 }
 
 export type FinanceAccountingPolicyVersionUncheckedCreateInput = {
@@ -368,6 +372,7 @@ export type FinanceAccountingPolicyVersionUncheckedCreateInput = {
   mappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutPolicyVersionInput
   reclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutPolicyVersionInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutPolicyVersionInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUncheckedCreateNestedManyWithoutPolicyVersionInput
 }
 
 export type FinanceAccountingPolicyVersionUpdateInput = {
@@ -384,6 +389,7 @@ export type FinanceAccountingPolicyVersionUpdateInput = {
   mappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutPolicyVersionNestedInput
   reclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutPolicyVersionNestedInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutPolicyVersionNestedInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUpdateManyWithoutPolicyVersionNestedInput
 }
 
 export type FinanceAccountingPolicyVersionUncheckedUpdateInput = {
@@ -401,6 +407,7 @@ export type FinanceAccountingPolicyVersionUncheckedUpdateInput = {
   mappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutPolicyVersionNestedInput
   reclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutPolicyVersionNestedInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutPolicyVersionNestedInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUncheckedUpdateManyWithoutPolicyVersionNestedInput
 }
 
 export type FinanceAccountingPolicyVersionCreateManyInput = {
@@ -509,6 +516,20 @@ export type FinanceAccountingPolicyVersionUpdateOneRequiredWithoutRevisionsNeste
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountingPolicyVersionUpdateToOneWithWhereWithoutRevisionsInput, Prisma.FinanceAccountingPolicyVersionUpdateWithoutRevisionsInput>, Prisma.FinanceAccountingPolicyVersionUncheckedUpdateWithoutRevisionsInput>
 }
 
+export type FinanceAccountingPolicyVersionCreateNestedOneWithoutConsolidationRulesInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionCreateWithoutConsolidationRulesInput, Prisma.FinanceAccountingPolicyVersionUncheckedCreateWithoutConsolidationRulesInput>
+  connectOrCreate?: Prisma.FinanceAccountingPolicyVersionCreateOrConnectWithoutConsolidationRulesInput
+  connect?: Prisma.FinanceAccountingPolicyVersionWhereUniqueInput
+}
+
+export type FinanceAccountingPolicyVersionUpdateOneRequiredWithoutConsolidationRulesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionCreateWithoutConsolidationRulesInput, Prisma.FinanceAccountingPolicyVersionUncheckedCreateWithoutConsolidationRulesInput>
+  connectOrCreate?: Prisma.FinanceAccountingPolicyVersionCreateOrConnectWithoutConsolidationRulesInput
+  upsert?: Prisma.FinanceAccountingPolicyVersionUpsertWithoutConsolidationRulesInput
+  connect?: Prisma.FinanceAccountingPolicyVersionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountingPolicyVersionUpdateToOneWithWhereWithoutConsolidationRulesInput, Prisma.FinanceAccountingPolicyVersionUpdateWithoutConsolidationRulesInput>, Prisma.FinanceAccountingPolicyVersionUncheckedUpdateWithoutConsolidationRulesInput>
+}
+
 export type FinanceAccountingPolicyVersionCreateNestedOneWithoutMappingsInput = {
   create?: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionCreateWithoutMappingsInput, Prisma.FinanceAccountingPolicyVersionUncheckedCreateWithoutMappingsInput>
   connectOrCreate?: Prisma.FinanceAccountingPolicyVersionCreateOrConnectWithoutMappingsInput
@@ -564,6 +585,7 @@ export type FinanceAccountingPolicyVersionCreateWithoutRevisionsInput = {
   mappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutPolicyVersionInput
   reclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutPolicyVersionInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutPolicyVersionInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleCreateNestedManyWithoutPolicyVersionInput
 }
 
 export type FinanceAccountingPolicyVersionUncheckedCreateWithoutRevisionsInput = {
@@ -580,6 +602,7 @@ export type FinanceAccountingPolicyVersionUncheckedCreateWithoutRevisionsInput =
   mappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutPolicyVersionInput
   reclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutPolicyVersionInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutPolicyVersionInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUncheckedCreateNestedManyWithoutPolicyVersionInput
 }
 
 export type FinanceAccountingPolicyVersionCreateOrConnectWithoutRevisionsInput = {
@@ -611,6 +634,7 @@ export type FinanceAccountingPolicyVersionUpdateWithoutRevisionsInput = {
   mappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutPolicyVersionNestedInput
   reclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutPolicyVersionNestedInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutPolicyVersionNestedInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUpdateManyWithoutPolicyVersionNestedInput
 }
 
 export type FinanceAccountingPolicyVersionUncheckedUpdateWithoutRevisionsInput = {
@@ -624,6 +648,89 @@ export type FinanceAccountingPolicyVersionUncheckedUpdateWithoutRevisionsInput =
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutPolicyVersionNestedInput
+  reclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutPolicyVersionNestedInput
+  reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutPolicyVersionNestedInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUncheckedUpdateManyWithoutPolicyVersionNestedInput
+}
+
+export type FinanceAccountingPolicyVersionCreateWithoutConsolidationRulesInput = {
+  versionNo: number
+  code: string
+  name: string
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  status?: string
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.FinanceGroupAccountRevisionCreateNestedManyWithoutPolicyVersionInput
+  mappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutPolicyVersionInput
+  reclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutPolicyVersionInput
+  reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutPolicyVersionInput
+}
+
+export type FinanceAccountingPolicyVersionUncheckedCreateWithoutConsolidationRulesInput = {
+  id?: number
+  versionNo: number
+  code: string
+  name: string
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  status?: string
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.FinanceGroupAccountRevisionUncheckedCreateNestedManyWithoutPolicyVersionInput
+  mappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutPolicyVersionInput
+  reclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutPolicyVersionInput
+  reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutPolicyVersionInput
+}
+
+export type FinanceAccountingPolicyVersionCreateOrConnectWithoutConsolidationRulesInput = {
+  where: Prisma.FinanceAccountingPolicyVersionWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionCreateWithoutConsolidationRulesInput, Prisma.FinanceAccountingPolicyVersionUncheckedCreateWithoutConsolidationRulesInput>
+}
+
+export type FinanceAccountingPolicyVersionUpsertWithoutConsolidationRulesInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionUpdateWithoutConsolidationRulesInput, Prisma.FinanceAccountingPolicyVersionUncheckedUpdateWithoutConsolidationRulesInput>
+  create: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionCreateWithoutConsolidationRulesInput, Prisma.FinanceAccountingPolicyVersionUncheckedCreateWithoutConsolidationRulesInput>
+  where?: Prisma.FinanceAccountingPolicyVersionWhereInput
+}
+
+export type FinanceAccountingPolicyVersionUpdateToOneWithWhereWithoutConsolidationRulesInput = {
+  where?: Prisma.FinanceAccountingPolicyVersionWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionUpdateWithoutConsolidationRulesInput, Prisma.FinanceAccountingPolicyVersionUncheckedUpdateWithoutConsolidationRulesInput>
+}
+
+export type FinanceAccountingPolicyVersionUpdateWithoutConsolidationRulesInput = {
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.FinanceGroupAccountRevisionUpdateManyWithoutPolicyVersionNestedInput
+  mappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutPolicyVersionNestedInput
+  reclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutPolicyVersionNestedInput
+  reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutPolicyVersionNestedInput
+}
+
+export type FinanceAccountingPolicyVersionUncheckedUpdateWithoutConsolidationRulesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutPolicyVersionNestedInput
   mappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutPolicyVersionNestedInput
   reclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutPolicyVersionNestedInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutPolicyVersionNestedInput
@@ -642,6 +749,7 @@ export type FinanceAccountingPolicyVersionCreateWithoutMappingsInput = {
   revisions?: Prisma.FinanceGroupAccountRevisionCreateNestedManyWithoutPolicyVersionInput
   reclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutPolicyVersionInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutPolicyVersionInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleCreateNestedManyWithoutPolicyVersionInput
 }
 
 export type FinanceAccountingPolicyVersionUncheckedCreateWithoutMappingsInput = {
@@ -658,6 +766,7 @@ export type FinanceAccountingPolicyVersionUncheckedCreateWithoutMappingsInput = 
   revisions?: Prisma.FinanceGroupAccountRevisionUncheckedCreateNestedManyWithoutPolicyVersionInput
   reclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutPolicyVersionInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutPolicyVersionInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUncheckedCreateNestedManyWithoutPolicyVersionInput
 }
 
 export type FinanceAccountingPolicyVersionCreateOrConnectWithoutMappingsInput = {
@@ -689,6 +798,7 @@ export type FinanceAccountingPolicyVersionUpdateWithoutMappingsInput = {
   revisions?: Prisma.FinanceGroupAccountRevisionUpdateManyWithoutPolicyVersionNestedInput
   reclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutPolicyVersionNestedInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutPolicyVersionNestedInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUpdateManyWithoutPolicyVersionNestedInput
 }
 
 export type FinanceAccountingPolicyVersionUncheckedUpdateWithoutMappingsInput = {
@@ -705,6 +815,7 @@ export type FinanceAccountingPolicyVersionUncheckedUpdateWithoutMappingsInput = 
   revisions?: Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutPolicyVersionNestedInput
   reclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutPolicyVersionNestedInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutPolicyVersionNestedInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUncheckedUpdateManyWithoutPolicyVersionNestedInput
 }
 
 export type FinanceAccountingPolicyVersionCreateWithoutReclassRulesInput = {
@@ -720,6 +831,7 @@ export type FinanceAccountingPolicyVersionCreateWithoutReclassRulesInput = {
   revisions?: Prisma.FinanceGroupAccountRevisionCreateNestedManyWithoutPolicyVersionInput
   mappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutPolicyVersionInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutPolicyVersionInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleCreateNestedManyWithoutPolicyVersionInput
 }
 
 export type FinanceAccountingPolicyVersionUncheckedCreateWithoutReclassRulesInput = {
@@ -736,6 +848,7 @@ export type FinanceAccountingPolicyVersionUncheckedCreateWithoutReclassRulesInpu
   revisions?: Prisma.FinanceGroupAccountRevisionUncheckedCreateNestedManyWithoutPolicyVersionInput
   mappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutPolicyVersionInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutPolicyVersionInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUncheckedCreateNestedManyWithoutPolicyVersionInput
 }
 
 export type FinanceAccountingPolicyVersionCreateOrConnectWithoutReclassRulesInput = {
@@ -767,6 +880,7 @@ export type FinanceAccountingPolicyVersionUpdateWithoutReclassRulesInput = {
   revisions?: Prisma.FinanceGroupAccountRevisionUpdateManyWithoutPolicyVersionNestedInput
   mappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutPolicyVersionNestedInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutPolicyVersionNestedInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUpdateManyWithoutPolicyVersionNestedInput
 }
 
 export type FinanceAccountingPolicyVersionUncheckedUpdateWithoutReclassRulesInput = {
@@ -783,6 +897,7 @@ export type FinanceAccountingPolicyVersionUncheckedUpdateWithoutReclassRulesInpu
   revisions?: Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutPolicyVersionNestedInput
   mappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutPolicyVersionNestedInput
   reclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutPolicyVersionNestedInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUncheckedUpdateManyWithoutPolicyVersionNestedInput
 }
 
 export type FinanceAccountingPolicyVersionCreateWithoutReclassAdjustmentsInput = {
@@ -798,6 +913,7 @@ export type FinanceAccountingPolicyVersionCreateWithoutReclassAdjustmentsInput =
   revisions?: Prisma.FinanceGroupAccountRevisionCreateNestedManyWithoutPolicyVersionInput
   mappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutPolicyVersionInput
   reclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutPolicyVersionInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleCreateNestedManyWithoutPolicyVersionInput
 }
 
 export type FinanceAccountingPolicyVersionUncheckedCreateWithoutReclassAdjustmentsInput = {
@@ -814,6 +930,7 @@ export type FinanceAccountingPolicyVersionUncheckedCreateWithoutReclassAdjustmen
   revisions?: Prisma.FinanceGroupAccountRevisionUncheckedCreateNestedManyWithoutPolicyVersionInput
   mappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutPolicyVersionInput
   reclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutPolicyVersionInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUncheckedCreateNestedManyWithoutPolicyVersionInput
 }
 
 export type FinanceAccountingPolicyVersionCreateOrConnectWithoutReclassAdjustmentsInput = {
@@ -845,6 +962,7 @@ export type FinanceAccountingPolicyVersionUpdateWithoutReclassAdjustmentsInput =
   revisions?: Prisma.FinanceGroupAccountRevisionUpdateManyWithoutPolicyVersionNestedInput
   mappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutPolicyVersionNestedInput
   reclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutPolicyVersionNestedInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUpdateManyWithoutPolicyVersionNestedInput
 }
 
 export type FinanceAccountingPolicyVersionUncheckedUpdateWithoutReclassAdjustmentsInput = {
@@ -861,6 +979,7 @@ export type FinanceAccountingPolicyVersionUncheckedUpdateWithoutReclassAdjustmen
   revisions?: Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutPolicyVersionNestedInput
   mappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutPolicyVersionNestedInput
   reclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutPolicyVersionNestedInput
+  consolidationRules?: Prisma.FinanceConsolidationRuleUncheckedUpdateManyWithoutPolicyVersionNestedInput
 }
 
 
@@ -873,6 +992,7 @@ export type FinanceAccountingPolicyVersionCountOutputType = {
   mappings: number
   reclassRules: number
   reclassAdjustments: number
+  consolidationRules: number
 }
 
 export type FinanceAccountingPolicyVersionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -880,6 +1000,7 @@ export type FinanceAccountingPolicyVersionCountOutputTypeSelect<ExtArgs extends 
   mappings?: boolean | FinanceAccountingPolicyVersionCountOutputTypeCountMappingsArgs
   reclassRules?: boolean | FinanceAccountingPolicyVersionCountOutputTypeCountReclassRulesArgs
   reclassAdjustments?: boolean | FinanceAccountingPolicyVersionCountOutputTypeCountReclassAdjustmentsArgs
+  consolidationRules?: boolean | FinanceAccountingPolicyVersionCountOutputTypeCountConsolidationRulesArgs
 }
 
 /**
@@ -920,6 +1041,13 @@ export type FinanceAccountingPolicyVersionCountOutputTypeCountReclassAdjustments
   where?: Prisma.FinanceBalanceReclassAdjustmentWhereInput
 }
 
+/**
+ * FinanceAccountingPolicyVersionCountOutputType without action
+ */
+export type FinanceAccountingPolicyVersionCountOutputTypeCountConsolidationRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationRuleWhereInput
+}
+
 
 export type FinanceAccountingPolicyVersionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -936,6 +1064,7 @@ export type FinanceAccountingPolicyVersionSelect<ExtArgs extends runtime.Types.E
   mappings?: boolean | Prisma.FinanceAccountingPolicyVersion$mappingsArgs<ExtArgs>
   reclassRules?: boolean | Prisma.FinanceAccountingPolicyVersion$reclassRulesArgs<ExtArgs>
   reclassAdjustments?: boolean | Prisma.FinanceAccountingPolicyVersion$reclassAdjustmentsArgs<ExtArgs>
+  consolidationRules?: boolean | Prisma.FinanceAccountingPolicyVersion$consolidationRulesArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAccountingPolicyVersionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAccountingPolicyVersion"]>
 
@@ -984,6 +1113,7 @@ export type FinanceAccountingPolicyVersionInclude<ExtArgs extends runtime.Types.
   mappings?: boolean | Prisma.FinanceAccountingPolicyVersion$mappingsArgs<ExtArgs>
   reclassRules?: boolean | Prisma.FinanceAccountingPolicyVersion$reclassRulesArgs<ExtArgs>
   reclassAdjustments?: boolean | Prisma.FinanceAccountingPolicyVersion$reclassAdjustmentsArgs<ExtArgs>
+  consolidationRules?: boolean | Prisma.FinanceAccountingPolicyVersion$consolidationRulesArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAccountingPolicyVersionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceAccountingPolicyVersionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -996,6 +1126,7 @@ export type $FinanceAccountingPolicyVersionPayload<ExtArgs extends runtime.Types
     mappings: Prisma.$FinanceGroupAccountMappingPayload<ExtArgs>[]
     reclassRules: Prisma.$FinanceReclassRulePayload<ExtArgs>[]
     reclassAdjustments: Prisma.$FinanceBalanceReclassAdjustmentPayload<ExtArgs>[]
+    consolidationRules: Prisma.$FinanceConsolidationRulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1406,6 +1537,7 @@ export interface Prisma__FinanceAccountingPolicyVersionClient<T, Null = never, E
   mappings<T extends Prisma.FinanceAccountingPolicyVersion$mappingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountingPolicyVersion$mappingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceGroupAccountMappingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reclassRules<T extends Prisma.FinanceAccountingPolicyVersion$reclassRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountingPolicyVersion$reclassRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceReclassRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reclassAdjustments<T extends Prisma.FinanceAccountingPolicyVersion$reclassAdjustmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountingPolicyVersion$reclassAdjustmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBalanceReclassAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  consolidationRules<T extends Prisma.FinanceAccountingPolicyVersion$consolidationRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountingPolicyVersion$consolidationRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1931,6 +2063,30 @@ export type FinanceAccountingPolicyVersion$reclassAdjustmentsArgs<ExtArgs extend
   take?: number
   skip?: number
   distinct?: Prisma.FinanceBalanceReclassAdjustmentScalarFieldEnum | Prisma.FinanceBalanceReclassAdjustmentScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccountingPolicyVersion.consolidationRules
+ */
+export type FinanceAccountingPolicyVersion$consolidationRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationRule
+   */
+  select?: Prisma.FinanceConsolidationRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationRule
+   */
+  omit?: Prisma.FinanceConsolidationRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationRuleInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationRuleWhereInput
+  orderBy?: Prisma.FinanceConsolidationRuleOrderByWithRelationInput | Prisma.FinanceConsolidationRuleOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationRuleScalarFieldEnum | Prisma.FinanceConsolidationRuleScalarFieldEnum[]
 }
 
 /**

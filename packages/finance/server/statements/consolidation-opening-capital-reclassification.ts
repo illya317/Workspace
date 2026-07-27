@@ -16,7 +16,6 @@ export interface OpeningCapitalCounterparty {
 }
 
 export interface OpeningCapitalReclassificationCandidate {
-  entryNo: string;
   entryType: "reclassification";
   title: string;
   description: string;
@@ -102,7 +101,6 @@ export function buildOpeningCapitalReclassificationEntries(
       sourceId: `counterparty:${policy.payableCounterpartyReferenceCode}`,
     }];
     candidates.push({
-      entryNo: `AUTO-RECLASS-${fingerprint(generationKey).slice(0, 10).toUpperCase()}`,
       entryType: "reclassification",
       title: `加拿大期初实收资本转${referenceLabel}其他应付款`,
       description: `合并工作底稿按确认的期初对应关系，将 ${policy.sourceOriginalAmount} ${policy.sourceCurrencyCode} 实收资本重分类至指定单位其他应付款。`,

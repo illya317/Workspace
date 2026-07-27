@@ -1,8 +1,9 @@
-import type { FinanceGroupAccountCatalogResponse } from "@workspace/finance/types";
+import type { FinanceGroupAccountCatalogResponse, FinanceGroupAccountUsage } from "@workspace/finance/types";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 
 import { financeGroupAccountCodeConventionIssue } from "../../domain/group-chart-validation";
+import { buildGroupAccountUsageById, matchesFinanceGroupAccountUsage } from "../account-usage";
 import { compareAccountCodes } from "./mapping-policy";
 
 export interface ListFinanceGroupAccountsInput {
@@ -11,6 +12,7 @@ export interface ListFinanceGroupAccountsInput {
   policyVersionId?: number;
   keyword?: string;
   category?: string;
+  accountUsage?: FinanceGroupAccountUsage;
   reviewStatus?: "confirmed" | "reviewed" | "pending_review" | "pending_delete";
 }
 
@@ -48,7 +50,7 @@ export async function listFinanceGroupAccounts(
   const currentVersion = versions.find((version) => version.status === "published" && version.effectiveTo === null);
   if (!currentVersion) throw new Error("缺少当前生效的集团会计政策版本");
   const selectedVersion = versions.find((version) => version.id === input.policyVersionId) ?? currentVersion;
-  const [revisions, mappingCounts, mappingYears, parentRecommendations] = await Promise.all([
+  const [revisions, mappingCounts, mappingYears, parentRecommendations, reclassRules] = await Promise.all([
     prisma.financeGroupAccountRevision.findMany({
       where: {
         policyVersionId: selectedVersion.id,
@@ -95,7 +97,17 @@ export async function listFinanceGroupAccounts(
       GROUP BY mapping."groupAccountId"
     `),
     loadParentRecommendations(selectedVersion.id),
+    prisma.financeReclassRule.findMany({
+      where: {
+        policyVersionId: selectedVersion.id,
+        enabled: true,
+        source: "manual",
+        confirmedBy: { not: null },
+        confirmedAt: { not: null },
+      },
+    }),
   ]);
+  const usageByGroupAccountId = buildGroupAccountUsageById(revisions, reclassRules);
   const conventionIssues = revisions.flatMap((revision) => {
     const issue = financeGroupAccountCodeConventionIssue(revision);
     return issue ? [`${revision.code} ${revision.name}：${issue}`] : [];
@@ -134,6 +146,10 @@ export async function listFinanceGroupAccounts(
       reviewStatus: revision.reviewStatus as FinanceGroupAccountCatalogResponse["rows"][number]["reviewStatus"],
       reviewedBy: revision.reviewedBy,
       reviewedAt: revision.reviewedAt?.toISOString() ?? null,
+      consolidationRole: revision.consolidationRole as FinanceGroupAccountCatalogResponse["rows"][number]["consolidationRole"],
+      counterpartyRequirement: revision.counterpartyRequirement as FinanceGroupAccountCatalogResponse["rows"][number]["counterpartyRequirement"],
+      movementType: revision.movementType as FinanceGroupAccountCatalogResponse["rows"][number]["movementType"],
+      translationRateType: revision.translationRateType as FinanceGroupAccountCatalogResponse["rows"][number]["translationRateType"],
       originCompanyCode: revision.groupAccount.originCompanyCode,
       mappingCount: mappingCountByGroup.get(revision.groupAccountId) ?? 0,
       years: yearsByGroup.get(revision.groupAccountId) ?? [],
@@ -167,7 +183,13 @@ export async function listFinanceGroupAccounts(
   });
   const filtered = allRows.filter((row) => (
     (!input.category || row.category === input.category)
-    && (!input.reviewStatus || row.reviewStatus === input.reviewStatus)
+    && matchesFinanceGroupAccountUsage(
+      usageByGroupAccountId.get(row.id) ?? { consolidation: false, reclassification: false },
+      input.accountUsage,
+    )
+    && (!input.reviewStatus
+      || row.reviewStatus === input.reviewStatus
+      || (input.reviewStatus === "pending_review" && row.reviewStatus === "pending_delete"))
     && (!input.keyword || matchAnyField({
       code: row.code,
       name: row.name,

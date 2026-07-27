@@ -40,10 +40,12 @@ export function recomputeConsolidatedIncome(lines: ConsolidatedOutputLine[]): Do
     return failCommand("合并利润表少数股东损益归属行不完整", 409, "nonControllingInterest");
   }
   if (parent && nci && netProfit) {
-    if (money(parent.adjustmentAmount + nci.adjustmentAmount) !== 0) {
+    if (money(parent.adjustmentAmount) !== 0
+      && money(parent.adjustmentAmount + nci.adjustmentAmount) !== 0) {
       return failCommand("归母净利润与少数股东损益分配分录不平衡", 409, "nonControllingInterest");
     }
-    if (money((parent.previousAdjustmentAmount ?? 0) + (nci.previousAdjustmentAmount ?? 0)) !== 0) {
+    if (money(parent.previousAdjustmentAmount ?? 0) !== 0
+      && money((parent.previousAdjustmentAmount ?? 0) + (nci.previousAdjustmentAmount ?? 0)) !== 0) {
       return failCommand("比较期归母净利润与少数股东损益分配分录不平衡", 409, "nonControllingInterest");
     }
     nci.sourceAmount = 0;

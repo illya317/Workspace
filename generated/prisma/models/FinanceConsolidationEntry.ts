@@ -58,6 +58,9 @@ export type FinanceConsolidationEntryMinAggregateOutputType = {
   id: number | null
   batchId: number | null
   entryNo: string | null
+  postingDate: string | null
+  documentType: string | null
+  postingLevel: string | null
   entryType: string | null
   title: string | null
   description: string | null
@@ -89,6 +92,9 @@ export type FinanceConsolidationEntryMaxAggregateOutputType = {
   id: number | null
   batchId: number | null
   entryNo: string | null
+  postingDate: string | null
+  documentType: string | null
+  postingLevel: string | null
   entryType: string | null
   title: string | null
   description: string | null
@@ -120,6 +126,9 @@ export type FinanceConsolidationEntryCountAggregateOutputType = {
   id: number
   batchId: number
   entryNo: number
+  postingDate: number
+  documentType: number
+  postingLevel: number
   entryType: number
   title: number
   description: number
@@ -181,6 +190,9 @@ export type FinanceConsolidationEntryMinAggregateInputType = {
   id?: true
   batchId?: true
   entryNo?: true
+  postingDate?: true
+  documentType?: true
+  postingLevel?: true
   entryType?: true
   title?: true
   description?: true
@@ -212,6 +224,9 @@ export type FinanceConsolidationEntryMaxAggregateInputType = {
   id?: true
   batchId?: true
   entryNo?: true
+  postingDate?: true
+  documentType?: true
+  postingLevel?: true
   entryType?: true
   title?: true
   description?: true
@@ -243,6 +258,9 @@ export type FinanceConsolidationEntryCountAggregateInputType = {
   id?: true
   batchId?: true
   entryNo?: true
+  postingDate?: true
+  documentType?: true
+  postingLevel?: true
   entryType?: true
   title?: true
   description?: true
@@ -361,6 +379,9 @@ export type FinanceConsolidationEntryGroupByOutputType = {
   id: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType: string
+  postingLevel: string
   entryType: string
   title: string
   description: string | null
@@ -415,6 +436,9 @@ export type FinanceConsolidationEntryWhereInput = {
   id?: Prisma.IntFilter<"FinanceConsolidationEntry"> | number
   batchId?: Prisma.IntFilter<"FinanceConsolidationEntry"> | number
   entryNo?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
+  postingDate?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
+  documentType?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
+  postingLevel?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   entryType?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   title?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   description?: Prisma.StringNullableFilter<"FinanceConsolidationEntry"> | string | null
@@ -456,6 +480,9 @@ export type FinanceConsolidationEntryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   batchId?: Prisma.SortOrder
   entryNo?: Prisma.SortOrder
+  postingDate?: Prisma.SortOrder
+  documentType?: Prisma.SortOrder
+  postingLevel?: Prisma.SortOrder
   entryType?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -505,6 +532,9 @@ export type FinanceConsolidationEntryWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FinanceConsolidationEntryWhereInput | Prisma.FinanceConsolidationEntryWhereInput[]
   batchId?: Prisma.IntFilter<"FinanceConsolidationEntry"> | number
   entryNo?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
+  postingDate?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
+  documentType?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
+  postingLevel?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   entryType?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   title?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   description?: Prisma.StringNullableFilter<"FinanceConsolidationEntry"> | string | null
@@ -543,6 +573,9 @@ export type FinanceConsolidationEntryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   batchId?: Prisma.SortOrder
   entryNo?: Prisma.SortOrder
+  postingDate?: Prisma.SortOrder
+  documentType?: Prisma.SortOrder
+  postingLevel?: Prisma.SortOrder
   entryType?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -582,6 +615,9 @@ export type FinanceConsolidationEntryScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"FinanceConsolidationEntry"> | number
   batchId?: Prisma.IntWithAggregatesFilter<"FinanceConsolidationEntry"> | number
   entryNo?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationEntry"> | string
+  postingDate?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationEntry"> | string
+  documentType?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationEntry"> | string
+  postingLevel?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationEntry"> | string
   entryType?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationEntry"> | string
   title?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationEntry"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"FinanceConsolidationEntry"> | string | null
@@ -611,6 +647,9 @@ export type FinanceConsolidationEntryScalarWhereWithAggregatesInput = {
 
 export type FinanceConsolidationEntryCreateInput = {
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -649,6 +688,9 @@ export type FinanceConsolidationEntryUncheckedCreateInput = {
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -684,6 +726,9 @@ export type FinanceConsolidationEntryUncheckedCreateInput = {
 
 export type FinanceConsolidationEntryUpdateInput = {
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -722,6 +767,9 @@ export type FinanceConsolidationEntryUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -759,6 +807,9 @@ export type FinanceConsolidationEntryCreateManyInput = {
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -788,6 +839,9 @@ export type FinanceConsolidationEntryCreateManyInput = {
 
 export type FinanceConsolidationEntryUpdateManyMutationInput = {
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -816,6 +870,9 @@ export type FinanceConsolidationEntryUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -877,6 +934,9 @@ export type FinanceConsolidationEntryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   batchId?: Prisma.SortOrder
   entryNo?: Prisma.SortOrder
+  postingDate?: Prisma.SortOrder
+  documentType?: Prisma.SortOrder
+  postingLevel?: Prisma.SortOrder
   entryType?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -922,6 +982,9 @@ export type FinanceConsolidationEntryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   batchId?: Prisma.SortOrder
   entryNo?: Prisma.SortOrder
+  postingDate?: Prisma.SortOrder
+  documentType?: Prisma.SortOrder
+  postingLevel?: Prisma.SortOrder
   entryType?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -953,6 +1016,9 @@ export type FinanceConsolidationEntryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   batchId?: Prisma.SortOrder
   entryNo?: Prisma.SortOrder
+  postingDate?: Prisma.SortOrder
+  documentType?: Prisma.SortOrder
+  postingLevel?: Prisma.SortOrder
   entryType?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -1246,6 +1312,9 @@ export type FinanceConsolidationEntryUpdateOneRequiredWithoutTaxEffectsNestedInp
 
 export type FinanceConsolidationEntryCreateWithoutLinesInput = {
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1283,6 +1352,9 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutLinesInput = {
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1333,6 +1405,9 @@ export type FinanceConsolidationEntryUpdateToOneWithWhereWithoutLinesInput = {
 
 export type FinanceConsolidationEntryUpdateWithoutLinesInput = {
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1370,6 +1445,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutLinesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1404,6 +1482,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutLinesInput = {
 
 export type FinanceConsolidationEntryCreateWithoutMatchGroupInput = {
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1441,6 +1522,9 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutMatchGroupInput = {
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1491,6 +1575,9 @@ export type FinanceConsolidationEntryUpdateToOneWithWhereWithoutMatchGroupInput 
 
 export type FinanceConsolidationEntryUpdateWithoutMatchGroupInput = {
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1528,6 +1615,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutMatchGroupInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1562,6 +1652,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutMatchGroupInput = {
 
 export type FinanceConsolidationEntryCreateWithoutBatchInput = {
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1598,6 +1691,9 @@ export type FinanceConsolidationEntryCreateWithoutBatchInput = {
 export type FinanceConsolidationEntryUncheckedCreateWithoutBatchInput = {
   id?: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1664,6 +1760,9 @@ export type FinanceConsolidationEntryScalarWhereInput = {
   id?: Prisma.IntFilter<"FinanceConsolidationEntry"> | number
   batchId?: Prisma.IntFilter<"FinanceConsolidationEntry"> | number
   entryNo?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
+  postingDate?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
+  documentType?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
+  postingLevel?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   entryType?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   title?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   description?: Prisma.StringNullableFilter<"FinanceConsolidationEntry"> | string | null
@@ -1693,6 +1792,9 @@ export type FinanceConsolidationEntryScalarWhereInput = {
 
 export type FinanceConsolidationEntryCreateWithoutRevisionsInput = {
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1730,6 +1832,9 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutRevisionsInput = {
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1769,6 +1874,9 @@ export type FinanceConsolidationEntryCreateOrConnectWithoutRevisionsInput = {
 
 export type FinanceConsolidationEntryCreateWithoutSupersedesInput = {
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1806,6 +1914,9 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutSupersedesInput = {
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1850,6 +1961,9 @@ export type FinanceConsolidationEntryCreateManySupersedesInputEnvelope = {
 
 export type FinanceConsolidationEntryCreateWithoutReversalEntriesInput = {
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1887,6 +2001,9 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutReversalEntriesInput 
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1926,6 +2043,9 @@ export type FinanceConsolidationEntryCreateOrConnectWithoutReversalEntriesInput 
 
 export type FinanceConsolidationEntryCreateWithoutReversalOfInput = {
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -1963,6 +2083,9 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutReversalOfInput = {
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -2007,6 +2130,9 @@ export type FinanceConsolidationEntryCreateManyReversalOfInputEnvelope = {
 
 export type FinanceConsolidationEntryCreateWithoutSuccessorInput = {
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -2044,6 +2170,9 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutSuccessorInput = {
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -2083,6 +2212,9 @@ export type FinanceConsolidationEntryCreateOrConnectWithoutSuccessorInput = {
 
 export type FinanceConsolidationEntryCreateWithoutPredecessorInput = {
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -2120,6 +2252,9 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutPredecessorInput = {
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -2170,6 +2305,9 @@ export type FinanceConsolidationEntryUpdateToOneWithWhereWithoutRevisionsInput =
 
 export type FinanceConsolidationEntryUpdateWithoutRevisionsInput = {
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2207,6 +2345,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutRevisionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2268,6 +2409,9 @@ export type FinanceConsolidationEntryUpdateToOneWithWhereWithoutReversalEntriesI
 
 export type FinanceConsolidationEntryUpdateWithoutReversalEntriesInput = {
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2305,6 +2449,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutReversalEntriesInput 
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2366,6 +2513,9 @@ export type FinanceConsolidationEntryUpdateToOneWithWhereWithoutSuccessorInput =
 
 export type FinanceConsolidationEntryUpdateWithoutSuccessorInput = {
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2403,6 +2553,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutSuccessorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2448,6 +2601,9 @@ export type FinanceConsolidationEntryUpdateToOneWithWhereWithoutPredecessorInput
 
 export type FinanceConsolidationEntryUpdateWithoutPredecessorInput = {
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2485,6 +2641,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutPredecessorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2519,6 +2678,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutPredecessorInput = {
 
 export type FinanceConsolidationEntryCreateWithoutTaxEffectsInput = {
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -2556,6 +2718,9 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutTaxEffectsInput = {
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -2606,6 +2771,9 @@ export type FinanceConsolidationEntryUpdateToOneWithWhereWithoutTaxEffectsInput 
 
 export type FinanceConsolidationEntryUpdateWithoutTaxEffectsInput = {
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2643,6 +2811,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutTaxEffectsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2678,6 +2849,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutTaxEffectsInput = {
 export type FinanceConsolidationEntryCreateManyBatchInput = {
   id?: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -2707,6 +2881,9 @@ export type FinanceConsolidationEntryCreateManyBatchInput = {
 
 export type FinanceConsolidationEntryUpdateWithoutBatchInput = {
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2743,6 +2920,9 @@ export type FinanceConsolidationEntryUpdateWithoutBatchInput = {
 export type FinanceConsolidationEntryUncheckedUpdateWithoutBatchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2779,6 +2959,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutBatchInput = {
 export type FinanceConsolidationEntryUncheckedUpdateManyWithoutBatchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2810,6 +2993,9 @@ export type FinanceConsolidationEntryCreateManySupersedesInput = {
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -2840,6 +3026,9 @@ export type FinanceConsolidationEntryCreateManyReversalOfInput = {
   id?: number
   batchId: number
   entryNo: string
+  postingDate: string
+  documentType?: string
+  postingLevel?: string
   entryType: string
   title: string
   description?: string | null
@@ -2868,6 +3057,9 @@ export type FinanceConsolidationEntryCreateManyReversalOfInput = {
 
 export type FinanceConsolidationEntryUpdateWithoutSupersedesInput = {
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2905,6 +3097,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutSupersedesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2941,6 +3136,9 @@ export type FinanceConsolidationEntryUncheckedUpdateManyWithoutSupersedesInput =
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2969,6 +3167,9 @@ export type FinanceConsolidationEntryUncheckedUpdateManyWithoutSupersedesInput =
 
 export type FinanceConsolidationEntryUpdateWithoutReversalOfInput = {
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3006,6 +3207,9 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutReversalOfInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3042,6 +3246,9 @@ export type FinanceConsolidationEntryUncheckedUpdateManyWithoutReversalOfInput =
   id?: Prisma.IntFieldUpdateOperationsInput | number
   batchId?: Prisma.IntFieldUpdateOperationsInput | number
   entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  postingDate?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  postingLevel?: Prisma.StringFieldUpdateOperationsInput | string
   entryType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3130,6 +3337,9 @@ export type FinanceConsolidationEntrySelect<ExtArgs extends runtime.Types.Extens
   id?: boolean
   batchId?: boolean
   entryNo?: boolean
+  postingDate?: boolean
+  documentType?: boolean
+  postingLevel?: boolean
   entryType?: boolean
   title?: boolean
   description?: boolean
@@ -3172,6 +3382,9 @@ export type FinanceConsolidationEntrySelectCreateManyAndReturn<ExtArgs extends r
   id?: boolean
   batchId?: boolean
   entryNo?: boolean
+  postingDate?: boolean
+  documentType?: boolean
+  postingLevel?: boolean
   entryType?: boolean
   title?: boolean
   description?: boolean
@@ -3207,6 +3420,9 @@ export type FinanceConsolidationEntrySelectUpdateManyAndReturn<ExtArgs extends r
   id?: boolean
   batchId?: boolean
   entryNo?: boolean
+  postingDate?: boolean
+  documentType?: boolean
+  postingLevel?: boolean
   entryType?: boolean
   title?: boolean
   description?: boolean
@@ -3242,6 +3458,9 @@ export type FinanceConsolidationEntrySelectScalar = {
   id?: boolean
   batchId?: boolean
   entryNo?: boolean
+  postingDate?: boolean
+  documentType?: boolean
+  postingLevel?: boolean
   entryType?: boolean
   title?: boolean
   description?: boolean
@@ -3269,7 +3488,7 @@ export type FinanceConsolidationEntrySelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceConsolidationEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "entryNo" | "entryType" | "title" | "description" | "evidence" | "matchDifference" | "differenceResolution" | "origin" | "generationKey" | "generationFingerprint" | "generatedAt" | "status" | "version" | "supersedesEntryId" | "reversalOfEntryId" | "predecessorEntryId" | "preparedBy" | "submittedBy" | "submittedAt" | "approvedBy" | "approvedAt" | "approvalNote" | "reversedBy" | "reversedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["financeConsolidationEntry"]>
+export type FinanceConsolidationEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "entryNo" | "postingDate" | "documentType" | "postingLevel" | "entryType" | "title" | "description" | "evidence" | "matchDifference" | "differenceResolution" | "origin" | "generationKey" | "generationFingerprint" | "generatedAt" | "status" | "version" | "supersedesEntryId" | "reversalOfEntryId" | "predecessorEntryId" | "preparedBy" | "submittedBy" | "submittedAt" | "approvedBy" | "approvedAt" | "approvalNote" | "reversedBy" | "reversedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["financeConsolidationEntry"]>
 export type FinanceConsolidationEntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batch?: boolean | Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>
   supersedes?: boolean | Prisma.FinanceConsolidationEntry$supersedesArgs<ExtArgs>
@@ -3314,6 +3533,9 @@ export type $FinanceConsolidationEntryPayload<ExtArgs extends runtime.Types.Exte
     id: number
     batchId: number
     entryNo: string
+    postingDate: string
+    documentType: string
+    postingLevel: string
     entryType: string
     title: string
     description: string | null
@@ -3775,6 +3997,9 @@ export interface FinanceConsolidationEntryFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceConsolidationEntry", 'Int'>
   readonly batchId: Prisma.FieldRef<"FinanceConsolidationEntry", 'Int'>
   readonly entryNo: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>
+  readonly postingDate: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>
+  readonly documentType: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>
+  readonly postingLevel: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>
   readonly entryType: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>
   readonly title: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>
   readonly description: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>

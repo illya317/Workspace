@@ -15,7 +15,6 @@ type EnsureBatchResponse = {
 export function useConsolidationOverview(
   periodKind: StatementPeriodKind,
   canUpdate: boolean,
-  includeComparisons: boolean,
 ) {
   const [data, setData] = useState<ConsolidationOverview | null>(null);
   const [parentCompanyId, setParentCompanyId] = useState<number | null>(null);
@@ -28,20 +27,10 @@ export function useConsolidationOverview(
   const [refreshKey, setRefreshKey] = useState(0);
   const resolvedSelectionKeyRef = useRef<string | null>(null);
   const refreshedSnapshotKeyRef = useRef<string | null>(null);
-  const comparisonOverviewCacheRef = useRef(new Map<string, ConsolidationOverview>());
 
   useEffect(() => {
-    const selectionKey = [parentCompanyId, year, month, periodKind, selectedBatchId, includeComparisons, refreshKey].join(":");
+    const selectionKey = [parentCompanyId, year, month, periodKind, selectedBatchId, refreshKey].join(":");
     if (resolvedSelectionKeyRef.current === selectionKey) return;
-    const comparisonCacheKey = [parentCompanyId, year, month, periodKind, selectedBatchId, refreshKey].join(":");
-    const cachedComparisonOverview = comparisonOverviewCacheRef.current.get(comparisonCacheKey);
-    if (cachedComparisonOverview) {
-      resolvedSelectionKeyRef.current = selectionKey;
-      setData(cachedComparisonOverview);
-      setError(null);
-      setLoading(false);
-      return;
-    }
     const controller = new AbortController();
     let cancelled = false;
     const params = new URLSearchParams();
@@ -52,7 +41,6 @@ export function useConsolidationOverview(
     if (parentCompanyId !== null) params.set("parentCompanyId", String(parentCompanyId));
     if (selectedBatchId !== null) params.set("batchId", String(selectedBatchId));
     params.set("periodKind", periodKind);
-    if (includeComparisons) params.set("includeComparisons", "true");
     setLoading(true);
     setError(null);
     setData(null);
@@ -108,19 +96,8 @@ export function useConsolidationOverview(
           payload.scope.month,
           periodKind,
           selectedBatchId,
-          includeComparisons,
           refreshKey,
         ].join(":");
-        if (includeComparisons) {
-          comparisonOverviewCacheRef.current.set([
-            payload.scope.parentCompanyId,
-            payload.scope.year,
-            payload.scope.month,
-            periodKind,
-            selectedBatchId,
-            refreshKey,
-          ].join(":"), payload);
-        }
         setData(payload);
         setParentCompanyId(payload.scope.parentCompanyId);
         setYear(payload.scope.year);
@@ -137,11 +114,10 @@ export function useConsolidationOverview(
       cancelled = true;
       controller.abort();
     };
-  }, [canUpdate, includeComparisons, month, parentCompanyId, periodKind, refreshKey, selectedBatchId, year]);
+  }, [canUpdate, month, parentCompanyId, periodKind, refreshKey, selectedBatchId, year]);
 
   const invalidate = useCallback(() => {
     resolvedSelectionKeyRef.current = null;
-    comparisonOverviewCacheRef.current.clear();
     setData(null);
     setError(null);
     setLoading(true);

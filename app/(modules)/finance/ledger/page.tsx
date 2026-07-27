@@ -5,7 +5,7 @@ import { LedgerClient } from "@workspace/finance/ui";
 
 export default async function FinanceLedgerPage() {
   const user = await requireRouteAccess("/finance/ledger");
-  const [canCreate, canUpdate, canDelete, canRevise, canExport, canApprove, defaultScope] = await Promise.all([
+  const [canCreate, canUpdate, canDelete, canRevise, canExport, canApproveLedger, defaultScope] = await Promise.all([
     evaluatePermissionAction(user.id, "finance.ledger", "create"),
     evaluatePermissionAction(user.id, "finance.ledger", "update"),
     evaluatePermissionAction(user.id, "finance.ledger", "delete"),
@@ -26,7 +26,7 @@ export default async function FinanceLedgerPage() {
       canDelete={canDelete}
       canRevise={canRevise}
       canExport={canExport}
-      canApprove={canApprove}
+      canApproveLedger={canApproveLedger}
       defaultScope={defaultScope}
       user={user}
     />

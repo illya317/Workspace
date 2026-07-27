@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 import type { ConsolidationBatchSnapshot } from "@workspace/finance/types";
+import type { ConsolidationVoucherMatchGroup } from "../domain/consolidation-entry-generation";
 
 export interface RemittanceFxEntryLine {
   lineNo: number;
@@ -27,7 +28,8 @@ export interface RemittanceFxEntryLine {
 }
 
 export interface RemittanceFxEntryCandidate {
-  entryNo: string;
+  documentType: "elimination";
+  postingLevel: "20";
   entryType: "investmentEquity";
   title: string;
   description: string;
@@ -47,12 +49,187 @@ function money(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+function record(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function reportLineAmount(
+  batch: ConsolidationBatchSnapshot,
+  entitySnapshotId: number,
+  lineCode: string,
+) {
+  const source = (batch.sources ?? []).find((item) => (
+    item.entitySnapshotId === entitySnapshotId && item.reportType === "balanceSheet"
+  ));
+  const envelope = record(source?.reportPayload);
+  const payload = record(envelope?.payload ?? envelope);
+  const equity = Array.isArray(payload?.equity) ? payload.equity : [];
+  const line = equity.map(record).find((item) => item?.lineCode === lineCode);
+  const amount = Number(line?.amount);
+  return Number.isFinite(amount) && amount > 0 ? money(amount) : 0;
+}
+
+function historicalCapitalEntries(
+  batch: ConsolidationBatchSnapshot,
+  groups: readonly ConsolidationVoucherMatchGroup[],
+  excludedCompanyPairs: ReadonlySet<string>,
+): RemittanceFxEntryCandidate[] {
+  const entityByCompanyId = new Map(batch.entities.map((entity) => [entity.companyId, entity]));
+  const bindings = batch.exchangeRates.flatMap((rate) => rate.applications
+    .filter((application) => (
+      application.applicationType === "historicalCapital"
+      && application.periodBasis === "current"
+      && application.capitalOriginalAmount
+      && application.capitalOriginalAmount > 0
+    ))
+    .map((application, applicationIndex) => ({ rate, application, applicationIndex })));
+
+  return groups.flatMap((group): RemittanceFxEntryCandidate[] => {
+    if (group.category !== "investmentEquity" || !group.rightCompanyId) return [];
+    const investor = entityByCompanyId.get(group.leftCompanyId);
+    const investee = entityByCompanyId.get(group.rightCompanyId);
+    if (!investor || !investee || investee.functionalCurrency?.toUpperCase() !== "CAD") return [];
+    const pairKey = `${investor.companyId}:${investee.companyId}`;
+    if (excludedCompanyPairs.has(pairKey)) return [];
+    const capitalBindings = bindings
+      .filter(({ application }) => application.entitySnapshotId === investee.id)
+      .sort((left, right) => left.application.targetDate.localeCompare(right.application.targetDate)
+        || left.rate.id - right.rate.id
+        || left.applicationIndex - right.applicationIndex);
+    const investmentFacts = group.leftFacts.filter((fact) => fact.currencyCode.toUpperCase() === "CNY");
+    const investmentAmount = money(investmentFacts.reduce((sum, fact) => sum + fact.signedAmount, 0));
+    if (capitalBindings.length === 0 || investmentFacts.length === 0 || investmentAmount <= 0) return [];
+
+    let paidInCapitalRemaining = reportLineAmount(batch, investee.id, "paidInCapital");
+    let lineNo = 1;
+    const capitalLines: RemittanceFxEntryLine[] = [];
+    const capitalEvidence: string[] = [];
+    for (const { rate, application, applicationIndex } of capitalBindings) {
+      const originalAmount = money(application.capitalOriginalAmount!);
+      const paidInOriginal = money(Math.min(paidInCapitalRemaining, originalAmount));
+      const capitalReserveOriginal = money(originalAmount - paidInOriginal);
+      paidInCapitalRemaining = money(paidInCapitalRemaining - paidInOriginal);
+      const sourceFingerprint = fingerprint({
+        version: "historical-capital-investment-elimination-v1",
+        rate: [rate.id, rate.exchangeRateId, rate.exchangeRateVersion, rate.rateDate, rate.rate],
+        application,
+      });
+      const appendCapitalLine = (
+        lineCode: "paidInCapital" | "capitalReserve",
+        accountCode: "3001" | "3002",
+        sourceAmount: number,
+      ) => {
+        if (sourceAmount <= 0) return;
+        const translatedAmount = money(sourceAmount * rate.rate);
+        capitalLines.push({
+          lineNo: lineNo++,
+          entitySnapshotId: investee.id,
+          companyId: investee.companyId,
+          companyCode: investee.companyCode,
+          statementType: "balanceSheet",
+          lineCode,
+          accountCode,
+          debit: translatedAmount,
+          credit: 0,
+          currencyCode: "CNY",
+          periodBasis: "current",
+          note: `${sourceAmount} CAD × ${rate.rate}（${application.targetDate} 中间价）`,
+          matchSide: "right",
+          sourceKind: "workpaper",
+          sourceId: `rate-application:${rate.id}:historical-capital:${investee.id}:${applicationIndex}:${lineCode}`,
+          sourceFingerprint,
+          sourceAmount,
+          sourceCurrency: "CAD",
+          counterpartyEntitySnapshotId: investor.id,
+          counterpartyCompanyId: investor.companyId,
+        });
+      };
+      appendCapitalLine("paidInCapital", "3001", paidInOriginal);
+      appendCapitalLine("capitalReserve", "3002", capitalReserveOriginal);
+      capitalEvidence.push(`${application.targetDate} ${originalAmount} CAD × ${rate.rate}`);
+    }
+    const translatedCapital = money(capitalLines.reduce((sum, line) => sum + line.debit, 0));
+    const investmentLines: RemittanceFxEntryLine[] = investmentFacts.map((fact) => {
+      const amount = money(Math.abs(fact.signedAmount));
+      return {
+        lineNo: lineNo++,
+        entitySnapshotId: investor.id,
+        companyId: investor.companyId,
+        companyCode: investor.companyCode,
+        statementType: "balanceSheet",
+        lineCode: "longTermInvest",
+        accountCode: fact.accountCode,
+        debit: fact.signedAmount < 0 ? amount : 0,
+        credit: fact.signedAmount > 0 ? amount : 0,
+        currencyCode: "CNY",
+        periodBasis: "current",
+        note: `${fact.voucherDate} ${fact.voucherNo} · ${fact.accountCode} ${fact.accountName}`,
+        matchSide: "left",
+        sourceKind: "voucher",
+        sourceId: `voucher:${fact.itemId}`,
+        sourceFingerprint: fact.sourceFingerprint,
+        sourceAmount: amount,
+        sourceCurrency: "CNY",
+        counterpartyEntitySnapshotId: investee.id,
+        counterpartyCompanyId: investee.companyId,
+        sourceVoucherItemId: fact.itemId,
+      };
+    });
+    const difference = money(translatedCapital - investmentAmount);
+    const generationKey = `policy:remittance-fx:historical-capital:${investor.companyId}:${investee.companyId}`;
+    const ociLines: RemittanceFxEntryLine[] = Math.abs(difference) < 0.005 ? [] : [{
+      lineNo: lineNo++,
+      entitySnapshotId: investee.id,
+      companyId: investee.companyId,
+      companyCode: investee.companyCode,
+      statementType: "balanceSheet",
+      lineCode: "otherComprehensiveIncome",
+      accountCode: "4003/4005",
+      debit: difference < 0 ? Math.abs(difference) : 0,
+      credit: difference > 0 ? difference : 0,
+      currencyCode: "CNY",
+      periodBasis: "current",
+      note: difference < 0 ? "投资与权益历史折算差额（损失）" : "投资与权益历史折算差额（收益）",
+      matchSide: null,
+      sourceKind: "workpaper",
+      sourceId: `${generationKey}:oci`,
+      sourceFingerprint: fingerprint({ generationKey, difference, capitalEvidence }),
+      sourceAmount: Math.abs(difference),
+      sourceCurrency: "CNY",
+      counterpartyEntitySnapshotId: investor.id,
+      counterpartyCompanyId: investor.companyId,
+    }];
+    const lines = [...capitalLines, ...investmentLines, ...ociLines];
+    return [{
+      documentType: "elimination",
+      postingLevel: "20",
+      entryType: "investmentEquity",
+      title: `${investor.companyName} → ${investee.companyName} 投资与权益抵销`,
+      description: "按冻结的加拿大资本历史汇率折算实收资本和资本公积，逐笔抵销中国投资方长期股权投资；持股比例不阻断本凭证生成。",
+      evidence: `加拿大资本历史汇率：${capitalEvidence.join("；")}；投资方凭证分录：${investmentFacts.map((fact) => fact.itemId).join("、")}`,
+      matchDifference: Math.abs(difference),
+      differenceResolution: Math.abs(difference) < 0.005
+        ? "投资成本与历史汇率折算权益一致"
+        : difference < 0
+          ? `其他综合收益损失 ${Math.abs(difference).toFixed(2)} 元（借方）`
+          : `其他综合收益收益 ${difference.toFixed(2)} 元（贷方）`,
+      generationKey,
+      generationFingerprint: fingerprint({ generationKey, group: group.generationKey, lines }),
+      lines,
+    }];
+  });
+}
+
 export function buildRemittanceFxEntries(
   batch: ConsolidationBatchSnapshot,
+  groups: readonly ConsolidationVoucherMatchGroup[] = [],
 ): RemittanceFxEntryCandidate[] {
   const entityById = new Map(batch.entities.map((entity) => [entity.id, entity]));
   const entityByCode = new Map(batch.entities.map((entity) => [entity.companyCode, entity]));
   const seenVoucherItems = new Set<number>();
+  const generatedCompanyPairs = new Set<string>();
   const candidates: RemittanceFxEntryCandidate[] = [];
   for (const rate of batch.exchangeRates) {
     for (const application of rate.applications) {
@@ -66,6 +243,7 @@ export function buildRemittanceFxEntries(
       const investorEntity = entityByCode.get(application.voucher.companyCode);
       const originalAmount = application.voucher.originalAmount;
       if (!foreignEntity || !investorEntity || !originalAmount || originalAmount <= 0) continue;
+      generatedCompanyPairs.add(`${investorEntity.companyId}:${foreignEntity.companyId}`);
       const translatedAmount = money(originalAmount * rate.rate);
       const bookedAmount = money(application.voucher.bookedAmountCny);
       const difference = money(translatedAmount - bookedAmount);
@@ -148,7 +326,8 @@ export function buildRemittanceFxEntries(
         counterpartyCompanyId: investorEntity.companyId,
       }])];
       candidates.push({
-        entryNo: `AUTO-FX-${fingerprint(generationKey).slice(0, 10).toUpperCase()}`,
+        documentType: "elimination",
+        postingLevel: "20",
         entryType: "investmentEquity",
         title: `${investorEntity.companyName}汇加拿大投资款抵销`,
         description: "按发出 CAD 流水乘汇出日人民币汇率中间价抵销投资与权益，差额计入其他综合收益。",
@@ -163,5 +342,8 @@ export function buildRemittanceFxEntries(
       });
     }
   }
-  return candidates;
+  return [
+    ...candidates,
+    ...historicalCapitalEntries(batch, groups, generatedCompanyPairs),
+  ];
 }

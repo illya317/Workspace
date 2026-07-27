@@ -483,13 +483,15 @@ export function buildConsolidatedReportOutput(
     if (!tax.ok) return tax;
     if (reportType === "balanceSheet") {
       recomputeBalance(lines);
-      const balanced = validateBalanceEquation(lines);
-      if (!balanced.ok) return balanced;
     } else if (reportType === "incomeStatement") {
       const recomputed = recomputeConsolidatedIncome(lines);
       if (!recomputed.ok) return recomputed;
     }
     else recomputeCashFlow(lines);
+    if (reportType === "balanceSheet") {
+      const balanced = validateBalanceEquation(lines);
+      if (!balanced.ok) return balanced;
+    }
     statements.push({ reportType, label: REPORT_LABELS[reportType], lines, totals: outputTotals(reportType, lines) });
   }
   return okCommand({

@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo } from "react";
 import { createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, DataSurfaceCellSpec, DataSurfaceColumnSpec, PageSurfaceTabBarSpec } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
-import { getBaseItemColumns, type VoucherItemRow } from "../components/VoucherItemTable";
+import { getBaseItemColumns, getGroupItemColumns, type VoucherItemRow } from "../components/VoucherItemTable";
 import { getVoucherColumns } from "./VoucherColumns";
 import type { Voucher, VoucherResponse } from "@workspace/finance/types";
 import { useCompanyOptions } from "@workspace/platform/hooks";
@@ -18,17 +18,19 @@ import { useLedgerExportAction } from "./useLedgerExportAction";
 export default function VoucherTab({
   canExport,
   defaultScope,
+  voucherKind,
   navigation,
   lifecycleBlocks = [],
 }: {
   canExport: boolean;
   defaultScope: FinanceLedgerDefaultScope | null;
+  voucherKind: "standard" | "group";
   navigation?: PageSurfaceTabBarSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
-  const [companyFilter, setCompanyFilter] = useState(defaultScope?.companyCode ?? "");
+  const [companyFilter, setCompanyFilter] = useState(voucherKind === "standard" ? defaultScope?.companyCode ?? "" : "");
   const [yearFilter, setYearFilter] = useState(defaultScope ? String(defaultScope.year) : "");
   const [monthFilter, setMonthFilter] = useState(defaultScope ? String(defaultScope.month) : "");
   const [expandedVoucherId, setExpandedVoucherId] = useState<number | null>(null);
@@ -37,14 +39,28 @@ export default function VoucherTab({
   const [total, setTotal] = useState(0);
   const { error } = useFeedback();
   const [keyword, setKeyword] = useState("");
+  const [documentType, setDocumentType] = useState("");
+  const [origin, setOrigin] = useState("");
   const companyOptions = useCompanyOptions(false);
   const companyNameByCode = useMemo(() => new Map(companyOptions.map((option) => [option.value, option.label])), [companyOptions]);
-  const voucherColumns = useMemo(() => getVoucherColumns(expandedVoucherId, companyNameByCode), [companyNameByCode, expandedVoucherId]);
+  useEffect(() => {
+    setCompanyFilter(voucherKind === "standard" ? defaultScope?.companyCode ?? "" : "");
+    setDocumentType("");
+    setOrigin("");
+    setPage(1);
+    setExpandedVoucherId(null);
+  }, [defaultScope?.companyCode, voucherKind]);
+  const voucherColumns = useMemo(() => getVoucherColumns(expandedVoucherId, companyNameByCode, {
+    group: voucherKind === "group",
+  }), [companyNameByCode, expandedVoucherId, voucherKind]);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
     () => voucherColumns.filter((c) => c.required || c.defaultVisible).map((c) => c.key)
   );
+  useEffect(() => {
+    setVisibleColumns(voucherColumns.filter((column) => column.required || column.defaultVisible).map((column) => column.key));
+  }, [voucherColumns]);
 
-  const itemColumns = useMemo(() => getBaseItemColumns(), []);
+  const itemColumns = useMemo(() => voucherKind === "group" ? getGroupItemColumns() : getBaseItemColumns(), [voucherKind]);
   const exportAction = useLedgerExportAction({
     canExport,
     view: "vouchers",
@@ -66,6 +82,9 @@ export default function VoucherTab({
       if (yearFilter) params.set("year", yearFilter);
       if (monthFilter) params.set("month", monthFilter);
       if (keyword) params.set("keyword", keyword);
+      params.set("voucherKind", voucherKind);
+      if (voucherKind === "group" && documentType) params.set("documentType", documentType);
+      if (voucherKind === "group" && origin) params.set("origin", origin);
       params.set("page", String(page));
       params.set("pageSize", String(pageSize));
 
@@ -80,12 +99,20 @@ export default function VoucherTab({
           }
         } else {
           const err = await res.json().catch(() => ({ error: "加载失败" }));
-          if (!cancelled) error(err.error || "加载失败");
+          if (!cancelled) {
+            setVouchers([]);
+            setTotal(0);
+            error(err.error || "加载失败");
+          }
         }
       } catch (e: unknown) {
         const err = e as Error;
         if (err.name === "AbortError") return;
-        if (!cancelled) error("网络错误");
+        if (!cancelled) {
+          setVouchers([]);
+          setTotal(0);
+          error("网络错误");
+        }
       }
       if (!cancelled) setLoading(false);
     }
@@ -96,7 +123,7 @@ export default function VoucherTab({
       cancelled = true;
       ctrl.abort();
     };
-  }, [companyFilter, error, keyword, monthFilter, page, pageSize, yearFilter]);
+  }, [companyFilter, documentType, error, keyword, monthFilter, origin, page, pageSize, voucherKind, yearFilter]);
 
   const totalPages = Math.ceil(total / pageSize);
   const toolbarItems = useFinanceFilterToolbarItems({
@@ -105,15 +132,47 @@ export default function VoucherTab({
     monthFilter,
     keyword,
     pageSize,
-    onCompanyChange: (v) => { setCompanyFilter(v); setPage(1); },
+    onCompanyChange: voucherKind === "standard"
+      ? (v) => { setCompanyFilter(v); setPage(1); }
+      : undefined,
     onYearChange: (v) => { setYearFilter(v); setPage(1); },
     onMonthChange: (v) => { setMonthFilter(v); setPage(1); },
     onKeywordChange: (v) => { setKeyword(v); setPage(1); },
     onPageSizeChange: (v) => { setPageSize(v); setPage(1); },
-    columns: voucherColumns,
-    visibleColumns,
-    onColumnsChange: setVisibleColumns,
-    extraItems: exportAction ? [exportAction] : [],
+    columns: voucherKind === "standard" ? voucherColumns : undefined,
+    visibleColumns: voucherKind === "standard" ? visibleColumns : undefined,
+    onColumnsChange: voucherKind === "standard" ? setVisibleColumns : undefined,
+    allowPeriodWithoutCompany: voucherKind === "group",
+    extraItems: [
+      ...(voucherKind === "group" ? [
+        {
+          kind: "select" as const,
+          key: "group-document-type",
+          label: "凭证类别",
+          value: documentType,
+          options: [
+            { value: "", label: "全部类别" },
+            { value: "groupAdjustment", label: "报告调整" },
+            { value: "elimination", label: "内部抵销" },
+            { value: "reclassification", label: "列报重分类" },
+          ],
+          onChange: (value: string) => { setDocumentType(value); setPage(1); },
+        },
+        {
+          kind: "select" as const,
+          key: "group-origin",
+          label: "生成方式",
+          value: origin,
+          options: [
+            { value: "", label: "全部方式" },
+            { value: "manual", label: "人工编制" },
+            { value: "system", label: "规则生成" },
+          ],
+          onChange: (value: string) => { setOrigin(value); setPage(1); },
+        },
+      ] : []),
+      ...(voucherKind === "standard" && exportAction ? [exportAction] : []),
+    ],
   });
 
   return (
@@ -132,8 +191,7 @@ export default function VoucherTab({
             loading,
             emptyText: "暂无凭证",
             rowKey: (v: Voucher) => v.id,
-            onRowClick: (v: Voucher) =>
-              setExpandedVoucherId((prev) => (prev === v.id ? null : v.id)),
+            onRowClick: (v: Voucher) => setExpandedVoucherId((prev) => (prev === v.id ? null : v.id)),
             expandedRowKey: expandedVoucherId,
             expandedRow: (v: Voucher) => voucherItemsPreview(v, itemColumns),
           } },

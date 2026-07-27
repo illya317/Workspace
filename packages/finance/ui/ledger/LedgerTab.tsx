@@ -48,7 +48,7 @@ export default function LedgerTab({
     year: yearFilter,
     month: monthFilter,
     disabled: !companyFilter || !yearFilter || !monthFilter,
-    fallbackFilename: `${companyFilter}-${yearFilter}.${monthFilter.padStart(2, "0")}-余额表.xlsx`,
+    fallbackFilename: `${companyFilter}-${yearFilter}.${monthFilter.padStart(2, "0")}-科目余额.xlsx`,
   });
 
   const loadBalances = useCallback(async () => {

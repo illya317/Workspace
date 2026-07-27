@@ -30,6 +30,10 @@ export function emptyGroupAccountCatalogCreateDraft(): GroupAccountCatalogCreate
     mnemonicCode: null,
     currency: "人民币",
     parentGroupAccountId: null,
+    consolidationRole: "none",
+    counterpartyRequirement: "none",
+    movementType: "closingBalance",
+    translationRateType: "closing",
   };
 }
 
@@ -46,6 +50,10 @@ export function groupAccountCatalogEditDraft(row: FinanceGroupAccountCatalogRow)
     mnemonicCode: row.mnemonicCode,
     currency: row.currency ?? "人民币",
     parentGroupAccountId: row.parent?.id ?? recommendedParent?.id ?? null,
+    consolidationRole: row.consolidationRole,
+    counterpartyRequirement: row.counterpartyRequirement,
+    movementType: row.movementType,
+    translationRateType: row.translationRateType,
     expectedUpdatedAt: row.updatedAt,
   };
 }
@@ -133,7 +141,7 @@ export function groupAccountCatalogCreateSections(
       },
       {
         key: "parentGroupAccountId",
-        label: "上级集团科目（可选）",
+        label: "上级集团科目",
         spec: {
           valueType: "string",
           control: "reference",
@@ -148,8 +156,97 @@ export function groupAccountCatalogCreateSections(
         value: draft.parentGroupAccountId === null ? "" : String(draft.parentGroupAccountId),
         onChange: (value) => onChange({ parentGroupAccountId: value ? Number(value) : null }),
       },
+      {
+        key: "consolidationRole",
+        label: "自动合并候选",
+        spec: {
+          valueType: "string",
+          control: "choice",
+          options: { source: "static", items: [
+            { value: "none", label: "不参与" },
+            ...(canInferConsolidationRole(draft)
+              ? [{ value: "automatic", label: "参与" }]
+              : []),
+          ] },
+        },
+        value: draft.consolidationRole === "none" ? "none" : "automatic",
+        onChange: (value) => {
+          const consolidationRole = value === "automatic" ? inferredConsolidationRole(draft) : "none";
+          onChange({
+            consolidationRole,
+            counterpartyRequirement: consolidationRole === "none"
+              ? "none"
+              : roleRequiresCounterparty(consolidationRole) ? "required" : draft.counterpartyRequirement,
+          });
+        },
+      },
+      ...(draft.consolidationRole !== "none" ? [
+        {
+          key: "counterpartyRequirement",
+          label: "对方公司辅助",
+          spec: { valueType: "string" as const, control: "choice" as const, options: { source: "static" as const, items: [
+            { value: "none", label: "不使用" },
+            { value: "optional", label: "可选" },
+            { value: "required", label: "必填" },
+          ] } },
+          value: draft.counterpartyRequirement,
+          readOnly: roleRequiresCounterparty(draft.consolidationRole),
+          onChange: (value: unknown) => onChange({ counterpartyRequirement: value as GroupAccountCatalogCreateDraft["counterpartyRequirement"] }),
+        },
+        {
+          key: "movementType",
+          label: "默认取数口径",
+          spec: { valueType: "string" as const, control: "choice" as const, options: { source: "static" as const, items: [
+            { value: "closingBalance", label: "期末余额" },
+            { value: "periodMovement", label: "期间发生额" },
+            { value: "transaction", label: "逐笔交易" },
+          ] } },
+          value: draft.movementType,
+          onChange: (value: unknown) => onChange({ movementType: value as GroupAccountCatalogCreateDraft["movementType"] }),
+        },
+        {
+          key: "translationRateType",
+          label: "集团报表折算方法",
+          spec: { valueType: "string" as const, control: "choice" as const, options: { source: "static" as const, items: [
+            { value: "closing", label: "期末日汇率" },
+            { value: "average", label: "期间平均汇率" },
+            { value: "historical", label: "原始确认日汇率" },
+            { value: "transactionDate", label: "每笔交易日汇率" },
+          ] } },
+          value: draft.translationRateType,
+          onChange: (value: unknown) => onChange({ translationRateType: value as GroupAccountCatalogCreateDraft["translationRateType"] }),
+        },
+      ] : []),
     ],
   }];
+}
+
+function roleRequiresCounterparty(role: GroupAccountCatalogCreateDraft["consolidationRole"]) {
+  return role.startsWith("intercompany")
+    || role === "investmentInSubsidiary"
+    || role === "dividendReceivable"
+    || role === "dividendPayable";
+}
+
+function inferredConsolidationRole(
+  draft: Pick<GroupAccountCatalogCreateDraft, "code" | "category" | "consolidationRole">,
+): GroupAccountCatalogCreateDraft["consolidationRole"] {
+  if (draft.consolidationRole !== "none") return draft.consolidationRole;
+  const code = draft.code.trim();
+  if (/^(1511|1512)/.test(code)) return "investmentInSubsidiary";
+  if (/^(4001|3001)/.test(code)) return "shareCapital";
+  if (/^(4002|3002)/.test(code)) return "capitalReserve";
+  if (draft.category === "asset") return "intercompanyReceivable";
+  if (draft.category === "liability") return "intercompanyPayable";
+  if (draft.category === "revenue") return "intercompanyRevenue";
+  if (draft.category === "cost" || draft.category === "expense") return "intercompanyExpense";
+  return "none";
+}
+
+function canInferConsolidationRole(
+  draft: Pick<GroupAccountCatalogCreateDraft, "code" | "category" | "consolidationRole">,
+) {
+  return draft.consolidationRole !== "none" || inferredConsolidationRole(draft) !== "none";
 }
 
 export function groupAccountCatalogEditSections(
