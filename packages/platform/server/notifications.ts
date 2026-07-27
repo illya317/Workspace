@@ -54,7 +54,7 @@ type NotificationPayloadByType = {
   "approval.request.approved": ApprovalNotificationPayload;
   "approval.request.commented": ApprovalNotificationPayload;
   "security.permissionReview.alert": PermissionReviewAlertPayload;
-  "platform.dataQuality.alert": DataQualityAlertPayload;
+  "platform.businessData.alert": DataQualityAlertPayload;
 };
 export type RegisteredNotificationType = keyof NotificationPayloadByType;
 type NotificationRenderResult = {
@@ -69,6 +69,7 @@ export type NotificationSubscriptionMode = "required" | "optional";
 export type NotificationCatalogGroupKey = "work" | "workflow" | "business" | "security";
 export type NotificationChannel = "workspace";
 export type NotificationCadence = "immediate";
+export type NotificationProducerMode = "event" | "scheduled" | "scheduled_and_event";
 
 type NotificationCatalogMetadata<TPayload> = {
   label: string;
@@ -76,6 +77,8 @@ type NotificationCatalogMetadata<TPayload> = {
   groupLabel: string;
   triggerDescription: string;
   recipientDescription: string;
+  producerMode: NotificationProducerMode;
+  producerAvailable: boolean | (() => boolean);
   audienceMode: NotificationAudienceMode;
   subscriptionMode: NotificationSubscriptionMode;
   ownerResourceKey: string | null;
@@ -163,6 +166,8 @@ const notificationRegistry = {
     groupLabel: "工作与协作",
     triggerDescription: "负责部门发起固定部门协作，并需要你所在部门响应时。",
     recipientDescription: "按协作任务分配、部门负责人或协作责任范围接收。",
+    producerMode: "event",
+    producerAvailable: true,
     audienceMode: "assigned",
     subscriptionMode: "required",
     ownerResourceKey: "work.tasks",
@@ -189,6 +194,8 @@ const notificationRegistry = {
     groupLabel: "工作与协作",
     triggerDescription: "你被添加为项目成员时。",
     recipientDescription: "直接发送给被添加的项目成员。",
+    producerMode: "event",
+    producerAvailable: true,
     audienceMode: "assigned",
     subscriptionMode: "required",
     ownerResourceKey: "work.projects",
@@ -214,6 +221,8 @@ const notificationRegistry = {
     groupLabel: "工作与协作",
     triggerDescription: "你在项目中的 RASCI 职责发生变化时。",
     recipientDescription: "直接发送给角色被调整的项目成员。",
+    producerMode: "event",
+    producerAvailable: true,
     audienceMode: "assigned",
     subscriptionMode: "required",
     ownerResourceKey: "work.projects",
@@ -239,6 +248,8 @@ const notificationRegistry = {
     groupLabel: "流程待办",
     triggerDescription: "审批、复核或发布流程进入你的处理节点时。",
     recipientDescription: "按流程处理人职责接收。",
+    producerMode: "event",
+    producerAvailable: true,
     audienceMode: "assigned",
     subscriptionMode: "required",
     ownerResourceKey: null,
@@ -267,6 +278,8 @@ const notificationRegistry = {
     groupLabel: "流程待办",
     triggerDescription: "你发起或参与的流程被驳回时。",
     recipientDescription: "按流程发起人和相关参与人职责接收。",
+    producerMode: "event",
+    producerAvailable: true,
     audienceMode: "assigned",
     subscriptionMode: "required",
     ownerResourceKey: null,
@@ -295,6 +308,8 @@ const notificationRegistry = {
     groupLabel: "流程待办",
     triggerDescription: "你发起或参与的流程通过时。",
     recipientDescription: "按流程发起人和相关参与人职责接收。",
+    producerMode: "event",
+    producerAvailable: true,
     audienceMode: "assigned",
     subscriptionMode: "required",
     ownerResourceKey: null,
@@ -322,6 +337,8 @@ const notificationRegistry = {
     groupLabel: "流程待办",
     triggerDescription: "你参与的流程出现新评论时。",
     recipientDescription: "按流程相关参与人职责接收。",
+    producerMode: "event",
+    producerAvailable: true,
     audienceMode: "assigned",
     subscriptionMode: "required",
     ownerResourceKey: null,
@@ -342,7 +359,7 @@ const notificationRegistry = {
     }),
   }),
   "security.permissionReview.alert": defineNotification<PermissionReviewAlertPayload>(permissionReviewNotificationDefinition),
-  "platform.dataQuality.alert": defineNotification<DataQualityAlertPayload>(dataQualityNotificationDefinition),
+  "platform.businessData.alert": defineNotification<DataQualityAlertPayload>(dataQualityNotificationDefinition),
 } satisfies { [TType in RegisteredNotificationType]: NotificationDefinition<NotificationPayloadByType[TType]> };
 
 function defineNotification<TPayload>(definition: NotificationDefinition<TPayload>) {
@@ -362,10 +379,15 @@ export function listRegisteredNotificationTypes() {
     groupLabel: definition.groupLabel,
     triggerDescription: definition.triggerDescription,
     recipientDescription: definition.recipientDescription,
+    producerMode: definition.producerMode,
+    producerAvailable: typeof definition.producerAvailable === "function"
+      ? definition.producerAvailable()
+      : definition.producerAvailable,
     audienceMode: definition.audienceMode,
     subscriptionMode: definition.subscriptionMode,
     ownerResourceKey: definition.ownerResourceKey,
     supportedChannels: [...definition.supportedChannels],
+    availableChannels: definition.supportedChannels.filter((channel) => channel === "workspace"),
     defaultChannel: definition.defaultChannel,
     defaultCadence: definition.defaultCadence,
     defaultEnabled: definition.defaultEnabled,

@@ -10,7 +10,6 @@ import { usePermissionLedgerTab } from "./tabs/PermissionLedgerTab";
 import { useWorkflowLedgerTab } from "./tabs/WorkflowLedgerTab";
 import { useWorkflowPoliciesTab } from "./tabs/WorkflowPoliciesTab";
 import { useAgentPermissionPolicyTab } from "./tabs/AgentPermissionPolicyTab";
-import { useDataQualityTab } from "./tabs/DataQualityTab";
 import { usePermissionsTab } from "./hooks/usePermissionsTab";
 import { flattenTree } from "./lib";
 
@@ -22,7 +21,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   const isSuperAdmin = user.isSuperAdmin ?? false;
   const canUseResourcePermissions = isSuperAdmin || (user.manageableResourceKeys?.length ?? 0) > 0;
   const canUseWorkflowAdmin = isSuperAdmin || (user.adminResourceKeys ?? []).some(isWorkflowManagementResourceKey);
-  const [activeTab, setActiveTab] = useState<"permissions" | "ledger" | "workflowPolicies" | "workflowLedger" | "dataQuality" | "agentPolicy" | "modules">(
+  const [activeTab, setActiveTab] = useState<"permissions" | "ledger" | "workflowPolicies" | "workflowLedger" | "agentPolicy" | "modules">(
     () => canUseWorkflowAdmin ? "workflowPolicies" : "permissions",
   );
   const [permissionMode, setPermissionMode] = useState<SubjectType | "space">(
@@ -45,17 +44,8 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   const feedback = useFeedback();
   const showToast = feedback.notify;
 
-  useEffect(() => {
-    if (!isSuperAdmin || new URLSearchParams(window.location.search).get("tab") !== "dataQuality") return;
-    setActiveTab("dataQuality");
-  }, [isSuperAdmin]);
-
   const selectActiveTab = useCallback((key: typeof activeTab) => {
     setActiveTab(key);
-    const url = new URL(window.location.href);
-    if (key === "dataQuality") url.searchParams.set("tab", key);
-    else url.searchParams.delete("tab");
-    window.history.replaceState(window.history.state, "", url);
   }, []);
   const capabilities = useMemo(
     () => Object.values(capabilitiesByOwner).flatMap(flattenTree),
@@ -268,7 +258,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     }] : []),
     ...(canUseResourcePermissions ? [{ key: "permissions" as const, label: "权限管理", children: subjectTabs }] : []),
     ...(canUseResourcePermissions ? [{ key: "ledger" as const, label: "权限台账" }] : []),
-    ...(isSuperAdmin ? [{ key: "dataQuality" as const, label: "提醒规则与运行" }] : []),
     ...(isSuperAdmin ? [{ key: "agentPolicy" as const, label: "智能体" }] : []),
     ...(isSuperAdmin ? [{ key: "modules" as const, label: "模块管理" }] : []),
   ];
@@ -304,10 +293,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     enabled: activeTab === "agentPolicy" && isSuperAdmin,
     showToast,
   });
-  const dataQualityTab = useDataQualityTab({
-    enabled: activeTab === "dataQuality" && isSuperAdmin,
-    showToast,
-  });
   const modulesSection = useModuleManagementSection({
     showToast,
     enabled: activeTab === "modules",
@@ -340,8 +325,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
             ? { items: workflowPoliciesTab.toolbarItems }
           : activeTab === "workflowLedger"
             ? { items: workflowLedgerTab.toolbarItems }
-          : activeTab === "dataQuality"
-            ? { items: dataQualityTab.toolbarItems }
           : undefined}
       footer={canUseResourcePermissions && activeTab === "permissions" && permissionMode !== "space" ? permissionFooter : activeTab === "permissions" && permissionMode === "space" ? spaceFooter : activeTab === "ledger" ? ledgerTab.footer : activeTab === "workflowLedger" ? workflowLedgerTab.footer : undefined}
 		      body={resourcesLoading && canUseResourcePermissions && activeTab === "permissions" && permissionMode !== "space"
@@ -354,8 +337,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
                 ? workflowPoliciesTab.body
               : activeTab === "workflowLedger"
                 ? workflowLedgerTab.body
-              : activeTab === "dataQuality"
-                ? dataQualityTab.body
               : activeTab === "agentPolicy"
                 ? agentPolicyTab.body
               : createPageBody([modulesSection])}

@@ -21,6 +21,8 @@ export const permissionReviewNotificationDefinition = {
   groupLabel: "系统与安全",
   triggerDescription: "每日权限复核、授权变更复核或管理员手工复核发现异常时。",
   recipientDescription: "按系统配置的安全治理责任接收。",
+  producerMode: "scheduled_and_event",
+  producerAvailable: true,
   audienceMode: "governance_required",
   subscriptionMode: "required",
   ownerResourceKey: "settings.admin",

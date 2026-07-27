@@ -45,10 +45,41 @@ test("catalog exposes every registered notification and only business-data alert
   const catalog = await listNotificationSubscriptionCatalog(7);
   assert.equal(catalog.length, 9);
   const optional = catalog.filter((item) => item.subscriptionMode === "optional");
-  assert.deepEqual(optional.map((item) => item.type), ["platform.dataQuality.alert"]);
+  assert.deepEqual(optional.map((item) => item.type), ["platform.businessData.alert"]);
   assert.equal(optional[0]?.ownerResourceKey, "hr.roster");
   assert.equal(optional[0]?.details.length, 4);
+  assert.equal(optional[0]?.producerMode, "scheduled_and_event");
+  assert.equal(optional[0]?.producerAvailable, true);
+  assert.deepEqual(optional[0]?.availableChannels, ["workspace"]);
+  assert.equal(optional[0]?.deliveryAvailable, true);
+  assert.equal(optional[0]?.runtimeAvailable, true);
   assert.equal(optional[0]?.statusLabel, "未订阅");
+});
+
+test("optional subscription is unavailable when its automatic producer is disabled", async () => {
+  allowRead = true;
+  const previous = process.env.DATA_QUALITY_SCHEDULER_DISABLED;
+  process.env.DATA_QUALITY_SCHEDULER_DISABLED = "1";
+  try {
+    const catalog = await listNotificationSubscriptionCatalog(7);
+    const dataQuality = catalog.find((item) => item.type === "platform.businessData.alert");
+    assert.equal(dataQuality?.producerAvailable, false);
+    assert.equal(dataQuality?.runtimeAvailable, false);
+    assert.equal(dataQuality?.canConfigure, false);
+    assert.equal(dataQuality?.statusLabel, "自动触发未运行");
+
+    const command = await buildNotificationSubscriptionCommand({
+      mode: "override",
+      userId: 7,
+      eventKey: "platform.businessData.alert",
+      enabled: true,
+    });
+    assert.equal(command.ok, false);
+    if (!command.ok) assert.equal(command.issue.status, 409);
+  } finally {
+    if (previous === undefined) delete process.env.DATA_QUALITY_SCHEDULER_DISABLED;
+    else process.env.DATA_QUALITY_SCHEDULER_DISABLED = previous;
+  }
 });
 
 test("optional subscription enabling requires target resource read", async () => {
@@ -56,7 +87,7 @@ test("optional subscription enabling requires target resource read", async () =>
   const denied = await buildNotificationSubscriptionCommand({
     mode: "override",
     userId: 7,
-    eventKey: "platform.dataQuality.alert",
+    eventKey: "platform.businessData.alert",
     enabled: true,
   });
   assert.equal(denied.ok, false);
@@ -65,7 +96,7 @@ test("optional subscription enabling requires target resource read", async () =>
   const disabling = await buildNotificationSubscriptionCommand({
     mode: "override",
     userId: 7,
-    eventKey: "platform.dataQuality.alert",
+    eventKey: "platform.businessData.alert",
     enabled: false,
   });
   assert.equal(disabling.ok, true);
@@ -90,12 +121,12 @@ test("validated optional override commits through the normalized subscription tu
   const command = await buildNotificationSubscriptionCommand({
     mode: "override",
     userId: 7,
-    eventKey: "platform.dataQuality.alert",
+    eventKey: "platform.businessData.alert",
     enabled: true,
   });
   assert.equal(command.ok, true);
   if (!command.ok) return;
   const saved = await commitNotificationSubscriptionCommand(command.data);
-  assert.equal(saved.eventKey, "platform.dataQuality.alert");
+  assert.equal(saved.eventKey, "platform.businessData.alert");
   assert.equal("enabled" in saved && saved.enabled, true);
 });

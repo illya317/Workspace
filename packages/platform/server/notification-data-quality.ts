@@ -1,4 +1,17 @@
 import type { DataQualitySeverity, DataQualityTrigger } from "@workspace/platform/data-quality-contract";
+import { listDataQualityProviderResourceKeys } from "@workspace/platform/data-quality-provider-registry";
+
+export const DATA_QUALITY_AUTOMATION = {
+  dailyAt: "08:30",
+  minimumSeverity: "warning" as const,
+  mutationTriggerEnabled: true,
+  repeatAfterHours: 24,
+} as const;
+
+export function dataQualityNotificationProducerAvailable() {
+  return process.env.DATA_QUALITY_SCHEDULER_DISABLED !== "1"
+    && listDataQualityProviderResourceKeys().length > 0;
+}
 
 export type DataQualityAlertPayload = {
   runId: number;
@@ -30,13 +43,15 @@ function triggerLabel(trigger: DataQualityTrigger) {
 }
 
 export const dataQualityNotificationDefinition = {
-  type: "platform.dataQuality.alert",
+  type: "platform.businessData.alert",
   label: "业务资料异常提醒",
-  description: "业务资料巡检发现新增、升级或超期异常时提醒治理责任人",
+  description: "自动巡检发现新增、升级或超期业务资料异常时提醒已订阅用户",
   groupKey: "business",
   groupLabel: "业务提醒",
-  triggerDescription: "业务资料巡检发现新增、升级或超过提醒间隔的异常时。",
-  recipientDescription: "拥有对应业务资料读取权限的用户可以自主订阅；管理员治理接收人仍按策略接收。",
+  triggerDescription: `每日 ${DATA_QUALITY_AUTOMATION.dailyAt} 自动巡检，并在业务资料变更后自动复检；异常首次出现、升级或超过 ${DATA_QUALITY_AUTOMATION.repeatAfterHours} 小时未处理时触发。`,
+  recipientDescription: "仅发送给已订阅且投递时仍拥有对应业务资料读取权限的用户。",
+  producerMode: "scheduled_and_event",
+  producerAvailable: dataQualityNotificationProducerAvailable,
   audienceMode: "optional",
   subscriptionMode: "optional",
   ownerResourceKey: "hr.roster",
@@ -50,7 +65,7 @@ export const dataQualityNotificationDefinition = {
     "当前任职的公司、部门和岗位完整",
     "当前任职工作占比填写完整且合计等于 1",
   ],
-  recipientReason: "系统管理员为此业务范围配置了提醒",
+  recipientReason: "你订阅了业务资料异常提醒",
   resourceKey: (payload: DataQualityAlertPayload) => payload.scope?.resourceKey ?? null,
   scopeId: (payload: DataQualityAlertPayload) => payload.scope?.departmentId
     ? `department:${payload.scope.departmentId}`
@@ -69,7 +84,7 @@ export const dataQualityNotificationDefinition = {
       ...payload.findings.slice(0, 5).map((finding) => `${finding.title}：${finding.summary}`),
       payload.findingCount > 5 ? `另有 ${payload.findingCount - 5} 项，请进入对应业务资料处理。` : "",
     ].filter(Boolean).join("\n"),
-    href: payload.href ?? "/settings/admin?tab=dataQuality",
+    href: payload.href ?? "/settings/account",
     payload,
   }),
 } as const;

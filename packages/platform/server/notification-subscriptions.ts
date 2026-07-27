@@ -30,9 +30,12 @@ function findCatalogDefinition(eventKey: string) {
 
 function catalogStatus(input: {
   definition: NotificationCatalogDefinition;
+  runtimeAvailable: boolean;
   eligible: boolean;
   effectiveEnabled: boolean;
 }) {
+  if (!input.definition.producerAvailable) return "自动触发未运行";
+  if (!input.runtimeAvailable) return "无可用发送渠道";
   if (input.definition.audienceMode === "assigned") return "按职责接收";
   if (input.definition.audienceMode === "governance_required") return "按治理责任接收";
   if (!input.eligible) return "缺少读取权限";
@@ -56,12 +59,14 @@ export async function listNotificationSubscriptionCatalog(userId: number) {
   return Promise.all(definitions.map(async (definition) => {
     const override = overrideByEventKey.get(definition.type) ?? null;
     const optional = definition.subscriptionMode === "optional";
+    const deliveryAvailable = definition.availableChannels.includes(definition.defaultChannel);
+    const runtimeAvailable = definition.producerAvailable && deliveryAvailable;
     const eligible = optional ? await hasCatalogReadAccess(userId, definition) : true;
     const selectedEnabled = optional
       ? override?.enabled ?? definition.defaultEnabled
       : true;
-    const effectiveEnabled = optional ? eligible && selectedEnabled : true;
-    const canConfigure = optional && (eligible || selectedEnabled);
+    const effectiveEnabled = optional ? runtimeAvailable && eligible && selectedEnabled : runtimeAvailable;
+    const canConfigure = optional && (selectedEnabled || (runtimeAvailable && eligible));
     return {
       ...definition,
       ownerResourceLabel: definition.ownerResourceKey
@@ -71,8 +76,10 @@ export async function listNotificationSubscriptionCatalog(userId: number) {
       selectedEnabled,
       effectiveEnabled,
       eligible,
+      deliveryAvailable,
+      runtimeAvailable,
       canConfigure,
-      statusLabel: catalogStatus({ definition, eligible, effectiveEnabled }),
+      statusLabel: catalogStatus({ definition, runtimeAvailable, eligible, effectiveEnabled }),
       channel: override?.channel ?? definition.defaultChannel,
       cadence: override?.cadence ?? definition.defaultCadence,
       updatedAt: override?.updatedAt.toISOString() ?? null,
@@ -90,6 +97,13 @@ export async function buildNotificationSubscriptionCommand(input: {
   if (!definition) return failCommand("通知类型不存在", 404, "eventKey");
   if (definition.subscriptionMode !== "optional") {
     return failCommand("该通知按职责或治理责任接收，不能由个人关闭", 409, "eventKey");
+  }
+  if (
+    input.mode === "override"
+    && input.enabled
+    && (!definition.producerAvailable || !definition.availableChannels.includes(definition.defaultChannel))
+  ) {
+    return failCommand("该通知当前没有运行中的自动触发或可用发送渠道，不能订阅", 409, "eventKey");
   }
   if (input.mode === "override" && typeof input.enabled !== "boolean") {
     return failCommand("订阅状态无效", 400, "enabled");

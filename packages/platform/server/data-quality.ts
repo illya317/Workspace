@@ -14,10 +14,7 @@ import {
 } from "../data-quality-notification-routing";
 import { callWorkspaceInternalJson } from "./internal-unit-rpc";
 import { sendNotification } from "./notifications";
-import {
-  canReceiveNotificationForResource,
-  listEligibleNotificationSubscribers,
-} from "./notification-subscriptions";
+import { listEligibleNotificationSubscribers } from "./notification-subscriptions";
 import {
   dataQualitySeverityIncreased,
   dataQualitySeverityMeetsThreshold,
@@ -25,7 +22,6 @@ import {
   listDataQualityRoutingResourceOptions,
   type DataQualityPolicy,
 } from "./data-quality-policy";
-import { sendDataQualityWecomGroupAlert } from "./data-quality-wecom";
 import { prisma } from "./prisma";
 
 const PROVIDERS = DATA_QUALITY_PROVIDER_REGISTRATIONS;
@@ -35,7 +31,6 @@ type PreviousFinding = {
   status: string;
   severity: string;
   lastWorkspaceNotifiedAt: Date | null;
-  lastWecomNotifiedAt: Date | null;
 } | null;
 
 type ObservedFinding = {
@@ -84,7 +79,7 @@ function providerHealthResponse(
       summary: `${providerKey.toUpperCase()} 规则服务调用失败：${failure}`,
       count: 1,
       resourceKey: "settings.admin",
-      href: "/settings/admin?tab=dataQuality",
+      href: "/settings/account?tab=subscriptions",
       samples: [],
     }] : [],
   };
@@ -145,7 +140,6 @@ async function persistEvaluation(runId: number, response: DataQualityEvaluationR
           status: true,
           severity: true,
           lastWorkspaceNotifiedAt: true,
-          lastWecomNotifiedAt: true,
         },
       });
       const reopened = previous?.status === "resolved";
@@ -192,16 +186,13 @@ async function persistEvaluation(runId: number, response: DataQualityEvaluationR
 function notificationCandidates(
   observed: ObservedFinding[],
   policy: DataQualityPolicy,
-  channel: "workspace" | "wecom",
   now: Date,
 ) {
   const repeatBefore = now.getTime() - policy.notifications.repeatAfterHours * 60 * 60 * 1000;
   return observed.filter(({ finding, previous, reopened }) => {
     if (!dataQualitySeverityMeetsThreshold(finding.severity, policy.notifications.minimumSeverity)) return false;
     if (!previous || reopened || dataQualitySeverityIncreased(previous.severity, finding.severity)) return true;
-    const lastNotifiedAt = channel === "workspace"
-      ? previous.lastWorkspaceNotifiedAt
-      : previous.lastWecomNotifiedAt;
+    const lastNotifiedAt = previous.lastWorkspaceNotifiedAt;
     return !lastNotifiedAt || lastNotifiedAt.getTime() <= repeatBefore;
   }).map(({ finding }) => finding);
 }
@@ -230,7 +221,7 @@ async function resolveDeliveryGroups(groups: DataQualityNotificationGroup[]): Pr
     departmentName: group.departmentId
       ? departmentNames.get(group.departmentId) ?? `部门 #${group.departmentId}`
       : null,
-    href: group.findings.find((finding) => finding.href)?.href ?? "/settings/admin?tab=dataQuality",
+    href: group.findings.find((finding) => finding.href)?.href ?? "/settings/account?tab=subscriptions",
   }));
 }
 
@@ -267,69 +258,41 @@ async function deliverWorkspaceAlerts(
   findings: DataQualityFinding[],
 ) {
   if (!policy.notifications.workspace.enabled || findings.length === 0) return;
-  const groups = await resolveDeliveryGroups(buildDataQualityNotificationGroups({
-    findings,
-    routes: policy.notifications.workspace.routes,
-    fallbackRecipientUsernames: policy.notifications.workspace.fallbackRecipientUsernames,
-  }));
-  const allUsernames = [...new Set(groups.flatMap((group) => group.recipientUsernames))];
-  const users = await prisma.user.findMany({
-    where: { username: { in: allUsernames }, canLogin: true },
-    select: { id: true, username: true },
-  });
-  const usersByUsername = new Map(users.map((user) => [user.username, user]));
+  const groups = await resolveDeliveryGroups(buildDataQualityNotificationGroups(findings));
   for (const group of groups) {
     const scope = [group.resourceLabel, group.departmentName].filter(Boolean).join(" · ");
-    let destination = `${scope} → ${group.recipientUsernames.join(",")}`;
+    const resourceKey = group.resourceKey ?? "settings.admin";
+    const subscribers = await listEligibleNotificationSubscribers({
+      eventKey: "platform.businessData.alert",
+      resourceKey,
+    });
+    if (subscribers.length === 0) {
+      await prisma.dataQualityNotificationDelivery.create({
+        data: {
+          runId,
+          channel: "workspace",
+          destination: `${scope} → no-subscribers`,
+          status: "skipped",
+          findingCount: group.findings.length,
+        },
+      });
+      continue;
+    }
+    const destination = `${scope} → ${subscribers.map((subscriber) => subscriber.username).join(",")}`;
     try {
-      const configuredRecipients = group.recipientUsernames.map((username) => usersByUsername.get(username)).filter(Boolean);
-      if (configuredRecipients.length !== group.recipientUsernames.length) throw new Error("分流规则包含不存在或不可登录的站内接收人");
-      const resourceKey = group.resourceKey ?? "settings.admin";
-      const routeEligibility = await Promise.all(configuredRecipients.map(async (recipient) => ({
-        recipient: recipient!,
-        allowed: await canReceiveNotificationForResource(recipient!.id, resourceKey),
-      })));
-      const subscribers = await listEligibleNotificationSubscribers({
-        eventKey: "platform.dataQuality.alert",
-        resourceKey,
-      });
-      const recipients = new Map<number, {
-        id: number;
-        username: string;
-        subscriptionId: number | null;
-        recipientReason: string;
-      }>();
-      routeEligibility.filter((item) => item.allowed).forEach(({ recipient }) => {
-        recipients.set(recipient.id, {
-          ...recipient,
-          subscriptionId: null,
-          recipientReason: "系统管理员为此业务范围配置了提醒",
-        });
-      });
-      subscribers.forEach((subscriber) => {
-        if (recipients.has(subscriber.userId)) return;
-        recipients.set(subscriber.userId, {
-          id: subscriber.userId,
-          username: subscriber.username,
-          subscriptionId: subscriber.subscriptionId,
-          recipientReason: `你订阅了「${group.resourceLabel}」业务资料异常提醒`,
-        });
-      });
-      if (recipients.size === 0) throw new Error("没有符合对应业务资料读取权限的站内接收人");
-      destination = `${scope} → ${[...recipients.values()].map((recipient) => recipient.username).join(",")}`;
       const payload = alertPayload(runId, trigger, group);
-      await Promise.all([...recipients.values()].map((recipient) => sendNotification({
-        recipientUserId: recipient.id,
-        type: "platform.dataQuality.alert",
+      await Promise.all(subscribers.map((subscriber) => sendNotification({
+        recipientUserId: subscriber.userId,
+        type: "platform.businessData.alert",
         payload,
         isImportant: payload.criticalCount > 0,
         isStrongReminder: payload.criticalCount > 0,
         requiresAcknowledgement: payload.criticalCount > 0,
         deliveryContext: {
-          recipientReason: recipient.recipientReason,
+          recipientReason: `你订阅了「${group.resourceLabel}」业务资料异常提醒`,
           resourceKey,
           scopeId: group.departmentId ? `department:${group.departmentId}` : null,
-          subscriptionId: recipient.subscriptionId,
+          subscriptionId: subscriber.subscriptionId,
         },
       })));
       const sentAt = new Date();
@@ -347,49 +310,6 @@ async function deliverWorkspaceAlerts(
         data: {
           runId,
           channel: "workspace",
-          destination,
-          status: "failed",
-          findingCount: group.findings.length,
-          error: error instanceof Error ? error.message : String(error),
-        },
-      });
-    }
-  }
-}
-
-async function deliverWecomAlerts(
-  runId: number,
-  trigger: DataQualityTrigger,
-  policy: DataQualityPolicy,
-  findings: DataQualityFinding[],
-) {
-  if (!policy.notifications.wecomGroup.enabled || findings.length === 0) return;
-  const groups = await resolveDeliveryGroups(buildDataQualityNotificationGroups({ findings }));
-  for (const group of groups) {
-    const scope = [group.resourceLabel, group.departmentName].filter(Boolean).join(" · ");
-    const destination = `${scope} → configured-group-webhook`;
-    try {
-      await sendDataQualityWecomGroupAlert({
-        runId,
-        trigger,
-        findings: group.findings,
-        scope: { resourceLabel: group.resourceLabel, departmentName: group.departmentName, href: group.href },
-      });
-      const sentAt = new Date();
-      await prisma.$transaction([
-        prisma.dataQualityFinding.updateMany({
-          where: { fingerprint: { in: group.findings.map((finding) => finding.fingerprint) } },
-          data: { lastWecomNotifiedAt: sentAt },
-        }),
-        prisma.dataQualityNotificationDelivery.create({
-          data: { runId, channel: "wecom_group", destination, status: "sent", findingCount: group.findings.length, sentAt },
-        }),
-      ]);
-    } catch (error) {
-      await prisma.dataQualityNotificationDelivery.create({
-        data: {
-          runId,
-          channel: "wecom_group",
           destination,
           status: "failed",
           findingCount: group.findings.length,
@@ -476,12 +396,8 @@ export async function runDataQuality(input: {
 
   const policy = await getDataQualityPolicy();
   const now = new Date();
-  const workspaceFindings = notificationCandidates(observed, policy, "workspace", now);
-  const wecomFindings = notificationCandidates(observed, policy, "wecom", now);
-  await Promise.all([
-    deliverWorkspaceAlerts(run.id, input.trigger, policy, workspaceFindings),
-    deliverWecomAlerts(run.id, input.trigger, policy, wecomFindings),
-  ]);
+  const workspaceFindings = notificationCandidates(observed, policy, now);
+  await deliverWorkspaceAlerts(run.id, input.trigger, policy, workspaceFindings);
   return {
     runId: run.id,
     trigger: input.trigger,

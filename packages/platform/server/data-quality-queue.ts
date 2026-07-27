@@ -17,7 +17,7 @@ export async function enqueueDataQualityEvaluations(
   client: DataQualityDbClient = prisma,
 ) {
   if (inputs.length === 0) return null;
-  const policy = await getDataQualityPolicy(client);
+  const policy = await getDataQualityPolicy();
   if (!policy.mutationTrigger.enabled) return null;
   return client.dataQualityEvaluationRequest.createMany({
     data: inputs.map((input) => ({

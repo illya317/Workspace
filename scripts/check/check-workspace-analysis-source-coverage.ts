@@ -248,7 +248,6 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/settings/account/routine": "controlPlane",
   "/api/settings/account/spaces": "controlPlane",
   "/api/settings/account/spaces/[targetType]/[targetId]/permissions": "controlPlane",
-  "/api/settings/admin/data-quality": "controlPlane",
   "/api/settings/admin/modules": "controlPlane",
   "/api/settings/admin/permission-grant-ledger": "controlPlane",
   "/api/settings/admin/permission-grants": "controlPlane",

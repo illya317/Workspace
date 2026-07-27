@@ -21,15 +21,20 @@ type NotificationCatalogItem = {
   groupLabel: string;
   triggerDescription: string;
   recipientDescription: string;
+  producerMode: "event" | "scheduled" | "scheduled_and_event";
+  producerAvailable: boolean;
   audienceMode: "assigned" | "governance_required" | "optional";
   subscriptionMode: "required" | "optional";
   ownerResourceKey: string | null;
   ownerResourceLabel: string | null;
   supportedChannels: string[];
+  availableChannels: string[];
   details: string[];
   selectedEnabled: boolean;
   effectiveEnabled: boolean;
   eligible: boolean;
+  deliveryAvailable: boolean;
+  runtimeAvailable: boolean;
   canConfigure: boolean;
   statusLabel: string;
   channel: string;
@@ -41,14 +46,22 @@ type CatalogResponse = { items: NotificationCatalogItem[] };
 const GROUP_ORDER = ["work", "workflow", "business", "security"] as const;
 
 function statusTone(item: NotificationCatalogItem) {
-  if (!item.eligible) return "warning" as const;
+  if (!item.runtimeAvailable || !item.eligible) return "warning" as const;
   if (item.effectiveEnabled) return "success" as const;
   return "muted" as const;
 }
 
 function deliveryLabel(item: NotificationCatalogItem) {
+  if (!item.deliveryAvailable) return "无可用发送渠道";
   if (item.channel === "workspace" && item.cadence === "immediate") return "站内 · 即时";
   return `${item.channel} · ${item.cadence}`;
+}
+
+function producerLabel(item: NotificationCatalogItem) {
+  if (!item.producerAvailable) return "自动触发未运行";
+  if (item.producerMode === "scheduled_and_event") return "定时 + 事件自动触发";
+  if (item.producerMode === "scheduled") return "定时自动触发";
+  return "业务事件自动触发";
 }
 
 export default function AccountNotificationSubscriptionsPanel({
@@ -100,7 +113,7 @@ export default function AccountNotificationSubscriptionsPanel({
 
   const sections: BodySurfaceSectionSpec[] = [
     createMessageSection("subscription-intro", {
-      content: "可选提醒按你当前拥有的业务资料读取权限开放；流程、协作和安全治理职责通知不能关闭。",
+      content: "每项通知都包含真实运行的触发方式和发送渠道；缺少任一项时不能订阅。可选提醒还会按业务资料读取权限校验，流程、协作和安全治理职责通知不能关闭。",
       tone: "muted",
     }),
     ...GROUP_ORDER.flatMap((groupKey) => {
@@ -120,6 +133,7 @@ export default function AccountNotificationSubscriptionsPanel({
           ].filter(Boolean).join(" · "),
           badges: [
             { key: "status", label: item.statusLabel, tone: statusTone(item) },
+            { key: "producer", label: producerLabel(item), tone: item.producerAvailable ? "default" : "warning" },
             { key: "delivery", label: deliveryLabel(item), tone: "default" },
           ],
           tone: item.effectiveEnabled ? "success" : item.eligible ? "default" : "muted",

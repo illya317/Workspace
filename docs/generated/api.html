@@ -31,14 +31,14 @@
 <body>
 <div class="container">
 <h1>Workspace API Reference</h1>
-<p class="subtitle">455 endpoints across 8 groups；访问标记来自 API contract 与 route wrapper</p>
+<p class="subtitle">456 endpoints across 8 groups；访问标记来自 API contract 与 route wrapper</p>
 <div class="summary">
   <div class="summary-grid">
     <div class="summary-item"><div class="num">186</div><div class="label">GET</div></div>
     <div class="summary-item"><div class="num">160</div><div class="label">POST</div></div>
     <div class="summary-item"><div class="num">63</div><div class="label">PUT</div></div>
     <div class="summary-item"><div class="num">13</div><div class="label">PATCH</div></div>
-    <div class="summary-item"><div class="num">33</div><div class="label">DELETE</div></div>
+    <div class="summary-item"><div class="num">34</div><div class="label">DELETE</div></div>
   </div>
 </div>
 
@@ -563,6 +563,12 @@
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/capitalSecurities/governance/ownership-interests</span>
   <span class="auth">登录 + capitalSecurities.governance.read</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/capitalSecurities/governance/ownership-interests/consolidation</span>
+  <span class="auth">登录 + capitalSecurities.governance.create</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
@@ -2150,6 +2156,24 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/settings/account/notification-subscriptions</span>
+  <span class="auth">登录 + settings.account.read</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/modules/settings/account/notification-subscriptions/:eventKey</span>
+  <span class="auth">登录 + settings.account.read</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/settings/account/notification-subscriptions/:eventKey</span>
+  <span class="auth">登录 + settings.account.read</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
   <span class="method" style="background:#059669">POST</span>
   <span class="path">/api/modules/work/internal/account</span>
   <span class="auth">内部服务鉴权</span>
@@ -2659,24 +2683,6 @@
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/settings/account/week-info</span>
   <span class="auth">公开（API contract）</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/admin/data-quality</span>
-  <span class="auth">登录 + settings.admin.audit + service 授权 + 管理权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/settings/admin/data-quality</span>
-  <span class="auth">登录 + settings.admin.configure + service 授权 + 管理权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/admin/data-quality</span>
-  <span class="auth">登录 + settings.admin.configure + service 授权 + 管理权限</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
