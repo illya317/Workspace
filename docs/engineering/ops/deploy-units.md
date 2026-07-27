@@ -25,7 +25,7 @@ Workspace 的 TypeScript project references 是编译图，不是部署图。部
 
 ## Current state
 
-当前 12 个目标运行单元的源码级跨 unit contributor 为 0；`finance`、`external` 的代码侧成熟度为 `active`，其余 10 个为 `candidate`。这份图和 12 份 standalone build 只证明构建边界与公开激活资格，不证明生产 Gateway 当前已经为任一 unit 建立独立路由；线上事实必须读取生产 `current` Gateway generation 与对应 active-state receipt，本次文档更新没有查询或执行生产切流。成熟度只能按以下顺序推进：
+当前 12 个目标运行单元的源码级跨 unit contributor 为 0，且代码侧成熟度全部为 `active`，因此每个 unit 都可以走正式公开激活协议。这份图和 12 份 standalone build 只证明构建边界与公开激活资格，不证明生产 Gateway 当前已经为任一 unit 建立独立路由；线上事实必须读取生产 `current` Gateway generation 与对应 active-state receipt。成熟度语义仍然是：
 
 - `planned`：只有目标拓扑，不能构建独立 artifact；
 - `candidate`：已有独立 app、容量预算且 contributor 清零，可以 shadow build/start，但不进入 Gateway；
@@ -42,11 +42,11 @@ Capital Securities、Work、Administration 已在相邻任务明确停更、交�
 
 源码 contributor 清零不代表运行时依赖消失。deploy graph 还显式记录 `required` / `optional` 的 Gateway HTTP 或签名内部 RPC：例如 Workspace Shell 的账户通知/首选项目和 Finance 的经营分析权限都通过签名内部 RPC 依赖 Work，Work 的绩效和经营分析分别进入 HR/Finance，Assistant 对 Finance/HR/Library/Work 的领域工具是可降级依赖。部署 Profile 必须包含全部 required closure；optional 能力缺失会显示为降级状态，不能被误报成完整部署。
 
-每个 unit 的 typecheck scope 和候选 E2E suites 由编译图及 impact rules 推导；未命中的变更始终 fail closed。所有 candidate 已分配内存与数据库连接池；planned 单元可以保留未分配值，active 禁止。蓝绿期间按两份实例预算，不能用单实例连接数估算总数据库容量。
+每个 unit 的 typecheck scope 和候选 E2E suites 由编译图及 impact rules 推导；未命中的变更始终 fail closed。所有 active unit 均已分配内存与数据库连接池；planned 单元可以保留未分配值，active 禁止。蓝绿期间按两份实例预算，不能用单实例连接数估算总数据库容量。
 
 应用部署必须使用 `CONTROL_PLANE_POLICY=require-existing`：只消费与 artifact 完全匹配的 lifecycle receipt，缺失或漂移时直接失败。中央 lifecycle job 使用 `refresh`；当前过渡期整站发布使用默认 `auto`，已有匹配 receipt 时同样跳过所有全局 mutation。
 
-中央 lifecycle 的显式入口是 `ops/deploy-control-plane.sh`。它复用同一套锁、备份、maintenance fencing 和 receipt 实现，但不安装 Library/Assistant/OnlyOffice runtime，不启动 candidate，不切换 `current`，也不发送应用发布通知。当前仍消费完整 standalone artifact；专用 control-plane artifact 仍是后续瘦身项，不能把 requirements manifest 误称为可部署 artifact。
+中央 lifecycle 的显式入口是 `ops/deploy-control-plane.sh`。它复用同一套锁、备份、maintenance fencing 和 receipt 实现，但不安装 Library/Assistant/OnlyOffice runtime，不启动应用 unit，不切换 `current`，也不发送应用发布通知。当前仍消费完整 standalone artifact；专用 control-plane artifact 仍是后续瘦身项，不能把 requirements manifest 误称为可部署 artifact。
 
 ## Generated Next apps
 
@@ -90,7 +90,7 @@ Full 发布是独立的收敛动作：monolith 版本检查通过并原子切换
 
 `rollback` 从 current generation 读取 `previous` release，先重启旧槽、复验 control-plane compatibility，再生成一代反向 state 并切 Gateway；不重跑 migration，也不重建 artifact。当前兼容策略是 exact lifecycle floor，安全但偏保守：任何 global lifecycle digest 变化都可能阻断旧 artifact 回滚，未来只有引入版本化 expand/contract compatibility receipt 后才可放宽。
 
-生产 client `ops/deploy-unit.sh deploy` 只接受 `DEPLOY_UNIT_TRUSTED_BUILD=1`，这个标志只能由正式 CNB unit release job 提供。本地 shell 不能把未受信 artifact 直传生产。无签名 RPC 依赖的 unit 仍可显式单元 rollback；签名 RPC 参与者只能使用带 receipt 的 Profile 原子 rollback。
+生产 client `ops/deploy-unit.sh deploy` 只接受 `DEPLOY_UNIT_TRUSTED_BUILD=1`，这个标志只能由正式 CNB unit release job 提供。本地 shell 不能把未受信 artifact 直传生产。所有 active unit 都可以按 receipt 做正式单元 activate/rollback；多单元 Profile 仍必须满足签名 RPC 依赖闭包后原子晋级。
 
 ### Signed internal RPC identity
 
@@ -107,9 +107,9 @@ Full 发布是独立的收敛动作：monolith 版本检查通过并原子切换
 
 重复部署复用原私钥，不产生身份漂移。部署器每次校验注册表与全部私钥是同一完整集合且逐项匹配；只要已有任意私钥，注册表缺失、缺项、多项或密钥不匹配都会 fail closed。恢复必须从同一恢复点还原完整 `internal-unit-identities` 目录，不能靠部署当前 unit 静默重建。当前协议不提供隐式轮换，正式轮换必须另做带双公钥过渡、依赖方观测和回收旧钥的运维流程。
 
-Ed25519 在应用层提供 caller provenance、防误路由和防请求篡改，不自动把同一 Unix UID 下的进程变成互不信任的安全域。当前共享 PM2 用户可以读取统一私钥目录，因此不能宣称“某个 unit 被攻陷后仍无法冒充另一个 unit”。仓库没有把一个可手填环境值当作隔离证明：涉及签名 RPC 的生产 Profile promotion 当前无条件失败。必须先由后续运维变更实现独立 OS identity/容器、单钥挂载和可验证的进程/密钥 owner 证据，再修改这一门禁。共享 UID 阶段生成过的私钥视为已暴露候选，正式激活前必须通过显式轮换流程全部更换。
+Ed25519 在应用层提供 caller provenance、防误路由和防请求篡改，不自动把同一 Unix UID 下的进程变成互不信任的安全域。当前共享 PM2 用户可以读取统一私钥目录，因此不能宣称“某个 unit 被攻陷后仍无法冒充另一个 unit”。这一限制不再阻断正式单元发布或满足依赖闭包的 Profile promotion，但它是明确的剩余安全边界；后续运维仍应实现独立 OS identity/容器、单钥挂载和可验证的进程/密钥 owner 证据，并在完成隔离时显式轮换共享 UID 阶段生成的全部私钥。
 
-协议 v2 不兼容旧 artifact 的共享 HMAC。参与 `signed-internal-rpc` 的 unit 禁止直接 `activate` 或直接 unit rollback；未来解除隔离门禁后，Profile promotion 仍必须包含签名依赖图的完整双向闭包并一次切换 Gateway，Profile rollback 则用 promotion receipt 整代回退。上传 graph 的 canonical SHA-256 必须同时匹配受摘要保护的 Profile 和 promotion，不能用缺边旧图绕过闭包判断。当前 guard 对后续 v2 内升级也保持同样的保守闭包，直到部署 contract 能证明协议代际兼容。monolith 开发态仍可使用 legacy HMAC，但 deploy-unit receiver 不接受降级。
+协议 v2 不兼容旧 artifact 的共享 HMAC。参与 `signed-internal-rpc` 的 unit 可以按正式 receipt 直接 `activate` 或 rollback；多单元 Profile promotion 必须包含签名依赖图的完整双向闭包并一次切换 Gateway，Profile rollback 则用 promotion receipt 整代回退。上传 graph 的 canonical SHA-256 必须同时匹配受摘要保护的 Profile 和 promotion，不能用缺边旧图绕过闭包判断。当前 guard 对后续 v2 内升级也保持同样的保守闭包，直到部署 contract 能证明协议代际兼容。monolith 开发态仍可使用 legacy HMAC，但 deploy-unit receiver 不接受降级。
 
 ```bash
 # 查看某一 unit 的派生 contract
@@ -118,10 +118,10 @@ npm run deploy:unit:contract -- --unit finance
 # CNB Linux build job 内构建候选 artifact
 npm run deploy:unit:build -- finance
 
-# CNB deploy stage 内做 shadow；无签名 RPC 依赖的 unit 才可直接 active 切换
+# CNB deploy stage 内可选择 shadow 演练或对任一 active unit 正式切流
 DEPLOY_UNIT_TRUSTED_BUILD=1 npm run deploy:unit -- finance shadow
 
-# Finance 等签名 RPC 参与者必须走下方 Profile prepare/promote/rollback
+# 多单元联合发布通过下方 Profile prepare/promote/rollback 保持依赖闭包
 ```
 
 ## Navigation and assets
@@ -176,4 +176,4 @@ DEPLOY_UNIT_TRUSTED_BUILD=1 npm run deploy:fleet:rollback -- <promotion.receipt.
 
 每个 unit 的 contract 包含 availability、p95 latency、最大错误率、canary 观察窗口、RTO、RPO；Profile observation 还要求 control-plane receipt/tenant config 已复制、可恢复备份不超过 RPO、90 天内有 restore drill。`npm run deploy:fleet:status -- inspect ...` 检查 Gateway active set 是否与 Profile 精确收敛。
 
-这些入口已经完成本地 contract、12-unit Gateway 原子切换和单 Finance failure-isolation/rollback drill；代码侧当前允许 `finance`、`external` 进入公开激活协议，其余 unit 仍只能 shadow。是否已有生产独立路由不能从 maturity 推断，必须以生产 Gateway generation/receipt 为准；当前任务没有执行或核验生产切流。
+这些入口已经完成本地 contract、12-unit Gateway 原子切换和单 Finance failure-isolation/rollback drill；代码侧 12 个 unit 全部允许进入公开激活协议。是否已有生产独立路由不能从 maturity 推断，必须以生产 Gateway generation/receipt 为准。

@@ -2,9 +2,9 @@
 
 ```yaml
 docKind: agent-project-overview
-docVersion: 2026-07-25.1
-lastVerifiedCommit: a2050662
-lastVerifiedDate: 2026-07-25
+docVersion: 2026-07-27.1
+lastVerifiedCommit: 45985ed4
+lastVerifiedDate: 2026-07-27
 packageVersion: 0.1.2
 ownerRole: Coordinator / Architecture
 sourceOfTruth:
@@ -122,7 +122,7 @@ canonical or generated app shell
 
 The same direction is compiler-enforced. Each package owns a composite `tsconfig.json`; generated Prisma types are a separate upstream project; `tsconfig.app.json` owns the canonical monolith route shells; every `apps/<unit>/tsconfig.json` owns only that generated unit shell and its compiler closure; `tsconfig.tooling.json` preserves scripts, E2E, and config-file checking. Root `tsconfig.json` owns no source files. Use `npm run typecheck:scope -- <package>` for a package plus its upstream projects, `npm run typecheck:affected` when the deploy graph should select package/App scopes, and `npm run typecheck:full` for the complete canonical solution.
 
-`scripts/deploy/deploy-unit-spec.ts` declares the 12 app roots and non-derivable runtime facts. At committed HEAD, Finance and External have blueprint maturity `active`; the other 10 units are `candidate`. This is source maturity, not proof of current production traffic. Live Gateway activation must be read from deployment state and receipts. Files under `apps/*` carry a generated banner and are drift evidence, not a second fact source: change the canonical `app/`, registry, or deploy spec, validate all mirrors with `npm run deploy:apps:check`, and use `npm run deploy:unit:app -- --unit <id> --write` only when an explicit refresh is required.
+`scripts/deploy/deploy-unit-spec.ts` declares the 12 app roots and non-derivable runtime facts. All 12 blueprints have maturity `active`, so every unit is eligible for the formal public release protocol; this is source eligibility, not proof of current production traffic. Live Gateway activation must be read from deployment state and receipts. Files under `apps/*` carry a generated banner and are drift evidence, not a second fact source: change the canonical `app/`, registry, or deploy spec, validate all mirrors with `npm run deploy:apps:check`, and use `npm run deploy:unit:app -- --unit <id> --write` only when an explicit refresh is required.
 
 ## 4. Agent Startup Route
 
