@@ -155,6 +155,9 @@ test("CNB records the full deployment attempt and keeps release-processing timin
   assert.match(publishCnb, /Ops 总耗时/);
   assert.match(publishCnb, /main 处理与 CI 已排除/);
   assert.match(publishCnb, /cnb-build-timing-summary\.mjs --input/);
+  assert.match(publishCnb, /deploy-notification\.mjs full-write/);
+  assert.match(publishCnb, /node '\$remote_tool' event-write/);
+  assert.match(publishCnb, /--release-id "\$release_id"/);
   assert.ok(
     publishCnb.indexOf("local-release-gate-receipt.mjs")
       < publishCnb.indexOf('DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS="$(date +%s)"'),
@@ -170,7 +173,7 @@ test("failed or cancelled deploy attempts notify the server with duration", () =
   assert.match(publishCnb, /130\|143\) status="cancelled"/);
   assert.match(publishCnb, /'status': status/);
   assert.match(publishCnb, /'durationSeconds': duration/);
-  assert.match(deploy, /'status': 'succeeded'/);
+  assert.doesNotMatch(deploy, /run_deploy_stage notification\.record/);
 });
 
 test("CNB module publish separates public activation from explicit shadow and verifies exact Gateway state", () => {
@@ -194,6 +197,14 @@ test("CNB full reports success only after both terminal build success and exact 
   assert.ok(
     publishCnb.indexOf('[ "$cnb_state" != "failure" ]')
       < publishCnb.indexOf('if [ "$deployed_sha" = "$SOURCE_SHA" ] && [ "$cnb_state" = "success" ]; then'),
+  );
+  assert.ok(
+    publishCnb.indexOf('if [ "$deployed_sha" = "$SOURCE_SHA" ] && [ "$cnb_state" = "success" ]; then')
+      < publishCnb.indexOf('record_final_full_deploy_event "$FORMAL_DEPLOY_DURATION"'),
+  );
+  assert.ok(
+    publishCnb.indexOf('record_final_full_deploy_event "$FORMAL_DEPLOY_DURATION"')
+      < publishCnb.lastIndexOf('CNB-native 生产部署完成'),
   );
 });
 

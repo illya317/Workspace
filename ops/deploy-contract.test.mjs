@@ -74,31 +74,9 @@ test("Full cutover atomically revokes every independent Gateway override", () =>
   ]);
 });
 
-test("deployment notification records exact source and end-to-end publish duration", () => {
-  assert.match(deploy, /local started_epoch/);
-  assert.match(deploy, /require\('\.\/\$RELEASE_METADATA_FILE'\)\.deployment\.startedAtEpochSeconds/);
-  assert.match(deploy, /duration_seconds="\$\(\(\$\(date \+%s\) - started_epoch\)\)"/);
-  assert.doesNotMatch(deploy, /DEPLOY_STARTED_SECONDS|PUBLISH_STARTED_EPOCH_SECONDS/);
-  assert.match(deploy, /package_version="\$\(node -p "require\('\.\/package\.json'\)\.version"\)"/);
-  assert.match(
-    deploy,
-    /REMOTE_DIR='\$REMOTE_DIR' DEPLOY_PACKAGE_VERSION='\$package_version' DEPLOY_SOURCE_SHA='\$RELEASE_SOURCE_SHA' DEPLOY_DURATION_SECONDS='\$duration_seconds' DEPLOY_TIMING_BASE64='\$timing_payload_base64' python3/,
-  );
-  assert.match(deploy, /package = os\.environ\['DEPLOY_PACKAGE_VERSION'\]/);
-  assert.match(deploy, /build = os\.environ\['DEPLOY_SOURCE_SHA'\]/);
-  assert.match(deploy, /re\.fullmatch\(r'\[0-9a-f\]\{40\}', build\)/);
-  assert.match(deploy, /duration_seconds = int\(os\.environ\['DEPLOY_DURATION_SECONDS'\]\)/);
-  assert.match(deploy, /'durationSeconds': duration_seconds/);
-  assert.match(deploy, /'timing': timing/);
-  assert.match(deploy, /percentOfTotal: opsTotalSeconds === 0/);
-  assert.match(deploy, /deployment-history/);
-  assert.match(deploy, /'transport': 'cnb'/);
-  assertOrdered(deploy, [
-    "run_healthcheck",
-    "notify_workspace_bot_deploy",
-    "build = os.environ['DEPLOY_SOURCE_SHA']",
-    "'durationSeconds': duration_seconds",
-  ]);
+test("inner Full deploy never publishes the final success notification", () => {
+  assert.match(deploy, /run_deploy_stage health\.final run_healthcheck/);
+  assert.doesNotMatch(deploy, /run_deploy_stage notification\.record/);
 });
 
 test("local deploy stages record failures without disabling errexit", () => {
@@ -116,51 +94,6 @@ test("local deploy stages record failures without disabling errexit", () => {
   assert.match(cleanup, /local deploy_exit_code=\$\?/);
   assert.match(cleanup, /release_timing_active_finalize_on_exit \"\$deploy_exit_code\" \|\| true/);
   assert.match(cleanup, /return \"\$deploy_exit_code\"/);
-});
-
-test("deployment notification program writes a complete event at runtime", () => {
-  const embeddedProgram = embeddedPrograms("python3", "PY")
-    .find((candidate) => candidate.includes("Workspace deploy event recorded"));
-  assert.ok(embeddedProgram, "deployment notification Python program must exist");
-  const program = embeddedProgram.replaceAll('\\"', '"');
-  const root = mkdtempSync(join(tmpdir(), "workspace-deploy-event-"));
-  const remoteDir = join(root, "remote");
-  mkdirSync(remoteDir, { recursive: true });
-  try {
-    const result = runPython(program, {
-      HOME: root,
-      REMOTE_DIR: remoteDir,
-      DEPLOY_PACKAGE_VERSION: "0.1.2",
-      DEPLOY_SOURCE_SHA: "a".repeat(40),
-      DEPLOY_DURATION_SECONDS: "123",
-      DEPLOY_TIMING_BASE64: Buffer.from(JSON.stringify({
-        schemaVersion: 1,
-        totalSeconds: 123,
-        opsTotalSeconds: 153,
-        local: {
-          releaseProcessSeconds: 30,
-          releaseAttemptCount: 2,
-          releaseProcessStartedAt: "2026-07-25T00:00:00.000Z",
-          tenantSyncSeconds: 3,
-        },
-        stages: [],
-        slowestStage: null,
-      })).toString("base64"),
-    });
-    assert.equal(result.status, 0, result.stderr);
-    const event = JSON.parse(readFileSync(join(root, ".finance-bot-deploy-event.json"), "utf8"));
-    assert.equal(event.transport, "cnb");
-    assert.equal(event.package, "0.1.2");
-    assert.equal(event.build, "a".repeat(40));
-    assert.equal(event.durationSeconds, 123);
-    assert.equal(event.opsDurationSeconds, 153);
-    assert.equal(event.timing.local.releaseAttemptCount, 2);
-    const historyRoot = join(remoteDir, ".workspace", "deployment-history");
-    assert.deepEqual(JSON.parse(readFileSync(join(historyRoot, "latest.json"), "utf8")), event);
-    assert.deepEqual(JSON.parse(readFileSync(join(historyRoot, "deployments.ndjson"), "utf8")), event);
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
 });
 
 test("remote verification messages cannot become local shell redirects", () => {

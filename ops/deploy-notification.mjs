@@ -8,6 +8,7 @@ const UNIT_PATTERN = /^[a-z][a-z0-9-]*$/;
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const DIGEST_PATTERN = /^[0-9a-f]{64}$/;
 const PACKAGE_PATTERN = /^(?:unknown|[0-9A-Za-z][0-9A-Za-z.+-]*)$/;
+const CNB_BUILD_PATTERN = /^cnb-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function fail(message) { throw new Error(message); }
 
@@ -61,6 +62,13 @@ function normalizeDuration(value) {
   return duration;
 }
 
+function optionalDuration(value, label) {
+  if (value === undefined || value === null) return undefined;
+  const duration = Number(value);
+  if (!Number.isSafeInteger(duration) || duration < 0) fail(`${label} must be a non-negative integer`);
+  return duration;
+}
+
 function normalizeTiming(value, durationSeconds) {
   if (value === undefined || value === null) return null;
   if (!value || typeof value !== "object" || Array.isArray(value)) fail("deploy timing is invalid");
@@ -78,18 +86,37 @@ function normalizeTiming(value, durationSeconds) {
     };
   }) : [];
   const slowestStage = stages.reduce((slowest, stage) => !slowest || stage.durationMs > slowest.durationMs ? stage : slowest, null);
+  const local = { releaseProcessSeconds, releaseAttemptCount, releaseProcessStartedAt };
+  for (const [key, label] of [
+    ["localPreflightSeconds", "local preflight duration"],
+    ["tenantSyncSeconds", "tenant sync duration"],
+    ["releaseTriggerSeconds", "release trigger duration"],
+  ]) {
+    const duration = optionalDuration(value[key], label);
+    if (duration !== undefined) local[key] = duration;
+  }
+  const pipelineDurationMs = optionalDuration(value.pipelineDurationMs, "CNB pipeline duration");
+  const cnbBuildSn = value.cnbBuildSn === undefined
+    ? undefined
+    : requireString(value.cnbBuildSn, "CNB build SN");
+  if (cnbBuildSn !== undefined && !CNB_BUILD_PATTERN.test(cnbBuildSn)) fail("CNB build SN is invalid");
+  if ((pipelineDurationMs === undefined) !== (cnbBuildSn === undefined)) {
+    fail("CNB build identity and pipeline duration must be provided together");
+  }
   const opsTotalSeconds = releaseProcessSeconds + durationSeconds;
-  return {
+  const timing = {
     schemaVersion: 1,
     totalSeconds: durationSeconds,
     opsTotalSeconds,
-    local: { releaseProcessSeconds, releaseAttemptCount, releaseProcessStartedAt },
+    local,
     stages,
     slowestStage: slowestStage ? {
       ...slowestStage,
       percentOfTotal: opsTotalSeconds === 0 ? 0 : Math.round((slowestStage.durationMs / (opsTotalSeconds * 1000)) * 100),
     } : null,
   };
+  if (pipelineDurationMs !== undefined) timing.cnb = { buildSn: cnbBuildSn, pipelineDurationMs };
+  return timing;
 }
 
 function timestamp(value = new Date().toISOString()) {
@@ -134,6 +161,41 @@ function eventBase({ id, action, deploymentKind, deploymentMode, packageVersion,
     event.timing = normalizedTiming;
   }
   return event;
+}
+
+export function createFullDeployEvent({
+  sourceSha,
+  releaseId,
+  cnbBuildSn,
+  packageVersion = "unknown",
+  durationSeconds = 0,
+  timing,
+  finishedAt,
+}) {
+  const build = requireSha(sourceSha, "deploy source SHA");
+  if (!CNB_BUILD_PATTERN.test(cnbBuildSn ?? "")) fail("CNB build SN is invalid");
+  const normalizedDuration = normalizeDuration(durationSeconds);
+  const normalizedTiming = normalizeTiming({ ...timing, cnbBuildSn }, normalizedDuration);
+  if (!normalizedTiming?.cnb) fail("Full deploy timing with CNB evidence is required");
+  return {
+    schemaVersion: 2,
+    kind: "workspace-deploy-event",
+    id: `full:deploy:${build}:${cnbBuildSn}`,
+    transport: "cnb",
+    deploymentKind: "full",
+    deploymentMode: "full",
+    action: "deploy",
+    status: "succeeded",
+    package: normalizePackageVersion(packageVersion),
+    build,
+    release: requireString(releaseId, "deploy release"),
+    cnbBuildSn,
+    durationSeconds: normalizedDuration,
+    opsDurationSeconds: normalizedTiming.opsTotalSeconds,
+    startedAt: normalizedTiming.local.releaseProcessStartedAt,
+    finishedAt: timestamp(finishedAt),
+    timing: normalizedTiming,
+  };
 }
 
 export function createUnitDeployEvent({
@@ -257,7 +319,7 @@ function parseArguments(argv) {
 
 function required(options, key) { return requireString(options[key], `--${key.replaceAll("_", "-")}`); }
 
-export function main(argv = process.argv.slice(2)) {
+export async function main(argv = process.argv.slice(2)) {
   const [command, ...rest] = argv;
   const options = parseArguments(rest);
   const common = {
@@ -274,6 +336,42 @@ export function main(argv = process.argv.slice(2)) {
       ? JSON.parse(Buffer.from(options.stages_base64, "base64").toString("utf8"))
       : [],
   };
+  if (command === "full-write") {
+    const { summarizeCnbBuildStatus } = await import("./cnb-build-timing-summary.mjs");
+    const cnbSummary = summarizeCnbBuildStatus(readJson(required(options, "cnb_status_file"), "CNB build status"));
+    writeDeployEvent(required(options, "event_file"), createFullDeployEvent({
+      sourceSha: required(options, "source_sha"),
+      releaseId: required(options, "release_id"),
+      cnbBuildSn: required(options, "cnb_build_sn"),
+      packageVersion: options.package_version ?? "unknown",
+      durationSeconds: options.duration_seconds ?? "0",
+      finishedAt: options.finished_at,
+      timing: {
+        releaseProcessSeconds: required(options, "release_process_seconds"),
+        releaseAttemptCount: required(options, "release_attempt_count"),
+        releaseProcessStartedAt: required(options, "release_process_started_at"),
+        localPreflightSeconds: options.local_preflight_seconds,
+        tenantSyncSeconds: options.tenant_sync_seconds,
+        releaseTriggerSeconds: options.release_trigger_seconds,
+        pipelineDurationMs: cnbSummary.pipelineDurationMs,
+        stages: cnbSummary.stages.map((stage) => ({
+          scope: "cnb.pipeline",
+          stage: stage.name,
+          status: stage.status,
+          durationMs: stage.durationMs,
+        })),
+      },
+    }), { historyDir: options.history_dir });
+    return;
+  }
+  if (command === "event-write") {
+    const event = readJson(required(options, "input"), "deploy event");
+    if (event?.kind !== "workspace-deploy-event" || event?.status !== "succeeded") {
+      fail("deploy event input is not a final succeeded event");
+    }
+    writeDeployEvent(required(options, "event_file"), event, { historyDir: options.history_dir });
+    return;
+  }
   if (command === "unit-write") {
     writeDeployEvent(required(options, "event_file"), createUnitDeployEvent({
       ...common,
@@ -298,7 +396,7 @@ export function main(argv = process.argv.slice(2)) {
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
-  try { main(); } catch (error) {
+  try { await main(); } catch (error) {
     console.error(error instanceof Error ? error.message : error);
     process.exitCode = 1;
   }

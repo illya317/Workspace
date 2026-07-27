@@ -1,13 +1,93 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { createProfileDeployEvent, createUnitDeployEvent, writeDeployEvent } from "./deploy-notification.mjs";
+import {
+  createFullDeployEvent,
+  createProfileDeployEvent,
+  createUnitDeployEvent,
+  main,
+  writeDeployEvent,
+} from "./deploy-notification.mjs";
 
 const build = "a".repeat(40);
 const generation = "b".repeat(64);
+
+test("Full deploy event binds terminal CNB timing and exact Ops total", () => {
+  const event = createFullDeployEvent({
+    sourceSha: build,
+    releaseId: "20260727105913-aaaaaaaa",
+    cnbBuildSn: "cnb-uio-example",
+    packageVersion: "0.1.2",
+    durationSeconds: 362,
+    finishedAt: "2026-07-27T03:00:55.000Z",
+    timing: {
+      releaseProcessSeconds: 7,
+      releaseAttemptCount: 1,
+      releaseProcessStartedAt: "2026-07-27T02:54:46.000Z",
+      localPreflightSeconds: 2,
+      tenantSyncSeconds: 4,
+      releaseTriggerSeconds: 2,
+      pipelineDurationMs: 314000,
+      stages: [
+        { scope: "cnb.pipeline", stage: "build-release-target", status: "success", durationMs: 144000 },
+        { scope: "cnb.pipeline", stage: "End", status: "success", durationMs: 32000 },
+      ],
+    },
+  });
+  assert.equal(event.deploymentKind, "full");
+  assert.equal(event.status, "succeeded");
+  assert.equal(event.durationSeconds, 362);
+  assert.equal(event.opsDurationSeconds, 369);
+  assert.equal(event.startedAt, "2026-07-27T02:54:46.000Z");
+  assert.equal(event.finishedAt, "2026-07-27T03:00:55.000Z");
+  assert.deepEqual(event.timing.cnb, { buildSn: "cnb-uio-example", pipelineDurationMs: 314000 });
+  assert.equal(event.timing.slowestStage.stage, "build-release-target");
+  assert.equal(event.timing.local.tenantSyncSeconds, 4);
+});
+
+test("Full deploy CLI derives final stage evidence from terminal CNB status", async () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "workspace-full-deploy-event-"));
+  const statusFile = path.join(root, "cnb-status.json");
+  const eventFile = path.join(root, "event.json");
+  writeFileSync(statusFile, JSON.stringify({
+    data: {
+      pipelinesStatus: {
+        "cnb-uio-example": {
+          duration: 314000,
+          stages: [
+            { name: "build-release-target", status: "success", duration: 144000 },
+            { name: "End", status: "success", duration: 32000 },
+          ],
+        },
+      },
+    },
+  }));
+  await main([
+    "full-write",
+    "--source-sha", build,
+    "--release-id", "20260727105913-aaaaaaaa",
+    "--cnb-build-sn", "cnb-uio-example",
+    "--cnb-status-file", statusFile,
+    "--package-version", "0.1.2",
+    "--duration-seconds", "362",
+    "--release-process-seconds", "7",
+    "--release-attempt-count", "1",
+    "--release-process-started-at", "2026-07-27T02:54:46.000Z",
+    "--local-preflight-seconds", "2",
+    "--tenant-sync-seconds", "4",
+    "--release-trigger-seconds", "2",
+    "--finished-at", "2026-07-27T03:00:55.000Z",
+    "--event-file", eventFile,
+  ]);
+  const event = JSON.parse(readFileSync(eventFile, "utf8"));
+  assert.equal(event.release, "20260727105913-aaaaaaaa");
+  assert.equal(event.opsDurationSeconds, 369);
+  assert.equal(event.timing.cnb.pipelineDurationMs, 314000);
+  assert.deepEqual(event.timing.stages.map((stage) => stage.stage), ["build-release-target", "End"]);
+});
 
 test("unit deploy event identifies the exact public module", () => {
   const event = createUnitDeployEvent({

@@ -2483,126 +2483,6 @@ NODE
   "
 }
 
-notify_workspace_bot_deploy() {
-  local started_epoch
-  local duration_seconds
-  local package_version
-  local timing_payload_base64
-  started_epoch="$(node -p "require('./$RELEASE_METADATA_FILE').deployment.startedAtEpochSeconds")"
-  case "$started_epoch" in
-    ''|*[!0-9]*) echo "[错误] 发布入口开始时间无效"; exit 1 ;;
-  esac
-  duration_seconds="$(($(date +%s) - started_epoch))"
-  if [ "$duration_seconds" -lt 0 ]; then
-    echo "[错误] 发布入口开始时间晚于通知时间"
-    exit 1
-  fi
-  package_version="$(node -p "require('./package.json').version")"
-  case "$package_version" in
-    ''|*[!0-9A-Za-z.+-]*) echo "[错误] package version 无效"; exit 1 ;;
-  esac
-  timing_payload_base64="$(node - "$RELEASE_METADATA_FILE" "${RELEASE_TIMING_FILE:-}" "$duration_seconds" <<'NODE'
-const fs = require('node:fs');
-const [metadataFile, timingFile, totalSecondsText] = process.argv.slice(2);
-const metadata = JSON.parse(fs.readFileSync(metadataFile, 'utf8'));
-const totalSeconds = Number(totalSecondsText);
-const stages = timingFile && fs.existsSync(timingFile)
-  ? fs.readFileSync(timingFile, 'utf8').trim().split('\n').filter(Boolean).map((line) => JSON.parse(line))
-    .filter((event) => event.releaseId === metadata.source.commitSha)
-    .filter((event) => event.scope === 'cnb' || event.scope === 'deploy.remote')
-    .map(({ scope, stage, status, durationMs }) => ({ scope, stage, status, durationMs }))
-  : [];
-const slowestStage = stages.reduce(
-  (slowest, stage) => !slowest || stage.durationMs > slowest.durationMs ? stage : slowest,
-  null,
-);
-const releaseProcessSeconds = metadata.deployment.localTiming.releaseProcessSeconds;
-const opsTotalSeconds = releaseProcessSeconds + totalSeconds;
-const timing = {
-  schemaVersion: 1,
-  totalSeconds,
-  opsTotalSeconds,
-  local: metadata.deployment.localTiming,
-  stages,
-  slowestStage: slowestStage
-    ? {
-        ...slowestStage,
-        percentOfTotal: opsTotalSeconds === 0 ? 0 : Math.round((slowestStage.durationMs / (opsTotalSeconds * 1000)) * 100),
-      }
-    : null,
-};
-process.stdout.write(Buffer.from(JSON.stringify(timing)).toString('base64'));
-NODE
-)"
-  echo "==> 记录 Workspace 更新通知..."
-  ssh_cmd "REMOTE_DIR='$REMOTE_DIR' DEPLOY_PACKAGE_VERSION='$package_version' DEPLOY_SOURCE_SHA='$RELEASE_SOURCE_SHA' DEPLOY_DURATION_SECONDS='$duration_seconds' DEPLOY_TIMING_BASE64='$timing_payload_base64' python3 - <<'PY'
-import base64
-import datetime
-import json
-import os
-import re
-from pathlib import Path
-
-remote_dir = Path(os.environ['REMOTE_DIR'])
-release_path = (remote_dir / 'current').resolve()
-package = os.environ['DEPLOY_PACKAGE_VERSION']
-if not re.fullmatch(r'[0-9A-Za-z][0-9A-Za-z.+-]*', package):
-    raise SystemExit('deploy package version is invalid')
-build = os.environ['DEPLOY_SOURCE_SHA']
-if not re.fullmatch(r'[0-9a-f]{40}', build):
-    raise SystemExit('deploy source SHA is invalid')
-release = release_path.name
-duration_seconds = int(os.environ['DEPLOY_DURATION_SECONDS'])
-if duration_seconds < 0:
-    raise SystemExit('deploy duration must be non-negative')
-timing = json.loads(base64.b64decode(os.environ['DEPLOY_TIMING_BASE64']).decode('utf-8'))
-if timing.get('totalSeconds') != duration_seconds:
-    raise SystemExit('deploy timing total does not match event duration')
-ops_duration_seconds = timing.get('opsTotalSeconds')
-if not isinstance(ops_duration_seconds, int) or ops_duration_seconds < duration_seconds:
-    raise SystemExit('ops total duration is invalid')
-
-payload = {
-    'schemaVersion': 2,
-    'kind': 'workspace-deploy-event',
-    'id': f'{release}:{build}',
-    'transport': 'cnb',
-    'deploymentKind': 'full',
-    'deploymentMode': 'full',
-    'action': 'deploy',
-    'status': 'succeeded',
-    'package': str(package),
-    'build': str(build),
-    'release': release,
-    'durationSeconds': duration_seconds,
-    'opsDurationSeconds': ops_duration_seconds,
-    'timing': timing,
-    'finishedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-}
-
-def atomic_write(target, body):
-    tmp = target.with_name(f'.{target.name}.tmp-{os.getpid()}')
-    tmp.write_text(body)
-    os.chmod(tmp, 0o600)
-    tmp.replace(target)
-
-body = json.dumps(payload, ensure_ascii=False)
-target = Path.home() / '.finance-bot-deploy-event.json'
-atomic_write(target, body)
-history_root = remote_dir / '.workspace' / 'deployment-history'
-history_root.mkdir(parents=True, exist_ok=True, mode=0o700)
-os.chmod(history_root, 0o700)
-stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
-atomic_write(history_root / f'{stamp}-{build[:12]}-full.json', body)
-atomic_write(history_root / 'latest.json', body)
-history_log = history_root / 'deployments.ndjson'
-with history_log.open('a') as handle:
-    handle.write(body + '\n')
-os.chmod(history_log, 0o600)
-print(f\"Workspace deploy event recorded: {payload['id']}\")
-PY"
-}
-
 if [ "$RUN_LOCAL_CHECKS" = "1" ] && ! command -v npm >/dev/null 2>&1; then
   echo "==> 当前 CI 容器未提供 npm，自动跳过本地静态检查"
   RUN_LOCAL_CHECKS=0
@@ -2669,7 +2549,6 @@ else
   run_deploy_stage backup.cleanup cleanup_remote_backups
   run_deploy_stage artifact.deploy deploy_remote_artifact
   run_deploy_stage health.final run_healthcheck
-  run_deploy_stage notification.record notify_workspace_bot_deploy
 fi
 
 echo ""

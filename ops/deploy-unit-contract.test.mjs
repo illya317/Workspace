@@ -35,6 +35,7 @@ test("client deploy accepts only trusted artifacts while rollback remains an exp
   assert.match(client, /shadow\|prepare\|activate/);
   assert.match(client, /DEPLOY_PROFILE_PREPARED_STATE_ROOT/);
   assert.match(client, /deploy-notification\.mjs/);
+  assert.doesNotMatch(readFileSync("ops/deploy-notification.mjs", "utf8"), /^import .*cnb-build-timing-summary/m);
   assert.match(client, /internal-unit-identity\.mjs/);
   assert.match(client, /internal-rpc-deployment-guard\.mjs/);
   assert.ok(client.indexOf("DEPLOY_UNIT_TRUSTED_BUILD") < client.indexOf("rsync -az"));

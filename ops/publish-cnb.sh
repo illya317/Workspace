@@ -195,6 +195,61 @@ print_deploy_timing_summary() {
   echo "    Ops 合计        $(format_duration "$ops_total_seconds") (${ops_total_seconds}s)"
 }
 
+record_final_full_deploy_event() {
+  local total_seconds="$1"
+  local finished_at="$2"
+  local cnb_status_file="$3"
+  local release_id="$4"
+  local package_version
+  local event_file="$TMP_DIR/final-full-deploy-event.json"
+  local remote_notification_root="$REMOTE_DIR/.workspace/runtime/deploy-notification"
+  local remote_tool="$remote_notification_root/deploy-notification.mjs"
+  local remote_tool_tmp="$remote_notification_root/deploy-notification.tmp.mjs"
+  local remote_summary_tool="$remote_notification_root/cnb-build-timing-summary.mjs"
+  local remote_summary_tool_tmp="$remote_notification_root/cnb-build-timing-summary.tmp.mjs"
+  local remote_event="$remote_notification_root/final-full-${SOURCE_SHA}-${CNB_SN}.json"
+
+  package_version="$(node -p "require('./package.json').version")"
+  node ops/deploy-notification.mjs full-write \
+    --source-sha "$SOURCE_SHA" \
+    --release-id "$release_id" \
+    --cnb-build-sn "$CNB_SN" \
+    --cnb-status-file "$cnb_status_file" \
+    --package-version "$package_version" \
+    --duration-seconds "$total_seconds" \
+    --release-process-seconds "$RELEASE_PROCESS_SECONDS" \
+    --release-attempt-count "$RELEASE_ATTEMPT_COUNT" \
+    --release-process-started-at "$RELEASE_PROCESS_STARTED_AT" \
+    --local-preflight-seconds "$LOCAL_PREFLIGHT_DURATION_SECONDS" \
+    --tenant-sync-seconds "$TENANT_SYNC_DURATION_SECONDS" \
+    --release-trigger-seconds "$RELEASE_TRIGGER_DURATION_SECONDS" \
+    --finished-at "$finished_at" \
+    --event-file "$event_file"
+
+  ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
+    "mkdir -p '$remote_notification_root' && chmod 700 '$remote_notification_root'"
+  rsync -az -e "ssh -i $SERVER_READ_KEY -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new" \
+    ops/deploy-notification.mjs "$SERVER:$remote_tool_tmp"
+  rsync -az -e "ssh -i $SERVER_READ_KEY -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new" \
+    ops/cnb-build-timing-summary.mjs "$SERVER:$remote_summary_tool_tmp"
+  rsync -az -e "ssh -i $SERVER_READ_KEY -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new" \
+    "$event_file" "$SERVER:$remote_event"
+  ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
+    "set -e
+     chmod 600 '$remote_tool_tmp' '$remote_summary_tool_tmp' '$remote_event'
+     node --check '$remote_tool_tmp'
+     node --check '$remote_summary_tool_tmp'
+     mv '$remote_summary_tool_tmp' '$remote_summary_tool'
+     mv '$remote_tool_tmp' '$remote_tool'
+     node '$remote_tool' event-write \
+       --input '$remote_event' \
+       --event-file \"\$HOME/.finance-bot-deploy-event.json\" \
+       --history-dir '$REMOTE_DIR/.workspace/deployment-history'
+     rm -f '$remote_event'"
+  DEPLOY_ATTEMPT_RECORDED=1
+  echo "==> 最终 Full 部署事件已在 CNB terminal success 后记录。"
+}
+
 complete_release_process_session() {
   if ! node "$SCRIPT_DIR/release-process-timing.mjs" complete \
     --file "$RELEASE_PROCESS_TIMING_FILE" >/dev/null; then
@@ -600,15 +655,18 @@ NODE" 2>/dev/null || true)"
     sleep 10
     continue
   fi
-  deployed_sha="$(ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
-    "python3 -c \"import json; from pathlib import Path; p=Path('$REMOTE_DIR/.workspace/deployed-release.json'); print(json.loads(p.read_text())['source']['commitSha'] if p.exists() else '')\"" 2>/dev/null || true)"
+  deployed_values="$(ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
+    "python3 -c \"import json; from pathlib import Path; p=Path('$REMOTE_DIR/.workspace/deployed-release.json'); r=json.loads(p.read_text()) if p.exists() else {}; print(r.get('source', {}).get('commitSha', '')); print(r.get('deployment', {}).get('releaseId', ''))\"" 2>/dev/null || true)"
+  deployed_sha="$(printf '%s\n' "$deployed_values" | sed -n '1p')"
+  deployed_release_id="$(printf '%s\n' "$deployed_values" | sed -n '2p')"
   if [ "$deployed_sha" = "$SOURCE_SHA" ] && [ "$cnb_state" = "success" ]; then
     ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
       "set -e; curl -fsS '$HEALTHCHECK_URL' >/dev/null; test \"\$(curl -fsS http://127.0.0.1:3000/workspace/api/settings/version | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>process.stdout.write(JSON.parse(s).version))')\" = '$SOURCE_SHA'"
-    echo "==> CNB-native 生产部署完成: $SOURCE_SHA ($CNB_SN)"
     FORMAL_DEPLOY_FINISHED_EPOCH="$(date +%s)"
-    FORMAL_DEPLOY_FINISHED_AT="$(date '+%Y-%m-%d %H:%M:%S %z')"
+    FORMAL_DEPLOY_FINISHED_AT="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
     FORMAL_DEPLOY_DURATION="$((FORMAL_DEPLOY_FINISHED_EPOCH - PUBLISH_STARTED_EPOCH_SECONDS))"
+    record_final_full_deploy_event "$FORMAL_DEPLOY_DURATION" "$FORMAL_DEPLOY_FINISHED_AT" "$status_file" "$deployed_release_id"
+    echo "==> CNB-native 生产部署完成: $SOURCE_SHA ($CNB_SN)"
     echo "==> 正式部署计时结束: $FORMAL_DEPLOY_FINISHED_AT"
     print_deploy_timing_summary "$FORMAL_DEPLOY_DURATION" "$status_file"
     complete_release_process_session
