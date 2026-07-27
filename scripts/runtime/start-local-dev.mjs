@@ -11,6 +11,7 @@ export const LOCAL_DEV_PORT = 3000;
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const lockPath = path.join(repositoryRoot, ".cache/runtime/local-dev-server.lock");
 const nextCliPath = path.join(repositoryRoot, "node_modules/next/dist/bin/next");
+const prismaCliPath = path.join(repositoryRoot, "node_modules/prisma/build/index.js");
 const workspaceCheckPath = path.join(repositoryRoot, "scripts/check/check-workspace-runtime.js");
 
 export function assertFixedDevArguments(args) {
@@ -118,6 +119,27 @@ async function runWorkspacePreflight() {
   }
 }
 
+async function runDevelopmentMigrations() {
+  const child = spawn(
+    process.execPath,
+    [prismaCliPath, "migrate", "deploy", "--schema=./prisma"],
+    {
+      cwd: repositoryRoot,
+      env: process.env,
+      stdio: "inherit",
+    },
+  );
+  const result = await new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("exit", (code, signal) => resolve({ code, signal }));
+  });
+  if (result.code !== 0) {
+    throw new Error(
+      "Workspace 本地数据库 migration 未完成，dev server 未启动；请检查 DATABASE_URL、DIRECT_URL 和 Prisma migration 状态。",
+    );
+  }
+}
+
 async function runNextDev() {
   const child = spawn(process.execPath, [nextCliPath, "dev", "--port", String(LOCAL_DEV_PORT)], {
     cwd: repositoryRoot,
@@ -154,6 +176,7 @@ export async function main(args = process.argv.slice(2)) {
     if (!(await isPortAvailable())) throw new Error(occupiedPortMessage());
 
     await runWorkspacePreflight();
+    await runDevelopmentMigrations();
     await fs.rm(path.join(repositoryRoot, ".next"), { recursive: true, force: true });
     const result = await runNextDev();
     if (result.code !== null) return result.code;

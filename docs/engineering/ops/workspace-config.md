@@ -39,7 +39,7 @@ npm run workspace:init -- --root /absolute/path/to/.workspace
 npm run workspace:check -- --ops-env /absolute/path/to/private/ops/.env
 ```
 
-本地 `npm run dev` 会先运行同一工作区检查；缺少必需配置时服务不会启动，因此不会等到用户点击页面才暴露原始文件读取错误。生产部署同样在启动候选和公开切换前验证私有配置。可选能力在未配置时应返回受控的 unavailable 状态；必需租户配置始终 fail closed，不在 UI 请求过程中临时生成。
+本地 `npm run dev` 会先运行同一工作区检查，再对 `.env` 指向的开发库执行已提交的 `prisma migrate deploy --schema=./prisma`；配置检查或 migration 失败时服务都不会启动，因此不会等到用户点击页面才暴露缺表、缺列或原始文件读取错误。`npm run db:generate` 只生成 Prisma Client，不会修改数据库，不能把它当成 migration 已执行。若 3000 上的 dev server 已经在运行，而当前分支新合入了 `prisma/migrations/*`，必须重启 `npm run dev`，或先显式运行 `scripts/runtime/run-with-repo-node.sh npx --no-install prisma migrate deploy --schema=./prisma`，再验证新功能。生产部署同样在启动候选和公开切换前验证私有配置。可选能力在未配置时应返回受控的 unavailable 状态；必需租户配置始终 fail closed，不在 UI 请求过程中临时生成。
 
 把系统交付给另一家客户时，必须创建新的 `WORKSPACE_CONFIG_DIR` 和独立数据库，不能复用现有租户私有目录。现有租户内部增加法人或经营公司才是在同一目录中更新 `companies.json` 及相关 Finance/Work 配置。
 
