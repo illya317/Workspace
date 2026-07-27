@@ -170,7 +170,7 @@ getTimeline(subject, { from?, toExclusive? })
 
 UI 硬规则：
 
-- 待生效不是历史；至少显示“当前、待生效、历史”，异常期间单独显示“日期异常”。
+- `effective-period` 统一按“当前 → 待生效 → 历史 → 日期异常”展示；待生效不得混入历史，业务页面必须复用 `createBusinessTemporalView`，不得自行定义另一套时态分组顺序。
 - `recordState` 和 `temporalState` 使用不同字段、不同标签，不能合并成一个 `status`。
 - 页面展示、候选过滤和保存前校验使用同一个服务端 `asOfDate`；不得用 `new Date().toISOString()` 判断业务当前态。
 - 编辑生效日时实时预览被关闭、创建、取消的期间及下游影响；commit 前仍由服务端重新校验。

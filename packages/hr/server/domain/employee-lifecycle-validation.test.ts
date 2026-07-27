@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { shiftBusinessDate } from "@workspace/platform/contracts/business-temporal";
 import {
+  validateAssignmentChange,
   validateAssignmentTimeline,
   type LifecycleAssignmentPeriod,
 } from "./employee-lifecycle-validation";
@@ -44,6 +45,24 @@ test("a transfer split keeps exactly one 100 percent primary assignment", () => 
     { startDate: "2026-01-01", endDate: "2026-07-31", workPercent: "1", isPrimary: true },
     { startDate: "2026-08-01", endDate: null, workPercent: "1", isPrimary: true },
   ], "2026-07-26"), null);
+});
+
+test("a transfer must change the assignment placement", () => {
+  const source = assignment({ id: 1, startDate: "2026-01-01", endDate: null });
+  const unchangedTarget = assignment({ id: null, startDate: "2026-08-01", endDate: null });
+  assert.match(validateAssignmentChange("transfer", source, unchangedTarget) ?? "", /相同/);
+
+  const changedDepartment = { ...unchangedTarget, departmentId: 2 };
+  assert.equal(validateAssignmentChange("transfer", source, changedDepartment), null);
+});
+
+test("a reporting change must select a different reporting position", () => {
+  const source = assignment({ id: 1, startDate: "2026-01-01", endDate: null, reportToPositionId: 10 });
+  const unchangedTarget = assignment({ id: null, startDate: "2026-08-01", endDate: null, reportToPositionId: 10 });
+  assert.match(validateAssignmentChange("reporting_change", source, unchangedTarget) ?? "", /未发生变化/);
+
+  const changedTarget = { ...unchangedTarget, reportToPositionId: 11 };
+  assert.equal(validateAssignmentChange("reporting_change", source, changedTarget), null);
 });
 
 test("a finite concurrent assignment passes only when source allocation is reduced and restored", () => {

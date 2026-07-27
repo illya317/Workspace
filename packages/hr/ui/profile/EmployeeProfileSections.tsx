@@ -1,8 +1,10 @@
 "use client";
 
 import { SectionShell, createSectionShellSection } from "./ProfileFormControls";
+import { HR_ASSIGNMENT_TEMPORAL } from "@workspace/hr/business-temporal";
 import { edpFields, employmentFields, withTenantProfileFieldOptions } from "@workspace/hr/constants";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
+import { createBusinessTemporalView } from "@workspace/platform/ui";
 import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
 import { createPageBody, BodySurface, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import { createEmptyFormSection, createFieldGridSection, createFieldRegionSection, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
@@ -142,6 +144,7 @@ export function useEmploymentSections({
 
 interface EdpSectionProps {
   rows: EdpRow[];
+  asOfDate: string;
   className?: string;
 }
 
@@ -151,33 +154,25 @@ export function EdpSection(props: EdpSectionProps) {
 
 export function useEdpSections({
   rows,
+  asOfDate,
   className
 }: EdpSectionProps): BodySurfaceSectionSpec[] {
   const allFields = [...pickFields(edpFields, ["reportingCompanyId", "departmentId", "positionId", "isPrimary", "workPercent", "reportToPositionId"]), ...pickFields(edpFields, ["startDate", "endDate"])];
   const sections = rows.length === 0
     ? [createEmptyFormSection("edp-empty", "暂无岗位记录，请在“生命周期”登记入职或任职变更")]
-    : rows.map((row, index) => {
-        const temporalLabel = row.temporalState === "current"
-          ? "当前岗位"
-          : row.temporalState === "upcoming"
-            ? "待生效"
-            : row.temporalState === "past"
-              ? "历史岗位"
-              : "日期异常";
-        const temporalTone = row.temporalState === "current"
-          ? "green" as const
-          : row.temporalState === "upcoming"
-            ? "blue" as const
-            : "gray" as const;
-        return createFieldRegionSection({
-          key: String(row.id ?? `new-edp-${index}`),
-          title: <div className="flex flex-wrap items-center gap-2">
-                      <span>{row.positionName || `岗位记录 #${row.id}`}</span>
-                      <InlineStatusChip label={temporalLabel} tone={temporalTone} />
-                      {row.isPrimary && <InlineStatusChip label="主岗" tone="blue" />}
-                      <span className="text-xs font-medium text-slate-500">{row.departmentName || "未设置部门"} · 占比 {row.workPercent || "未设置"}</span>
-                    </div>,
-          sections: [createFieldGridSection(
+    : createBusinessTemporalView({
+        kind: "effective-period",
+        registration: HR_ASSIGNMENT_TEMPORAL,
+        asOfDate,
+        items: rows.map((row, index) => ({
+          key: row.id ?? `new-edp-${index}`,
+          title: `${row.positionName || `岗位记录 #${row.id}`}${row.isPrimary ? " · 主岗" : ""}`,
+          description: `${row.departmentName || "未设置部门"} · 占比 ${row.workPercent || "未设置"}`,
+          validFrom: row.startDate,
+          validThrough: row.endDate,
+          temporalState: row.temporalState,
+          recordState: "confirmed",
+          details: [createFieldGridSection(
             allFields,
             row as unknown as EditableRecord,
             true,
@@ -185,8 +180,8 @@ export function useEdpSections({
             undefined,
             `edp-${index}-fields`,
           )],
-        });
-      });
+        })),
+      }).body.sections;
   return [createSectionShellSection({
     title: "岗位记录",
     className,

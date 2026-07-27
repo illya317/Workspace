@@ -95,6 +95,29 @@ export interface EmployeeLifecycleCommand {
 
 type TimelineRow = Pick<LifecycleAssignmentPeriod, "startDate" | "endDate" | "workPercent" | "isPrimary">;
 
+export function validateAssignmentChange(
+  eventType: "transfer" | "reporting_change",
+  source: LifecycleAssignmentPeriod,
+  target: LifecycleAssignmentPeriod,
+) {
+  if (
+    eventType === "transfer"
+    && source.reportingCompanyId === target.reportingCompanyId
+    && source.departmentId === target.departmentId
+    && source.positionId === target.positionId
+    && source.positionReportOverrideId === target.positionReportOverrideId
+  ) {
+    return "目标岗位与来源岗位相同，无需登记调岗";
+  }
+  if (
+    eventType === "reporting_change"
+    && source.reportToPositionId === target.reportToPositionId
+  ) {
+    return "汇报岗位未发生变化，无需登记变更";
+  }
+  return null;
+}
+
 function text(value: unknown) {
   const normalized = String(value ?? "").trim();
   return normalized || null;
@@ -337,6 +360,10 @@ export async function buildEmployeeLifecycleCommand(
   if (eventType === "onboard" || eventType === "transfer") {
     const target = await normalizeTargetAssignment(employeeId, input, effectiveDate, sourceAssignment ?? undefined);
     if (!target.ok) return target;
+    if (eventType === "transfer" && sourceAssignment) {
+      const changeError = validateAssignmentChange(eventType, sourceAssignment, target.data);
+      if (changeError) return failCommand(changeError, 400, "positionId");
+    }
     targetAssignment = target.data;
   } else if (eventType === "concurrent_assignment") {
     const target = await normalizeTargetAssignment(employeeId, input, effectiveDate);
@@ -354,6 +381,8 @@ export async function buildEmployeeLifecycleCommand(
   } else if (eventType === "reporting_change") {
     const target = await normalizeTargetAssignment(employeeId, input, effectiveDate, sourceAssignment!, "explicit");
     if (!target.ok) return target;
+    const changeError = validateAssignmentChange(eventType, sourceAssignment!, target.data);
+    if (changeError) return failCommand(changeError, 400, "reportToPositionId");
     targetAssignment = target.data;
   }
 

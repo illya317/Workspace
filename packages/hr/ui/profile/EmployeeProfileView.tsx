@@ -159,6 +159,7 @@ export default function EmployeeProfileView({
   });
   const edpSections = useEdpSections({
     rows: edps,
+    asOfDate: profile?.asOfDate ?? "invalid",
     className: sectionCardClassName,
   });
   const createHistorySections = [
