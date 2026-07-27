@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -34,6 +35,13 @@ function embeddedPrograms(runtime, delimiter) {
 
 function runPython(program, env = {}) {
   return spawnSync("python3", ["-c", program], {
+    encoding: "utf8",
+    env: { ...process.env, ...env },
+  });
+}
+
+function runNode(program, env = {}) {
+  return spawnSync(process.execPath, ["-e", program], {
     encoding: "utf8",
     env: { ...process.env, ...env },
   });
@@ -403,6 +411,39 @@ test("migration receipt checks embed only the previously validated migration nam
     "grep -Eq '^[0-9]{14}_[a-z0-9_]+$'",
     "WHERE migration_name = '\\$migration_name'",
   ]);
+});
+
+test("migration inventory accepts only the resolve-applied sanitized baseline with zero steps", (context) => {
+  const program = embeddedPrograms("node", "NODE")
+    .find((candidate) => candidate.includes("database migration inventory contains a malformed row"));
+  assert.ok(program, "migration inventory validator must be present");
+
+  const root = mkdtempSync(join(tmpdir(), "workspace-migration-inventory-"));
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+  const writeMigration = (name) => {
+    const directory = join(root, name);
+    const sql = "SELECT 1;\n";
+    mkdirSync(directory);
+    writeFileSync(join(directory, "migration.sql"), sql);
+    return createHash("sha256").update(sql).digest("hex");
+  };
+  const baseline = "00000000000000_sanitized_baseline";
+  const ordinary = "20260727000000_ordinary";
+  const baselineChecksum = writeMigration(baseline);
+  const ordinaryChecksum = writeMigration(ordinary);
+
+  const accepted = runNode(program, {
+    MIGRATIONS_DIR: root,
+    MIGRATION_ROWS: `${baseline}|${baselineChecksum}|1|0|0`,
+  });
+  assert.equal(accepted.status, 0, accepted.stderr);
+
+  const rejected = runNode(program, {
+    MIGRATIONS_DIR: root,
+    MIGRATION_ROWS: `${ordinary}|${ordinaryChecksum}|1|0|0`,
+  });
+  assert.notEqual(rejected.status, 0);
+  assert.match(rejected.stderr, /has no applied steps/);
 });
 
 test("all embedded deployment Node programs are syntactically executable", () => {

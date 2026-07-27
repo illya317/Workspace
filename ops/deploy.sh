@@ -2108,7 +2108,9 @@ for (const line of (process.env.MIGRATION_ROWS || '').split('\n').filter(Boolean
   if (finished === '1' && rolledBack === '0') {
     if (active.has(name)) throw new Error('database migration ' + name + ' has duplicate active receipts');
     active.add(name);
-    if (Number(steps) < 1) throw new Error('database migration ' + name + ' has no applied steps');
+    if (Number(steps) < 1 && name !== '00000000000000_sanitized_baseline') {
+      throw new Error('database migration ' + name + ' has no applied steps');
+    }
   }
 }
 NODE

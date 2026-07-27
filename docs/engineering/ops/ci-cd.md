@@ -99,6 +99,7 @@ npm run test:e2e:latency
 - `expand` 是“旧 writer 与新 schema 仍兼容”的声明，只适用于明确 allowlist 内的建新表、对既有表使用 `CREATE INDEX CONCURRENTLY` 的非唯一索引、nullable 列、安全非空默认和带顶层 `WHERE` 的受限数据更新等向前兼容变化。既有表普通/唯一索引、显式 transaction 内的 concurrent index、未知 statement/`ALTER`、权限收窄、trigger/rule/policy/constraint、`DO`/`CREATE OR REPLACE`、除 `DROP NOT NULL` 外的所有 `DROP` 都必须转为 `maintenance`。
 - `maintenance` 是对停机迁移的显式授权，不是普通注释。迁移文件和部署策略路径受 CODEOWNER 审批；只有确认旧版本不能与该 migration 并存时才使用。
 - PR/CI 只允许新增 migration，且目录名必须严格晚于 trusted base 的最大 migration；一旦进入受信任 base 就禁止修改、重命名或删除，避免生产不重跑、checksum 漂移或迟到回填。生产入口再检查 `last_deployed..candidate` 的累计差异，不能借由多个小提交绕过 maintenance 判断。
+- 生产 migration inventory 只允许精确的 `00000000000000_sanitized_baseline` 使用 Prisma `migrate resolve --applied` 形成 `applied_steps_count=0` 的基线回执；所有普通 migration 仍必须至少执行一个步骤，零步骤回执会 fail closed。
 - 普通 `expand` 发布先生成 PostgreSQL/runtime 可恢复备份，再在线迁移。存在 pending `maintenance` 或服务器已有未完成维护 marker 时，部署先写维护意图，停止并确认 candidate、Workspace 与企业微信 writer，执行 `pm2 save`，然后在不受普通 retention 清理的 pinned 目录生成唯一 migration 前 `pg_dump`；marker 原子记录精确 backup path 与 SHA-256 后才运行 migration。
 - migration 与代码部署不执行 data-release gate。私有数据使用 `ops/publish.sh data upload|verify|status --id <id>` 独立上传和复验，release metadata、control-plane receipt 与 unit artifact 均不绑定数据批次。
 - maintenance migration 一旦开始，失败处理不会重启不兼容的旧 release。重试只要检测到 marker，就先无条件停止并确认 candidate、Workspace 与企业微信 writer、执行 `pm2 save`，随后才解析 marker 和复验其 pinned 原始备份；marker/备份缺失、损坏或 digest 不符都直接保持停机。只有新 release 完成健康、版本与证据提交后才清除 marker；下一次正常发布才清理已解除 pin 的恢复点。
