@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   try {
     return NextResponse.json(await getDataQualityWorkbench());
   } catch (error) {
-    return jsonErrorResponse(error instanceof Error ? error.message : "加载数据质量工作台失败", 500);
+    return jsonErrorResponse(error instanceof Error ? error.message : "加载提醒规则与运行失败", 500);
   }
 }
 
@@ -41,7 +41,7 @@ export async function PUT(request: Request) {
   const auth = await requireRoot(request);
   if (!auth.ok) return auth.response;
   const parsed = dataQualityPolicyUpdateSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return jsonErrorResponse("数据质量策略参数无效", 400);
+  if (!parsed.success) return jsonErrorResponse("提醒规则参数无效", 400);
   try {
     const command = await buildDataQualityPolicyUpdate(parsed.data);
     if (!command.ok) return domainIssueToResponse(command.issue);
@@ -49,7 +49,7 @@ export async function PUT(request: Request) {
     refreshDataQualitySchedule();
     return NextResponse.json({ policy });
   } catch (error) {
-    return jsonErrorResponse(error instanceof Error ? error.message : "保存数据质量策略失败", 500);
+    return jsonErrorResponse(error instanceof Error ? error.message : "保存提醒规则失败", 500);
   }
 }
 
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
   const auth = await requireRoot(request);
   if (!auth.ok) return auth.response;
   const parsed = dataQualityAdminActionSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return jsonErrorResponse("数据质量操作无效", 400);
+  if (!parsed.success) return jsonErrorResponse("业务资料巡检操作无效", 400);
   const command = buildDataQualityAdminAction(parsed.data);
   if (!command.ok) return domainIssueToResponse(command.issue);
   try {
@@ -66,6 +66,6 @@ export async function POST(request: Request) {
     }
     return NextResponse.json(await runDataQuality({ trigger: "manual", requestedByUserId: auth.user.userId }));
   } catch (error) {
-    return jsonErrorResponse(error instanceof Error ? error.message : "数据质量操作失败", 500);
+    return jsonErrorResponse(error instanceof Error ? error.message : "业务资料巡检操作失败", 500);
   }
 }

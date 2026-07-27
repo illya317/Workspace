@@ -34,7 +34,7 @@ export async function sendDataQualityWecomGroupAlert(input: {
   const appOrigin = process.env.NEXTAUTH_URL?.trim()?.replace(/\/$/, "") ?? "";
   const targetUrl = appOrigin ? `${appOrigin}${basePath === "/" ? "" : basePath}${input.scope.href}` : "";
   const lines = [
-    `## 数据质量异常 · ${[input.scope.resourceLabel, input.scope.departmentName].filter(Boolean).join(" · ")}`,
+    `## 业务资料异常 · ${[input.scope.resourceLabel, input.scope.departmentName].filter(Boolean).join(" · ")}`,
     triggerLabel(input.trigger),
     `本次需关注 **${input.findings.length}** 项规则异常，其中严重 ${criticalCount} 项、警告 ${warningCount} 项。`,
     ...input.findings.slice(0, 6).map((finding) => (
@@ -68,7 +68,7 @@ export async function sendDataQualityWecomGroupTest() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       msgtype: "markdown",
-      markdown: { content: "## Workspace 数据质量通知测试\n\n企微群机器人通道已连接。后续仅在异常首次出现、严重度升级或超过重复提醒周期时推送。" },
+      markdown: { content: "## Workspace 业务资料提醒测试\n\n企微群机器人通道已连接。后续仅在异常首次出现、严重度升级或超过重复提醒周期时推送。" },
     }),
     signal: AbortSignal.timeout(10_000),
     cache: "no-store",

@@ -1,31 +1,19 @@
-import {
-  baseNotificationWhere,
-  buildNotificationSqlWhere,
-  buildNotificationWhere,
-  deriveWorkflowNotification,
-  normalizeNotificationQuery,
-  parsePayloadRecord,
-  type ListUserNotificationsOptions,
-  type NotificationCategory,
-  type WorkflowFlowType,
-  type WorkflowNotificationRole,
+import type {
+  NotificationCategory,
+  WorkflowFlowType,
+  WorkflowNotificationRole,
 } from "./notification-workflow";
-import { listWorkflowCategoryRegistrations } from "../workflow-category-registry";
 import { prisma, type Prisma } from "./prisma";
 import { permissionReviewNotificationDefinition, type PermissionReviewAlertPayload } from "./notification-permission-review";
 import { dataQualityNotificationDefinition, type DataQualityAlertPayload } from "./notification-data-quality";
 import type { ProjectMemberNotificationPayload } from "./notification-project-members";
-import {
-  isWorkflowTodoProviderHandled,
-  listWorkflowTodoProviderItems,
-} from "./workflow-todo-providers";
-import {
-  approvalActionKeysForNotifications,
-  listOriginatedWorkflowRequestItems,
-  toNotificationDto,
-  toProviderWorkflowTodoDto,
-} from "./workflow-inbox-records";
-import { respondToRegisteredNotificationAction } from "./notification-action-providers";
+export {
+  clearReadUserNotifications,
+  listUserNotifications,
+  markAllUserNotificationsRead,
+  updateUserNotification,
+} from "./notification-inbox";
+export type { NotificationAction } from "./notification-inbox";
 export type {
   ListUserNotificationsOptions,
   NotificationCategory,
@@ -34,8 +22,6 @@ export type {
   WorkflowNotificationRole,
   WorkflowStatus,
 } from "./notification-workflow";
-
-export type NotificationAction = "read" | "acknowledge" | "reject" | "clear";
 
 type DepartmentCollaborationInvitationPayload = {
   collaborationId: number;
@@ -78,7 +64,32 @@ type NotificationRenderResult = {
   payload?: unknown;
 };
 
-type NotificationDefinition<TPayload> = {
+export type NotificationAudienceMode = "assigned" | "governance_required" | "optional";
+export type NotificationSubscriptionMode = "required" | "optional";
+export type NotificationCatalogGroupKey = "work" | "workflow" | "business" | "security";
+export type NotificationChannel = "workspace";
+export type NotificationCadence = "immediate";
+
+type NotificationCatalogMetadata<TPayload> = {
+  label: string;
+  groupKey: NotificationCatalogGroupKey;
+  groupLabel: string;
+  triggerDescription: string;
+  recipientDescription: string;
+  audienceMode: NotificationAudienceMode;
+  subscriptionMode: NotificationSubscriptionMode;
+  ownerResourceKey: string | null;
+  supportedChannels: readonly NotificationChannel[];
+  defaultChannel: NotificationChannel;
+  defaultCadence: NotificationCadence;
+  defaultEnabled: boolean;
+  details?: readonly string[];
+  recipientReason: string | ((payload: TPayload) => string);
+  resourceKey?: string | ((payload: TPayload) => string | null);
+  scopeId?: string | ((payload: TPayload) => string | null);
+};
+
+type NotificationDefinition<TPayload> = NotificationCatalogMetadata<TPayload> & {
   type: RegisteredNotificationType;
   description: string;
   category?: Exclude<NotificationCategory, "all">;
@@ -97,6 +108,10 @@ export interface CreateNotificationInput {
   body: string;
   href?: string | null;
   payload?: unknown;
+  recipientReason?: string | null;
+  resourceKey?: string | null;
+  scopeId?: string | null;
+  subscriptionId?: number | null;
   isImportant?: boolean;
   isStrongReminder?: boolean;
   requiresAcknowledgement?: boolean;
@@ -110,6 +125,12 @@ export type SendNotificationInput<TType extends RegisteredNotificationType = Reg
   isImportant?: boolean;
   isStrongReminder?: boolean;
   requiresAcknowledgement?: boolean;
+  deliveryContext?: {
+    recipientReason?: string | null;
+    resourceKey?: string | null;
+    scopeId?: string | null;
+    subscriptionId?: number | null;
+  };
 };
 
 const WORKFLOW_COPY = {
@@ -136,7 +157,21 @@ const WORKFLOW_COPY = {
 const notificationRegistry = {
   "work.department.collaboration.invited": defineNotification<DepartmentCollaborationInvitationPayload>({
     type: "work.department.collaboration.invited",
+    label: "部门协作邀请",
     description: "负责部门发起固定部门协作时提醒赋能部门响应",
+    groupKey: "work",
+    groupLabel: "工作与协作",
+    triggerDescription: "负责部门发起固定部门协作，并需要你所在部门响应时。",
+    recipientDescription: "按协作任务分配、部门负责人或协作责任范围接收。",
+    audienceMode: "assigned",
+    subscriptionMode: "required",
+    ownerResourceKey: "work.tasks",
+    supportedChannels: ["workspace"],
+    defaultChannel: "workspace",
+    defaultCadence: "immediate",
+    defaultEnabled: true,
+    recipientReason: "你是该部门协作责任范围的成员",
+    resourceKey: "work.tasks",
     isImportant: true,
     requiresAcknowledgement: true,
     render: (payload) => ({
@@ -148,7 +183,21 @@ const notificationRegistry = {
   }),
   "work.project.member.added": defineNotification<ProjectMemberNotificationPayload>({
     type: "work.project.member.added",
+    label: "加入项目",
     description: "员工被加入项目时提醒本人确认",
+    groupKey: "work",
+    groupLabel: "工作与协作",
+    triggerDescription: "你被添加为项目成员时。",
+    recipientDescription: "直接发送给被添加的项目成员。",
+    audienceMode: "assigned",
+    subscriptionMode: "required",
+    ownerResourceKey: "work.projects",
+    supportedChannels: ["workspace"],
+    defaultChannel: "workspace",
+    defaultCadence: "immediate",
+    defaultEnabled: true,
+    recipientReason: "你是本次项目成员变更的直接对象",
+    resourceKey: "work.projects",
     isImportant: true,
     render: (payload) => ({
       title: "项目邀请",
@@ -159,7 +208,21 @@ const notificationRegistry = {
   }),
   "work.project.member.roleChanged": defineNotification<ProjectMemberNotificationPayload>({
     type: "work.project.member.roleChanged",
+    label: "项目角色变更",
     description: "员工项目角色调整时提醒本人确认",
+    groupKey: "work",
+    groupLabel: "工作与协作",
+    triggerDescription: "你在项目中的 RASCI 职责发生变化时。",
+    recipientDescription: "直接发送给角色被调整的项目成员。",
+    audienceMode: "assigned",
+    subscriptionMode: "required",
+    ownerResourceKey: "work.projects",
+    supportedChannels: ["workspace"],
+    defaultChannel: "workspace",
+    defaultCadence: "immediate",
+    defaultEnabled: true,
+    recipientReason: "你是本次项目角色变更的直接对象",
+    resourceKey: "work.projects",
     isImportant: true,
     render: (payload) => ({
       title: "项目角色已调整",
@@ -170,7 +233,22 @@ const notificationRegistry = {
   }),
   "approval.request.submitted": defineNotification<ApprovalNotificationPayload>({
     type: "approval.request.submitted",
+    label: "流程待处理",
     description: "通用审批单提交后提醒审批人处理",
+    groupKey: "workflow",
+    groupLabel: "流程待办",
+    triggerDescription: "审批、复核或发布流程进入你的处理节点时。",
+    recipientDescription: "按流程处理人职责接收。",
+    audienceMode: "assigned",
+    subscriptionMode: "required",
+    ownerResourceKey: null,
+    supportedChannels: ["workspace"],
+    defaultChannel: "workspace",
+    defaultCadence: "immediate",
+    defaultEnabled: true,
+    recipientReason: "你是当前流程处理人",
+    resourceKey: (payload) => payload.resourceKey,
+    scopeId: (payload) => payload.scopeId ?? null,
     category: "workflow",
     isImportant: true,
     requiresAcknowledgement: false,
@@ -183,7 +261,22 @@ const notificationRegistry = {
   }),
   "approval.request.rejected": defineNotification<ApprovalNotificationPayload>({
     type: "approval.request.rejected",
+    label: "流程被驳回",
     description: "通用审批单被驳回后提醒发起人",
+    groupKey: "workflow",
+    groupLabel: "流程待办",
+    triggerDescription: "你发起或参与的流程被驳回时。",
+    recipientDescription: "按流程发起人和相关参与人职责接收。",
+    audienceMode: "assigned",
+    subscriptionMode: "required",
+    ownerResourceKey: null,
+    supportedChannels: ["workspace"],
+    defaultChannel: "workspace",
+    defaultCadence: "immediate",
+    defaultEnabled: true,
+    recipientReason: "你是该流程的发起人或相关参与人",
+    resourceKey: (payload) => payload.resourceKey,
+    scopeId: (payload) => payload.scopeId ?? null,
     category: "workflow",
     isImportant: true,
     requiresAcknowledgement: false,
@@ -196,7 +289,22 @@ const notificationRegistry = {
   }),
   "approval.request.approved": defineNotification<ApprovalNotificationPayload>({
     type: "approval.request.approved",
+    label: "流程已通过",
     description: "通用审批单通过后提醒发起人",
+    groupKey: "workflow",
+    groupLabel: "流程待办",
+    triggerDescription: "你发起或参与的流程通过时。",
+    recipientDescription: "按流程发起人和相关参与人职责接收。",
+    audienceMode: "assigned",
+    subscriptionMode: "required",
+    ownerResourceKey: null,
+    supportedChannels: ["workspace"],
+    defaultChannel: "workspace",
+    defaultCadence: "immediate",
+    defaultEnabled: true,
+    recipientReason: "你是该流程的发起人或相关参与人",
+    resourceKey: (payload) => payload.resourceKey,
+    scopeId: (payload) => payload.scopeId ?? null,
     category: "workflow",
     requiresAcknowledgement: false,
     render: (payload) => ({
@@ -208,7 +316,22 @@ const notificationRegistry = {
   }),
   "approval.request.commented": defineNotification<ApprovalNotificationPayload>({
     type: "approval.request.commented",
+    label: "流程新评论",
     description: "通用审批单新增评论后提醒相关人",
+    groupKey: "workflow",
+    groupLabel: "流程待办",
+    triggerDescription: "你参与的流程出现新评论时。",
+    recipientDescription: "按流程相关参与人职责接收。",
+    audienceMode: "assigned",
+    subscriptionMode: "required",
+    ownerResourceKey: null,
+    supportedChannels: ["workspace"],
+    defaultChannel: "workspace",
+    defaultCadence: "immediate",
+    defaultEnabled: true,
+    recipientReason: "你是该流程的相关参与人",
+    resourceKey: (payload) => payload.resourceKey,
+    scopeId: (payload) => payload.scopeId ?? null,
     category: "workflow",
     requiresAcknowledgement: false,
     render: (payload) => ({
@@ -233,7 +356,20 @@ function workflowCopy(payload: ApprovalNotificationPayload, key: "todo" | "rejec
 export function listRegisteredNotificationTypes() {
   return Object.values(notificationRegistry).map((definition) => ({
     type: definition.type,
+    label: definition.label,
     description: definition.description,
+    groupKey: definition.groupKey,
+    groupLabel: definition.groupLabel,
+    triggerDescription: definition.triggerDescription,
+    recipientDescription: definition.recipientDescription,
+    audienceMode: definition.audienceMode,
+    subscriptionMode: definition.subscriptionMode,
+    ownerResourceKey: definition.ownerResourceKey,
+    supportedChannels: [...definition.supportedChannels],
+    defaultChannel: definition.defaultChannel,
+    defaultCadence: definition.defaultCadence,
+    defaultEnabled: definition.defaultEnabled,
+    details: [...(definition.details ?? [])],
     category: definition.category ?? "ordinary",
     flowType: definition.flowType ?? null,
     isImportant: definition.isImportant ?? false,
@@ -246,6 +382,12 @@ export async function sendNotification<TType extends RegisteredNotificationType>
   const definition = notificationRegistry[input.type] as NotificationDefinition<NotificationPayloadByType[TType]> | undefined;
   if (!definition) throw new Error(`Notification type is not registered: ${input.type}`);
   const rendered = definition.render(input.payload);
+  const recipientReason = input.deliveryContext?.recipientReason
+    ?? resolveNotificationMetadata(definition.recipientReason, input.payload);
+  const resourceKey = input.deliveryContext?.resourceKey
+    ?? resolveNotificationMetadata(definition.resourceKey, input.payload);
+  const scopeId = input.deliveryContext?.scopeId
+    ?? resolveNotificationMetadata(definition.scopeId, input.payload);
   return createNotification({
     recipientUserId: input.recipientUserId,
     actorUserId: input.actorUserId,
@@ -254,6 +396,10 @@ export async function sendNotification<TType extends RegisteredNotificationType>
     body: rendered.body,
     href: rendered.href,
     payload: rendered.payload ?? input.payload,
+    recipientReason,
+    resourceKey,
+    scopeId,
+    subscriptionId: input.deliveryContext?.subscriptionId ?? null,
     isImportant: input.isImportant ?? definition.isImportant,
     isStrongReminder: input.isStrongReminder ?? definition.isStrongReminder,
     requiresAcknowledgement: input.requiresAcknowledgement ?? definition.requiresAcknowledgement,
@@ -271,6 +417,10 @@ export async function createNotification(input: CreateNotificationInput, client:
       body: input.body,
       href: input.href ?? null,
       payloadJson: input.payload === undefined ? null : JSON.stringify(input.payload),
+      recipientReason: input.recipientReason ?? null,
+      resourceKey: input.resourceKey ?? null,
+      scopeId: input.scopeId ?? null,
+      subscriptionId: input.subscriptionId ?? null,
       isImportant: input.isImportant ?? false,
       isStrongReminder: input.isStrongReminder ?? false,
       requiresAcknowledgement: input.requiresAcknowledgement ?? input.isImportant ?? false,
@@ -278,265 +428,9 @@ export async function createNotification(input: CreateNotificationInput, client:
   });
 }
 
-export async function listUserNotifications(
-  userId: number,
-  limitOrOptions: number | ListUserNotificationsOptions = 5,
-  offset = 0,
+function resolveNotificationMetadata<TPayload>(
+  value: string | ((payload: TPayload) => string | null) | undefined,
+  payload: TPayload,
 ) {
-  const options = typeof limitOrOptions === "number" ? { limit: limitOrOptions, offset } : limitOrOptions;
-  const take = Math.min(Math.max(options.limit ?? 5, 1), 50);
-  const skip = Math.max(options.offset ?? 0, 0);
-  const query = normalizeNotificationQuery(options);
-  if (query.filter === "todo" && query.category !== "ordinary") {
-    return listActiveWorkflowTodoNotifications(userId, take, skip);
-  }
-  if (query.filter === "originated" && query.category !== "ordinary") {
-    return listOriginatedWorkflowRequests(userId, take, skip, query.category);
-  }
-  const visibleWhere = buildNotificationWhere(userId, query);
-  const visibleAllWhere = baseNotificationWhere(userId);
-  const [orderedIds, total, unreadCount, pendingCount, ordinaryCount, workflowTodoCount, workflowMineCount] = await Promise.all([
-    prisma.$queryRaw<{ id: number }[]>`
-      SELECT "id"
-      FROM "Notification"
-      WHERE ${buildNotificationSqlWhere(userId, query)}
-      ORDER BY
-        CASE
-          WHEN "requiresAcknowledgement" IS TRUE AND "acknowledgedAt" IS NULL AND "rejectedAt" IS NULL THEN 0
-          WHEN "isImportant" IS TRUE AND "readAt" IS NULL THEN 1
-          ELSE 2
-        END ASC,
-        "createdAt" DESC
-      LIMIT ${take}
-      OFFSET ${skip}
-    `,
-    prisma.notification.count({ where: visibleWhere }),
-    prisma.notification.count({ where: { ...visibleAllWhere, readAt: null } }),
-    prisma.notification.count({ where: { ...visibleAllWhere, requiresAcknowledgement: true, acknowledgedAt: null, rejectedAt: null } }),
-    prisma.notification.count({ where: buildNotificationWhere(userId, { category: "ordinary", filter: "all" }) }),
-    listActiveWorkflowTodoItems(userId).then((items) => items.length),
-    prisma.approvalRequest.count({ where: { submitterUserId: userId } }),
-  ]);
-  const itemIds = orderedIds.map((item) => item.id);
-  const itemOrder = new Map(itemIds.map((id, index) => [id, index]));
-  const items = itemIds.length === 0
-    ? []
-    : (await prisma.notification.findMany({
-        where: { id: { in: itemIds } },
-        include: { actor: { select: { id: true, avatar: true, employees: { select: { name: true }, take: 1 } } } },
-      })).sort((a, b) => (itemOrder.get(a.id) ?? 0) - (itemOrder.get(b.id) ?? 0));
-
-  const actionKeysByRequestId = await approvalActionKeysForNotifications(items);
-  return {
-    items: items.map((item) => toNotificationDto(item, userId, actionKeysByRequestId)),
-    total,
-    hasMore: skip + items.length < total,
-    unreadCount,
-    pendingCount,
-    tabCounts: {
-      ordinary: ordinaryCount,
-      workflowTodo: workflowTodoCount,
-      workflowMine: workflowMineCount,
-    },
-    workflowCategories: listWorkflowCategoryRegistrations(),
-  };
-}
-
-async function listActiveWorkflowTodoNotifications(userId: number, take: number, skip: number) {
-  const visibleAllWhere = baseNotificationWhere(userId);
-  const [activeItems, unreadCount, pendingCount, ordinaryCount, workflowMineCount] = await Promise.all([
-    listActiveWorkflowTodoItems(userId),
-    prisma.notification.count({ where: { ...visibleAllWhere, readAt: null } }),
-    prisma.notification.count({ where: { ...visibleAllWhere, requiresAcknowledgement: true, acknowledgedAt: null, rejectedAt: null } }),
-    prisma.notification.count({ where: buildNotificationWhere(userId, { category: "ordinary", filter: "all" }) }),
-    prisma.approvalRequest.count({ where: { submitterUserId: userId } }),
-  ]);
-  const pagedItems = activeItems.slice(skip, skip + take);
-  return {
-    items: pagedItems,
-    total: activeItems.length,
-    hasMore: skip + pagedItems.length < activeItems.length,
-    unreadCount,
-    pendingCount,
-    tabCounts: {
-      ordinary: ordinaryCount,
-      workflowTodo: activeItems.length,
-      workflowMine: workflowMineCount,
-    },
-    workflowCategories: listWorkflowCategoryRegistrations(),
-  };
-}
-
-async function listOriginatedWorkflowRequests(
-  userId: number,
-  take: number,
-  skip: number,
-  category: NotificationCategory,
-) {
-  const visibleAllWhere = baseNotificationWhere(userId);
-  const [originated, ordinaryCount, workflowTodoCount, pendingCount] = await Promise.all([
-    listOriginatedWorkflowRequestItems(userId, take, skip, category),
-    prisma.notification.count({ where: buildNotificationWhere(userId, { category: "ordinary", filter: "all" }) }),
-    listActiveWorkflowTodoItems(userId).then((items) => items.length),
-    prisma.notification.count({
-      where: { ...visibleAllWhere, requiresAcknowledgement: true, acknowledgedAt: null, rejectedAt: null },
-    }),
-  ]);
-  return {
-    items: originated.items,
-    total: originated.total,
-    hasMore: skip + originated.items.length < originated.total,
-    unreadCount: 0,
-    pendingCount,
-    tabCounts: {
-      ordinary: ordinaryCount,
-      workflowTodo: workflowTodoCount,
-      workflowMine: originated.total,
-    },
-    workflowCategories: listWorkflowCategoryRegistrations(),
-  };
-}
-
-async function listActiveWorkflowTodoItems(userId: number) {
-  const [notificationItems, providerItems] = await Promise.all([
-    listActiveWorkflowTodoNotificationItems(userId),
-    listProviderWorkflowTodoItems(userId),
-  ]);
-  const providerRequestIds = new Set(providerItems.map((item) => item.workflow?.requestId).filter((id): id is number => Number.isInteger(id)));
-  const seen = new Set<string>();
-  const items: ReturnType<typeof toNotificationDto>[] = [];
-  for (const item of [...notificationItems, ...providerItems]) {
-    const requestId = item.workflow?.requestId;
-    if (requestId && item.id > 0 && isWorkflowTodoProviderHandled({
-      requestId,
-      resourceKey: item.workflow?.resourceKey ?? null,
-      scopeId: item.workflow?.scopeId ?? null,
-    }) && !providerRequestIds.has(requestId)) continue;
-    const key = requestId ? `request:${requestId}` : `notification:${item.id}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    items.push(item);
-  }
-  return items.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
-}
-
-async function listActiveWorkflowTodoNotificationItems(userId: number) {
-  const candidates = await prisma.notification.findMany({
-    where: buildNotificationWhere(userId, { category: "workflow", filter: "todo" }),
-    select: {
-      id: true,
-      type: true,
-      title: true,
-      body: true,
-      href: true,
-      payloadJson: true,
-    },
-    orderBy: [{ isImportant: "desc" }, { createdAt: "desc" }, { id: "desc" }],
-  });
-  const requestIds = candidates
-    .map((item) => numberFromUnknown(parsePayloadRecord(item.payloadJson).requestId))
-    .filter((id): id is number => Number.isInteger(id));
-  const submittedRequests = requestIds.length
-    ? await prisma.approvalRequest.findMany({
-        where: { id: { in: requestIds }, status: "submitted" },
-        select: { id: true, businessActionKey: true },
-      })
-    : [];
-  const submittedIds = new Set(submittedRequests.map((item) => item.id));
-  const actionKeysByRequestId = new Map(submittedRequests.map((item) => [item.id, item.businessActionKey]));
-  const workflows = candidates.map((item) => {
-    const payload = parsePayloadRecord(item.payloadJson);
-    const requestId = numberFromUnknown(payload.requestId);
-    return {
-      id: item.id,
-      workflow: deriveWorkflowNotification(item, payload, userId, requestId ? actionKeysByRequestId.get(requestId) : null),
-    };
-  });
-  const seen = new Set<string>();
-  const activeIds: number[] = [];
-  for (const item of workflows) {
-    const requestId = item.workflow?.requestId;
-    if (requestId && !submittedIds.has(requestId)) continue;
-    const key = requestId ? `request:${requestId}` : `notification:${item.id}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    activeIds.push(item.id);
-  }
-  const itemOrder = new Map(activeIds.map((id, index) => [id, index]));
-  return activeIds.length === 0
-    ? []
-    : (await prisma.notification.findMany({
-        where: { id: { in: activeIds } },
-        include: { actor: { select: { id: true, avatar: true, employees: { select: { name: true }, take: 1 } } } },
-      }))
-        .sort((a, b) => (itemOrder.get(a.id) ?? 0) - (itemOrder.get(b.id) ?? 0))
-        .map((item) => toNotificationDto(item, userId, actionKeysByRequestId));
-}
-
-async function listProviderWorkflowTodoItems(userId: number) {
-  return (await listWorkflowTodoProviderItems(userId)).map(toProviderWorkflowTodoDto);
-}
-
-export async function updateUserNotification(userId: number, notificationId: number, action: NotificationAction) {
-  const existing = await prisma.notification.findFirst({
-    where: { id: notificationId, recipientUserId: userId },
-    select: { id: true, type: true },
-  });
-  if (!existing) return { success: false as const, error: "通知不存在", status: 404 };
-
-  if (action === "acknowledge" || action === "reject") {
-    const handled = await respondToRegisteredNotificationAction({
-      notificationType: existing.type,
-      userId,
-      notificationId,
-      action,
-    });
-    if (handled) return handled;
-  }
-
-  const now = new Date();
-
-  await prisma.notification.update({
-    where: { id: notificationId },
-    data: action === "clear"
-      ? { readAt: now, clearedAt: now }
-      : action === "acknowledge"
-        ? { readAt: now, acknowledgedAt: now, rejectedAt: null }
-        : action === "reject"
-          ? { readAt: now, acknowledgedAt: null, rejectedAt: now }
-        : { readAt: now },
-  });
-  return { success: true as const };
-}
-
-export async function clearReadUserNotifications(userId: number, options: Pick<ListUserNotificationsOptions, "category" | "filter"> = {}) {
-  const now = new Date();
-  const result = await prisma.notification.updateMany({
-    where: {
-      ...buildNotificationWhere(userId, normalizeNotificationQuery(options)),
-      readAt: { not: null },
-      isImportant: false,
-      OR: [
-        { requiresAcknowledgement: false },
-        { acknowledgedAt: { not: null } },
-        { rejectedAt: { not: null } },
-      ],
-    },
-    data: { clearedAt: now },
-  });
-  return { success: true as const, count: result.count };
-}
-
-export async function markAllUserNotificationsRead(userId: number, options: Pick<ListUserNotificationsOptions, "category" | "filter"> = {}) {
-  const now = new Date();
-  const result = await prisma.notification.updateMany({
-    where: { ...buildNotificationWhere(userId, normalizeNotificationQuery(options)), readAt: null },
-    data: { readAt: now },
-  });
-  return { success: true as const, count: result.count };
-}
-
-
-function numberFromUnknown(value: unknown) {
-  return typeof value === "number" && Number.isInteger(value) && value > 0 ? value : null;
+  return typeof value === "function" ? value(payload) : value ?? null;
 }

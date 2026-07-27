@@ -7,12 +7,17 @@ import {
   type DataQualityFinding,
   type DataQualityTrigger,
 } from "@workspace/platform/data-quality-contract";
+import { DATA_QUALITY_PROVIDER_REGISTRATIONS } from "@workspace/platform/data-quality-provider-registry";
 import {
   buildDataQualityNotificationGroups,
   type DataQualityNotificationGroup,
 } from "../data-quality-notification-routing";
 import { callWorkspaceInternalJson } from "./internal-unit-rpc";
 import { sendNotification } from "./notifications";
+import {
+  canReceiveNotificationForResource,
+  listEligibleNotificationSubscribers,
+} from "./notification-subscriptions";
 import {
   dataQualitySeverityIncreased,
   dataQualitySeverityMeetsThreshold,
@@ -23,9 +28,7 @@ import {
 import { sendDataQualityWecomGroupAlert } from "./data-quality-wecom";
 import { prisma } from "./prisma";
 
-const PROVIDERS = [
-  { key: "hr", domain: "hr", unitId: "hr" },
-] as const;
+const PROVIDERS = DATA_QUALITY_PROVIDER_REGISTRATIONS;
 const MAX_MUTATION_ATTEMPTS = 5;
 
 type PreviousFinding = {
@@ -55,7 +58,7 @@ function providerHealthCheck(providerKey: string): DataQualityCheckDefinition {
   return {
     key: `platform.data-quality.provider.${providerKey}.available`,
     domain: "platform",
-    title: `${providerKey.toUpperCase()} 数据质量 Provider 可用`,
+    title: `${providerKey.toUpperCase()} 业务资料巡检服务可用`,
     description: "Platform 必须能够通过签名内部接口调用领域规则 Provider。",
     defaultSeverity: "critical",
     triggerModes: ["manual", "scheduled", "mutation"],
@@ -277,18 +280,57 @@ async function deliverWorkspaceAlerts(
   const usersByUsername = new Map(users.map((user) => [user.username, user]));
   for (const group of groups) {
     const scope = [group.resourceLabel, group.departmentName].filter(Boolean).join(" · ");
-    const destination = `${scope} → ${group.recipientUsernames.join(",")}`;
+    let destination = `${scope} → ${group.recipientUsernames.join(",")}`;
     try {
-      const recipients = group.recipientUsernames.map((username) => usersByUsername.get(username)).filter(Boolean);
-      if (recipients.length !== group.recipientUsernames.length) throw new Error("分流规则包含不存在或不可登录的站内接收人");
+      const configuredRecipients = group.recipientUsernames.map((username) => usersByUsername.get(username)).filter(Boolean);
+      if (configuredRecipients.length !== group.recipientUsernames.length) throw new Error("分流规则包含不存在或不可登录的站内接收人");
+      const resourceKey = group.resourceKey ?? "settings.admin";
+      const routeEligibility = await Promise.all(configuredRecipients.map(async (recipient) => ({
+        recipient: recipient!,
+        allowed: await canReceiveNotificationForResource(recipient!.id, resourceKey),
+      })));
+      const subscribers = await listEligibleNotificationSubscribers({
+        eventKey: "platform.dataQuality.alert",
+        resourceKey,
+      });
+      const recipients = new Map<number, {
+        id: number;
+        username: string;
+        subscriptionId: number | null;
+        recipientReason: string;
+      }>();
+      routeEligibility.filter((item) => item.allowed).forEach(({ recipient }) => {
+        recipients.set(recipient.id, {
+          ...recipient,
+          subscriptionId: null,
+          recipientReason: "系统管理员为此业务范围配置了提醒",
+        });
+      });
+      subscribers.forEach((subscriber) => {
+        if (recipients.has(subscriber.userId)) return;
+        recipients.set(subscriber.userId, {
+          id: subscriber.userId,
+          username: subscriber.username,
+          subscriptionId: subscriber.subscriptionId,
+          recipientReason: `你订阅了「${group.resourceLabel}」业务资料异常提醒`,
+        });
+      });
+      if (recipients.size === 0) throw new Error("没有符合对应业务资料读取权限的站内接收人");
+      destination = `${scope} → ${[...recipients.values()].map((recipient) => recipient.username).join(",")}`;
       const payload = alertPayload(runId, trigger, group);
-      await Promise.all(recipients.map((recipient) => sendNotification({
-        recipientUserId: recipient!.id,
+      await Promise.all([...recipients.values()].map((recipient) => sendNotification({
+        recipientUserId: recipient.id,
         type: "platform.dataQuality.alert",
         payload,
         isImportant: payload.criticalCount > 0,
         isStrongReminder: payload.criticalCount > 0,
         requiresAcknowledgement: payload.criticalCount > 0,
+        deliveryContext: {
+          recipientReason: recipient.recipientReason,
+          resourceKey,
+          scopeId: group.departmentId ? `department:${group.departmentId}` : null,
+          subscriptionId: recipient.subscriptionId,
+        },
       })));
       const sentAt = new Date();
       await prisma.$transaction([
@@ -364,7 +406,7 @@ export async function runDataQuality(input: {
   domains?: string[];
 }): Promise<DataQualityRunResult> {
   const providers = PROVIDERS.filter((provider) => !input.domains?.length || input.domains.includes(provider.domain));
-  if (providers.length === 0) throw new Error("没有可执行的数据质量 Provider");
+  if (providers.length === 0) throw new Error("没有可执行的业务资料巡检服务");
   const run = await prisma.dataQualityRun.create({
     data: {
       trigger: input.trigger,
@@ -475,7 +517,7 @@ export async function runPendingDataQualityEvaluations() {
       trigger: "mutation",
       domains: [...new Set(pending.map((request) => request.domain))],
     });
-    if (result.status === "failed") throw new Error("领域数据质量 Provider 全部不可用");
+    if (result.status === "failed") throw new Error("业务资料巡检服务全部不可用");
     await prisma.dataQualityEvaluationRequest.updateMany({
       where: { id: { in: ids }, status: "processing" },
       data: { status: "processed", processedAt: new Date(), processedByRunId: result.runId, lastError: null },

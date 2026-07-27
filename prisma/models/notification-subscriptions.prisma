@@ -1,0 +1,16 @@
+/// 个人通知订阅覆盖（事实表，来源于用户本人或其确认后的 Agent 设置）
+model NotificationSubscription {
+  id            Int            @id @default(autoincrement())
+  userId        Int
+  eventKey      String
+  enabled       Boolean        @default(true)
+  channel       String         @default("workspace")
+  cadence       String         @default("immediate")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notifications Notification[]
+
+  @@unique([userId, eventKey, channel])
+  @@index([eventKey, enabled])
+}

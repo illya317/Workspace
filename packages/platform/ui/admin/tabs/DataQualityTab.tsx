@@ -190,11 +190,11 @@ export function useDataQualityTab({ enabled, showToast }: Props): {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const next = await requestJson<WorkbenchResponse>("/api/settings/admin/data-quality", { fallbackMessage: "加载数据质量工作台失败" });
+      const next = await requestJson<WorkbenchResponse>("/api/settings/admin/data-quality", { fallbackMessage: "加载提醒规则与运行失败" });
       setData(next);
       setDraft(next.policy);
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "加载数据质量工作台失败", "error");
+      showToast(error instanceof Error ? error.message : "加载提醒规则与运行失败", "error");
     } finally {
       setLoading(false);
     }
@@ -207,11 +207,11 @@ export function useDataQualityTab({ enabled, showToast }: Props): {
   async function runNow() {
     setRunning(true);
     try {
-      await postJson("/api/settings/admin/data-quality", { action: "run" }, "数据质量巡检失败");
-      showToast("数据质量巡检已完成", "success");
+      await postJson("/api/settings/admin/data-quality", { action: "run" }, "业务资料巡检失败");
+      showToast("业务资料巡检已完成", "success");
       await load();
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "数据质量巡检失败", "error");
+      showToast(error instanceof Error ? error.message : "业务资料巡检失败", "error");
     } finally {
       setRunning(false);
     }
@@ -248,11 +248,11 @@ export function useDataQualityTab({ enabled, showToast }: Props): {
           recipientUsernames: route.recipientUsernames,
         })),
         wecomGroupEnabled: draft.notifications.wecomGroup.enabled,
-      }, "保存数据质量策略失败");
-      showToast("数据质量设置已保存", "success");
+      }, "保存提醒规则失败");
+      showToast("提醒规则已保存", "success");
       await load();
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "保存数据质量策略失败", "error");
+      showToast(error instanceof Error ? error.message : "保存提醒规则失败", "error");
     } finally {
       setSaving(false);
     }
@@ -265,7 +265,7 @@ export function useDataQualityTab({ enabled, showToast }: Props): {
   ];
 
   const body: BodySurfaceProps = (() => {
-    if (!data || !draft) return createPageBody([createStatusSection("data-quality-loading", { kind: loading ? "loading" : "error", content: loading ? "正在加载数据质量工作台..." : "数据质量工作台加载失败" })]);
+    if (!data || !draft) return createPageBody([createStatusSection("data-quality-loading", { kind: loading ? "loading" : "error", content: loading ? "正在加载提醒规则与运行..." : "提醒规则与运行加载失败" })]);
     const config = {
       ...createFieldsSection("data-quality-policy", [
         { kind: "groupTitle" as const, key: "trigger-title", title: "触发条件" },
@@ -310,7 +310,7 @@ export function useDataQualityTab({ enabled, showToast }: Props): {
         : []),
       config,
       {
-        ...createPageTableSection("data-quality-findings", { rows: data.findings, columns: findingColumns, visibleColumns: findingColumns.map((column) => column.key), rowKey: (row) => row.id, emptyText: "当前没有未解决的数据质量异常", presentation: { density: "compact", cellWrap: "wrap" }, scroll: { x: true } }),
+        ...createPageTableSection("data-quality-findings", { rows: data.findings, columns: findingColumns, visibleColumns: findingColumns.map((column) => column.key), rowKey: (row) => row.id, emptyText: "当前没有未解决的业务资料异常", presentation: { density: "compact", cellWrap: "wrap" }, scroll: { x: true } }),
         header: { title: "未解决异常", badges: [{ key: "open", label: `${data.findings.length} 项`, tone: data.findings.length > 0 ? "warning" as const : "success" as const }] },
       },
       { ...createPageTableSection("data-quality-checks", { rows: data.checks, columns: checkColumns, visibleColumns: checkColumns.map((column) => column.key), rowKey: (row) => row.checkKey, emptyText: "尚未执行首次巡检", presentation: { density: "compact", cellWrap: "wrap" }, scroll: { x: true } }), header: { title: "规则运行状态" } },

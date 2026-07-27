@@ -51,6 +51,9 @@ export type NotificationItem = {
   title: string;
   body: string;
   href: string | null;
+  recipientReason: string | null;
+  resourceKey: string | null;
+  scopeId: string | null;
   isImportant: boolean;
   requiresAcknowledgement: boolean;
   readAt: string | null;

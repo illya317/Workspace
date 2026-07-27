@@ -992,6 +992,11 @@ export type MutationImpactBatch = Prisma.MutationImpactBatchModel
  */
 export type MutationImpactEffect = Prisma.MutationImpactEffectModel
 /**
+ * Model NotificationSubscription
+ * 个人通知订阅覆盖（事实表，来源于用户本人或其确认后的 Agent 设置）
+ */
+export type NotificationSubscription = Prisma.NotificationSubscriptionModel
+/**
  * Model OpenApiClient
  * Open API 调用方（事实表，来源于设置页手工创建/轮换）
  */

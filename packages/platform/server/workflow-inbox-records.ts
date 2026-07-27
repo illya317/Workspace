@@ -57,6 +57,9 @@ export function toProviderWorkflowTodoDto(item: WorkflowTodoProviderItem) {
     title: item.title,
     body: item.summary,
     href: item.href,
+    recipientReason: "你是当前流程处理人",
+    resourceKey: item.resourceKey,
+    scopeId: item.scopeId,
     isImportant: true,
     isStrongReminder: false,
     requiresAcknowledgement: false,
@@ -84,6 +87,9 @@ export function toNotificationDto(
     title: item.title,
     body: item.body,
     href: item.href,
+    recipientReason: item.recipientReason,
+    resourceKey: item.resourceKey,
+    scopeId: item.scopeId,
     isImportant: item.isImportant,
     isStrongReminder: item.isStrongReminder,
     requiresAcknowledgement: item.requiresAcknowledgement,
@@ -116,6 +122,9 @@ type NotificationModelRow = {
   body: string;
   href: string | null;
   payloadJson: string | null;
+  recipientReason: string | null;
+  resourceKey: string | null;
+  scopeId: string | null;
   isImportant: boolean;
   isStrongReminder: boolean;
   requiresAcknowledgement: boolean;
@@ -143,8 +152,20 @@ function toOriginatedWorkflowDto(row: {
       businessActionKey: row.businessActionKey, categoryKey: classification.categoryKey, categoryLabel: classification.categoryLabel,
       resourceKey: row.resourceKey, scopeId: row.scopeId,
     },
-    title, body: summary, href, isImportant: false, isStrongReminder: false, requiresAcknowledgement: false,
-    readAt: createdAt, acknowledgedAt: null, rejectedAt: null, createdAt, actor: null,
+    title,
+    body: summary,
+    href,
+    recipientReason: "你是该流程的发起人",
+    resourceKey: row.resourceKey,
+    scopeId: row.scopeId,
+    isImportant: false,
+    isStrongReminder: false,
+    requiresAcknowledgement: false,
+    readAt: createdAt,
+    acknowledgedAt: null,
+    rejectedAt: null,
+    createdAt,
+    actor: null,
   };
 }
 

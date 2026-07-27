@@ -2,11 +2,11 @@
 
 # ActionContract Registry
 
-**190 contracts** across 11 modules.
+**191 contracts** across 12 modules.
 
-Kinds: write=103 · lifecycle=57 · exchange:import=7 · exchange:export=6 · remote_effect=1 · governance=10 · workflow=6
+Kinds: write=104 · lifecycle=57 · exchange:import=7 · exchange:export=6 · remote_effect=1 · governance=10 · workflow=6
 
-Workflow: not_applicable=164 · configurable=21 · native=5
+Workflow: not_applicable=165 · configurable=21 · native=5
 
 Contract facts come from `packages/platform/action-contract-registry.ts` and its composed registries. Route bindings and referenced runtime symbols are enforced by `npm run action-contract:check`.
 
@@ -200,6 +200,12 @@ Contract facts come from `packages/platform/action-contract-registry.ts` and its
 | `production.qc.batch.inspection.save`<br>保存 QC 检验记录 | workflow<br>QcBatchInspection | `production.qc`<br>direct=update | command: PATCH /api/modules/production/qc/:batchId<br>direct: PATCH /api/modules/production/qc/:batchId<br>workflow: POST /api/modules/production/qc/:batchId/approve-review | validate=packages/production/server/qc/domain/qc-validation.buildUpdateQcBatchWorkflowCommand<br>commit=packages/production/server/qc/batches.updateQcBatchWorkflow | strategy=active_table_state<br>active=ProductionQcBatch<br>mode=native_transition<br>---<br>payload=single/field_patch<br>target=existing_record | native<br>default=native<br>canDisable=false<br>whenDisabled=unavailable<br>entry=domain_transition<br>nodes=1 |
 | `production.qc.batch.precheck.save`<br>保存 QC 预检记录 | workflow<br>QcBatchPrecheck | `production.qc`<br>direct=update | command: PATCH /api/modules/production/qc/:batchId<br>direct: PATCH /api/modules/production/qc/:batchId<br>workflow: POST /api/modules/production/qc/:batchId/approve-review | validate=packages/production/server/qc/domain/qc-validation.buildUpdateQcBatchPrecheckCommand<br>commit=packages/production/server/qc/batches.updateQcBatchPrecheck | strategy=active_table_state<br>active=ProductionQcBatch<br>mode=native_transition<br>---<br>payload=single/field_patch<br>target=existing_record | native<br>default=native<br>canDisable=false<br>whenDisabled=unavailable<br>entry=domain_transition<br>nodes=1 |
 | `production.qc.batch.review`<br>QC 批次复核 | workflow<br>QcBatchReview | `production.qc`<br>direct=approve | command: POST /api/modules/production/qc/:batchId/approve-review<br>direct: POST /api/modules/production/qc/:batchId/approve-review | validate=packages/production/server/qc/route-commands.buildQcBatchApproveReviewCommand<br>commit=packages/production/server/qc/route-commands.executeQcBatchPatchCommand | strategy=active_table_state<br>active=ProductionQcBatch<br>mode=native_transition<br>---<br>payload=single/field_patch<br>target=existing_record | native<br>default=native<br>canDisable=false<br>whenDisabled=unavailable<br>entry=domain_transition<br>nodes=1 |
+
+## settings
+
+| Action | Kind / target | Resource | Routes | Domain binding | Persistence / semantics | Workflow |
+|---|---|---|---|---|---|---|
+| `settings.account.notificationSubscription.save`<br>设置个人通知订阅 | write<br>NotificationSubscription | `settings.account`<br>direct=read | command: PUT /api/modules/settings/account/notification-subscriptions/:eventKey<br>direct: PUT /api/modules/settings/account/notification-subscriptions/:eventKey<br>direct: DELETE /api/modules/settings/account/notification-subscriptions/:eventKey | validate=packages/platform/server/notification-subscriptions.buildNotificationSubscriptionCommand<br>commit=packages/platform/server/notification-subscriptions.commitNotificationSubscriptionCommand | strategy=active_table_state<br>active=NotificationSubscription<br>mode=apply_patch<br>---<br>payload=single/field_patch<br>target=mixed | not_applicable<br>当前注册为 permission_only；如需接入流程，必须迁移为共享 typed command adapter 后再修改该声明。 |
 
 ## work
 

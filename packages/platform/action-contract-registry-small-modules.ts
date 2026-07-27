@@ -50,6 +50,18 @@ const libraryDocumentSetExport: ActionContractMetadata = {
 };
 
 export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
+  registeredWrite({
+    key: "settings.account.notificationSubscription.save",
+    activeEntity: "NotificationSubscription",
+    domain: d(
+      "packages/platform/server/notification-subscriptions.buildNotificationSubscriptionCommand",
+      "packages/platform/server/notification-subscriptions.commitNotificationSubscriptionCommand",
+    ),
+    shape: "field_patch",
+    target: "mixed",
+    targetIdKey: "eventKey",
+    commitMode: "apply_patch",
+  }),
   {
     ...registeredActionFacts("agent.businessApi.mutation.execute"),
     kind: "remote_effect",

@@ -43,10 +43,16 @@ const KNOWN_PREFIXES = [
 const MODULE_DEFS = collectModuleDefs();
 const KNOWN_MODULES = new Set(MODULE_DEFS.filter((moduleDef) => !moduleDef.parentKey).map((moduleDef) => moduleDef.key));
 const MODULES_WITH_CHILDREN = new Set(MODULE_DEFS.filter((moduleDef) => moduleDef.parentKey).map((moduleDef) => moduleDef.parentKey));
+function canonicalL2ApiBase(moduleDef) {
+  if (!moduleDef.parentKey) return null;
+  const childKey = moduleDef.key.slice(`${moduleDef.parentKey}.`.length);
+  const segment = childKey.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+  return `/api/modules/${moduleDef.parentKey}/${segment}`;
+}
 const REGISTERED_L2_API_BASES = new Set(
   MODULE_DEFS
     .filter((moduleDef) => moduleDef.parentKey)
-    .flatMap((moduleDef) => moduleDef.apiPrefixes || []),
+    .flatMap((moduleDef) => [canonicalL2ApiBase(moduleDef), ...(moduleDef.apiPrefixes || [])].filter(Boolean)),
 );
 const REGISTERED_L1_ONLY_API_BASES = new Set(
   collectApiContracts()

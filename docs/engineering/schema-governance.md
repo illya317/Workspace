@@ -6,7 +6,7 @@
 - 所有 model 必须按领域放在 `prisma/models/*.prisma`。
 - 禁止把新 model 直接写回 `prisma/schema.prisma`。
 
-当前领域划分（49 个 model 文件、219 个 model；逐字段关系以 `docs/generated/tables.md` 为准）：
+当前领域划分（56 个 model 文件、243 个 model；逐字段关系以 `docs/generated/tables.md` 为准）：
 
 | 文件 | 领域 | 模型 |
 |------|------|------|
@@ -46,6 +46,7 @@
 | `library-processing.prisma` | 资料处理与交付 | LibraryProcessingJob, LibraryArtifact, LibraryContentChunk, LibrarySearchIndex, LibraryExportJob |
 | `library.prisma` | 资料库、尽调、目录与标签 | LibraryDocument, LibraryDocumentVersion, LibraryCategory, LibraryDirectory, DueDiligenceParty, DueDiligenceRequest, DueDiligenceQuestion, DueDiligenceMaterialSelection, LibraryGeneratedSource, LibraryTag, LibraryDocumentTag |
 | `mutation-impact.prisma` | Platform 变更影响治理 | MutationImpactBatch, MutationImpactEffect |
+| `notification-subscriptions.prisma` | 个人通知订阅 | NotificationSubscription |
 | `open-api.prisma` | Open API 接入 | OpenApiClient, OpenApiResource, OpenApiScope, OpenApiClientScopeGrant, OpenApiAccessLog |
 | `product-master.prisma` | 跨生产、库存与财务的产品主档 | Product, ProductSourceMapping |
 | `production-qc.prisma` | 生产质量执行 | ProductionQcBatch, ProductionQcFieldValue, ProductionQcSignature, ProductionQcAuditEvent |

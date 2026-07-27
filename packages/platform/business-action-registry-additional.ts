@@ -4,6 +4,7 @@ import { OPERATIONAL_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-reg
 import { WORK_GOAL_ACTION_DESCRIPTORS } from "./work-goal-action-descriptors";
 import { INVENTORY_RECEIPT_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-inventory-receipts";
 import { PRODUCTION_PRODUCTS_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-production-products";
+import { SETTINGS_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-settings";
 
 const PERMISSION_ONLY = { eligibility: "permission_only" } as const;
 const OPTIONAL_APPROVAL_AUTO = {
@@ -102,6 +103,7 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   ...INVENTORY_RECEIPT_BUSINESS_ACTION_REGISTRATIONS,
   ...OPERATIONAL_BUSINESS_ACTION_REGISTRATIONS,
   ...AGENT_BUSINESS_ACTION_REGISTRATIONS,
+  ...SETTINGS_BUSINESS_ACTION_REGISTRATIONS,
   {
     ...HR_PERFORMANCE,
     eligibility: "workflow_optional",

@@ -268,7 +268,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     }] : []),
     ...(canUseResourcePermissions ? [{ key: "permissions" as const, label: "权限管理", children: subjectTabs }] : []),
     ...(canUseResourcePermissions ? [{ key: "ledger" as const, label: "权限台账" }] : []),
-    ...(isSuperAdmin ? [{ key: "dataQuality" as const, label: "数据质量" }] : []),
+    ...(isSuperAdmin ? [{ key: "dataQuality" as const, label: "提醒规则与运行" }] : []),
     ...(isSuperAdmin ? [{ key: "agentPolicy" as const, label: "智能体" }] : []),
     ...(isSuperAdmin ? [{ key: "modules" as const, label: "模块管理" }] : []),
   ];

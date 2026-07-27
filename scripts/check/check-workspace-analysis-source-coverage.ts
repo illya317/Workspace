@@ -37,6 +37,11 @@ type ExcludedCoverage = {
 type ExplicitCoverage = DerivedCoverage | ExcludedCoverage;
 
 const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
+  "/api/modules/settings/account/notification-subscriptions": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "当前用户的通知目录、权限资格和订阅覆盖属于个人控制面，不是经营分析数据集。",
+  },
   "/api/modules/administration/contracts/[id]/lifecycle": {
     disposition: "excluded",
     reason: "singleRecord",

@@ -17,8 +17,9 @@ import { useAccountAvatarField } from "./AccountAvatarField";
 import { useAccountSpacePreferences } from "./AccountSpacePreferences";
 import { useApiAccessSection, type ApiAccessModuleRow } from "./ApiAccessClient";
 import AccountNotificationsPanel, { type AccountWorkflowDetailRenderer } from "./AccountNotificationsPanel";
-type AccountPageTab = "profile" | "inbox";
-const ACCOUNT_PAGE_TABS: AccountPageTab[] = ["profile", "inbox"];
+import AccountNotificationSubscriptionsPanel from "./AccountNotificationSubscriptionsPanel";
+type AccountPageTab = "profile" | "inbox" | "subscriptions";
+const ACCOUNT_PAGE_TABS: AccountPageTab[] = ["profile", "inbox", "subscriptions"];
 interface AccountSettingsPanelProps {
   user: SessionUser;
   onUserRefresh: () => void;
@@ -29,7 +30,7 @@ function isAccountPageTab(value: string): value is AccountPageTab {
   return ACCOUNT_PAGE_TABS.includes(value as AccountPageTab);
 }
 function parseAccountPageTab(value: string | null): AccountPageTab {
-  return value === "inbox" ? "inbox" : "profile";
+  return value === "inbox" || value === "subscriptions" ? value : "profile";
 }
 export default function AccountSettingsPanel({
   user,
@@ -445,6 +446,7 @@ export default function AccountSettingsPanel({
     items: [
       { key: "profile", label: "账号设定" },
       { key: "inbox", label: "收件箱" },
+      { key: "subscriptions", label: "通知与订阅" },
     ],
     active: accountPageTab,
     onChange: (key) => {
@@ -462,12 +464,14 @@ export default function AccountSettingsPanel({
           toolbar={{ items: accountToolbarItems }}
           body={createPageBody(sections)}
         />
-      ) : (
+      ) : accountPageTab === "inbox" ? (
         <AccountNotificationsPanel
           navigation={navigation}
           currentUserId={user.id}
           workflowDetailRenderer={workflowDetailRenderer}
         />
+      ) : (
+        <AccountNotificationSubscriptionsPanel navigation={navigation} />
       )}
     </div>
   );

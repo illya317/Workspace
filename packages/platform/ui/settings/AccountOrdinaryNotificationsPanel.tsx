@@ -21,6 +21,9 @@ type NotificationItem = {
   title: string;
   body: string;
   href: string | null;
+  recipientReason: string | null;
+  resourceKey: string | null;
+  scopeId: string | null;
   requiresAcknowledgement: boolean;
   readAt: string | null;
   acknowledgedAt: string | null;
@@ -198,6 +201,7 @@ export default function AccountOrdinaryNotificationsPanel({
         ],
         sections: [
           createMessageSection("notification-meta", { content: `${statusLabel(selectedItem)} · ${formatTime(selectedItem.createdAt)}`, tone: "muted" }),
+          ...(selectedItem.recipientReason ? [createMessageSection("notification-reason", { content: `为什么收到：${selectedItem.recipientReason}`, tone: "muted" })] : []),
           createMessageSection("notification-body", { content: selectedItem.body, tone: "default" }),
         ],
       })

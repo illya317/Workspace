@@ -301,6 +301,8 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "PATCH", pathPrefix: "/api/settings/account", requiredActions: ["read"], notes: "Self-service account writes mutate only the current user's preferences/profile; service code owns the current-user scope." },
   { method: "DELETE", pathPrefix: "/api/settings/account", requiredActions: ["read"], notes: "Self-service account cleanup mutates only the current user's notification/preference state." },
   { method: "POST", pathPrefix: "/api/settings/account/api-key", requiredActions: ["revise"] },
+  { method: "PUT", pathPrefix: "/api/modules/settings/account/notification-subscriptions", requiredActions: ["read"], notes: "Current-user subscription writes use settings.account read; the service separately checks the target event resource before enabling." },
+  { method: "DELETE", pathPrefix: "/api/modules/settings/account/notification-subscriptions", requiredActions: ["read"], notes: "Current-user subscription reset removes only the authenticated user's override." },
   { method: "GET", pathPrefix: "/api/agent/profiles", requiredActions: ["read"], notes: "Virtual-employee profile discovery uses agent.assistant and only returns profiles with at least one registered tool currently usable by both requester and actor." },
   { method: "GET", pathPrefix: "/api/agent/capabilities", requiredActions: ["read"], notes: "Agent capability listing is filtered by each tool adapter's domain permission." },
   { method: "GET", pathPrefix: "/api/agent/proposals", requiredActions: ["read"], pathPattern: /^\/api\/agent\/proposals\/[^/]+$/, notes: "Proposal detail reads are restricted to the authenticated owner's safe view; execution payload and result are never returned." },

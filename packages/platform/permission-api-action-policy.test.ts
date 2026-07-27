@@ -203,3 +203,25 @@ test("Operational analysis standard draft API resolves concrete-space configure 
   assert.deepEqual(templateContract.requiredActions, ["configure"]);
   assert.equal(templateContract.scopeId, "department:12");
 });
+
+test("personal notification subscription writes use account read and are Agent-discoverable", async () => {
+  const path = "/api/modules/settings/account/notification-subscriptions/platform.dataQuality.alert";
+  for (const policy of [
+    resolvePut(path, "settings.account"),
+    resolveDelete(path, "settings.account"),
+  ]) {
+    assert.deepEqual(policy.requiredActions, ["read"]);
+    assert.equal(policy.runtimeEnforcement, "gateway");
+  }
+
+  const action = getBusinessActionRegistration("settings.account.notificationSubscription.save");
+  const contract = getActionContractMetadata("settings.account.notificationSubscription.save");
+  assert.equal(action?.resourceKey, "settings.account");
+  assert.equal(action?.directPermissionAction, "read");
+  assert.equal(contract?.persistence?.activeEntity, "NotificationSubscription");
+
+  const { buildPersonalApiCatalog } = await import("./server/personal-api-catalog");
+  const catalog = buildPersonalApiCatalog();
+  assert.equal(catalog.contracts.some((item) => item.pathPrefix === "/api/modules/settings/account/notification-subscriptions"), true);
+  assert.equal(catalog.mutations.some((item) => item.key === "settings.account.notificationSubscription.save"), true);
+});

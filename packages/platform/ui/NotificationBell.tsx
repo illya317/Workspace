@@ -30,7 +30,7 @@ export default function NotificationBell({
       const res = await fetch(workspacePath("/api/settings/account/notifications?limit=1&category=all"));
       if (!res.ok) return;
       const next = (await res.json()) as NotificationSummaryResponse;
-      setCount((next.pendingCount || 0) + (next.tabCounts?.workflowTodo || 0));
+      setCount((next.unreadCount || 0) + (next.tabCounts?.workflowTodo || 0));
     } catch {
       // Keep the current badge in offline/dev environments.
     }

@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { DATA_QUALITY_SEVERITIES, type DataQualitySeverity } from "@workspace/platform/data-quality-contract";
+import { listDataQualityProviderResourceKeys } from "@workspace/platform/data-quality-provider-registry";
 import type { DataQualityNotificationRoute } from "../data-quality-notification-routing";
 import { registeredModuleDefinitions } from "../module-registry";
 import { portalEntriesFromModules } from "../portal-preferences";
@@ -255,9 +256,10 @@ function registeredL2ResourceKeys() {
 }
 
 export function listDataQualityRoutingResourceOptions() {
+  const producerResourceKeys = new Set<string>(listDataQualityProviderResourceKeys());
   const modules = registeredModuleDefinitions.flatMap((definition) => definition.moduleDef ? [definition.moduleDef] : []);
   return portalEntriesFromModules(modules).flatMap((entry) => (
-    entry.level === 2 && entry.resourceKey && entry.parentKey && entry.parentLabel
+    entry.level === 2 && entry.resourceKey && producerResourceKeys.has(entry.resourceKey) && entry.parentKey && entry.parentLabel
       ? [{
           value: entry.resourceKey,
           label: `${entry.parentLabel} / ${entry.label}`,

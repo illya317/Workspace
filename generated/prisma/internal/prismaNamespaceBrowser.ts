@@ -238,6 +238,7 @@ export const ModelName = {
   LibraryDocumentTag: 'LibraryDocumentTag',
   MutationImpactBatch: 'MutationImpactBatch',
   MutationImpactEffect: 'MutationImpactEffect',
+  NotificationSubscription: 'NotificationSubscription',
   OpenApiClient: 'OpenApiClient',
   OpenApiResource: 'OpenApiResource',
   OpenApiScope: 'OpenApiScope',
@@ -660,6 +661,10 @@ export const NotificationScalarFieldEnum = {
   body: 'body',
   href: 'href',
   payloadJson: 'payloadJson',
+  recipientReason: 'recipientReason',
+  resourceKey: 'resourceKey',
+  scopeId: 'scopeId',
+  subscriptionId: 'subscriptionId',
   isImportant: 'isImportant',
   isStrongReminder: 'isStrongReminder',
   requiresAcknowledgement: 'requiresAcknowledgement',
@@ -4216,6 +4221,20 @@ export const MutationImpactEffectScalarFieldEnum = {
 } as const
 
 export type MutationImpactEffectScalarFieldEnum = (typeof MutationImpactEffectScalarFieldEnum)[keyof typeof MutationImpactEffectScalarFieldEnum]
+
+
+export const NotificationSubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  eventKey: 'eventKey',
+  enabled: 'enabled',
+  channel: 'channel',
+  cadence: 'cadence',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationSubscriptionScalarFieldEnum = (typeof NotificationSubscriptionScalarFieldEnum)[keyof typeof NotificationSubscriptionScalarFieldEnum]
 
 
 export const OpenApiClientScalarFieldEnum = {

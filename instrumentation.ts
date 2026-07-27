@@ -4,5 +4,7 @@ export async function register() {
   const { preloadModuleRuntimeOverrides } = await import("@workspace/platform/server/module-management");
   await preloadModuleRuntimeOverrides();
   const { startPermissionReviewScheduler } = await import("@workspace/platform/server/permission-review-scheduler");
+  const { startDataQualityScheduler } = await import("@workspace/platform/server/data-quality-scheduler");
   startPermissionReviewScheduler();
+  startDataQualityScheduler();
 }

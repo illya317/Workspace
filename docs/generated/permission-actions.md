@@ -2,7 +2,7 @@
 
 # 全项目权限 Action 授权手册
 
-当前共 20 个 permission action、101 个资源策略、190 个已注册 BusinessAction。
+当前共 20 个 permission action、101 个资源策略、191 个已注册 BusinessAction。
 
 事实来源：`action-registry.ts`、`permission-resource-policy.ts`、`module-registry.ts` 与 `business-action-registry.ts`。业务写入的状态、校验和持久化细节继续以 `action-contracts.md` 为准。
 
@@ -543,7 +543,7 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
 |---|---|---|---|---|
 | `settings.account.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
-| `settings.account.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
+| `settings.account.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 直接执行：设置个人通知订阅（`settings.account.notificationSubscription.save`；PUT /api/modules/settings/account/notification-subscriptions/:eventKey、DELETE /api/modules/settings/account/notification-subscriptions/:eventKey） | 可在当前资源配置，也可能从父资源继承。 | `entry` |
 | `settings.account.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 页面/API guard（无独立 BusinessAction）。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `settings.account.revise`<br>修订 | 对已生效、已提交或有历史版本的对象进行受控修订、重开或更正。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `settings.account.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
