@@ -12,6 +12,7 @@ const generatedPaths = [
   "../../generated/prisma/models/FinanceGroupAccountMapping.ts",
   "../../generated/prisma/models/FinanceGroupAccountRevision.ts",
   "../../generated/prisma/models/FinanceStatementVoucherExclusion.ts",
+  "../../generated/prisma/models/FinanceConsolidationScopeSelection.ts",
   "../../generated/prisma/models/DataQualityCheckState.ts",
   "../../generated/prisma/models/DataQualityEvaluationRequest.ts",
   "../../generated/prisma/models/DataQualityFinding.ts",
