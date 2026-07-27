@@ -13,7 +13,7 @@ import { okCommand } from "@workspace/platform/server/domain-validation";const o
 );
 const optionalYear = z.preprocess(
   (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
-  z.number().int().min(2020).max(2099).optional(),
+  z.number().int().optional(),
 );
 const optionalMonth = z.preprocess(
   (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
