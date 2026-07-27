@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 UPDATE "Notification"
 SET "type" = 'platform.businessData.alert'
 WHERE "type" = 'platform.dataQuality.alert';
