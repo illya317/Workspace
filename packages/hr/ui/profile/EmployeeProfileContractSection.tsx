@@ -277,6 +277,7 @@ export function useContractSections({
         termKind: termKindForCommand(kind, draft.durationKind, targetTerm),
       };
     } else if (kind === "supplement-missing" || kind === "correct-existing") {
+      if (!selected) return feedback.error("请选择已规范化的协议");
       const patch = agreementContentPatch(selected, draft, kind);
       if (Object.keys(patch).length === 0) {
         feedback.error(kind === "supplement-missing" ? "请填写至少一项缺失资料" : "没有需要保存的修正");

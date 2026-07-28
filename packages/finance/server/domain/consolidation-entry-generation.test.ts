@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   buildIntercompanyVoucherMatchGroups,
   buildInvestmentVoucherMatchGroups,
+  intercompanyPresentationAccountCode,
   type ConsolidationVoucherMatchFact,
 } from "./consolidation-entry-generation";
 
@@ -32,6 +33,45 @@ function fact(
   };
 }
 
+test("routes abnormal intercompany balances to the approved reclassified presentation account", () => {
+  assert.equal(intercompanyPresentationAccountCode({
+    sourceAccountCode: "224101",
+    reclassTargetAccountCode: "122101",
+    balanceDirection: "credit",
+    signedAmount: 61_892_926.1,
+  }), "122101");
+  assert.equal(intercompanyPresentationAccountCode({
+    sourceAccountCode: "122101",
+    reclassTargetAccountCode: "224101",
+    balanceDirection: "debit",
+    signedAmount: -61_892_926.1,
+  }), "224101");
+});
+
+test("keeps normal intercompany balances on their source presentation account", () => {
+  assert.equal(intercompanyPresentationAccountCode({
+    sourceAccountCode: "122101",
+    reclassTargetAccountCode: "224101",
+    balanceDirection: "debit",
+    signedAmount: 89_924.65,
+  }), "122101");
+  assert.equal(intercompanyPresentationAccountCode({
+    sourceAccountCode: "224101",
+    reclassTargetAccountCode: "122101",
+    balanceDirection: "credit",
+    signedAmount: -89_924.65,
+  }), "224101");
+});
+
+test("does not reroute an abnormal balance without an approved presentation target", () => {
+  assert.equal(intercompanyPresentationAccountCode({
+    sourceAccountCode: "122101",
+    reclassTargetAccountCode: null,
+    balanceDirection: "debit",
+    signedAmount: -100,
+  }), "122101");
+});
+
 test("matches all voucher lines for one company pair as an N:N group", () => {
   const result = buildIntercompanyVoucherMatchGroups([
     fact(1, 8, 9, 60), fact(2, 8, 9, 40),
@@ -49,9 +89,25 @@ test("keeps voucher facts visible when counterpart amount differs", () => {
     fact(1, 8, 9, 100), fact(2, 9, 8, -99),
   ]);
   assert.equal(group?.status, "difference");
+  assert.equal(group?.matchedAmount, 99);
   assert.equal(group?.differenceAmount, 1);
   assert.equal(group?.leftFacts.length, 1);
   assert.equal(group?.rightFacts.length, 1);
+  assert.equal(group?.leftFacts[0]?.matchedSignedAmount, 99);
+  assert.equal(group?.rightFacts[0]?.matchedSignedAmount, -99);
+});
+
+test("allocates matched balances while keeping an unmatched row as a source exception", () => {
+  const [group] = buildIntercompanyVoucherMatchGroups([
+    fact(1, 8, 13, 42_000),
+    fact(2, 13, 8, -42_000),
+    fact(3, 13, 8, -3_543.33),
+  ]);
+  assert.equal(group?.status, "difference");
+  assert.equal(group?.matchedAmount, 42_000);
+  assert.equal(group?.differenceAmount, 3_543.33);
+  assert.deepEqual(group?.rightFacts.map((item) => item.matchedSignedAmount), [-42_000, 0]);
+  assert.match(group?.differenceResolution ?? "", /已匹配抵销 42000\.00 元/);
 });
 
 test("does not generate a match when a voucher line lacks report mapping", () => {

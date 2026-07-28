@@ -138,6 +138,7 @@ test("replay only requires elimination conclusions that are active in the curren
   const currentScope = batch("locked");
   currentScope.controlDecisions = currentScope.controlDecisions.filter((decision) => (
     decision.controlKey === "elimination:investmentEquity"
+    || decision.controlKey === "elimination:nonControllingInterest"
     || decision.controlKey === "elimination:intercompanyBalance"
     || decision.controlKey === "tax"
   ));
@@ -173,6 +174,9 @@ test("replay preserves entry and tax-effect audit metadata", () => {
   audited.entries = [{
     id: 20,
     entryNo: "E-001",
+    postingDate: "2026-07-15",
+    documentType: "elimination",
+    postingLevel: "20",
     entryType: "internalTrading",
     title: "内部交易抵销",
     description: null,

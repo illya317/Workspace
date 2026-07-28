@@ -410,8 +410,8 @@ export function executeSaveBalanceReclassAdjustmentChangeSetRouteCommand(command
   return saveBalanceReclassAdjustmentChangeSet(command.input);
 }
 
-export function executeListVouchersCommand(command: Parameters<typeof listVouchers>[0]) {
-  return listVouchers(command);
+export async function executeListVouchersCommand(command: Parameters<typeof listVouchers>[0]) {
+  return await listVouchers(command);
 }
 
 export function buildCreateVoucherCommand(body: Parameters<typeof createVoucher>[0], userId: number) {

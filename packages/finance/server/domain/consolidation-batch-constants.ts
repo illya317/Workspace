@@ -17,6 +17,7 @@ export const CONSOLIDATION_ENTRY_TYPES: readonly ConsolidationEntryType[] = [
 /** Current product scope. Remaining statutory elimination types stay modeled for a later phase. */
 export const ACTIVE_CONSOLIDATION_ENTRY_TYPES: readonly ConsolidationEntryType[] = [
   "investmentEquity",
+  "nonControllingInterest",
   "intercompanyBalance",
 ];
 

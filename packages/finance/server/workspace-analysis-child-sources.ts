@@ -2,7 +2,7 @@ import "server-only";
 
 import { defineWorkspaceAnalysisReadModel } from "@workspace/platform/server/workspace-analysis-read-model";
 
-import type { listVouchers } from "./ledger/voucher-service";
+import type { StandardVoucherListRow } from "./ledger/voucher-service";
 import type { listImports } from "./cost/import";
 import type { ReclassEntry } from "@workspace/finance/types";
 import type {
@@ -15,7 +15,7 @@ import type {
 import type { ReclassResultRow } from "./ledger/reclass-results/types";
 import type { AccountDetail, ReclassAdjustment } from "./statements/report-detail";
 
-type VoucherRow = Awaited<ReturnType<typeof listVouchers>>["data"][number];
+type VoucherRow = StandardVoucherListRow;
 type VoucherItemRow = VoucherRow["items"][number];
 type CostImportRow = Awaited<ReturnType<typeof listImports>>["data"][number];
 

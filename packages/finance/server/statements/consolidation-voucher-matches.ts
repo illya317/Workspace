@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import {
   buildIntercompanyVoucherMatchGroups,
   buildInvestmentVoucherMatchGroups,
+  intercompanyPresentationAccountCode,
   type ConsolidationVoucherMatchFact,
 } from "../domain/consolidation-entry-generation";
 import { prisma } from "@workspace/platform/server/prisma";
@@ -61,19 +62,25 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
   const companyIds = [...entityByCompanyId.keys()];
   const companyCodes = [...entityByCompanyCode.keys()];
   const cutoff = new Date(`${periodEndDate(batch.year, batch.month)}T00:00:00.000Z`);
-  const policyVersion = await prisma.financeAccountingPolicyVersion.findFirst({
-    where: {
-      status: "published",
-      OR: [{ effectiveFrom: null }, { effectiveFrom: { lte: cutoff } }],
-      AND: [{ OR: [{ effectiveTo: null }, { effectiveTo: { gt: cutoff } }] }],
-    },
-    orderBy: { versionNo: "desc" },
-    include: {
-      consolidationRules: { where: { enabled: true }, include: { selectors: true } },
-      revisions: { select: { groupAccountId: true, consolidationRole: true } },
-      mappings: { where: { companyCode: { in: companyCodes }, groupAccountId: { not: null } }, select: { companyCode: true, localAccountCode: true, groupAccountId: true } },
-    },
-  });
+  const [policyVersion, periods] = await Promise.all([
+    prisma.financeAccountingPolicyVersion.findFirst({
+      where: {
+        status: "published",
+        OR: [{ effectiveFrom: null }, { effectiveFrom: { lte: cutoff } }],
+        AND: [{ OR: [{ effectiveTo: null }, { effectiveTo: { gt: cutoff } }] }],
+      },
+      orderBy: { versionNo: "desc" },
+      include: {
+        consolidationRules: { where: { enabled: true }, include: { selectors: true } },
+        revisions: { select: { groupAccountId: true, consolidationRole: true } },
+        mappings: { where: { companyCode: { in: companyCodes }, groupAccountId: { not: null } }, select: { companyCode: true, localAccountCode: true, groupAccountId: true } },
+      },
+    }),
+    prisma.financePeriod.findMany({
+      where: { companyCode: { in: companyCodes }, year: batch.year, month: batch.month },
+      select: { id: true, companyCode: true },
+    }),
+  ]);
   const roleByGroupAccountId = new Map(policyVersion?.revisions.map((revision) => [revision.groupAccountId, revision.consolidationRole]) ?? []);
   const roleByLocalAccount = new Map(policyVersion?.mappings.map((mapping) => [
     `${mapping.companyCode}:${mapping.localAccountCode}`,
@@ -93,7 +100,7 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
       .map((line) => typeof line.lineCode === "string" ? line.lineCode : null)
       .filter((line): line is string => Boolean(line))));
   }
-  const [investmentCompanyRules, items, auxiliaryBalances] = await Promise.all([
+  const [investmentCompanyRules, items, auxiliaryBalances, reclassAdjustments] = await Promise.all([
     prisma.financeVoucherCompanyMappingRule.findMany({
       where: {
         purpose: "investmentInvestee",
@@ -162,13 +169,24 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
         sourceKey: true,
         closingDebit: true,
         closingCredit: true,
-        account: { select: { code: true, name: true } },
+        account: { select: { code: true, name: true, balanceDirection: true } },
         members: {
           where: { member: { linkedCompanyId: { in: companyIds } } },
           select: { member: { select: { linkedCompanyId: true } } },
         },
       },
       orderBy: [{ companyCode: "asc" }, { account: { code: "asc" } }, { id: "asc" }],
+    }),
+    prisma.financeBalanceReclassAdjustment.findMany({
+      where: {
+        periodId: { in: periods.map((period) => period.id) },
+        companyCode: { in: companyCodes },
+        decision: "reclassify",
+        basis: "counterparty_gross",
+        targetAccountCode: { not: null },
+        status: { in: ["approved", "adjusted"] },
+      },
+      select: { companyCode: true, sourceAccountCode: true, targetAccountCode: true },
     }),
   ]);
   const investmentRulesByCompanyCode = new Map<string, typeof investmentCompanyRules>();
@@ -179,6 +197,11 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
   }
   const { mappingMap } = buildFixedBalanceAssignments();
   const noScopedMapping = new Map<string, string>();
+  const reclassTargetBySource = new Map(reclassAdjustments.flatMap((adjustment) => (
+    adjustment.targetAccountCode
+      ? [[`${adjustment.companyCode}:${adjustment.sourceAccountCode}`, adjustment.targetAccountCode] as const]
+      : []
+  )));
   const intercompanyFacts: ConsolidationVoucherMatchFact[] = [];
   const investmentFacts: ConsolidationVoucherMatchFact[] = [];
   for (const balance of auxiliaryBalances) {
@@ -192,7 +215,13 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
     if (signedAmount === 0) continue;
     const consolidationRole = roleByLocalAccount.get(`${balance.companyCode}:${balance.account.code}`) ?? "none";
     if (!intercompanyRule || !intercompanyRoles.has(consolidationRole)) continue;
-    const mappedLine = resolveMappedLineCode(balance.account.code, noScopedMapping, mappingMap);
+    const presentationAccountCode = intercompanyPresentationAccountCode({
+      sourceAccountCode: balance.account.code,
+      reclassTargetAccountCode: reclassTargetBySource.get(`${balance.companyCode}:${balance.account.code}`) ?? null,
+      balanceDirection: balance.account.balanceDirection,
+      signedAmount,
+    });
+    const mappedLine = resolveMappedLineCode(presentationAccountCode, noScopedMapping, mappingMap);
     const lineCode = mappedLine && frozenLines.get(entity.id)?.has(mappedLine) ? mappedLine : null;
     intercompanyFacts.push({
       sourceKind: "auxiliaryBalance",
@@ -216,6 +245,7 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
         sourceKey: balance.sourceKey,
         closingDebit: balance.closingDebit,
         closingCredit: balance.closingCredit,
+        presentationAccountCode,
         lineCode,
         counterpartyCompanyId: counterparties[0],
       }),

@@ -133,7 +133,7 @@ async function ensureHistoryBaseline(client, entityType, tableName, entityId, ac
     INSERT INTO "EditHistory" ("entityType", "entityId", "version", "dataJson", "editedBy", "tag")
     SELECT $1, $2::text, 0, to_jsonb(record)::text, $3, 'V0:baseline'
     FROM "${tableName}" AS record
-    WHERE record.id = $2
+    WHERE record.id = $2::integer
       AND NOT EXISTS (
         SELECT 1 FROM "EditHistory" history
         WHERE history."entityType" = $1 AND history."entityId" = $2::text
@@ -153,7 +153,7 @@ async function snapshotHistory(client, entityType, tableName, entityId, actorUse
     INSERT INTO "EditHistory" ("entityType", "entityId", "version", "dataJson", "editedBy")
     SELECT $1, $2::text, next_version.version, to_jsonb(record)::text, $3
     FROM "${tableName}" AS record CROSS JOIN next_version
-    WHERE record.id = $2
+    WHERE record.id = $2::integer
   `, [entityType, entityId, actorUserId]);
 }
 

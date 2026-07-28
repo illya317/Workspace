@@ -67,6 +67,19 @@ function toVoucherListDto(voucher: VoucherListRow) {
   };
 }
 
+export type StandardVoucherListRow = ReturnType<typeof toVoucherListDto>;
+
+export type GroupVoucherListRow = Awaited<ReturnType<typeof listGroupJournals>>["data"][number];
+
+export interface VoucherListResult {
+  data: Array<StandardVoucherListRow | GroupVoucherListRow>;
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  vouchers: Array<StandardVoucherListRow | GroupVoucherListRow>;
+}
+
 function calculateVoucherTotals(items: VoucherItemInput[]) {
   return {
     totalDebit: items.reduce((s: number, i) => s + (parseFloat(String(i.debit)) || 0), 0),
@@ -92,8 +105,21 @@ function validateBalancedVoucher(items: VoucherItemInput[]) {
   return totals;
 }
 
-export async function listVouchers(input: ListVouchersInput) {
+export function listVouchers(
+  input: ListVouchersInput & { voucherKind: "group" },
+): ReturnType<typeof listGroupJournals>;
+export function listVouchers(
+  input: ListVouchersInput & { voucherKind?: "standard" },
+): ReturnType<typeof listStandardVouchers>;
+export function listVouchers(
+  input: ListVouchersInput,
+): Promise<VoucherListResult>;
+export function listVouchers(input: ListVouchersInput): Promise<VoucherListResult> {
   if (input.voucherKind === "group") return listGroupJournals(input);
+  return listStandardVouchers(input);
+}
+
+async function listStandardVouchers(input: ListVouchersInput) {
   const where: Prisma.FinanceVoucherWhereInput = {};
   if (input.periodId) where.periodId = input.periodId;
   if (input.status) where.status = input.status;
