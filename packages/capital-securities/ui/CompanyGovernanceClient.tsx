@@ -16,7 +16,7 @@ import {
   type PageSurfaceTabBarSpec,
   type SelectorSurfaceProps,
 } from "@workspace/core/ui";
-import { requestJson } from "@workspace/platform/ui/api-client";
+import { postJson, putJson } from "@workspace/platform/ui/api-client";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 import type { CompanyRecord } from "../types";
 import {
@@ -254,12 +254,9 @@ export default function CompanyGovernanceClient({
     setSaving(true);
     try {
       const update = Boolean(companyDraft.id);
-      const response = await requestJson<{ success: true } | { record: { id: number } }>(COMPANIES_ENDPOINT, {
-        method: update ? "PUT" : "POST",
-        body: JSON.stringify(companyDraft),
-        headers: { "Idempotency-Key": crypto.randomUUID() },
-        fallbackMessage: update ? "保存公司失败" : "新增公司失败",
-      });
+      const response = update
+        ? await putJson<{ success: true }>(COMPANIES_ENDPOINT, companyDraft, "保存公司失败")
+        : await postJson<{ record: { id: number } }>(COMPANIES_ENDPOINT, companyDraft, "新增公司失败");
       const savedId = update ? companyDraft.id! : "record" in response ? response.record.id : null;
       if (!update) setKeyword("");
       const refreshed = await load(update ? undefined : "");

@@ -178,24 +178,6 @@ export const OWNERSHIP_HISTORY_COLUMNS: DataSurfaceColumnSpec<OwnershipInterestR
     wrap: "nowrap",
     cell: (row) => `${row.effectiveFrom ?? "未注明"} 至 ${row.effectiveTo ?? "今"}`,
   },
-  {
-    key: "sourceEvent",
-    label: "来源事件",
-    width: "xl",
-    wrap: "nowrap",
-    cell: (row) => row.sourceEventId === null
-      ? "历史投影（待重建）"
-      : `${row.sourceEventName ?? "股本事件"} · #${row.sourceEventId}${row.closedByEventId === null ? "" : ` → #${row.closedByEventId}`}`,
-  },
-  {
-    key: "projectionRun",
-    label: "投影批次",
-    width: "xl",
-    wrap: "nowrap",
-    cell: (row) => row.projectionRunId === null
-      ? "—"
-      : `第 ${row.projectionGeneration ?? "?"} 代 · ${row.projectorKey ?? "capital.ownership"} v${row.projectorVersion ?? "?"}`,
-  },
 ];
 
 export const OWNERSHIP_HISTORY_VISIBLE_COLUMNS = OWNERSHIP_HISTORY_COLUMNS.map((column) => column.key);

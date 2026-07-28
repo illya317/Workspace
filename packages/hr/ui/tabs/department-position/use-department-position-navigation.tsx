@@ -10,7 +10,6 @@ import type {
 function createEmptyPositionDescriptionDraft(): DescriptionDraft {
   return {
     id: 0,
-    sequence: 0,
     code: "",
     name: "",
     departmentName: "",
@@ -21,8 +20,6 @@ function createEmptyPositionDescriptionDraft(): DescriptionDraft {
     effectiveDate: "",
     sourceFile: "",
     details: "{}",
-    changeKind: "change",
-    changeReason: "",
   };
 }
 

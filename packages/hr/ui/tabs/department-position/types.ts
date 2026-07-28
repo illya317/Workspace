@@ -19,16 +19,6 @@ export type Department = {
   isArchived: boolean;
   archivedAt: string | null;
   version: number;
-  asOfDate: string;
-  temporal: OrganizationTemporal<{
-    code: string;
-    name: string;
-    alias: string | null;
-    hierarchyKind: string;
-    level: number;
-    parentId: number | null;
-    managerPositionId: number | null;
-  }>;
   children: { id: number; name: string }[];
   descriptions: DepartmentDescription[];
 };
@@ -64,16 +54,7 @@ export type Position = {
   positionPurpose: string | null;
   headcountPlan: number | null;
   version: number;
-  asOfDate: string;
-  temporal: OrganizationTemporal<{
-    code: string;
-    name: string;
-    alias: string | null;
-    departmentId: number | null;
-    reportToPositionId: number | null;
-  }>;
   positionDescriptionVersion: string | null;
-  positionDescriptionSequence: number | null;
   effectiveDate: string | null;
   sourceFile: string | null;
   headcount: number;
@@ -98,38 +79,10 @@ export type Selection =
 export type PositionDraft = Pick<
   Position,
   "id" | "code" | "name" | "alias" | "departmentId" | "reportTo" | "reportToPositionId"
-> & OrganizationChangeDraft;
-
-export type OrganizationTemporalItem<TPayload> = {
-  id: number;
-  sequence: number;
-  validFrom: string | null;
-  validToExclusive: string | null;
-  recordState: string;
-  temporalState: "past" | "current" | "upcoming" | "invalid";
-  isLive: boolean;
-  changeKind: string;
-  reason: string | null;
-  recordedAt: string | null;
-  recordedBy: number | null;
-  payload: TPayload;
-};
-
-export type OrganizationTemporal<TPayload> = {
-  current: OrganizationTemporalItem<TPayload> | null;
-  upcoming: OrganizationTemporalItem<TPayload>[];
-  history: OrganizationTemporalItem<TPayload>[];
-};
-
-export type OrganizationChangeDraft = {
-  effectiveOn: string;
-  changeKind: "schedule" | "correct";
-  changeReason: string;
-};
+>;
 
 export type DescriptionDraft = {
   id: number;
-  sequence: number;
   code: string;
   name: string;
   departmentName: string;
@@ -140,8 +93,6 @@ export type DescriptionDraft = {
   effectiveDate: string;
   sourceFile: string;
   details: string;
-  changeKind: "change" | "correction";
-  changeReason: string;
 };
 
 export type DepartmentDescriptionDraft = {
@@ -166,7 +117,7 @@ export type DepartmentDraft = {
   managerEmployeeIds: number[];
   managerEmployeeNames: string[];
   managerName: string;
-} & OrganizationChangeDraft;
+};
 
 export type CreateDepartmentDraft = {
   hierarchyKind: "G" | "M";
