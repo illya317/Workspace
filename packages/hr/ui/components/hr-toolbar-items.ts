@@ -76,7 +76,6 @@ export interface HRToolbarItemsOptions {
   columnToggle?: HRToolbarItemsColumnToggle;
   refresh?: HRToolbarItemsAction;
   reset?: HRToolbarItemsAction;
-  history?: HRToolbarItemsAction;
   assistant?: HRToolbarItemsAction;
   editGroup?: HRToolbarItemsEditGroup;
   pageSize?: HRToolbarItemsPageSize;
@@ -90,7 +89,6 @@ export function buildHRToolbarItems({
   columnToggle,
   refresh,
   reset,
-  history,
   assistant,
   editGroup,
   pageSize,
@@ -157,16 +155,6 @@ export function buildHRToolbarItems({
       label: reset.label ?? "重置",
       disabled: reset.disabled,
       onClick: reset.onClick,
-    });
-  }
-
-  if (history) {
-    actionGroupActions.push({
-      key: "history",
-      kind: "history",
-      label: history.label ?? "最近改动",
-      disabled: history.disabled,
-      onClick: history.onClick,
     });
   }
 

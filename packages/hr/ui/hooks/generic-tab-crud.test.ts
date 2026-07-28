@@ -5,7 +5,6 @@ import type { FieldConfig, TabConfig } from "@workspace/hr/types";
 import {
   buildGenericTabCreateBody,
   buildGenericTabDeleteRequest,
-  canEditGenericTabRows,
   emptyGenericTabCreateDraft,
   genericTabCreateFields,
   isGenericTabCreateReady,
@@ -44,15 +43,6 @@ test("CRUD actions require both config capability and explicit action permission
     resolveGenericTabCrudCapabilities({ canCreate: false, canDelete: true }, { canCreate: true, canDelete: true }),
     { canCreate: false, canDelete: true },
   );
-});
-
-test("page edit mode requires at least one explicitly editable field", () => {
-  assert.equal(canEditGenericTabRows(fields, true), true);
-  assert.equal(canEditGenericTabRows(fields, false), false);
-  assert.equal(canEditGenericTabRows([
-    { key: "department", label: "部门", editable: false },
-    { key: "position", label: "岗位" },
-  ], true), false);
 });
 
 test("create draft exposes visible editable fields and requires valid FK selections", () => {

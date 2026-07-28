@@ -9,14 +9,13 @@ import {
 } from "@workspace/core/ui";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 export interface ProfileHistoryEntry {
-  id: string | number;
+  id: number;
   entityType: string;
   entityId: string;
   version: number;
   editorName: string;
   createdAt: string;
   action?: "create" | "update";
-  reason?: string;
   changes: Array<{
     field: string;
     label: string;
@@ -28,8 +27,8 @@ export interface ProfileHistoryEntry {
 interface HistorySectionProps {
   entries: ProfileHistoryEntry[];
   loading: boolean;
-  expandedId: string | number | null;
-  onToggle: (id: string | number) => void;
+  expandedId: number | null;
+  onToggle: (id: number) => void;
   onRefresh: () => void;
   className?: string;
 }
@@ -88,11 +87,7 @@ export function historySectionSurface({
     empty: loading ? "正在加载历史记录..." : "暂无变更记录",
     records: loading ? [] : entries.map(entry => {
       const expanded = expandedId === entry.id;
-      const headerTitle = entry.action === "create"
-        ? `${entry.editorName} 创建记录`
-        : entry.reason
-          ? `${entry.editorName} 修订周期 · ${entry.reason}`
-          : `${entry.editorName} 修改了 ${entry.changes.length} 项`;
+      const headerTitle = entry.action === "create" ? `${entry.editorName} 创建记录` : `${entry.editorName} 修改了 ${entry.changes.length} 项`;
       return {
         key: String(entry.id),
         expanded,

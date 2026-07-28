@@ -96,29 +96,6 @@ export function usePositionDescriptionPanelSection({
     { kind: "readonly", key: "version", label: "版本", value: meta.version },
     { kind: "readonly", key: "effectiveDate", label: "生效日期", value: meta.effectiveDate },
     {
-      key: "changeKind",
-      label: "修订类型",
-      spec: {
-        valueType: "string",
-        control: "choice",
-        state: !canEditPosition ? "disabled" : "normal",
-        options: { source: "static", items: [
-          { value: "change", label: "正常变更" },
-          { value: "correction", label: "纠错" },
-        ] },
-      },
-      value: draft.changeKind,
-      onChange: value => onUpdateDescriptionDraft("changeKind", value === "correction" ? "correction" : "change"),
-    },
-    ...(draft.changeKind === "correction" ? [{
-      key: "changeReason",
-      label: "纠错原因",
-      required: true,
-      spec: { valueType: "string" as const, control: "text" as const, state: !canEditPosition ? "disabled" as const : "normal" as const },
-      value: draft.changeReason,
-      onChange: (value: unknown) => onUpdateDescriptionDraft("changeReason", String(value ?? "")),
-    }] : []),
-    {
       key: "purpose",
       label: "岗位目的",
       span: "wide",
