@@ -20,7 +20,7 @@ test("员工档案所有来源字段都有可审计的编辑入口", {
   const response = await page.goto(PROFILE_PATH, { waitUntil: "domcontentloaded" });
   expect(response).not.toBeNull();
   expect(response!.status()).toBeLessThan(400);
-  await expect(page.getByText("基本信息", { exact: true })).toBeVisible();
+  await expect(page.getByRole("tab", { name: "基本信息", exact: true })).toBeVisible();
 
   for (const label of [
     "员工编号",
@@ -45,7 +45,7 @@ test("员工档案所有来源字段都有可审计的编辑入口", {
   }
   await expectReadOnlyField(page, "农历生日");
 
-  await page.getByText("雇佣关系", { exact: true }).click();
+  await page.getByRole("tab", { name: "雇佣关系", exact: true }).click();
   await page.getByRole("row").filter({ hasText: "丰华制药" }).first().click();
   for (const label of ["人员类型", "职级", "职务", "办公地点"]) {
     await expectEditableField(page, label);
@@ -61,14 +61,14 @@ test("员工档案所有来源字段都有可审计的编辑入口", {
   await expectEditableField(page, "补充说明");
   await expect(page.getByRole("button", { name: "保存补充资料", exact: true })).toBeDisabled();
 
-  await page.getByText("社会保险", { exact: true }).click();
+  await page.getByRole("tab", { name: "社会保险", exact: true }).click();
   await page.getByRole("row").filter({ hasText: "已参保" }).first().click();
   await page.getByRole("button", { name: "修正已登记资料", exact: true }).click();
   for (const label of ["社保状态", "参保公司", "参保月份", "停保月份", "停保原因", "备注", "修正说明"]) {
     await expectEditableField(page, label);
   }
 
-  await page.getByText("任职管理", { exact: true }).click();
+  await page.getByRole("tab", { name: "任职管理", exact: true }).click();
   await page.getByRole("button", { name: "纠正这条记录", exact: true }).click();
   for (const label of ["汇报公司", "部门", "岗位", "主岗", "岗位投入权重", "汇报岗位", "开始日期", "结束日期", "纠正原因"]) {
     await expectEditableField(page, label, "纠正任职历史");

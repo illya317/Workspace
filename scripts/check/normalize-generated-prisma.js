@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const generatedPaths = [
+  "../../generated/prisma/internal/class.ts",
   "../../generated/prisma/internal/prismaNamespace.ts",
   "../../generated/prisma/models/MutationImpactBatch.ts",
   "../../generated/prisma/models/MutationImpactEffect.ts",
@@ -19,6 +20,7 @@ const generatedPaths = [
   "../../generated/prisma/models/DataQualityNotificationDelivery.ts",
   "../../generated/prisma/models/DataQualityRun.ts",
   "../../generated/prisma/models/EmployeeLifecycleEvent.ts",
+  "../../generated/prisma/models/EmployeePartyIdentityLink.ts",
   "../../generated/prisma/models/CompanyRegistryChange.ts",
   "../../generated/prisma/models/CompanyRegistryOwnershipParticipant.ts",
   "../../generated/prisma/models/FinanceCounterpartyClassification.ts",
