@@ -94,9 +94,11 @@ async function expectReadOnlyField(page: Page, label: string) {
 }
 
 function fieldCell(scope: Locator, label: string) {
-  return scope.locator('[data-field-grid-mode] > div').filter({
-    has: scope.getByText(label, { exact: true }),
-  }).filter({ visible: true }).last();
+  return scope
+    .getByText(label, { exact: true })
+    .filter({ visible: true })
+    .last()
+    .locator("xpath=ancestor::div[parent::*[@data-field-grid-mode]][1]");
 }
 
 function sectionContaining(page: Page, title: string) {
