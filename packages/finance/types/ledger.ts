@@ -73,7 +73,7 @@ export interface VoucherItem {
   lineCode?: string;
   accountCode?: string | null;
   groupAccountId?: number | null;
-  currencyCode?: string;
+  currencyCode?: string | null;
   periodBasis?: "current" | "comparative";
   note?: string | null;
   matchSide?: "left" | "right" | null;

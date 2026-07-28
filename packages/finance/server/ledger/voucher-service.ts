@@ -1,5 +1,5 @@
 import { matchText } from "@workspace/core/search";
-import type { FinanceGroupVoucherDocumentType, FinanceVoucherPeriodScope } from "@workspace/finance/types";
+import type { ConsolidationEntryType, FinanceGroupVoucherDocumentType, FinanceVoucherPeriodScope } from "@workspace/finance/types";
 import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
@@ -373,7 +373,7 @@ async function listGroupJournals(input: ListVouchersInput) {
       documentType: entry.documentType as FinanceGroupVoucherDocumentType,
       postingLevel: entry.postingLevel as "10" | "20" | "30",
       origin: entry.origin as "manual" | "system",
-      entryType: entry.entryType,
+      entryType: entry.entryType as ConsolidationEntryType,
       title: entry.title,
       entryDescription: entry.description,
       evidence: entry.evidence,
