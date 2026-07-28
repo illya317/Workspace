@@ -156,27 +156,60 @@ const validLocalTiming = localTiming
   && !Number.isNaN(Date.parse(localTiming.releaseProcessStartedAt))
   && Number.isSafeInteger(localTiming.tenantSyncSeconds)
   && localTiming.tenantSyncSeconds >= 0;
-if (metadata.schemaVersion !== 1
-  || metadata.source?.commitSha !== sha
-  || metadata.source?.treeSha !== tree
-  || metadata.localReleaseGate?.schemaVersion !== 2
-  || metadata.localReleaseGate?.kind !== 'workspace-local-release-gate'
-  || metadata.localReleaseGate?.status !== 'passed'
-  || metadata.localReleaseGate?.command !== 'ops/local-release-gate.sh'
-  || metadata.localReleaseGate?.sourceSha !== sha
-  || metadata.localReleaseGate?.treeSha !== tree
-  || JSON.stringify(metadata.localReleaseGate?.checks) !== JSON.stringify([
+const target = metadata.deployment?.target;
+const gate = metadata.localReleaseGate;
+const validGateBase = gate?.kind === 'workspace-local-release-gate'
+  && gate.status === 'passed'
+  && gate.command === 'ops/local-release-gate.sh'
+  && gate.sourceSha === sha
+  && gate.treeSha === tree
+  && Number.isFinite(Date.parse(gate.completedAt ?? ''));
+const validFullGate = target?.kind === 'monolith'
+  && gate?.schemaVersion === 2
+  && gate.scope === undefined
+  && JSON.stringify(gate.checks) === JSON.stringify([
     'full-ci',
     'disposable-postgresql-migrations',
     'resource-seed',
     'playwright-e2e',
   ])
-  || metadata.localReleaseGate?.fullCi?.schemaVersion !== 1
-  || metadata.localReleaseGate?.fullCi?.kind !== 'workspace-local-full-ci'
-  || metadata.localReleaseGate?.fullCi?.status !== 'passed'
-  || metadata.localReleaseGate?.fullCi?.command !== 'npm run check:ci'
-  || metadata.localReleaseGate?.fullCi?.treeSha !== tree
-  || !Number.isFinite(Date.parse(metadata.localReleaseGate?.completedAt ?? ''))
+  && gate.fullCi?.schemaVersion === 1
+  && gate.fullCi?.kind === 'workspace-local-full-ci'
+  && gate.fullCi?.status === 'passed'
+  && gate.fullCi?.command === 'npm run check:ci'
+  && gate.fullCi?.treeSha === tree;
+const validUnitGate = target?.kind === 'unit'
+  && gate?.schemaVersion === 3
+  && gate.scope?.kind === 'unit'
+  && gate.scope?.unitId === target.unitId
+  && JSON.stringify(gate.checks) === JSON.stringify([
+    'release-unit-base',
+    'deploy-unit-typecheck',
+    'deploy-unit-production-build',
+    'disposable-postgresql-migrations',
+    'resource-seed',
+    'deploy-unit-runtime-smoke',
+    'deploy-unit-e2e',
+  ])
+  && gate.unit?.id === target.unitId
+  && /^[0-9a-f]{64}$/.test(gate.unit?.contractSha256 ?? '')
+  && /^[0-9a-f]{64}$/.test(gate.unit?.graphSha256 ?? '')
+  && /^[0-9a-f]{64}$/.test(gate.unit?.artifactSha256 ?? '')
+  && Array.isArray(gate.unit?.typecheckScopes)
+  && gate.unit.typecheckScopes.length > 0
+  && Array.isArray(gate.unit?.e2eSuites)
+  && gate.unitCi?.schemaVersion === 1
+  && gate.unitCi?.kind === 'workspace-local-unit-ci'
+  && gate.unitCi?.status === 'passed'
+  && gate.unitCi?.command === 'scripts/check/run-check-suite.mjs release-unit'
+  && gate.unitCi?.unitId === target.unitId
+  && gate.unitCi?.sourceSha === sha
+  && gate.unitCi?.treeSha === tree;
+if (metadata.schemaVersion !== 1
+  || metadata.source?.commitSha !== sha
+  || metadata.source?.treeSha !== tree
+  || !validGateBase
+  || (!validFullGate && !validUnitGate)
   || metadata.cnb?.repository !== repository
   || metadata.cnb?.sourceBranch !== branch
   || !Number.isSafeInteger(metadata.deployment?.startedAtEpochSeconds)
@@ -184,7 +217,6 @@ if (metadata.schemaVersion !== 1
   || !validLocalTiming) {
   throw new Error('CNB release metadata does not match local source');
 }
-const target = metadata.deployment?.target;
 if (!target || !['monolith', 'unit'].includes(target.kind)) {
   throw new Error('CNB release metadata target is invalid');
 }

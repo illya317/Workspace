@@ -14,6 +14,7 @@ const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
 const buildStandaloneArtifact = readFileSync(new URL("./build-standalone-artifact.sh", import.meta.url), "utf8");
 const cnbRelease = readFileSync(new URL("./cnb-release.yml", import.meta.url), "utf8");
 const uploadDataRelease = readFileSync(new URL("./upload-data-release.sh", import.meta.url), "utf8");
+const localReleaseGate = readFileSync(new URL("./local-release-gate.sh", import.meta.url), "utf8");
 
 test("shell variables next to non-ASCII punctuation use explicit braces", () => {
   for (const [name, source] of Object.entries({ publish, publishCnb, releaseToCnb, deploy })) {
@@ -128,12 +129,27 @@ test("prepare runs aggregate full CI and E2E once while deploy only consumes exa
   assert.match(publishCnb, /local-release-gate-receipt\.mjs" verify/);
   assert.match(publishCnb, /deploy 不运行编译或测试/);
   for (const source of [releaseToCnb, deploy]) {
-    assert.match(source, /metadata\.localReleaseGate\?\.schemaVersion !== 2/);
-    assert.match(source, /metadata\.localReleaseGate\?\.sourceSha !== sha/);
-    assert.match(source, /metadata\.localReleaseGate\?\.treeSha !== tree/);
-    assert.match(source, /metadata\.localReleaseGate\?\.command !== 'ops\/local-release-gate\.sh'/);
-    assert.match(source, /metadata\.localReleaseGate\?\.fullCi\?\.command !== 'npm run check:ci'/);
+    assert.match(source, /gate\?\.schemaVersion === 2/);
+    assert.match(source, /gate\?\.schemaVersion === 3/);
+    assert.match(source, /gate\.sourceSha === sha/);
+    assert.match(source, /gate\.treeSha === tree/);
+    assert.match(source, /gate\.command === 'ops\/local-release-gate\.sh'/);
+    assert.match(source, /gate\.fullCi\?\.command === 'npm run check:ci'/);
+    assert.match(source, /gate\.unitCi\?\.command === 'scripts\/check\/run-check-suite\.mjs release-unit'/);
+    assert.match(source, /gate\.scope\?\.unitId === target\.unitId/);
   }
+});
+
+test("single-unit prepare and deploy consume only the matching unit-scoped receipt", () => {
+  assert.match(publish, /prepare --deploy-unit UNIT/);
+  assert.match(publish, /run-local-unit-ci\.mjs[\s\S]*?--unit "\$RELEASE_TARGET_UNIT_ID"/);
+  assert.match(publish, /local-release-gate\.sh"[\s\S]*?--deploy-unit "\$RELEASE_TARGET_UNIT_ID"/);
+  assert.match(publish, /release-check\/units\/\$RELEASE_TARGET_UNIT_ID\.json/);
+  assert.match(publish, /LOCAL_RELEASE_GATE_VERIFY_ARGS=\(--scope unit --unit "\$RELEASE_TARGET_UNIT_ID"\)/);
+  assert.match(publishCnb, /local_release_gate_verify_args=\(--scope unit --unit "\$DEPLOY_UNIT_ID"\)/);
+  assert.match(publishCnb, /release-check\/units\/\$DEPLOY_UNIT_ID\.json/);
+  assert.match(localReleaseGate, /npm run test:e2e:seed[\s\S]*?npx playwright test --grep "\$E2E_GREP"/);
+  assert.ok((localReleaseGate.match(/assert_clean_release_tree/g) ?? []).length >= 3);
 });
 
 test("CNB production preflight fails before the release trigger without rerunning local checks", () => {

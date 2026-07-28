@@ -9,6 +9,11 @@ if (!Number.isInteger(playwrightPort) || playwrightPort < 1 || playwrightPort > 
   throw new Error("PLAYWRIGHT_PORT must be an integer between 1 and 65535");
 }
 const playwrightOrigin = `http://127.0.0.1:${playwrightPort}`;
+const webServerReadyPath = process.env.PLAYWRIGHT_WEB_SERVER_READY_PATH?.trim()
+  || "/workspace/login";
+if (!webServerReadyPath.startsWith("/") || webServerReadyPath.startsWith("//")) {
+  throw new Error("PLAYWRIGHT_WEB_SERVER_READY_PATH must be a site-absolute path");
+}
 
 export default defineConfig({
   testDir: "./e2e",
@@ -39,7 +44,7 @@ export default defineConfig({
     stderr: "pipe",
     stdout: "pipe",
     timeout: 10 * 60_000,
-    url: `${playwrightOrigin}/workspace/login`,
+    url: `${playwrightOrigin}${webServerReadyPath}`,
     reuseExistingServer: false,
   },
 });

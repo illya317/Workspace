@@ -217,6 +217,7 @@ Company-specific facts such as identity, company names/codes, management systems
 | Inspect one generated app or explicitly refresh it | `npm run deploy:unit:app -- --unit <id>`; add `--write` only to regenerate |
 | Full local CI authority | `npm run check:ci` |
 | Prepare one exact-tree production candidate locally | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare` |
+| Prepare one clean deploy-unit candidate with graph-scoped build/E2E | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare --deploy-unit <unit>` |
 | Deploy only a prepared candidate through CNB | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy` |
 | Strict historical debt patrol | `npm run check:hygiene` |
 | Non-blocking hygiene signal | `npm run check:hygiene:warn` |

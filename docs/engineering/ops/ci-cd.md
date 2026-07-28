@@ -8,7 +8,7 @@
 - 条件 job 只有在分类器明确允许时才能跳过；`CI / required` 会同时校验应成功和应跳过的 job。
 - 分类器、CI runner、Playwright runner、影响映射、公开 contract 或测试删除本身都按 C3 处理。
 - 启用分支保护后，受保护 `main` 的精确 `CI / required`（GitHub Actions App）仍是 GitHub 合并门禁，但不参与生产发布判定。
-- 生产门禁在本地对当前 Git tree 实际执行一次 production build 和全部已注册 Playwright E2E。它不读取 GitHub 状态，也不复用旧的“通过结果”。CNB 从该 source parent 在 Linux 构建目标制品：Full 是 canonical monolith standalone，单 unit 是 graph 约束的独立 artifact；服务器都不从源码重建。
+- 生产门禁在本地对当前 Git tree 实际执行目标对应的 production build 和 Playwright E2E：Full 构建 canonical monolith 并运行全部已注册 E2E；单 unit 使用 deploy graph 的完整 compiler closure 构建独立 artifact，并只运行该 unit contract 声明的 E2E。两者都要求干净 committed release worktree、共享静态/Node/PostgreSQL 证据和目标绑定回执。门禁不读取 GitHub 状态，也不把缓存当作旧的“通过结果”。CNB 从该 source parent 在 Linux 重建相同目标制品；服务器不从源码重建。
 
 ## 风险等级
 
@@ -46,12 +46,13 @@ classify
 
 所有预期结果 -> CI / required
 
-production: local production build + full E2E -> CNB release injection -> Linux build -> artifact validation -> production
+production Full: local monolith build + full E2E -> CNB release injection -> Linux build -> artifact validation -> production
+production unit: local graph-scoped build + unit E2E -> target-bound receipt -> CNB release injection -> Linux build -> artifact validation -> production
 ```
 
 同一 event + 稳定 ref（或同一 PR）的连续 push/触发会取消旧 CI，只保留最新 SHA 的运行。候选过程固定复用 `codex/staging-main`、`codex/candidate-main` 和同一个 bot PR，因此第二次 push 会更新同一 ref/PR 并取消旧候选 CI。不同 PR、main push 与手工任务不会互相取消。已经进入生产 backup/migration/switch 临界区的部署不使用这组可取消 concurrency；服务器互斥锁保证一次只有一个部署。
 
-缓存只加速输入：npm 下载、project-reference 的 `.cache/types` + `.cache/tsbuild`、`.next/cache`、`.cache/next-units` 和 Playwright 浏览器。发布前本地缓存不按 source hash 主动失效，默认保留最多 7 天并受 12 GiB 总量上限约束；超限时优先删除最旧文件。缓存不能替代当次 build/E2E 执行，也不能缓存“通过结论”。PostgreSQL lane 运行时，schema/migration contract 由它唯一负责，static 不再重复；standalone tgz 是带 manifest/digest 的发布 artifact，不是普通构建缓存。
+缓存只加速输入：npm 下载、project-reference 的 `.cache/types` + `.cache/tsbuild`、Full 的 `.next/cache`、按 unit 隔离的 `.cache/next-units/<unit>` 和 Playwright 浏览器。发布前本地缓存不按 source hash 主动失效，默认保留最多 7 天并受 12 GiB 总量上限约束；超限时优先删除最旧文件。缓存不能替代当次 build/E2E 执行，也不能缓存“通过结论”。Full 回执固定写入 `.cache/release-check/local-release-gate.json`，单 unit 回执固定写入 `.cache/release-check/units/<unit>.json`；不同 scope 即使 source/tree 相同也不能交叉复用。PostgreSQL lane 运行时，schema/migration contract 由它唯一负责，static 不再重复；standalone tgz 是带 manifest/digest 的发布 artifact，不是普通构建缓存。
 
 Build lane 会用同一 changed-files evidence 生成 `.ci/deploy-unit-build-plan.json`。没有 E2E 且不发布整站 artifact 时，`deploy:affected:build` 只构建 owner unit；Finance 私有变化不会重建其他 L1。Core、Platform、schema、lockfile、deploy protocol 或未知代码路径会选择全部 12 个 unit。需要当前 E2E 或过渡期整站发布时仍构建 canonical monolith，避免在生产 Gateway 尚未启用前伪装成 fleet E2E。
 
@@ -110,8 +111,8 @@ npm run test:e2e:latency
 2. Git 跟踪的 `ops/publish.sh push`（桌面私有目录只保留加载 `.env` 的薄 wrapper）以 `origin/main..HEAD` 运行自适应本地 gate，把 staging SHA 交给受信任的 `Promote candidate` workflow；workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上显式触发 CI，不直推 `main` 或 CNB。
 3. 对命中 CODEOWNERS 的质量策略路径，由 repository owner 审批 bot-authored PR；这解决单 owner 对自己所开 PR 无法批准的问题，但不虚构“独立第二人”审查。旧批准会在后续 push 后失效；配置未要求通用批准数或 last-push 第二人批准。
 4. PR/merge-group 按受保护 base 分类并由 `CI / required` 聚合。GitHub Actions 在无 E2E/整站发布请求时上传受影响 unit artifacts；需要 E2E 或整站 artifact 时上传 canonical monolith，并只在同一 CI run 内交给 E2E。这些 CI artifacts 不发布 prerelease，也不参与生产部署。
-5. `publish.sh prepare` 是正式发布前唯一的本地诊断入口。它先快进专用 `release` worktree，立即校验私有 CNB YAML 与租户运行配置；当前 source/tree 已有完整 release-gate 回执时直接复用，不重复运行检查。否则以 collect-all 模式运行完整 `check:ci`：独立静态、Node、type 和 build 步骤即使有失败也继续执行并在末尾统一列出。相同 snapshot 上已通过的步骤会在修复后复用；全部通过后，`ops/local-release-gate.sh` 复用该 production standalone build，在一次性 PostgreSQL 数据库完成 migration、seed 和全量 E2E。只有全部为零错误时才写入绑定 source SHA、tree 和嵌套 full-CI 证据的 release-gate 回执。该命令不连接 CNB 或生产。
-6. `publish.sh deploy` 是 Full/单 unit 的唯一生产 operator 入口；Profile/Fleet 只经受信内部入口运行。它不再快进候选，而是校验并冻结使用现有的干净 release HEAD；即使 `prepare` 后 main 又有提交，本次 deploy 仍只消费已 prepare 候选的精确回执。回执缺失、过期或 release HEAD 被人工移动时立即退出并要求重新 `prepare`。廉价私有配置校验、回执验证、计时和 CNB 子流程均从冻结 release tree 执行，避免两步之间的 main 脚本串入发布协议。deploy 不运行 production build、typecheck、Node test 或 E2E，CNB 不承担代码诊断。
+5. `publish.sh prepare` 是正式发布前唯一的本地诊断入口。它先快进专用 `release` worktree，立即校验私有 CNB YAML 与租户运行配置，并要求候选是干净 committed tree。无目标参数时执行 Full：collect-all `check:ci`、monolith production standalone、一次性 PostgreSQL migration/seed 和全量 E2E，生成 schema-v2 Full 回执。`prepare --deploy-unit <unit>` 或 `prepare --shadow-unit <unit>` 执行单 unit：共享 release static/Node/data 证据、deploy graph 声明的全部 package 与 `app-<unit>` 类型 scope、隔离 `.cache/next-units/<unit>` 的独立 production artifact、一次性 PostgreSQL migration/seed，以及该 unit contract 声明的浏览器 suite，生成 schema-v3 unit 回执。相同 source/tree/scope 的有效回执可直接复用；scope、unit、contract、graph 或 artifact digest 不匹配时 fail closed。该命令不连接 CNB 或生产。
+6. `publish.sh deploy` 是 Full/单 unit 的唯一生产 operator 入口；Profile/Fleet 只经受信内部入口运行。它不再快进候选，而是校验并冻结使用现有的干净 release HEAD；即使 `prepare` 后 main 又有提交，本次 deploy 仍只消费已 prepare 候选的精确回执。Full deploy 只接受 Full 回执，`deploy --deploy-unit <unit>` / `deploy --shadow-unit <unit>` 只接受相同 unit 的回执；回执缺失、过期、目标不匹配或 release HEAD 被人工移动时立即退出并要求重新执行对应 prepare。廉价私有配置校验、回执验证、计时和 CNB 子流程均从冻结 release tree 执行，避免两步之间的 main 脚本串入发布协议。deploy 不运行 production build、typecheck、Node test 或 E2E，CNB 不承担代码诊断。
 7. Git 跟踪的 `ops/cnb-release.yml` 只定义可复用流水线形状；租户实际的 CNB env import、服务器目录和健康检查地址由 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 管理。发布脚本读取并校验该租户文件；`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
 8. CNB 在 injection checkout 中恢复或安装依赖，并按 release metadata 构建 Full canonical standalone 或单 unit artifact。packager 绑定 parent source SHA/tree、目标、BUILD_ID、contract/graph，生成 manifest/tgz；统一部署器在上传前校验 manifest、artifact hash、migration set 和注入身份，全程不访问 GitHub。
 9. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准。candidate 必须是 bootstrap baseline 或已部署 source 的后代，同 source 是 no-op，回退或分叉直接阻断。
@@ -125,6 +126,9 @@ npm run test:e2e:latency
 ```bash
 # 本地一次性发现全部 CI/编译/E2E 问题并写入当前 tree 回执；不连接 CNB/生产
 OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare
+
+# 单 unit 使用 graph compiler closure、独立 build cache 和目标 E2E 写入隔离回执
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare --deploy-unit external
 
 # 只消费已通过的 prepare 回执并执行生产发布
 OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy

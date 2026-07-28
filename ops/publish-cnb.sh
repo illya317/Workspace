@@ -331,16 +331,27 @@ cd "$SOURCE_DIR"
 
 SOURCE_SHA="$(git rev-parse HEAD)"
 SOURCE_TREE="$(git rev-parse 'HEAD^{tree}')"
-LOCAL_RELEASE_GATE_RECEIPT_FILE="${LOCAL_RELEASE_GATE_RECEIPT_FILE:-$SOURCE_DIR/.cache/release-check/local-release-gate.json}"
+if [ -n "$DEPLOY_UNIT_ID" ]; then
+  LOCAL_RELEASE_GATE_RECEIPT_FILE="${LOCAL_RELEASE_GATE_RECEIPT_FILE:-$SOURCE_DIR/.cache/release-check/units/$DEPLOY_UNIT_ID.json}"
+  local_release_gate_verify_args=(--scope unit --unit "$DEPLOY_UNIT_ID")
+else
+  LOCAL_RELEASE_GATE_RECEIPT_FILE="${LOCAL_RELEASE_GATE_RECEIPT_FILE:-$SOURCE_DIR/.cache/release-check/local-release-gate.json}"
+  local_release_gate_verify_args=(--scope full)
+fi
 [ -f "$CNB_REAL_CNB_YML" ] || { echo "[错误] 真实 CNB 配置文件不存在: $CNB_REAL_CNB_YML"; exit 1; }
 node "$SCRIPT_DIR/validate-cnb-release-config.mjs" "$CNB_REAL_CNB_YML"
 OPS_ENV_FILE="$OPS_ENV_FILE" WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" \
   "$SCRIPT_DIR/sync-tenant-config.sh" --dry-run --source-sha "$SOURCE_SHA"
 if ! node "$SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
   --source "$SOURCE_SHA" --tree "$SOURCE_TREE" \
+  "${local_release_gate_verify_args[@]}" \
   --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null; then
   echo "[错误] 当前 release tree 没有有效 prepare 回执；拒绝进入 CNB。" >&2
-  echo "[提示] 先运行: OPS_ENV_FILE=$OPS_ENV_FILE ops/publish.sh prepare" >&2
+  if [ -n "$DEPLOY_UNIT_ID" ]; then
+    echo "[提示] 先运行: OPS_ENV_FILE=$OPS_ENV_FILE ops/publish.sh prepare --deploy-unit $DEPLOY_UNIT_ID" >&2
+  else
+    echo "[提示] 先运行: OPS_ENV_FILE=$OPS_ENV_FILE ops/publish.sh prepare" >&2
+  fi
   exit 1
 fi
 DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS="$(date +%s)"

@@ -77,6 +77,8 @@ npm run deploy:apps:check
 - 冻结、planned、容量/SLO 未分配或仍有 contributor 的 unit 直接失败。
 - builder 为每个 unit 生成 CycloneDX SBOM；Profile/Fleet 晋级还要求 Ed25519 provenance，把 artifact、manifest、SBOM、source、graph 和 builder identity 绑定到受信公钥。
 
+正式单 unit 发布必须先运行 `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare --deploy-unit <unit>`；shadow 使用同 unit 的 `--shadow-unit` prepare。该入口与 Full 一样只接受干净 committed release worktree，并保留共享 static/Node/data、一次性 PostgreSQL migration/seed 证据；编译范围由 deploy graph 的 package + `app-<unit>` closure 派生，production build 使用 `.cache/next-units/<unit>`，浏览器只运行 unit contract 声明的 suite，并直接启动刚生成的目标 artifact。成功回执位于 `.cache/release-check/units/<unit>.json`，绑定 source、tree、unit、contract、graph、artifact 与嵌套 unit-CI 证据；Full、不同 unit 和 target 不得交叉复用。随后 `deploy --deploy-unit <unit>` 或 `deploy --shadow-unit <unit>` 只消费相同目标的回执。
+
 服务器先把 release 启动在非活动槽，通过 unit health/version，再写 `shadow-ready` receipt。`activate` 会生成新的 Gateway generation；这一代同时包含完整 deploy graph、route-map、全部 active unit state 和 Nginx include。`current` generation symlink 是多 unit 路由提交点，切换顺序固定为：
 
 1. 校验 artifact 与当前 tenant/control-plane floor；
