@@ -55,10 +55,15 @@ test("员工档案所有来源字段都有可审计的编辑入口", {
   }
 
   await page.getByRole("row").filter({ hasText: "劳动合同" }).first().click();
-  await expect(page.getByText("协议资料待补充：第 3 期到期日期。不影响正常续签或终止。", { exact: true })).toBeVisible();
+  await expect(
+    page
+      .getByText("协议资料待补充：第 3 期到期日期。不影响正常续签或终止。", { exact: true })
+      .filter({ visible: true })
+      .first(),
+  ).toBeVisible();
   await expectEditableField(page, "第 3 期到期日期");
   await expectEditableField(page, "补充说明");
-  await expect(page.getByRole("button", { name: "保存补充资料", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "保存补充资料", exact: true }).filter({ visible: true }).first()).toBeDisabled();
 
   await page.getByRole("tab", { name: "社会保险", exact: true }).click();
   await page.getByRole("row").filter({ hasText: "已参保" }).first().click();
