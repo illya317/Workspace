@@ -461,10 +461,14 @@ LOCAL_PREFLIGHT_DURATION_SECONDS="$(($(date +%s) - LOCAL_PREFLIGHT_STARTED_EPOCH
 echo "==> 已复用当前 tree 的本地 prepare 回执；deploy 不运行编译或测试。"
 
 if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
-  echo "==> 同步并校验本次部署使用的租户配置..."
-  TENANT_SYNC_STARTED_EPOCH_SECONDS="$(date +%s)"
-  OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/sync-tenant-config.sh" --source-sha "$SOURCE_SHA"
-  TENANT_SYNC_DURATION_SECONDS="$(($(date +%s) - TENANT_SYNC_STARTED_EPOCH_SECONDS))"
+  if [ -n "$DEPLOY_UNIT_ID" ]; then
+    echo "==> 单元部署复用已提交的 control-plane 租户配置；不切换中央配置。"
+  else
+    echo "==> 同步并校验本次部署使用的租户配置..."
+    TENANT_SYNC_STARTED_EPOCH_SECONDS="$(date +%s)"
+    OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/sync-tenant-config.sh" --source-sha "$SOURCE_SHA"
+    TENANT_SYNC_DURATION_SECONDS="$(($(date +%s) - TENANT_SYNC_STARTED_EPOCH_SECONDS))"
+  fi
 fi
 
 release_process_snapshot="$(node "$SCRIPT_DIR/release-process-timing.mjs" snapshot --file "$RELEASE_PROCESS_TIMING_FILE")"

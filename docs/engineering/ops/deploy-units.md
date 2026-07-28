@@ -44,7 +44,7 @@ Capital Securities、Work、Administration 已在相邻任务明确停更、交�
 
 每个 unit 的 typecheck scope 和候选 E2E suites 由编译图及 impact rules 推导；未命中的变更始终 fail closed。所有 active unit 均已分配内存与数据库连接池；planned 单元可以保留未分配值，active 禁止。蓝绿期间按两份实例预算，不能用单实例连接数估算总数据库容量。
 
-应用部署必须使用 `CONTROL_PLANE_POLICY=require-existing`：只消费与 artifact 完全匹配的 lifecycle receipt，缺失或漂移时直接失败。中央 lifecycle job 使用 `refresh`；当前过渡期整站发布使用默认 `auto`，已有匹配 receipt 时同样跳过所有全局 mutation。
+应用部署必须使用 `CONTROL_PLANE_POLICY=require-existing`：只消费与 artifact 完全匹配的 lifecycle receipt，缺失或漂移时直接失败。单 unit 发布不得安装或切换中央租户配置，只复用 receipt 已提交的配置；私有租户配置有变更时，先运行中央 lifecycle 或 Full 发布提交新 receipt，再发布应用 unit。中央 lifecycle job 使用 `refresh`；当前过渡期整站发布使用默认 `auto`，已有匹配 receipt 时同样跳过所有全局 mutation。
 
 中央 lifecycle 的显式入口是 `ops/deploy-control-plane.sh`。它复用同一套锁、备份、maintenance fencing 和 receipt 实现，但不安装 Library/Assistant/OnlyOffice runtime，不启动应用 unit，不切换 `current`，也不发送应用发布通知。当前仍消费完整 standalone artifact；专用 control-plane artifact 仍是后续瘦身项，不能把 requirements manifest 误称为可部署 artifact。
 

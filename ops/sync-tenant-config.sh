@@ -128,7 +128,7 @@ ssh "${SSH_OPTIONS[@]}" "$SERVER" "
   node \"\$tool\" verify --root '$REMOTE_WORKSPACE_CONFIG_DIR' --manifest \"\$manifest\"
   rm -rf '$REMOTE_STAGING_ROOT'
   find '$REMOTE_DIR/.workspace.backups/tenant-config' -mindepth 1 -maxdepth 1 -type d \
-    -printf '%f\\n' | sort -r | tail -n +6 | while IFS= read -r stale; do
+    -printf '%T@ %f\\n' | sort -nr | tail -n +6 | cut -d' ' -f2- | while IFS= read -r stale; do
       rm -rf '$REMOTE_DIR/.workspace.backups/tenant-config/'\"\$stale\"
     done
 "

@@ -193,7 +193,7 @@ test("private data transfer is an explicit command outside deployment", () => {
   assert.doesNotMatch(uploadDataRelease, /data-release-sources[^\n]*rm|data-release-manifests[^\n]*rm/);
 });
 
-test("private release inputs validate before local checks and real deploy syncs before trigger", () => {
+test("private release inputs validate before local checks and only Full deploy syncs before trigger", () => {
   assert.match(publishCnb, /WORKSPACE_CONFIG_DIR="\$\{WORKSPACE_CONFIG_DIR:-\$\{LOCAL_WORKSPACE_CONFIG_DIR:-\}\}"/);
   assert.match(releaseToCnb, /WORKSPACE_CONFIG_DIR="\$\{WORKSPACE_CONFIG_DIR:-\$\{LOCAL_WORKSPACE_CONFIG_DIR:-\}\}"/);
   assert.match(publishCnb, /sync-tenant-config\.sh" --source-sha "\$SOURCE_SHA"/);
@@ -202,12 +202,18 @@ test("private release inputs validate before local checks and real deploy syncs 
   const releaseTrigger = publishCnb.indexOf('release-to-cnb.sh" "${release_args[@]}"');
   assert.ok(localReceipt >= 0 && localReceipt < tenantSync);
   assert.ok(tenantSync < releaseTrigger);
-  const syncBlock = publishCnb.slice(publishCnb.lastIndexOf("if [", tenantSync), tenantSync);
+  const syncBlock = publishCnb.slice(publishCnb.lastIndexOf('if [ "$PRINT_COMMAND_ONLY"', tenantSync), releaseTrigger);
   assert.match(syncBlock, /PRINT_COMMAND_ONLY" = "0/);
+  assert.match(syncBlock, /if \[ -n "\$DEPLOY_UNIT_ID" \][\s\S]*?不切换中央配置[\s\S]*?else[\s\S]*?sync-tenant-config/);
   assert.match(syncTenantConfig, /--conditions=react-server --import tsx/);
   assert.match(syncTenantConfig, /tenant\.getTenantConfig\(\)/);
   assert.match(releaseToCnb, /validate-cnb-release-config\.mjs" "\$CNB_REAL_CNB_YML"/);
   assert.ok(publish.indexOf("validate_local_release_inputs") < publish.indexOf("npm run check:ci"));
+});
+
+test("tenant config retention keeps the newest backups by mtime instead of source SHA", () => {
+  assert.match(syncTenantConfig, /-printf '%T@ %f\\\\n' \| sort -nr \| tail -n \+6/);
+  assert.doesNotMatch(syncTenantConfig, /-printf '%f\\\\n' \| sort -r/);
 });
 
 test("CNB records the full deployment attempt and keeps release-processing timing separate", () => {
