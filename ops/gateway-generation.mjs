@@ -3,6 +3,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import {
   chmodSync,
+  existsSync,
   lstatSync,
   mkdirSync,
   readFileSync,
@@ -179,6 +180,7 @@ function loadActiveStates(graph, stateRoot, overrides = {}) {
       continue;
     }
     const stateFile = overrides[unit.id] ?? path.join(stateRoot, `${unit.id}.json`);
+    if (!overrides[unit.id] && !existsSync(stateFile)) continue;
     const state = readDeployUnitState(stateFile);
     if (state.unitId !== unit.id) fail(`${unit.id} state file belongs to ${state.unitId}`);
     validateActivation(unit, state.active);

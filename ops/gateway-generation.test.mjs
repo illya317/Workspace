@@ -16,7 +16,7 @@ import {
 } from "./gateway-generation.mjs";
 import { writePrivateJson } from "./deploy-unit-release.mjs";
 
-function graph(financeMaturity = "active") {
+function graph(financeMaturity = "active", shellMaturity = "planned") {
   return {
     schemaVersion: 1,
     lifecycle: {
@@ -29,7 +29,7 @@ function graph(financeMaturity = "active") {
       {
         id: "workspace-shell",
         kind: "workspace-shell",
-        maturity: "planned",
+        maturity: shellMaturity,
         pageRoutes: ["/", "/portal"],
         apiPrefixes: ["/api/auth"],
         runtime: {
@@ -107,6 +107,18 @@ test("generation binds route map, active state set, Nginx include, and legacy fa
   const nginx = readFileSync(path.join(generationRoot, "workspace-gateway.conf"), "utf8");
   assert.match(nginx, /proxy_pass http:\/\/127\.0\.0\.1:3201;/);
   assert.match(nginx, /proxy_pass http:\/\/127\.0\.0\.1:3000;/);
+});
+
+test("an active unit without deployed state stays on the legacy Full fallback", () => {
+  const files = fixture();
+  writePrivateJson(files.graphFile, graph("active", "active"));
+  const manifest = createGatewayGeneration({
+    ...files,
+    generatedAt: "2026-07-25T01:00:00.000Z",
+  });
+  const routeMap = JSON.parse(readFileSync(path.join(files.outputRoot, "generations", manifest.generationId, "route-map.json"), "utf8"));
+  assert.equal(routeMap.fallback.unitId, "legacy-monolith");
+  assert.deepEqual(routeMap.activeUnits.map((unit) => unit.unitId), ["finance"]);
 });
 
 test("state override produces a new immutable generation for cutover or rollback", () => {

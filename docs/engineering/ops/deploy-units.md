@@ -46,6 +46,8 @@ Capital Securities、Work、Administration 已在相邻任务明确停更、交�
 
 应用部署必须使用 `CONTROL_PLANE_POLICY=require-existing`：只消费与 artifact 完全匹配的 lifecycle receipt，缺失或漂移时直接失败。单 unit 发布不得安装或切换中央租户配置，只复用 receipt 已提交的配置；私有租户配置有变更时，先运行中央 lifecycle 或 Full 发布提交新 receipt，再发布应用 unit。中央 lifecycle job 使用 `refresh`；当前过渡期整站发布使用默认 `auto`，已有匹配 receipt 时同样跳过所有全局 mutation。
 
+Full 与 unit 可以渐进共存：deploy graph 中 `active` 表示该 unit 已获准独立部署，不表示生产必须已经存在它的 state。Gateway 只为已有且校验通过的 active state 生成独立路由；尚未部署的 active unit 继续由 legacy Full fallback 承担。显式 rollout 的目标 state 缺失、损坏或身份不一致时仍必须 fail closed。
+
 中央 lifecycle 的显式入口是 `ops/deploy-control-plane.sh`。它复用同一套锁、备份、maintenance fencing 和 receipt 实现，但不安装 Library/Assistant/OnlyOffice runtime，不启动应用 unit，不切换 `current`，也不发送应用发布通知。当前仍消费完整 standalone artifact；专用 control-plane artifact 仍是后续瘦身项，不能把 requirements manifest 误称为可部署 artifact。
 
 ## Generated Next apps
