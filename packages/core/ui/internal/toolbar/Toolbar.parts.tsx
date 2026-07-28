@@ -13,6 +13,7 @@ import SearchableOptionInput from "../input/SearchableOptionInput";
 import { ToolbarPeriodControl } from "./ToolbarPeriodControl";
 import { renderToolbarMenu, resolveToolbarOptionGroupPresentation } from "./Toolbar.menu";
 import ToolbarOptionGroup from "./ToolbarOptionGroup";
+import ToolbarFilterPanel from "./ToolbarFilterPanel";
 import ToolbarPageSizeControl from "./ToolbarPageSizeControlParts";
 import {
   getToolbarOptionInputClassName,
@@ -262,6 +263,8 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           size={size}
         />
       );
+    case "filter-panel":
+      return <ToolbarFilterPanel item={item} size={size} />;
     case "column-toggle": {
       const { columns, visible, onChange } = item;
       const options = columns.map((column) => ({

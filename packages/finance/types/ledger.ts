@@ -5,6 +5,9 @@ import type {
 
 export type { FinanceGroupVoucherDocumentType } from "./statement-shared";
 
+export type FinanceLedgerExportMode = "summary" | "detail";
+export type FinanceVoucherPeriodScope = "current" | "history";
+
 export interface Account {
   id: number;
   code: string;
@@ -13,6 +16,45 @@ export interface Account {
 
 export const WORKSPACE_VOUCHER_SOURCE_SYSTEM = "WORKSPACE";
 export const CONSOLIDATION_VOUCHER_TYPE_NAME = "合并凭证";
+
+export interface GroupVoucherSourceTrace {
+  key: string;
+  sourceType:
+    | "openingBalance"
+    | "historicalVoucher"
+    | "untracedOpeningBalance"
+    | "voucher"
+    | "untracedMovement"
+    | "closingBalance";
+  sourceLabel: string;
+  date: string | null;
+  voucherNo: string | null;
+  accountCode: string;
+  accountName: string;
+  description: string | null;
+  debit: number;
+  credit: number;
+  reclassifiedToAccountCode?: string | null;
+  reclassificationStatus?: string | null;
+}
+
+export interface GroupVoucherReclassificationTrace {
+  sourceAccountCode: string;
+  sourceAccountName: string;
+  targetAccountCode: string;
+  targetAccountName: string;
+  basis: string;
+  sourceType: string;
+  status: string;
+}
+
+export interface GroupVoucherBalanceCheck {
+  openingNet: number;
+  currentMovementNet: number;
+  closingNet: number;
+  openingUntracedNet: number;
+  currentUntracedNet: number;
+}
 
 export interface VoucherItem {
   id: number;
@@ -38,6 +80,10 @@ export interface VoucherItem {
   sourceKind?: "auxiliaryBalance" | "openItem" | "cashFlowAllocation" | "workpaper" | "voucher" | null;
   sourceRecordId?: number | null;
   sourceDate?: string | null;
+  sourceTrace?: GroupVoucherSourceTrace[];
+  sourceReclassification?: GroupVoucherReclassificationTrace | null;
+  sourceBalanceCheck?: GroupVoucherBalanceCheck | null;
+  presentationAccount?: Account | null;
   counterpartyEntitySnapshotId?: number | null;
   counterpartyCompanyId?: number | null;
 }
@@ -99,6 +145,21 @@ export interface VoucherResponse {
 }
 
 export type FinanceCounterpartyBalanceCategory = "ar" | "ap" | "otherAr" | "otherAp";
+export type FinanceCounterpartyRelationScope = "all" | "related" | "other" | "unrelated" | "unmatched";
+export type FinanceCounterpartyObjectKind =
+  | "groupCompany"
+  | "customer"
+  | "supplier"
+  | "employee"
+  | "department"
+  | "other";
+export type FinanceCounterpartyObjectType = "all" | FinanceCounterpartyObjectKind;
+export type FinanceCounterpartyRelatedPartyType =
+  | "group"
+  | "joint_venture_associate"
+  | "investor_influence"
+  | "key_management_related"
+  | "other_related";
 export type FinanceLedgerExportView =
   | "accounts"
   | "groupAccounts"
@@ -115,6 +176,9 @@ export interface FinanceCounterpartyBalanceRow {
   counterpartyName: string;
   counterpartyShortName: string | null;
   counterpartyType: string;
+  counterpartyObjectKind: FinanceCounterpartyObjectKind;
+  identityMatched: boolean;
+  relatedPartyType: FinanceCounterpartyRelatedPartyType | null;
   accountCode: string;
   accountName: string;
   openingDebit: number;

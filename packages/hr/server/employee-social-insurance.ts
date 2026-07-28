@@ -5,6 +5,7 @@ import { mapValidationToServiceResult } from "@workspace/platform/server/domain-
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { runSerializableTransaction, SerializableTransactionConflictError } from "@workspace/platform/server/serializable-transaction";
 import { validateBusinessTemporalBaselineMutation } from "@workspace/platform/contracts/business-temporal-baseline";
+import { employeeSocialInsuranceFieldRequired, type EmployeeSocialInsuranceStatus } from "@workspace/hr/employee-social-insurance-contract";
 import type { EmployeeSocialInsuranceRow } from "@workspace/hr/types";
 import { buildEmployeeSocialInsuranceCommand } from "./domain/employee-social-insurance-validation";
 
@@ -198,6 +199,106 @@ export async function executeEmployeeSocialInsuranceCommand(input: {
             periodId: current.id,
             revisionNo: (latestRevision?.revisionNo ?? 0) + 1,
             changeKind: "supplement",
+            beforeJson: JSON.stringify(before),
+            afterJson: JSON.stringify(after),
+            reason: built.data.reason,
+            recordedBy: input.userId,
+          },
+        });
+        return;
+      }
+      if (built.data.kind === "correct-existing") {
+        const missingFields = parseMissingFields(current.missingFieldsJson);
+        const patchKeys = Object.keys(built.data.patch);
+        const mutation = validateBusinessTemporalBaselineMutation({
+          kind: "correct-existing",
+          missingFields,
+          changedFields: patchKeys,
+        });
+        if (!mutation.ok) {
+          throw new SocialInsuranceCommandError("修正资料不能同时补充缺失字段，请分别保存", 409);
+        }
+        const nextStatus = (built.data.patch.insuranceStatus ?? current.insuranceStatus) as EmployeeSocialInsuranceStatus;
+        let nextCompanyId = Object.hasOwn(built.data.patch, "companyId") ? built.data.patch.companyId ?? null : current.companyId;
+        let nextStartMonth = Object.hasOwn(built.data.patch, "startMonth")
+          ? built.data.patch.startMonth ? monthDate(built.data.patch.startMonth) : null
+          : current.startMonth;
+        let nextEndMonth = Object.hasOwn(built.data.patch, "endMonth")
+          ? built.data.patch.endMonth ? monthDate(built.data.patch.endMonth) : null
+          : current.endMonth;
+        let nextStopReason = Object.hasOwn(built.data.patch, "stopReason") ? built.data.patch.stopReason ?? null : current.stopReason;
+        const nextNote = Object.hasOwn(built.data.patch, "note") ? built.data.patch.note ?? null : current.note;
+        if (nextStatus === "insured") {
+          nextEndMonth = null;
+          nextStopReason = null;
+        } else if (nextStatus === "uninsured") {
+          nextCompanyId = null;
+          nextStartMonth = null;
+          nextEndMonth = null;
+          nextStopReason = null;
+        } else if (nextStatus === "retired") {
+          nextCompanyId = null;
+          nextStopReason = null;
+        }
+        const company = nextCompanyId ? await assertCompany(tx, nextCompanyId) : null;
+        if (nextStartMonth && nextEndMonth && nextStartMonth > nextEndMonth) {
+          throw new SocialInsuranceCommandError("参保月份不能晚于停保月份", 400);
+        }
+        const requiredValues = {
+          companyId: nextCompanyId,
+          startMonth: month(nextStartMonth),
+          endMonth: month(nextEndMonth),
+          stopReason: nextStopReason,
+        };
+        const missingRequired = (Object.keys(requiredValues) as Array<keyof typeof requiredValues>).find((field) => (
+          employeeSocialInsuranceFieldRequired({ operation: "register", status: nextStatus, field })
+          && !requiredValues[field]
+        ));
+        if (missingRequired) throw new SocialInsuranceCommandError("修正后的社保资料不完整", 400);
+        if (nextStatus === "insured") {
+          const otherInsured = await tx.employeeSocialInsurancePeriod.findFirst({
+            where: { employeeId: input.employeeId, id: { not: current.id }, recordState: "confirmed", insuranceStatus: "insured" },
+            select: { id: true },
+          });
+          if (otherInsured) throw new SocialInsuranceCommandError("员工已有其他在保记录", 409);
+        }
+        const before = socialInsuranceRevisionSnapshot(current, missingFields);
+        const after = {
+          ...before,
+          insuranceStatus: nextStatus,
+          companyId: nextCompanyId,
+          companyNameSnapshot: company?.party.name ?? (nextCompanyId === current.companyId ? current.companyNameSnapshot : null),
+          startMonth: month(nextStartMonth),
+          endMonth: month(nextEndMonth),
+          stopReason: nextStopReason,
+          note: nextNote,
+          version: current.version + 1,
+        };
+        const claimed = await tx.employeeSocialInsurancePeriod.updateMany({
+          where: { id: current.id, version: current.version },
+          data: {
+            insuranceStatus: nextStatus,
+            companyId: nextCompanyId,
+            companyNameSnapshot: after.companyNameSnapshot,
+            startMonth: nextStartMonth,
+            endMonth: nextEndMonth,
+            stopReason: nextStopReason,
+            note: nextNote,
+            updatedBy: input.userId,
+            version: { increment: 1 },
+          },
+        });
+        if (claimed.count !== 1) throw new SocialInsuranceCommandError("参保记录已被其他人修改，请刷新后重试", 409);
+        const latestRevision = await tx.employeeSocialInsurancePeriodRevision.findFirst({
+          where: { periodId: current.id },
+          orderBy: { revisionNo: "desc" },
+          select: { revisionNo: true },
+        });
+        await tx.employeeSocialInsurancePeriodRevision.create({
+          data: {
+            periodId: current.id,
+            revisionNo: (latestRevision?.revisionNo ?? 0) + 1,
+            changeKind: "correction",
             beforeJson: JSON.stringify(before),
             afterJson: JSON.stringify(after),
             reason: built.data.reason,

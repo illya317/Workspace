@@ -27,6 +27,17 @@ export interface EmploymentAgreementContent {
 
 export type EmploymentAgreementContentPatch = Partial<EmploymentAgreementContent>;
 
+export interface EmploymentAgreementTermPatch {
+  termUid: string;
+  effectiveFrom?: BusinessDate;
+  effectiveThrough?: BusinessDate;
+}
+
+export interface EmploymentAgreementSupplementPatch {
+  content: EmploymentAgreementContentPatch;
+  terms: EmploymentAgreementTermPatch[];
+}
+
 export function validateEmploymentAgreementMissingFields(value: unknown): DomainValidationResult<string[]> {
   if (!Array.isArray(value) || value.some((field) => typeof field !== "string" || field.length === 0)) {
     return failCommand("协议 baseline 缺失字段投影无效", 500, "missingFields");
@@ -75,7 +86,7 @@ export type EmploymentAgreementCommand =
     })
   | (ExistingAgreementCommandBase & {
       kind: "supplement-missing";
-      patch: EmploymentAgreementContentPatch;
+      patch: EmploymentAgreementSupplementPatch;
     })
   | (ExistingAgreementCommandBase & {
       kind: "correct-existing";
@@ -126,7 +137,14 @@ export function buildEmploymentAgreementCommand(
   if (!target.ok) return target;
   if (kind === "set-primary") return okCommand({ kind, ...target.data, ...meta.data });
 
-  if (kind === "supplement-missing" || kind === "correct-existing") {
+  if (kind === "supplement-missing") {
+    const patch = agreementSupplementPatch(raw.patch);
+    return patch.ok
+      ? okCommand({ kind, patch: patch.data, ...target.data, ...meta.data })
+      : patch;
+  }
+
+  if (kind === "correct-existing") {
     const patch = agreementContentPatch(raw.patch);
     return patch.ok
       ? okCommand({ kind, patch: patch.data, ...target.data, ...meta.data })
@@ -261,6 +279,57 @@ function agreementContentPatch(value: unknown) {
     key,
     parsed.data[key as keyof EmploymentAgreementContent],
   ])) as EmploymentAgreementContentPatch);
+}
+
+function agreementSupplementPatch(value: unknown): DomainValidationResult<EmploymentAgreementSupplementPatch> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return failCommand("协议缺失资料变更无效", 400, "patch");
+  }
+  const raw = value as Record<string, unknown>;
+  if (Object.keys(raw).some((key) => key !== "content" && key !== "terms")) {
+    return failCommand("协议缺失资料字段无效", 400, "patch");
+  }
+  let content: EmploymentAgreementContentPatch = {};
+  if (raw.content !== undefined) {
+    const parsedContent = agreementContentPatch(raw.content);
+    if (!parsedContent.ok) return parsedContent;
+    content = parsedContent.data;
+  }
+  const terms = termPatches(raw.terms);
+  if (!terms.ok) return terms;
+  if (Object.keys(content).length === 0 && terms.data.length === 0) {
+    return failCommand("至少提交一个协议缺失字段", 400, "patch");
+  }
+  return okCommand({ content, terms: terms.data });
+}
+
+function termPatches(value: unknown): DomainValidationResult<EmploymentAgreementTermPatch[]> {
+  if (value === undefined) return okCommand([]);
+  if (!Array.isArray(value) || value.length > 20) return failCommand("协议期限补充资料无效", 400, "patch.terms");
+  const patches: EmploymentAgreementTermPatch[] = [];
+  const seen = new Set<string>();
+  for (const valueItem of value) {
+    if (!valueItem || typeof valueItem !== "object" || Array.isArray(valueItem)) return failCommand("协议期限补充资料无效", 400, "patch.terms");
+    const item = valueItem as Record<string, unknown>;
+    if (Object.keys(item).some((key) => !["termUid", "effectiveFrom", "effectiveThrough"].includes(key))) {
+      return failCommand("协议期限补充字段无效", 400, "patch.terms");
+    }
+    const termUid = stableUid(item.termUid);
+    if (!termUid || seen.has(termUid)) return failCommand("协议期限ID无效或重复", 400, "patch.terms");
+    const patch: EmploymentAgreementTermPatch = { termUid };
+    for (const field of ["effectiveFrom", "effectiveThrough"] as const) {
+      if (item[field] === undefined) continue;
+      const date = parseBusinessDate(item[field]);
+      if (!date) return failCommand(`${employmentAgreementFieldLabel("supplement-missing", field)}无效`, 400, `patch.terms.${field}`);
+      patch[field] = date;
+    }
+    if (patch.effectiveFrom === undefined && patch.effectiveThrough === undefined) {
+      return failCommand("至少提交一个协议期限字段", 400, "patch.terms");
+    }
+    seen.add(termUid);
+    patches.push(patch);
+  }
+  return okCommand(patches);
 }
 
 function optionalDate(value: unknown): BusinessDate | null | "invalid" {

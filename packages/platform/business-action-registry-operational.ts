@@ -24,6 +24,12 @@ const EXTERNAL_SUPPLIERS = {
   originHrefPattern: "/external/suppliers",
 } as const;
 
+const EXTERNAL_RELATED_PARTIES = {
+  moduleKey: "external",
+  resourceKey: "external.relatedParties",
+  originHrefPattern: "/external/related-parties",
+} as const;
+
 const HR_ROSTER = {
   moduleKey: "hr",
   resourceKey: "hr.roster",
@@ -78,6 +84,8 @@ export const OPERATIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   { ...EXTERNAL_SUPPLIERS, ...PERMISSION_ONLY, key: "external.suppliers.party.update", label: "更新供应商", writeKind: "update", targetKind: "Party", directPermissionAction: "update", apiRoutes: [route("PATCH", "/api/modules/external/suppliers/:id")] },
   { ...EXTERNAL_SUPPLIERS, ...PERMISSION_ONLY, key: "external.suppliers.party.delete", label: "停用供应商角色", writeKind: "delete", targetKind: "ExternalPartyRole", directPermissionAction: "delete", apiRoutes: [route("DELETE", "/api/modules/external/suppliers/:id")], notes: "DELETE 只追加角色结束期间，不删除角色、来源映射或 Party。" },
   { ...EXTERNAL_SUPPLIERS, ...PERMISSION_ONLY, key: "external.suppliers.party.availability.change", label: "登记供应商角色可用期间", writeKind: "save", targetKind: "ExternalPartyRole", directPermissionAction: "update", apiRoutes: [route("POST", "/api/modules/external/suppliers/:id/availability")] },
+  { ...EXTERNAL_RELATED_PARTIES, ...PERMISSION_ONLY, key: "external.relatedParties.party.create", label: "登记关联方", writeKind: "create", targetKind: "Party", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/external/related-parties")], notes: "只允许从当前账号可读取的客户或供应商 Party FK 中登记关系性质，不创建新主体。" },
+  { ...EXTERNAL_RELATED_PARTIES, ...PERMISSION_ONLY, key: "external.relatedParties.party.delete", label: "取消关联方", writeKind: "delete", targetKind: "Party", directPermissionAction: "delete", apiRoutes: [route("DELETE", "/api/modules/external/related-parties/:id")], notes: "只把人工维护项的关系性质恢复为 unrelated；客户、供应商及 Party 均保留，内部公司和当前股权关系派生项禁止取消。" },
   { ...HR_ROSTER, ...PERMISSION_ONLY, key: "hr.roster.employmentAgreement.command", label: "维护员工合同与期限", writeKind: "save", targetKind: "EmploymentAgreement", directPermissionAction: "update", apiRoutes: [route("POST", "/api/modules/hr/roster/employee-profiles/:id/agreements")] },
   { ...HR_ROSTER, ...PERMISSION_ONLY, key: "hr.roster.socialInsurance.command", label: "办理员工社会保险", writeKind: "save", targetKind: "EmployeeSocialInsurancePeriod", directPermissionAction: "update", apiRoutes: [route("POST", "/api/modules/hr/roster/employee-profiles/:id/social-insurance")] },
   { ...HR_ROSTER, ...PERMISSION_ONLY, key: "hr.roster.employmentAgreementAttachment.upload", label: "上传员工协议附件", writeKind: "import", targetKind: "EmploymentAgreementAttachment", directPermissionAction: "update", apiRoutes: [route("POST", "/api/modules/hr/roster/employee-profiles/:id/agreements/:agreementUid/attachments")] },

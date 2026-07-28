@@ -7,7 +7,7 @@ import {
   type WorkspaceAnalysisReadModelFields,
 } from "@workspace/platform/server/workspace-analysis-read-model";
 
-import type { ExternalParty } from "../types";
+import type { ExternalParty, ExternalRelatedParty } from "../types";
 
 const field = (
   input: Omit<WorkspaceAnalysisReadModelField, "classification" | "exportPolicy"> & {
@@ -152,9 +152,45 @@ export const EXTERNAL_SUPPLIER_ROLES_ANALYSIS_SOURCE = externalPartyRoleSource({
   apiPath: "/api/modules/external/suppliers",
 });
 
+export const EXTERNAL_RELATED_PARTIES_ANALYSIS_SOURCE = defineWorkspaceAnalysisReadModel<ExternalRelatedParty>()({
+  sourceKey: "external.related-parties",
+  version: 1,
+  label: "关联方名录",
+  description: "以财务披露口径的一名关联方为粒度，不包含客户或供应商角色的联系、银行、信用和结算资料。",
+  apiPath: "/api/modules/external/related-parties",
+  rowsPath: "items",
+  totalPath: "total",
+  scopes: workspaceScopes,
+  parameters: [
+    { key: "keyword", label: "关键词", description: "匹配名称、统一代码、法定代表人或关系性质。", kind: "text", queryKey: "keyword" },
+    { key: "asOfDate", label: "基准日", description: "按业务日期读取当日有效的法定主体事实。", kind: "date", queryKey: "asOfDate" },
+    { key: "relatedPartyType", label: "关系性质", description: "集团内、合营联营、重大影响、管理人员或其他关联方。", kind: "text", queryKey: "relatedPartyType" },
+  ],
+  fields: {
+    id: field({ label: "关联目标 ID", description: "Party 或员工目标的稳定内部 ID。", valueKind: "integer", sensitivity: "internal" }),
+    targetKind: field({ label: "关联目标类型", description: "关联目标来自 Party 或员工。", valueKind: "text", sensitivity: "internal" }),
+    version: { classification: "omit", reason: "internalOperational", description: "乐观锁版本仅用于页面写入。" },
+    subjectType: field({ label: "主体类型", description: "机构或个人。", valueKind: "text", sensitivity: "internal" }),
+    relatedPartyType: field({ label: "关系性质", description: "财务披露口径的关联方类型。", valueKind: "text", sensitivity: "confidential" }),
+    name: field({ label: "名称", description: "基准日有效的主体名称。", valueKind: "text", sensitivity: "confidential" }),
+    fullName: field({ label: "全称", description: "基准日有效的主体正式全称。", valueKind: "text", sensitivity: "confidential" }),
+    identityNumber: field({ label: "统一代码或证件号", description: "机构统一代码或个人证件号码。", valueKind: "text", sensitivity: "restricted", exportPolicy: "masked" }),
+    legalRepresentative: field({ label: "法定代表人", description: "基准日有效的机构法定代表人。", valueKind: "text", sensitivity: "restricted" }),
+    roles: { classification: "omit", reason: "nonScalar", description: "客户和供应商角色数组仅用于页面提示，不作为关联方名录标量分析字段。" },
+    systemConfigured: field({ label: "系统配置", description: "是否由公司、股权或核心人员匹配事实维护。", valueKind: "boolean", sensitivity: "internal" }),
+    systemConfiguredReason: field({ label: "系统配置来源", description: "系统配置保护的业务来源。", valueKind: "text", sensitivity: "internal" }),
+    asOfDate: field({ label: "基准日", description: "法定事实投影使用的业务日期。", valueKind: "date", sensitivity: "internal" }),
+    createdAt: field({ label: "创建日期", description: "关联目标记录创建日期。", valueKind: "date", sensitivity: "internal" }),
+    updatedAt: field({ label: "更新日期", description: "关联目标记录最后更新日期。", valueKind: "date", sensitivity: "internal" }),
+  },
+  pagination: { pageParam: "page", pageSizeParam: "pageSize", pageSize: 500, maxPages: 10 },
+  limits: { maxRows: 5_000, maxGroups: 500, maxPageSize: 500, maxPages: 10, maxBytes: 5 * 1024 * 1024, timeoutMs: 10_000 },
+});
+
 export const EXTERNAL_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS = [
   EXTERNAL_CUSTOMERS_ANALYSIS_SOURCE,
   EXTERNAL_CUSTOMER_ROLES_ANALYSIS_SOURCE,
+  EXTERNAL_RELATED_PARTIES_ANALYSIS_SOURCE,
   EXTERNAL_SUPPLIERS_ANALYSIS_SOURCE,
   EXTERNAL_SUPPLIER_ROLES_ANALYSIS_SOURCE,
 ] as const;

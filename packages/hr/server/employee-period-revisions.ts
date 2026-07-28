@@ -33,8 +33,25 @@ export async function reviseEmployeePeriod(
   try {
     const result = await prisma.$transaction(async (tx) => {
       const before = entityType === "Employment"
-        ? await tx.employment.findUnique({ where: { id: validated.data.periodId }, select: { joinDate: true, leaveDate: true, version: true } })
-        : await tx.eDP.findUnique({ where: { id: validated.data.periodId }, select: { startDate: true, endDate: true, version: true } });
+        ? await tx.employment.findUnique({
+            where: { id: validated.data.periodId },
+            select: { currentCompany: true, joinDate: true, leaveDate: true, version: true },
+          })
+        : await tx.eDP.findUnique({
+            where: { id: validated.data.periodId },
+            select: {
+              reportingCompanyId: true,
+              departmentId: true,
+              positionId: true,
+              positionReportOverrideId: true,
+              isPrimary: true,
+              startDate: true,
+              endDate: true,
+              allocationWeight: true,
+              reportToPositionId: true,
+              version: true,
+            },
+          });
       if (!before) throw new EmployeePeriodRevisionError("周期记录不存在", 404);
       if (before.version !== validated.data.expectedVersion) {
         throw new EmployeePeriodRevisionError("周期已被其他人修改，请刷新后重试", 409);
@@ -46,6 +63,7 @@ export async function reviseEmployeePeriod(
             data: {
               joinDate: validated.data.startDate,
               leaveDate: validated.data.endDate,
+              currentCompany: validated.data.currentCompany,
               isActive: isCurrentPeriod(validated.data.startDate, validated.data.endDate),
               editedBy: userId,
               editedAt: new Date(),
@@ -57,6 +75,14 @@ export async function reviseEmployeePeriod(
             data: {
               startDate: validated.data.startDate,
               endDate: validated.data.endDate,
+              reportingCompanyId: validated.data.reportingCompanyId,
+              departmentId: validated.data.departmentId,
+              positionId: validated.data.positionId,
+              positionReportOverrideId: validated.data.positionReportOverrideId,
+              isPrimary: validated.data.isPrimary,
+              allocationWeight: validated.data.allocationWeight,
+              reportTo: null,
+              reportToPositionId: validated.data.reportToPositionId,
               editedBy: userId,
               editedAt: new Date(),
               version: { increment: 1 },
@@ -70,7 +96,21 @@ export async function reviseEmployeePeriod(
           periodId: validated.data.periodId,
           expectedVersion: validated.data.expectedVersion,
           beforeJson: JSON.stringify(before),
-          afterJson: JSON.stringify({ startDate: validated.data.startDate, endDate: validated.data.endDate }),
+          afterJson: JSON.stringify(entityType === "Employment" ? {
+            currentCompany: validated.data.currentCompany,
+            joinDate: validated.data.startDate,
+            leaveDate: validated.data.endDate,
+          } : {
+            reportingCompanyId: validated.data.reportingCompanyId,
+            departmentId: validated.data.departmentId,
+            positionId: validated.data.positionId,
+            positionReportOverrideId: validated.data.positionReportOverrideId,
+            isPrimary: validated.data.isPrimary,
+            startDate: validated.data.startDate,
+            endDate: validated.data.endDate,
+            allocationWeight: validated.data.allocationWeight,
+            reportToPositionId: validated.data.reportToPositionId,
+          }),
           reason: validated.data.reason,
           recordedByUserId: userId,
         },

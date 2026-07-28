@@ -9,6 +9,7 @@ import {
   balanceSheetOpeningPoint,
   balanceSheetOpeningReclassPoint,
   formatStatementPeriodEndLabel,
+  statementPeriodStartMonth,
 } from "./statement-period";
 
 test("uses the statutory general-enterprise amount headers", () => {
@@ -40,4 +41,10 @@ test("uses prior year-end as the balance sheet comparative basis for every repor
   assert.deepEqual(balanceSheetOpeningReclassPoint({ year: 2026, month: 12 }), { year: 2025, month: 12 });
   assert.deepEqual(balanceSheetOpeningReclassPoint({ year: 2026, month: 6 }), { year: 2025, month: 12 });
   assert.deepEqual(balanceSheetOpeningReclassPoint({ year: 2026, month: 7 }), { year: 2025, month: 12 });
+});
+
+test("derives the first month covered by each statement period kind", () => {
+  assert.equal(statementPeriodStartMonth(12, "year"), 1);
+  assert.equal(statementPeriodStartMonth(9, "quarter"), 7);
+  assert.equal(statementPeriodStartMonth(5, "month"), 5);
 });

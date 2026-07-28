@@ -251,6 +251,7 @@ export const ModelName = {
   OpenApiScope: 'OpenApiScope',
   OpenApiClientScopeGrant: 'OpenApiClientScopeGrant',
   OpenApiAccessLog: 'OpenApiAccessLog',
+  EmployeePartyIdentityLink: 'EmployeePartyIdentityLink',
   Product: 'Product',
   ProductSourceMapping: 'ProductSourceMapping',
   ProductionQcBatch: 'ProductionQcBatch',
@@ -2093,8 +2094,14 @@ export const FinanceAuxiliaryMemberScalarFieldEnum = {
   lastYear: 'lastYear',
   latestImportId: 'latestImportId',
   linkedCompanyId: 'linkedCompanyId',
+  linkedEmployeeId: 'linkedEmployeeId',
+  linkedPartyId: 'linkedPartyId',
   companyLinkMethod: 'companyLinkMethod',
   companyLinkEvidence: 'companyLinkEvidence',
+  identityLinkMethod: 'identityLinkMethod',
+  identityLinkEvidence: 'identityLinkEvidence',
+  identityLinkedAt: 'identityLinkedAt',
+  identityLinkedBy: 'identityLinkedBy',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -4474,6 +4481,23 @@ export const OpenApiAccessLogScalarFieldEnum = {
 } as const
 
 export type OpenApiAccessLogScalarFieldEnum = (typeof OpenApiAccessLogScalarFieldEnum)[keyof typeof OpenApiAccessLogScalarFieldEnum]
+
+
+export const EmployeePartyIdentityLinkScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  partyId: 'partyId',
+  recordStatus: 'recordStatus',
+  linkMethod: 'linkMethod',
+  linkEvidence: 'linkEvidence',
+  confirmedBy: 'confirmedBy',
+  confirmedAt: 'confirmedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeePartyIdentityLinkScalarFieldEnum = (typeof EmployeePartyIdentityLinkScalarFieldEnum)[keyof typeof EmployeePartyIdentityLinkScalarFieldEnum]
 
 
 export const ProductScalarFieldEnum = {

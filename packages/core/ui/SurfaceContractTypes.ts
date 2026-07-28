@@ -226,6 +226,23 @@ export interface SurfaceToolbarFieldFilterItem {
   referenceEndpoint?: string;
 }
 
+export interface SurfaceToolbarFilterPanelFieldSpec {
+  key: string;
+  label: string;
+  value: string;
+  options: SurfaceSelectOptionSpec[];
+  onChange: (value: string) => void;
+  allLabel?: string;
+}
+
+export interface SurfaceToolbarFilterPanelItem {
+  kind: "filter-panel";
+  key: string;
+  label?: string;
+  fields: SurfaceToolbarFilterPanelFieldSpec[];
+  onReset?: () => void;
+}
+
 export interface SurfaceToolbarColumnToggleItem {
   kind: "column-toggle";
   key: string;
@@ -374,6 +391,7 @@ export type SurfaceToolbarItem = {
   | SurfaceToolbarLabelItem
   | SurfaceToolbarOptionGroupItem
   | SurfaceToolbarFieldFilterItem
+  | SurfaceToolbarFilterPanelItem
   | SurfaceToolbarColumnToggleItem
   | SurfaceToolbarPageSizeItem
   | SurfaceToolbarPeriodItem

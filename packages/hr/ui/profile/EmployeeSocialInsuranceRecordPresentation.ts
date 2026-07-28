@@ -15,11 +15,13 @@ import type { EmployeeSocialInsuranceRow, ProfileField } from "@workspace/hr/typ
 import { profileFieldSpec } from "./EmployeeProfileFieldSpecs";
 
 export type SupplementDraft = {
+  insuranceStatus: EmployeeSocialInsuranceStatus;
   companyId: number | null;
   companyName: string | null;
   startMonth: string;
   endMonth: string;
   stopReason: string;
+  note: string;
   reason: string;
 };
 
@@ -99,6 +101,76 @@ export function socialInsuranceSupplementItems(input: {
   return items;
 }
 
+export function socialInsuranceCorrectionItems(input: {
+  row: EmployeeSocialInsuranceRow;
+  draft: SupplementDraft;
+  saving: boolean;
+  setField: (key: keyof SupplementDraft, value: unknown, option?: ReferenceOption) => void;
+}): FormSurfaceItemSpec[] {
+  const { row, draft, saving, setField } = input;
+  const missing = new Set(socialInsuranceSupplementableFields(row));
+  const items: FormSurfaceItemSpec[] = [{
+    key: "insuranceStatus",
+    label: "社保状态",
+    value: draft.insuranceStatus,
+    spec: {
+      valueType: "string",
+      control: "choice",
+      state: saving ? "disabled" : "normal",
+      options: {
+        source: "static",
+        items: Object.entries(EMPLOYEE_SOCIAL_INSURANCE_STATUS_LABELS).map(([value, label]) => ({ value, label })),
+      },
+    },
+    onChange: (value) => setField("insuranceStatus", value),
+  }];
+  if (missing.has("companyId")) {
+    items.push({ kind: "readonly", key: "company", label: "参保公司", value: "待补充" });
+  } else {
+    items.push(profileFieldSpec(SOCIAL_INSURANCE_COMPANY_FIELD, draft, saving, (key, value, option) => (
+      setField(key as keyof SupplementDraft, value, option)
+    )));
+  }
+  for (const [key, label] of [["startMonth", "参保月份"], ["endMonth", "停保月份"]] as const) {
+    items.push(missing.has(key)
+      ? { kind: "readonly", key, label, value: "待补充" }
+      : supplementMonthItem(key, label, draft[key], saving, setField));
+  }
+  items.push(missing.has("stopReason")
+    ? { kind: "readonly", key: "stopReason", label: "停保原因", value: "待补充" }
+    : {
+        key: "stopReason",
+        label: "停保原因",
+        value: draft.stopReason,
+        spec: {
+          valueType: "string",
+          control: "choice",
+          state: saving ? "disabled" : "normal",
+          options: { source: "static", items: SOCIAL_INSURANCE_STOP_REASONS.map((reason) => ({ value: reason, label: reason })) },
+        },
+        onChange: (value) => setField("stopReason", value),
+      });
+  items.push({
+    key: "note",
+    label: "备注",
+    span: "wide",
+    value: draft.note,
+    spec: { valueType: "string", control: "text", multiline: true, state: saving ? "disabled" : "normal" },
+    rows: 2,
+    onChange: (value) => setField("note", value),
+  }, {
+    key: "reason",
+    label: "修正说明",
+    required: true,
+    span: "wide",
+    value: draft.reason,
+    spec: { valueType: "string", control: "text", multiline: true, state: saving ? "disabled" : "required" },
+    rows: 2,
+    onChange: (value) => setField("reason", value),
+  });
+  return items;
+}
+
 export function socialInsuranceCurrentStatusPanel(
   key: string,
   title: string,
@@ -141,12 +213,26 @@ export function socialInsuranceRecordColumns(currentPeriodUid: string | null): A
 
 export function initialSocialInsuranceSupplementDraft(row: EmployeeSocialInsuranceRow | null): SupplementDraft {
   return {
+    insuranceStatus: row?.insuranceStatus ?? "insured",
     companyId: row?.companyId ?? null,
     companyName: row?.companyName ?? null,
     startMonth: row?.startMonth ?? "",
     endMonth: row?.endMonth ?? "",
     stopReason: row?.stopReason ?? "",
+    note: row?.note ?? "",
     reason: "",
+  };
+}
+
+export function socialInsuranceCorrectionPatch(row: EmployeeSocialInsuranceRow, draft: SupplementDraft) {
+  const missing = new Set(socialInsuranceSupplementableFields(row));
+  return {
+    ...(draft.insuranceStatus !== row.insuranceStatus ? { insuranceStatus: draft.insuranceStatus } : {}),
+    ...(!missing.has("companyId") && draft.companyId !== row.companyId ? { companyId: draft.companyId } : {}),
+    ...(!missing.has("startMonth") && (draft.startMonth || null) !== row.startMonth ? { startMonth: draft.startMonth || null } : {}),
+    ...(!missing.has("endMonth") && (draft.endMonth || null) !== row.endMonth ? { endMonth: draft.endMonth || null } : {}),
+    ...(!missing.has("stopReason") && (draft.stopReason || null) !== row.stopReason ? { stopReason: draft.stopReason || null } : {}),
+    ...((draft.note || null) !== row.note ? { note: draft.note || null } : {}),
   };
 }
 

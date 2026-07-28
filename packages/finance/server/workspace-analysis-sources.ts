@@ -180,19 +180,18 @@ export const FINANCE_LEDGER_BALANCES_SOURCE = defineWorkspaceAnalysisReadModel<F
   pagination: PAGED,
   limits: LIMITS,
 });
-
 export const FINANCE_LEDGER_COUNTERPARTY_BALANCES_SOURCE = defineWorkspaceAnalysisReadModel<FinanceCounterpartyBalanceRow>()({
-  sourceKey: "finance.ledger.counterparty-balances",
-  version: 1,
+  sourceKey: "finance.ledger.counterparty-balances", version: 2,
   label: "往来余额",
-  description: "客户、供应商及其他往来的月末滚动余额。",
+  description: "客户、供应商及其他往来的月度、季度或年度期间余额。",
   apiPath: "/api/modules/finance/ledger/counterparty-balances",
   rowsPath: "data",
   totalPath: "total",
   scopes: WORKSPACE_SCOPES,
   parameters: [
-    { ...company, required: true }, { ...year, required: true }, { ...month, required: true }, keyword,
-    { key: "category", queryKey: "category", label: "往来类别", description: "ar、ap、otherAr 或 otherAp。", kind: "text", required: true },
+    { ...company, required: true }, { ...year, required: true }, { ...month, required: true },
+    { key: "periodKind", queryKey: "periodKind", label: "期间粒度", description: "year、quarter 或 month，默认 month。", kind: "text" }, keyword,
+    { key: "category", queryKey: "category", label: "往来类别", description: "ar、ap、otherAr 或 otherAp。", kind: "text", required: true }, { key: "relationScope", queryKey: "relationScope", label: "关联范围", description: "全部、关联方或其他往来。", kind: "text" }, { key: "objectType", queryKey: "objectType", label: "对象类型", description: "集团公司、客户、供应商、员工、部门或其他对象。", kind: "text" },
   ],
   fields: {
     id: field("余额键", "往来余额聚合稳定键。", "text"),
@@ -200,6 +199,7 @@ export const FINANCE_LEDGER_COUNTERPARTY_BALANCES_SOURCE = defineWorkspaceAnalys
     counterpartyName: field("往来名称", "往来对象名称。", "text", { sensitivity: "confidential" }),
     counterpartyShortName: field("往来简称", "往来对象简称。", "text", { sensitivity: "confidential" }),
     counterpartyType: field("往来类型", "规范化往来对象类型。", "text"),
+    counterpartyObjectKind: field("对象类型", "按稳定身份与来源维度归一的往来对象类型。", "text"), identityMatched: field("身份已匹配", "辅助核算对象是否已关联公司、员工或 Party。", "boolean"), relatedPartyType: field("关系性质", "已确认关联方的关系性质；非关联方或未匹配时为空。", "text"),
     accountCode: field("科目编码", "往来余额对应科目编码。", "text"),
     accountName: field("科目名称", "往来余额对应科目名称。", "text"),
     openingDebit: field("期初借方", "期初借方余额。", "currency"),

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getGroupItemColumns } from "../components/VoucherItemTable";
+import { getGroupItemColumns, getGroupSourceTraceColumns } from "../components/VoucherItemTable";
 import { getVoucherColumns, voucherRecordingSource } from "./VoucherColumns";
 
 test("group vouchers keep only read-only summary columns", () => {
@@ -22,24 +22,24 @@ test("standard voucher columns expose the recording source", () => {
 
 test("expanded group voucher items use compact sequence and entity-only columns", () => {
   const columns = getGroupItemColumns();
-  assert.deepEqual(columns.map((column) => column.key), ["seq", "sourceDate", "account", "entity", "debit", "credit"]);
+  assert.deepEqual(columns.map((column) => column.key), ["seq", "sourceDate", "account", "presentationAccount", "entity", "debit", "credit"]);
   assert.equal(columns.find((column) => column.key === "seq")?.width, "xs");
   const entity = columns.find((column) => column.key === "entity");
   const account = columns.find((column) => column.key === "account");
-  assert.equal(account?.cell({
+  assert.deepEqual(account?.cell({
     id: 1,
     account: { code: "NCI", name: "少数股东权益" },
     debit: 0,
     credit: 0,
     description: null,
-  }), "少数股东权益");
-  assert.equal(account?.cell({
+  }), { kind: "disclosure", label: "少数股东权益", expanded: false, emphasis: "medium" });
+  assert.deepEqual(account?.cell({
     id: 2,
     account: { code: "122101", name: "其他应收款" },
     debit: 0,
     credit: 0,
     description: null,
-  }), "其他应收款 · 122101");
+  }), { kind: "disclosure", label: "其他应收款 · 122101", expanded: false, emphasis: "medium" });
   assert.equal(entity?.cell({
     id: 1,
     account: null,
@@ -49,4 +49,19 @@ test("expanded group voucher items use compact sequence and entity-only columns"
     entityName: "丰华生物",
     counterpartyName: "上海悦通",
   }), "丰华生物");
+});
+
+test("group voucher audit detail exposes original voucher fields", () => {
+  const columns = getGroupSourceTraceColumns();
+  assert.deepEqual(
+    columns.map((column) => column.key),
+    ["sourceLabel", "date", "voucherNo", "account", "processing", "description", "debit", "credit"],
+  );
+  for (const key of ["sourceLabel", "date", "voucherNo", "processing", "debit", "credit"]) {
+    const column = columns.find((item) => item.key === key);
+    assert.equal(column?.width, "content");
+    assert.equal(column?.wrap, "nowrap");
+  }
+  assert.equal(columns.find((column) => column.key === "account")?.wrap, "wrap");
+  assert.equal(columns.find((column) => column.key === "description")?.wrap, "wrap");
 });

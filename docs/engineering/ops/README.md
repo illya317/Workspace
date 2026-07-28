@@ -39,6 +39,48 @@ Repository-owned runtime dependency contracts:
 - Business-data manifests and source files live under private `WORKSPACE_CONFIG_DIR/data-release-manifests` and `data-release-sources`. Upload and verification use the separate `publish.sh data upload|verify|status --id <id>` entrypoint. Code deployment never checks, uploads, binds, or applies a data batch. Git and release artifacts contain only generic handlers, validators, and receipt contracts.
 - Each normal deployment creates a custom-format `pg_dump`, verifies it with `pg_restore --list`, writes a SHA-256 sidecar, and only then replaces the application process.
 
+## Full deployment with database replacement
+
+`database-replace` is a separate Full-monolith deployment mode for an explicitly reconciled local
+PostgreSQL database that must become the next production database. Application source, candidate
+freezing, tenant configuration, CNB collect-all CI/build/E2E, artifact verification, resource seed,
+candidate warmup, public cutover, release receipt, and final health/version checks remain the same as
+an ordinary Full deployment. Only the database mutation stage changes from incremental migration to
+an immutable custom-format dump restored into a new database and atomically renamed into the active
+database name.
+
+```bash
+# First stop every local writer, including the local 3000 dev server.
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace prepare
+
+# After reviewing the receipt, trigger the same CNB release path with the bound dump.
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace deploy
+
+# Read-only local receipt status.
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace status
+```
+
+The prepare command first runs the ordinary `publish.sh prepare`, then requires the local database to
+contain exactly the candidate Prisma migration set. It refuses an active local port 3000 or active
+database sessions, creates a `pg_dump --format=custom`, verifies it with `pg_restore --list`, and binds
+its byte size, SHA-256 and migration-set digest to the exact source commit/tree. The dump and receipt
+are stored under private `WORKSPACE_CONFIG_DIR/database-replacements` and uploaded to the immutable
+server `deploy-inputs/database-replacements` tree; neither enters Git or the CNB artifact.
+
+The CNB server stage accepts this mode only for a Full monolith and rejects bootstrap, genesis, unit,
+or mismatched receipt combinations. After the shared gate and the ordinary production backup, it
+stops Workspace, candidate, WeCom and other registered writers, restores the bound dump into a new
+PostgreSQL database, checks migrations, users and constraints, and atomically renames the prior
+database to a rollback name before the replacement takes the active name. The PostgreSQL role remains
+least-privileged; creation of the isolated database uses the server's audited non-interactive
+`postgres` sudo capability. A failure after the writer fence leaves production stopped and keeps both
+databases; it never restarts old application code against the replacement database. A successful
+release archives a database-replacement receipt and retains the old database for explicit recovery.
+
+This mode does not delete private data-release manifests or sources. Data already embodied in the
+replacement dump does not need to be replayed during that deployment, but its manifests remain audit
+and reconciliation evidence until a separate retention decision archives them.
+
 ## SQLite cutover contract
 
 The one-time provider cutover is not a normal deploy:

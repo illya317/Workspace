@@ -1,6 +1,7 @@
 "use client";
 
 import type { SurfaceColumnOptionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import {
   consolidationPeriodLabel,
@@ -24,12 +25,14 @@ interface FinanceFiltersProps {
   companyFilter?: string;
   yearFilter?: string;
   monthFilter?: string;
+  periodKind?: StatementPeriodKind;
   levelFilter?: string;
   keyword?: string;
   pageSize?: number;
   onCompanyChange?: (value: string) => void;
   onYearChange?: (value: string) => void;
   onMonthChange?: (value: string) => void;
+  onPeriodKindChange?: (value: StatementPeriodKind) => void;
   onLevelChange?: (value: string) => void;
   onKeywordChange?: (value: string) => void;
   onPageSizeChange?: (value: number) => void;
@@ -49,12 +52,14 @@ export function useFinanceFilterToolbarItems({
   companyFilter = "",
   yearFilter = "",
   monthFilter = "",
+  periodKind,
   levelFilter = "",
   keyword = "",
   pageSize = 50,
   onCompanyChange,
   onYearChange,
   onMonthChange,
+  onPeriodKindChange,
   onLevelChange,
   onKeywordChange,
   onPageSizeChange,
@@ -73,6 +78,12 @@ export function useFinanceFilterToolbarItems({
   const periods = useFinancePeriodDataset();
   const companiesWithPeriods = new Set(periods.map((period) => period.companyCode));
   const companyOptions = allCompanyOptions.filter((option) => companiesWithPeriods.has(option.value));
+  const scopedPeriods = companyFilter
+    ? periods.filter((period) => period.companyCode === companyFilter)
+    : allowPeriodWithoutCompany
+      ? periods
+      : [];
+  const companyPeriods = uniquePeriodPoints(scopedPeriods);
 
   const items: SurfaceToolbarItems = [];
 
@@ -95,7 +106,10 @@ export function useFinanceFilterToolbarItems({
       value: companyFilter,
       onChange: (value) => {
         onCompanyChange(value);
-        const initial = latestAvailableFinancePeriod(periods.filter((period) => period.companyCode === value));
+        const valuePeriods = periods.filter((period) => period.companyCode === value);
+        const initial = latestAvailableFinancePeriod(periodKind
+          ? availablePeriodsForKind(valuePeriods, periodKind)
+          : valuePeriods);
         if (initial) {
           onYearChange?.(String(initial.year));
           onMonthChange?.(String(initial.month));
@@ -106,25 +120,51 @@ export function useFinanceFilterToolbarItems({
   }
 
   if (showCompanyYear && onYearChange) {
-    const precision = showMonth && onMonthChange ? "month" as const : "year" as const;
+    const precision = periodKind ?? (showMonth && onMonthChange ? "month" as const : "year" as const);
     const selectedYear = Number(yearFilter);
-    const selectedMonth = precision === "month" ? Number(monthFilter) : 12;
-    const companyPeriods = companyFilter
-      ? periods.filter((period) => period.companyCode === companyFilter)
-      : allowPeriodWithoutCompany
-        ? periods
-        : [];
-    const navigationPeriods = precision === "month"
-      ? companyPeriods
-      : [...new Set(companyPeriods.map((period) => period.year))].map((year) => ({
-          companyCode: companyFilter,
-          year,
-          month: 12,
-        }));
+    const selectedMonth = precision === "year" ? 12 : Number(monthFilter);
+    const navigationPeriods = periodKind
+      ? availablePeriodsForKind(companyPeriods, periodKind)
+      : precision === "month"
+        ? companyPeriods
+        : [...new Set(companyPeriods.map((period) => period.year))].map((year) => ({
+            companyCode: companyFilter,
+            year,
+            month: 12,
+          }));
     const periodChange = (nextYear: number, nextMonth: number) => {
       onYearChange(String(nextYear));
-      if (precision === "month") onMonthChange?.(String(nextMonth));
+      if (periodKind || precision === "month") onMonthChange?.(String(nextMonth));
     };
+    if (periodKind && onPeriodKindChange && onMonthChange) {
+      items.push({
+        kind: "option-group",
+        key: "period-kind",
+        value: periodKind,
+        options: [
+          { value: "year", label: "年", disabled: availablePeriodsForKind(companyPeriods, "year").length === 0 },
+          { value: "quarter", label: "季度", disabled: availablePeriodsForKind(companyPeriods, "quarter").length === 0 },
+          { value: "month", label: "月", disabled: companyPeriods.length === 0 },
+        ],
+        onChange: (value) => {
+          const nextKind = value as StatementPeriodKind;
+          const nextPeriods = availablePeriodsForKind(companyPeriods, nextKind);
+          const desiredMonth = nextKind === "year"
+            ? 12
+            : nextKind === "quarter"
+              ? Math.ceil(Number(monthFilter) / 3) * 3
+              : Number(monthFilter);
+          const nextPeriod = nextPeriods.find((candidate) => (
+            candidate.year === Number(yearFilter) && candidate.month === desiredMonth
+          )) ?? latestAvailableFinancePeriod(nextPeriods);
+          onPeriodKindChange(nextKind);
+          if (nextPeriod) periodChange(nextPeriod.year, nextPeriod.month);
+        },
+        ariaLabel: "期间粒度",
+        presentation: "accordion",
+        accordionTrigger: "active",
+      });
+    }
     items.push({
       kind: "period",
       key: "accounting-period",
@@ -146,7 +186,7 @@ export function useFinanceFilterToolbarItems({
         onChange: (value) => {
           const next = parseConsolidationPeriod(value, precision);
           if (!next) return;
-          if (precision === "year") {
+          if (!periodKind && precision === "year") {
             const yearPeriod = companyPeriods.find((period) => period.year === next.year);
             if (yearPeriod) periodChange(yearPeriod.year, yearPeriod.month);
             return;
@@ -194,4 +234,21 @@ export function useFinanceFilterToolbarItems({
   }
 
   return [...items, ...extraItems];
+}
+
+function availablePeriodsForKind(
+  periods: Array<{ companyCode: string; year: number; month: number }>,
+  kind: StatementPeriodKind,
+) {
+  if (kind === "year") return periods.filter((period) => period.month === 12);
+  if (kind === "quarter") return periods.filter((period) => period.month % 3 === 0);
+  return periods;
+}
+
+function uniquePeriodPoints(
+  periods: Array<{ companyCode: string; year: number; month: number }>,
+) {
+  const unique = new Map<string, (typeof periods)[number]>();
+  for (const period of periods) unique.set(`${period.year}:${period.month}`, period);
+  return [...unique.values()];
 }

@@ -110,7 +110,8 @@ export function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactN
     : value.wrap === "truncate"
       ? "block min-w-0 max-w-full truncate"
       : "";
-  return <span title={value.title ?? (value.wrap === "truncate" ? textOverflowTitle(value.value) : undefined)} className={joinClassNames(resolveTableToneClass(value.tone), emphasisClass, fontClass, wrapClass)}>{value.value}</span>;
+  const maxChars = value.maxChars && value.maxChars > 0 ? Math.floor(value.maxChars) : undefined;
+  return <span title={value.title ?? (value.wrap === "truncate" ? textOverflowTitle(value.value) : undefined)} className={joinClassNames(resolveTableToneClass(value.tone), emphasisClass, fontClass, wrapClass)} style={maxChars ? { maxWidth: `${maxChars}ch` } : undefined}>{value.value}</span>;
 }
 
 function groupItemClassName(item: DataSurfaceCellSpec, direction: "row" | "column") {

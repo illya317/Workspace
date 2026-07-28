@@ -9,6 +9,9 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { HR_ASSIGNMENT_TEMPORAL, HR_EMPLOYMENT_TEMPORAL } from "../../business-temporal";
 import { validateAssignmentTimeline } from "./employee-lifecycle-validation";
+import { resolveEdpPositionAssignment } from "./position-report-override-validation";
+import { validateEdpReportToPosition } from "../edp-report-to";
+import { isValidCompanyName, parseAllocationWeight } from "../field-validation";
 
 export type EmployeePeriodRevisionInput = {
   entityType?: unknown;
@@ -16,19 +19,41 @@ export type EmployeePeriodRevisionInput = {
   expectedVersion?: unknown;
   startDate?: unknown;
   endDate?: unknown;
+  currentCompany?: unknown;
+  reportingCompanyId?: unknown;
+  departmentId?: unknown;
+  positionId?: unknown;
+  isPrimary?: unknown;
+  allocationWeight?: unknown;
+  reportToPositionId?: unknown;
   reason?: unknown;
 };
 
-export type EmployeePeriodRevisionCommand = {
+type EmployeePeriodRevisionCommandBase = {
   employeeId: number;
   userId: number;
-  entityType: "Employment" | "EDP";
   periodId: number;
   expectedVersion: number;
   startDate: string;
   endDate: string | null;
   reason: string;
 };
+
+export type EmployeePeriodRevisionCommand =
+  | (EmployeePeriodRevisionCommandBase & {
+      entityType: "Employment";
+      currentCompany: string | null;
+    })
+  | (EmployeePeriodRevisionCommandBase & {
+      entityType: "EDP";
+      reportingCompanyId: number;
+      departmentId: number;
+      positionId: number;
+      positionReportOverrideId: number | null;
+      isPrimary: boolean;
+      allocationWeight: string;
+      reportToPositionId: number | null;
+    });
 
 export async function buildEmployeePeriodRevisionCommand(
   employeeId: number,
@@ -63,7 +88,21 @@ export async function buildEmployeePeriodRevisionCommand(
     where: { id: employeeId },
     select: {
       employments: { select: { id: true, version: true, joinDate: true, leaveDate: true, isActive: true } },
-      positions: { select: { id: true, version: true, startDate: true, endDate: true, allocationWeight: true, isPrimary: true } },
+      positions: {
+        select: {
+          id: true,
+          version: true,
+          reportingCompanyId: true,
+          departmentId: true,
+          positionId: true,
+          positionReportOverrideId: true,
+          startDate: true,
+          endDate: true,
+          allocationWeight: true,
+          isPrimary: true,
+          reportToPositionId: true,
+        },
+      },
     },
   });
   if (!employee) return failCommand("员工不存在", 404);
@@ -83,6 +122,19 @@ export async function buildEmployeePeriodRevisionCommand(
       position,
     )));
     if (uncovered) return failCommand("修订后会有任职周期落在雇佣周期之外，请先修订对应任职历史", 409);
+    const currentCompany = text(input.currentCompany);
+    if (!(await isValidCompanyName(currentCompany))) return failCommand("用工公司不存在", 400, "currentCompany");
+    return okCommand({
+      employeeId,
+      userId,
+      entityType,
+      periodId,
+      expectedVersion,
+      startDate,
+      endDate,
+      currentCompany,
+      reason,
+    });
   } else {
     const current = employee.positions.find((row) => row.id === periodId);
     if (!current) return failCommand("任职周期不存在", 404);
@@ -93,14 +145,62 @@ export async function buildEmployeePeriodRevisionCommand(
     ))) {
       return failCommand("任职周期必须完整落在某一雇佣周期内", 409);
     }
-    const proposed = employee.positions.map((row) => row.id === periodId
-      ? { ...row, startDate, endDate }
-      : row);
+    const reportingCompanyId = requiredPositiveInteger(input.reportingCompanyId);
+    if (!reportingCompanyId) return failCommand("汇报公司必填", 400, "reportingCompanyId");
+    const departmentId = requiredPositiveInteger(input.departmentId);
+    if (!departmentId) return failCommand("部门必填", 400, "departmentId");
+    const positionId = requiredPositiveInteger(input.positionId);
+    if (!positionId) return failCommand("岗位必填", 400, "positionId");
+    if (typeof input.isPrimary !== "boolean") return failCommand("主岗状态无效", 400, "isPrimary");
+    const allocationWeight = text(input.allocationWeight);
+    const parsedWeight = parseAllocationWeight(allocationWeight);
+    if (!allocationWeight || parsedWeight === null || Number.isNaN(parsedWeight) || parsedWeight <= 0) {
+      return failCommand("岗位投入权重必须大于 0", 400, "allocationWeight");
+    }
+    const placement = await resolveEdpPositionAssignment({ reportingCompanyId, departmentId, positionId });
+    if (!placement.ok) return placement;
+    if (!placement.data.reportingCompanyId || !placement.data.departmentId) {
+      return failCommand("任职的汇报公司和部门必须完整", 400);
+    }
+    const reportTo = await validateEdpReportToPosition({
+      positionId,
+      departmentId: placement.data.departmentId,
+      reportToPositionId: input.reportToPositionId,
+    });
+    if (!reportTo.ok) return reportTo;
+    const corrected = {
+      ...current,
+      reportingCompanyId: placement.data.reportingCompanyId,
+      departmentId: placement.data.departmentId,
+      positionId,
+      positionReportOverrideId: placement.data.positionReportOverrideId,
+      startDate,
+      endDate,
+      allocationWeight,
+      isPrimary: input.isPrimary,
+      reportToPositionId: reportTo.data,
+    };
+    const proposed = employee.positions.map((row) => row.id === periodId ? corrected : row);
     const timelineError = validateAssignmentTimeline(proposed, startDate);
     if (timelineError) return failCommand(timelineError, 409);
+    return okCommand({
+      employeeId,
+      userId,
+      entityType,
+      periodId,
+      expectedVersion,
+      startDate,
+      endDate,
+      reportingCompanyId: corrected.reportingCompanyId,
+      departmentId: corrected.departmentId,
+      positionId: corrected.positionId,
+      positionReportOverrideId: corrected.positionReportOverrideId,
+      isPrimary: corrected.isPrimary,
+      allocationWeight: corrected.allocationWeight,
+      reportToPositionId: corrected.reportToPositionId,
+      reason,
+    });
   }
-
-  return okCommand({ employeeId, userId, entityType, periodId, expectedVersion, startDate, endDate, reason });
 }
 
 function revisionIsForbidden(value: string) {
@@ -130,6 +230,11 @@ function periodContains(
 function positiveInteger(value: unknown) {
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function requiredPositiveInteger(value: unknown) {
+  const parsed = positiveInteger(value);
+  return parsed && !Number.isNaN(parsed) ? parsed : null;
 }
 
 function text(value: unknown) {

@@ -9,6 +9,27 @@ export const ExternalPartyQuerySchema = z.object({
   asOfDate: z.iso.date({ error: "基准日必须是有效的 YYYY-MM-DD 日期" }).optional(),
 });
 
+export const ExternalRelatedPartyQuerySchema = ExternalPartyQuerySchema.extend({
+  relatedPartyType: z.enum([
+    "group",
+    "joint_venture_associate",
+    "investor_influence",
+    "key_management_related",
+    "other_related",
+  ]).optional(),
+});
+
+export const ExternalRelatedPartyCreateSchema = z.object({
+  partyId: z.number().int().positive(),
+  relatedPartyType: z.enum([
+    "group",
+    "joint_venture_associate",
+    "investor_influence",
+    "key_management_related",
+    "other_related",
+  ]),
+}).strict();
+
 const ExternalPartyFieldsSchema = z.object({
   existingPartyId: z.number().int().positive().optional(),
   subjectType: z.enum(["organization", "individual"]).optional(),
@@ -85,6 +106,7 @@ export const ExternalPartyRoleEndSchema = z.object({
 }).strict();
 
 export type ExternalPartyCreateInput = z.infer<typeof ExternalPartyCreateSchema>;
+export type ExternalRelatedPartyCreateInput = z.infer<typeof ExternalRelatedPartyCreateSchema>;
 export type ExternalPartyUpdateInput = z.infer<typeof ExternalPartyUpdateSchema>;
 export type ExternalPartyRoleAvailabilityCommandInput = z.infer<typeof ExternalPartyRoleAvailabilityCommandSchema>;
 export type ExternalPartyRoleEndInput = z.infer<typeof ExternalPartyRoleEndSchema>;

@@ -1,0 +1,18 @@
+/// 员工身份与可选法定 Party 的一对一确认关系；仅员工另有股东、供应商、客户或合同身份时建立
+model EmployeePartyIdentityLink {
+  id           Int      @id @default(autoincrement())
+  employeeId   Int      @unique
+  partyId      Int      @unique
+  recordStatus String   @default("confirmed")
+  linkMethod   String
+  linkEvidence String
+  confirmedBy  Int?
+  confirmedAt  DateTime @default(now())
+  version      Int      @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  party        Party    @relation(fields: [partyId], references: [id], onDelete: Restrict)
+
+  @@index([recordStatus])
+}

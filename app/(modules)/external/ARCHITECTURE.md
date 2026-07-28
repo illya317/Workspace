@@ -2,7 +2,7 @@
 
 ## 定位
 
-外部关系维护客户和供应商主数据。客户/供应商是往来角色，单位/个人是主体类型：自然人客户在客户入口维护，自然人供应商在供应商入口维护，不建立独立个人往来入口。法定主体只保存一份，客户和供应商角色通过固定页面、API 前缀和 RBAC 资源保持操作权限独立。投资人关系仍归资本证券。
+外部关系维护客户、供应商和关联方名录。客户/供应商是往来角色，单位/个人是主体类型：自然人客户在客户入口维护，自然人供应商在供应商入口维护，不建立独立个人往来入口。关联方不是第三种往来角色：人工项从现有客户/供应商 Party FK 登记，系统项从公司、股权、HR 与财务事实实时投影；关联方入口不能自由创建法定主体。法定主体只保存一份，客户和供应商角色通过固定页面、API 前缀和 RBAC 资源保持操作权限独立。投资人关系及详细持股控制链仍归资本证券。
 
 ## 路由与包边界
 
@@ -10,15 +10,18 @@
 app/(modules)/external/
   customers/             # 客户主数据页面壳
   suppliers/             # 供应商主数据页面壳
+  related-parties/       # 关联方名录页面壳
 
 app/api/modules/external/
   customers/             # GET / POST / PATCH / DELETE
   suppliers/             # GET / POST / PATCH / DELETE
+  related-parties/       # GET 名录/候选，POST 登记，DELETE 取消人工维护的关联方
 
 packages/external/
   ui/ExternalPartyClient.tsx     # 客户/供应商共享的列表与录入交互
   server/external-parties.ts     # BusinessAction adapter 与公开写入口
   server/external-party-service.ts # 角色投影、版本、审计与落库
+  server/related-parties.ts # 关联方名录、候选查询与登记写入
   server/domain/*                # 业务字段与命令校验
   types/*                        # DTO 与 category 契约
 ```
@@ -27,7 +30,7 @@ packages/external/
 
 ## 工作空间轻代码读取模型
 
-External owner 登记 `external.customers`、`external.suppliers` 及对应的 `external.customer-roles`、`external.supplier-roles` 子读模型，完整沿用客户、供应商 GET 的公开稳定标量 DTO，并把公开 `roles` 数组规范化为一主体一角色关系行。每次发现和执行仍重验对应的 `external.customers.read` 或 `external.suppliers.read`；角色子源先由原列表服务按当前账号权限过滤主体与角色，不建立第二套可见范围。轻代码不再叠加“可分析字段”权限；字段敏感级只是元数据，导出策略只约束独立导出链路。
+External owner 登记 `external.customers`、`external.suppliers`、`external.related-parties` 及客户/供应商对应的角色子读模型。客户和供应商源完整沿用各自 GET 的公开稳定标量 DTO，并把公开 `roles` 数组规范化为一主体一角色关系行；关联方源只公开主体身份和关系性质，不公开往来角色的联系、银行、信用或结算字段。每次发现和执行都重验对应 L2 的 read 权限，不建立第二套可见范围。轻代码不再叠加“可分析字段”权限；字段敏感级只是元数据，导出策略只约束独立导出链路。
 
 客户和供应商主数据没有可信的个人、部门或项目归属外键，因此三类空间中的 source 都明确为 `workspace`：它表示当前账号在原业务页面可见的全公司主数据，不能被页面或 Agent 描述成目标部门/项目自己的往来数据。写入、凭证、搜索候选和下拉片段不是独立分析事实。
 
@@ -40,6 +43,10 @@ External owner 登记 `external.customers`、`external.suppliers` 及对应的 `
 - `ExternalPartyRole.category` 固定为 `customer` 或 `supplier`，由 route 注入，客户端不能改变；同一主体可以同时拥有两个角色，但同一角色只能有一条。
 - `subjectType` 固定为 `organization` 或 `individual`，表单展示为“单位 / 个人”。
 - `relatedPartyType` 是财务披露口径的关系性质，默认 `unrelated`；它与客户/供应商角色、单位/个人主体类型、可配置业务分类相互独立。
+- “关联方”L2 把人工登记的 `relatedPartyType != unrelated` Party 与系统默认项合并为统一条目，并按基准日投影法定名称、统一代码和法定代表人；不会返回客户/供应商角色的联系人、银行、信用或结算资料。
+- 系统默认项不复制事实：有效内部 `Company` 投影为“集团内”，集团公司股东及股东的股东按两层 confirmed `OwnershipInterest` 投影为“重大影响”，HR 在职 `personnelType=核心人员` 且已有 `FinanceAuxiliaryMember.linkedEmployeeId` FK 的员工投影为“管理人员”。管理人员条目以 Employee 为身份，不创建个人 Party；跨公司、账套的多条辅助核算记录通过 FK 合并为一个员工条目，重名时 fail closed。
+- 新增关联方只能从当前账号可读取、尚未人工登记且不属于系统默认项的客户/供应商 Party FK 中选择；候选接口只返回共享主体身份、可见往来角色和 Party 版本，不返回角色编码、联系人、银行、信用或结算字段。保存时 API 再次校验主体仍属于可见往来名单，通过 Party 乐观锁更新 `ExternalPartyProfile.relatedPartyType` 并记录 Party 历史快照。
+- 系统默认项由 Company、资本证券台账、HR 和财务辅助核算事实实时维护，不能在 External 取消。其余人工维护项可通过 DELETE 把 `relatedPartyType` 恢复为 `unrelated`；Party、客户/供应商角色、来源映射和历史快照均保留。
 - `code + category` 在角色表唯一；客户和供应商可使用相同编码而互不冲突。这里的编码是 T1 全局角色编码，来源 ERP 的公司内编码必须进入后续公司/来源映射，不能直接占用该唯一键。
 - 分类、联系、地址、银行、开票、结算和信用字段属于角色当前资料，避免同一主体作为客户与供应商时相互覆盖；角色启停由独立可用期间表达。
 - 单位展示简称、全称、统一代码、法定代表人、税率和开票信息；个人展示姓名和证件号码。统一代码或个人证件号码是主体必填身份字段。
@@ -101,12 +108,15 @@ dry-run 输出实际数据库名、两份源文件 SHA-256、发货行数和当�
 |---|---|---|
 | `external.customers` | `entry/read/create/update/delete` | 客户列表、当前资料、期间登记与角色停用；delete 权限只授权 end-date |
 | `external.suppliers` | `entry/read/create/update/delete` | 供应商列表、当前资料、期间登记与角色停用；delete 权限只授权 end-date |
+| `external.relatedParties` | `entry/read/create/delete` | 查看关联方名录；create 仅允许把可读取的客户/供应商 Party FK 登记为关联方；delete 仅取消人工维护标记，不授予角色资料写权限，系统配置项受服务端保护 |
 
 页面按钮按对应 resource action 显示，API 再由 module registry contract 和 guard 校验。两个资源的角色写权限互不共享；角色列表和 `roles` 元数据按 read 权限过滤。公共主体字段属于同一聚合，从任一入口修改都会同步反映到另一角色页面，因此双角色主体只有在用户同时具备客户和供应商 update 权限时才允许修改公共字段；当前角色自己的分类、联系、结算等资料仍只要求当前 L2 update 权限。期间登记、更正和取消未来目前共用 update，终止使用 delete；独立 correction/cancel 权限仍是 registration 保持 `partial` 的缺口。
 
 ## UI 约定
 
-两个页面均使用 Core `PageSurface` 和标准 split `BodySurface`：左侧 `SelectorSurface` 是往来目录，右侧复用同一组表单 section 直接展示和编辑所选记录，移动端由 Core 切换为抽屉。新增与 HR 岗位/部门一致，由 Toolbar 触发右侧 block `CreateSurface` 并暂时替换当前详情，取消或保存后恢复详情。用户有另一 L2 read 权限时，新增表单提供可搜索的“关联已有主体”，选择后锁定公共身份字段，只补录当前角色字段。主体类型与关系性质使用标准下拉；业务分类保留为可配置文本，不与关联方判断混用。
+客户和供应商页面均使用 Core `PageSurface` 和标准 split `BodySurface`：左侧 `SelectorSurface` 是往来目录，右侧复用同一组表单 section 直接展示和编辑所选记录，移动端由 Core 切换为抽屉。新增与 HR 岗位/部门一致，由 Toolbar 触发右侧 block `CreateSurface` 并暂时替换当前详情，取消或保存后恢复详情。用户有另一 L2 read 权限时，新增表单提供可搜索的“关联已有主体”，选择后锁定公共身份字段，只补录当前角色字段。主体类型与关系性质使用标准下拉；业务分类保留为可配置文本，不与关联方判断混用。
+
+关联方页面使用标准表格，提供关系性质、关键词和基准日筛选；新增区只包含“客户/供应商 FK”和“关系性质”，不提供自由主体录入。列表展示“系统配置 / 人工维护”，只有具备 delete 权限的人工维护项显示“取消关联方”；取消确认会明确客户、供应商和主体资料继续保留。它只承担“谁是关联方”的名录与登记职责；关联交易金额和凭证追溯仍归 Finance。
 
 页面 Toolbar 提供基准日选择器；详情在普通资料表单后分别组合角色 `availability` 和法定事实 `effective-period` 视图，分开展示 temporal state 与 record state。角色生命周期表单提供登记期间、更正和取消待生效；停用动作从当前基准日起追加结束修订。公共法定字段发生变化时可选择生效日并填写原因，页面提交最新 `legalFactRevision` 和新的幂等键。两条时间线互不混成一个状态。
 

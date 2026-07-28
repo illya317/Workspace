@@ -5,14 +5,31 @@ import { buildHrRouteCommand, reviseEmployeePeriod } from "@workspace/hr/server"
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
-const bodySchema = z.object({
-  entityType: z.enum(["Employment", "EDP"]),
+const target = {
   periodId: z.coerce.number().int().positive(),
   expectedVersion: z.coerce.number().int().positive(),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
   reason: z.string().trim().min(1).max(1000),
-}).strict();
+};
+
+const bodySchema = z.discriminatedUnion("entityType", [
+  z.object({
+    entityType: z.literal("Employment"),
+    ...target,
+    currentCompany: z.string().trim().min(1).max(200).nullable(),
+  }).strict(),
+  z.object({
+    entityType: z.literal("EDP"),
+    ...target,
+    reportingCompanyId: z.coerce.number().int().positive(),
+    departmentId: z.coerce.number().int().positive(),
+    positionId: z.coerce.number().int().positive(),
+    isPrimary: z.boolean(),
+    allocationWeight: z.union([z.string(), z.number()]),
+    reportToPositionId: z.coerce.number().int().positive().nullable(),
+  }).strict(),
+]);
 
 export const POST = createCommandRoute({
   paramsSchema: routeIdParamsSchema,

@@ -2,9 +2,18 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  assertExternalPartyAggregateTouchInput,
   buildExternalPartyCreateCommand,
   buildExternalPartyUpdateCommand,
 } from "./external-party-validation";
+
+test("validates aggregate touch identifiers before persistence", () => {
+  assert.doesNotThrow(() => assertExternalPartyAggregateTouchInput({ partyId: 1, expectedVersion: 2, userId: 3 }));
+  assert.throws(
+    () => assertExternalPartyAggregateTouchInput({ partyId: 0, expectedVersion: 2, userId: 3 }),
+    /partyId 必须是正整数/,
+  );
+});
 
 test("splits legal subject fields from customer role fields", () => {
   const result = buildExternalPartyCreateCommand("customer", {

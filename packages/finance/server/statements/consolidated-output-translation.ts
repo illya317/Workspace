@@ -2,6 +2,10 @@ import type { ConsolidatedOutputLine, StatementReportType } from "@workspace/fin
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 import { recomputeBalance } from "./consolidated-output-balance-lines";
 import {
+  reconcileCadCashFlowTranslation,
+  type CashFlowMonthlySource,
+} from "./consolidated-output-cash-flow";
+import {
   consolidatedMoney as money,
   sumLineAmounts,
   translatedCurrentMonthAmounts,
@@ -40,11 +44,6 @@ type EntityTranslationPolicy = {
   cashPointRates: Record<"current" | "comparative", Map<string, number>>;
 };
 
-interface FrozenMonthlyFlow {
-  periodEnd: string;
-  lines: Array<{ lineCode: string; amount: number }>;
-}
-
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
     ? value as Record<string, unknown>
@@ -59,7 +58,7 @@ function finiteNumber(value: unknown) {
   return Number.isFinite(number) ? number : null;
 }
 
-function payloadMonthlyFlows(reportPayload: unknown, periodBasis: "current" | "comparative"): FrozenMonthlyFlow[] | null {
+function payloadMonthlyFlows(reportPayload: unknown, periodBasis: "current" | "comparative"): CashFlowMonthlySource[] | null {
   const envelope = record(reportPayload);
   const facts = record(envelope?.translationFacts);
   const monthlyFlows = record(facts?.monthlyFlows);
@@ -278,7 +277,7 @@ function applyCadTranslationDifference(
 }
 
 function monthlyTranslatedAmount(
-  flows: FrozenMonthlyFlow[],
+  flows: CashFlowMonthlySource[],
   rates: ReadonlyMap<string, number>,
   lineCode: string,
 ): DomainValidationResult<{ sourceAmount: number; translatedAmount: number; currentMonthSourceAmount: number; currentMonthAmount: number }> {
@@ -407,9 +406,14 @@ export function translateSourceLines(
       if (!current.ok) return current;
       const comparative = monthlyTranslatedAmount(comparativeFlows, policy.data.flowRates.comparative, parsed.lineCode);
       if (!comparative.ok) return comparative;
-      if (Math.abs(current.data.sourceAmount - parsed.amount) >= 0.02
-        || Math.abs(comparative.data.sourceAmount - parsed.previousAmount) >= 0.02) {
-        return failCommand(`${policy.data.entityLabel} 的${parsed.label}逐月发生额与累计报表不一致`, 409, "monthlyFlows");
+      const currentSourceDifference = money(current.data.sourceAmount - parsed.amount);
+      const comparativeSourceDifference = money(comparative.data.sourceAmount - parsed.previousAmount);
+      if (currentSourceDifference !== 0 || comparativeSourceDifference !== 0) {
+        return failCommand(
+          `${policy.data.entityLabel} 的${parsed.label}原币逐月发生额与累计报表不一致：本期 ${currentSourceDifference.toFixed(2)}，比较期 ${comparativeSourceDifference.toFixed(2)}；原币差异不得作为折算舍入处理`,
+          409,
+          reportType === "cashFlow" ? "cashFlowSourceReconciliation" : "monthlyFlows",
+        );
       }
       translated.push({
         ...parsed,
@@ -446,25 +450,12 @@ export function translateSourceLines(
     return applyCadTranslationDifference(policy.data, translated);
   }
   if (reportType === "cashFlow" && policy.data.currency === "CAD" && useMonthlyFlowTranslation) {
-    const byCode = new Map(translated.map((line) => [line.lineCode, line]));
-    const opening = byCode.get("openingCash");
-    const ending = byCode.get("endingCash");
-    const fx = byCode.get("fxEffect");
-    const operating = byCode.get("operatingNet");
-    const investing = byCode.get("investingNet");
-    const financing = byCode.get("financingNet");
-    if (!opening || !ending || !fx || !operating || !investing || !financing) {
-      return failCommand(`${policy.data.entityLabel} 缺少现金流量表汇率变动影响勾稽行`, 409, "cashFlowTranslation");
-    }
-    fx.amount = money(ending.amount - opening.amount - operating.amount - investing.amount - financing.amount);
-    fx.previousAmount = money(ending.previousAmount - opening.previousAmount - operating.previousAmount - investing.previousAmount - financing.previousAmount);
-    if (ending.currentMonthAmount !== undefined && opening.currentMonthAmount !== undefined) {
-      fx.currentMonthAmount = money(ending.currentMonthAmount - opening.currentMonthAmount
-        - (operating.currentMonthAmount ?? 0) - (investing.currentMonthAmount ?? 0) - (financing.currentMonthAmount ?? 0));
-    }
-    fx.sourceAmount = fx.amount;
-    fx.previousSourceAmount = fx.previousAmount;
-    fx.currentMonthSourceAmount = fx.currentMonthAmount;
+    return reconcileCadCashFlowTranslation({
+      entityLabel: policy.data.entityLabel,
+      currentFlows: currentFlows!,
+      comparativeFlows: comparativeFlows!,
+      translatedLines: translated,
+    });
   }
   return okCommand(translated);
 }

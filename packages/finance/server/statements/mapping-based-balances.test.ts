@@ -35,8 +35,9 @@ let exclusionRows: Array<{
 let consolidationRows: Array<{
   debit: number;
   credit: number;
-  account: { code: string; category: string };
+  accountCode: string;
 }> = [];
+let consolidationWhere: unknown = null;
 
 mock.module("@workspace/platform/server/prisma", {
   namedExports: {
@@ -50,7 +51,12 @@ mock.module("@workspace/platform/server/prisma", {
         })),
       },
       financeBalanceSnapshot: { findFirst: async () => ({ year: 2024 }) },
-      financeVoucherItem: { findMany: async () => consolidationRows },
+      financeConsolidationEntryLine: {
+        findMany: async (args: { where: unknown }) => {
+          consolidationWhere = args.where;
+          return consolidationRows;
+        },
+      },
       financeStatementVoucherExclusion: { findMany: async () => exclusionRows },
     },
   },
@@ -97,15 +103,31 @@ test("reverses an explicitly excluded voucher from balance-sheet presentation on
   assert.equal(retainedEarnings?.net, 0);
 });
 
-test("adds pre-baseline Workspace consolidation vouchers without mutating ERP balances", async () => {
+test("carries approved group adjustments into later balance-sheet periods", async () => {
   exclusionRows = [];
   consolidationRows = [
-    { debit: 505_056, credit: 0, account: { code: "1511", category: "asset" } },
-    { debit: 0, credit: 505_056, account: { code: "224101", category: "liability" } },
+    { debit: 505_056, credit: 0, accountCode: "1511" },
+    { debit: 0, credit: 505_056, accountCode: "224101" },
   ];
 
   const result = await aggregateMappingBasedBalances("02", 2026, 6);
 
   assert.equal(result.byLineCode.find((line) => line.lineCode === "longTermInvest")?.net, 505_056);
   assert.equal(result.byLineCode.find((line) => line.lineCode === "otherPayables")?.net, -505_056);
+  assert.deepEqual(consolidationWhere, {
+    companyCode: "02",
+    statementType: "balanceSheet",
+    periodBasis: "current",
+    entry: {
+      status: "approved",
+      documentType: "groupAdjustment",
+      entryType: "groupAdjustment",
+      batch: {
+        OR: [
+          { year: { lt: 2026 } },
+          { year: 2026, month: { lt: 6 } },
+        ],
+      },
+    },
+  });
 });

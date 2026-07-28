@@ -44,6 +44,19 @@ export const EmployeeSocialInsuranceCommandSchema = z.discriminatedUnion("kind",
     }).strict(),
     reason: z.string().trim().min(1).max(1000),
   }).strict(),
+  z.object({
+    kind: z.literal("correct-existing"),
+    ...target,
+    patch: z.object({
+      insuranceStatus: z.enum(EMPLOYEE_SOCIAL_INSURANCE_STATUSES).optional(),
+      companyId: z.coerce.number().int().positive().nullable().optional(),
+      startMonth: month.nullable().optional(),
+      endMonth: month.nullable().optional(),
+      stopReason: z.enum(SOCIAL_INSURANCE_STOP_REASONS).nullable().optional(),
+      note,
+    }).strict().refine((value) => Object.keys(value).length > 0, { message: "至少提交一项修正" }),
+    reason: z.string().trim().min(1).max(1000),
+  }).strict(),
 ]);
 
 export type EmployeeSocialInsuranceCommandInput = z.infer<typeof EmployeeSocialInsuranceCommandSchema>;

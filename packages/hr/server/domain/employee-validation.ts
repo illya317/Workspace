@@ -29,6 +29,7 @@ export const EMPLOYEE_ALLOWED_FIELDS = [
   "workStartDate",
   "idNumber",
   "otherId",
+  "userId",
 ];
 
 const DATE_FIELDS = ["birthDate", "workStartDate"];
@@ -73,8 +74,19 @@ export function buildEmployeeFieldUpdateCommand(
   field: string,
   value: unknown,
 ): DomainValidationResult<EmployeeFieldUpdateCommand> {
-  if (field === "employeeId") return failCommand("员工编号由系统生成，不能手动修改");
-  if (field === "userId") return failCommand("关联账号只能通过账号管理流程维护");
+  if (field === "employeeId") {
+    const employeeId = String(value ?? "").trim();
+    return /^[A-Za-z0-9._-]{1,64}$/.test(employeeId)
+      ? okCommand({ field, value: employeeId })
+      : failCommand("员工编号仅支持 1 至 64 位字母、数字、点、下划线或短横线", 400, field);
+  }
+  if (field === "userId") {
+    if (value == null || value === "") return okCommand({ field, value: null });
+    const userId = Number(value);
+    return Number.isInteger(userId) && userId > 0
+      ? okCommand({ field, value: userId })
+      : failCommand("关联账号无效", 400, field);
+  }
   const dateResult = rejectInvalidDateField(field, value, DATE_FIELDS);
   if (!dateResult) return failCommand("日期格式无效");
   if (field === "alias") return okCommand({ field, value: normalizeAliasUpdate(value) });

@@ -40,6 +40,7 @@ Toolbar 只能用标准 item 表达常见能力：
 | 筛选区短标题 | `label` |
 | 紧凑分组筛选 | `option-group` |
 | 二段式字段筛选 | `field-filter` |
+| 多组低频枚举筛选 | `filter-panel` |
 | 列显隐 | `column-toggle` |
 | 条/页 | `page-size` |
 | 文本元信息 | `text` |
@@ -65,6 +66,9 @@ primary -> search -> filter -> edit/action -> meta/view
 - `search` 自动进入搜索区。
 - 每个 Toolbar 只允许一个 `search`；需要多条件时合并为页面级搜索，或把字段条件声明为 `field-filter` 等结构化筛选。Core runtime 与 architecture gate 都会阻断多个 `search`。
 - `select`、`grouped-select`、`label`、`option-group`、`field-filter`、`period` 自动进入筛选区。
+- `filter-panel` 把多组低频枚举条件收进一个桌面弹层；业务只声明字段、选项、当前值和变更回调。Core 根据非默认值生成数量与可清除摘要，移动端直接展开到“筛选条件”底部面板。
+- `filter-panel` 的桌面入口只显示筛选图标，生效数量使用角标；字段名称和值只在展开面板和生效条件摘要中显示。
+- `filter-panel` 的桌面弹层使用 intrinsic 宽度随内容收缩，内容过宽时才受统一上限与视口边界约束；业务不得声明或覆盖弹层宽度。
 - `period mode="nav"` 默认提供上一期/下一期；需要跨期跳转时声明 `picker`，中间期间即可按 `year / quarter / month / week` 打开对应选择面板。业务页不得另画年份、季度、月份或周选择弹层。
 - `icon-button`、`action-group`、`edit-group` 自动进入动作区。
 - `text`、`menu`、`column-toggle`、`page-size` 自动进入右侧 meta/view 区。
@@ -90,6 +94,8 @@ Toolbar 动作按钮只能来自 Core `ActionGlyph` 封闭集合。
   - `ACTION_GLYPH_ORDER`
 
 ## 5. 短筛选平铺与 Micro 手风琴
+
+筛选数量超过工具栏合理宽度时，不继续平铺多个 `select`。保留搜索、关键期间或版本等高频上下文，将其余固定枚举声明为一个 `filter-panel`。默认值不生成摘要；非默认值由 Core 在触发器旁回显并允许逐项清除。
 
 Toolbar 内的 `option-group` 由 Core 自动选择展示方式：
 

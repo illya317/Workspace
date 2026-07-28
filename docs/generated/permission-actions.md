@@ -2,7 +2,7 @@
 
 # 全项目权限 Action 授权手册
 
-当前共 20 个 permission action、101 个资源策略、195 个已注册 BusinessAction。
+当前共 20 个 permission action、102 个资源策略、197 个已注册 BusinessAction。
 
 事实来源：`action-registry.ts`、`permission-resource-policy.ts`、`module-registry.ts` 与 `business-action-registry.ts`。业务写入的状态、校验和持久化细节继续以 `action-contracts.md` 为准。
 
@@ -150,7 +150,7 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 
 类型：容器资源 · 页面：`/external` · scope：全局
 
-资源说明：External owns customer and supplier master data; each role can contain organizations or individuals.
+资源说明：External owns customer, supplier, and related-party master views; customer and supplier roles can contain organizations or individuals.
 
 | Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
 |---|---|---|---|---|
@@ -173,6 +173,20 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `external.customers.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新客户（`external.customers.party.update`；PATCH /api/modules/external/customers/:id）<br>直接执行：登记客户角色可用期间（`external.customers.party.availability.change`；POST /api/modules/external/customers/:id/availability） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `external.customers.delete`<br>删除 | 删除记录；可能是硬删除，也可能由具体业务动作定义为受控删除，不能理解成编辑权限。 | 直接执行：停用客户角色（`external.customers.party.delete`；DELETE /api/modules/external/customers/:id） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `external.customers.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+
+#### 关联方（`external.relatedParties`）
+
+类型：业务资源 · 页面：`/external/related-parties` · scope：全局
+
+资源说明：Related-party directory derived from ExternalPartyProfile; create classifies an existing readable customer or supplier Party FK. delete only resets manually maintained classifications to unrelated and preserves Party/roles; internal companies and current ownership-derived relationships are protected.
+
+| Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
+|---|---|---|---|---|
+| `external.relatedParties.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
+| `external.relatedParties.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
+| `external.relatedParties.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：登记关联方（`external.relatedParties.party.create`；POST /api/modules/external/related-parties） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `external.relatedParties.delete`<br>删除 | 删除记录；可能是硬删除，也可能由具体业务动作定义为受控删除，不能理解成编辑权限。 | 直接执行：取消关联方（`external.relatedParties.party.delete`；DELETE /api/modules/external/related-parties/:id） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `external.relatedParties.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
 #### 供应商管理（`external.suppliers`）
 

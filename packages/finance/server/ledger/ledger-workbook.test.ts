@@ -3,6 +3,7 @@ import test from "node:test";
 import * as XLSX from "xlsx";
 
 import { buildLedgerWorkbook } from "./ledger-workbook";
+import { workbookFormula } from "../workbook-formula-contract";
 
 test("builds a filterable single-sheet ledger workbook and preserves numeric zero", () => {
   const buffer = buildLedgerWorkbook({
@@ -25,4 +26,20 @@ test("builds a filterable single-sheet ledger workbook and preserves numeric zer
   ]);
   assert.equal(worksheet.B2?.z, "#,##0.00;[Red]-#,##0.00;0");
   assert.deepEqual(worksheet["!autofilter"], { ref: "A1:C2" });
+});
+
+test("writes formulas with backend cached values", () => {
+  const buffer = buildLedgerWorkbook({
+    sheetName: "勾稽",
+    columns: [
+      { header: "来源", width: 16, numeric: true },
+      { header: "目标", width: 16, numeric: true },
+      { header: "差额", width: 16, numeric: true },
+    ],
+    rows: [[100, 40, workbookFormula("ROUND(A2-B2,2)", 60)]],
+  });
+  const worksheet = XLSX.read(buffer, { type: "buffer", cellNF: true }).Sheets["勾稽"]!;
+  assert.equal(worksheet.C2?.f, "ROUND(A2-B2,2)");
+  assert.equal(worksheet.C2?.v, 60);
+  assert.equal(worksheet.C2?.z, "#,##0.00;[Red]-#,##0.00;0");
 });

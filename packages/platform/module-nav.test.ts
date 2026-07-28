@@ -4,8 +4,8 @@ import test from "node:test";
 import { mobileExperienceEntries, resolveMobileExperience } from "./mobile-experience";
 
 test("every registered L2 has an explicit mobile product strategy", () => {
-  assert.equal(mobileExperienceEntries.length, 28);
-  assert.equal(mobileExperienceEntries.filter((child) => child.mobileExperience.strategy === "native").length, 26);
+  assert.equal(mobileExperienceEntries.length, 29);
+  assert.equal(mobileExperienceEntries.filter((child) => child.mobileExperience.strategy === "native").length, 27);
   assert.equal(mobileExperienceEntries.filter((child) => child.mobileExperience.strategy === "landscape").length, 1);
   assert.equal(mobileExperienceEntries.filter((child) => child.mobileExperience.strategy === "unavailable").length, 1);
 });

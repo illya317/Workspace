@@ -40,6 +40,11 @@ export const core_internal_registry_entries = [
     description: "工具栏选项组；长筛选以边线完整的紧凑手风琴收口",
   },
   {
+    name: "ToolbarFilterPanel",
+    description: "Toolbar 内多组低频枚举筛选的声明式收口；桌面弹层按内容自适应宽度并使用纯图标触发器与生效条件摘要，移动端展开到统一筛选面板",
+    composes: ["ActionButton", "DropdownSurface", "SelectionOptionButton", "RemovableTag"],
+  },
+  {
     name: "InlineCreatePanel",
     description: "内联新建面板",
     composes: ["CreateConfirmActions", "FormField"],

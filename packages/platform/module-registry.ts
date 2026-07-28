@@ -312,12 +312,11 @@ export const registeredModuleDefinitions = [
   },
   {
     packageName: "@workspace/external",
-    layer: "domain",
-    relationRegistrations: EXTERNAL_RELATION_REGISTRATIONS,
+    layer: "domain", relationRegistrations: EXTERNAL_RELATION_REGISTRATIONS,
     moduleDef: {
       key: "external",
       label: "外部关系",
-      desc: "客户与供应商往来主数据",
+      desc: "客户、供应商与关联方主数据",
       href: "/external",
       iconKey: "customers",
       color: "orange",
@@ -327,11 +326,12 @@ export const registeredModuleDefinitions = [
       children: [
         { key: "customers", label: "客户管理", desc: "单位与个人客户的主体、联系和结算信息", href: "/external/customers", iconKey: "users", color: "orange", resourceKey: "external.customers", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/customers"] },
         { key: "suppliers", label: "供应商管理", desc: "单位与个人供应商的主体、联系和结算信息", href: "/external/suppliers", iconKey: "suppliers", color: "orange", resourceKey: "external.suppliers", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/suppliers"] },
+        { key: "relatedParties", label: "关联方", desc: "从客户和供应商中登记关联方并维护披露关系性质", href: "/external/related-parties", iconKey: "investors", color: "orange", resourceKey: "external.relatedParties", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/related-parties"] },
       ],
     },
     apiGuards: [
       ...apiResourceGuards("/api/modules/external/customers", ["GET", "POST", "PATCH", "DELETE"]),
-      ...apiResourceGuards("/api/modules/external/suppliers", ["GET", "POST", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/modules/external/suppliers", ["GET", "POST", "PATCH", "DELETE"]), ...apiResourceGuards("/api/modules/external/related-parties", ["GET", "POST", "DELETE"]),
     ],
     apiRoutes: [
       { method: "POST", pathPrefix: "/api/modules/external/internal/workspace-analysis-sources", access: "internal", notes: "Signed internal RPC with requester authorization; only the Finance caller unit is accepted." },

@@ -33,6 +33,7 @@ GENESIS_PRODUCTION_BASE=""
 PRINT_COMMAND_ONLY=0
 DEPLOY_UNIT_ID=""
 DEPLOY_UNIT_MODE=""
+DATABASE_REPLACEMENT_RECEIPT_FILE=""
 DEPLOY_WAIT_SECONDS="${DEPLOY_WAIT_SECONDS:-1800}"
 LOCAL_PREFLIGHT_DURATION_SECONDS=0
 TENANT_SYNC_DURATION_SECONDS=0
@@ -64,6 +65,8 @@ usage() {
   --genesis-production-base SHA  一次性把已部署旧历史切换到单提交、schema-only 基线
   --deploy-unit UNIT  公开部署并原子切换一个 active 单元
   --shadow-unit UNIT  将一个 candidate/active 单元部署到 shadow，不切公网 Gateway
+  --database-replacement-receipt FILE
+                      Full monolith 使用已冻结的整库替换 receipt
   --print-command
 EOF
 }
@@ -274,6 +277,9 @@ while [ "$#" -gt 0 ]; do
       [ -z "$DEPLOY_UNIT_ID" ] || { echo "[错误] 只能指定一个单元部署目标"; exit 2; }
       shift; DEPLOY_UNIT_ID="${1:-}"; DEPLOY_UNIT_MODE="shadow"
       ;;
+    --database-replacement-receipt)
+      shift; DATABASE_REPLACEMENT_RECEIPT_FILE="${1:-}"
+      ;;
     --print-command) PRINT_COMMAND_ONLY=1 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "[错误] 未知参数: $1"; usage; exit 1 ;;
@@ -284,6 +290,12 @@ done
 if [ -n "$DEPLOY_UNIT_ID" ] && ! printf '%s' "$DEPLOY_UNIT_ID" | grep -Eq '^[a-z][a-z0-9-]*$'; then
   echo "[错误] deploy unit id 无效: $DEPLOY_UNIT_ID"
   exit 1
+fi
+if [ -n "$DATABASE_REPLACEMENT_RECEIPT_FILE" ]; then
+  [ -f "$DATABASE_REPLACEMENT_RECEIPT_FILE" ] || { echo "[错误] 数据库替换 receipt 不存在"; exit 1; }
+  [ -z "$DEPLOY_UNIT_ID" ] || { echo "[错误] 整库替换只允许 Full monolith 部署"; exit 1; }
+  [ -z "$BOOTSTRAP_PRODUCTION_BASE" ] && [ -z "$GENESIS_PRODUCTION_BASE" ] \
+    || { echo "[错误] 整库替换不能与 bootstrap/genesis 同时执行"; exit 1; }
 fi
 
 case "$DEPLOY_WAIT_SECONDS" in
@@ -343,6 +355,11 @@ if ! node "$SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
   echo "[提示] 先运行: OPS_ENV_FILE=$OPS_ENV_FILE ops/publish.sh prepare" >&2
   exit 1
 fi
+if [ -n "$DATABASE_REPLACEMENT_RECEIPT_FILE" ]; then
+  node "$SCRIPT_DIR/database-replacement.mjs" verify \
+    --source "$SOURCE_SHA" --tree "$SOURCE_TREE" --file "$DATABASE_REPLACEMENT_RECEIPT_FILE" >/dev/null
+  echo "==> 已验证当前 source/tree 绑定的整库替换 receipt"
+fi
 DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS="$(date +%s)"
 PUBLISH_STARTED_EPOCH_SECONDS="$DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS"
 PUBLISH_STARTED_AT="$(date '+%Y-%m-%d %H:%M:%S %z')"
@@ -400,9 +417,17 @@ fi
 if [ "$PRINT_COMMAND_ONLY" = "0" ] && [ -z "$BOOTSTRAP_PRODUCTION_BASE" ]; then
   echo "==> 部署前读取生产 canonical 回执与恢复状态..."
   production_state="$(ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
-    "if [ -e '$REMOTE_DIR/.workspace/maintenance-deploy' ]; then printf 'maintenance:'; sed -n 's/^sourceSha=//p' '$REMOTE_DIR/.workspace/maintenance-deploy'; elif [ -e '$REMOTE_DIR/.workspace/production-bootstrap-in-progress.json' ]; then printf bootstrap; elif [ -f '$REMOTE_DIR/.workspace/deployed-release.json' ]; then printf ready; else printf missing; fi")"
+    "if [ -e '$REMOTE_DIR/.workspace/database-replacement-in-progress.json' ]; then printf 'database-replacement:'; node -e 'const s=require(process.argv[1]); if (s.kind!==\"workspace-database-replacement-state\" || ![\"prepared\",\"applied\"].includes(s.status) || !/^[0-9a-f]{40}$/.test(s.source?.commitSha??\"\")) process.exit(1); process.stdout.write(s.source.commitSha)' '$REMOTE_DIR/.workspace/database-replacement-in-progress.json'; elif [ -e '$REMOTE_DIR/.workspace/maintenance-deploy' ]; then printf 'maintenance:'; sed -n 's/^sourceSha=//p' '$REMOTE_DIR/.workspace/maintenance-deploy'; elif [ -e '$REMOTE_DIR/.workspace/production-bootstrap-in-progress.json' ]; then printf bootstrap; elif [ -f '$REMOTE_DIR/.workspace/deployed-release.json' ]; then printf ready; else printf missing; fi")"
   case "$production_state" in
     ready) ;;
+    "database-replacement:$SOURCE_SHA")
+      [ -n "$DATABASE_REPLACEMENT_RECEIPT_FILE" ] || { echo "[错误] 当前 candidate 存在整库替换恢复状态，但本次未选择整库替换模式"; exit 1; }
+      echo "==> 检测到当前 candidate 的整库替换状态；进入同源恢复部署"
+      ;;
+    database-replacement:*)
+      echo "[错误] 生产存在其他 candidate 的未完成整库替换；拒绝启动新的部署"
+      exit 1
+      ;;
     "maintenance:$SOURCE_SHA")
       echo "==> 检测到当前 candidate 的 maintenance-deploy marker；进入同源恢复部署"
       ;;
@@ -536,6 +561,7 @@ GENESIS_PRODUCTION_BASE="$GENESIS_PRODUCTION_BASE" GENESIS_LEGACY_MIGRATION_COUN
 GENESIS_LEGACY_MIGRATION_DIGEST="$GENESIS_LEGACY_MIGRATION_DIGEST" GENESIS_BASELINE_MIGRATION="$GENESIS_BASELINE_MIGRATION" \
 GENESIS_BASELINE_CHECKSUM="$GENESIS_BASELINE_CHECKSUM" \
 RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_CANDIDATE_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" \
+DATABASE_REPLACEMENT_RECEIPT_FILE="$DATABASE_REPLACEMENT_RECEIPT_FILE" \
 PUBLISH_STARTED_EPOCH_SECONDS="$PUBLISH_STARTED_EPOCH_SECONDS" DEPLOY_UNIT_ID="$DEPLOY_UNIT_ID" DEPLOY_UNIT_MODE="$DEPLOY_UNIT_MODE" \
 RELEASE_PROCESS_SECONDS="$RELEASE_PROCESS_SECONDS" RELEASE_ATTEMPT_COUNT="$RELEASE_ATTEMPT_COUNT" \
 RELEASE_PROCESS_STARTED_AT="$RELEASE_PROCESS_STARTED_AT" TENANT_SYNC_DURATION_SECONDS="$TENANT_SYNC_DURATION_SECONDS" node <<'NODE'
@@ -596,6 +622,9 @@ if (process.env.GENESIS_PRODUCTION_BASE) {
     baselineMigration: process.env.GENESIS_BASELINE_MIGRATION,
     baselineChecksum: process.env.GENESIS_BASELINE_CHECKSUM,
   };
+}
+if (process.env.DATABASE_REPLACEMENT_RECEIPT_FILE) {
+  metadata.databaseReplacement = JSON.parse(fs.readFileSync(process.env.DATABASE_REPLACEMENT_RECEIPT_FILE, 'utf8'));
 }
 fs.writeFileSync(process.env.METADATA_FILE, `${JSON.stringify(metadata, null, 2)}\n`, { mode: 0o600 });
 NODE

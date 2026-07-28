@@ -5,7 +5,7 @@ import type { ProfileField } from "../types/profile";
 import { STANDARD_EMPLOYMENT_AGREEMENT_TYPES } from "./social-insurance";
 
 export const employeeFields: ProfileField[] = [
-  { key: "employeeId", label: "员工编号", required: true, readOnly: true },
+  { key: "employeeId", label: "员工编号", required: true },
   { key: "name", label: "姓名", required: true },
   { key: "alias", label: "别名", type: "tags" },
   { key: "gender", label: "性别", type: "boolean", booleanLabels: { true: "男", false: "女", unset: "未设置" } },
@@ -22,7 +22,7 @@ export const employeeFields: ProfileField[] = [
   { key: "workStartDate", label: "参加工作时间", type: "date" },
   { key: "idNumber", label: "身份证号", type: "chineseId" },
   { key: "otherId", label: "其他证件号" },
-  { key: "userId", label: "关联账号", type: "fk", entity: "user", fkKey: "platform.user", displayKey: "userName", readOnly: true },
+  { key: "userId", label: "关联账号", type: "fk", entity: "user", fkKey: "platform.user", displayKey: "userName" },
 ];
 
 export const employmentFields: ProfileField[] = [

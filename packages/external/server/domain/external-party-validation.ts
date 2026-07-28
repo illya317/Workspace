@@ -105,6 +105,16 @@ function positiveInt(value: number | undefined, field: string) {
     : failCommand(`${field} 无效`, 400, field);
 }
 
+export function assertExternalPartyAggregateTouchInput(input: {
+  partyId: number;
+  expectedVersion: number;
+  userId: number;
+}) {
+  for (const [field, value] of Object.entries(input)) {
+    if (!Number.isInteger(value) || value < 1) throw new Error(`${field} 必须是正整数`);
+  }
+}
+
 function nullableText(value: string | null | undefined) {
   if (value === undefined) return undefined;
   return value?.trim() || null;

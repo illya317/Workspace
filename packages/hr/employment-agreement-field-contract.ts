@@ -55,7 +55,7 @@ export const EMPLOYMENT_AGREEMENT_REQUIRED_FIELDS = {
   renew: ["kind", "agreementUid", "effectiveFrom"],
   end: ["kind", "agreementUid", "termUid", "effectiveThrough", "reason"],
   correct: ["kind", "agreementUid", "termUid", "effectiveFrom", "reason"],
-  "supplement-missing": ["kind", "agreementUid", "reason"],
+  "supplement-missing": ["kind", "agreementUid"],
   "correct-existing": ["kind", "agreementUid", "reason"],
   "set-primary": ["kind", "agreementUid"],
   "cancel-future": ["kind", "agreementUid", "termUid", "reason"],

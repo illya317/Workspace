@@ -12,14 +12,19 @@ import {
 } from "@workspace/core/ui";
 import type {
   FinanceCounterpartyBalanceCategory,
+  FinanceCounterpartyObjectKind,
   FinanceCounterpartyBalanceResponse,
   FinanceCounterpartyBalanceRow,
+  FinanceCounterpartyRelatedPartyType,
+  FinanceCounterpartyRelationScope,
 } from "../../types/ledger";
+import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { formatFinanceAmount } from "../formatters";
 import type { FinanceLedgerDefaultScope } from "./defaultScope";
 import { useLedgerExportAction } from "./useLedgerExportAction";
+import { consolidationPeriodLabel } from "../statements/consolidation-period";
 
 const CATEGORY_LABELS: Record<FinanceCounterpartyBalanceCategory, {
   name: string;
@@ -29,6 +34,29 @@ const CATEGORY_LABELS: Record<FinanceCounterpartyBalanceCategory, {
   ap: { name: "供应商名称", empty: "当前期间没有应付账款明细" },
   otherAr: { name: "往来对象名称", empty: "当前期间没有其他应收款明细" },
   otherAp: { name: "往来对象名称", empty: "当前期间没有其他应付款明细" },
+};
+
+const RELATION_SCOPE_OPTIONS = [
+  { value: "all", label: "全部" },
+  { value: "related", label: "关联方" },
+  { value: "other", label: "其他" },
+] as const;
+
+const OBJECT_TYPE_LABELS: Record<FinanceCounterpartyObjectKind, string> = {
+  groupCompany: "集团公司",
+  customer: "客户",
+  supplier: "供应商",
+  employee: "员工",
+  department: "部门",
+  other: "其他单位/个人",
+};
+
+const RELATED_PARTY_LABELS: Record<FinanceCounterpartyRelatedPartyType, string> = {
+  group: "集团内",
+  joint_venture_associate: "合营/联营",
+  investor_influence: "重大影响",
+  key_management_related: "管理人员",
+  other_related: "其他关联方",
 };
 
 const EMPTY_RESPONSE: FinanceCounterpartyBalanceResponse = {
@@ -63,7 +91,9 @@ export default function CounterpartyBalanceTab({
   const [companyCode, setCompanyCode] = useState(defaultScope?.companyCode ?? "");
   const [year, setYear] = useState(String(defaultScope?.year ?? ""));
   const [month, setMonth] = useState(String(defaultScope?.month ?? ""));
+  const [periodKind, setPeriodKind] = useState<StatementPeriodKind>("month");
   const [keyword, setKeyword] = useState("");
+  const [relationScope, setRelationScope] = useState<FinanceCounterpartyRelationScope>("all");
   const deferredKeyword = useDeferredValue(keyword);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
@@ -83,7 +113,9 @@ export default function CounterpartyBalanceTab({
         companyCode,
         year,
         month,
+        periodKind,
         category,
+        relationScope,
         page: String(page),
         pageSize: String(pageSize),
       });
@@ -100,7 +132,7 @@ export default function CounterpartyBalanceTab({
     } finally {
       setLoading(false);
     }
-  }, [category, companyCode, deferredKeyword, month, page, pageSize, year]);
+  }, [category, companyCode, deferredKeyword, month, page, pageSize, periodKind, relationScope, year]);
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { setPage(1); }, [category]);
@@ -113,10 +145,12 @@ export default function CounterpartyBalanceTab({
     companyCode,
     year,
     month,
+    periodKind,
     keyword: deferredKeyword,
     category,
+    relationScope,
     disabled: !companyCode || !year || !month,
-    fallbackFilename: `${companyCode}-${year}.${month.padStart(2, "0")}-${exportLabel}.xlsx`,
+    fallbackFilename: `${companyCode}-${periodFilenamePart(year, month, periodKind)}-${exportLabel}.xlsx`,
   });
   const columns = useMemo<DataSurfaceColumnSpec<FinanceCounterpartyBalanceRow>[]>(() => [
     {
@@ -124,6 +158,28 @@ export default function CounterpartyBalanceTab({
       label: labels.name,
       required: true,
       cell: (row) => row.counterpartyName,
+    },
+    {
+      key: "counterpartyObjectKind",
+      label: "对象类型",
+      required: true,
+      cell: (row) => OBJECT_TYPE_LABELS[row.counterpartyObjectKind],
+    },
+    {
+      key: "relatedPartyType",
+      label: "关系性质",
+      required: true,
+      cell: (row) => row.relatedPartyType
+        ? { kind: "badge", label: RELATED_PARTY_LABELS[row.relatedPartyType], tone: "amber" }
+        : row.identityMatched
+          ? { kind: "badge", label: "非关联方", tone: "gray" }
+          : { kind: "badge", label: "未匹配", tone: "blue" },
+    },
+    {
+      key: "account",
+      label: "科目",
+      required: true,
+      cell: (row) => `${row.accountCode} ${row.accountName}`,
     },
     amountColumn("openingDebit", "期初借方"),
     amountColumn("openingCredit", "期初贷方"),
@@ -136,14 +192,28 @@ export default function CounterpartyBalanceTab({
     companyFilter: companyCode,
     yearFilter: year,
     monthFilter: month,
+    periodKind,
     keyword,
     pageSize,
     onCompanyChange: (value) => { setCompanyCode(value); setPage(1); },
     onYearChange: (value) => { setYear(value); setPage(1); },
     onMonthChange: (value) => { setMonth(value); setPage(1); },
+    onPeriodKindChange: (value) => { setPeriodKind(value); setPage(1); },
     onKeywordChange: (value) => { setKeyword(value); setPage(1); },
     onPageSizeChange: (value) => { setPageSize(value); setPage(1); },
     extraItems: [
+      {
+        kind: "option-group",
+        key: "relation-scope",
+        ariaLabel: "关联范围",
+        presentation: "segmented",
+        value: relationScope,
+        options: [...RELATION_SCOPE_OPTIONS],
+        onChange: (value) => {
+          setRelationScope(value as FinanceCounterpartyRelationScope);
+          setPage(1);
+        },
+      },
       ...(exportAction ? [exportAction] : []),
       { kind: "text", key: "counterparty-total", content: `共 ${result.total} 项` },
     ],
@@ -188,4 +258,11 @@ function amountColumn(
 
 function formatCounterpartyAmount(value: number) {
   return value === 0 ? "0" : formatFinanceAmount(value);
+}
+
+function periodFilenamePart(year: string, month: string, periodKind: StatementPeriodKind) {
+  const numericYear = Number(year);
+  const numericMonth = Number(month);
+  if (!Number.isInteger(numericYear) || !Number.isInteger(numericMonth)) return `${year}.${month.padStart(2, "0")}`;
+  return consolidationPeriodLabel(numericYear, numericMonth, periodKind);
 }

@@ -17,6 +17,7 @@ usage() {
   OPS_ENV_FILE=/path/to/ops/.env publish.sh prepare
   OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy
   OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy [CNB 部署选项]
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh database-replace prepare|deploy|status
   OPS_ENV_FILE=/path/to/ops/.env publish.sh data upload|verify|status --id RELEASE_ID
   OPS_ENV_FILE=/path/to/ops/.env publish.sh timing pause|resume|status
 
@@ -115,6 +116,10 @@ case "${1:-}" in
   data)
     shift
     exec "$SCRIPT_DIR/upload-data-release.sh" "$@"
+    ;;
+  database-replace)
+    shift
+    exec "$SCRIPT_DIR/publish-database-replacement.sh" "$@"
     ;;
   timing)
     shift

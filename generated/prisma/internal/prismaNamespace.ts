@@ -584,6 +584,7 @@ export const ModelName = {
   OpenApiScope: 'OpenApiScope',
   OpenApiClientScopeGrant: 'OpenApiClientScopeGrant',
   OpenApiAccessLog: 'OpenApiAccessLog',
+  EmployeePartyIdentityLink: 'EmployeePartyIdentityLink',
   Product: 'Product',
   ProductSourceMapping: 'ProductSourceMapping',
   ProductionQcBatch: 'ProductionQcBatch',
@@ -649,7 +650,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "erpDueDiligenceSubmission" | "erpDueDiligenceEvidenceAttachment" | "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "ownershipInterest" | "ownershipProjectionRun" | "companyRegistryChange" | "companyRegistryOwnershipParticipant" | "shareCapitalEvent" | "shareCapitalTransaction" | "shareCapitalSnapshotPosition" | "shareholderGroup" | "shareholderGroupMembership" | "contractRevision" | "contractStateEvent" | "contractCategory" | "contract" | "contractAttachment" | "contractRecord" | "dataQualityRun" | "dataQualityCheckState" | "dataQualityFinding" | "dataQualityNotificationDelivery" | "dataQualityEvaluationRequest" | "documentTemplateSpace" | "documentTemplate" | "partyLegalFactRevision" | "party" | "partyNameHistory" | "externalPartyProfile" | "externalPartyRole" | "externalPartyRolePeriod" | "externalPartySourceMapping" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeCashFlowAllocationAdjustment" | "financeConsolidationEntryLine" | "financeConsolidationMatchGroup" | "financeConsolidationMatchSource" | "financeVoucherCompanyMappingRule" | "financeConsolidationOutputSnapshot" | "financeConsolidationScopeSelection" | "financeConsolidationBatch" | "financeCompanyCurrencyPolicy" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeCounterpartyClassification" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemSettlement" | "financeOpenItemAuxiliary" | "financeGroupAccount" | "financeAccountingPolicyVersion" | "financeGroupAccountRevision" | "financeConsolidationRule" | "financeConsolidationRuleSelector" | "financeGroupAccountMapping" | "financeReadableSourcePackage" | "financeReadableImportRun" | "financeSourceLedgerMapping" | "financeAccountAuxiliaryRequirement" | "financeSourcePeriodStatus" | "financeSourceSubsystemStatus" | "financeAccountLineage" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeStatementVoucherExclusion" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "financeBalanceReclassAdjustmentHistory" | "reclassResult" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "positionDescriptionRevision" | "employmentAgreement" | "employmentAgreementAttachment" | "employmentAgreementTerm" | "employmentAgreementRevision" | "employmentAgreementChange" | "employeeLifecycleEvent" | "employeePeriodRevision" | "organizationStructureChange" | "departmentEffectiveVersion" | "positionEffectiveVersion" | "positionReportOverrideEffectiveVersion" | "hrPerformanceReview" | "employeeSocialInsurancePeriod" | "employeeSocialInsurancePeriodRevision" | "employee" | "employment" | "company" | "department" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "inventoryReceiptReport" | "inventoryReceiptProductWorkPoint" | "inventoryReceiptReportEvent" | "inventoryReceiptBatch" | "inventoryReceiptOutput" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "mutationImpactBatch" | "mutationImpactEffect" | "notificationSubscription" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "product" | "productSourceMapping" | "productionQcBatch" | "productionQcFieldValue" | "productionQcSignature" | "productionQcAuditEvent" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "workKpiDefinition" | "workKpiAssignment" | "workKpiResultSnapshot" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectMembershipChange" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workspaceAnalysisTemplate" | "workspaceAnalysisTemplateRevision"
+    modelProps: "erpDueDiligenceSubmission" | "erpDueDiligenceEvidenceAttachment" | "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "ownershipInterest" | "ownershipProjectionRun" | "companyRegistryChange" | "companyRegistryOwnershipParticipant" | "shareCapitalEvent" | "shareCapitalTransaction" | "shareCapitalSnapshotPosition" | "shareholderGroup" | "shareholderGroupMembership" | "contractRevision" | "contractStateEvent" | "contractCategory" | "contract" | "contractAttachment" | "contractRecord" | "dataQualityRun" | "dataQualityCheckState" | "dataQualityFinding" | "dataQualityNotificationDelivery" | "dataQualityEvaluationRequest" | "documentTemplateSpace" | "documentTemplate" | "partyLegalFactRevision" | "party" | "partyNameHistory" | "externalPartyProfile" | "externalPartyRole" | "externalPartyRolePeriod" | "externalPartySourceMapping" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeCashFlowAllocationAdjustment" | "financeConsolidationEntryLine" | "financeConsolidationMatchGroup" | "financeConsolidationMatchSource" | "financeVoucherCompanyMappingRule" | "financeConsolidationOutputSnapshot" | "financeConsolidationScopeSelection" | "financeConsolidationBatch" | "financeCompanyCurrencyPolicy" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeCounterpartyClassification" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemSettlement" | "financeOpenItemAuxiliary" | "financeGroupAccount" | "financeAccountingPolicyVersion" | "financeGroupAccountRevision" | "financeConsolidationRule" | "financeConsolidationRuleSelector" | "financeGroupAccountMapping" | "financeReadableSourcePackage" | "financeReadableImportRun" | "financeSourceLedgerMapping" | "financeAccountAuxiliaryRequirement" | "financeSourcePeriodStatus" | "financeSourceSubsystemStatus" | "financeAccountLineage" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeStatementVoucherExclusion" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "financeBalanceReclassAdjustmentHistory" | "reclassResult" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "positionDescriptionRevision" | "employmentAgreement" | "employmentAgreementAttachment" | "employmentAgreementTerm" | "employmentAgreementRevision" | "employmentAgreementChange" | "employeeLifecycleEvent" | "employeePeriodRevision" | "organizationStructureChange" | "departmentEffectiveVersion" | "positionEffectiveVersion" | "positionReportOverrideEffectiveVersion" | "hrPerformanceReview" | "employeeSocialInsurancePeriod" | "employeeSocialInsurancePeriodRevision" | "employee" | "employment" | "company" | "department" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "inventoryReceiptReport" | "inventoryReceiptProductWorkPoint" | "inventoryReceiptReportEvent" | "inventoryReceiptBatch" | "inventoryReceiptOutput" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "mutationImpactBatch" | "mutationImpactEffect" | "notificationSubscription" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "employeePartyIdentityLink" | "product" | "productSourceMapping" | "productionQcBatch" | "productionQcFieldValue" | "productionQcSignature" | "productionQcAuditEvent" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "workKpiDefinition" | "workKpiAssignment" | "workKpiResultSnapshot" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectMembershipChange" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workspaceAnalysisTemplate" | "workspaceAnalysisTemplateRevision"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -15453,6 +15454,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    EmployeePartyIdentityLink: {
+      payload: Prisma.$EmployeePartyIdentityLinkPayload<ExtArgs>
+      fields: Prisma.EmployeePartyIdentityLinkFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmployeePartyIdentityLinkFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePartyIdentityLinkPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmployeePartyIdentityLinkFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePartyIdentityLinkPayload>
+        }
+        findFirst: {
+          args: Prisma.EmployeePartyIdentityLinkFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePartyIdentityLinkPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmployeePartyIdentityLinkFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePartyIdentityLinkPayload>
+        }
+        findMany: {
+          args: Prisma.EmployeePartyIdentityLinkFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePartyIdentityLinkPayload>[]
+        }
+        create: {
+          args: Prisma.EmployeePartyIdentityLinkCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePartyIdentityLinkPayload>
+        }
+        createMany: {
+          args: Prisma.EmployeePartyIdentityLinkCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmployeePartyIdentityLinkCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePartyIdentityLinkPayload>[]
+        }
+        delete: {
+          args: Prisma.EmployeePartyIdentityLinkDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePartyIdentityLinkPayload>
+        }
+        update: {
+          args: Prisma.EmployeePartyIdentityLinkUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePartyIdentityLinkPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmployeePartyIdentityLinkDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmployeePartyIdentityLinkUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmployeePartyIdentityLinkUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePartyIdentityLinkPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmployeePartyIdentityLinkUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePartyIdentityLinkPayload>
+        }
+        aggregate: {
+          args: Prisma.EmployeePartyIdentityLinkAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmployeePartyIdentityLink>
+        }
+        groupBy: {
+          args: Prisma.EmployeePartyIdentityLinkGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeePartyIdentityLinkGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmployeePartyIdentityLinkCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeePartyIdentityLinkCountAggregateOutputType> | number
+        }
+      }
+    }
     Product: {
       payload: Prisma.$ProductPayload<ExtArgs>
       fields: Prisma.ProductFieldRefs
@@ -20966,8 +21041,14 @@ export const FinanceAuxiliaryMemberScalarFieldEnum = {
   lastYear: 'lastYear',
   latestImportId: 'latestImportId',
   linkedCompanyId: 'linkedCompanyId',
+  linkedEmployeeId: 'linkedEmployeeId',
+  linkedPartyId: 'linkedPartyId',
   companyLinkMethod: 'companyLinkMethod',
   companyLinkEvidence: 'companyLinkEvidence',
+  identityLinkMethod: 'identityLinkMethod',
+  identityLinkEvidence: 'identityLinkEvidence',
+  identityLinkedAt: 'identityLinkedAt',
+  identityLinkedBy: 'identityLinkedBy',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -23349,6 +23430,23 @@ export const OpenApiAccessLogScalarFieldEnum = {
 export type OpenApiAccessLogScalarFieldEnum = (typeof OpenApiAccessLogScalarFieldEnum)[keyof typeof OpenApiAccessLogScalarFieldEnum]
 
 
+export const EmployeePartyIdentityLinkScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  partyId: 'partyId',
+  recordStatus: 'recordStatus',
+  linkMethod: 'linkMethod',
+  linkEvidence: 'linkEvidence',
+  confirmedBy: 'confirmedBy',
+  confirmedAt: 'confirmedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeePartyIdentityLinkScalarFieldEnum = (typeof EmployeePartyIdentityLinkScalarFieldEnum)[keyof typeof EmployeePartyIdentityLinkScalarFieldEnum]
+
+
 export const ProductScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -24808,6 +24906,7 @@ export type GlobalOmitConfig = {
   openApiScope?: Prisma.OpenApiScopeOmit
   openApiClientScopeGrant?: Prisma.OpenApiClientScopeGrantOmit
   openApiAccessLog?: Prisma.OpenApiAccessLogOmit
+  employeePartyIdentityLink?: Prisma.EmployeePartyIdentityLinkOmit
   product?: Prisma.ProductOmit
   productSourceMapping?: Prisma.ProductSourceMappingOmit
   productionQcBatch?: Prisma.ProductionQcBatchOmit

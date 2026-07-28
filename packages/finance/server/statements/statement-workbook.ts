@@ -1,4 +1,9 @@
 import * as XLSX from "xlsx";
+import {
+  formulaAwareSheet,
+  workbookFormula,
+  type FinanceWorkbookCell,
+} from "../workbook-formula-contract";
 
 import {
   BALANCE_SHEET_COMPARATIVE_AMOUNT_LABEL,
@@ -12,6 +17,7 @@ import type {
   StatementPageLine,
   StatementPageStatement,
 } from "./statement-page-data";
+import { statementLineFormula } from "./statement-workbook-formulas";
 
 const SHEET_ORDER = ["balanceSheet", "incomeStatement", "cashFlow"] as const;
 const SHEET_NAMES = ["资产负债表", "利润表", "现金流量表"] as const;
@@ -32,6 +38,31 @@ function reportTitle(mode: StatementPageData["mode"], reportType: typeof SHEET_O
 function displayAmount(line: StatementPageLine | undefined, period: "previous" | "current") {
   if (!line || line.isHeader) return "";
   return period === "previous" ? line.previousAmount : line.amount;
+}
+
+function formulaAmount(input: {
+  reportType: typeof SHEET_ORDER[number];
+  line: StatementPageLine | undefined;
+  lines: readonly StatementPageLine[];
+  rowByCode: ReadonlyMap<string, number>;
+  valueByCode: ReadonlyMap<string, number>;
+  column: string;
+  period: "previous" | "current";
+  consolidated: boolean;
+}): FinanceWorkbookCell {
+  const value = displayAmount(input.line, input.period);
+  if (!input.line || typeof value !== "number") return value;
+  const formula = statementLineFormula({
+    reportType: input.reportType,
+    line: input.line,
+    lines: input.lines,
+    rowByCode: input.rowByCode,
+    valueByCode: input.valueByCode,
+    cachedValue: value,
+    column: input.column,
+    consolidated: input.consolidated,
+  });
+  return formula ? workbookFormula(formula, value) : value;
 }
 
 function setAmountFormats(worksheet: XLSX.WorkSheet, columns: number[], firstRow: number, lastRow: number) {
@@ -82,7 +113,12 @@ function buildBalanceSheet(data: StatementPageData, statement: StatementPageStat
   if (!liabilitiesAndEquity.some((line) => line.lineCode === "totalLiabilitiesAndEquity")) {
     liabilitiesAndEquity.push(liabilityEquityGrandTotal(statement));
   }
-  const rows: Array<Array<string | number>> = [
+  const allLines = [...assets, ...liabilitiesAndEquity];
+  const assetRows = new Map(assets.map((line, index) => [line.lineCode, index + 4]));
+  const liabilityRows = new Map(liabilitiesAndEquity.map((line, index) => [line.lineCode, index + 4]));
+  const currentValues = new Map(allLines.map((line) => [line.lineCode, line.amount]));
+  const previousValues = new Map(allLines.map((line) => [line.lineCode, line.previousAmount]));
+  const rows: FinanceWorkbookCell[][] = [
     [reportTitle(data.mode, "balanceSheet"), "", "", "", "", ""],
     [`编制单位：${data.scope.companyName}`, "", "", formatStatementPeriodEndLabel(data.scope), "", "单位：元"],
     [
@@ -100,14 +136,14 @@ function buildBalanceSheet(data: StatementPageData, statement: StatementPageStat
     const liability = liabilitiesAndEquity[index];
     rows.push([
       asset?.label ?? "",
-      displayAmount(asset, "current"),
-      displayAmount(asset, "previous"),
+      formulaAmount({ reportType: "balanceSheet", line: asset, lines: allLines, rowByCode: assetRows, valueByCode: currentValues, column: "B", period: "current", consolidated: data.mode === "consolidated" }),
+      formulaAmount({ reportType: "balanceSheet", line: asset, lines: allLines, rowByCode: assetRows, valueByCode: previousValues, column: "C", period: "previous", consolidated: data.mode === "consolidated" }),
       liability?.label ?? "",
-      displayAmount(liability, "current"),
-      displayAmount(liability, "previous"),
+      formulaAmount({ reportType: "balanceSheet", line: liability, lines: allLines, rowByCode: liabilityRows, valueByCode: currentValues, column: "E", period: "current", consolidated: data.mode === "consolidated" }),
+      formulaAmount({ reportType: "balanceSheet", line: liability, lines: allLines, rowByCode: liabilityRows, valueByCode: previousValues, column: "F", period: "previous", consolidated: data.mode === "consolidated" }),
     ]);
   }
-  const worksheet = XLSX.utils.aoa_to_sheet(rows);
+  const worksheet = formulaAwareSheet(rows);
   worksheet["!merges"] = [
     XLSX.utils.decode_range("A1:F1"),
     XLSX.utils.decode_range("A2:C2"),
@@ -127,7 +163,10 @@ function buildFlowSheet(
   statement: StatementPageStatement,
   reportType: "incomeStatement" | "cashFlow",
 ) {
-  const rows: Array<Array<string | number>> = [
+  const rowByCode = new Map(statement.lines.map((line, index) => [line.lineCode, index + 4]));
+  const currentValues = new Map(statement.lines.map((line) => [line.lineCode, line.amount]));
+  const previousValues = new Map(statement.lines.map((line) => [line.lineCode, line.previousAmount]));
+  const rows: FinanceWorkbookCell[][] = [
     [reportTitle(data.mode, reportType), "", ""],
     [`编制单位：${data.scope.companyName}`, `${data.scope.year}年${data.scope.month}月`, "单位：元"],
     [
@@ -137,11 +176,11 @@ function buildFlowSheet(
     ],
     ...statement.lines.map((line) => [
       line.label,
-      displayAmount(line, "current"),
-      displayAmount(line, "previous"),
+      formulaAmount({ reportType, line, lines: statement.lines, rowByCode, valueByCode: currentValues, column: "B", period: "current", consolidated: data.mode === "consolidated" }),
+      formulaAmount({ reportType, line, lines: statement.lines, rowByCode, valueByCode: previousValues, column: "C", period: "previous", consolidated: data.mode === "consolidated" }),
     ]),
   ];
-  const worksheet = XLSX.utils.aoa_to_sheet(rows);
+  const worksheet = formulaAwareSheet(rows);
   worksheet["!merges"] = [
     XLSX.utils.decode_range("A1:C1"),
   ];

@@ -14,11 +14,12 @@ import {
   SerializableTransactionConflictError,
 } from "@workspace/platform/server/serializable-transaction";
 import type { ExternalPartyCategory } from "@workspace/external/types";
-import type {
-  ExternalPartyCreateCommand,
-  ExternalPartyDeleteCommand,
-  ExternalPartySubjectMutableData,
-  ExternalPartyUpdateCommand,
+import {
+  assertExternalPartyAggregateTouchInput,
+  type ExternalPartyCreateCommand,
+  type ExternalPartyDeleteCommand,
+  type ExternalPartySubjectMutableData,
+  type ExternalPartyUpdateCommand,
 } from "./domain/external-party-validation";
 import { projectExternalParty, type ExternalPartyWithRoles } from "./external-party-projection";
 import {
@@ -64,6 +65,17 @@ function mapWriteError(error: unknown) {
     return serviceError("记录不存在", 404);
   }
   throw error;
+}
+
+export async function touchExternalPartyAggregateInTransaction(
+  tx: Pick<Prisma.TransactionClient, "party">,
+  input: { partyId: number; expectedVersion: number; userId: number },
+) {
+  assertExternalPartyAggregateTouchInput(input);
+  return tx.party.update({
+    where: { id: input.partyId, version: input.expectedVersion },
+    data: { editedBy: input.userId, editedAt: new Date(), version: { increment: 1 } },
+  });
 }
 
 function projectedRecord(

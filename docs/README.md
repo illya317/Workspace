@@ -69,6 +69,7 @@
 | 主题 | 文档 | Owner |
 |---|---|---|
 | 产品/用户文档说明 | `docs/product/README.md` | Feature |
+| 关联方名录与身份关联 | `docs/product/external-related-parties.md` | External / Finance / HR Feature |
 | 教育数据来源 | `docs/product/reference/education-data.md` | Data / Feature |
 | 财务会计准则参考 | `docs/product/reference/casc/` | Finance Feature / Data |
 | 线上文档中心页面 | `app/(docs)/docs/*` | Feature |

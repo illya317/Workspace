@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  aggregatePeriodCounterpartyBalances,
   aggregateMonthlyCounterpartyBalances,
+  matchesCounterpartyRelationScope,
   rollForwardHistoricalCounterpartyBalances,
   totalCounterpartyBalances,
   type CounterpartyBalanceFact,
@@ -69,6 +71,39 @@ test("omits auxiliary members with no opening balance or period activity", () =>
   assert.deepEqual(rows, []);
 });
 
+test("projects the selected member's stable identity and related-party nature", () => {
+  const rows = aggregateMonthlyCounterpartyBalances([
+    balanceFact("identity", [{
+      ...person,
+      objectKind: "employee",
+      identityMatched: true,
+      relatedPartyType: "key_management_related",
+    }], 20, 0, 0, 0),
+  ], "otherAr");
+
+  assert.equal(rows[0]?.counterpartyObjectKind, "employee");
+  assert.equal(rows[0]?.identityMatched, true);
+  assert.equal(rows[0]?.relatedPartyType, "key_management_related");
+  assert.equal(matchesCounterpartyRelationScope(rows[0]!, "related"), true);
+  assert.equal(matchesCounterpartyRelationScope(rows[0]!, "unrelated"), false);
+});
+
+test("keeps unmatched identities separate from confirmed non-related parties", () => {
+  const unmatched = aggregateMonthlyCounterpartyBalances([
+    balanceFact("unmatched", [person], 20, 0, 0, 0),
+  ], "otherAr")[0]!;
+  const unrelated = {
+    ...unmatched,
+    identityMatched: true,
+  };
+
+  assert.equal(matchesCounterpartyRelationScope(unmatched, "unmatched"), true);
+  assert.equal(matchesCounterpartyRelationScope(unmatched, "unrelated"), false);
+  assert.equal(matchesCounterpartyRelationScope(unrelated, "unrelated"), true);
+  assert.equal(matchesCounterpartyRelationScope(unmatched, "other"), true);
+  assert.equal(matchesCounterpartyRelationScope(unrelated, "other"), true);
+});
+
 test("rolls historical TPlus opening balances through prior and selected-month vouchers", () => {
   const customer = {
     id: 20,
@@ -85,7 +120,7 @@ test("rolls historical TPlus opening balances through prior and selected-month v
     { sourceId: "v3", month: 3, accountId: 11, accountCode: "1122", accountName: "应收账款", members: [customer], debit: 999, credit: 0 },
   ];
 
-  const rows = rollForwardHistoricalCounterpartyBalances(opening, vouchers, "ar", 2);
+  const rows = rollForwardHistoricalCounterpartyBalances(opening, vouchers, "ar", 2, 2);
 
   assert.deepEqual(amounts(rows[0]!), {
     openingDebit: 80,
@@ -96,6 +131,43 @@ test("rolls historical TPlus opening balances through prior and selected-month v
     closingCredit: 0,
   });
   assert.deepEqual(totalCounterpartyBalances(rows), amounts(rows[0]!));
+});
+
+test("aggregates ERP monthly balances across a quarter without duplicating opening balances", () => {
+  const rows = aggregatePeriodCounterpartyBalances([
+    { ...balanceFact("q1", [person], 100, 0, 10, 2), month: 4 },
+    { ...balanceFact("q2", [person], 108, 0, 20, 5), month: 5 },
+    { ...balanceFact("q3", [person], 123, 0, 30, 3), month: 6 },
+  ], "otherAr", 4, 6);
+
+  assert.deepEqual(amounts(rows[0]!), {
+    openingDebit: 100,
+    openingCredit: 0,
+    currentDebit: 60,
+    currentCredit: 10,
+    closingDebit: 150,
+    closingCredit: 0,
+  });
+});
+
+test("rolls historical vouchers before a quarter into opening and keeps the quarter as current", () => {
+  const opening = [balanceFact("opening", [person], 100, 0, 0, 0)];
+  const vouchers = [
+    { sourceId: "v1", month: 1, accountId: 11, accountCode: "224102", accountName: "其他应付款-个人", members: [person], debit: 10, credit: 0 },
+    { sourceId: "v2", month: 4, accountId: 11, accountCode: "224102", accountName: "其他应付款-个人", members: [person], debit: 20, credit: 5 },
+    { sourceId: "v3", month: 6, accountId: 11, accountCode: "224102", accountName: "其他应付款-个人", members: [person], debit: 0, credit: 15 },
+  ];
+
+  const rows = rollForwardHistoricalCounterpartyBalances(opening, vouchers, "otherAr", 4, 6);
+
+  assert.deepEqual(amounts(rows[0]!), {
+    openingDebit: 110,
+    openingCredit: 0,
+    currentDebit: 20,
+    currentCredit: 20,
+    closingDebit: 110,
+    closingCredit: 0,
+  });
 });
 
 function balanceFact(

@@ -98898,7 +98898,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "kind",
-                      description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / grouped-select / icon-button / label / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
+                      description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / filter-panel / grouped-select / icon-button / label / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                       children: [
                         {
                           name: "action-group",
@@ -99519,6 +99519,50 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             {
                               name: "referenceEndpoint",
                               description: "类型：string。",
+                            },
+                          ],
+                        },
+                        {
+                          name: "filter-panel",
+                          description: "filter-panel 分支声明。",
+                          children: [
+                            {
+                              name: "label",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "fields",
+                              description: "类型：SurfaceToolbarFilterPanelFieldSpec[]。",
+                              children: [
+                                {
+                                  name: "key",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "label",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "value",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "options",
+                                  description: "类型：SurfaceSelectOptionSpec[]。",
+                                },
+                                {
+                                  name: "onChange",
+                                  description: "类型：(value: string) => void。",
+                                },
+                                {
+                                  name: "allLabel",
+                                  description: "类型：string。",
+                                },
+                              ],
+                            },
+                            {
+                              name: "onReset",
+                              description: "类型：() => void。",
                             },
                           ],
                         },

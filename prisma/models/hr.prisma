@@ -34,6 +34,8 @@ model Employee {
   ownedWorkItems         WorkItem[]                  @relation("WorkItemOwner")
   ownedWorkPlans         WorkPlan[]                  @relation("WorkPlanOwner")
   employments            Employment[]
+  partyIdentityLink      EmployeePartyIdentityLink?
+  financeAuxiliaryMembers FinanceAuxiliaryMember[]   @relation("FinanceAuxiliaryMemberLinkedEmployee")
   financeSalesSalaries   FinanceSalesSalary[]
   financeShipments       FinanceShipment[]
   financeWorkshopReports FinanceWorkshopReport[]

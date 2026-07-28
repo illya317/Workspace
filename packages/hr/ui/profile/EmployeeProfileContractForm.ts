@@ -22,6 +22,10 @@ export interface AgreementDraft extends EditableRecord {
   contractType: string | null;
   employmentForm: string | null;
   reason: string | null;
+  termSupplements: Record<string, {
+    effectiveFrom: string | null;
+    effectiveThrough: string | null;
+  }>;
 }
 
 const TERM_COMMAND_OPTIONS: Array<{ value: AgreementCommandKind; label: string }> = [
@@ -62,6 +66,20 @@ export function agreementDetailItems(input: {
     readOnlyItem("expiryDate", "到期日期", selected.expiryDate || (selected.terms.some((term) => term.recordState === "confirmed" && term.termKind === "permanent" && !term.effectiveThrough) ? "无固定期限" : "未设置")),
     readOnlyItem("endDate", "结束日期", selected.endDate || "未设置"),
   ];
+  if (mode === "supplement-missing") {
+    for (const missingField of agreementMissingTermFields(selected)) {
+      const match = parseAgreementTermFieldPath(missingField.path);
+      const term = match ? selected.terms.find((item) => item.sequence === match.sequence) : null;
+      if (!term || !match) continue;
+      items.push(dateItem(
+        `termSupplement:${term.termUid}:${match.field}`,
+        missingField.label,
+        draft.termSupplements[term.termUid]?.[match.field] ?? term[match.field],
+        (value) => setField(`termSupplement:${term.termUid}:${match.field}`, value),
+        true,
+      ));
+    }
+  }
   const editableFields = new Set(agreementContentFieldsByMissingState(selected, mode === "supplement-missing"));
   for (const key of AGREEMENT_CONTENT_FIELDS) {
     const field = fields.find((item) => item.key === key);
@@ -141,6 +159,9 @@ export function agreementMasterSections(input: {
 
 interface AgreementHistoryRow {
   key: string;
+  targetKind: "term" | "revision";
+  targetUid: string;
+  editable: boolean;
   record: string;
   kind: string;
   validFrom: string;
@@ -156,10 +177,16 @@ const AGREEMENT_HISTORY_COLUMNS: Array<DataSurfaceColumnSpec<AgreementHistoryRow
   { key: "state", label: "状态", cell: (row) => row.state },
 ];
 
-export function agreementHistorySupplemental(row: ContractRow): DataSurfaceCellSpec[] {
+export function agreementHistorySupplemental(row: ContractRow, actions?: {
+  onEditTerm: (termUid: string) => void;
+  onCorrectContent: () => void;
+}): DataSurfaceCellSpec[] {
   const rows: AgreementHistoryRow[] = [
     ...row.terms.map((term) => ({
       key: `term-${term.termUid}`,
+      targetKind: "term" as const,
+      targetUid: term.termUid,
+      editable: term.recordState === "confirmed" || term.recordState === "unknown",
       record: `${termKindLabel(term.termKind)} · 第 ${term.sequence} 期`,
       kind: "协议期限",
       validFrom: term.effectiveFrom || "待补充",
@@ -168,6 +195,9 @@ export function agreementHistorySupplemental(row: ContractRow): DataSurfaceCellS
     })),
     ...row.revisions.map((revision) => ({
       key: `revision-${revision.revisionUid}`,
+      targetKind: "revision" as const,
+      targetUid: revision.revisionUid,
+      editable: revision.revisionUid === row.currentRevisionUid,
       record: `${revisionKindLabel(revision.changeKind)} · 版本 ${revision.revisionNo}`,
       kind: "资料版本",
       validFrom: "—",
@@ -183,6 +213,15 @@ export function agreementHistorySupplemental(row: ContractRow): DataSurfaceCellS
       columns: AGREEMENT_HISTORY_COLUMNS,
       visibleColumns: AGREEMENT_HISTORY_COLUMNS.map((column) => column.key),
       rowKey: (history) => history.key,
+      rowActions: actions ? (history) => history.editable ? [{
+        key: `edit-${history.key}`,
+        label: history.targetKind === "term" ? "修订期限" : "修正资料",
+        kind: "edit" as const,
+        onClick: () => history.targetKind === "term"
+          ? actions.onEditTerm(history.targetUid)
+          : actions.onCorrectContent(),
+      }] : [] : undefined,
+      actionsColumn: actions ? { label: "操作" } : undefined,
       presentation: { density: "compact", header: "tinted" },
       emptyText: "暂无期限或版本记录",
     },
@@ -361,6 +400,7 @@ export function emptyAgreementDraft(employments: EmploymentRow[], asOfDate: stri
     contractType: null,
     employmentForm: null,
     reason: null,
+    termSupplements: {},
   };
 }
 
@@ -390,6 +430,33 @@ export function agreementContentPatch(
   return patch;
 }
 
+export function agreementSupplementPatch(agreement: ContractRow, draft: AgreementDraft) {
+  const content = agreementContentPatch(agreement, draft, "supplement-missing");
+  const terms = agreementMissingTermFields(agreement).flatMap((missingField) => {
+    const match = parseAgreementTermFieldPath(missingField.path);
+    const term = match ? agreement.terms.find((item) => item.sequence === match.sequence) : null;
+    const value = term && match ? draft.termSupplements[term.termUid]?.[match.field] : null;
+    if (!term || !match || !value || value === term[match.field]) return [];
+    return [{ termUid: term.termUid, [match.field]: value }];
+  });
+  return {
+    ...(Object.keys(content).length > 0 ? { content } : {}),
+    ...(terms.length > 0 ? { terms } : {}),
+  };
+}
+
+export function agreementMissingTermFields(agreement: ContractRow | null) {
+  return agreement?.missingFields.filter((field) => parseAgreementTermFieldPath(field.path)) ?? [];
+}
+
+function parseAgreementTermFieldPath(path: string) {
+  const match = /^terms\.(\d+)\.(effectiveFrom|effectiveThrough)$/.exec(path);
+  return match ? {
+    sequence: Number(match[1]),
+    field: match[2] as "effectiveFrom" | "effectiveThrough",
+  } : null;
+}
+
 export function termKindForCommand(kind: AgreementCommandKind, termKind: AgreementDraft["termKind"]): AgreementDraft["termKind"] {
   if (termKind === "permanent") return termKind;
   if (kind === "create") return "initial";
@@ -416,5 +483,9 @@ export function applyAgreement(draft: AgreementDraft, agreement: ContractRow | n
     legalRelation: agreement.legalRelation || null,
     contractType: agreement.contractType || null,
     employmentForm: agreement.employmentForm || null,
+    termSupplements: Object.fromEntries(agreement.terms.map((item) => [item.termUid, {
+      effectiveFrom: item.effectiveFrom,
+      effectiveThrough: item.effectiveThrough,
+    }])),
   };
 }

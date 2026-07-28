@@ -36,6 +36,23 @@ const EmploymentAgreementContentPatchSchema = EmploymentAgreementContentSchema.r
   { message: "至少提交一个协议资料字段" },
 );
 
+const EmploymentAgreementTermPatchSchema = z.object({
+  termUid: z.string().min(8).max(128),
+  effectiveFrom: businessDate.optional(),
+  effectiveThrough: businessDate.optional(),
+}).strict().refine(
+  (value) => value.effectiveFrom !== undefined || value.effectiveThrough !== undefined,
+  { message: "至少提交一个协议期限字段" },
+);
+
+const EmploymentAgreementSupplementPatchSchema = z.object({
+  content: EmploymentAgreementContentPatchSchema.optional(),
+  terms: z.array(EmploymentAgreementTermPatchSchema).max(20).optional(),
+}).strict().refine(
+  (value) => Boolean(value.content) || Boolean(value.terms?.length),
+  { message: "至少提交一个协议缺失字段" },
+);
+
 export const EmploymentAgreementCommandSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("create"),
@@ -69,7 +86,7 @@ export const EmploymentAgreementCommandSchema = z.discriminatedUnion("kind", [
     termKind: z.enum(["initial", "renewal", "permanent"]).optional(),
     ...commandMeta("correct"),
   }).strict(),
-  z.object({ kind: z.literal("supplement-missing"), ...target, patch: EmploymentAgreementContentPatchSchema, ...commandMeta("supplement-missing") }).strict(),
+  z.object({ kind: z.literal("supplement-missing"), ...target, patch: EmploymentAgreementSupplementPatchSchema, ...commandMeta("supplement-missing") }).strict(),
   z.object({ kind: z.literal("correct-existing"), ...target, patch: EmploymentAgreementContentPatchSchema, ...commandMeta("correct-existing") }).strict(),
   z.object({ kind: z.literal("set-primary"), ...target, ...commandMeta("set-primary") }).strict(),
   z.object({ kind: z.literal("cancel-future"), ...termTarget, ...commandMeta("cancel-future") }).strict(),

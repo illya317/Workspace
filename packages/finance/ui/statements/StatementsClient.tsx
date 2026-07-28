@@ -29,6 +29,7 @@ export default function StatementsClient({ capabilities }: { capabilities: Conso
   const consolidation = useConsolidationOverview(
     periodKind,
     capabilities.canUpdate,
+    view === "consolidation" && workpaperView === "workpaper",
   );
   const { createNextVersion, invalidate, setBatchId } = consolidation;
   const handlePeriodKindChange = useCallback((nextKind: ConsolidationPeriodKind) => {

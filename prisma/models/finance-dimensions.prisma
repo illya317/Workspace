@@ -18,12 +18,20 @@ model FinanceAuxiliaryMember {
   lastYear       Int?
   latestImportId Int?
   linkedCompanyId Int?
+  linkedEmployeeId Int?
+  linkedPartyId   Int?
   companyLinkMethod String?
   companyLinkEvidence String?
+  identityLinkMethod String?
+  identityLinkEvidence String?
+  identityLinkedAt DateTime?
+  identityLinkedBy Int?
   createdAt      DateTime                        @default(now())
   updatedAt      DateTime                        @default(now()) @updatedAt
   latestImport   FinanceLedgerImport?            @relation(fields: [latestImportId], references: [id])
   linkedCompany  Company?                        @relation("FinanceAuxiliaryMemberLinkedCompany", fields: [linkedCompanyId], references: [id], onDelete: Restrict)
+  linkedEmployee Employee?                       @relation("FinanceAuxiliaryMemberLinkedEmployee", fields: [linkedEmployeeId], references: [id], onDelete: Restrict)
+  linkedParty    Party?                          @relation("FinanceAuxiliaryMemberLinkedParty", fields: [linkedPartyId], references: [id], onDelete: Restrict)
   voucherLinks   FinanceVoucherItemAuxiliary[]
   balanceLinks   FinanceAuxiliaryBalanceMember[]
   openItemLinks  FinanceOpenItemAuxiliary[]
@@ -32,6 +40,8 @@ model FinanceAuxiliaryMember {
   @@unique([companyCode, sourceSystem, sourceLedger, dimensionType, sourceCode])
   @@index([companyCode, dimensionType, sourceName])
   @@index([linkedCompanyId])
+  @@index([linkedEmployeeId])
+  @@index([linkedPartyId])
   @@index([latestImportId])
 }
 

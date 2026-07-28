@@ -56,15 +56,32 @@ test("accepts a renewal period even when it starts before the prior contract end
   assert.equal(result.ok, true);
 });
 
-test("requires a reason when supplementing baseline fields", () => {
-  const invalid = buildEmploymentAgreementCommand({
+test("supplementing baseline fields keeps the explanation optional", () => {
+  const result = buildEmploymentAgreementCommand({
     kind: "supplement-missing",
     agreementUid: "agreement-001",
     expectedVersion: 1,
-    patch: { legalRelation: "劳动关系" },
+    patch: { content: { legalRelation: "劳动关系" } },
   });
-  assert.equal(invalid.ok, false);
-  if (!invalid.ok) assert.equal(invalid.issue.field, "reason");
+  assert.equal(result.ok, true);
+  if (result.ok) assert.equal(result.data.reason, null);
+});
+
+test("builds a supplement patch for a missing agreement term date", () => {
+  const result = buildEmploymentAgreementCommand({
+    kind: "supplement-missing",
+    agreementUid: "agreement-001",
+    expectedVersion: 1,
+    patch: { terms: [{ termUid: "term-00000003", effectiveThrough: "2028-07-31" }] },
+    reason: "补充第三期到期日期",
+  });
+  assert.equal(result.ok, true);
+  if (result.ok && result.data.kind === "supplement-missing") {
+    assert.deepEqual(result.data.patch, {
+      content: {},
+      terms: [{ termUid: "term-00000003", effectiveThrough: "2028-07-31" }],
+    });
+  }
 });
 
 test("builds a patch command without inventing unchanged fields", () => {

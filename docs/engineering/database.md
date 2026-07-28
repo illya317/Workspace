@@ -1004,6 +1004,8 @@
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | externalProfile | ExternalPartyProfile? | - |  |
 | externalRoles | ExternalPartyRole[] | - |  |
+| employeeIdentityLink | EmployeePartyIdentityLink? | - |  |
+| financeAuxiliaryMembers | FinanceAuxiliaryMember[] | @relation("FinanceAuxiliaryMemberLinkedParty") |  |
 | nameHistory | PartyNameHistory[] | - |  |
 | legalFactRevisions | PartyLegalFactRevision[] | - |  |
 | company | Company? | - |  |
@@ -1726,7 +1728,7 @@
 | batchId | Int | - |  |
 | entryNo | String | - |  |
 | postingDate | String | - |  |
-| documentType | String | @default("groupAdjustment") | groupAdjustment | elimination | reclassification |
+| documentType | String | @default("groupAdjustment") | groupAdjustment | elimination | reclassification | allocation |
 | postingLevel | String | @default("20") | 10 单边调整 | 20 双边抵销 | 30 集团层调整 |
 | entryType | String | - | investmentEquity | reclassification | nonControllingInterest | intercompanyBalance | internalTrading | internalLongTermAsset | incomeDividend | cashFlow |
 | title | String | - |  |
@@ -1972,12 +1974,20 @@
 | lastYear | Int? | - |  |
 | latestImportId | Int? | - |  |
 | linkedCompanyId | Int? | - |  |
+| linkedEmployeeId | Int? | - |  |
+| linkedPartyId | Int? | - |  |
 | companyLinkMethod | String? | - |  |
 | companyLinkEvidence | String? | - |  |
+| identityLinkMethod | String? | - |  |
+| identityLinkEvidence | String? | - |  |
+| identityLinkedAt | DateTime? | - |  |
+| identityLinkedBy | Int? | - |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | latestImport | FinanceLedgerImport? | @relation(fields: [latestImportId], references: [id]) |  |
 | linkedCompany | Company? | @relation("FinanceAuxiliaryMemberLinkedCompany", fields: [linkedCompanyId], references: [id], onDelete: Restrict) |  |
+| linkedEmployee | Employee? | @relation("FinanceAuxiliaryMemberLinkedEmployee", fields: [linkedEmployeeId], references: [id], onDelete: Restrict) |  |
+| linkedParty | Party? | @relation("FinanceAuxiliaryMemberLinkedParty", fields: [linkedPartyId], references: [id], onDelete: Restrict) |  |
 | voucherLinks | FinanceVoucherItemAuxiliary[] | - |  |
 | balanceLinks | FinanceAuxiliaryBalanceMember[] | - |  |
 | openItemLinks | FinanceOpenItemAuxiliary[] | - |  |
@@ -3398,6 +3408,8 @@
 | ownedWorkItems | WorkItem[] | @relation("WorkItemOwner") |  |
 | ownedWorkPlans | WorkPlan[] | @relation("WorkPlanOwner") |  |
 | employments | Employment[] | - |  |
+| partyIdentityLink | EmployeePartyIdentityLink? | - |  |
+| financeAuxiliaryMembers | FinanceAuxiliaryMember[] | @relation("FinanceAuxiliaryMemberLinkedEmployee") |  |
 | financeSalesSalaries | FinanceSalesSalary[] | - |  |
 | financeShipments | FinanceShipment[] | - |  |
 | financeWorkshopReports | FinanceWorkshopReport[] | - |  |
@@ -4664,6 +4676,24 @@
 | ip | String? | - |  |
 | createdAt | DateTime | @default(now()) |  |
 | client | OpenApiClient? | @relation(fields: [clientId], references: [id], onDelete: SetNull) |  |
+
+### EmployeePartyIdentityLink
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| employeeId | Int | @unique |  |
+| partyId | Int | @unique |  |
+| recordStatus | String | @default("confirmed") |  |
+| linkMethod | String | - |  |
+| linkEvidence | String | - |  |
+| confirmedBy | Int? | - |  |
+| confirmedAt | DateTime | @default(now()) |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Restrict) |  |
+| party | Party | @relation(fields: [partyId], references: [id], onDelete: Restrict) |  |
 
 ### Product
 

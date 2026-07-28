@@ -14,7 +14,7 @@ export const EMPLOYEE_SOCIAL_INSURANCE_STATUS_LABELS: Record<EmployeeSocialInsur
   retired: "已退休",
 };
 
-export type EmployeeSocialInsuranceOperation = "register" | "transfer" | "stop" | "supplement-missing";
+export type EmployeeSocialInsuranceOperation = "register" | "transfer" | "stop" | "supplement-missing" | "correct-existing";
 export type EmployeeSocialInsuranceField = "insuranceStatus" | "companyId" | "startMonth" | "endMonth" | "stopReason";
 
 const REQUIRED_FIELDS: Record<
@@ -34,6 +34,7 @@ const REQUIRED_FIELDS: Record<
     stopped: ["endMonth", "stopReason"],
   },
   "supplement-missing": {},
+  "correct-existing": {},
 };
 
 export const EMPLOYEE_SOCIAL_INSURANCE_SUPPLEMENT_FIELDS = [

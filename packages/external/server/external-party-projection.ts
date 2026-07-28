@@ -129,7 +129,7 @@ function toAvailabilityPeriod(
   };
 }
 
-function toLegalFactRevision(row: ExternalPartyWithRoles["legalFactRevisions"][number]): LegalFactRevisionLike {
+export function toLegalFactRevision(row: ExternalPartyWithRoles["legalFactRevisions"][number]): LegalFactRevisionLike {
   return {
     id: row.id,
     revision: row.revision,

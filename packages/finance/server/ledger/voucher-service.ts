@@ -1,5 +1,6 @@
 import { matchText } from "@workspace/core/search";
-import type { FinanceGroupVoucherDocumentType } from "@workspace/finance/types";
+import type { FinanceGroupVoucherDocumentType, FinanceVoucherPeriodScope } from "@workspace/finance/types";
+import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import {
@@ -9,11 +10,12 @@ import {
 } from "../domain/finance-validation";
 import { consolidationEntryReviewBlockReason } from "../domain/consolidation-entry-validation";
 import {
-  groupVoucherAccountName,
-  groupVoucherCompanySummary,
+  groupVoucherCompanySummary, groupVoucherDirectSourceTrace,
   groupVoucherOccurrenceDate,
+  groupVoucherPresentationAccount,
 } from "./group-voucher-presentation";
-
+import { loadGroupVoucherSourceTraces } from "./group-voucher-source-audit";
+import { voucherBatchPeriodFilter, voucherPeriodFilter } from "./voucher-period";
 interface VoucherItemInput {
   accountId: unknown;
   debit: unknown;
@@ -27,10 +29,14 @@ export interface ListVouchersInput {
   companyCode?: string;
   year?: number;
   month?: number;
+  periodKind?: StatementPeriodKind;
+  voucherPeriodScope?: FinanceVoucherPeriodScope;
   keyword?: string;
   page: number;
   pageSize: number;
   voucherKind?: "standard" | "group";
+  sourceTraceLineId?: number;
+  includeSourceTraces?: boolean;
   documentType?: FinanceGroupVoucherDocumentType;
   origin?: "manual" | "system";
 }
@@ -137,9 +143,7 @@ async function listStandardVouchers(input: ListVouchersInput) {
   if (input.status) where.status = input.status;
   if (input.companyCode) where.companyCode = input.companyCode;
   if (input.year !== undefined || input.month !== undefined) {
-    where.period = {};
-    if (input.year !== undefined) where.period.year = input.year;
-    if (input.month !== undefined) where.period.month = input.month;
+    where.period = voucherPeriodFilter(input);
   }
 
   const skip = (input.page - 1) * input.pageSize;
@@ -190,15 +194,13 @@ async function listStandardVouchers(input: ListVouchersInput) {
 
 async function listGroupJournals(input: ListVouchersInput) {
   const where: Prisma.FinanceConsolidationEntryWhereInput = {};
+  if (input.sourceTraceLineId !== undefined) where.lines = { some: { id: input.sourceTraceLineId } };
   if (input.status) where.status = input.status;
   if (input.documentType) where.documentType = input.documentType;
   if (input.origin) where.origin = input.origin;
   if (input.companyCode) where.lines = { some: { companyCode: input.companyCode } };
   if (input.year !== undefined || input.month !== undefined) {
-    where.batch = {
-      ...(input.year !== undefined ? { year: input.year } : {}),
-      ...(input.month !== undefined ? { month: input.month } : {}),
-    };
+    where.batch = voucherBatchPeriodFilter(input);
   }
   if (input.keyword) {
     where.OR = [
@@ -223,12 +225,22 @@ async function listGroupJournals(input: ListVouchersInput) {
             entity: { select: { companyId: true, companyCode: true, companyName: true } },
             counterpartyEntity: { select: { companyId: true, companyCode: true, companyName: true } },
             groupAccount: { select: { id: true, code: true, name: true } },
-            sourceVoucherItem: { select: { voucher: { select: { date: true } } } },
-            sourceAuxiliaryBalance: { select: { period: { select: { endDate: true } } } },
+            sourceVoucherItem: {
+              select: {
+                id: true,
+                debit: true,
+                credit: true,
+                description: true,
+                account: { select: { id: true, code: true, name: true } },
+                voucher: { select: { voucherNo: true, date: true } },
+              },
+            },
+            sourceAuxiliaryBalance: {
+              select: { account: { select: { id: true, code: true, name: true } } },
+            },
             sourceOpenItem: {
               select: {
                 documentDate: true,
-                period: { select: { endDate: true } },
                 voucherItem: { select: { voucher: { select: { date: true } } } },
               },
             },
@@ -239,6 +251,14 @@ async function listGroupJournals(input: ListVouchersInput) {
     }),
     prisma.financeConsolidationEntry.count({ where }),
   ]);
+  const sourceAudits = input.sourceTraceLineId === undefined && !input.includeSourceTraces
+    ? null
+    : await loadGroupVoucherSourceTraces(rows.flatMap((entry) => entry.lines
+      .filter((line) => input.includeSourceTraces || line.id === input.sourceTraceLineId)
+      .map((line) => ({
+      lineId: line.id,
+      sourceAuxiliaryBalanceId: line.sourceAuxiliaryBalanceId,
+    }))));
   const companyIds = [...new Set(rows.flatMap((row) => row.lines.flatMap((line) => [
     line.entity.companyId,
     line.counterpartyEntity?.companyId,
@@ -262,6 +282,11 @@ async function listGroupJournals(input: ListVouchersInput) {
   }]));
   const vouchers = rows.map((entry) => {
     const items = entry.lines.map((line) => {
+      const sourceAccount = line.sourceAuxiliaryBalance?.account ?? line.sourceVoucherItem?.account ?? null;
+      const presentationAccount = groupVoucherPresentationAccount(line);
+      const sourceAudit = sourceAudits?.get(line.id) ?? null;
+      const directSourceTrace = groupVoucherDirectSourceTrace(line.sourceVoucherItem);
+      const sourceTraceRequested = input.includeSourceTraces || input.sourceTraceLineId === line.id;
       const entityName = companyById.get(line.entity.companyId)?.companyName ?? line.entity.companyName;
       const counterpartyName = line.counterpartyEntity
         ? companyById.get(line.counterpartyEntity.companyId)?.companyName ?? line.counterpartyEntity.companyName
@@ -271,11 +296,8 @@ async function listGroupJournals(input: ListVouchersInput) {
       return {
         id: line.id,
         accountId: line.groupAccountId ?? 0,
-        account: {
-          id: line.groupAccount?.id ?? 0,
-          code: line.groupAccount?.code || line.accountCode || line.lineCode,
-          name: line.groupAccount?.name || groupVoucherAccountName(line.lineCode),
-        },
+        account: sourceAccount ?? presentationAccount,
+        presentationAccount,
         debit: Number(line.debit),
         credit: Number(line.credit),
         description: line.note || entry.title,
@@ -304,13 +326,16 @@ async function listGroupJournals(input: ListVouchersInput) {
           ?? null,
         sourceDate: groupVoucherOccurrenceDate({
           voucherDate: line.sourceVoucherItem?.voucher.date,
-          auxiliaryBalancePeriodEnd: line.sourceAuxiliaryBalance?.period.endDate,
           openItemVoucherDate: line.sourceOpenItem?.voucherItem?.voucher.date,
           openItemDocumentDate: line.sourceOpenItem?.documentDate,
-          openItemPeriodEnd: line.sourceOpenItem?.period?.endDate,
           cashFlowVoucherDate: line.sourceCashFlowAllocation?.voucher.date,
-          postingDate: entry.postingDate,
+          postingDate: line.sourceKind === "auxiliaryBalance" ? null : entry.postingDate,
         }),
+        ...(sourceTraceRequested ? {
+          sourceTrace: sourceAudit?.sourceTrace ?? directSourceTrace,
+          sourceReclassification: sourceAudit?.sourceReclassification ?? null,
+          sourceBalanceCheck: sourceAudit?.sourceBalanceCheck ?? null,
+        } : {}),
         counterpartyEntitySnapshotId: line.counterpartyEntitySnapshotId,
         counterpartyCompanyId: line.counterpartyCompanyId,
       };

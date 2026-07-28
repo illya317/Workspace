@@ -13,7 +13,9 @@ import type { BodySurfaceSectionSpec, PageSurfaceTabBarSpec, SurfaceToolbarItems
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { ReclassEntry } from "@workspace/finance/types";
+import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
+import { consolidationPeriodLabel } from "../statements/consolidation-period";
 import type { FinanceLedgerDefaultScope } from "./defaultScope";
 import {
   createReclassWorkbenchColumns,
@@ -35,6 +37,7 @@ export default function ReclassTab({
   const [companyFilter, setCompanyFilter] = useState(defaultScope?.companyCode ?? "");
   const [yearFilter, setYearFilter] = useState(defaultScope ? String(defaultScope.year) : "");
   const [monthFilter, setMonthFilter] = useState(defaultScope ? String(defaultScope.month) : "");
+  const [periodKind, setPeriodKind] = useState<StatementPeriodKind>("month");
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState<ReclassWorkbenchFilter>("all");
   const [page, setPage] = useState(1);
@@ -92,16 +95,14 @@ export default function ReclassTab({
   const adjustmentColumns = useMemo(() => createReclassWorkbenchColumns(), []);
 
   const exportCSV = useCSV(
-    `重分类明细_${companyFilter}_${yearFilter}${monthFilter}.csv`,
-    "科目编码,科目名称,报表应用或候选金额,当前反向余额,是否过期,判断口径,处理状态,目标科目\n",
+    `重分类明细_${companyFilter}_${selectedPeriodLabel(yearFilter, monthFilter, periodKind)}.csv`,
+    "科目编码,科目名称,报表应用或候选金额,当前反向余额,是否过期,目标科目\n",
     () => filtered.map((row) => [
       row.accountCode,
       row.accountName,
       row.amount,
       row.currentAbnormalAmount ?? "",
       row.stale ? "待复核" : "",
-      row.classification,
-      row.status,
       row.targetAccountCode ?? "",
     ].map(csvCell).join(",")).join("\n"),
   );
@@ -126,11 +127,13 @@ export default function ReclassTab({
     companyFilter,
     yearFilter,
     monthFilter,
+    periodKind,
     keyword,
     pageSize,
     onCompanyChange: setCompanyFilter,
     onYearChange: setYearFilter,
     onMonthChange: setMonthFilter,
+    onPeriodKindChange: (value) => { setPeriodKind(value); setPage(1); },
     onKeywordChange: setKeyword,
     onPageSizeChange: (value) => { setPageSize(value); setPage(1); },
     showCompanyYear: true,
@@ -169,4 +172,14 @@ export default function ReclassTab({
 function csvCell(value: string | number) {
   const text = String(value).replaceAll('"', '""');
   return text.includes(",") || text.includes('"') || text.includes("\n") ? `"${text}"` : text;
+}
+
+function selectedPeriodLabel(year: string, month: string, periodKind: StatementPeriodKind) {
+  const numericYear = Number(year);
+  const numericMonth = Number(month);
+  if (!Number.isInteger(numericYear) || numericYear <= 0
+    || !Number.isInteger(numericMonth) || numericMonth < 1 || numericMonth > 12) {
+    return year || "全部期间";
+  }
+  return consolidationPeriodLabel(numericYear, numericMonth, periodKind);
 }

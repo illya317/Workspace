@@ -3,8 +3,8 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 export const page_api_registry_entries = [
   {
     name: "Toolbar",
-    description: "PageSurface 内部统一工具栏 renderer；每页最多一个桌面固定短宽度搜索且禁止页面覆盖，期间导航可在保留前后切换的同时直接选择年、季度或月，桌面和移动动作均为纯图标，新增固定为 +，移动端自动收口为搜索行、主命令坞和筛选/更多底部面板",
-    composes: ["ActionButton", "ActionGlyph", "SearchInput", "SearchableOptionInput", "ToolbarOptionGroup", "FieldValueFilter", "DropdownSurface", "FloatingPortalSurface"],
+    description: "PageSurface 内部统一工具栏 renderer；每页最多一个桌面固定短宽度搜索且禁止页面覆盖，多组低频枚举条件可声明为 filter-panel 并在桌面折叠、移动端展开到筛选面板，期间导航可在保留前后切换的同时直接选择年、季度或月，桌面和移动动作均为纯图标，新增固定为 +",
+    composes: ["ActionButton", "ActionGlyph", "SearchInput", "SearchableOptionInput", "ToolbarOptionGroup", "ToolbarFilterPanel", "FieldValueFilter", "DropdownSurface", "FloatingPortalSurface"],
   },
   {
     name: "useFeedback",
@@ -54,7 +54,21 @@ export const page_api_registry_entries = [
         name: "toolbar",
         description: "页面级唯一工具区：搜索、筛选、刷新、导出、新建等都进入这里。",
         children: [
-          { name: "items", description: "工具项列表，具体渲染交给 Toolbar。" },
+          {
+            name: "items",
+            description: "工具项列表，具体渲染交给 Toolbar。",
+            children: [
+              {
+                name: "filter-panel",
+                description: "多组低频枚举筛选；桌面使用纯图标入口，移动端进入统一筛选面板。",
+                children: [
+                  { name: "label", description: "筛选入口的无障碍名称；Toolbar 不直接显示文字。" },
+                  { name: "fields", description: "字段 key、label、value、options、allLabel 与 onChange 声明。" },
+                  { name: "onReset", description: "可选的一次性重置回调。" },
+                ],
+              },
+            ],
+          },
           { name: "hidden", description: "隐藏页面工具栏。" },
         ],
       },

@@ -1,28 +1,44 @@
 import { matchText } from "@workspace/core/search";
+import {
+  statementPeriodStartMonth,
+  type StatementPeriodKind,
+} from "@workspace/finance/types/statement-period";
 import { prisma } from "@workspace/platform/server/prisma";
 import type {
   FinanceCounterpartyBalanceCategory,
+  FinanceCounterpartyObjectKind,
+  FinanceCounterpartyObjectType,
   FinanceCounterpartyBalanceResponse,
   FinanceCounterpartyBalanceRow,
+  FinanceCounterpartyRelationScope,
 } from "../../types/ledger";
 import {
   accountPrefixForCounterpartyCategory,
-  aggregateMonthlyCounterpartyBalances,
+  aggregatePeriodCounterpartyBalances,
+  matchesCounterpartyRelationScope,
   rollForwardHistoricalCounterpartyBalances,
   totalCounterpartyBalances,
   type CounterpartyBalanceFact,
   type CounterpartyMemberFact,
   type CounterpartyVoucherFact,
 } from "./counterparty-balance-calculation";
+import {
+  loadCounterpartyIdentityFacts,
+  type CounterpartyIdentityFact,
+  type CounterpartyIdentityMember,
+} from "./counterparty-identity";
 
 export interface ListCounterpartyBalancesInput {
   companyCode: string;
   year: number;
   month: number;
+  periodKind?: StatementPeriodKind;
   category: FinanceCounterpartyBalanceCategory;
   page: number;
   pageSize: number;
   keyword?: string;
+  relationScope?: FinanceCounterpartyRelationScope;
+  objectType?: FinanceCounterpartyObjectType;
 }
 
 const accountSelect = { id: true, code: true, name: true } as const;
@@ -32,11 +48,23 @@ const memberSelect = {
   sourceCode: true,
   sourceName: true,
   shortName: true,
+  linkedCompanyId: true,
+  linkedEmployeeId: true,
+  linkedPartyId: true,
 } as const;
+
+interface SelectedCounterpartyMember extends CounterpartyIdentityMember {
+  dimensionType: string;
+  sourceCode: string;
+  sourceName: string;
+  shortName: string | null;
+}
 
 export async function listCounterpartyBalances(
   input: ListCounterpartyBalancesInput,
 ): Promise<FinanceCounterpartyBalanceResponse> {
+  const periodKind = input.periodKind ?? "month";
+  const startMonth = statementPeriodStartMonth(input.month, periodKind);
   const period = await prisma.financePeriod.findUnique({
     where: {
       companyCode_year_month: {
@@ -53,7 +81,8 @@ export async function listCounterpartyBalances(
   const [monthlyBalances, historicalOpeningBalances, historicalVoucherItems] = await Promise.all([
     prisma.financeAuxiliaryBalance.findMany({
       where: {
-        periodId: period.id,
+        companyCode: input.companyCode,
+        period: { year: input.year, month: { gte: startMonth, lte: input.month } },
         sourceSystem: { not: "TPLUS" },
         account: { code: { startsWith: prefix } },
       },
@@ -63,6 +92,7 @@ export async function listCounterpartyBalances(
         openingCredit: true,
         currentDebit: true,
         currentCredit: true,
+        period: { select: { month: true } },
         account: { select: accountSelect },
         members: { select: { member: { select: memberSelect } } },
       },
@@ -114,25 +144,35 @@ export async function listCounterpartyBalances(
     ...historicalOpeningBalances.map((row) => ({ accountId: row.account.id, members: row.members })),
     ...historicalVoucherItems.map((row) => ({ accountId: row.account.id, members: row.auxiliaryLinks })),
   ];
+  const allMemberLinks = [
+    ...monthlyBalances.flatMap((row) => row.members),
+    ...historicalOpeningBalances.flatMap((row) => row.members),
+    ...historicalVoucherItems.flatMap((row) => row.auxiliaryLinks),
+  ];
+  const identityByMemberId = await loadCounterpartyIdentityFacts(
+    uniqueIdentityMembers(allMemberLinks),
+    periodEndDate(input.year, input.month),
+  );
   const canonicalTypeByPair = await loadHistoricalCanonicalTypes(historicalPairs);
-  const monthlyRows = aggregateMonthlyCounterpartyBalances(monthlyBalances.map((row) => ({
+  const monthlyRows = aggregatePeriodCounterpartyBalances(monthlyBalances.map((row) => ({
     sourceId: String(row.id),
+    month: row.period.month,
     accountId: row.account.id,
     accountCode: row.account.code,
     accountName: row.account.name,
-    members: toMemberFacts(row.account.id, row.members, new Map()),
+    members: toMemberFacts(row.account.id, row.members, new Map(), identityByMemberId),
     openingDebit: Number(row.openingDebit),
     openingCredit: Number(row.openingCredit),
     currentDebit: Number(row.currentDebit),
     currentCredit: Number(row.currentCredit),
-  })), input.category);
+  })), input.category, startMonth, input.month);
   const historicalRows = rollForwardHistoricalCounterpartyBalances(
     historicalOpeningBalances.map((row): CounterpartyBalanceFact => ({
       sourceId: String(row.id),
       accountId: row.account.id,
       accountCode: row.account.code,
       accountName: row.account.name,
-      members: toMemberFacts(row.account.id, row.members, canonicalTypeByPair),
+      members: toMemberFacts(row.account.id, row.members, canonicalTypeByPair, identityByMemberId),
       openingDebit: Number(row.openingDebit),
       openingCredit: Number(row.openingCredit),
       currentDebit: 0,
@@ -144,15 +184,21 @@ export async function listCounterpartyBalances(
       accountId: row.account.id,
       accountCode: row.account.code,
       accountName: row.account.name,
-      members: toMemberFacts(row.account.id, row.auxiliaryLinks, canonicalTypeByPair),
+      members: toMemberFacts(row.account.id, row.auxiliaryLinks, canonicalTypeByPair, identityByMemberId),
       debit: Number(row.debit),
       credit: Number(row.credit),
     })),
     input.category,
+    startMonth,
     input.month,
   );
   const keyword = input.keyword?.trim() ?? "";
-  const filtered = [...monthlyRows, ...historicalRows].filter((row) => matchesRow(row, keyword));
+  const relationScope = input.relationScope ?? "all";
+  const objectType = input.objectType ?? "all";
+  const filtered = [...monthlyRows, ...historicalRows]
+    .filter((row) => matchesCounterpartyRelationScope(row, relationScope))
+    .filter((row) => objectType === "all" || row.counterpartyObjectKind === objectType)
+    .filter((row) => matchesRow(row, keyword));
   const start = (input.page - 1) * input.pageSize;
   return {
     data: filtered.slice(start, start + input.pageSize),
@@ -166,13 +212,43 @@ export async function listCounterpartyBalances(
 
 function toMemberFacts(
   accountId: number,
-  links: Array<{ member: Omit<CounterpartyMemberFact, "canonicalType"> }>,
+  links: Array<{ member: SelectedCounterpartyMember }>,
   canonicalTypeByPair: ReadonlyMap<string, string>,
+  identityByMemberId: ReadonlyMap<number, CounterpartyIdentityFact>,
 ): CounterpartyMemberFact[] {
-  return links.map(({ member }) => ({
-    ...member,
-    canonicalType: canonicalTypeByPair.get(`${member.id}:${accountId}`) ?? member.dimensionType,
-  }));
+  return links.map(({ member }) => {
+    const canonicalType = canonicalTypeByPair.get(`${member.id}:${accountId}`) ?? member.dimensionType;
+    const identity = identityByMemberId.get(member.id);
+    return {
+      ...member,
+      canonicalType,
+      objectKind: memberObjectKind(canonicalType, identity?.targetKind),
+      identityMatched: identity?.identityMatched ?? false,
+      relatedPartyType: identity?.relatedPartyType ?? null,
+    };
+  });
+}
+
+function memberObjectKind(
+  canonicalType: string,
+  targetKind: CounterpartyIdentityFact["targetKind"] | undefined,
+): FinanceCounterpartyObjectKind {
+  if (targetKind === "company") return "groupCompany";
+  if (targetKind === "employee") return "employee";
+  if (canonicalType === "customer") return "customer";
+  if (canonicalType === "supplier") return "supplier";
+  if (canonicalType === "department") return "department";
+  return "other";
+}
+
+function uniqueIdentityMembers(
+  links: Array<{ member: CounterpartyIdentityMember }>,
+): CounterpartyIdentityMember[] {
+  return [...new Map(links.map(({ member }) => [member.id, member])).values()];
+}
+
+function periodEndDate(year: number, month: number) {
+  return new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
 }
 
 async function loadHistoricalCanonicalTypes(

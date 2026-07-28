@@ -323,24 +323,68 @@ export async function updateEmployeePageDraft(input: {
   if (!direct.ok) return direct;
 
   const ids = Array.from(new Set(command.data.changes.map((change) => change.id)));
-  const rows = await prisma.employee.findMany({ where: { id: { in: ids } }, select: { id: true } });
+  const rows = await prisma.employee.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, employeeId: true, userId: true },
+  });
   if (rows.length !== ids.length) return serviceError("部分员工不存在，请刷新后重试", 404);
   const changesById = new Map<number, Record<string, unknown>>();
   for (const change of command.data.changes) {
     changesById.set(change.id, { ...(changesById.get(change.id) ?? {}), [change.field]: change.value ?? null });
   }
+  const nextEmployeeIds = rows.map((row) => String(changesById.get(row.id)?.employeeId ?? row.employeeId));
+  if (new Set(nextEmployeeIds).size !== nextEmployeeIds.length) return serviceError("员工编号不能重复", 409);
+  const conflictingEmployeeId = await prisma.employee.findFirst({
+    where: { id: { notIn: ids }, employeeId: { in: nextEmployeeIds } },
+    select: { id: true },
+  });
+  if (conflictingEmployeeId) return serviceError("员工编号已被使用", 409);
+  const nextUserIds = rows
+    .map((row) => changesById.get(row.id)?.userId ?? row.userId)
+    .filter((value): value is number => typeof value === "number");
+  if (new Set(nextUserIds).size !== nextUserIds.length) return serviceError("同一账号不能关联多名员工", 409);
+  const [users, conflictingUser, usersClaimingEmployeeIds] = await Promise.all([
+    prisma.user.findMany({ where: { id: { in: nextUserIds } }, select: { id: true } }),
+    prisma.employee.findFirst({ where: { id: { notIn: ids }, userId: { in: nextUserIds } }, select: { id: true } }),
+    prisma.user.findMany({
+      where: { employeeId: { in: nextEmployeeIds } },
+      select: { id: true, employeeId: true },
+    }),
+  ]);
+  if (users.length !== new Set(nextUserIds).size) return serviceError("关联账号不存在", 400);
+  if (conflictingUser) return serviceError("关联账号已绑定其他员工", 409);
+  const employeeIdOwnerConflict = usersClaimingEmployeeIds.some((user) => rows.some((row) => {
+    const values = changesById.get(row.id) ?? {};
+    const nextEmployeeId = String(values.employeeId ?? row.employeeId);
+    const nextUserId = Object.hasOwn(values, "userId") ? values.userId as number | null : row.userId;
+    return user.employeeId === nextEmployeeId && user.id !== nextUserId && user.id !== row.userId;
+  }));
+  if (employeeIdOwnerConflict) return serviceError("员工编号已被其他账号占用", 409);
   await prisma.$transaction(async (tx) => {
     for (const id of ids) {
+      const original = rows.find((row) => row.id === id)!;
+      const values = changesById.get(id) ?? {};
+      const nextEmployeeId = String(values.employeeId ?? original.employeeId);
+      const nextUserId = Object.hasOwn(values, "userId") ? values.userId as number | null : original.userId;
       await ensureEditHistoryBaseline("Employee", id, command.data.userId, tx);
       await tx.employee.update({
         where: { id },
         data: {
-          ...changesById.get(id),
+          ...values,
           editedBy: command.data.userId,
           editedAt: new Date(),
           version: { increment: 1 },
         },
       });
+      if (original.userId && original.userId !== nextUserId) {
+        await tx.user.updateMany({
+          where: { id: original.userId, employeeId: original.employeeId },
+          data: { employeeId: null },
+        });
+      }
+      if (nextUserId) {
+        await tx.user.update({ where: { id: nextUserId }, data: { employeeId: nextEmployeeId } });
+      }
       await snapshotHistory("Employee", id, command.data.userId, tx);
     }
   });

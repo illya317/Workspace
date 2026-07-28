@@ -19,7 +19,7 @@ function line(reportType: StatementReportType): ConsolidatedOutputLine {
     lineCode: `${reportType}-line`,
     label: `${reportType}项目`,
     code: null,
-    amount: 115,
+    amount: reportType === "balanceSheet" ? 105 : reportType === "incomeStatement" ? 113 : 112,
     previousAmount: 90,
     section: "operating",
     side: reportType === "incomeStatement" ? "credit" : "debit",
@@ -95,17 +95,67 @@ test("consolidation workpaper workbook exports the three complete workpaper matr
   assert.equal(balance.B4?.v, 70);
   assert.equal(balance.C4?.v, 40);
   assert.equal(balance.D4?.v, 110);
+  assert.equal(balance.D4?.f, "ROUND(SUM(B4:C4),2)");
   assert.equal(balance.E4?.v, 0);
   assert.equal(balance.F4?.v, 5);
-  assert.equal(balance.G4?.v, 115);
+  assert.equal(balance.G4?.v, 105);
+  assert.equal(balance.G4?.f, "ROUND(D4+E4-F4,2)");
   assert.equal(balance.H4, undefined);
 
   const income = workbook.Sheets["利润表底稿"]!;
   assert.equal(income.E4?.v, 0);
   assert.equal(income.F4?.v, 3);
+  assert.equal(income.G4?.f, "ROUND(D4-E4+F4,2)");
 
   const cashFlow = workbook.Sheets["现金流量表底稿"]!;
   assert.equal(cashFlow.E4?.v, 2);
   assert.equal(cashFlow.F4?.v, 0);
   assert.equal(consolidationWorkpaperFilename(report), "示例_集团-2025.12-合并工作底稿.xlsx");
+});
+
+test("profit attribution uses entity net profit without inverse residual literals", () => {
+  const netProfit = {
+    ...line("incomeStatement"),
+    lineCode: "netProfit",
+    label: "净利润",
+    amount: -100,
+    sourceAmount: -100,
+    adjustmentAmount: 0,
+    entityAmounts: [
+      { entitySnapshotId: 1, companyCode: "ZX01", companyName: "母公司", role: "parent" as const, amount: -60, previousAmount: -50 },
+      { entitySnapshotId: 2, companyCode: "ZX02", companyName: "子公司", role: "subsidiary" as const, amount: -40, previousAmount: -30 },
+    ],
+  };
+  const parent = {
+    ...netProfit,
+    lineCode: "netProfitAttributableToParent",
+    label: "归属于母公司所有者的净利润",
+    amount: -80,
+    adjustmentAmount: 20,
+    entityAmounts: netProfit.entityAmounts.map((entity) => ({ ...entity, amount: 0 })),
+  };
+  const nci = {
+    ...netProfit,
+    lineCode: "netProfitAttributableToNci",
+    label: "少数股东损益",
+    amount: -20,
+    sourceAmount: 0,
+    adjustmentAmount: -20,
+    entityAmounts: netProfit.entityAmounts.map((entity) => ({ ...entity, amount: 0 })),
+  };
+  const input: ConsolidatedReportOutputPackage = {
+    ...report,
+    statements: report.statements.map((candidate) => candidate.reportType === "incomeStatement"
+      ? { ...candidate, lines: [netProfit, parent, nci] }
+      : candidate),
+  };
+  const workbook = XLSX.read(buildConsolidationWorkpaperWorkbook(input), { type: "buffer", cellNF: true });
+  const income = workbook.Sheets["利润表底稿"]!;
+  assert.equal(income.B5?.v, -60);
+  assert.equal(income.B5?.f, "ROUND(B4-B6,2)");
+  assert.equal(income.C5?.v, -40);
+  assert.equal(income.C5?.f, "ROUND(C4-C6,2)");
+  assert.equal(income.D5?.v, -100);
+  assert.equal(income.D5?.f, "ROUND(SUM(B5:C5),2)");
+  assert.equal(income.G5?.v, -80);
 });

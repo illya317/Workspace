@@ -1,10 +1,6 @@
 /** M10a: mapping-based balance aggregation with residual leaf. residual = own - children sum. */
 import { prisma } from "@workspace/platform/server/prisma";
 import {
-  CONSOLIDATION_VOUCHER_TYPE_NAME,
-  WORKSPACE_VOUCHER_SOURCE_SYSTEM,
-} from "@workspace/finance/types";
-import {
   buildFixedBalanceLineSideMap,
   buildFixedBalanceAssignments,
 } from "./config/fixed-balance-definition";
@@ -181,10 +177,10 @@ export async function aggregateMappingBasedBalances(
     }
   }
 
-  // A historical Workspace consolidation voucher predating the active ERP balance baseline
-  // cannot be rolled into that immutable source snapshot. Apply it as a durable
-  // ledger overlay at every later balance-sheet point instead of mutating ERP
-  // balances or encoding a one-off consolidation amount.
+  // An approved group adjustment remains effective after its originating
+  // consolidation period. Later balance-sheet sources carry it forward from
+  // FinanceConsolidationEntry; the originating period still applies the entry
+  // in its own workpaper, so same-period entries are deliberately excluded.
   const baseline = await prisma.financeBalanceSnapshot.findFirst({
     where: {
       companyCode,
@@ -196,36 +192,36 @@ export async function aggregateMappingBasedBalances(
     orderBy: { year: "desc" },
   });
   if (baseline) {
-    const monthText = String(month).padStart(2, "0");
-    const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
-    const cutoff = balancePoint === "opening"
-      ? { lt: `${year}-${monthText}-01` }
-      : { lte: `${year}-${monthText}-${String(lastDay).padStart(2, "0")}` };
-    const consolidationItems = await prisma.financeVoucherItem.findMany({
+    const consolidationItems = await prisma.financeConsolidationEntryLine.findMany({
       where: {
-        voucher: {
-          companyCode,
-          status: "posted",
-          sourceSystem: WORKSPACE_VOUCHER_SOURCE_SYSTEM,
-          voucherTypeName: CONSOLIDATION_VOUCHER_TYPE_NAME,
-          date: cutoff,
-          period: { year: { lte: baseline.year } },
+        companyCode,
+        statementType: "balanceSheet",
+        periodBasis: "current",
+        entry: {
+          status: "approved",
+          documentType: "groupAdjustment",
+          entryType: "groupAdjustment",
+          batch: {
+            OR: [
+              { year: { lt: year } },
+              { year, month: { lt: month } },
+            ],
+          },
         },
       },
-      include: { account: { select: { code: true, category: true } } },
+      select: { accountCode: true, debit: true, credit: true },
     });
     for (const item of consolidationItems) {
-      const resolved = resolveMappedLineWithOperator(item.account.code, parentMap, mappingMap, operatorMap);
-      const presentation = resolved ?? (PROFIT_OR_LOSS_CATEGORIES.has(item.account.category)
-        ? { lineCode: "undistributedProfit", operator: "add" as const }
-        : null);
+      if (!item.accountCode) continue;
+      const resolved = resolveMappedLineWithOperator(item.accountCode, parentMap, mappingMap, operatorMap);
+      const presentation = resolved;
       if (!presentation) continue;
       const side = lineSideMap.get(presentation.lineCode) || "debit";
       const agg = byLine.get(presentation.lineCode) || { debit: 0, credit: 0, accountCodes: [] };
       applyContribution(agg, {
-        debit: item.debit,
-        credit: item.credit,
-      }, side, presentation.operator, `consolidation:${item.account.code}`);
+        debit: Number(item.debit),
+        credit: Number(item.credit),
+      }, side, presentation.operator, `consolidation:${item.accountCode}`);
       byLine.set(presentation.lineCode, agg);
     }
   }

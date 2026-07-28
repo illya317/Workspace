@@ -10,6 +10,7 @@ function inferSection(item: ToolbarItem): ToolbarSection {
     case "label":
     case "option-group":
     case "field-filter":
+    case "filter-panel":
     case "period":
       return "filter";
     case "text":
@@ -64,6 +65,7 @@ export function inferZone(item: ToolbarItem): ToolbarZoneKey {
     case "label":
     case "option-group":
     case "field-filter":
+    case "filter-panel":
     case "period":
       return "filter";
     case "action-group":

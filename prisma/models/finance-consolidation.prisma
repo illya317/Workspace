@@ -206,7 +206,7 @@ model FinanceConsolidationEntry {
   postingDate           String
   documentType          String    @default("groupAdjustment") // groupAdjustment | elimination | reclassification | allocation
   postingLevel          String    @default("20") // 10 单边调整 | 20 双边抵销 | 30 集团层调整
-  entryType             String // investmentEquity | reclassification | nonControllingInterest | intercompanyBalance | internalTrading | internalLongTermAsset | incomeDividend | cashFlow
+  entryType             String // groupAdjustment | investmentEquity | reclassification | nonControllingInterest | intercompanyBalance | internalTrading | internalLongTermAsset | incomeDividend | cashFlow
   title                 String
   description           String?
   evidence              String

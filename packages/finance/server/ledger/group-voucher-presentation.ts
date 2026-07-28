@@ -31,20 +31,49 @@ export function groupVoucherAccountName(lineCode: string) {
   return GROUP_VOUCHER_ACCOUNT_NAMES.get(lineCode) ?? lineCode;
 }
 
+export function groupVoucherPresentationAccount(line: {
+  lineCode: string;
+  groupAccount?: { id: number; code: string; name: string } | null;
+}) {
+  return {
+    id: line.groupAccount?.id ?? 0,
+    code: line.groupAccount?.code || line.lineCode,
+    name: line.groupAccount?.name || groupVoucherAccountName(line.lineCode),
+  };
+}
+
+export function groupVoucherDirectSourceTrace(source: {
+  id: number;
+  debit: number;
+  credit: number;
+  description: string | null;
+  account: { code: string; name: string };
+  voucher: { voucherNo: string; date: string };
+} | null) {
+  return source ? [{
+    key: `voucher-item-${source.id}`,
+    sourceType: "voucher" as const,
+    sourceLabel: "原始凭证",
+    date: source.voucher.date,
+    voucherNo: source.voucher.voucherNo,
+    accountCode: source.account.code,
+    accountName: source.account.name,
+    description: source.description,
+    debit: source.debit,
+    credit: source.credit,
+  }] : [];
+}
+
 export function groupVoucherOccurrenceDate(source: {
   voucherDate?: string | null;
-  auxiliaryBalancePeriodEnd?: string | null;
   openItemVoucherDate?: string | null;
   openItemDocumentDate?: string | null;
-  openItemPeriodEnd?: string | null;
   cashFlowVoucherDate?: string | null;
   postingDate?: string | null;
 }) {
   return source.voucherDate
-    ?? source.auxiliaryBalancePeriodEnd
     ?? source.openItemVoucherDate
     ?? source.openItemDocumentDate
-    ?? source.openItemPeriodEnd
     ?? source.cashFlowVoucherDate
     ?? source.postingDate
     ?? null;

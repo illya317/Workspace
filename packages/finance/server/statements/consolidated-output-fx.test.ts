@@ -491,3 +491,56 @@ test("CAD flow statements use monthly averages and retained earnings roll from t
   assert.equal(outputBalance.lines.find((item) => item.lineCode === "undistributedProfit")?.amount, 400);
   assert.equal(outputBalance.lines.find((item) => item.lineCode === "undistributedProfit")?.previousAmount, -500);
 });
+
+function roundingCashFlowReplay() {
+  const replay = replayPackage();
+  replay.exchangeRates = [
+    ...translationRates(101, 1.5),
+    frozenRate(7, "historicalInvestment", 1.5, 101),
+  ];
+  const cashFlow = replay.sources.find((source) => source.reportType === "cashFlow")!;
+  const currentAmounts = {
+    salesReceipt: 0,
+    taxRefund: 0,
+    otherOpIn: 0,
+    operatingInSubtotal: 0,
+    purchasePayment: 3.33,
+    staffPayment: 3.33,
+    taxPayment: 0,
+    otherOpOut: 0,
+    operatingOutSubtotal: 6.66,
+    operatingNet: -6.66,
+    investingNet: 0,
+    financingNet: 0,
+    fxEffect: 0,
+    netIncrease: -6.66,
+    openingCash: 10,
+    endingCash: 3.34,
+  };
+  const cashLines = Object.entries(currentAmounts).map(([lineCode, amount]) => line(lineCode, amount, {
+    direction: lineCode.includes("Out") || lineCode.endsWith("Payment") ? "out" : lineCode.includes("Net") ? "net" : "in",
+    isTotal: lineCode.endsWith("Subtotal") || ["operatingNet", "investingNet", "financingNet"].includes(lineCode),
+    isGrandTotal: ["netIncrease", "endingCash"].includes(lineCode),
+  }));
+  cashFlow.reportPayload = {
+    httpStatus: 200,
+    payload: { lines: cashLines },
+    translationFacts: { monthlyFlows: {
+      current: monthlyFlowFacts(2026, currentAmounts),
+      comparative: monthlyFlowFacts(2025, Object.fromEntries(Object.keys(currentAmounts).map((code) => [code, 0]))),
+    } },
+  };
+  return replay;
+}
+
+test("CAD cash flow rejects a cent missing between monthly source facts and the cumulative source report", () => {
+  const replay = roundingCashFlowReplay();
+  const cashFlow = replay.sources.find((source) => source.reportType === "cashFlow")!;
+  const payload = cashFlow.reportPayload as {
+    payload: { lines: Array<{ lineCode: string; amount: number }> };
+  };
+  payload.payload.lines.find((item) => item.lineCode === "purchasePayment")!.amount = 3.32;
+  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.issue.field, "cashFlowSourceReconciliation");
+});

@@ -19,6 +19,9 @@ const installCnbReleaseDependencies = readFileSync(new URL("./install-cnb-releas
 const runCnbReleaseGate = readFileSync(new URL("./run-cnb-release-gate.sh", import.meta.url), "utf8");
 const cnbRelease = readFileSync(new URL("./cnb-release.yml", import.meta.url), "utf8");
 const uploadDataRelease = readFileSync(new URL("./upload-data-release.sh", import.meta.url), "utf8");
+const prepareDatabaseReplacement = readFileSync(new URL("./prepare-database-replacement.sh", import.meta.url), "utf8");
+const publishDatabaseReplacement = readFileSync(new URL("./publish-database-replacement.sh", import.meta.url), "utf8");
+const replaceProductionDatabase = readFileSync(new URL("./replace-production-database.sh", import.meta.url), "utf8");
 
 test("shell variables next to non-ASCII punctuation use explicit braces", () => {
   for (const [name, source] of Object.entries({ publish, publishCnb, releaseToCnb, deploy })) {
@@ -183,6 +186,32 @@ test("private data transfer is an explicit command outside deployment", () => {
   assert.match(uploadDataRelease, /verify-staged[\s\S]*?payload-digest/);
   assert.match(uploadDataRelease, /mv '\$REMOTE_CURRENT\.tmp' '\$REMOTE_CURRENT'/);
   assert.doesNotMatch(uploadDataRelease, /data-release-sources[^\n]*rm|data-release-manifests[^\n]*rm/);
+});
+
+test("database replacement is a separately selected Full deployment mode bound to the normal CNB gate", () => {
+  assert.match(publish, /database-replace\)[\s\S]*?publish-database-replacement\.sh/);
+  assert.match(publishDatabaseReplacement, /publish\.sh" prepare[\s\S]*?prepare-database-replacement\.sh/);
+  assert.match(
+    publishDatabaseReplacement,
+    /publish\.sh" deploy[\s\S]*?--database-replacement-receipt/,
+  );
+  assert.match(prepareDatabaseReplacement, /release-gate-receipt\.mjs" candidate-verify/);
+  assert.match(prepareDatabaseReplacement, /check-prisma-deploy-status\.js/);
+  assert.match(prepareDatabaseReplacement, /pg_dump --format=custom --no-owner --no-privileges/);
+  assert.match(prepareDatabaseReplacement, /pg_restore --list/);
+  assert.match(prepareDatabaseReplacement, /deploy-inputs\/database-replacements/);
+  assert.match(publishCnb, /database-replacement\.mjs" verify/);
+  assert.match(publishCnb, /metadata\.databaseReplacement/);
+  assert.match(releaseToCnb, /database replacement metadata is invalid/);
+  assert.match(deploy, /database replacement metadata is invalid/);
+  assert.match(deploy, /整库替换只允许 Full monolith|target\?\.kind !== 'monolith'/);
+  assert.match(deploy, /replace-production-database\.sh\\" apply/);
+  assert.match(deploy, /replace-production-database\.sh\\" commit/);
+  assert.match(replaceProductionDatabase, /sudo -n -u postgres createdb/);
+  assert.match(replaceProductionDatabase, /alter database/);
+  assert.match(replaceProductionDatabase, /rollbackName/);
+  assert.match(replaceProductionDatabase, /status: 'prepared'/);
+  assert.match(replaceProductionDatabase, /status: 'committed'/);
 });
 
 test("private release inputs validate before local checks and real deploy syncs before trigger", () => {

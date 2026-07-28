@@ -13,6 +13,8 @@ model Party {
   updatedAt                     DateTime                              @default(now()) @updatedAt
   externalProfile               ExternalPartyProfile?
   externalRoles                 ExternalPartyRole[]
+  employeeIdentityLink          EmployeePartyIdentityLink?
+  financeAuxiliaryMembers       FinanceAuxiliaryMember[]             @relation("FinanceAuxiliaryMemberLinkedParty")
   nameHistory                   PartyNameHistory[]
   legalFactRevisions            PartyLegalFactRevision[]
   company                       Company?

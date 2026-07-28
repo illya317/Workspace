@@ -31,14 +31,14 @@
 <body>
 <div class="container">
 <h1>Workspace API Reference</h1>
-<p class="subtitle">463 endpoints across 8 groups；访问标记来自 API contract 与 route wrapper</p>
+<p class="subtitle">467 endpoints across 8 groups；访问标记来自 API contract 与 route wrapper</p>
 <div class="summary">
   <div class="summary-grid">
-    <div class="summary-item"><div class="num">189</div><div class="label">GET</div></div>
-    <div class="summary-item"><div class="num">163</div><div class="label">POST</div></div>
+    <div class="summary-item"><div class="num">191</div><div class="label">GET</div></div>
+    <div class="summary-item"><div class="num">164</div><div class="label">POST</div></div>
     <div class="summary-item"><div class="num">64</div><div class="label">PUT</div></div>
     <div class="summary-item"><div class="num">13</div><div class="label">PATCH</div></div>
-    <div class="summary-item"><div class="num">34</div><div class="label">DELETE</div></div>
+    <div class="summary-item"><div class="num">35</div><div class="label">DELETE</div></div>
   </div>
 </div>
 
@@ -767,6 +767,30 @@
   <span class="method" style="background:#059669">POST</span>
   <span class="path">/api/modules/external/internal/workspace-analysis-sources</span>
   <span class="auth">内部服务鉴权</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/external/related-parties</span>
+  <span class="auth">登录 + external.relatedParties.read</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/external/related-parties</span>
+  <span class="auth">登录 + external.relatedParties.create</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/modules/external/related-parties/:id</span>
+  <span class="auth">登录 + external.relatedParties.delete</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/external/related-parties/candidates</span>
+  <span class="auth">登录 + external.relatedParties.read</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">

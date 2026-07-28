@@ -1033,6 +1033,11 @@ export type OpenApiClientScopeGrant = Prisma.OpenApiClientScopeGrantModel
  */
 export type OpenApiAccessLog = Prisma.OpenApiAccessLogModel
 /**
+ * Model EmployeePartyIdentityLink
+ * 员工身份与可选法定 Party 的一对一确认关系；仅员工另有股东、供应商、客户或合同身份时建立
+ */
+export type EmployeePartyIdentityLink = Prisma.EmployeePartyIdentityLinkModel
+/**
  * Model Product
  * 共享产品/制剂主档。Production 负责维护入口，库存、销售、成本与 QC 共同引用。
  */

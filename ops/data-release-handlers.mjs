@@ -68,6 +68,43 @@ function financeConsolidationVoucherCommand(execution, context) {
   };
 }
 
+function financeConsolidationEntryMigrationCommand(execution, context) {
+  const parameters = execution.parameters;
+  if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
+    || Object.keys(parameters).sort().join(",") !== "inputFile") {
+    fail("finance-consolidation-entry-migration-v1 parameters must contain only inputFile");
+  }
+  const inputFile = relativeSourcePath(parameters.inputFile, "finance-consolidation-entry-migration-v1 inputFile");
+  return {
+    executable: process.execPath,
+    args: [
+      path.join(context.repositoryRoot, "scripts/repair/repair-finance-consolidation-entry.mjs"),
+      "--execute",
+      `--input-file=${path.join(context.sourceRoot, inputFile)}`,
+    ],
+  };
+}
+
+function financeAuxiliaryIdentityLinksCommand(execution, context) {
+  const parameters = execution.parameters;
+  if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
+    || Object.keys(parameters).sort().join(",") !== "inputFile") {
+    fail("finance-auxiliary-identity-links-v1 parameters must contain only inputFile");
+  }
+  const inputFile = relativeSourcePath(parameters.inputFile, "finance-auxiliary-identity-links-v1 inputFile");
+  return {
+    executable: process.execPath,
+    args: [
+      "--conditions=react-server",
+      "--import",
+      "tsx",
+      path.join(context.repositoryRoot, "scripts/repair/repair-finance-auxiliary-identity-links.ts"),
+      "--execute",
+      `--input-file=${path.join(context.sourceRoot, inputFile)}`,
+    ],
+  };
+}
+
 function hrLifecycleCompatibilityCommand(execution, context) {
   const parameters = execution.parameters;
   if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
@@ -140,8 +177,10 @@ function hrSocialInsuranceBaselineCommand(execution, context) {
 }
 
 const HANDLERS = new Map([
+  ["finance-auxiliary-identity-links-v1", financeAuxiliaryIdentityLinksCommand],
   ["finance-reviewed-origin-mappings-v1", financeReviewedOriginMappingsCommand],
   ["finance-consolidation-voucher-v1", financeConsolidationVoucherCommand],
+  ["finance-consolidation-entry-migration-v1", financeConsolidationEntryMigrationCommand],
   ["hr-employment-agreement-baseline-v1", hrEmploymentAgreementBaselineCommand],
   ["hr-organization-baseline-compatibility-v1", hrOrganizationBaselineCompatibilityCommand],
   ["hr-social-insurance-baseline-v1", hrSocialInsuranceBaselineCommand],

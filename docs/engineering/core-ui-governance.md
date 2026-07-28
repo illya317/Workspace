@@ -175,6 +175,8 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 
 普通表格默认随页面自然展开，不创建横向或纵向内滚动。桌面普通表格由 Core 按表头、单元格内容和容器剩余空间自适应列宽；业务声明的 `width` 是紧凑列或重点列的宽度提示，不得导致其他内容列在仍有空白时被固定等分截断。矩阵继续使用固定列宽。短名称、状态、比例、日期、来源等可压缩字段即使表头随页面滚出视口，仍应优先保持连续阅读；不要仅因行数多或担心表头消失就声明 `scroll`。只有二维矩阵、列内容确实不可压缩，或交互明确需要固定高度视窗时才声明滚动；固定高度视窗必须同时声明 `maxHeight`，由 Core 锁定表头。
 
+表格或记录中的系统编码、文件名等可截断文本使用 `DataSurfaceDisplaySpec kind="text" + wrap="truncate"`；需要与同列常规编码保持稳定长度时可声明 `maxChars`。Core 统一按字符宽度显示省略号，并把完整文本写入悬停标题；业务不得先截断 `value`、拼接 `...` 或丢失可复制的完整值。
+
 业务状态类 Boolean 必须用 `control: "choice"` + 静态产品文案选项表达，并在回调边界还原为 `boolean`；`control: "boolean"` + `presentation: "checkbox"` 只用于明确的勾选/确认语义。Core 不提供 `switch` presentation，业务不得自行复刻开关 renderer。
 
 多行文本需要随内容展开时声明 `autoGrow: true`，由 Core 根据内容与实际宽度维护高度并隐藏字段内滚动条；业务不得自行估算字符数或操作 textarea DOM。

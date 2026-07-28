@@ -58,9 +58,9 @@ FUN 职能岗位不复制到应用部门。`Position.departmentId` 继续表示�
 
 HR 数据质量 Provider 继续把雇佣、当前任职、组织归属和投入权重完整性作为内部巡检与迁移 preflight；这些都是系统不变量，不注册为个人通知或可订阅事件。新任职必须有汇报公司、部门、岗位和大于 0 的投入权重；除离职外的生命周期变更在生效日必须仍有当前任职，且当前任职必须且只能有一个主岗。主岗与权重相互独立，不要求主岗权重最大。生命周期事务提交成功后仍可按 Employee 触发重评，用于发现存量导入和非标准写入遗留问题，但不得向用户发送“订阅提醒”。
 
-员工详情“任职管理”页签内的生命周期办理区是人员结构变化的唯一在线入口，通过 `PUT /api/modules/hr/roster/employee-profiles/[id]/lifecycle` 登记入职、调岗、兼岗、投入调整、主岗变更、汇报关系变化和离职。变更类型必须按所选生效日的事实过滤：已有未结束雇佣或未来雇佣时不显示也不接受“入职”；只有从未入职、上一段雇佣已经结束后的重新入职，或系统唯一的旧空占位记录补登记时才允许。没有有效雇佣期间时不得选择调岗、兼岗、投入调整、主岗变更、汇报关系变化或离职；UI 候选与 domain validator 必须调用同一 HR lifecycle contract，不能只隐藏选项。变更类型属于数量很少且不可遗漏的固定业务枚举，下拉层必须一次完整显示当前全部可用动作，不使用滚动或较小 `visibleCount` 隐藏剩余项。兼岗只新增自己的任职期间和投入权重，不扣减或恢复其他岗位；投入调整只拆分被调整的任职；主岗变更在同一事务内截止原主岗和目标岗位旧版本并创建新版本，权重保持不变。route 只校验请求形状并调用 HR service；domain validator 校验生效日期、来源任职、目标岗位、汇报岗位和所有未来期间边界上的正数投入权重/唯一主岗，service 在同一事务内拆分 `Employment` / `EDP` 期间并写入不可变 `EmployeeLifecycleEvent` 台账。是否允许历史补录、是否允许重叠及如何修订统一读取 `HR_EMPLOYMENT_TEMPORAL` / `HR_ASSIGNMENT_TEMPORAL`：两者默认允许补录；Employment 禁止重叠，EDP 按槽位、唯一主岗和正数投入权重校验。离职继续受入职日期、有效雇佣期间和离职原因约束，并在投影后取消合法未来记录、将当前记录和非法但仍开放的旧记录截止到 D-1。普通 Employment 页面只修正办公地点、人员类型、职级、职务、离职原因与备注；`isActive/joinDate/leaveDate` 不走普通保存。既有 Employment / EDP 周期统一在员工“历史记录”中选择任意期间修订，通过 `POST .../period-revisions` 提交 reason 与 expected revision，服务端重验完整时间线，并把前后值永久记录在 `EmployeePeriodRevision` 和同一历史列表中。
+员工详情“任职管理”页签内的生命周期办理区是人员结构变化的唯一在线入口，通过 `PUT /api/modules/hr/roster/employee-profiles/[id]/lifecycle` 登记入职、调岗、兼岗、投入调整、主岗变更、汇报关系变化和离职。变更类型必须按所选生效日的事实过滤：已有未结束雇佣或未来雇佣时不显示也不接受“入职”；只有从未入职、上一段雇佣已经结束后的重新入职，或系统唯一的旧空占位记录补登记时才允许。没有有效雇佣期间时不得选择调岗、兼岗、投入调整、主岗变更、汇报关系变化或离职；UI 候选与 domain validator 必须调用同一 HR lifecycle contract，不能只隐藏选项。变更类型属于数量很少且不可遗漏的固定业务枚举，下拉层必须一次完整显示当前全部可用动作，不使用滚动或较小 `visibleCount` 隐藏剩余项。兼岗只新增自己的任职期间和投入权重，不扣减或恢复其他岗位；投入调整只拆分被调整的任职；主岗变更在同一事务内截止原主岗和目标岗位旧版本并创建新版本，权重保持不变。route 只校验请求形状并调用 HR service；domain validator 校验生效日期、来源任职、目标岗位、汇报岗位和所有未来期间边界上的正数投入权重/唯一主岗，service 在同一事务内拆分 `Employment` / `EDP` 期间并写入不可变 `EmployeeLifecycleEvent` 台账。是否允许历史补录、是否允许重叠及如何修订统一读取 `HR_EMPLOYMENT_TEMPORAL` / `HR_ASSIGNMENT_TEMPORAL`：两者默认允许补录；Employment 禁止重叠，EDP 按槽位、唯一主岗和正数投入权重校验。离职继续受入职日期、有效雇佣期间和离职原因约束，并在投影后取消合法未来记录、将当前记录和非法但仍开放的旧记录截止到 D-1。普通 Employment 页面只修正办公地点、人员类型、职级、职务、离职原因与备注；`isActive/joinDate/leaveDate` 不走普通保存。既有 Employment / EDP 的历史事实在各自 TAB 的记录区选择目标后显式进入“纠正这条记录”，通过 `POST .../period-revisions` 提交 reason 与 expected revision；Employment 可纠正用工公司及期间，EDP 可纠正汇报公司、部门、岗位、主岗、投入权重、汇报岗位及期间。服务端重验完整时间线，并把前后值永久记录在 `EmployeePeriodRevision` 和“历史记录”列表中。现实变化仍必须走生命周期新增变更，不能借纠正覆盖真实历史。
 
-员工身份当前没有 draft / archived 状态，新建时会立即创建可登录 Workspace 账号，因此不存在可安全 hard delete 的“未启用草稿”。在线员工删除 route 与 action 已移除：离职走生命周期，账号禁用走独立账号管理，不能用删除员工替代任一动作。Employee、Employment、EDP 以及生命周期会联动的 EmployeeProject 审计记录仍可查看，但不能从通用审计界面恢复重建。
+员工身份当前没有 draft / archived 状态，新建时会立即创建可登录 Workspace 账号，因此不存在可安全 hard delete 的“未启用草稿”。在线员工删除 route 与 action 已移除：离职走生命周期，账号禁用走独立账号管理，不能用删除员工替代任一动作。Employee、Employment、EDP 以及生命周期会联动的 EmployeeProject 审计记录仍可查看，但不能从通用审计界面恢复重建。员工用于内部个人往来时直接由财务辅助核算 FK 到 Employee，不要求批量创建个人 Party；仅当员工另有股东、供应商、客户或合同自然人身份时，才通过可审计的一对一 `EmployeePartyIdentityLink` 连接既有 Party，两个聚合各自保留权威事实。
 
 汇报关系是岗位关系，不是固定人员关系。`Position.reportToPositionId` 和 `PositionReportOverride.reportToPositionId` 是结构默认值；`EDP.reportToPositionId -> Position.id` 是某段任职期间实际采用的汇报岗位快照。人员只在使用时按业务日期从该岗位的有效 `EDP` 占有人派生，因此汇报岗位换人后无需逐个改下属，历史期间也不会被当前组织结构重写。`EDP.reportTo` 仅保留为旧库兼容列，新写入不再使用。Platform 的 `currentEmploymentDateWhere`、`currentOpenEndedDateWhere` 是 HR、权限、审批和 Work 读取当前人员/任职的共享口径，未来任职不得提前获得权限，已到离职生效日的人员不得继续作为处理人或负责人。
 
@@ -125,11 +125,11 @@ HR owner 当前登记 21 个版本化 source：员工、雇佣、部门岗位关
 员工详情页的数据流：
 
 1. `GET /api/modules/hr/roster/employee-profiles/[id]` 聚合读取员工、雇佣、合同、部门岗位和生命周期台账，并按业务日派生当前状态。
-2. 基本信息保存复用 `PUT /api/modules/hr/roster/employees` 的批量 change set。
+2. 基本信息保存复用 `PUT /api/modules/hr/roster/employees` 的批量 change set。员工编号与关联账号允许在详情页修正，但属于高风险身份字段：前端必须明确确认，服务端同时校验员工编号、账号占用和一人一账号关系，并同步账号上的员工编号；农历生日等派生字段只读。
 3. 雇佣关系保存复用 `PUT /api/modules/hr/roster/employments` 的批量 change set，但只接受非期间资料字段；结构字段由 domain validator 返回 409。
 4. 部门岗位只从员工详情和 `GET /api/modules/hr/roster/edps` 读取，不提供普通 POST / PUT / DELETE 或整组保存入口。
 5. 合同正常读取只查询 `EmploymentAgreement / Term / Revision`，员工合同 UI 不区分新建记录与 baseline 记录。历史 `Employment.contracts` 仅供受控数据发布、迁移核对和审计取证；baseline 发布使用稳定 fingerprint 幂等写入正式表，并输出成功、字段缺失和硬冲突清单。在线 `POST /api/modules/hr/roster/employee-profiles/[id]/agreements` 只接受正式 `agreementUid + expectedVersion`，执行合同资料修订、续签、终止、历史期限修订、设主合同或取消待生效期限，不承担历史数据建档。
-6. 人员生命周期变更走 `PUT /api/modules/hr/roster/employee-profiles/[id]/lifecycle`；既有 Employment / EDP 周期修订走 `POST /api/modules/hr/roster/employee-profiles/[id]/period-revisions`。两者都读取 Business Temporal contract；后者还经过独立 `revise` 权限和 ActionContract direct-execution gate。
+6. 人员生命周期变更走 `PUT /api/modules/hr/roster/employee-profiles/[id]/lifecycle`；既有 Employment / EDP 历史事实纠正走 `POST /api/modules/hr/roster/employee-profiles/[id]/period-revisions`。纠正入口位于对应雇佣/任职记录旁，必须填写原因并永久记录前后值。两者都读取 Business Temporal contract；后者还经过独立 `revise` 权限和 ActionContract direct-execution gate。
 
 ## 考勤绩效工作台
 

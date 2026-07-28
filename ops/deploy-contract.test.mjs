@@ -7,6 +7,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
+const replaceProductionDatabase = readFileSync(new URL("./replace-production-database.sh", import.meta.url), "utf8");
 const kimiSandboxRunner = readFileSync(new URL("./kimi-agent-sandbox-runner.sh", import.meta.url), "utf8");
 const kimiDarwinSandboxRunner = readFileSync(new URL("./kimi-agent-sandbox-runner-darwin.sh", import.meta.url), "utf8");
 const kimiDarwinSandboxProfile = readFileSync(new URL("./kimi-agent-sandbox-darwin.sb", import.meta.url), "utf8");
@@ -135,6 +136,27 @@ test("deploy uses the exact CI migration parser and fences writers before the pi
   assert.match(section, /mv \\"\\\$marker_tmp\\" \\"\\\$maintenance_marker_path\\"/);
 });
 
+test("database replacement keeps the shared gate and performs a fail-closed atomic database swap", () => {
+  const remoteDeploy = deploy.slice(
+    deploy.indexOf("deploy_remote_artifact()"),
+    deploy.indexOf("run_healthcheck()"),
+  );
+  assertOrdered(remoteDeploy, [
+    "database_replacement_guard=1",
+    "pm2 delete '$PM2_NAME'",
+    "replace-production-database.sh\\\" apply",
+    "migrate deploy --schema=",
+    "PORT=3101 HOSTNAME=127.0.0.1 pm2 start",
+    "PORT=3000 HOSTNAME=0.0.0.0 pm2 start",
+    "'$REMOTE_RELEASE_RECEIPT_TOOL' write",
+    "commit_database_replacement_state",
+  ]);
+  assert.match(remoteDeploy, /旧生产数据库仍保留[\s\S]*?保持 Workspace 与企业微信停止/);
+  assert.doesNotMatch(remoteDeploy, /database_replacement_guard[\s\S]*?dropdb/);
+  assert.match(replaceProductionDatabase, /active_already_renamed=1[\s\S]*?继续让同一替换候选接管/);
+  assert.match(replaceProductionDatabase, /database OID 不一致，拒绝猜测恢复/);
+});
+
 test("a second maintenance attempt keeps old rollback disabled and reuses the verified pre-migration dump", () => {
   assert.equal((deploy.match(/maintenance_migration_started=0/g) ?? []).length, 1);
   assert.match(deploy, /if \[ -f \\"\\\$maintenance_marker_path\\" \]; then[\s\S]*?maintenance_marker_present=1[\s\S]*?maintenance_migration_started=1/);
@@ -162,7 +184,7 @@ test("a second maintenance attempt keeps old rollback disabled and reuses the ve
   );
   assert.match(
     deploy,
-    /release_committed=1\n\s+finish_remote_timing_stage passed 0\n\s+rm -f '\$REMOTE_WORKSPACE_CONFIG_DIR\/maintenance-deploy'/,
+    /release_committed=1\n\s+commit_database_replacement_state\n\s+finish_remote_timing_stage passed 0\n\s+rm -f '\$REMOTE_WORKSPACE_CONFIG_DIR\/maintenance-deploy'/,
   );
 });
 

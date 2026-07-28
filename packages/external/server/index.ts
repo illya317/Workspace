@@ -12,10 +12,22 @@ export {
 export {
   ExternalPartyCreateSchema,
   ExternalPartyQuerySchema,
+  ExternalRelatedPartyCreateSchema,
+  ExternalRelatedPartyQuerySchema,
   ExternalPartyRoleAvailabilityCommandSchema,
   ExternalPartyRoleEndSchema,
   ExternalPartyUpdateSchema,
 } from "./schemas";
+export {
+  commitCreateExternalRelatedPartyCommand,
+  commitDeleteExternalRelatedPartyCommand,
+  listExternalRelatedParties,
+  listExternalRelatedPartyCandidates,
+} from "./related-parties";
+export {
+  executeCreateExternalRelatedPartyCommand,
+  executeDeleteExternalRelatedPartyCommand,
+} from "./related-party-commands";
 export {
   appendExternalPartyRoleAvailabilityInTransaction,
   commitExternalPartyRoleAvailabilityCommand,

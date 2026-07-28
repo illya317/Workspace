@@ -2,6 +2,9 @@ import type {
   FinanceCounterpartyBalanceCategory,
   FinanceCounterpartyBalanceRow,
   FinanceCounterpartyBalanceTotals,
+  FinanceCounterpartyObjectKind,
+  FinanceCounterpartyRelatedPartyType,
+  FinanceCounterpartyRelationScope,
 } from "../../types/ledger";
 
 export interface CounterpartyMemberFact {
@@ -11,6 +14,9 @@ export interface CounterpartyMemberFact {
   sourceName: string;
   shortName: string | null;
   canonicalType?: string;
+  objectKind?: FinanceCounterpartyObjectKind;
+  identityMatched?: boolean;
+  relatedPartyType?: FinanceCounterpartyRelatedPartyType | null;
 }
 
 export interface CounterpartyBalanceFact {
@@ -23,6 +29,10 @@ export interface CounterpartyBalanceFact {
   openingCredit: number;
   currentDebit: number;
   currentCredit: number;
+}
+
+export interface CounterpartyPeriodBalanceFact extends CounterpartyBalanceFact {
+  month: number;
 }
 
 export interface CounterpartyVoucherFact {
@@ -60,11 +70,33 @@ export function aggregateMonthlyCounterpartyBalances(
   return sortRows([...rows.values()].filter(hasBalanceActivity));
 }
 
+export function aggregatePeriodCounterpartyBalances(
+  facts: readonly CounterpartyPeriodBalanceFact[],
+  category: FinanceCounterpartyBalanceCategory,
+  startMonth: number,
+  endMonth: number,
+): FinanceCounterpartyBalanceRow[] {
+  const rows = new Map<string, MutableBalanceRow>();
+  for (const fact of facts) {
+    if (fact.month < startMonth || fact.month > endMonth) continue;
+    const row = findOrCreateRow(rows, fact, category, "erpMonthly");
+    if (fact.month === startMonth) {
+      row.openingDebit += fact.openingDebit;
+      row.openingCredit += fact.openingCredit;
+    }
+    row.currentDebit += fact.currentDebit;
+    row.currentCredit += fact.currentCredit;
+  }
+  for (const row of rows.values()) normalizeClosing(row);
+  return sortRows([...rows.values()].filter(hasBalanceActivity));
+}
+
 export function rollForwardHistoricalCounterpartyBalances(
   openingFacts: readonly CounterpartyBalanceFact[],
   voucherFacts: readonly CounterpartyVoucherFact[],
   category: FinanceCounterpartyBalanceCategory,
-  month: number,
+  startMonth: number,
+  endMonth: number,
 ): FinanceCounterpartyBalanceRow[] {
   const rows = groupFacts(openingFacts.map((fact) => ({
     ...fact,
@@ -72,9 +104,9 @@ export function rollForwardHistoricalCounterpartyBalances(
     currentCredit: 0,
   })), category, "historicalRollforward");
   for (const fact of voucherFacts) {
-    if (fact.month > month) continue;
+    if (fact.month > endMonth) continue;
     const row = findOrCreateRow(rows, fact, category, "historicalRollforward");
-    if (fact.month < month) {
+    if (fact.month < startMonth) {
       row.openingDebit += fact.debit;
       row.openingCredit += fact.credit;
     } else {
@@ -102,6 +134,17 @@ export function totalCounterpartyBalances(
     closingDebit: roundMoney(totals.closingDebit + row.closingDebit),
     closingCredit: roundMoney(totals.closingCredit + row.closingCredit),
   }), { ...ZERO_TOTALS });
+}
+
+export function matchesCounterpartyRelationScope(
+  row: FinanceCounterpartyBalanceRow,
+  scope: FinanceCounterpartyRelationScope,
+) {
+  if (scope === "related") return row.relatedPartyType !== null;
+  if (scope === "other") return row.relatedPartyType === null;
+  if (scope === "unrelated") return row.identityMatched && row.relatedPartyType === null;
+  if (scope === "unmatched") return !row.identityMatched;
+  return true;
 }
 
 function groupFacts(
@@ -137,6 +180,9 @@ function findOrCreateRow(
     counterpartyName: party?.sourceName ?? "未指定往来对象",
     counterpartyShortName: party?.shortName ?? null,
     counterpartyType: party?.canonicalType ?? party?.dimensionType ?? "unknown",
+    counterpartyObjectKind: party?.objectKind ?? inferObjectKind(party),
+    identityMatched: party?.identityMatched ?? false,
+    relatedPartyType: party?.relatedPartyType ?? null,
     accountCode: fact.accountCode,
     accountName: fact.accountName,
     openingDebit: 0,
@@ -149,6 +195,15 @@ function findOrCreateRow(
   };
   rows.set(key, row);
   return row;
+}
+
+function inferObjectKind(party: CounterpartyMemberFact | undefined): FinanceCounterpartyObjectKind {
+  const type = party?.canonicalType ?? party?.dimensionType;
+  if (type === "customer") return "customer";
+  if (type === "supplier") return "supplier";
+  if (type === "person") return "other";
+  if (type === "department") return "department";
+  return "other";
 }
 
 function selectPrimaryCounterparty(

@@ -78,6 +78,24 @@ test("executable manifests select a registered handler instead of a script path"
   }), /not registered/);
 });
 
+test("finance auxiliary identity releases use the registered repair handler", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "finance-auxiliary-identity-links-v1",
+    parameters: { inputFile: "finance/auxiliary-identities.json" },
+  }, {
+    repositoryRoot: "/repo",
+    sourceRoot: "/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.deepEqual(command.args.slice(0, 4), [
+    "--conditions=react-server",
+    "--import",
+    "tsx",
+    "/repo/scripts/repair/repair-finance-auxiliary-identity-links.ts",
+  ]);
+  assert.equal(command.args.at(-1), "--input-file=/private/sources/finance/auxiliary-identities.json");
+});
+
 test("finance reviewed-origin repairs use a pinned private input file", () => {
   const command = buildDataReleaseHandlerCommand({
     handler: "finance-reviewed-origin-mappings-v1",
@@ -111,6 +129,29 @@ test("finance consolidation vouchers use a pinned private input file", () => {
   assert.ok(command.args.includes("--input-file=/srv/private/sources/finance/consolidation-voucher.json"));
   assert.throws(() => buildDataReleaseHandlerCommand({
     handler: "finance-consolidation-voucher-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  }), /escapes/);
+});
+
+test("finance consolidation entry migrations use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "finance-consolidation-entry-migration-v1",
+    parameters: { inputFile: "finance/consolidation-entry-migration.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.deepEqual(command.args, [
+    "/srv/release/scripts/repair/repair-finance-consolidation-entry.mjs",
+    "--execute",
+    "--input-file=/srv/private/sources/finance/consolidation-entry-migration.json",
+  ]);
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "finance-consolidation-entry-migration-v1",
     parameters: { inputFile: "../outside.json" },
   }, {
     repositoryRoot: "/srv/release",

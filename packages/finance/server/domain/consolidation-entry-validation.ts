@@ -13,6 +13,7 @@ import {
 } from "@workspace/platform/server/domain-validation";
 
 const ENTRY_TYPES = [
+  "groupAdjustment",
   "investmentEquity",
   "reclassification",
   "nonControllingInterest",

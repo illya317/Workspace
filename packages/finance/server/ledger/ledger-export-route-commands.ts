@@ -1,11 +1,16 @@
 import type {
   FinanceAssetExportView,
   FinanceCounterpartyBalanceCategory,
+  FinanceCounterpartyObjectType,
   FinanceCounterpartyBalanceRow,
+  FinanceCounterpartyRelationScope,
   FinanceGroupVoucherDocumentType,
+  FinanceLedgerExportMode,
   FinanceLedgerExportView,
+  FinanceVoucherPeriodScope,
 } from "../../types/ledger";
 import type { FinanceGroupAccountUsage } from "../../types/group-account";
+import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 import {
   failCommand,
   okCommand,
@@ -19,22 +24,33 @@ import { listVouchers } from "./voucher-service";
 import { listFinanceGroupAccounts } from "./group-accounts";
 import { listFinanceAssetWorkspace } from "../assets/service";
 import { matchAnyField } from "@workspace/platform/search";
+import { buildGroupVoucherWorkbook } from "./group-voucher-export";
+import { workbookFormula } from "../workbook-formula-contract";
+import { counterpartyPeriodValidationMessage } from "./counterparty-period";
+import { ledgerWorkbookFilename } from "./ledger-workbook-filename";
+import { voucherPeriodValidationIssue } from "./voucher-period";
 
 const XLSX_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 const EXPORT_PAGE_SIZE = 2000;
+const GROUP_DETAIL_EXPORT_PAGE_SIZE = 100;
 
 export interface LedgerExportCommand {
   view: FinanceLedgerExportView;
   companyCode?: string;
   year?: number;
   month?: number;
+  periodKind?: StatementPeriodKind;
   keyword?: string;
   subjectLevel?: string;
   scope?: FinanceAccountScope;
   category?: FinanceCounterpartyBalanceCategory;
+  relationScope?: FinanceCounterpartyRelationScope;
+  objectType?: FinanceCounterpartyObjectType;
   voucherKind?: "standard" | "group";
   documentType?: FinanceGroupVoucherDocumentType;
   origin?: "manual" | "system";
+  exportMode?: FinanceLedgerExportMode;
+  voucherPeriodScope?: FinanceVoucherPeriodScope;
   policyVersionId?: number;
   accountCategory?: string;
   accountUsage?: FinanceGroupAccountUsage;
@@ -44,18 +60,27 @@ export interface LedgerExportCommand {
 
 export function buildLedgerExportCommand(input: LedgerExportCommand): DomainValidationResult<LedgerExportCommand> {
   if ((input.view === "balances" || input.view === "counterparty")
-    && (!input.companyCode || input.year === undefined || input.month === undefined)) {
+    && (!input.companyCode || input.year === undefined || input.month === undefined))
     return failCommand("请选择公司和会计期间后再下载", 400, "companyCode");
+  if (input.view === "counterparty" && !input.category) return failCommand("请选择应收应付类型后再下载", 400, "category");
+  if (input.view === "counterparty" && input.year !== undefined && input.month !== undefined) {
+    const periodKind = input.periodKind ?? "month";
+    const periodError = counterpartyPeriodValidationMessage(input.year, input.month, periodKind);
+    if (periodError) return failCommand(periodError, 400, "month");
   }
-  if (input.view === "counterparty" && !input.category) {
-    return failCommand("请选择应收应付类型后再下载", 400, "category");
-  }
+  const voucherIssue = input.view === "vouchers" || input.voucherPeriodScope === "history"
+    ? voucherPeriodValidationIssue(input)
+    : null;
+  if (voucherIssue) return failCommand(voucherIssue.error, 400, voucherIssue.field);
   if (input.view === "assets"
     && (!input.companyCode || input.year === undefined || input.month === undefined)) {
     return failCommand("请选择公司和会计期间后再下载", 400, "companyCode");
   }
   if (input.view === "assets" && !input.assetView) {
     return failCommand("请选择折旧摊销页签后再下载", 400, "assetView");
+  }
+  if (input.exportMode === "detail" && (input.view !== "vouchers" || input.voucherKind !== "group")) {
+    return failCommand("明细导出仅适用于合并明细", 400, "exportMode");
   }
   return okCommand(input);
 }
@@ -122,43 +147,28 @@ async function loadAccountWorkbook(command: LedgerExportCommand): Promise<Ledger
 }
 
 async function loadVoucherWorkbook(command: LedgerExportCommand): Promise<LedgerWorkbookInput> {
+  const groupExportMode = command.exportMode ?? "summary";
   const vouchers = await collectPages(
     (page) => listVouchers({
       companyCode: command.companyCode,
       year: command.year,
       month: command.month,
+      periodKind: command.periodKind,
+      voucherPeriodScope: command.voucherPeriodScope,
       keyword: command.keyword,
       page,
-      pageSize: EXPORT_PAGE_SIZE,
+      pageSize: command.voucherKind === "group" && groupExportMode === "detail"
+        ? GROUP_DETAIL_EXPORT_PAGE_SIZE
+        : EXPORT_PAGE_SIZE,
       voucherKind: command.voucherKind ?? "standard",
+      includeSourceTraces: command.voucherKind === "group" && groupExportMode === "detail",
       documentType: command.documentType,
       origin: command.origin,
     }),
     (result) => result.data,
   );
   if (command.voucherKind === "group") {
-    return {
-      sheetName: "合并明细",
-      columns: [
-        textColumn("凭证号", 20), textColumn("凭证日期", 14), textColumn("发生日期", 14),
-        textColumn("合并主体", 28), textColumn("分录序号", 10), textColumn("科目编码", 16),
-        textColumn("科目名称", 30), textColumn("公司主体", 18),
-        amountColumn("借方", 16), amountColumn("贷方", 16), textColumn("状态", 12),
-      ],
-      rows: vouchers.flatMap((voucher) => voucher.items.map((item, index) => [
-        voucher.voucherNo,
-        dateLabel(voucher.date),
-        "sourceDate" in item ? item.sourceDate ?? "" : "",
-        voucher.description ?? "",
-        index + 1,
-        item.account.code,
-        item.account.name,
-        "entityName" in item ? item.entityName ?? "" : "",
-        Number(item.debit),
-        Number(item.credit),
-        voucher.status,
-      ])),
-    };
+    return buildGroupVoucherWorkbook(vouchers, groupExportMode);
   }
   return {
     sheetName: "凭证明细",
@@ -242,17 +252,20 @@ async function loadBalanceWorkbook(command: LedgerExportCommand): Promise<Ledger
       textColumn("科目编码", 16), textColumn("科目名称", 30), textColumn("类别", 12),
       ...balanceColumns(),
     ],
-    rows: rows.map((row) => [
-      row.account.code,
-      row.account.name,
-      categories[row.account.category] ?? row.account.category,
-      Number(row.openingDebit),
-      Number(row.openingCredit),
-      Number(row.currentDebit),
-      Number(row.currentCredit),
-      Number(row.closingDebit),
-      Number(row.closingCredit),
-    ]),
+    rows: rows.map((row, index) => {
+      const excelRow = index + 2;
+      return [
+        row.account.code,
+        row.account.name,
+        categories[row.account.category] ?? row.account.category,
+        Number(row.openingDebit),
+        Number(row.openingCredit),
+        Number(row.currentDebit),
+        Number(row.currentCredit),
+        workbookFormula(`ROUND(MAX(D${excelRow}-E${excelRow}+F${excelRow}-G${excelRow},0),2)`, Number(row.closingDebit)),
+        workbookFormula(`ROUND(MAX(-(D${excelRow}-E${excelRow}+F${excelRow}-G${excelRow}),0),2)`, Number(row.closingCredit)),
+      ];
+    }),
   };
 }
 
@@ -263,8 +276,11 @@ async function loadCounterpartyWorkbook(command: LedgerExportCommand): Promise<L
       companyCode: command.companyCode!,
       year: command.year!,
       month: command.month!,
+      periodKind: command.periodKind ?? "month",
       category,
       keyword: command.keyword,
+      relationScope: command.relationScope,
+      objectType: command.objectType,
       page,
       pageSize: EXPORT_PAGE_SIZE,
     }),
@@ -274,7 +290,13 @@ async function loadCounterpartyWorkbook(command: LedgerExportCommand): Promise<L
   const nameHeader = category === "ar" ? "客户名称" : category === "ap" ? "供应商名称" : "往来对象名称";
   return {
     sheetName,
-    columns: [textColumn(nameHeader, 36), ...balanceColumns()],
+    columns: [
+      textColumn(nameHeader, 36),
+      textColumn("对象类型", 16),
+      textColumn("关系性质", 16),
+      textColumn("科目", 28),
+      ...balanceColumns(),
+    ],
     rows: rows.map(counterpartyRow),
   };
 }
@@ -343,10 +365,15 @@ function assetPeriodWorkbook(
       textColumn("起算日期", 14), amountColumn("原值", 16), amountColumn("正常计算", 16),
       amountColumn("调整", 16), amountColumn("本期入账", 16), textColumn("凭证", 20),
     ],
-    rows: filtered.map((row) => [
-      row.assetCode, row.name, row.accountCode, row.depreciationStartDate ?? "",
-      row.originalCost, row.normalAmount, row.adjustmentAmount, row.periodAmount, row.voucherNo ?? "待关联",
-    ]),
+    rows: filtered.map((row, index) => {
+      const excelRow = index + 2;
+      return [
+        row.assetCode, row.name, row.accountCode, row.depreciationStartDate ?? "",
+        row.originalCost, row.normalAmount, row.adjustmentAmount,
+        workbookFormula(`ROUND(F${excelRow}+G${excelRow},2)`, row.periodAmount),
+        row.voucherNo ?? "待关联",
+      ];
+    }),
   };
 }
 
@@ -390,10 +417,15 @@ function assetReconciliationWorkbook(
       amountColumn("总账本期净额", 16), amountColumn("凭证差异", 16), amountColumn("总账差异", 16),
       textColumn("勾稽", 12),
     ],
-    rows: filtered.map((row) => [
-      row.accountCode, row.scheduleAmount, row.voucherAmount, row.ledgerAmount,
-      row.voucherDifference, row.ledgerDifference, row.status === "matched" ? "已勾稽" : "有差异",
-    ]),
+    rows: filtered.map((row, index) => {
+      const excelRow = index + 2;
+      return [
+        row.accountCode, row.scheduleAmount, row.voucherAmount, row.ledgerAmount,
+        workbookFormula(`ROUND(B${excelRow}-C${excelRow},2)`, row.voucherDifference),
+        workbookFormula(`ROUND(B${excelRow}-D${excelRow},2)`, row.ledgerDifference),
+        row.status === "matched" ? "已勾稽" : "有差异",
+      ];
+    }),
   };
 }
 
@@ -420,16 +452,41 @@ async function collectPages<T, R extends { totalPages?: number }>(
   }
 }
 
-function counterpartyRow(row: FinanceCounterpartyBalanceRow): Array<string | number> {
+function counterpartyRow(row: FinanceCounterpartyBalanceRow, index: number) {
+  const excelRow = index + 2;
   return [
     row.counterpartyName,
+    counterpartyObjectKindLabel(row.counterpartyObjectKind),
+    row.relatedPartyType ? relatedPartyTypeLabel(row.relatedPartyType) : row.identityMatched ? "非关联方" : "未匹配",
+    `${row.accountCode} ${row.accountName}`,
     row.openingDebit,
     row.openingCredit,
     row.currentDebit,
     row.currentCredit,
-    row.closingDebit,
-    row.closingCredit,
+    workbookFormula(`ROUND(MAX(E${excelRow}-F${excelRow}+G${excelRow}-H${excelRow},0),2)`, row.closingDebit),
+    workbookFormula(`ROUND(MAX(-(E${excelRow}-F${excelRow}+G${excelRow}-H${excelRow}),0),2)`, row.closingCredit),
   ];
+}
+
+function counterpartyObjectKindLabel(value: FinanceCounterpartyBalanceRow["counterpartyObjectKind"]) {
+  return {
+    groupCompany: "集团公司",
+    customer: "客户",
+    supplier: "供应商",
+    employee: "员工",
+    department: "部门",
+    other: "其他单位/个人",
+  }[value];
+}
+
+function relatedPartyTypeLabel(value: NonNullable<FinanceCounterpartyBalanceRow["relatedPartyType"]>) {
+  return {
+    group: "集团内",
+    joint_venture_associate: "合营/联营",
+    investor_influence: "重大影响",
+    key_management_related: "管理人员",
+    other_related: "其他关联方",
+  }[value];
 }
 
 function balanceColumns() {
@@ -490,14 +547,4 @@ function assetKindLabel(value: string) {
 
 function dateLabel(value: Date | string) {
   return value instanceof Date ? value.toISOString().slice(0, 10) : String(value).slice(0, 10);
-}
-
-function ledgerWorkbookFilename(command: LedgerExportCommand, sheetName: string) {
-  const company = command.companyCode || "全部公司";
-  const period = command.year === undefined
-    ? "全部期间"
-    : command.month === undefined
-      ? String(command.year)
-      : `${command.year}.${String(command.month).padStart(2, "0")}`;
-  return `${company}-${period}-${sheetName}.xlsx`.replace(/[\\/:*?"<>|]/g, "_");
 }

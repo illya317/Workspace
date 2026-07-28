@@ -190,7 +190,33 @@ if (target.kind === 'monolith') {
   throw new Error('unit target must bind one shadow or activate deploy unit');
 }
 const genesis = metadata.deploymentGenesis;
+const databaseReplacement = metadata.databaseReplacement;
 if (metadata.deploymentBootstrap && genesis) throw new Error('bootstrap and genesis metadata are mutually exclusive');
+if (databaseReplacement) {
+  const replacementKeys = Object.keys(databaseReplacement).sort().join(',');
+  const sourceKeys = Object.keys(databaseReplacement.source ?? {}).sort().join(',');
+  const dumpKeys = Object.keys(databaseReplacement.dump ?? {}).sort().join(',');
+  const databaseKeys = Object.keys(databaseReplacement.database ?? {}).sort().join(',');
+  if (target.kind !== 'monolith' || metadata.deploymentBootstrap || genesis
+    || replacementKeys !== 'database,dump,kind,preparedAt,schemaVersion,source,status'
+    || databaseReplacement.schemaVersion !== 1
+    || databaseReplacement.kind !== 'workspace-database-replacement'
+    || databaseReplacement.status !== 'prepared'
+    || sourceKeys !== 'commitSha,treeSha'
+    || databaseReplacement.source.commitSha !== sha
+    || databaseReplacement.source.treeSha !== tree
+    || dumpKeys !== 'format,remoteArtifact,sha256,sizeBytes'
+    || databaseReplacement.dump.format !== 'postgresql-custom'
+    || !/^[0-9a-f]{64}$/.test(databaseReplacement.dump.sha256 ?? '')
+    || databaseReplacement.dump.remoteArtifact !== `${sha}/${databaseReplacement.dump.sha256}/workspace-postgresql.dump`
+    || !Number.isSafeInteger(databaseReplacement.dump.sizeBytes) || databaseReplacement.dump.sizeBytes < 1
+    || databaseKeys !== 'migrationCount,migrationSetSha256'
+    || !Number.isSafeInteger(databaseReplacement.database.migrationCount) || databaseReplacement.database.migrationCount < 1
+    || !/^[0-9a-f]{64}$/.test(databaseReplacement.database.migrationSetSha256 ?? '')
+    || !Number.isFinite(Date.parse(databaseReplacement.preparedAt ?? ''))) {
+    throw new Error('database replacement metadata is invalid');
+  }
+}
 if (genesis) {
   if (target.kind !== 'monolith'
     || Object.keys(genesis).sort().join(',') !== 'baselineChecksum,baselineMigration,fromSourceSha,legacyMigrationCount,legacyMigrationSetSha256'

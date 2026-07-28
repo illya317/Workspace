@@ -6,7 +6,7 @@
 - 所有 model 必须按领域放在 `prisma/models/*.prisma`。
 - 禁止把新 model 直接写回 `prisma/schema.prisma`。
 
-当前领域划分（57 个 model 文件、244 个 model；逐字段关系以 `docs/generated/tables.md` 为准）：
+当前领域划分（59 个 model 文件、251 个 model；逐字段关系以 `docs/generated/tables.md` 为准）：
 
 | 文件 | 领域 | 模型 |
 |------|------|------|
@@ -15,9 +15,13 @@
 | `approvals.prisma` | 审批请求、事件与工作流策略 | ApprovalRequest, ApprovalEvent, WorkflowPolicy |
 | `auth-rbac.prisma` | 认证、权限、授权账本与通知 | User, Resource, PermissionActionNormalization, UserResourceActionGrant, PositionResourceActionGrant, DepartmentResourceActionGrant, PermissionGrantLedgerEvent, Notification |
 | `capital-securities.prisma` | 资本证券、工商变更与股权投影 | OwnershipInterest, CompanyRegistryChange, CompanyRegistryOwnershipParticipant, ShareCapitalEvent, ShareCapitalTransaction, ShareCapitalSnapshotPosition, ShareholderGroup, ShareholderGroupMembership |
+| `contract-lifecycle.prisma` | 行政合同修订与状态事件 | ContractRevision, ContractStateEvent |
 | `contracts.prisma` | 行政合同 | Contract |
+| `data-quality.prisma` | 数据质量检查、发现与通知 | DataQualityRun, DataQualityCheckState, DataQualityFinding, DataQualityNotificationDelivery, DataQualityEvaluationRequest |
 | `document-templates.prisma` | 文档模板空间与版本化模板 | DocumentTemplateSpace, DocumentTemplate |
 | `external.prisma` | 共享主体与外部角色 | Party, PartyNameHistory, ExternalPartyProfile, ExternalPartyRole, ExternalPartySourceMapping |
+| `external-legal-facts.prisma` | 外部主体法定事实修订 | PartyLegalFactRevision |
+| `party-identity-links.prisma` | 员工与个人法定主体的身份确认 | EmployeePartyIdentityLink |
 | `finance-assets.prisma` | 财务资产卡片、期间记录与调整 | FinanceAssetCard, FinanceAssetCostLine, FinanceAssetExpenseAllocation, FinanceAssetImportBatch, FinanceAssetPeriodEntry, FinanceAssetAdjustment |
 | `finance-budget.prisma` | 预算管理 | FinanceBudgetVersion, FinanceBudgetDept, FinanceBudgetRd |
 | `finance-cashflow.prisma` | 现金流项目、分配与调整 | FinanceCashFlowItem, FinanceCashFlowAllocation, FinanceCashFlowAllocationAdjustment |
@@ -37,7 +41,10 @@
 | `finance-statement.prisma` | 财务报表底稿与汇率 | FinanceStatementWorkpaper, FinanceStatementWorkpaperLine, FinanceStatementExchangeRate |
 | `finance-treasury.prisma` | 币种与银行账户 | FinanceCurrency, FinanceBankAccount |
 | `hr-documents.prisma` | 部门与岗位说明书 | DepartmentDescription, PositionDescription |
+| `hr-employment-agreements.prisma` | 员工协议、期限、附件与修订 | EmploymentAgreement, EmploymentAgreementAttachment, EmploymentAgreementTerm, EmploymentAgreementRevision, EmploymentAgreementChange |
+| `hr-organization-lifecycle.prisma` | 组织结构生效版本 | OrganizationStructureChange, DepartmentEffectiveVersion, PositionEffectiveVersion, PositionReportOverrideEffectiveVersion |
 | `hr-performance.prisma` | HR 绩效评审 | HrPerformanceReview |
+| `hr-social-insurance.prisma` | 员工社会保险期间与修订 | EmployeeSocialInsurancePeriod, EmployeeSocialInsurancePeriodRevision |
 | `hr.prisma` | 人事、组织与公司治理共享角色 | Employee, Employment, Company, Department, Position, EDP, PositionReportOverride, EditHistory |
 | `hr-lifecycle.prisma` | 人员生效日与生命周期事件台账 | EmployeeLifecycleEvent |
 | `inventory-operations.prisma` | 库存主档、单据、流水、盘点与导入 | InventoryItem, InventoryUnitConversion, InventoryWarehouse, InventoryBatch, InventoryDocument, InventoryDocumentLine, InventoryLedgerEntry, InventoryStocktake, InventoryStocktakeLine, InventoryPeriodClose, InventoryImportBatch |
@@ -94,6 +101,8 @@ model Employee {
 `OwnershipInterest` 是明确登记的跨模块物化投影例外：唯一事实仍是股权事件账本，投影只能由同一个账本投影器整体同步，任何页面、API 或人工导入都不得直接增删改。该读模型用于集团关系图和财务合并，必须保留来源事件引用并可从账本完全重建。
 
 共享身份与角色必须保持一条主链：`Party` 是法定主体，`Company.partyId` 是一对一内部公司角色，`ExternalPartyRole.partyId` 是可多角色的客户/供应商资料。内部公司、外部角色和股权关系不得各建一份名称身份表；删除 External 最后一个角色也不得删除 Party。内部公司导入必须先解析或建立受治理 Party，再创建 Company，并在公司编码与 Party 角色发生冲突时停止。
+
+内部个人往来优先由 `FinanceAuxiliaryMember.linkedEmployeeId` 关联 Employee，不得为了财务辅助核算批量复制个人 Party。员工确有股东、客户、供应商或合同自然人身份时，通过一对一 `EmployeePartyIdentityLink` 连接既有个人 Party；证件号可作为自动确认依据，名称相同只能进入人工核实。辅助核算对象最多关联 Company、Employee、Party 三者之一，非公司链接必须保留匹配方法、证据、时间和操作者。
 
 产品粒度同样不得倒退：`Product` 表达制剂身份，`InventoryItem` 表达具体 SKU，成品入库报单属于 `inventory-receipts.prisma`，Production 只拥有产品主档维护与 QC。不得恢复 `production-accounting.prisma` 或在 Inventory 再复制一张产品表。
 

@@ -57,6 +57,11 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     reason: "lookupFragment",
     description: "该接口只返回股权主体候选项；完整主体和持股事实由治理及股权数据源提供。",
   },
+  "/api/modules/external/related-parties/candidates": {
+    disposition: "excluded",
+    reason: "lookupFragment",
+    description: "该接口只返回当前用户可登记的客户或供应商 Party 候选；完整关联方名录由已登记的数据源提供。",
+  },
   "/api/modules/finance/analysis/budget": {
     disposition: "derived",
     sourceKeys: ["finance.budget.versions", "finance.budget.department-monthly", "finance.budget.research-monthly"],

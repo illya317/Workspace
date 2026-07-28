@@ -3,7 +3,7 @@ import {
   businessTemporalRetrospectiveChanges,
   inclusiveBusinessPeriodToWindow,
 } from "@workspace/platform/contracts/business-temporal";
-import { businessTemporalBaselineMissingRequiredFields, validateBusinessTemporalBaselineMutation } from "@workspace/platform/contracts/business-temporal-baseline";
+import { businessTemporalBaselineMissingRequiredFields } from "@workspace/platform/contracts/business-temporal-baseline";
 import { checkHRUpdate } from "@workspace/platform/server/auth";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
@@ -17,14 +17,12 @@ import { employmentForAgreementDate } from "@workspace/hr/utils/employment-selec
 import { HR_EMPLOYMENT_AGREEMENT_TEMPORAL } from "../business-temporal";
 import {
   buildEmploymentAgreementCommand,
-  employmentAgreementContentPatchFields,
   validateEmploymentAgreementContentReferences,
   type EmploymentAgreementCommand,
 } from "./domain/employment-agreement-validation";
 import { employmentAgreementChangeManifest } from "./domain/employment-agreement-change";
+import { applyEmploymentAgreementBaselineMutation } from "./employment-agreement-baseline-mutation";
 import {
-  normalizedEmploymentAgreementContent,
-  parseEmploymentAgreementContent,
   parseEmploymentAgreementMissingFields,
   refreshEmploymentAgreementBaselineMissingFields,
 } from "./employment-agreement-baseline-storage";
@@ -292,56 +290,14 @@ async function changeAgreement(
   }
 
   if (command.kind === "supplement-missing" || command.kind === "correct-existing") {
-    if (command.kind === "supplement-missing" && agreement.sourceKind !== "legacy-baseline") {
-      return failed("只有已登记缺失字段的 baseline 协议可以补充资料", 409);
-    }
-    const changedFields = employmentAgreementContentPatchFields(command.patch);
-    const baselineMutation = validateBusinessTemporalBaselineMutation({
-      kind: command.kind,
+    const mutation = await applyEmploymentAgreementBaselineMutation({
+      tx,
+      agreement,
       missingFields,
-      changedFields,
+      command,
+      userId,
     });
-    if (!baselineMutation.ok) {
-      if (baselineMutation.reason === "no-fields") return failed("没有需要保存的协议资料变化", 400);
-      return failed(
-        command.kind === "supplement-missing"
-          ? "补充资料只能填写当前标记为缺失的字段"
-          : "修正资料不能同时补充缺失字段，请分别保存",
-        409,
-      );
-    }
-    if (
-      command.kind === "supplement-missing"
-      && Object.values(command.patch).some((value) => value == null || value === "")
-    ) {
-      return failed("补充资料必须为缺失字段提供有效值", 400);
-    }
-    const currentContent = normalizedEmploymentAgreementContent(
-      parseEmploymentAgreementContent(agreement.currentPublishedRevision?.contentJson),
-    );
-    const nextContent = { ...currentContent, ...command.patch };
-    const nextContentError = await validateEmploymentAgreementContentReferences(nextContent);
-    if (nextContentError) return failed(nextContentError.message, 400);
-    const revisionNo = nextRevisionNo(agreement.revisions);
-    const revision = await tx.employmentAgreementRevision.create({
-      data: {
-        agreementId: agreement.id,
-        revisionNo,
-        recordState: "published",
-        changeKind: command.kind === "supplement-missing" ? "supplement" : "correction",
-        contentJson: JSON.stringify(nextContent),
-        supersedesRevisionId: agreement.currentPublishedRevisionId,
-        sourceKind: command.sourceKind,
-        sourceRef: command.sourceRef,
-        reason: command.reason,
-        createdBy: userId,
-      },
-    });
-    await tx.employmentAgreement.update({
-      where: { id: agreement.id },
-      data: { currentPublishedRevisionId: revision.id },
-    });
-    await refreshEmploymentAgreementBaselineMissingFields(tx, agreement.id);
+    if (!mutation.ok) return failed(mutation.error, mutation.status);
     return succeeded(agreement.id);
   }
 
@@ -466,10 +422,6 @@ async function clearPrimaryAgreements(
     },
     data: { isPrimary: false, version: { increment: 1 }, updatedBy: userId },
   });
-}
-
-function nextRevisionNo(revisions: Array<{ revisionNo: number }>) {
-  return Math.max(0, ...revisions.map((revision) => revision.revisionNo)) + 1;
 }
 
 function nextTermSequence(terms: Array<{ sequence: number }>) {

@@ -233,6 +233,7 @@ copy_data_release_files() {
   echo "==> 打包私有数据发布执行器与生产回执门禁..."
   test -f ops/data-release.mjs
   test -f ops/apply-data-release.mjs
+  test -f ops/replace-production-database.sh
   test -f ops/prisma-genesis-cutover.mjs
   rm -rf .next/standalone/ops/data-releases
   mkdir -p .next/standalone/ops
@@ -240,6 +241,8 @@ copy_data_release_files() {
   cp ops/apply-data-release.mjs .next/standalone/ops/apply-data-release.mjs
   cp ops/data-release-handlers.mjs .next/standalone/ops/data-release-handlers.mjs
   cp ops/data-release-transfer.mjs .next/standalone/ops/data-release-transfer.mjs
+  cp ops/replace-production-database.sh .next/standalone/ops/replace-production-database.sh
+  chmod 755 .next/standalone/ops/replace-production-database.sh
   cp ops/prisma-genesis-cutover.mjs .next/standalone/ops/prisma-genesis-cutover.mjs
   cp tsconfig.json tsconfig.base.json .next/standalone/
   if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
@@ -255,6 +258,7 @@ copy_data_release_files() {
   test -f .next/standalone/ops/apply-data-release.mjs
   test -f .next/standalone/ops/data-release-handlers.mjs
   test -f .next/standalone/ops/data-release-transfer.mjs
+  test -x .next/standalone/ops/replace-production-database.sh
   test -f .next/standalone/ops/prisma-genesis-cutover.mjs
   test -f .next/standalone/tsconfig.json
   test -f .next/standalone/tsconfig.base.json

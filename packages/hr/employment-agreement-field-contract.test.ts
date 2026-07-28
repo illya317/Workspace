@@ -15,7 +15,7 @@ const validCommands = {
   renew: { kind: "renew", agreementUid: "agreement-001", expectedVersion: 1, effectiveFrom: "2026-08-01" },
   end: { kind: "end", agreementUid: "agreement-001", expectedVersion: 1, termUid: "term-00000001", effectiveThrough: "2026-08-01", reason: "合同到期" },
   correct: { kind: "correct", agreementUid: "agreement-001", expectedVersion: 1, termUid: "term-00000001", effectiveFrom: "2026-08-01", reason: "补正历史资料" },
-  "supplement-missing": { kind: "supplement-missing", agreementUid: "agreement-001", expectedVersion: 1, patch: { legalRelation: "劳动关系" }, reason: "补充历史资料" },
+  "supplement-missing": { kind: "supplement-missing", agreementUid: "agreement-001", expectedVersion: 1, patch: { content: { legalRelation: "劳动关系" } }, reason: "补充历史资料" },
   "correct-existing": { kind: "correct-existing", agreementUid: "agreement-001", expectedVersion: 1, patch: { company: "测试公司" }, reason: "修正历史资料" },
   "set-primary": { kind: "set-primary", agreementUid: "agreement-001", expectedVersion: 1 },
   "cancel-future": { kind: "cancel-future", agreementUid: "agreement-001", expectedVersion: 1, termUid: "term-00000001", reason: "取消未生效期限" },
@@ -46,6 +46,7 @@ test("unstarred contract content fields stay optional even when data quality rep
     }
   }
   assert.equal(employmentAgreementFieldRequired("renew", "reason"), false);
+  assert.equal(employmentAgreementFieldRequired("supplement-missing", "reason"), false);
   assert.equal(employmentAgreementFieldRequired("end", "reason"), true);
   assert.equal(employmentAgreementMissingFieldLabel("content.legalRelation"), "法律关系");
   assert.equal(employmentAgreementMissingFieldLabel("terms.2.effectiveFrom"), "第 2 期开始日期");
