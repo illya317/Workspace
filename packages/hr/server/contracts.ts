@@ -85,7 +85,7 @@ function contractSourceSql(isActive: boolean | undefined, businessDate: string) 
         agreement."id" AS "agreementId",
         employment."id" AS "employmentId",
         NULL::bigint AS "contractIndex",
-        NULL::text AS "contractJson"
+        NULL::jsonb AS "contractJson"
       FROM "EmploymentAgreement" agreement
       JOIN valid_employments employment ON employment."id" = agreement."employmentId"
       WHERE agreement."recordState" <> 'voided'
