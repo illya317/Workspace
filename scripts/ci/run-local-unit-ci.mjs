@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -14,6 +14,19 @@ const UNIT_PATTERN = /^[a-z][a-z0-9-]*$/;
 
 function git(cwd, args) {
   return execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
+}
+
+function runDeployUnitSourceChecks(unitId, { cwd, env }) {
+  const result = spawnSync(process.execPath, [
+    "--conditions=react-server",
+    "--import",
+    "tsx",
+    "scripts/ci/run-deploy-unit-source-checks.mjs",
+    "--unit",
+    unitId,
+  ], { cwd, env, stdio: "inherit" });
+  if (result.error) throw result.error;
+  return result.status ?? 1;
 }
 
 function parseArguments(argv) {
@@ -36,6 +49,7 @@ export function runLocalUnitCi({
   cwd = process.cwd(),
   env = process.env,
   runSuites = (suiteNames, options) => runCheckSuites(suiteNames, options),
+  runSourceChecks = (targetUnitId, options) => runDeployUnitSourceChecks(targetUnitId, options),
   gitCommand = (args) => git(cwd, args),
   writeReceipt = writeLocalUnitCiReceipt,
   stdout = process.stdout,
@@ -47,13 +61,15 @@ export function runLocalUnitCi({
   }
   const sourceSha = gitCommand(["rev-parse", "HEAD^{commit}"]);
   const treeSha = gitCommand(["rev-parse", "HEAD^{tree}"]);
-  const status = runSuites(["release-unit"], {
+  const protocolStatus = runSuites(["release-unit-protocol"], {
     cwd,
     env,
     stdout,
     collectFailures: true,
   });
-  if (status !== 0) return status;
+  if (protocolStatus !== 0) return protocolStatus;
+  const sourceStatus = runSourceChecks(unitId, { cwd, env, stdout });
+  if (sourceStatus !== 0) return sourceStatus;
   if (gitCommand(["status", "--porcelain=v1", "--untracked-files=all"]) !== "") {
     throw new Error("local unit CI changed the working tree; refusing its receipt");
   }

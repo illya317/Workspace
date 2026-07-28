@@ -123,17 +123,13 @@ const SUITES = {
   ],
   quick: ["env", "@changed"],
   push: ["@blockers", "@changed", "test-node"],
-  "release-unit": [
+  "release-unit-protocol": [
     "playwright-lifecycle",
-    "@blockers",
+    "test-focus",
+    "deploy-graph",
+    "deploy-unit-apps",
     "env",
     "db-path",
-    "@docs",
-    "@data",
-    "db-generate",
-    "lint-full",
-    "test-node",
-    "@hygiene-warning",
     "playwright-processes",
   ],
   ci: [

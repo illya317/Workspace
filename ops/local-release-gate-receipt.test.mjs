@@ -101,6 +101,18 @@ test("unit release gate receipt binds target, graph, compiler closure, artifact,
   }), value);
   assert.equal(value.schemaVersion, 3);
   assert.deepEqual(value.scope, { kind: "unit", unitId: "hr" });
+  assert.deepEqual(value.checks, [
+    "release-unit-protocol",
+    "deploy-unit-lint",
+    "deploy-unit-node-tests",
+    "deploy-unit-typecheck",
+    "deploy-unit-production-build",
+    "disposable-postgresql-migrations",
+    "resource-seed",
+    "deploy-unit-runtime-smoke",
+    "deploy-unit-e2e",
+  ]);
+  assert.equal(value.unitCi.schemaVersion, 2);
   assert.deepEqual(value.unit.typecheckScopes, ["app-hr", "hr"]);
   assert.deepEqual(value.unit.e2eSuites, ["module-readiness"]);
   assert.equal(value.unit.artifactSha256, manifest.artifact.sha256);

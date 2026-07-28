@@ -183,7 +183,9 @@ const validUnitGate = target?.kind === 'unit'
   && gate.scope?.kind === 'unit'
   && gate.scope?.unitId === target.unitId
   && JSON.stringify(gate.checks) === JSON.stringify([
-    'release-unit-base',
+    'release-unit-protocol',
+    'deploy-unit-lint',
+    'deploy-unit-node-tests',
     'deploy-unit-typecheck',
     'deploy-unit-production-build',
     'disposable-postgresql-migrations',
@@ -198,10 +200,15 @@ const validUnitGate = target?.kind === 'unit'
   && Array.isArray(gate.unit?.typecheckScopes)
   && gate.unit.typecheckScopes.length > 0
   && Array.isArray(gate.unit?.e2eSuites)
-  && gate.unitCi?.schemaVersion === 1
+  && gate.unitCi?.schemaVersion === 2
   && gate.unitCi?.kind === 'workspace-local-unit-ci'
   && gate.unitCi?.status === 'passed'
-  && gate.unitCi?.command === 'scripts/check/run-check-suite.mjs release-unit'
+  && gate.unitCi?.command === 'scripts/ci/run-local-unit-ci.mjs'
+  && JSON.stringify(gate.unitCi?.checks) === JSON.stringify([
+    'release-unit-protocol',
+    'deploy-unit-lint',
+    'deploy-unit-node-tests',
+  ])
   && gate.unitCi?.unitId === target.unitId
   && gate.unitCi?.sourceSha === sha
   && gate.unitCi?.treeSha === tree;

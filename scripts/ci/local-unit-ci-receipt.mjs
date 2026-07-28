@@ -7,7 +7,12 @@ import { pathToFileURL } from "node:url";
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const UNIT_PATTERN = /^[a-z][a-z0-9-]*$/;
 const RECEIPT_KIND = "workspace-local-unit-ci";
-const RECEIPT_COMMAND = "scripts/check/run-check-suite.mjs release-unit";
+const RECEIPT_COMMAND = "scripts/ci/run-local-unit-ci.mjs";
+const RECEIPT_CHECKS = [
+  "release-unit-protocol",
+  "deploy-unit-lint",
+  "deploy-unit-node-tests",
+];
 
 function requireSha(value, label) {
   if (!SHA_PATTERN.test(value ?? "")) throw new Error(`${label} must be a full lowercase Git SHA`);
@@ -33,10 +38,11 @@ export function createLocalUnitCiReceipt({
   completedAt = new Date().toISOString(),
 } = {}) {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     kind: RECEIPT_KIND,
     status: "passed",
     command: RECEIPT_COMMAND,
+    checks: RECEIPT_CHECKS,
     unitId: requireUnitId(unitId),
     sourceSha: requireSha(sourceSha, "source SHA"),
     treeSha: requireSha(treeSha, "tree SHA"),
@@ -46,10 +52,11 @@ export function createLocalUnitCiReceipt({
 
 export function validateLocalUnitCiReceipt(receipt, { unitId, sourceSha, treeSha } = {}) {
   if (!receipt || typeof receipt !== "object" || Array.isArray(receipt)
-    || receipt.schemaVersion !== 1
+    || receipt.schemaVersion !== 2
     || receipt.kind !== RECEIPT_KIND
     || receipt.status !== "passed"
-    || receipt.command !== RECEIPT_COMMAND) {
+    || receipt.command !== RECEIPT_COMMAND
+    || JSON.stringify(receipt.checks) !== JSON.stringify(RECEIPT_CHECKS)) {
     throw new Error("local unit CI receipt contract is invalid");
   }
   if (receipt.unitId !== requireUnitId(unitId)

@@ -75,6 +75,46 @@ export function selectNodeTests(allTests, suite) {
   }
 }
 
+export function runNodeTestFiles(
+  tests,
+  {
+    repositoryRoot = defaultRoot,
+    env = process.env,
+    spawn = spawnSync,
+    stderr = process.stderr,
+    stdout = process.stdout,
+    suiteLabel = "custom",
+  } = {},
+) {
+  if (!Array.isArray(tests) || tests.length === 0) {
+    stderr.write(`No node:test files found for suite: ${suiteLabel}\n`);
+    return 1;
+  }
+
+  stdout.write(`Running ${tests.length} node:test file(s) for suite "${suiteLabel}".\n`);
+  const testEnvironment = {
+    ...env,
+    WORKSPACE_CONFIG_DIR: env.WORKSPACE_CONFIG_DIR?.trim()
+      || path.join(repositoryRoot, "scripts/check/fixtures/tenant-workspace"),
+  };
+  const result = spawn(process.execPath, [
+    "--experimental-test-module-mocks",
+    "--conditions=react-server",
+    "--import",
+    "tsx",
+    "--test",
+    "--test-concurrency",
+    env.TEST_CONCURRENCY ?? "1",
+    ...tests,
+  ], {
+    cwd: repositoryRoot,
+    env: testEnvironment,
+    stdio: "inherit",
+  });
+  if (result.error) stderr.write(`${result.error.message}\n`);
+  return result.status ?? 1;
+}
+
 export function main(
   argv = process.argv.slice(2),
   { repositoryRoot = defaultRoot, spawn = spawnSync, stdout = process.stdout, stderr = process.stderr } = {},
@@ -89,36 +129,13 @@ export function main(
     return 2;
   }
 
-  if (tests.length === 0) {
-    stderr.write(`No node:test files found for suite: ${suite}\n`);
-    return 1;
-  }
-
-  stdout.write(`Running ${tests.length} node:test file(s) for suite "${suite}".\n`);
-
-  const testEnvironment = {
-    ...process.env,
-    WORKSPACE_CONFIG_DIR: process.env.WORKSPACE_CONFIG_DIR?.trim()
-      || path.join(repositoryRoot, "scripts/check/fixtures/tenant-workspace"),
-  };
-
-  const result = spawn(process.execPath, [
-    "--experimental-test-module-mocks",
-    "--conditions=react-server",
-    "--import",
-    "tsx",
-    "--test",
-    "--test-concurrency",
-    process.env.TEST_CONCURRENCY ?? "1",
-    ...tests,
-  ], {
-    cwd: repositoryRoot,
-    env: testEnvironment,
-    stdio: "inherit",
+  return runNodeTestFiles(tests, {
+    repositoryRoot,
+    spawn,
+    stdout,
+    stderr,
+    suiteLabel: suite,
   });
-
-  if (result.error) stderr.write(`${result.error.message}\n`);
-  return result.status ?? 1;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

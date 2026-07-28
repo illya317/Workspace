@@ -20,7 +20,9 @@ const FULL_CHECKS = [
   "playwright-e2e",
 ];
 const UNIT_CHECKS = [
-  "release-unit-base",
+  "release-unit-protocol",
+  "deploy-unit-lint",
+  "deploy-unit-node-tests",
   "deploy-unit-typecheck",
   "deploy-unit-production-build",
   "disposable-postgresql-migrations",

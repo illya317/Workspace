@@ -127,22 +127,32 @@ test("ci keeps warning checks visible but removes work already covered by the UI
   assert.equal(plan.coveredTaskReferences, 1);
 });
 
-test("release unit suite keeps Full-grade shared evidence but delegates type and build to the unit builder", () => {
-  const plan = resolveCheckPlan(["release-unit"]);
+test("release unit protocol keeps only shared release invariants", () => {
+  const plan = resolveCheckPlan(["release-unit-protocol"]);
   const ids = plan.tasks.map((task) => task.id);
 
   for (const required of [
+    "playwright-lifecycle",
+    "test-focus",
     "deploy-graph",
     "deploy-unit-apps",
-    "db-migration-check",
-    "lint-full",
-    "test-node",
+    "env",
+    "db-path",
     "playwright-processes",
   ]) {
     assert.equal(ids.includes(required), true, required);
   }
-  assert.equal(ids.includes("typecheck-full"), false);
-  assert.equal(ids.includes("build-next"), false);
+  for (const fullOnly of [
+    "domain-architecture",
+    "ui-architecture",
+    "db-migration-check",
+    "lint-full",
+    "test-node",
+    "typecheck-full",
+    "build-next",
+  ]) {
+    assert.equal(ids.includes(fullOnly), false, fullOnly);
+  }
 });
 
 test("warning-only tasks do not block the suite and timings are reported", () => {

@@ -8,7 +8,7 @@
 - 条件 job 只有在分类器明确允许时才能跳过；`CI / required` 会同时校验应成功和应跳过的 job。
 - 分类器、CI runner、Playwright runner、影响映射、公开 contract 或测试删除本身都按 C3 处理。
 - 启用分支保护后，受保护 `main` 的精确 `CI / required`（GitHub Actions App）仍是 GitHub 合并门禁，但不参与生产发布判定。
-- 生产门禁在本地对当前 Git tree 实际执行目标对应的 production build 和 Playwright E2E：Full 构建 canonical monolith 并运行全部已注册 E2E；单 unit 使用 deploy graph 的完整 compiler closure 构建独立 artifact，并只运行该 unit contract 声明的 E2E。两者都要求干净 committed release worktree、共享静态/Node/PostgreSQL 证据和目标绑定回执。门禁不读取 GitHub 状态，也不把缓存当作旧的“通过结果”。CNB 从该 source parent 在 Linux 重建相同目标制品；服务器不从源码重建。
+- 生产门禁在本地对当前 Git tree 实际执行目标对应的 production build 和 Playwright E2E：Full 构建 canonical monolith 并运行全部已注册 E2E；单 unit 使用 deploy graph 的完整 compiler closure 构建独立 artifact，并只运行该 unit contract 声明的 E2E。两者都要求干净 committed release worktree、精确 tree identity、一次性 PostgreSQL 和目标绑定回执；unit 只额外运行共享发布协议、私有 source roots 的 lint/Node，不重复 Full 的全库静态与全部 Node。门禁不读取 GitHub 状态，也不把缓存当作旧的“通过结果”。CNB 从该 source parent 在 Linux 重建相同目标制品；服务器不从源码重建。
 
 ## 风险等级
 
@@ -52,7 +52,7 @@ production unit: local graph-scoped build + unit E2E -> target-bound receipt -> 
 
 同一 event + 稳定 ref（或同一 PR）的连续 push/触发会取消旧 CI，只保留最新 SHA 的运行。候选过程固定复用 `codex/staging-main`、`codex/candidate-main` 和同一个 bot PR，因此第二次 push 会更新同一 ref/PR 并取消旧候选 CI。不同 PR、main push 与手工任务不会互相取消。已经进入生产 backup/migration/switch 临界区的部署不使用这组可取消 concurrency；服务器互斥锁保证一次只有一个部署。
 
-缓存只加速输入：npm 下载、project-reference 的 `.cache/types` + `.cache/tsbuild`、Full 的 `.next/cache`、按 unit 隔离的 `.cache/next-units/<unit>` 和 Playwright 浏览器。发布前本地缓存不按 source hash 主动失效，默认保留最多 7 天并受 12 GiB 总量上限约束；超限时优先删除最旧文件。缓存不能替代当次 build/E2E 执行，也不能缓存“通过结论”。Full 回执固定写入 `.cache/release-check/local-release-gate.json`，单 unit 回执固定写入 `.cache/release-check/units/<unit>.json`；不同 scope 即使 source/tree 相同也不能交叉复用。PostgreSQL lane 运行时，schema/migration contract 由它唯一负责，static 不再重复；standalone tgz 是带 manifest/digest 的发布 artifact，不是普通构建缓存。
+缓存只加速输入：npm 下载、project-reference 的 `.cache/types` + `.cache/tsbuild`、Full 的 `.next/cache`、按 unit 隔离的 `.cache/eslint/units/<unit>.eslintcache` 与 `.cache/next-units/<unit>`，以及 Playwright 浏览器。unit ESLint 使用 content strategy，release worktree 快进后未变内容仍可命中。发布前本地缓存不按 source hash 主动失效，默认保留最多 7 天并受 12 GiB 总量上限约束；超限时优先删除最旧文件。缓存不能替代当次 lint/build/E2E 执行，也不能缓存“通过结论”。Full 回执固定写入 `.cache/release-check/local-release-gate.json`，单 unit 回执固定写入 `.cache/release-check/units/<unit>.json`；不同 scope 即使 source/tree 相同也不能交叉复用。PostgreSQL lane 运行时，schema/migration contract 由它唯一负责，static 不再重复；standalone tgz 是带 manifest/digest 的发布 artifact，不是普通构建缓存。
 
 Build lane 会用同一 changed-files evidence 生成 `.ci/deploy-unit-build-plan.json`。没有 E2E 且不发布整站 artifact 时，`deploy:affected:build` 只构建 owner unit；Finance 私有变化不会重建其他 L1。Core、Platform、schema、lockfile、deploy protocol 或未知代码路径会选择全部 12 个 unit。需要当前 E2E 或过渡期整站发布时仍构建 canonical monolith，避免在生产 Gateway 尚未启用前伪装成 fleet E2E。
 
@@ -111,7 +111,7 @@ npm run test:e2e:latency
 2. Git 跟踪的 `ops/publish.sh push`（桌面私有目录只保留加载 `.env` 的薄 wrapper）以 `origin/main..HEAD` 运行自适应本地 gate，把 staging SHA 交给受信任的 `Promote candidate` workflow；workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上显式触发 CI，不直推 `main` 或 CNB。
 3. 对命中 CODEOWNERS 的质量策略路径，由 repository owner 审批 bot-authored PR；这解决单 owner 对自己所开 PR 无法批准的问题，但不虚构“独立第二人”审查。旧批准会在后续 push 后失效；配置未要求通用批准数或 last-push 第二人批准。
 4. PR/merge-group 按受保护 base 分类并由 `CI / required` 聚合。GitHub Actions 在无 E2E/整站发布请求时上传受影响 unit artifacts；需要 E2E 或整站 artifact 时上传 canonical monolith，并只在同一 CI run 内交给 E2E。这些 CI artifacts 不发布 prerelease，也不参与生产部署。
-5. `publish.sh prepare` 是正式发布前唯一的本地诊断入口。它先快进专用 `release` worktree，立即校验私有 CNB YAML 与租户运行配置，并要求候选是干净 committed tree。无目标参数时执行 Full：collect-all `check:ci`、monolith production standalone、一次性 PostgreSQL migration/seed 和全量 E2E，生成 schema-v2 Full 回执。`prepare --deploy-unit <unit>` 或 `prepare --shadow-unit <unit>` 执行单 unit：共享 release static/Node/data 证据、deploy graph 声明的全部 package 与 `app-<unit>` 类型 scope、隔离 `.cache/next-units/<unit>` 的独立 production artifact、一次性 PostgreSQL migration/seed，以及该 unit contract 声明的浏览器 suite，生成 schema-v3 unit 回执。相同 source/tree/scope 的有效回执可直接复用；scope、unit、contract、graph 或 artifact digest 不匹配时 fail closed。该命令不连接 CNB 或生产。
+5. `publish.sh prepare` 是正式发布前唯一的本地诊断入口。它先快进专用 `release` worktree，立即校验私有 CNB YAML 与租户运行配置，并要求候选是干净 committed tree。无目标参数时执行 Full：collect-all `check:ci`、monolith production standalone、一次性 PostgreSQL migration/seed 和全量 E2E，生成 schema-v2 Full 回执。`prepare --deploy-unit <unit>` 或 `prepare --shadow-unit <unit>` 执行单 unit：先运行 Playwright 生命周期、focused-test、deploy graph/app、env 与 DB path 等共享发布协议，再对该 unit 的 `privateSourceRoots` 执行 content-cached lint、unit Node 测试和少量部署协议测试；随后才执行 deploy graph 声明的全部 package 与 `app-<unit>` 类型 scope、隔离 `.cache/next-units/<unit>` 的独立 production artifact、一次性 PostgreSQL migration/seed，以及 unit contract 声明的浏览器 suite。它不重复 Full 的 domain/UI/docs/data/full lint/全部 Node，最终生成 schema-v3 unit 回执并嵌套 schema-v2 unit-CI 证据。相同 source/tree/scope 的有效回执可直接复用；scope、unit、contract、graph 或 artifact digest 不匹配时 fail closed。该命令不连接 CNB 或生产。
 6. `publish.sh deploy` 是 Full/单 unit 的唯一生产 operator 入口；Profile/Fleet 只经受信内部入口运行。它不再快进候选，而是校验并冻结使用现有的干净 release HEAD；即使 `prepare` 后 main 又有提交，本次 deploy 仍只消费已 prepare 候选的精确回执。Full deploy 只接受 Full 回执，`deploy --deploy-unit <unit>` / `deploy --shadow-unit <unit>` 只接受相同 unit 的回执；回执缺失、过期、目标不匹配或 release HEAD 被人工移动时立即退出并要求重新执行对应 prepare。廉价私有配置校验、回执验证、计时和 CNB 子流程均从冻结 release tree 执行，避免两步之间的 main 脚本串入发布协议。deploy 不运行 production build、typecheck、Node test 或 E2E，CNB 不承担代码诊断。
 7. Git 跟踪的 `ops/cnb-release.yml` 只定义可复用流水线形状；租户实际的 CNB env import、服务器目录和健康检查地址由 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 管理。发布脚本读取并校验该租户文件；`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
 8. CNB 在 injection checkout 中恢复或安装依赖，并按 release metadata 构建 Full canonical standalone 或单 unit artifact。packager 绑定 parent source SHA/tree、目标、BUILD_ID、contract/graph，生成 manifest/tgz；统一部署器在上传前校验 manifest、artifact hash、migration set 和注入身份，全程不访问 GitHub。
@@ -213,7 +213,7 @@ CNB 和生产服务器不保存 GitHub token，也不读取 GitHub API、Actions
 
 ## 速度策略、预算与观察
 
-发布提速来自删除 GitHub promotion/remote CI/artifact 等待、合并重复门禁，并复用本地编译与浏览器缓存。artifact cache 未命中时，CNB 仍必须在 Linux 构建一次本次目标（Full monolith 或独立 unit）；服务器不重建。
+发布提速来自删除 GitHub promotion/remote CI/artifact 等待、合并重复门禁，并复用本地编译与浏览器缓存。单 unit prepare 进一步只检查 graph 私有闭包，不再先执行一遍 Full 静态/Node 前半段。artifact cache 未命中时，CNB 仍必须在 Linux 构建一次本次目标（Full monolith 或独立 unit）；服务器不重建。
 
 历史观测中，一次成功 CNB build 总耗时约 `405.55 s`（约 `6 分 46 秒`）；这是单次历史样本，不是中位数、p95 或当前 SLA。旧 GitHub 串行链路曾观测约 5 分 28 秒。拆分后的预算仍是 C0 约 1 分钟、局部补丁约 2 分钟获得主要反馈、C3 wall time 约 4–5 分钟；CNB 先以低于历史样本为优化方向，达到稳定 p50/p95 前不宣称 3–5 分钟已经实现。
 

@@ -147,7 +147,7 @@ case "${1:-}" in
       LOCAL_UNIT_CI_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/units/$RELEASE_TARGET_UNIT_ID-base.json"
       mkdir -p "$(dirname "$LOCAL_UNIT_CI_RECEIPT_FILE")"
       rm -f "$LOCAL_UNIT_CI_RECEIPT_FILE"
-      echo "==> 聚合运行当前 release tree 的共享发布门禁；类型与 Next build 由 $RELEASE_TARGET_UNIT_ID 闭包接管..."
+      echo "==> 校验当前 release tree 的发布协议与 $RELEASE_TARGET_UNIT_ID 私有源码；类型与 Next build 由目标闭包接管..."
       (
         cd "$RELEASE_WORKTREE"
         node scripts/check/with-check-lock.js -- \

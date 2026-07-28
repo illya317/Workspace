@@ -135,7 +135,8 @@ test("prepare runs aggregate full CI and E2E once while deploy only consumes exa
     assert.match(source, /gate\.treeSha === tree/);
     assert.match(source, /gate\.command === 'ops\/local-release-gate\.sh'/);
     assert.match(source, /gate\.fullCi\?\.command === 'npm run check:ci'/);
-    assert.match(source, /gate\.unitCi\?\.command === 'scripts\/check\/run-check-suite\.mjs release-unit'/);
+    assert.match(source, /gate\.unitCi\?\.command === 'scripts\/ci\/run-local-unit-ci\.mjs'/);
+    assert.match(source, /gate\.unitCi\?\.schemaVersion === 2/);
     assert.match(source, /gate\.scope\?\.unitId === target\.unitId/);
   }
 });
@@ -143,6 +144,7 @@ test("prepare runs aggregate full CI and E2E once while deploy only consumes exa
 test("single-unit prepare and deploy consume only the matching unit-scoped receipt", () => {
   assert.match(publish, /prepare --deploy-unit UNIT/);
   assert.match(publish, /run-local-unit-ci\.mjs[\s\S]*?--unit "\$RELEASE_TARGET_UNIT_ID"/);
+  assert.match(publish, /发布协议与 \$RELEASE_TARGET_UNIT_ID 私有源码/);
   assert.match(publish, /local-release-gate\.sh"[\s\S]*?--deploy-unit "\$RELEASE_TARGET_UNIT_ID"/);
   assert.match(publish, /release-check\/units\/\$RELEASE_TARGET_UNIT_ID\.json/);
   assert.match(publish, /LOCAL_RELEASE_GATE_VERIFY_ARGS=\(--scope unit --unit "\$RELEASE_TARGET_UNIT_ID"\)/);
