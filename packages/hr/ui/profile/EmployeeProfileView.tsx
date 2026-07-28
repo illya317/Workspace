@@ -34,7 +34,6 @@ import {
   updateProfileRow,
   type EditableRecord,
 } from "./EmployeeProfileUtils";
-import { useEmployeeLifecycleSections } from "./EmployeeLifecycleSection";
 import { useEmployeePeriodRevisionSections } from "./EmployeePeriodRevisionSection";
 import { useEmployeeSocialInsuranceSections } from "./EmployeeSocialInsuranceSection";
 
@@ -198,8 +197,7 @@ export default function EmployeeProfileView({
       className: sectionCardClassName,
     }, tenantConfig.localization.businessTimeZone),
   ];
-  const lifecycleSections = useEmployeeLifecycleSections({ profile, canEdit, onSaved: onLifecycleSaved });
-  const assignmentSections = [...edpSections, ...assignmentCorrectionSections, ...lifecycleSections];
+  const assignmentSections = [...edpSections, ...assignmentCorrectionSections];
   const socialInsuranceSections = useEmployeeSocialInsuranceSections({
     employeeId: profile?.employee.id ?? 0,
     rows: socialInsurancePeriods,
