@@ -95,10 +95,14 @@ async function expectReadOnlyField(page: Page, label: string) {
 
 function fieldCell(scope: Locator, label: string) {
   return scope
-    .getByText(label, { exact: true })
+    .getByText(new RegExp(`^${escapeRegExp(label)}\\s*\\*?$`))
     .filter({ visible: true })
     .last()
     .locator("xpath=ancestor::div[parent::*[@data-field-grid-mode]][1]");
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function sectionContaining(page: Page, title: string) {
