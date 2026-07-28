@@ -6,6 +6,11 @@ cd "$PROJECT_ROOT"
 
 UNIT_ID="${DEPLOY_UNIT_ID:-}"
 MODE="${DEPLOY_UNIT_MODE:-shadow}"
+CNB_RELEASE_GATE_RECEIPT_FILE="${CNB_RELEASE_GATE_RECEIPT_FILE:-$PWD/.cache/release-check/cnb-release-gate.json}"
+node ops/release-gate-receipt.mjs cnb-verify \
+  --source "${RELEASE_SOURCE_SHA:?RELEASE_SOURCE_SHA is required}" \
+  --tree "${RELEASE_SOURCE_TREE:?RELEASE_SOURCE_TREE is required}" \
+  --file "$CNB_RELEASE_GATE_RECEIPT_FILE"
 if [ -z "$UNIT_ID" ]; then
   exec bash ./ops/deploy.sh
 fi

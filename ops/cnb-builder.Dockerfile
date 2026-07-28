@@ -10,6 +10,8 @@ RUN apt-get update \
     g++ \
     make \
     openssh-client \
+    postgresql \
+    postgresql-client \
     python3 \
     rsync \
     tar \

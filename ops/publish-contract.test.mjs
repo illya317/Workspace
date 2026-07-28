@@ -11,7 +11,12 @@ const promoteRelease = readFileSync(new URL("./promote-release-branch.sh", impor
 const releaseToCnb = readFileSync(new URL("./release-to-cnb.sh", import.meta.url), "utf8");
 const syncTenantConfig = readFileSync(new URL("./sync-tenant-config.sh", import.meta.url), "utf8");
 const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
+const buildDeployUnitArtifact = readFileSync(new URL("./build-deploy-unit-artifact.sh", import.meta.url), "utf8");
 const buildStandaloneArtifact = readFileSync(new URL("./build-standalone-artifact.sh", import.meta.url), "utf8");
+const buildCnbReleaseTarget = readFileSync(new URL("./build-cnb-release-target.sh", import.meta.url), "utf8");
+const deployCnbReleaseTarget = readFileSync(new URL("./deploy-cnb-release-target.sh", import.meta.url), "utf8");
+const installCnbReleaseDependencies = readFileSync(new URL("./install-cnb-release-dependencies.sh", import.meta.url), "utf8");
+const runCnbReleaseGate = readFileSync(new URL("./run-cnb-release-gate.sh", import.meta.url), "utf8");
 const cnbRelease = readFileSync(new URL("./cnb-release.yml", import.meta.url), "utf8");
 const uploadDataRelease = readFileSync(new URL("./upload-data-release.sh", import.meta.url), "utf8");
 
@@ -21,12 +26,13 @@ test("shell variables next to non-ASCII punctuation use explicit braces", () => 
   }
 });
 
-test("prepare owns local checks and deploy has one receipt-only CNB production path", () => {
+test("prepare freezes a candidate and deploy has one CNB-gated production path", () => {
   const dispatch = publish.indexOf('case "${1:-}" in');
   const githubSetup = publish.indexOf('GITHUB_REMOTE_NAME=');
   assert.ok(dispatch >= 0 && dispatch < githubSetup);
-  assert.match(publish, /prepare\)[\s\S]*?npm run check:ci[\s\S]*?local-release-gate\.sh" --receipt/);
-  assert.match(publish, /deploy\)[\s\S]*?local-release-gate-receipt\.mjs" verify[\s\S]*?exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh" "\$\{deploy_args\[@\]\}"/);
+  assert.match(publish, /prepare\)[\s\S]*?release-gate-receipt\.mjs" candidate-create/);
+  assert.doesNotMatch(publish.slice(publish.indexOf("  prepare)"), publish.indexOf("  data)")), /npm run check:ci|build:next|test:e2e/);
+  assert.match(publish, /deploy\)[\s\S]*?release-gate-receipt\.mjs" candidate-verify[\s\S]*?exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh" "\$\{deploy_args\[@\]\}"/);
   assert.doesNotMatch(publish.slice(publish.indexOf("deploy)")), /upload-data-release\.sh/);
   assert.doesNotMatch(publish, /--full|hotfix|publish-hotfix/i);
   assert.equal(existsSync(new URL("./publish-hotfix.sh", import.meta.url)), false);
@@ -113,26 +119,28 @@ test("CNB release identity is source parent plus exact injection files", () => {
   assert.match(deploy, /RELEASE_CNB_INJECTION_SHA/);
 });
 
-test("prepare runs aggregate full CI and E2E once while deploy only consumes exact-tree evidence", () => {
-  assert.match(publish, /NEXT_PUBLIC_BUILD_VERSION="\$RELEASE_SOURCE_SHA" BUILD_VERSION="\$RELEASE_SOURCE_SHA" npm run check:ci/);
-  assert.match(publish, /"\$RELEASE_WORKTREE\/ops\/local-release-gate\.sh" --receipt "\$LOCAL_RELEASE_GATE_RECEIPT_FILE"/);
-  assert.doesNotMatch(publish, /"\$SCRIPT_DIR\/local-release-gate\.sh" --receipt/);
-  assert.match(publish, /复用当前 tree 已通过的完整 CI \+ E2E prepare 回执/);
-  assert.ok(
-    publish.indexOf("local-release-gate-receipt.mjs")
-      < publish.indexOf('rm -f "$LOCAL_RELEASE_GATE_RECEIPT_FILE"'),
-  );
-  assert.ok(publish.indexOf("npm run check:ci") < publish.indexOf('local-release-gate.sh" --receipt'));
-  assert.doesNotMatch(publishCnb, /npm run check:ci|npm run test:e2e|local-release-gate\.sh" --receipt/);
+test("CNB runs one target-independent collect-all gate before either artifact path", () => {
+  assert.doesNotMatch(publish, /npm run check:ci|npm run test:e2e|local-release-gate\.sh/);
+  assert.match(runCnbReleaseGate, /npm run check:ci/);
+  assert.match(runCnbReleaseGate, /ci_status=\$\?/);
+  assert.match(runCnbReleaseGate, /run-release-e2e\.sh/);
+  assert.match(runCnbReleaseGate, /e2e_status=\$\?/);
+  assert.match(runCnbReleaseGate, /scope: "full-and-unit"|cnb-create/);
+  assert.ok(cnbRelease.indexOf("- name: release-gate") < cnbRelease.indexOf("- name: build-release-target"));
+  assert.match(buildCnbReleaseTarget, /release-gate-receipt\.mjs cnb-verify/);
+  assert.match(buildCnbReleaseTarget, /cnb-release-artifact-cache\.sh restore/);
+  assert.match(deployCnbReleaseTarget, /release-gate-receipt\.mjs cnb-verify/);
+  assert.doesNotMatch(installCnbReleaseDependencies, /cnb-release-artifact-cache\.sh restore/);
+  assert.doesNotMatch(buildStandaloneArtifact, /\.cnb-release-gate\.json/);
+  assert.doesNotMatch(buildDeployUnitArtifact, /\.cnb-release-gate\.json/);
   assert.match(publish.slice(publish.indexOf("  deploy)")), /exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);
-  assert.match(publishCnb, /local-release-gate-receipt\.mjs" verify/);
-  assert.match(publishCnb, /deploy 不运行编译或测试/);
+  assert.match(publishCnb, /release-gate-receipt\.mjs" candidate-verify/);
+  assert.match(publishCnb, /完整 CI、编译和 E2E 将由 CNB 统一运行/);
   for (const source of [releaseToCnb, deploy]) {
-    assert.match(source, /metadata\.localReleaseGate\?\.schemaVersion !== 2/);
-    assert.match(source, /metadata\.localReleaseGate\?\.sourceSha !== sha/);
-    assert.match(source, /metadata\.localReleaseGate\?\.treeSha !== tree/);
-    assert.match(source, /metadata\.localReleaseGate\?\.command !== 'ops\/local-release-gate\.sh'/);
-    assert.match(source, /metadata\.localReleaseGate\?\.fullCi\?\.command !== 'npm run check:ci'/);
+    assert.match(source, /metadata\.releaseCandidate\?\.schemaVersion !== 1/);
+    assert.match(source, /metadata\.releaseCandidate\?\.sourceSha !== sha/);
+    assert.match(source, /metadata\.releaseCandidate\?\.treeSha !== tree/);
+    assert.match(source, /metadata\.releaseCandidate\?\.command !== 'ops\/publish\.sh prepare'/);
   }
 });
 
@@ -181,17 +189,20 @@ test("private release inputs validate before local checks and real deploy syncs 
   assert.match(publishCnb, /WORKSPACE_CONFIG_DIR="\$\{WORKSPACE_CONFIG_DIR:-\$\{LOCAL_WORKSPACE_CONFIG_DIR:-\}\}"/);
   assert.match(releaseToCnb, /WORKSPACE_CONFIG_DIR="\$\{WORKSPACE_CONFIG_DIR:-\$\{LOCAL_WORKSPACE_CONFIG_DIR:-\}\}"/);
   assert.match(publishCnb, /sync-tenant-config\.sh" --source-sha "\$SOURCE_SHA"/);
-  const localReceipt = publishCnb.indexOf("local-release-gate-receipt.mjs");
+  const candidateReceipt = publishCnb.indexOf("release-gate-receipt.mjs");
   const tenantSync = publishCnb.lastIndexOf('sync-tenant-config.sh" --source-sha "$SOURCE_SHA"');
   const releaseTrigger = publishCnb.indexOf('release-to-cnb.sh" "${release_args[@]}"');
-  assert.ok(localReceipt >= 0 && localReceipt < tenantSync);
+  assert.ok(candidateReceipt >= 0 && candidateReceipt < tenantSync);
   assert.ok(tenantSync < releaseTrigger);
   const syncBlock = publishCnb.slice(publishCnb.lastIndexOf("if [", tenantSync), tenantSync);
   assert.match(syncBlock, /PRINT_COMMAND_ONLY" = "0/);
   assert.match(syncTenantConfig, /--conditions=react-server --import tsx/);
   assert.match(syncTenantConfig, /tenant\.getTenantConfig\(\)/);
   assert.match(releaseToCnb, /validate-cnb-release-config\.mjs" "\$CNB_REAL_CNB_YML"/);
-  assert.ok(publish.indexOf("validate_local_release_inputs") < publish.indexOf("npm run check:ci"));
+  assert.ok(
+    publish.indexOf("validate_local_release_inputs")
+      < publish.indexOf('release-gate-receipt.mjs" candidate-create'),
+  );
 });
 
 test("CNB records the full deployment attempt and keeps release-processing timing separate", () => {
@@ -215,7 +226,7 @@ test("CNB records the full deployment attempt and keeps release-processing timin
   assert.match(publishCnb, /node '\$remote_tool' event-write/);
   assert.match(publishCnb, /--release-id "\$release_id"/);
   assert.ok(
-    publishCnb.indexOf("local-release-gate-receipt.mjs")
+    publishCnb.indexOf("release-gate-receipt.mjs")
       < publishCnb.indexOf('DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS="$(date +%s)"'),
   );
   assert.ok(
@@ -265,14 +276,20 @@ test("CNB full reports success only after both terminal build success and exact 
 });
 
 test("CNB Linux build has non-production Prisma generation inputs", () => {
+  const gateStage = cnbRelease.slice(
+    cnbRelease.indexOf("- name: release-gate"),
+    cnbRelease.indexOf("- name: build-release-target"),
+  );
   const buildStage = cnbRelease.slice(
     cnbRelease.indexOf("- name: build-release-target"),
     cnbRelease.indexOf("- name: deploy-to-server"),
   );
-  assert.match(buildStage, /NEXTAUTH_SECRET: cnb-build-only-secret-2026/);
-  assert.match(buildStage, /DATABASE_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci/);
-  assert.match(buildStage, /DIRECT_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci/);
-  assert.match(buildStage, /SHADOW_DATABASE_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci_shadow/);
+  for (const stage of [gateStage, buildStage]) {
+    assert.match(stage, /NEXTAUTH_SECRET: cnb-build-only-secret-2026/);
+    assert.match(stage, /DATABASE_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci/);
+    assert.match(stage, /DIRECT_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci/);
+    assert.match(stage, /SHADOW_DATABASE_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci_shadow/);
+  }
 });
 
 test("CNB release uses the reusable Builder, safe caches, and timed stages", () => {
@@ -285,7 +302,7 @@ test("CNB release uses the reusable Builder, safe caches, and timed stages", () 
   assert.match(releaseToCnb, /git commit --no-verify -m "chore\(cnb\): inject release metadata/);
   assert.match(cnbRelease, /install-cnb-release-dependencies\.sh/);
   assert.doesNotMatch(cnbRelease, /install-deploy-tools|apt-get|node_modules:copy-on-write/);
-  for (const stage of ["builder.verify", "dependencies.install", "artifact.build", "server.deploy"]) {
+  for (const stage of ["builder.verify", "dependencies.install", "release.gate", "artifact.build", "server.deploy"]) {
     assert.match(cnbRelease, new RegExp(`run-cnb-release-stage\\.sh ${stage.replace(".", "\\.")}`));
   }
 });

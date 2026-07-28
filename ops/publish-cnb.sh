@@ -331,14 +331,14 @@ cd "$SOURCE_DIR"
 
 SOURCE_SHA="$(git rev-parse HEAD)"
 SOURCE_TREE="$(git rev-parse 'HEAD^{tree}')"
-LOCAL_RELEASE_GATE_RECEIPT_FILE="${LOCAL_RELEASE_GATE_RECEIPT_FILE:-$SOURCE_DIR/.cache/release-check/local-release-gate.json}"
+RELEASE_CANDIDATE_RECEIPT_FILE="${RELEASE_CANDIDATE_RECEIPT_FILE:-$SOURCE_DIR/.cache/release-check/release-candidate.json}"
 [ -f "$CNB_REAL_CNB_YML" ] || { echo "[错误] 真实 CNB 配置文件不存在: $CNB_REAL_CNB_YML"; exit 1; }
 node "$SCRIPT_DIR/validate-cnb-release-config.mjs" "$CNB_REAL_CNB_YML"
 OPS_ENV_FILE="$OPS_ENV_FILE" WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" \
   "$SCRIPT_DIR/sync-tenant-config.sh" --dry-run --source-sha "$SOURCE_SHA"
-if ! node "$SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
+if ! node "$SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
   --source "$SOURCE_SHA" --tree "$SOURCE_TREE" \
-  --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null; then
+  --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null; then
   echo "[错误] 当前 release tree 没有有效 prepare 回执；拒绝进入 CNB。" >&2
   echo "[提示] 先运行: OPS_ENV_FILE=$OPS_ENV_FILE ops/publish.sh prepare" >&2
   exit 1
@@ -373,7 +373,7 @@ LOCAL_PREFLIGHT_STARTED_EPOCH_SECONDS="$(date +%s)"
 EXPECTED_NODE_MAJOR="$(tr -d '[:space:]' < .node-version)"
 ACTUAL_NODE_MAJOR="$(node -p 'process.versions.node.split(".")[0]')"
 if [ "$ACTUAL_NODE_MAJOR" != "$EXPECTED_NODE_MAJOR" ]; then
-  echo "[错误] 本地全量 CI 必须使用 Node ${EXPECTED_NODE_MAJOR}；当前是 $(node --version)"
+  echo "[错误] 本地候选准备必须使用 Node ${EXPECTED_NODE_MAJOR}；当前是 $(node --version)"
   exit 1
 fi
 if [ -n "$BOOTSTRAP_PRODUCTION_BASE" ]; then
@@ -447,7 +447,7 @@ fi
 
 LOCAL_PREFLIGHT_DURATION_SECONDS="$(($(date +%s) - LOCAL_PREFLIGHT_STARTED_EPOCH_SECONDS))"
 
-echo "==> 已复用当前 tree 的本地 prepare 回执；deploy 不运行编译或测试。"
+echo "==> 已验证当前 tree 的 prepare 候选回执；完整 CI、编译和 E2E 将由 CNB 统一运行。"
 
 if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   echo "==> 同步并校验本次部署使用的租户配置..."
@@ -535,12 +535,12 @@ BASELINE_MIGRATION_COUNT="$BASELINE_MIGRATION_COUNT" BASELINE_MIGRATION_DIGEST="
 GENESIS_PRODUCTION_BASE="$GENESIS_PRODUCTION_BASE" GENESIS_LEGACY_MIGRATION_COUNT="$GENESIS_LEGACY_MIGRATION_COUNT" \
 GENESIS_LEGACY_MIGRATION_DIGEST="$GENESIS_LEGACY_MIGRATION_DIGEST" GENESIS_BASELINE_MIGRATION="$GENESIS_BASELINE_MIGRATION" \
 GENESIS_BASELINE_CHECKSUM="$GENESIS_BASELINE_CHECKSUM" \
-LOCAL_RELEASE_GATE_RECEIPT_FILE="$LOCAL_RELEASE_GATE_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" \
+RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_CANDIDATE_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" \
 PUBLISH_STARTED_EPOCH_SECONDS="$PUBLISH_STARTED_EPOCH_SECONDS" DEPLOY_UNIT_ID="$DEPLOY_UNIT_ID" DEPLOY_UNIT_MODE="$DEPLOY_UNIT_MODE" \
 RELEASE_PROCESS_SECONDS="$RELEASE_PROCESS_SECONDS" RELEASE_ATTEMPT_COUNT="$RELEASE_ATTEMPT_COUNT" \
 RELEASE_PROCESS_STARTED_AT="$RELEASE_PROCESS_STARTED_AT" TENANT_SYNC_DURATION_SECONDS="$TENANT_SYNC_DURATION_SECONDS" node <<'NODE'
 const fs = require('node:fs');
-const localReleaseGate = JSON.parse(fs.readFileSync(process.env.LOCAL_RELEASE_GATE_RECEIPT_FILE, 'utf8'));
+const releaseCandidate = JSON.parse(fs.readFileSync(process.env.RELEASE_CANDIDATE_RECEIPT_FILE, 'utf8'));
 const startedAtEpochSeconds = Number(process.env.PUBLISH_STARTED_EPOCH_SECONDS);
 if (!Number.isSafeInteger(startedAtEpochSeconds) || startedAtEpochSeconds <= 0) {
   throw new Error('publish start epoch is invalid');
@@ -556,7 +556,7 @@ if (Number.isNaN(Date.parse(process.env.RELEASE_PROCESS_STARTED_AT))) throw new 
 const metadata = {
   schemaVersion: 1,
   source: { commitSha: process.env.SOURCE_SHA, treeSha: process.env.SOURCE_TREE },
-  localReleaseGate,
+  releaseCandidate,
   cnb: { repository: process.env.CNB_REPO, sourceBranch: process.env.RELEASE_BRANCH },
   deployment: {
     startedAtEpochSeconds,

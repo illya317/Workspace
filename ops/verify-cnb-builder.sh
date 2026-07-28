@@ -10,7 +10,7 @@ if [ "$actual_node_major" != "$expected_node_major" ]; then
   exit 1
 fi
 
-for command_name in node npm ssh rsync git tar python3 make g++; do
+for command_name in node npm ssh rsync git tar python3 make g++ psql pg_ctlcluster runuser; do
   if ! command -v "$command_name" >/dev/null 2>&1; then
     echo "[错误] CNB Builder 缺少命令：$command_name"
     exit 1

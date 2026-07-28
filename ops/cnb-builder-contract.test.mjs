@@ -14,6 +14,7 @@ test("CNB Builder pins Node Bookworm by digest and removes apt metadata", () => 
   assert.match(dockerfile, /openssh-client/);
   assert.match(dockerfile, /rsync/);
   assert.match(dockerfile, /rm -rf \/var\/lib\/apt\/lists\/\*/);
+  assert.match(dockerfile, /postgresql/);
 });
 
 test("Builder smoke enforces repository Node and every release tool", () => {

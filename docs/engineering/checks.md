@@ -35,7 +35,7 @@
 | 可扩展性契约 | `npm run test:scalability-contract` | 用 mock/fixture 阻断全量读取、内存分页和调用次数爆炸；不把它当作真实延迟测试。 |
 | PostgreSQL integration | `npm run test:integration:postgresql` | 在一次性 `*_ci` 库执行真实 PostgreSQL runtime/constraint、并发通知读取与并发写入 capacity smoke。 |
 | 关键浏览器保存闭环 | `npm run test:e2e:critical` | 先拒绝非一次性数据库并 seed 身份，再执行页面操作 → 保存 → API/DB 回读 → 刷新保留；账户页暖重载超过 `10 s` 会阻断。 |
-| 本地全量/生产发布门禁 | `npm run check:ci` | 入口自动切换到 `.node-version` 的仓库 Node 主版本，串行执行去重后的静态门禁、全部 Node 测试、full type 和 production build；某个独立步骤失败后继续收集其余步骤，最后一次性汇总全部阻断项。成功步骤按精确 workspace snapshot/命令/检查环境复用；干净 HEAD 全部通过后原子记录 tree-bound 结果。 |
+| 全量 CI / CNB 发布门禁核心 | `npm run check:ci` | 入口自动切换到 `.node-version` 的仓库 Node 主版本，串行执行去重后的静态门禁、全部 Node 测试、full type 和 production build；某个独立步骤失败后继续收集其余步骤，最后一次性汇总全部阻断项。日常可本地诊断，正式发布由 CNB 的目标无关 release-gate 调用，并在 build 可用时继续一次性 PostgreSQL migration/seed 与全量 E2E。 |
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
 | 周期性清债 | `npm run check:hygiene` | 强制巡检租户硬编码和简单 structure hygiene 债务；active baseline 固定为零，定时 CI 每晚 strict 执行，Hygiene 至少每周复查结果。 |
@@ -150,7 +150,7 @@
 
 GitHub Actions 先对完整 base/head diff 做 C0–C3 分类，再并行执行 static、Node、type、PostgreSQL 和 build。没有 E2E 且不要求整站 artifact 时，build job 生成受影响 unit 计划并构建对应独立 artifacts；需要 E2E 或显式整站 artifact 时才构建 canonical monolith，E2E 独立 job 只下载并启动同一个 canonical 产物。`CI / required` 最后验证哪些 job 必须成功、哪些必须跳过。详细分级、覆盖映射和同 SHA 发布契约见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
-生产发布不等待或查询 GitHub。Git hooks 与本地 `ops/publish*.sh` / `release-to-cnb.sh` 入口统一通过 `scripts/runtime/run-with-repo-node.sh` 选择 `.node-version` 指定的 Node；`npm run check:ci` 的可执行入口也会自举到同一 Node 主版本，并把 `TMPDIR` 固定到工作区忽略目录 `.cache/runtime-tmp`，避免调用方 PATH 漂移。通过记录只绑定 Git tree、检查命令、结果和完成时间，不绑定调用方 Node 完整小版本、平台或架构；生产 Linux runtime 由 CNB 对目标 artifact 的构建另行证明。仓库 TypeScript 脚本统一使用 `node --import tsx`，不启动受限环境会拒绝的 `tsx` CLI IPC server。`ops/publish.sh prepare` 在干净 release worktree 聚合运行 `check:ci`，再复用同一个 production standalone build 完成一次性数据库 migration/seed 和全量 E2E，写入精确 source/tree 回执；任何失败都留在本地修复/复查。`ops/publish.sh deploy` 只验证并消费该回执，缺失或过期时在连接 CNB 前退出，不隐式运行编译或测试。Library/Qwen/ONLYOFFICE runtime 快速路径都必须先通过 identity/version/health 复验。
+生产发布不等待或查询 GitHub。Git hooks 与本地 `ops/publish*.sh` / `release-to-cnb.sh` 入口统一通过 `scripts/runtime/run-with-repo-node.sh` 选择 `.node-version` 指定的 Node；`npm run check:ci` 的可执行入口也会自举到同一 Node 主版本，并把 `TMPDIR` 固定到工作区忽略目录 `.cache/runtime-tmp`，避免调用方 PATH 漂移。仓库 TypeScript 脚本统一使用 `node --import tsx`，不启动受限环境会拒绝的 `tsx` CLI IPC server。`ops/publish.sh prepare` 在干净 release worktree 只写入精确 source/tree 的候选回执；`ops/publish.sh deploy` 验证该回执后触发 CNB。CNB 对 Full/单模块调用同一个 collect-all release-gate，运行 `check:ci`，在 production build 可用时继续一次性数据库 migration/seed 与全量 E2E，全部通过才写 `full-and-unit` 门禁回执；目标 artifact builder 与 deploy adapter 都复验该回执。Library/Qwen/ONLYOFFICE runtime 快速路径仍必须先通过 identity/version/health 复验。
 
 ### scalability contract 与真实容量
 

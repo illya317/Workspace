@@ -22,8 +22,8 @@ usage() {
 
 模式:
   push           对当前提交跑自适应本地 gate；GitHub bot 创建候选 PR
-  prepare        在 release worktree 聚合运行完整 CI/E2E，生成当前 tree 的发布回执；不连接 CNB 或生产
-  deploy         只消费 prepare 回执，执行 Full 或单模块 CNB 部署；不运行编译或测试
+  prepare        冻结 release tree 并校验私有配置，生成 CNB 候选回执；不在本机编译
+  deploy         消费 prepare 回执；CNB 对 Full/单模块运行同一完整门禁后构建并部署
   data           校验并上传私有数据发布源；上传只进入受控暂存区，不执行数据库写入
   timing         在处理 main 前暂停 Ops 计时；恢复 release 工作时继续累计
 
@@ -82,6 +82,10 @@ validate_local_release_inputs() {
   node "$RELEASE_SCRIPT_DIR/validate-cnb-release-config.mjs" "$CNB_REAL_CNB_YML"
   OPS_ENV_FILE="$OPS_ENV_FILE" WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" \
     "$RELEASE_SCRIPT_DIR/sync-tenant-config.sh" --dry-run --source-sha "$RELEASE_SOURCE_SHA"
+  (
+    cd "$RELEASE_WORKTREE"
+    WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" npm run docs:permission-actions:check
+  )
 }
 
 case "${1:-}" in
@@ -90,26 +94,22 @@ case "${1:-}" in
     [ "$#" = "0" ] || { echo "[错误] prepare 不接受额外参数"; exit 2; }
     prepare_release_worktree
     validate_local_release_inputs
-    LOCAL_RELEASE_GATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/local-release-gate.json"
-    if node "$RELEASE_SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
+    RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/release-candidate.json"
+    if node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
       --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
-      --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null 2>&1; then
-      echo "==> 复用当前 tree 已通过的完整 CI + E2E prepare 回执；未重复运行检查。"
+      --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null 2>&1; then
+      echo "==> 复用当前 tree 的 CNB 候选回执；本机未运行编译或 E2E。"
       exit 0
     fi
-    rm -f "$LOCAL_RELEASE_GATE_RECEIPT_FILE"
-    echo "==> 聚合运行当前 release tree 的完整 CI；本轮会继续收集所有独立失败..."
-    (
-      cd "$RELEASE_WORKTREE"
-      NEXT_PUBLIC_BUILD_VERSION="$RELEASE_SOURCE_SHA" BUILD_VERSION="$RELEASE_SOURCE_SHA" npm run check:ci
-    )
-    echo "==> 复用已验证 production build，运行一次性数据库迁移/seed 与全量 E2E..."
-    WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" \
-      "$RELEASE_WORKTREE/ops/local-release-gate.sh" --receipt "$LOCAL_RELEASE_GATE_RECEIPT_FILE"
-    node "$RELEASE_SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
+    rm -f "$RELEASE_CANDIDATE_RECEIPT_FILE"
+    mkdir -p "$(dirname "$RELEASE_CANDIDATE_RECEIPT_FILE")"
+    node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-create \
       --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
-      --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null
-    echo "==> prepare 完成：当前 tree 已通过完整 CI + E2E；未连接 CNB，未触发生产部署。"
+      --output "$RELEASE_CANDIDATE_RECEIPT_FILE"
+    node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
+      --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
+      --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null
+    echo "==> prepare 完成：候选与私有配置已冻结；完整 CI、编译和 E2E 将在 CNB collect-all 运行。"
     exit 0
     ;;
   data)
@@ -137,15 +137,15 @@ case "${1:-}" in
     shift
     load_prepared_release_worktree
     validate_local_release_inputs
-    LOCAL_RELEASE_GATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/local-release-gate.json"
-    if ! node "$RELEASE_SCRIPT_DIR/local-release-gate-receipt.mjs" verify \
+    RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/release-candidate.json"
+    if ! node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
       --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
-      --file "$LOCAL_RELEASE_GATE_RECEIPT_FILE" >/dev/null; then
+      --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null; then
       echo "[错误] 当前 release tree 没有有效 prepare 回执；拒绝进入 CNB。" >&2
       echo "[提示] 先运行: OPS_ENV_FILE=$OPS_ENV_FILE ops/publish.sh prepare" >&2
       exit 1
     fi
-    export LOCAL_RELEASE_GATE_RECEIPT_FILE
+    export RELEASE_CANDIDATE_RECEIPT_FILE
     RELEASE_PROCESS_TIMING_FILE="${RELEASE_PROCESS_TIMING_FILE:-$RELEASE_WORKTREE/.cache/release-process-timing.json}"
     deploy_args=("$@")
     candidate_sha="$RELEASE_SOURCE_SHA"

@@ -12,11 +12,12 @@ second source of release logic. Tenant-specific CNB imports, server paths, and h
 tests; their separate names do not represent alternative release paths. Profile/Fleet commands are
 trusted pipeline internals rather than local alternatives to this operator entry.
 
-Production release requires an exact-tree local full-CI receipt, then goes directly to CNB. GitHub
+Production release requires an exact-tree candidate receipt, then goes directly to CNB. GitHub
 PR/CI remains available for collaboration but is not queried or awaited by the deploy path.
-Only `publish.sh prepare` may fast-forward the dedicated release worktree from `main`. The subsequent
-`deploy` freezes and consumes that prepared release HEAD, and runs its verification and CNB stages
-from the same tree even if `main` advances in between.
+Only `publish.sh prepare` may fast-forward the dedicated release worktree from `main`; it validates
+private configuration but does not compile locally. The subsequent `deploy` freezes that prepared
+release HEAD and runs one target-independent collect-all CI/build/E2E gate in CNB before either the
+Full or single-unit artifact path, even if `main` advances in between.
 
 Repository-owned runtime dependency contracts:
 

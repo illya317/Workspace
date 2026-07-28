@@ -10,10 +10,11 @@ const REQUIRED_VOLUMES = [
   "workspace-release-next-units-v1:./.cache/next-units:copy-on-write",
   "workspace-release-types-v1:./.cache/types:copy-on-write",
   "workspace-release-tsbuild-v1:./.cache/tsbuild:copy-on-write",
+  "workspace-release-playwright-v1:./.cache/release-check/playwright:copy-on-write",
   "workspace-release-artifacts-v1:./.cache/release-artifacts:read-write",
 ];
 const REQUIRED_BUILD_INPUTS = [".node-version", "ops/cnb-builder.Dockerfile"];
-const REQUIRED_STAGE_NAMES = ["verify-builder", "install-dependencies", "build-release-target", "deploy-to-server"];
+const REQUIRED_STAGE_NAMES = ["verify-builder", "install-dependencies", "release-gate", "build-release-target", "deploy-to-server"];
 const REQUIRED_PIPELINE_ENV = {
   RUN_LOCAL_CHECKS: "0",
   RELEASE_SOURCE_BRANCH: "release",
@@ -35,6 +36,7 @@ const ALLOWED_DEPLOY_ENV_KEYS = [
 const REQUIRED_STAGE_SCRIPTS = {
   "verify-builder": "bash ./ops/run-cnb-release-stage.sh builder.verify -- bash ./ops/verify-cnb-builder.sh",
   "install-dependencies": "bash ./ops/run-cnb-release-stage.sh dependencies.install -- bash ./ops/install-cnb-release-dependencies.sh",
+  "release-gate": "bash ./ops/run-cnb-release-stage.sh release.gate -- bash ./ops/run-cnb-release-gate.sh",
   "build-release-target": "bash ./ops/run-cnb-release-stage.sh artifact.build -- bash ./ops/build-cnb-release-target.sh",
   "deploy-to-server": [
     "missing=0",
@@ -144,10 +146,12 @@ export function validateCnbReleaseConfig(source, options = {}) {
     throw new Error("deploy-prod stage order does not satisfy the release contract");
   }
 
-  const [verifyBuilder, installDependencies, buildStandalone, deployToServer] = pipeline.stages;
+  const [verifyBuilder, installDependencies, releaseGate, buildStandalone, deployToServer] = pipeline.stages;
   for (const stage of [verifyBuilder, installDependencies]) {
     requireExactKeys(stage, ["name", "script"], `deploy-prod stage ${stage?.name ?? "<unknown>"}`);
   }
+  requireExactKeys(releaseGate, ["name", "env", "script"], "deploy-prod stage release-gate");
+  requireExactStringMap(releaseGate.env, REQUIRED_BUILD_ENV, "release-gate.env");
   requireExactKeys(buildStandalone, ["name", "env", "script"], "deploy-prod stage build-release-target");
   requireExactStringMap(buildStandalone.env, REQUIRED_BUILD_ENV, "build-release-target.env");
   requireExactKeys(deployToServer, ["name", "imports", "env", "script"], "deploy-prod stage deploy-to-server");
