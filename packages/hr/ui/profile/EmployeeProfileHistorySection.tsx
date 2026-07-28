@@ -83,7 +83,7 @@ export function historySectionSurface({
 }: HistorySectionProps, businessTimeZone: string): Omit<DataSurfaceRecordProps, "kind"> {
   const changeColumns = historyChangeColumns();
   return {
-    actions: [{ key: "refresh", label: "刷新", variant: "secondary", onClick: onRefresh }],
+    actions: [{ key: "refresh", label: "刷新", icon: "refresh", variant: "secondary", onClick: onRefresh }],
     empty: loading ? "正在加载历史记录..." : "暂无变更记录",
     records: loading ? [] : entries.map(entry => {
       const expanded = expandedId === entry.id;
