@@ -175,6 +175,9 @@ export interface EmploymentAgreementMissingField {
 
 export interface EmploymentAgreementTermRow {
   termUid: string;
+  /** Persistence sequence used only to address baseline missing-field paths. */
+  storageSequence: number;
+  /** Stable business-period ordinal derived from the supersession root. */
   sequence: number;
   termKind: "initial" | "renewal" | "permanent" | "legacy";
   effectiveFrom: string | null;

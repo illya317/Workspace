@@ -35,7 +35,6 @@ import {
   type EditableRecord,
 } from "./EmployeeProfileUtils";
 import { useEmployeeLifecycleSections } from "./EmployeeLifecycleSection";
-import { useEmployeePeriodRevisionSections } from "./EmployeePeriodRevisionSection";
 import { useEmployeeSocialInsuranceSections } from "./EmployeeSocialInsuranceSection";
 
 export type EmployeeProfileSection = "basic" | "employment" | "socialInsurance" | "assignment" | "history";
@@ -53,7 +52,6 @@ export default function EmployeeProfileView({
   error,
   message,
   canEdit,
-  canRevise,
   saving,
   activeSection,
   onSectionChange,
@@ -81,7 +79,6 @@ export default function EmployeeProfileView({
   error: string | null;
   message: string | null;
   canEdit: boolean;
-  canRevise: boolean;
   saving: string | null;
   activeSection: EmployeeProfileSection;
   onSectionChange: (section: EmployeeProfileSection) => void;
@@ -170,16 +167,7 @@ export default function EmployeeProfileView({
     asOfDate: profile?.asOfDate ?? "",
     className: sectionCardClassName,
   });
-  const periodRevisionSections = useEmployeePeriodRevisionSections({
-    profile,
-    canRevise,
-    onSaved: async () => {
-      await onLifecycleSaved();
-      await Promise.resolve(onHistoryRefresh());
-    },
-  });
   const createHistorySections = [
-    ...periodRevisionSections,
     createHistorySection({
       entries: historyEntries,
       loading: historyLoading,

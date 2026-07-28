@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
 import { useFeedback } from "@workspace/core/ui";
-import { hrCanEdit, hrCanRevise, type HRUser } from "@workspace/hr/types";
+import { hrCanEdit, type HRUser } from "@workspace/hr/types";
 import {
   edpFields,
   employeeFields,
@@ -41,7 +41,6 @@ export default function EmployeeProfileClient({
 }) {
   const router = useRouter();
   const canEdit = hrCanEdit(user);
-  const canRevise = hrCanRevise(user);
   const [profile, setProfile] = useState<EmployeeProfile | null>(null);
   const [employeeDraft, setEmployeeDraft] = useState<EmployeeProfileEmployee | null>(null);
   const [employments, setEmployments] = useState<EmploymentRow[]>([]);
@@ -181,7 +180,6 @@ export default function EmployeeProfileClient({
       error={error}
       message={message}
       canEdit={canEdit}
-      canRevise={canRevise}
       saving={saving}
       activeSection={activeSection}
       onSectionChange={changeSection}

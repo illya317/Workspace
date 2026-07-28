@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./agreement-term-semantics": "./agreement-term-semantics.ts",
     "./business-temporal": "./business-temporal.ts",
     "./employee-lifecycle-contract": "./employee-lifecycle-contract.ts",
     "./employee-social-insurance-contract": "./employee-social-insurance-contract.ts",

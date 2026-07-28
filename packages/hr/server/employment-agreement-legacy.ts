@@ -165,6 +165,7 @@ function legacyTerms(
     const effectiveThrough = text(through);
     return [{
       termUid: `legacy-term:${fingerprint}:${index + 1}`,
+      storageSequence: index + 1,
       sequence: index + 1,
       termKind,
       effectiveFrom,

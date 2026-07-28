@@ -1,35 +1,27 @@
 import { type BodySurfaceSectionCreateSpec, type BodySurfaceSectionSpec, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type FormSurfaceItemSpec } from "@workspace/core/ui";
 import { HR_EMPLOYMENT_AGREEMENT_TEMPORAL } from "@workspace/hr/business-temporal";
 import { employmentAgreementFieldRequired, employmentAgreementFieldLabel, type EmploymentAgreementCommandKind, type EmploymentAgreementFormField } from "@workspace/hr/employment-agreement-field-contract";
-import type { ContractRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
+import {
+  agreementTermDurationKind,
+  agreementTermExpiryLabel,
+  contractPeriodLabel,
+  preferredAgreementTerm,
+} from "@workspace/hr/agreement-term-semantics";
+import type { ContractRow, ProfileField } from "@workspace/hr/types";
 import { createBusinessTemporalRecordSections, type BusinessTemporalRecordDetailSpec } from "@workspace/platform/ui";
 import { profileFieldSpec } from "./EmployeeProfileFieldSpecs";
-import { contractPeriodLabel } from "./EmployeeProfileContractView";
-import type { EditableRecord } from "./EmployeeProfileUtils";
+import { agreementHistoryRows, type AgreementDraft, type AgreementHistoryRow } from "./EmployeeProfileContractModel";
 
-export type AgreementCommandKind = Exclude<EmploymentAgreementCommandKind, "supplement-missing" | "correct-existing">;
-
-export interface AgreementDraft extends EditableRecord {
-  kind: AgreementCommandKind;
-  agreementUid: string;
-  employmentId: number | null;
-  termUid: string;
-  effectiveFrom: string;
-  effectiveThrough: string | null;
-  termKind: "initial" | "renewal" | "permanent";
-  company: string | null;
-  legalRelation: string | null;
-  contractType: string | null;
-  employmentForm: string | null;
-  reason: string | null;
-}
-
-const TERM_COMMAND_OPTIONS: Array<{ value: AgreementCommandKind; label: string }> = [
-  { value: "renew", label: "续签" },
-  { value: "end", label: "登记终止" },
-  { value: "correct", label: "修订历史期限" },
-  { value: "cancel-future", label: "取消待生效期限" },
-];
+export {
+  agreementTermMissingFields,
+  agreementTermsForCommand,
+  applyAgreement,
+  applyAgreementTerm,
+  emptyAgreementDraft,
+  initialDraft,
+  termKindForCommand,
+} from "./EmployeeProfileContractModel";
+export type { AgreementCommandKind, AgreementDraft } from "./EmployeeProfileContractModel";
 
 const AGREEMENT_CONTENT_FIELDS = ["company", "legalRelation", "contractType", "employmentForm"] as const satisfies readonly EmploymentAgreementFormField[];
 type AgreementContentField = typeof AGREEMENT_CONTENT_FIELDS[number];
@@ -38,16 +30,55 @@ export function createAgreementItems(input: {
   draft: AgreementDraft;
   fields: ProfileField[];
   setField: (key: string, value: unknown) => void;
+  commandKind?: "create" | "replace";
 }): FormSurfaceItemSpec[] {
-  const { draft, fields, setField } = input;
+  const { draft, fields, setField, commandKind = "create" } = input;
   const items: FormSurfaceItemSpec[] = [
-    dateItem("effectiveFrom", "开始日期", draft.effectiveFrom, (value) => setField("effectiveFrom", value), employmentAgreementFieldRequired("create", "effectiveFrom")),
-    dateItem("effectiveThrough", employmentAgreementFieldLabel("create", "effectiveThrough"), draft.effectiveThrough, (value) => setField("effectiveThrough", value)),
-    choiceItem("termKind", "期限类型", termKindForCommand("create", draft.termKind), [{ value: "initial", label: "首签" }, { value: "permanent", label: "无固定期限" }], (value) => setField("termKind", value), employmentAgreementFieldRequired("create", "termKind")),
+    dateItem("effectiveFrom", "开始日期", draft.effectiveFrom, (value) => setField("effectiveFrom", value), employmentAgreementFieldRequired(commandKind, "effectiveFrom")),
+    durationKindItem(draft, setField, commandKind),
+    ...(draft.durationKind === "fixed"
+      ? [dateItem("effectiveThrough", employmentAgreementFieldLabel(commandKind, "effectiveThrough"), draft.effectiveThrough, (value) => setField("effectiveThrough", value), true)]
+      : [readOnlyItem("effectiveThrough", "到期日期", "不适用")]),
   ];
-  appendAgreementContentItems(items, fields, draft, setField, "create");
-  items.push(reasonItem(draft, setField, "create"));
+  appendAgreementContentItems(items, fields, draft, setField, commandKind);
+  if (employmentAgreementFieldRequired(commandKind, "reason")) {
+    items.push(reasonItem(draft, setField, commandKind));
+  }
   return items;
+}
+
+export function createAgreementCreateSpec(input: {
+  canEdit: boolean;
+  mode: "create" | "replace";
+  draft: AgreementDraft;
+  fields: ProfileField[];
+  saving: boolean;
+  opened: boolean;
+  setField: (key: string, value: unknown) => void;
+  submit: () => void;
+  open: () => void;
+  cancel: () => void;
+}): BodySurfaceSectionCreateSpec | undefined {
+  if (!input.canEdit) return undefined;
+  return {
+    id: "agreement-create",
+    title: input.mode === "replace" ? "更换协议" : "新建协议",
+    trigger: "surface",
+    presentation: "block",
+    open: input.opened,
+    canCreate: true,
+    disabled: input.saving,
+    content: {
+      kind: "form",
+      form: {
+        items: createAgreementItems({ draft: input.draft, fields: input.fields, setField: input.setField, commandKind: input.mode }),
+        layout: { columns: 2 },
+      },
+    },
+    submission: { action: "save", disabled: input.saving, execute: input.submit },
+    onOpenChange: (open) => open ? input.open() : input.cancel(),
+    onCancel: input.cancel,
+  };
 }
 
 export function agreementDetailItems(input: {
@@ -58,8 +89,9 @@ export function agreementDetailItems(input: {
   setField: (key: string, value: unknown) => void;
 }) {
   const { draft, selected, fields, mode, setField } = input;
+  const preferredTerm = preferredAgreementTerm(selected.terms.filter((term) => term.recordState === "confirmed"));
   const items: FormSurfaceItemSpec[] = [
-    readOnlyItem("expiryDate", "到期日期", selected.expiryDate || (selected.terms.some((term) => term.recordState === "confirmed" && term.termKind === "permanent" && !term.effectiveThrough) ? "无固定期限" : "未设置")),
+    readOnlyItem("expiryDate", "到期日期", preferredTerm ? agreementTermExpiryLabel(preferredTerm) : "未设置"),
     readOnlyItem("endDate", "结束日期", selected.endDate || "未设置"),
   ];
   const editableFields = new Set(agreementContentFieldsByMissingState(selected, mode === "supplement-missing"));
@@ -82,8 +114,11 @@ export function agreementDetailItems(input: {
 
 const AGREEMENT_TABLE_COLUMNS: Array<DataSurfaceColumnSpec<ContractRow>> = [
   { key: "type", label: "协议类型", cell: (row) => ({ kind: "text", value: row.contractType || "未设置", emphasis: "medium" }) },
-  { key: "signed", label: "签署日期", cell: (row) => agreementFirstDate(row) || "—" },
-  { key: "expiry", label: "到期日期", cell: (row) => row.expiryDate || (row.terms.some((term) => term.termKind === "permanent" && !term.effectiveThrough) ? "无固定期限" : "—") },
+  { key: "started", label: "开始日期", cell: (row) => agreementFirstDate(row) || "—" },
+  { key: "expiry", label: "到期日期", cell: (row) => {
+    const term = preferredAgreementTerm(row.terms.filter((item) => item.recordState === "confirmed"));
+    return term ? agreementTermExpiryLabel(term) : "—";
+  } },
   { key: "end", label: "结束日期", cell: (row) => row.endDate || "—" },
   { key: "status", label: "状态", cell: (row) => ({ kind: "badge", label: agreementStatusLabel(row), tone: agreementStatusTone(row) }) },
   { key: "attachments", label: "附件", align: "right", cell: (row) => `${row.attachments.filter((item) => !item.removedAt).length} 份` },
@@ -139,15 +174,6 @@ export function agreementMasterSections(input: {
   ];
 }
 
-interface AgreementHistoryRow {
-  key: string;
-  record: string;
-  kind: string;
-  validFrom: string;
-  validThrough: string;
-  state: string;
-}
-
 const AGREEMENT_HISTORY_COLUMNS: Array<DataSurfaceColumnSpec<AgreementHistoryRow>> = [
   { key: "record", label: "记录", cell: (row) => ({ kind: "text", value: row.record, emphasis: "medium" }) },
   { key: "kind", label: "类别", cell: (row) => row.kind },
@@ -156,25 +182,13 @@ const AGREEMENT_HISTORY_COLUMNS: Array<DataSurfaceColumnSpec<AgreementHistoryRow
   { key: "state", label: "状态", cell: (row) => row.state },
 ];
 
-export function agreementHistorySupplemental(row: ContractRow): DataSurfaceCellSpec[] {
-  const rows: AgreementHistoryRow[] = [
-    ...row.terms.map((term) => ({
-      key: `term-${term.termUid}`,
-      record: `${termKindLabel(term.termKind)} · 第 ${term.sequence} 期`,
-      kind: "协议期限",
-      validFrom: term.effectiveFrom || "待补充",
-      validThrough: term.effectiveThrough || (term.termKind === "permanent" ? "无固定期限" : "待补充"),
-      state: termRecordStateLabel(term.recordState, term.temporalState),
-    })),
-    ...row.revisions.map((revision) => ({
-      key: `revision-${revision.revisionUid}`,
-      record: `${revisionKindLabel(revision.changeKind)} · 版本 ${revision.revisionNo}`,
-      kind: "资料版本",
-      validFrom: "—",
-      validThrough: revision.createdAt || "—",
-      state: revision.revisionUid === row.currentRevisionUid ? "当前" : revisionRecordStateLabel(revision.recordState),
-    })),
-  ];
+export function agreementHistorySupplemental(input: {
+  row: ContractRow;
+  selectedKey?: string | null;
+  onSelect?: (row: AgreementHistoryRow) => void;
+  expandedRow?: (row: AgreementHistoryRow) => DataSurfaceCellSpec | null;
+}): DataSurfaceCellSpec[] {
+  const rows = agreementHistoryRows(input.row);
   return [{
     kind: "data",
     data: {
@@ -183,49 +197,22 @@ export function agreementHistorySupplemental(row: ContractRow): DataSurfaceCellS
       columns: AGREEMENT_HISTORY_COLUMNS,
       visibleColumns: AGREEMENT_HISTORY_COLUMNS.map((column) => column.key),
       rowKey: (history) => history.key,
-      presentation: { density: "compact", header: "tinted" },
+      onRowClick: input.onSelect,
+      rowState: (history) => history.key === input.selectedKey ? "selected" : "normal",
+      expandedRowKey: input.expandedRow && input.selectedKey ? input.selectedKey : null,
+      expandedRow: input.expandedRow,
+      presentation: { density: "compact", header: "tinted", rowHover: input.onSelect ? "interactive" : "neutral" },
       emptyText: "暂无期限或版本记录",
     },
   }];
 }
 
-function termKindLabel(kind: ContractRow["terms"][number]["termKind"]) {
-  if (kind === "initial") return "首签";
-  if (kind === "renewal") return "续签";
-  if (kind === "permanent") return "无固定期限";
-  return "历史期限";
-}
-
-function termRecordStateLabel(recordState: ContractRow["terms"][number]["recordState"], temporalState: ContractRow["terms"][number]["temporalState"]) {
-  if (recordState === "cancelled") return "已取消";
-  if (recordState === "superseded") return "已替代";
-  if (recordState === "voided") return "已作废";
-  if (recordState === "unknown") return "状态待补充";
-  if (temporalState === "current") return "当前";
-  if (temporalState === "upcoming") return "待生效";
-  return "历史";
-}
-
-function revisionKindLabel(kind: ContractRow["revisions"][number]["changeKind"]) {
-  if (kind === "baseline-import") return "初始资料";
-  if (kind === "supplement") return "补充资料";
-  if (kind === "correction") return "资料修正";
-  if (kind === "amendment") return "协议修订";
-  if (kind === "initial") return "初始资料";
-  if (kind === "legacy") return "历史资料";
-  return "资料版本";
-}
-
-function revisionRecordStateLabel(state: ContractRow["revisions"][number]["recordState"]) {
-  if (state === "draft") return "草稿";
-  if (state === "cancelled") return "已取消";
-  if (state === "superseded") return "已替代";
-  if (state === "unknown") return "状态待补充";
-  return "历史";
-}
-
 function agreementFirstDate(row: ContractRow) {
-  return row.terms.map((term) => term.effectiveFrom).filter((value): value is string => Boolean(value)).sort()[0] ?? null;
+  return row.terms
+    .filter((term) => term.recordState === "confirmed")
+    .map((term) => term.effectiveFrom)
+    .filter((value): value is string => Boolean(value))
+    .sort()[0] ?? null;
 }
 
 function agreementStatusLabel(row: ContractRow) {
@@ -243,35 +230,87 @@ function agreementStatusTone(row: ContractRow): "green" | "blue" | "gray" | "amb
   return "amber";
 }
 
-export function termCommandItems(input: {
+export function agreementRenewalItems(input: {
   draft: AgreementDraft;
-  selected: ContractRow;
+  periodNo: number;
   setField: (key: string, value: unknown) => void;
-  selectTerm: (uid: string) => void;
-}) {
-  const { draft, selected, setField, selectTerm } = input;
-  const commandOptions = selected.migrationState === "baseline-incomplete"
-    ? TERM_COMMAND_OPTIONS.filter((option) => option.value === "correct")
-    : TERM_COMMAND_OPTIONS;
-  const items: FormSurfaceItemSpec[] = [choiceItem("kind", "期限动作", draft.kind, commandOptions, (value) => setField("kind", value), employmentAgreementFieldRequired(draft.kind, "kind"))];
-  if (["end", "correct", "cancel-future"].includes(draft.kind)) {
-    const selectableTerms = selected.terms.filter((term) => term.recordState === "confirmed" || (draft.kind === "correct" && term.recordState === "unknown"));
-    items.push(choiceItem("termUid", employmentAgreementFieldLabel(draft.kind, "termUid"), draft.termUid, selectableTerms.map((term) => ({ value: term.termUid, label: contractPeriodLabel(term) })), selectTerm, employmentAgreementFieldRequired(draft.kind, "termUid")));
-  }
-  if (["renew", "correct"].includes(draft.kind)) {
-    items.push(dateItem("effectiveFrom", "开始日期", draft.effectiveFrom, (value) => setField("effectiveFrom", value), employmentAgreementFieldRequired(draft.kind, "effectiveFrom")));
-  }
-  if (["renew", "end", "correct"].includes(draft.kind)) {
-    items.push(dateItem("effectiveThrough", employmentAgreementFieldLabel(draft.kind, "effectiveThrough"), draft.effectiveThrough, (value) => setField("effectiveThrough", value), employmentAgreementFieldRequired(draft.kind, "effectiveThrough")));
-  }
-  if (["renew", "correct"].includes(draft.kind)) {
-    items.push(choiceItem("termKind", "期限类型", termKindForCommand(draft.kind, draft.termKind), [
-      ...(draft.kind === "renew" ? [{ value: "renewal", label: "续签" }] : [{ value: "initial", label: "首签" }, { value: "renewal", label: "续签" }]),
-      { value: "permanent", label: "无固定期限" },
-    ], (value) => setField("termKind", value), employmentAgreementFieldRequired(draft.kind, "termKind")));
-  }
-  items.push(reasonItem(draft, setField, draft.kind));
+}): FormSurfaceItemSpec[] {
+  const { draft, periodNo, setField } = input;
+  const items: FormSurfaceItemSpec[] = [
+    readOnlyItem("periodNo", "签订期次", `第 ${periodNo} 期`),
+    dateItem("effectiveFrom", "开始日期", draft.effectiveFrom, (value) => setField("effectiveFrom", value), true),
+    durationKindItem(draft, setField, "renew"),
+    draft.durationKind === "fixed"
+      ? dateItem("effectiveThrough", "到期日期", draft.effectiveThrough, (value) => setField("effectiveThrough", value), true)
+      : readOnlyItem("effectiveThrough", "到期日期", "不适用"),
+  ];
   return items;
+}
+
+export function agreementTermRecordItems(input: {
+  draft: AgreementDraft;
+  term: ContractRow["terms"][number];
+  setField: (key: string, value: unknown) => void;
+}): FormSurfaceItemSpec[] {
+  const { draft, term, setField } = input;
+  return [
+    readOnlyItem("periodNo", "签订期次", `第 ${term.sequence} 期`),
+    dateItem("effectiveFrom", "开始日期", draft.effectiveFrom, (value) => setField("effectiveFrom", value), true),
+    durationKindItem(draft, setField, "correct"),
+    draft.durationKind === "fixed"
+      ? dateItem("effectiveThrough", "到期日期", draft.effectiveThrough, (value) => setField("effectiveThrough", value), true)
+      : readOnlyItem("effectiveThrough", "到期日期", "不适用"),
+    reasonItem(draft, setField, "correct", "变更说明"),
+  ];
+}
+
+export function agreementTermEndItems(input: {
+  draft: AgreementDraft;
+  term: ContractRow["terms"][number];
+  setField: (key: string, value: unknown) => void;
+}): FormSurfaceItemSpec[] {
+  const { draft, term, setField } = input;
+  return [
+    readOnlyItem("periodNo", "签订期次", `第 ${term.sequence} 期`),
+    readOnlyItem("period", "协议期限", contractPeriodLabel(term)),
+    dateItem("effectiveThrough", "结束日期", draft.effectiveThrough, (value) => setField("effectiveThrough", value), true),
+    reasonItem(draft, setField, "end"),
+  ];
+}
+
+export function agreementTermCancelItems(input: {
+  draft: AgreementDraft;
+  term: ContractRow["terms"][number];
+  setField: (key: string, value: unknown) => void;
+}): FormSurfaceItemSpec[] {
+  const { draft, term, setField } = input;
+  return [
+    readOnlyItem("periodNo", "签订期次", `第 ${term.sequence} 期`),
+    readOnlyItem("period", "待生效期限", contractPeriodLabel(term)),
+    reasonItem(draft, setField, "cancel-future"),
+  ];
+}
+
+export function agreementTermReadonlyItems(term: ContractRow["terms"][number]): FormSurfaceItemSpec[] {
+  return [
+    readOnlyItem("periodNo", "签订期次", `第 ${term.sequence} 期`),
+    readOnlyItem("durationKind", "期限性质", agreementTermDurationKind(term) === "indefinite" ? "无固定期限" : "固定期限"),
+    readOnlyItem("effectiveFrom", "开始日期", term.effectiveFrom || "待补充"),
+    readOnlyItem("effectiveThrough", "到期日期", agreementTermExpiryLabel(term)),
+    readOnlyItem("reason", "记录说明", term.reason || "—"),
+  ];
+}
+
+export function agreementRevisionReadonlyItems(revision: ContractRow["revisions"][number]): FormSurfaceItemSpec[] {
+  return [
+    readOnlyItem("revisionNo", "资料版本", `版本 ${revision.revisionNo}`),
+    readOnlyItem("recordedAt", "登记时间", revision.createdAt || "—"),
+    readOnlyItem("company", "用工主体", revision.content.company || "未设置"),
+    readOnlyItem("legalRelation", "法律关系", revision.content.legalRelation || "未设置"),
+    readOnlyItem("contractType", "协议类型", revision.content.contractType || "未设置"),
+    readOnlyItem("employmentForm", "用工形式", revision.content.employmentForm || "未设置"),
+    readOnlyItem("reason", "修订说明", revision.reason || "—"),
+  ];
 }
 
 function appendAgreementContentItems(
@@ -288,15 +327,35 @@ function appendAgreementContentItems(
   }
 }
 
-function reasonItem(draft: AgreementDraft, setField: (key: string, value: unknown) => void, commandKind: EmploymentAgreementCommandKind): FormSurfaceItemSpec {
+function reasonItem(
+  draft: AgreementDraft,
+  setField: (key: string, value: unknown) => void,
+  commandKind: EmploymentAgreementCommandKind,
+  label = employmentAgreementFieldLabel(commandKind, "reason"),
+): FormSurfaceItemSpec {
   return {
     key: "reason",
-    label: employmentAgreementFieldLabel(commandKind, "reason"),
+    label,
     required: employmentAgreementFieldRequired(commandKind, "reason"),
     spec: { valueType: "string", control: "text", state: "normal" },
     value: draft.reason,
     onChange: (value) => setField("reason", value),
   };
+}
+
+function durationKindItem(
+  draft: AgreementDraft,
+  setField: (key: string, value: unknown) => void,
+  commandKind: EmploymentAgreementCommandKind,
+): FormSurfaceItemSpec {
+  return choiceItem(
+    "durationKind",
+    "期限性质",
+    draft.durationKind,
+    [{ value: "fixed", label: "固定期限" }, { value: "indefinite", label: "无固定期限" }],
+    (value) => setField("durationKind", value),
+    employmentAgreementFieldRequired(commandKind, "termKind"),
+  );
 }
 
 function choiceItem(key: string, label: string, value: string, options: Array<{ value: string; label: string }>, onChange: (value: string) => void, required = false): FormSurfaceItemSpec {
@@ -335,35 +394,6 @@ function agreementContentFieldValue(agreement: ContractRow, field: AgreementCont
   return typeof value === "string" && value ? value : "未设置";
 }
 
-export function initialDraft(employments: EmploymentRow[], agreements: ContractRow[], asOfDate: string): AgreementDraft {
-  const agreement = agreements.find((row) => row.isPrimary) ?? agreements[0] ?? null;
-  const kind: AgreementCommandKind = agreement?.migrationState === "baseline-incomplete"
-    ? "correct"
-    : agreements.length > 0 ? "renew" : "create";
-  return applyAgreement({
-    ...emptyAgreementDraft(employments, asOfDate),
-    kind,
-    termKind: agreements.length > 0 ? "renewal" : "initial",
-  }, agreement);
-}
-
-export function emptyAgreementDraft(employments: EmploymentRow[], asOfDate: string): AgreementDraft {
-  return {
-    kind: "create",
-    agreementUid: "",
-    employmentId: employments.find((row) => row.temporalState === "current")?.id ?? employments[0]?.id ?? null,
-    termUid: "",
-    effectiveFrom: asOfDate,
-    effectiveThrough: null,
-    termKind: "initial",
-    company: null,
-    legalRelation: null,
-    contractType: null,
-    employmentForm: null,
-    reason: null,
-  };
-}
-
 export function agreementContentFieldsByMissingState(agreement: ContractRow | null, missing: boolean): AgreementContentField[] {
   if (!agreement) return [];
   const missingPaths = new Set(agreement.missingFields.map((field) => field.path));
@@ -388,33 +418,4 @@ export function agreementContentPatch(
     patch[field] = draft[field];
   }
   return patch;
-}
-
-export function termKindForCommand(kind: AgreementCommandKind, termKind: AgreementDraft["termKind"]): AgreementDraft["termKind"] {
-  if (termKind === "permanent") return termKind;
-  if (kind === "create") return "initial";
-  if (kind === "renew") return "renewal";
-  return termKind;
-}
-
-export function applyAgreement(draft: AgreementDraft, agreement: ContractRow | null): AgreementDraft {
-  if (!agreement) return draft;
-  const term = agreement.migrationState === "baseline-incomplete"
-    ? agreement.terms.find((item) => !item.effectiveFrom) ?? agreement.terms.find((item) => item.recordState === "confirmed") ?? null
-    : agreement.terms.filter((item) => item.recordState === "confirmed").at(-1) ?? agreement.terms.filter((item) => item.recordState === "unknown").at(-1) ?? null;
-  const renewing = draft.kind === "renew" && agreement.migrationState !== "baseline-incomplete";
-  return {
-    ...draft,
-    kind: agreement.migrationState === "baseline-incomplete" ? "correct" : draft.kind,
-    agreementUid: agreement.agreementUid || "",
-    employmentId: agreement.employmentId,
-    termUid: term?.termUid ?? "",
-    effectiveFrom: renewing ? draft.effectiveFrom : term?.effectiveFrom ?? "",
-    effectiveThrough: renewing ? null : term?.effectiveThrough ?? null,
-    termKind: renewing ? "renewal" : term?.termKind === "renewal" || term?.termKind === "permanent" ? term.termKind : "initial",
-    company: agreement.company || null,
-    legalRelation: agreement.legalRelation || null,
-    contractType: agreement.contractType || null,
-    employmentForm: agreement.employmentForm || null,
-  };
 }

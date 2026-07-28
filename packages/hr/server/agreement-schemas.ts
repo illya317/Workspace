@@ -36,23 +36,42 @@ const EmploymentAgreementContentPatchSchema = EmploymentAgreementContentSchema.r
   { message: "至少提交一个协议资料字段" },
 );
 
-export const EmploymentAgreementCommandSchema = z.discriminatedUnion("kind", [
+const EmploymentAgreementTermPatchSchema = z.object({
+  effectiveFrom: businessDate.optional(),
+  effectiveThrough: businessDate.optional(),
+}).strict().refine(
+  (value) => Object.keys(value).length > 0,
+  { message: "至少补充一个期限字段" },
+);
+
+const EmploymentAgreementCommandUnionSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("create"),
     employmentId: z.coerce.number().int().positive(),
     isPrimary: z.boolean().optional(),
     effectiveFrom: businessDate,
     effectiveThrough: businessDate.nullable().optional(),
-    termKind: z.enum(["initial", "permanent"]).optional(),
+    termKind: z.enum(["initial", "permanent"]),
     content: EmploymentAgreementContentSchema,
     ...commandMeta("create"),
+  }).strict(),
+  z.object({
+    kind: z.literal("replace"),
+    ...target,
+    employmentId: z.coerce.number().int().positive(),
+    isPrimary: z.boolean().optional(),
+    effectiveFrom: businessDate,
+    effectiveThrough: businessDate.nullable().optional(),
+    termKind: z.enum(["initial", "permanent"]),
+    content: EmploymentAgreementContentSchema,
+    ...commandMeta("replace"),
   }).strict(),
   z.object({
     kind: z.literal("renew"),
     ...target,
     effectiveFrom: businessDate,
     effectiveThrough: businessDate.nullable().optional(),
-    termKind: z.enum(["renewal", "permanent"]).optional(),
+    termKind: z.enum(["renewal", "permanent"]),
     ...commandMeta("renew"),
   }).strict(),
   z.object({
@@ -66,14 +85,24 @@ export const EmploymentAgreementCommandSchema = z.discriminatedUnion("kind", [
     ...termTarget,
     effectiveFrom: businessDate,
     effectiveThrough: businessDate.nullable().optional(),
-    termKind: z.enum(["initial", "renewal", "permanent"]).optional(),
+    termKind: z.enum(["initial", "renewal", "permanent"]),
     ...commandMeta("correct"),
   }).strict(),
+  z.object({ kind: z.literal("supplement-term"), ...termTarget, patch: EmploymentAgreementTermPatchSchema, ...commandMeta("supplement-term") }).strict(),
   z.object({ kind: z.literal("supplement-missing"), ...target, patch: EmploymentAgreementContentPatchSchema, ...commandMeta("supplement-missing") }).strict(),
   z.object({ kind: z.literal("correct-existing"), ...target, patch: EmploymentAgreementContentPatchSchema, ...commandMeta("correct-existing") }).strict(),
   z.object({ kind: z.literal("set-primary"), ...target, ...commandMeta("set-primary") }).strict(),
   z.object({ kind: z.literal("cancel-future"), ...termTarget, ...commandMeta("cancel-future") }).strict(),
 ]);
+
+export const EmploymentAgreementCommandSchema = EmploymentAgreementCommandUnionSchema.superRefine((command, context) => {
+  if (!(command.kind === "create" || command.kind === "replace" || command.kind === "renew" || command.kind === "correct")) return;
+  if (command.termKind === "permanent" && command.effectiveThrough) {
+    context.addIssue({ code: "custom", path: ["effectiveThrough"], message: "无固定期限不得填写到期日期" });
+  } else if (command.termKind !== "permanent" && !command.effectiveThrough) {
+    context.addIssue({ code: "custom", path: ["effectiveThrough"], message: "固定期限必须填写到期日期" });
+  }
+});
 
 export const EmploymentAgreementEmployeeParamsSchema = z.object({
   id: z.coerce.number().int().positive(),
