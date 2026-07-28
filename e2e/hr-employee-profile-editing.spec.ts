@@ -49,7 +49,7 @@ test("员工档案所有来源字段都有可审计的编辑入口", {
   for (const label of ["人员类型", "职级", "职务", "办公地点"]) {
     await expectEditableField(page, label);
   }
-  await page.getByRole("button", { name: "纠正这条记录", exact: true }).click();
+  await page.getByRole("button", { name: "纠正这条记录", exact: true }).filter({ visible: true }).first().click();
   for (const label of ["用工公司", "开始日期", "结束日期", "纠正原因"]) {
     await expectEditableField(page, label, "纠正雇佣历史");
   }
@@ -67,13 +67,13 @@ test("员工档案所有来源字段都有可审计的编辑入口", {
 
   await page.getByRole("tab", { name: "社会保险", exact: true }).click();
   await page.getByRole("row").filter({ hasText: "已参保" }).first().click();
-  await page.getByRole("button", { name: "修正已登记资料", exact: true }).click();
+  await page.getByRole("button", { name: "修正已登记资料", exact: true }).filter({ visible: true }).first().click();
   for (const label of ["社保状态", "参保公司", "参保月份", "停保月份", "停保原因", "备注", "修正说明"]) {
     await expectEditableField(page, label);
   }
 
   await page.getByRole("tab", { name: "任职管理", exact: true }).click();
-  await page.getByRole("button", { name: "纠正这条记录", exact: true }).click();
+  await page.getByRole("button", { name: "纠正这条记录", exact: true }).filter({ visible: true }).first().click();
   for (const label of ["汇报公司", "部门", "岗位", "主岗", "岗位投入权重", "汇报岗位", "开始日期", "结束日期", "纠正原因"]) {
     await expectEditableField(page, label, "纠正任职历史");
   }
