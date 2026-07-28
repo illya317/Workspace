@@ -288,6 +288,10 @@ export function useEmployeeSocialInsuranceSections(input: {
       onClick: () => void submitSupplement(),
     }] : [];
     const correctionPatch = selected ? socialInsuranceCorrectionPatch(selected, supplementDraft) : {};
+    const correctionTargetFields = selected
+      ? ["insuranceStatus", "companyId", "startMonth", "endMonth", "stopReason", "note"]
+          .filter((field) => !selected.missingFields.includes(field))
+      : [];
     const correctionActions = selected && input.canEdit ? correcting ? [{
       key: "cancel-social-insurance-correction",
       action: "cancel" as const,
@@ -333,15 +337,19 @@ export function useEmployeeSocialInsuranceSections(input: {
             }),
         mutation: correcting ? {
           kind: "correct-existing",
-          targetFields: ["insuranceStatus", "companyId", "startMonth", "endMonth", "stopReason", "note"]
-            .filter((field) => !selected.missingFields.includes(field)),
+          targetFields: correctionTargetFields,
           missingFields: selected.missingFields,
           actions: correctionActions,
-        } : supplementActions.length > 0 || correctionActions.length > 0 ? {
+        } : supplementActions.length > 0 ? {
           kind: "supplement-missing",
           targetFields: socialInsuranceSupplementableFields(selected),
           missingFields: selected.missingFields,
           actions: [...correctionActions, ...supplementActions],
+        } : correctionActions.length > 0 ? {
+          kind: "correct-existing",
+          targetFields: correctionTargetFields,
+          missingFields: selected.missingFields,
+          actions: correctionActions,
         } : undefined,
       } : undefined,
     }));
