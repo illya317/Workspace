@@ -152,8 +152,7 @@ export function agreementTermRowCommandKind(
   const changes = agreementTermRowChanges(term, draft);
   const missing = agreementTermMissingFields(agreement, term);
   return changes.size > 0
-    && !changes.has("durationKind")
-    && [...changes].every((field) => missing.has(field))
+    && [...changes].every((field) => field !== "durationKind" && missing.has(field))
       ? "supplement-term"
       : "correct";
 }

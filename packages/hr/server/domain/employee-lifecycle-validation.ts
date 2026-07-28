@@ -107,7 +107,12 @@ export interface EmployeeLifecycleCommand {
 
 export { isHydratableOnboardingPlaceholder };
 
-type TimelineRow = Pick<LifecycleAssignmentPeriod, "startDate" | "endDate" | "allocationWeight" | "isPrimary">;
+type TimelineRow = {
+  startDate: string | null;
+  endDate: string | null;
+  allocationWeight: string | null;
+  isPrimary: boolean;
+};
 
 export function validateAssignmentChange(
   eventType: "transfer" | "reporting_change",
@@ -397,8 +402,7 @@ export async function buildEmployeeLifecycleCommand(
     : null;
   if (eventType === "onboard") {
     if (
-      HR_EMPLOYMENT_TEMPORAL.policy.overlaps !== "allow"
-      && !onboardingPlaceholder
+      !onboardingPlaceholder
       && !employeeCanOnboardAt({
         employments: employee.employments,
         assignmentCount: employee.positions.length,

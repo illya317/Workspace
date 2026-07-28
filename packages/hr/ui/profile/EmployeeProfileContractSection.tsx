@@ -242,7 +242,7 @@ export function useContractSections({
         termKind: termKindForCommand(kind, draft.durationKind),
         content,
       };
-    } else if (!target) {
+    } else if (!selected || !target) {
       feedback.error("请选择已规范化的协议");
       return;
     } else if (kind === "renew") {

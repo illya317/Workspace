@@ -14,13 +14,13 @@ import {
   agreementTermEndItems,
   agreementTermReadonlyItems,
   agreementTermRecordItems,
-  type AgreementHistoryRow,
 } from "./EmployeeProfileContractForm";
 import {
   agreementTermMissingFields,
   agreementTermRowCommandKind,
   agreementTermRowReady,
   type AgreementDraft,
+  type AgreementHistoryRow,
 } from "./EmployeeProfileContractModel";
 
 export type AgreementTermOperation = "edit" | "end" | "cancel";

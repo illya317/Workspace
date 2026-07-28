@@ -3,6 +3,7 @@ import { z } from "zod";
 import { reviseEmployeePeriod } from "@workspace/hr/server";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const bodySchema = z.object({
   entityType: z.enum(["Employment", "EDP"]),
@@ -18,6 +19,6 @@ export const POST = createCommandRoute({
   paramsError: "员工ID无效",
   bodySchema,
   bodyError: "周期修订内容无效",
-  buildCommand: ({ params, body, user }) => ({ employeeId: params.id, input: body, userId: user.userId }),
+  buildCommand: ({ params, body, user }) => okCommand({ employeeId: params.id, input: body, userId: user.userId }),
   action: ({ employeeId, input, userId }) => reviseEmployeePeriod(employeeId, input, userId),
 });

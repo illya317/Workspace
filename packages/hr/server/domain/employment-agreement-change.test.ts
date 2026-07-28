@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { parseBusinessDate } from "@workspace/platform/contracts/business-temporal";
 import { employmentAgreementChangeManifest } from "./employment-agreement-change";
 
 test("agreement command ledger records effects without copying sensitive clause content", () => {
@@ -26,7 +27,7 @@ test("replacement ledger links the new agreement write to the replaced agreement
     expectedVersion: 2,
     employmentId: 7,
     isPrimary: false,
-    effectiveFrom: "2026-08-01",
+    effectiveFrom: parseBusinessDate("2026-08-01")!,
     effectiveThrough: null,
     termKind: "permanent",
     content: {

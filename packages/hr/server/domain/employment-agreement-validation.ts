@@ -296,7 +296,7 @@ function commandMeta(raw: Record<string, unknown>) {
 }
 
 function agreementPeriod(
-  raw: Pick<Record<string, unknown>, "effectiveFrom" | "effectiveThrough">,
+  raw: Record<string, unknown>,
   termKind: "initial" | "renewal" | "permanent",
 ) {
   const effectiveFrom = parseBusinessDate(raw.effectiveFrom);

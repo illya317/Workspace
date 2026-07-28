@@ -77,6 +77,7 @@ export function useEmploymentSections({
   contracts,
   asOfDate,
   canEdit,
+  saving,
   onChange,
   onAgreementSaved,
   className
