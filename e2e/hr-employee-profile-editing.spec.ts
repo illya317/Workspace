@@ -46,7 +46,6 @@ test("员工档案所有来源字段都有可审计的编辑入口", {
   await expectReadOnlyField(page, "农历生日");
 
   await page.getByRole("tab", { name: "雇佣关系", exact: true }).click();
-  await page.getByRole("row").filter({ hasText: "丰华制药" }).first().click();
   for (const label of ["人员类型", "职级", "职务", "办公地点"]) {
     await expectEditableField(page, label);
   }
