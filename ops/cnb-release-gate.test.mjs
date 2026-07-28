@@ -9,11 +9,21 @@ test("CNB release gate is target-independent and collects CI plus E2E results", 
   assert.doesNotMatch(gate, /DEPLOY_UNIT_ID|DEPLOY_UNIT_MODE/);
   assert.match(gate, /set \+e[\s\S]*npm run check:ci[\s\S]*ci_status=\$\?/);
   assert.match(gate, /set \+e[\s\S]*run-release-e2e\.sh[\s\S]*e2e_status=\$\?/);
+  assert.match(gate, /env -u RELEASE_TIMING_FILE -u RELEASE_TIMING_RELEASE_ID[\s\S]*npm run check:ci/);
+  assert.match(gate, /env -u RELEASE_TIMING_FILE -u RELEASE_TIMING_RELEASE_ID[\s\S]*run-release-e2e\.sh/);
   assert.match(gate, /CNB 公共发布门禁完整结果/);
   assert.ok(
-    gate.indexOf('if [ "$ci_status" != "0" ] || [ "$e2e_status" != "0" ]')
+    gate.indexOf('if [ "$database_status" != "0" ] || [ "$ci_status" != "0" ] || [ "$e2e_status" != "0" ]')
       < gate.indexOf("release-gate-receipt.mjs cnb-create"),
   );
+});
+
+test("CNB release gate prepares one PostgreSQL cluster before CI and reuses it for E2E", () => {
+  assert.match(gate, /workspace_ci workspace_ci_shadow/);
+  assert.match(gate, /createdb --owner=workspace/);
+  assert.ok(gate.indexOf("start_disposable_postgresql") < gate.indexOf("npm run check:ci"));
+  assert.equal(gate.match(/start_disposable_postgresql\n/g)?.length, 1);
+  assert.match(gate, /disposable-postgresql:/);
 });
 
 test("CNB release gate keeps build failure explicit and never fabricates E2E", () => {

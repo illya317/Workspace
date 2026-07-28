@@ -23,6 +23,7 @@ test("HR period contracts make overlap, retrospective entry, and revision explic
     assert.notEqual(registration.policy.revision, "forbid");
     assert.equal(registration.commands.includes("correct"), true);
   }
+  assert.equal(HR_EMPLOYMENT_TEMPORAL.ui.recordView, undefined);
 });
 
 test("social insurance is registered as a standard lifecycle record with baseline completion", () => {

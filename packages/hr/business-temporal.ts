@@ -82,14 +82,7 @@ export const HR_EMPLOYMENT_TEMPORAL = defineBusinessTemporalRegistration({
     supplementary: [EMPLOYEE_LIFECYCLE_EVENT_SOURCE, EMPLOYEE_PERIOD_REVISION_SOURCE, EDIT_HISTORY_SOURCE],
   },
   commands: ["schedule", "correct", "end-date", "cancel-future"],
-  ui: {
-    ...EFFECTIVE_PERIOD_UI,
-    recordView: {
-      presentation: "expandable-record-list",
-      modulePath: "packages/hr/ui/profile/EmployeeProfileSections.tsx",
-      registrationBinding: "HR_EMPLOYMENT_TEMPORAL",
-    },
-  },
+  ui: EFFECTIVE_PERIOD_UI,
   policy: {
     storage: "effective-version",
     granularity: "date",

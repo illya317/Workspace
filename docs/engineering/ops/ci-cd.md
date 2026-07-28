@@ -215,7 +215,8 @@ CNB 和生产服务器不保存 GitHub token，也不读取 GitHub API、Actions
 
 ### Stage 1 Builder、缓存与计时契约
 
-- CNB release 使用 `ops/cnb-builder.Dockerfile` 预装 Node 24 与 Linux 构建/传输工具；Node 基础镜像按 digest 固定，`.node-version` 与 Dockerfile 同时作为 Builder 版本输入。流水线开始时由 `ops/verify-cnb-builder.sh` 复验 Node 主版本和工具集合，不在每次发布热路径执行 `apt-get`。
+- CNB release 使用 `ops/cnb-builder.Dockerfile` 预装 Node 24、ripgrep、PostgreSQL server/client 与 Linux 构建/传输工具；Node 基础镜像按 digest 固定，`.node-version` 与 Dockerfile 同时作为 Builder 版本输入。流水线开始时由 `ops/verify-cnb-builder.sh` 复验 Node 主版本和工具集合，不在每次发布热路径执行 `apt-get`。
+- 公共门禁在完整 CI 前只启动一次 Builder 内的一次性 PostgreSQL cluster，并准备固定的 `workspace_ci` / `workspace_ci_shadow` 数据库；migration consistency 与随后的一次性 migration/seed、全量 E2E 共用该 cluster。门禁 stage 的计时只包裹顶层命令，不得通过 `RELEASE_TIMING_*` 环境变量改变 CI 或 E2E 内部子进程行为。
 - 仓库模板和 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 都必须通过 `node ops/validate-cnb-release-config.mjs <path>`。校验器只允许一个 `deploy-prod` pipeline 和五个有序、精确命令的 stage，其中 `release-gate` 必须位于依赖安装之后、目标构建之前；要求 npm、Next 和成对的 TypeScript declaration/build-info copy-on-write cache，拒绝额外 pipeline/stage、变体 volume、`node_modules`、standalone tgz 或冷安装工具阶段。
 - `server-prod.yaml` 只能由 `deploy-to-server` stage 导入。pipeline、Builder 验证、`npm ci` 和 Next build 均不得接触 SSH key、生产服务器地址或其他部署 secret；构建仅使用固定的非生产 Prisma generation 环境。
 - 本地检查缓存不做 source hash 失效：`.next/cache`、`.cache/types`、`.cache/tsbuild`、Playwright 浏览器目录均直接复用；每次入口清理超过 7 天的文件，并在总量超过 12 GiB 时从最旧文件开始回收。缓存完全缺失时仍能完成真实 build/E2E。生产在线状态、artifact digest、版本和健康检查属于实时事实，不能用缓存跳过。

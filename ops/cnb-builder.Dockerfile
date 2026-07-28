@@ -13,6 +13,7 @@ RUN apt-get update \
     postgresql \
     postgresql-client \
     python3 \
+    ripgrep \
     rsync \
     tar \
   && rm -rf /var/lib/apt/lists/*
