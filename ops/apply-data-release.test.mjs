@@ -118,6 +118,26 @@ test("HR lifecycle compatibility repairs use a pinned private input file", () =>
   }), /escapes/);
 });
 
+test("HR organization baseline compatibility repairs use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "hr-organization-baseline-compatibility-v1",
+    parameters: { inputFile: "hr/organization-baseline-compatibility.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/hr/organization-baseline-compatibility.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "hr-organization-baseline-compatibility-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  }), /escapes/);
+});
+
 test("HR employment agreement baselines use a pinned private input file", () => {
   const command = buildDataReleaseHandlerCommand({
     handler: "hr-employment-agreement-baseline-v1",
