@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 ALTER TABLE "FinanceAuxiliaryMember"
   ADD COLUMN "linkedEmployeeId" INTEGER,
   ADD COLUMN "linkedPartyId" INTEGER,
