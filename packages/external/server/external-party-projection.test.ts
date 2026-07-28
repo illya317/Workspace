@@ -29,7 +29,7 @@ test("projects the same subject id through both L2 roles without mixing role fie
     ],
     ownedInterests: [],
     legalFactRevisions: [legalFact(1, timestamp)],
-  } as ExternalPartyWithRoles & { ownedInterests: [] };
+  } as unknown as ExternalPartyWithRoles & { ownedInterests: [] };
 
   const customer = projectExternalParty(party, "customer", ["customer", "supplier"], "2026-07-14");
   const supplier = projectExternalParty(party, "supplier", ["customer", "supplier"], "2026-07-14");
@@ -68,7 +68,7 @@ test("hides role metadata outside the visible permission set", () => {
     ],
     ownedInterests: [],
     legalFactRevisions: [legalFact(1, timestamp)],
-  } as ExternalPartyWithRoles & { ownedInterests: [] };
+  } as unknown as ExternalPartyWithRoles & { ownedInterests: [] };
 
   assert.deepEqual(projectExternalParty(party, "customer", ["customer"], "2026-07-14")?.roles, ["customer"]);
 });
@@ -127,7 +127,7 @@ test("projects a system default even when the External profile is unrelated", ()
     externalRoles: [],
     ownedInterests: [],
     legalFactRevisions: [legalFact(1, timestamp)],
-  } as ExternalPartyWithRoles & { ownedInterests: [] };
+  } as unknown as ExternalPartyWithRoles & { ownedInterests: [] };
 
   const relatedParty = projectExternalRelatedParty(party, "2026-07-14", {
     relatedPartyType: "group",

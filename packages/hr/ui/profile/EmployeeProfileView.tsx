@@ -29,11 +29,7 @@ import {
   useEdpSections,
   useEmploymentSections,
 } from "./EmployeeProfileSections";
-import {
-  createGroupedFieldSections,
-  updateProfileRow,
-  type EditableRecord,
-} from "./EmployeeProfileUtils";
+import { createGroupedFieldSections, updateProfileRow, type EditableRecord } from "./EmployeeProfileUtils";
 import { useEmployeePeriodRevisionSections } from "./EmployeePeriodRevisionSection";
 import { useEmployeeSocialInsuranceSections } from "./EmployeeSocialInsuranceSection";
 
@@ -91,12 +87,12 @@ export default function EmployeeProfileView({
   edps: EdpRow[];
   historyEntries: ProfileHistoryEntry[];
   historyLoading: boolean;
-  expandedHistoryId: string | number | null;
+  expandedHistoryId: number | null;
   setEmployments: Dispatch<SetStateAction<EmploymentRow[]>>;
   onBack: () => void;
   onSaveAll: () => Promise<void>;
   onEmployeeFieldChange: (key: string, value: unknown, option?: ReferenceOption) => void;
-  onHistoryToggle: (id: string | number) => void;
+  onHistoryToggle: (id: number) => void;
   onHistoryRefresh: () => void;
   onLifecycleSaved: () => Promise<void>;
   onAgreementSaved: () => Promise<void>;

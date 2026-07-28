@@ -169,7 +169,7 @@ export const EXTERNAL_RELATED_PARTIES_ANALYSIS_SOURCE = defineWorkspaceAnalysisR
   fields: {
     id: field({ label: "关联目标 ID", description: "Party 或员工目标的稳定内部 ID。", valueKind: "integer", sensitivity: "internal" }),
     targetKind: field({ label: "关联目标类型", description: "关联目标来自 Party 或员工。", valueKind: "text", sensitivity: "internal" }),
-    version: { classification: "omit", reason: "internalOperational", description: "乐观锁版本仅用于页面写入。" },
+    version: { classification: "omit", reason: "controlPlane", description: "乐观锁版本仅用于页面写入。" },
     subjectType: field({ label: "主体类型", description: "机构或个人。", valueKind: "text", sensitivity: "internal" }),
     relatedPartyType: field({ label: "关系性质", description: "财务披露口径的关联方类型。", valueKind: "text", sensitivity: "confidential" }),
     name: field({ label: "名称", description: "基准日有效的主体名称。", valueKind: "text", sensitivity: "confidential" }),

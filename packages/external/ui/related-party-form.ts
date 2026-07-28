@@ -83,7 +83,7 @@ export function relatedPartyCreateSections(
           const normalized = String(value) as ExternalRelatedParty["relatedPartyType"];
           onChange(
             "relatedPartyType",
-            normalized !== "unrelated" && normalized in EXTERNAL_PARTY_RELATED_PARTY_LABELS ? normalized : "",
+            normalized in EXTERNAL_PARTY_RELATED_PARTY_LABELS ? normalized : "",
           );
         },
       },

@@ -1,5 +1,6 @@
 import { normalizePartyName } from "@workspace/platform/server/party-name-history";
 import { prisma } from "@workspace/platform/server/prisma";
+import type { Prisma } from "@workspace/platform/server/prisma";
 import type {
   ExternalPartyRelatedPartyType,
   ExternalRelatedParty,
@@ -60,7 +61,7 @@ export function projectCoreManagementRelatedParties(
   });
 }
 
-function ownershipDateWhere(asOfDate: string) {
+function ownershipDateWhere(asOfDate: string): Prisma.OwnershipInterestWhereInput {
   const start = new Date(`${asOfDate}T00:00:00.000Z`);
   const end = new Date(`${asOfDate}T23:59:59.999Z`);
   return {
@@ -69,7 +70,7 @@ function ownershipDateWhere(asOfDate: string) {
       { OR: [{ effectiveFrom: null }, { effectiveFrom: { lte: end } }] },
       { OR: [{ effectiveTo: null }, { effectiveTo: { gte: start } }] },
     ],
-  } as const;
+  };
 }
 
 async function loadSystemPartyDefaults(asOfDate: string) {

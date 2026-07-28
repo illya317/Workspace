@@ -82,7 +82,6 @@ export function useExternalParties(apiPath: string) {
         creditDays: draft.creditDays,
         taxRate: draft.taxRate,
         remark: draft.remark,
-        isActive: draft.isActive,
       }),
     });
     const data = await response.json().catch(() => null) as { record?: ExternalParty; error?: string } | null;

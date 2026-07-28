@@ -62,7 +62,7 @@ export interface VoucherItem {
   account: Account;
   debit: number;
   credit: number;
-  description: string;
+  description: string | null;
   sortOrder: number;
   relatedEntity?: string | null;
   entityName?: string | null;
@@ -112,7 +112,7 @@ export interface Voucher {
   date: string;
   periodId: number;
   period: Period;
-  description: string;
+  description: string | null;
   totalDebit: number;
   totalCredit: number;
   status: string;

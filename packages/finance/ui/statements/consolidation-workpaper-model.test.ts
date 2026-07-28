@@ -125,7 +125,7 @@ test("workpaper open items exclude comparisons already represented by an active 
     reviewStatus: "exception",
     rightAmount: 0,
     difference: 100,
-  }] as ConsolidationAdjustmentComparison[];
+  }] as unknown as ConsolidationAdjustmentComparison[];
   assert.deepEqual(consolidationWorkpaperOpenItems(comparisons, entries), [{
     key: "open",
     categoryLabel: "内部往来",

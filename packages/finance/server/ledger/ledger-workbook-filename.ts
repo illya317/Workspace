@@ -1,7 +1,23 @@
-import type { LedgerExportCommand } from "./ledger-export-route-commands";
+import type {
+  FinanceLedgerExportMode,
+  FinanceLedgerExportView,
+  FinanceVoucherPeriodScope,
+} from "../../types/ledger";
+import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 import { counterpartyPeriodLabel } from "./counterparty-period";
 
-export function ledgerWorkbookFilename(command: LedgerExportCommand, sheetName: string) {
+interface LedgerWorkbookFilenameInput {
+  view: FinanceLedgerExportView;
+  companyCode?: string;
+  year?: number;
+  month?: number;
+  periodKind?: StatementPeriodKind;
+  voucherKind?: "standard" | "group";
+  voucherPeriodScope?: FinanceVoucherPeriodScope;
+  exportMode?: FinanceLedgerExportMode;
+}
+
+export function ledgerWorkbookFilename(command: LedgerWorkbookFilenameInput, sheetName: string) {
   const company = command.companyCode || "全部公司";
   const period = command.year === undefined
     ? "全部期间"

@@ -74,6 +74,15 @@ export function buildEmployeeFieldUpdateCommand(
   field: string,
   value: unknown,
 ): DomainValidationResult<EmployeeFieldUpdateCommand> {
+  if (field === "employeeId") return failCommand("员工编号只能通过身份纠正流程维护");
+  if (field === "userId") return failCommand("关联账号只能通过账号管理流程维护");
+  return buildEmployeeMutableFieldCommand(field, value);
+}
+
+function buildEmployeeIdentityCorrectionFieldCommand(
+  field: string,
+  value: unknown,
+): DomainValidationResult<EmployeeFieldUpdateCommand> {
   if (field === "employeeId") {
     const employeeId = String(value ?? "").trim();
     return /^[A-Za-z0-9._-]{1,64}$/.test(employeeId)
@@ -87,6 +96,13 @@ export function buildEmployeeFieldUpdateCommand(
       ? okCommand({ field, value: userId })
       : failCommand("关联账号无效", 400, field);
   }
+  return buildEmployeeMutableFieldCommand(field, value);
+}
+
+function buildEmployeeMutableFieldCommand(
+  field: string,
+  value: unknown,
+): DomainValidationResult<EmployeeFieldUpdateCommand> {
   const dateResult = rejectInvalidDateField(field, value, DATE_FIELDS);
   if (!dateResult) return failCommand("日期格式无效");
   if (field === "alias") return okCommand({ field, value: normalizeAliasUpdate(value) });
@@ -115,7 +131,7 @@ export function buildEmployeePageDraftCommand(input: HrPageDraftInput) {
   const changes = [];
   for (const change of envelope.data.changes) {
     if (!EMPLOYEE_ALLOWED_FIELDS.includes(change.field)) return failCommand("字段不允许修改", 400, change.field);
-    const field = buildEmployeeFieldUpdateCommand(change.field, change.value);
+    const field = buildEmployeeIdentityCorrectionFieldCommand(change.field, change.value);
     if (!field.ok) return field;
     changes.push({ id: change.id, field: field.data.field, value: field.data.value });
   }

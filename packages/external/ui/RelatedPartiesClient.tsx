@@ -7,7 +7,6 @@ import {
   createPageTableSection,
   createStatusSection,
   useFeedback,
-  type DataSurfaceBadgeTone,
   type DataSurfaceColumnSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
@@ -28,14 +27,14 @@ const RELATED_TYPES = [
   "other_related",
 ] as const satisfies readonly ExternalPartyRelatedPartyType[];
 
-const RELATED_PARTY_TONES: Record<ExternalPartyRelatedPartyType, DataSurfaceBadgeTone> = {
+const RELATED_PARTY_TONES = {
   unrelated: "slate",
   group: "amber",
   joint_venture_associate: "emerald",
   investor_influence: "orange",
   key_management_related: "sky",
   other_related: "slate",
-};
+} as const satisfies Record<ExternalPartyRelatedPartyType, "slate" | "amber" | "emerald" | "orange" | "sky">;
 
 const columns: DataSurfaceColumnSpec<ExternalRelatedParty>[] = [
   {

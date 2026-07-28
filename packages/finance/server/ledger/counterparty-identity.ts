@@ -1,4 +1,5 @@
 import { prisma } from "@workspace/platform/server/prisma";
+import type { Prisma } from "@workspace/platform/server/prisma";
 import type { FinanceCounterpartyRelatedPartyType } from "../../types/ledger";
 
 export interface CounterpartyIdentityMember {
@@ -149,14 +150,14 @@ async function loadInfluentialOwnerPartyIds(partyIds: number[], asOfDate: string
   return rows.map((row) => row.ownerPartyId);
 }
 
-function ownershipDateWhere(start: Date, end: Date) {
+function ownershipDateWhere(start: Date, end: Date): Prisma.OwnershipInterestWhereInput {
   return {
     recordStatus: "confirmed",
     AND: [
       { OR: [{ effectiveFrom: null }, { effectiveFrom: { lte: end } }] },
       { OR: [{ effectiveTo: null }, { effectiveTo: { gte: start } }] },
     ],
-  } as const;
+  };
 }
 
 function normalizeRelatedPartyType(value: string | null) {

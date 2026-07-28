@@ -48,7 +48,7 @@ export default function EmployeeProfileClient({
   const [contracts, setContracts] = useState<ContractRow[]>([]);
   const [edps, setEdps] = useState<EdpRow[]>([]);
   const [historyEntries, setHistoryEntries] = useState<ProfileHistoryEntry[]>([]);
-  const [expandedHistoryId, setExpandedHistoryId] = useState<string | number | null>(null);
+  const [expandedHistoryId, setExpandedHistoryId] = useState<number | null>(null);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [activeSection, setActiveSection] = useState<EmployeeProfileSection>("basic");
   const [loading, setLoading] = useState(true);

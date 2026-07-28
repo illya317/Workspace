@@ -7,7 +7,7 @@ import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspac
 import { createPageBody, BodySurface, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import { createEmptyFormSection, createFieldGridSection, createFieldRegionSection, isCurrentByDateRange, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
 import { useContractSections } from "./EmployeeProfileContractSection";
-import { deleteActionSpec, profileActionSpec } from "./EmployeeProfileRowActions";
+import { deleteActionSpec } from "./EmployeeProfileRowActions";
 import { useScrollToAddedItem } from "../hooks/useScrollToAddedItem";
 export { HistorySection, createHistorySection, type ProfileHistoryEntry } from "./EmployeeProfileHistorySection";
 
@@ -69,13 +69,14 @@ function getRowTitle<T extends RowBase>(row: T, fallback: string) {
 }
 interface EmploymentSectionProps {
   employment: EmploymentRow | null;
+  employeeId: number;
+  employments: EmploymentRow[];
   contracts: ContractRow[];
+  asOfDate: string;
   canEdit: boolean;
   saving: string | null;
-  onChange: (field: ProfileField, value: unknown, option?: ReferenceOption) => void;
-  onAddContract: () => void;
-  onChangeContract: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
-  onDeleteContract: (row: ContractRow, index: number) => Promise<void>;
+  onChange: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
+  onAgreementSaved: () => Promise<void>;
   className?: string;
 }
 
@@ -85,26 +86,27 @@ export function EmploymentSection(props: EmploymentSectionProps) {
 
 export function useEmploymentSections({
   employment,
+  employeeId,
+  employments,
   contracts,
+  asOfDate,
   canEdit,
-  saving,
   onChange,
-  onAddContract,
-  onChangeContract,
-  onDeleteContract,
+  onAgreementSaved,
   className
 }: EmploymentSectionProps): BodySurfaceSectionSpec[] {
   const tenantConfig = useTenantConfig();
   const fields = withTenantProfileFieldOptions(employmentFields, tenantConfig).filter(field => !["currentCompany", "leaveNote"].includes(field.key));
   const virtualPersonnelType = tenantConfig.hr.options.virtualEmployeePersonnelType;
   const contractSections = useContractSections({
+    employeeId,
+    employments,
     rows: contracts,
+    asOfDate,
     canEdit,
-    saving,
-    onAdd: onAddContract,
-    onChange: onChangeContract,
-    onDelete: onDeleteContract,
+    onSaved: onAgreementSaved,
   });
+  const employmentIndex = employment ? employments.findIndex((row) => row.id === employment.id) : -1;
   const sections = !employment
     ? [createEmptyFormSection("employment-empty", "暂无雇佣主档")]
     : [
@@ -113,7 +115,7 @@ export function useEmploymentSections({
           title: "任职状态",
           sections: [createFieldGridSection(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
           const field = fields.find(item => item.key === key);
-          if (field) onChange(field, value, option);
+          if (field && employmentIndex >= 0) onChange(employmentIndex, field, value, option);
           }, (field, record) => (
             field.key === "personnelType"
             && record.personnelType === virtualPersonnelType
@@ -126,11 +128,7 @@ export function useEmploymentSections({
 
 interface EdpSectionProps {
   rows: EdpRow[];
-  canEdit: boolean;
-  saving: string | null;
-  onAdd: () => void;
-  onChange: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
-  onDelete: (row: EdpRow, index: number) => Promise<void>;
+  asOfDate: string;
   className?: string;
 }
 
@@ -140,22 +138,10 @@ export function EdpSection(props: EdpSectionProps) {
 
 export function useEdpSections({
   rows,
-  canEdit,
-  saving,
-  onAdd,
-  onChange,
-  onDelete,
   className
 }: EdpSectionProps): BodySurfaceSectionSpec[] {
-  const allFields = [...pickFields(edpFields, ["reportingCompanyId", "departmentId", "positionId", "isPrimary", "workPercent", "reportToPositionId"]), ...pickFields(edpFields, ["startDate", "endDate"])];
-  const {
-    getItemRef,
-    requestScrollToIndex
-  } = useScrollToAddedItem(rows);
-  function addRow() {
-    requestScrollToIndex(0);
-    onAdd();
-  }
+  const allFields = [...pickFields(edpFields, ["reportingCompanyId", "departmentId", "positionId", "isPrimary", "allocationWeight", "reportToPositionId"]), ...pickFields(edpFields, ["startDate", "endDate"])];
+  const { getItemRef } = useScrollToAddedItem(rows);
   const sections = rows.length === 0
     ? [createEmptyFormSection("edp-empty", "暂无岗位记录")]
     : rows.map((row, index) => {
@@ -164,22 +150,17 @@ export function useEdpSections({
           key: String(row.id ?? `new-edp-${index}`),
           itemRef: getItemRef(index),
           title: <div className="flex flex-wrap items-center gap-2">
-                      <span>{row.isNew ? "新增岗位记录" : row.positionName || `岗位记录 #${row.id}`}</span>
+                      <span>{row.positionName || `岗位记录 #${row.id ?? ""}`}</span>
                       <InlineStatusChip label={current ? "当前岗位" : "历史岗位"} tone={current ? "green" : "gray"} />
                       {row.isPrimary && <InlineStatusChip label="主岗" tone="blue" />}
-                      <span className="text-xs font-medium text-slate-500">{row.departmentName || "未设置部门"} · 占比 {row.workPercent || "未设置"}</span>
+                      <span className="text-xs font-medium text-slate-500">{row.departmentName || "未设置部门"} · 当前折算 {row.allocationPercent == null ? "未设置" : `${(row.allocationPercent * 100).toFixed(2)}%`}</span>
                     </div>,
-          actions: row.isNew ? deleteActionSpec({ canEdit, saving, onDelete: () => onDelete(row, index) }) : [],
-          sections: [createFieldGridSection(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
-              const field = edpFields.find(item => item.key === key);
-              if (field) onChange(index, field, value, option);
-            }, undefined, `edp-${index}-fields`)],
+          sections: [createFieldGridSection(allFields, row as unknown as EditableRecord, true, () => undefined, undefined, `edp-${index}-fields`)],
         });
       });
   return [createSectionShellSection({
     title: "岗位记录",
     className,
-    actions: canEdit ? [profileActionSpec({ key: "add-edp", label: "新增岗位记录", variant: "secondary", disabled: saving !== null, onClick: addRow })] : undefined,
     sections,
   })];
 }

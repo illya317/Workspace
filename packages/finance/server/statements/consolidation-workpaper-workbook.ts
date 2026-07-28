@@ -163,7 +163,7 @@ function buildSheet(
         });
         return formula ? workbookFormula(formula, amount) : amount;
       });
-      const visibleEntityTotal = money(entityAmounts.reduce((sum, amount) => (
+      const visibleEntityTotal = money(entityAmounts.reduce<number>((sum, amount) => (
         sum + (typeof amount === "number" ? amount : amount.cachedValue)
       ), 0));
       const sourceAmount = !line.isHeader

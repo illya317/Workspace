@@ -57,7 +57,7 @@ function expandedWorkpaperRow(
       { kind: "text", value: "按合并凭证汇总展示本项目的处理结果；原始分录及审计来源请在“合并明细”查看。", tone: "muted", wrap: "wrap" },
       { kind: "data", data: {
         kind: "table",
-        rows: effects,
+        rows: [...effects],
         columns: ENTRY_EFFECT_COLUMNS,
         visibleColumns: ENTRY_EFFECT_COLUMNS.map((column) => column.key),
         rowKey: (row) => row.key,
