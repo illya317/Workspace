@@ -29,12 +29,18 @@ test("group voucher account names use concise statement labels instead of line n
 });
 
 test("group voucher occurrence dates come from company-side source facts", () => {
-  assert.equal(groupVoucherOccurrenceDate({ voucherDate: "2025-03-14" }), "2025-03-14");
+  assert.equal(groupVoucherOccurrenceDate({
+    voucherDate: "2025-03-14",
+    postingDate: "2025-03-31",
+  }), "2025-03-14");
+  assert.equal(groupVoucherOccurrenceDate({ auxiliaryBalancePeriodEnd: "2025-03-31" }), "2025-03-31");
   assert.equal(groupVoucherOccurrenceDate({
     openItemVoucherDate: "2025-04-01",
     openItemDocumentDate: "2025-03-28",
   }), "2025-04-01");
   assert.equal(groupVoucherOccurrenceDate({ openItemDocumentDate: "2025-03-28" }), "2025-03-28");
+  assert.equal(groupVoucherOccurrenceDate({ openItemPeriodEnd: "2025-04-30" }), "2025-04-30");
   assert.equal(groupVoucherOccurrenceDate({ cashFlowVoucherDate: "2025-05-09" }), "2025-05-09");
+  assert.equal(groupVoucherOccurrenceDate({ postingDate: "2025-05-31" }), "2025-05-31");
   assert.equal(groupVoucherOccurrenceDate({}), null);
 });

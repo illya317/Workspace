@@ -213,7 +213,7 @@ function voucherItemsPreview(voucher: Voucher, columns: DataSurfaceColumnSpec<Vo
       rows: voucher.items.map((item: VoucherItemRow, index: number) => ({
         ...item,
         _idx: index,
-        sourceDate: voucher.voucherKind === "group" ? item.sourceDate ?? null : voucher.date,
+        sourceDate: voucher.voucherKind === "group" ? item.sourceDate ?? voucher.date : voucher.date,
         cashFlowAllocations: cashFlowAllocationsForItem(item.id, voucher.cashFlowAllocations ?? []),
       })),
       columns,

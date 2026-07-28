@@ -1,3 +1,10 @@
+import type {
+  ConsolidationEntryType,
+  FinanceGroupVoucherDocumentType,
+} from "./statement-shared";
+
+export type { FinanceGroupVoucherDocumentType } from "./statement-shared";
+
 export interface Account {
   id: number;
   code: string;
@@ -78,7 +85,7 @@ export interface Voucher {
   batchId?: number;
   batchRevision?: number;
   reviewBlockReason?: string | null;
-  entryType?: import("./statements").ConsolidationEntryType;
+  entryType?: ConsolidationEntryType;
   title?: string;
   entryDescription?: string | null;
   evidence?: string;
@@ -92,11 +99,6 @@ export interface VoucherResponse {
 }
 
 export type FinanceCounterpartyBalanceCategory = "ar" | "ap" | "otherAr" | "otherAp";
-export type FinanceGroupVoucherDocumentType =
-  | "groupAdjustment"
-  | "elimination"
-  | "reclassification"
-  | "allocation";
 export type FinanceLedgerExportView =
   | "accounts"
   | "groupAccounts"

@@ -224,9 +224,11 @@ async function listGroupJournals(input: ListVouchersInput) {
             counterpartyEntity: { select: { companyId: true, companyCode: true, companyName: true } },
             groupAccount: { select: { id: true, code: true, name: true } },
             sourceVoucherItem: { select: { voucher: { select: { date: true } } } },
+            sourceAuxiliaryBalance: { select: { period: { select: { endDate: true } } } },
             sourceOpenItem: {
               select: {
                 documentDate: true,
+                period: { select: { endDate: true } },
                 voucherItem: { select: { voucher: { select: { date: true } } } },
               },
             },
@@ -302,9 +304,12 @@ async function listGroupJournals(input: ListVouchersInput) {
           ?? null,
         sourceDate: groupVoucherOccurrenceDate({
           voucherDate: line.sourceVoucherItem?.voucher.date,
+          auxiliaryBalancePeriodEnd: line.sourceAuxiliaryBalance?.period.endDate,
           openItemVoucherDate: line.sourceOpenItem?.voucherItem?.voucher.date,
           openItemDocumentDate: line.sourceOpenItem?.documentDate,
+          openItemPeriodEnd: line.sourceOpenItem?.period?.endDate,
           cashFlowVoucherDate: line.sourceCashFlowAllocation?.voucher.date,
+          postingDate: entry.postingDate,
         }),
         counterpartyEntitySnapshotId: line.counterpartyEntitySnapshotId,
         counterpartyCompanyId: line.counterpartyCompanyId,

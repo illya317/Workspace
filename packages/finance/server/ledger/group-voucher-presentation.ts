@@ -33,14 +33,20 @@ export function groupVoucherAccountName(lineCode: string) {
 
 export function groupVoucherOccurrenceDate(source: {
   voucherDate?: string | null;
+  auxiliaryBalancePeriodEnd?: string | null;
   openItemVoucherDate?: string | null;
   openItemDocumentDate?: string | null;
+  openItemPeriodEnd?: string | null;
   cashFlowVoucherDate?: string | null;
+  postingDate?: string | null;
 }) {
   return source.voucherDate
+    ?? source.auxiliaryBalancePeriodEnd
     ?? source.openItemVoucherDate
     ?? source.openItemDocumentDate
+    ?? source.openItemPeriodEnd
     ?? source.cashFlowVoucherDate
+    ?? source.postingDate
     ?? null;
 }
 

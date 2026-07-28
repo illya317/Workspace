@@ -1,8 +1,12 @@
-import type { StatementReportType } from "./statement-shared";
+import type {
+  ConsolidationEntryType,
+  FinanceGroupVoucherDocumentType,
+  StatementReportType,
+} from "./statement-shared";
 import type { ConsolidationAdjustmentComparison } from "./consolidation-adjustment";
 import type { StatementPeriodKind } from "./statement-period";
 
-export type { StatementReportType } from "./statement-shared";
+export type { ConsolidationEntryType, StatementReportType } from "./statement-shared";
 export type * from "./consolidated-output";
 
 export type ConsolidationReadinessStatus = "ready" | "attention" | "blocked";
@@ -15,15 +19,6 @@ export type ConsolidationBatchEventAction = ConsolidationBatchLifecycleAction
   | "entry.delete"
   | "taxEffect.delete";
 export type ConsolidationEntryStatus = "draft" | "submitted" | "approved" | "reversed";
-export type ConsolidationEntryType =
-  | "investmentEquity"
-  | "reclassification"
-  | "nonControllingInterest"
-  | "intercompanyBalance"
-  | "internalTrading"
-  | "internalLongTermAsset"
-  | "incomeDividend"
-  | "cashFlow";
 export type ConsolidationControlKey =
   | "scope"
   | "ownership"
@@ -299,7 +294,7 @@ export interface ConsolidationEntrySnapshot {
   id: number;
   entryNo: string;
   postingDate: string;
-  documentType: import("./ledger").FinanceGroupVoucherDocumentType;
+  documentType: FinanceGroupVoucherDocumentType;
   postingLevel: "10" | "20" | "30";
   entryType: ConsolidationEntryType;
   title: string;
