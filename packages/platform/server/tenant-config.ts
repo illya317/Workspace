@@ -105,16 +105,6 @@ const profileSchema = z.object({
     defaultAnalysisYear: z.number().int().min(2000).max(2200),
     openingBalanceBaselineYear: z.number().int().min(2000).max(2200),
   }),
-  financeConsolidationPolicies: z.object({
-    openingCapitalReclassifications: z.array(z.object({
-      key: nonEmptyString.regex(/^[a-z][a-z0-9-]*$/, "must be a stable lowercase key"),
-      foreignCompanyCode: nonEmptyString,
-      sourceCurrencyCode: z.literal("CAD"),
-      sourceOriginalAmount: z.number().positive(),
-      payableCounterpartyCompanyCode: nonEmptyString,
-      payableCounterpartyReferenceCode: nonEmptyString,
-    })),
-  }).default({ openingCapitalReclassifications: [] }),
   work: z.object({
     companyProjectCodePrefix: nonEmptyString,
     companyProjectSequenceStart: z.number().int().positive(),

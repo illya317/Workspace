@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   aggregateHistoricalCapitalFacts,
   cadAmountFromDescription,
+  parseVoucherMatchingEvidence,
   resolveCadInvestmentOriginalAmount,
 } from "./consolidation-rate-applications";
 
@@ -25,6 +26,30 @@ test("reads CAD remittance amounts only from explicit original-currency evidence
       currencyCode: "CAD",
     }],
   }), 20_000);
+});
+
+test("reads an explicit consolidation match from voucher evidence", () => {
+  assert.deepEqual(parseVoucherMatchingEvidence({
+    kind: "finance-consolidation-voucher",
+    evidence: {
+      matching: {
+        label: "加拿大公司实收资本",
+        companyCode: "05",
+        lineCode: "paidInCapital",
+        currencyCode: "CAD",
+        originalAmount: 100_000,
+        historicalRate: 5.05056,
+      },
+    },
+  }), {
+    label: "加拿大公司实收资本",
+    companyCode: "05",
+    lineCode: "paidInCapital",
+    currencyCode: "CAD",
+    originalAmount: 100_000,
+    historicalRate: 5.05056,
+  });
+  assert.equal(parseVoucherMatchingEvidence({ evidence: { matching: { label: "加拿大" } } }), null);
 });
 
 test("aggregates opening capital and posted capital movements by company and occurrence date", () => {
@@ -76,11 +101,12 @@ test("aggregates opening capital and posted capital movements by company and occ
     targetDate: fact.targetDate,
     originalAmount: fact.originalAmount,
   })), [
-    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 421_462.29 },
+    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 100_000 },
+    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 321_462.29 },
     { companyCode: "ZX05", targetDate: "2024-04-01", originalAmount: 51_336.6 },
   ]);
   assert.match(facts[0]!.evidence, /最早可用账期期初余额/);
-  assert.match(facts[1]!.evidence, /2024-04-记-0004/);
+  assert.match(facts[2]!.evidence, /2024-04-记-0004/);
 });
 
 test("ignores debit-side reductions and zero capital facts in the current additive policy", () => {

@@ -19,7 +19,7 @@ import { loadConsolidationVoucherMatchGroups } from "./consolidation-voucher-mat
 import { consolidationSourcesReady } from "./consolidation-source-coverage";
 import { loadConsolidationCompanyDirectory } from "./consolidation-company-directory";
 import { buildRemittanceFxEntries } from "./consolidation-remittance-fx-entries";
-import { buildNonControllingInterestEntries } from "./consolidation-nci-entries";
+import { buildNonControllingInterestEntriesForBatch } from "./consolidation-nci-entries";
 import { groupVoucherNumber, nextGroupVoucherSequence } from "./group-voucher-numbering";
 class GenerationError extends Error {
   constructor(message: string, readonly status = 400) {
@@ -201,7 +201,7 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
       companyName: companyDirectory.displayName(entity.companyId, entity.companyCode, entity.companyName),
     }]));
     const batchSnapshot = consolidationBatchSnapshot(batch);
-    const nciEntries = buildNonControllingInterestEntries(batchSnapshot);
+    const nciEntries = await buildNonControllingInterestEntriesForBatch(batchSnapshot);
     if (!nciEntries.ok) throw new GenerationError(nciEntries.issue.message, nciEntries.issue.status);
     const policyEntries = [...buildRemittanceFxEntries(batchSnapshot, groups), ...nciEntries.data];
     const existingGroups = await prisma.financeConsolidationMatchGroup.findMany({

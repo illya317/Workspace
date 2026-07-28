@@ -1,6 +1,5 @@
 import "server-only";
 import { defineWorkspaceAnalysisReadModel } from "@workspace/platform/server/workspace-analysis-read-model";
-
 import type {
   FinanceAssetAdjustmentDto,
   FinanceAssetCardDto,
@@ -263,6 +262,7 @@ export const FINANCE_LEDGER_VOUCHERS_SOURCE = defineWorkspaceAnalysisReadModel<F
     date: field("凭证日期", "凭证业务日期。", "date"),
     periodId: field("期间 ID", "关联会计期间。", "integer"),
     description: field("摘要", "凭证摘要。", "text", { sensitivity: "confidential" }),
+    matchingLabel: field("匹配标识", "Workspace 凭证对应的业务匹配说明。", "text", { sensitivity: "confidential" }),
     totalDebit: field("借方合计", "凭证借方金额合计。", "currency"),
     totalCredit: field("贷方合计", "凭证贷方金额合计。", "currency"),
     status: field("状态", "凭证状态。", "text"),

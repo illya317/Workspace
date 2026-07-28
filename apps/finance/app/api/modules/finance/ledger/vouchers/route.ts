@@ -30,7 +30,7 @@ const listVouchersSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().positive().max(200).default(50),
   voucherKind: z.enum(["standard", "group"]).default("standard"),
-  documentType: z.enum(["groupAdjustment", "elimination", "reclassification"]).optional(),
+  documentType: z.enum(["groupAdjustment", "elimination", "reclassification", "allocation"]).optional(),
   origin: z.enum(["manual", "system"]).optional(),
 });
 

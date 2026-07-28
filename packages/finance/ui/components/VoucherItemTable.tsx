@@ -7,6 +7,7 @@ import { formatVoucherCashFlowDetail } from "../ledger/voucherCashFlow";
 
 interface VoucherItem {
   id: number;
+  sourceDate?: string | null;
   account?: { code: string; name: string } | null;
   debit: number;
   credit: number;
@@ -29,6 +30,12 @@ export function getBaseItemColumns(): DataSurfaceColumnSpec<VoucherItemRow>[] {
       label: "序号",
       required: true,
       cell: (row) => ({ kind: "text", value: (row._idx ?? 0) + 1, tone: "muted" }),
+    },
+    {
+      key: "sourceDate",
+      label: "发生日期",
+      required: true,
+      cell: (row) => ({ kind: "text", value: row.sourceDate || "—", tone: "muted" }),
     },
     {
       key: "accountCode",
@@ -91,16 +98,24 @@ export function getGroupItemColumns(): DataSurfaceColumnSpec<VoucherItemRow>[] {
     !["accountCode", "accountName", "description", "cashFlowDetail", "relatedEntity"].includes(column.key)
   ));
   return [
-    base[0]!,
+    { ...base[0]!, width: "xs" },
+    base[1]!,
     {
       key: "account",
       label: "科目",
       required: true,
-      cell: (row) => [row.account?.name, row.account?.code].filter(Boolean).join(" · ") || "-",
+      cell: (row) => [
+        row.account?.name,
+        row.account?.code === "NCI" ? null : row.account?.code,
+      ].filter(Boolean).join(" · ") || "-",
     },
-    { key: "entity", label: "合并主体", required: true, cell: (row) => row.entityName || "-" },
-    { key: "counterparty", label: "对方主体", required: true, cell: (row) => row.counterpartyName || "-" },
-    ...base.slice(1),
+    {
+      key: "entity",
+      label: "合并主体",
+      required: true,
+      cell: (row) => row.entityName || "-",
+    },
+    ...base.slice(2),
   ];
 }
 

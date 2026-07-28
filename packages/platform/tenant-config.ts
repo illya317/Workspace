@@ -102,7 +102,6 @@ export type TenantProfile = {
     defaultAnalysisYear: number;
     openingBalanceBaselineYear: number;
   };
-  financeConsolidationPolicies: TenantFinanceConsolidationPolicies;
   work: {
     companyProjectCodePrefix: string;
     companyProjectSequenceStart: number;
@@ -186,17 +185,6 @@ export type TenantFinanceImportConfig = {
     endYear: number;
     mappingMode: "recurring" | "historical";
     continuationOf?: string;
-  }>;
-};
-
-export type TenantFinanceConsolidationPolicies = {
-  openingCapitalReclassifications: Array<{
-    key: string;
-    foreignCompanyCode: string;
-    sourceCurrencyCode: "CAD";
-    sourceOriginalAmount: number;
-    payableCounterpartyCompanyCode: string;
-    payableCounterpartyReferenceCode: string;
   }>;
 };
 

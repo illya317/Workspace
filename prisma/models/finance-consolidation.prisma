@@ -204,7 +204,7 @@ model FinanceConsolidationEntry {
   batchId               Int
   entryNo               String
   postingDate           String
-  documentType          String    @default("groupAdjustment") // groupAdjustment | elimination | reclassification
+  documentType          String    @default("groupAdjustment") // groupAdjustment | elimination | reclassification | allocation
   postingLevel          String    @default("20") // 10 单边调整 | 20 双边抵销 | 30 集团层调整
   entryType             String // investmentEquity | reclassification | nonControllingInterest | intercompanyBalance | internalTrading | internalLongTermAsset | incomeDividend | cashFlow
   title                 String

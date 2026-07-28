@@ -32,7 +32,7 @@ const balanceRows = [
 let exclusionRows: Array<{
   voucher: { items: Array<{ debit: number; credit: number; account: { code: string; category: string } }> };
 }> = [];
-let supplementalRows: Array<{
+let consolidationRows: Array<{
   debit: number;
   credit: number;
   account: { code: string; category: string };
@@ -50,7 +50,7 @@ mock.module("@workspace/platform/server/prisma", {
         })),
       },
       financeBalanceSnapshot: { findFirst: async () => ({ year: 2024 }) },
-      financeVoucherItem: { findMany: async () => supplementalRows },
+      financeVoucherItem: { findMany: async () => consolidationRows },
       financeStatementVoucherExclusion: { findMany: async () => exclusionRows },
     },
   },
@@ -60,7 +60,7 @@ const { aggregateMappingBasedBalances } = await import("./mapping-based-balances
 
 test("presents an unclosed expense residual through undistributed profit", async () => {
   exclusionRows = [];
-  supplementalRows = [];
+  consolidationRows = [];
   const result = await aggregateMappingBasedBalances("02", 2026, 7);
   const retainedEarnings = result.byLineCode.find((line) => line.lineCode === "undistributedProfit");
 
@@ -84,7 +84,7 @@ test("presents an unclosed expense residual through undistributed profit", async
 });
 
 test("reverses an explicitly excluded voucher from balance-sheet presentation only", async () => {
-  supplementalRows = [];
+  consolidationRows = [];
   exclusionRows = [{
     voucher: {
       items: [{ debit: 80, credit: 0, account: { code: "660112", category: "expense" } }],
@@ -97,15 +97,15 @@ test("reverses an explicitly excluded voucher from balance-sheet presentation on
   assert.equal(retainedEarnings?.net, 0);
 });
 
-test("adds pre-baseline Workspace supplements without mutating ERP balances", async () => {
+test("adds pre-baseline Workspace consolidation vouchers without mutating ERP balances", async () => {
   exclusionRows = [];
-  supplementalRows = [
-    { debit: 505_060, credit: 0, account: { code: "1511", category: "asset" } },
-    { debit: 0, credit: 505_060, account: { code: "2241", category: "liability" } },
+  consolidationRows = [
+    { debit: 505_056, credit: 0, account: { code: "1511", category: "asset" } },
+    { debit: 0, credit: 505_056, account: { code: "224101", category: "liability" } },
   ];
 
   const result = await aggregateMappingBasedBalances("02", 2026, 6);
 
-  assert.equal(result.byLineCode.find((line) => line.lineCode === "longTermInvest")?.net, 505_060);
-  assert.equal(result.byLineCode.find((line) => line.lineCode === "otherPayables")?.net, -505_060);
+  assert.equal(result.byLineCode.find((line) => line.lineCode === "longTermInvest")?.net, 505_056);
+  assert.equal(result.byLineCode.find((line) => line.lineCode === "otherPayables")?.net, -505_056);
 });

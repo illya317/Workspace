@@ -210,6 +210,7 @@ export interface ConsolidationRateApplicationSnapshot {
   targetDate: string;
   evidence: string;
   capitalOriginalAmount?: number | null;
+  capitalLineCode?: "paidInCapital" | "capitalReserve" | null;
   voucher: {
     companyCode: string;
     voucherNo: string;
@@ -219,6 +220,8 @@ export interface ConsolidationRateApplicationSnapshot {
     bookedAmountCny: number;
     currencyCode: string | null;
     originalAmount: number | null;
+    matchingLineCode?: "paidInCapital" | "capitalReserve" | null;
+    matchingLabel?: string | null;
   } | null;
 }
 
@@ -296,7 +299,7 @@ export interface ConsolidationEntrySnapshot {
   id: number;
   entryNo: string;
   postingDate: string;
-  documentType: "groupAdjustment" | "elimination" | "reclassification";
+  documentType: import("./ledger").FinanceGroupVoucherDocumentType;
   postingLevel: "10" | "20" | "30";
   entryType: ConsolidationEntryType;
   title: string;
@@ -434,7 +437,7 @@ export interface SaveConsolidationEntryInput {
   entryId?: number | null;
   entryNo: string;
   postingDate?: string;
-  documentType?: ConsolidationEntrySnapshot["documentType"];
+  documentType?: Exclude<ConsolidationEntrySnapshot["documentType"], "allocation">;
   postingLevel?: ConsolidationEntrySnapshot["postingLevel"];
   entryType: ConsolidationEntryType;
   title: string;

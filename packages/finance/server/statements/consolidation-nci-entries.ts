@@ -6,8 +6,10 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
+import { prisma } from "@workspace/platform/server/prisma";
 
 import { cnyPerForeignUnit } from "./consolidation-frozen-rates";
+import { resolveFinanceAccountingPolicyVersionAt } from "../ledger/group-accounts/policy-versions";
 
 type PeriodBasis = "current" | "comparative";
 type StatementType = "balanceSheet" | "incomeStatement";
@@ -19,6 +21,7 @@ export interface NonControllingInterestEntryLine {
   companyCode: string;
   statementType: StatementType;
   lineCode: string;
+  groupAccountId: number;
   accountCode: string;
   debit: number;
   credit: number;
@@ -33,6 +36,68 @@ export interface NonControllingInterestEntryLine {
   sourceCurrency: string;
   counterpartyEntitySnapshotId: number;
   counterpartyCompanyId: number;
+}
+
+export interface NonControllingInterestGroupAccounts {
+  balanceSheet: {
+    groupAccountId: number;
+    accountCode: string;
+  };
+  incomeStatement: {
+    groupAccountId: number;
+    accountCode: string;
+  };
+}
+
+const NCI_GROUP_ACCOUNT_CODES = {
+  balanceSheet: "410401",
+  incomeStatement: "4103",
+} as const;
+
+async function loadNonControllingInterestGroupAccounts(
+  year: number,
+  month: number,
+): Promise<DomainValidationResult<NonControllingInterestGroupAccounts>> {
+  const effectiveAt = new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
+  const policyVersion = await resolveFinanceAccountingPolicyVersionAt(effectiveAt);
+  const revisions = await prisma.financeGroupAccountRevision.findMany({
+    where: {
+      policyVersionId: policyVersion.id,
+      isActive: true,
+      reviewStatus: { not: "pending_delete" },
+      code: { in: Object.values(NCI_GROUP_ACCOUNT_CODES) },
+    },
+    select: { groupAccountId: true, code: true },
+  });
+  const revisionByCode = new Map(revisions.map((revision) => [revision.code, revision]));
+  const missing = Object.values(NCI_GROUP_ACCOUNT_CODES).filter((code) => !revisionByCode.has(code));
+  if (missing.length > 0) {
+    return failCommand(
+      `${policyVersion.name} 缺少少数股东分配所需集团科目：${missing.join("、")}`,
+      409,
+      "groupAccounts",
+    );
+  }
+  const balanceSheet = revisionByCode.get(NCI_GROUP_ACCOUNT_CODES.balanceSheet)!;
+  const incomeStatement = revisionByCode.get(NCI_GROUP_ACCOUNT_CODES.incomeStatement)!;
+  return okCommand({
+    balanceSheet: {
+      groupAccountId: balanceSheet.groupAccountId,
+      accountCode: balanceSheet.code,
+    },
+    incomeStatement: {
+      groupAccountId: incomeStatement.groupAccountId,
+      accountCode: incomeStatement.code,
+    },
+  });
+}
+
+export async function buildNonControllingInterestEntriesForBatch(
+  batch: ConsolidationBatchSnapshot,
+): Promise<DomainValidationResult<NonControllingInterestEntryCandidate[]>> {
+  const groupAccounts = await loadNonControllingInterestGroupAccounts(batch.year, batch.month);
+  if (!groupAccounts.ok) return groupAccounts;
+  return buildNonControllingInterestEntries(batch, groupAccounts.data);
 }
 
 export interface NonControllingInterestEntryCandidate {
@@ -120,6 +185,7 @@ function creditSideAmounts(delta: number) {
 
 export function buildNonControllingInterestEntries(
   batch: ConsolidationBatchSnapshot,
+  groupAccounts: NonControllingInterestGroupAccounts,
 ): DomainValidationResult<NonControllingInterestEntryCandidate[]> {
   const entityByCompanyId = new Map(batch.entities.map((entity) => [entity.companyId, entity]));
   const entries: NonControllingInterestEntryCandidate[] = [];
@@ -152,7 +218,7 @@ export function buildNonControllingInterestEntries(
     if (Object.values(amounts).every((amount) => amount === 0)) continue;
     const generationKey = `policy:nci:${parent.companyId}:${entity.companyId}`;
     const sourceFingerprint = fingerprint({
-      version: "proportionate-net-assets-v1",
+      version: "proportionate-net-assets-v2",
       entitySnapshotId: entity.id,
       parentEntitySnapshotId: parent.id,
       shareRatio,
@@ -163,6 +229,7 @@ export function buildNonControllingInterestEntries(
       currentRate: currentRate.data,
       comparativeRate: comparativeRate.data,
       amounts,
+      groupAccounts,
     });
     let lineNo = 1;
     const lines: NonControllingInterestEntryLine[] = [];
@@ -175,12 +242,14 @@ export function buildNonControllingInterestEntries(
       label: string,
     ) => {
       if (amount === 0) return;
+      const groupAccount = groupAccounts[statementType];
       const common = {
         entitySnapshotId: entity.id,
         companyId: entity.companyId,
         companyCode: entity.companyCode,
         statementType,
-        accountCode: "NCI",
+        groupAccountId: groupAccount.groupAccountId,
+        accountCode: groupAccount.accountCode,
         currencyCode: "CNY" as const,
         periodBasis,
         matchSide: null,

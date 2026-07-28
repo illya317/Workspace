@@ -108,8 +108,14 @@ function historicalCapitalEntries(
     const capitalEvidence: string[] = [];
     for (const { rate, application, applicationIndex } of capitalBindings) {
       const originalAmount = money(application.capitalOriginalAmount!);
-      const paidInOriginal = money(Math.min(paidInCapitalRemaining, originalAmount));
-      const capitalReserveOriginal = money(originalAmount - paidInOriginal);
+      const paidInOriginal = application.capitalLineCode === "paidInCapital"
+        ? originalAmount
+        : application.capitalLineCode === "capitalReserve"
+          ? 0
+          : money(Math.min(paidInCapitalRemaining, originalAmount));
+      const capitalReserveOriginal = application.capitalLineCode === "paidInCapital"
+        ? 0
+        : money(originalAmount - paidInOriginal);
       paidInCapitalRemaining = money(paidInCapitalRemaining - paidInOriginal);
       const sourceFingerprint = fingerprint({
         version: "historical-capital-investment-elimination-v1",
@@ -260,19 +266,21 @@ export function buildRemittanceFxEntries(
         },
         application,
       });
+      const foreignEquityLineCode = application.voucher.matchingLineCode ?? "capitalReserve";
+      const foreignEquityAccountCode = foreignEquityLineCode === "paidInCapital" ? "3001" : "3002";
       const lines: RemittanceFxEntryLine[] = [{
         lineNo: 1,
         entitySnapshotId: foreignEntity.id,
         companyId: foreignEntity.companyId,
         companyCode: foreignEntity.companyCode,
         statementType: "balanceSheet",
-        lineCode: "capitalReserve",
-        accountCode: "3002",
+        lineCode: foreignEquityLineCode,
+        accountCode: foreignEquityAccountCode,
         debit: translatedAmount,
         credit: 0,
         currencyCode: "CNY",
         periodBasis: "current",
-        note: `${originalAmount} CAD × ${rate.rate}（${application.targetDate} 中间价）`,
+        note: `${originalAmount} CAD × ${rate.rate}（${application.targetDate} 历史折算率）`,
         matchSide: "right",
         sourceKind: "workpaper",
         sourceId: `rate-application:${rate.id}:${application.voucherItemId}`,

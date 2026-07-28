@@ -258,6 +258,7 @@ copy_data_release_files() {
   test -f .next/standalone/ops/prisma-genesis-cutover.mjs
   test -f .next/standalone/tsconfig.json
   test -f .next/standalone/tsconfig.base.json
+  test -f .next/standalone/scripts/repair/repair-finance-consolidation-voucher.mjs
   test -f .next/standalone/scripts/repair/repair-hr-lifecycle-compatibility.mjs
   test -f .next/standalone/scripts/repair/repair-hr-organization-baseline-compatibility.mjs
   test -f .next/standalone/scripts/repair/repair-hr-employment-agreement-baseline.mjs

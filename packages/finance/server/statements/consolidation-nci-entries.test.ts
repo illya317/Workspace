@@ -5,6 +5,11 @@ import type { ConsolidationBatchSnapshot } from "@workspace/finance/types";
 
 import { buildNonControllingInterestEntries } from "./consolidation-nci-entries";
 
+const groupAccounts = {
+  balanceSheet: { groupAccountId: 2275, accountCode: "410401" },
+  incomeStatement: { groupAccountId: 2127, accountCode: "4103" },
+};
+
 function batch(input: {
   shareRatio?: number;
   currency?: "CNY" | "CAD";
@@ -45,7 +50,7 @@ function batch(input: {
 }
 
 test("allocates minority net assets and profit without changing consolidated totals", () => {
-  const result = buildNonControllingInterestEntries(batch());
+  const result = buildNonControllingInterestEntries(batch(), groupAccounts);
   assert.equal(result.ok, true);
   if (!result.ok) return;
   assert.equal(result.data.length, 1);
@@ -62,10 +67,20 @@ test("allocates minority net assets and profit without changing consolidated tot
     ["incomeStatement", "comparative", "netProfitAttributableToNci", 15, 0],
     ["incomeStatement", "comparative", "netProfitAttributableToParent", 0, 15],
   ]);
+  assert.deepEqual(result.data[0]?.lines.map((line) => [line.groupAccountId, line.accountCode]), [
+    [2275, "410401"],
+    [2275, "410401"],
+    [2275, "410401"],
+    [2275, "410401"],
+    [2127, "4103"],
+    [2127, "4103"],
+    [2127, "4103"],
+    [2127, "4103"],
+  ]);
 });
 
 test("uses frozen closing rates for a CAD subsidiary", () => {
-  const result = buildNonControllingInterestEntries(batch({ currency: "CAD" }));
+  const result = buildNonControllingInterestEntries(batch({ currency: "CAD" }), groupAccounts);
   assert.equal(result.ok, true);
   if (!result.ok) return;
   const lines = result.data[0]?.lines ?? [];
@@ -82,7 +97,7 @@ test("uses frozen closing rates for a CAD subsidiary", () => {
 });
 
 test("does not generate an allocation for a wholly owned subsidiary", () => {
-  const result = buildNonControllingInterestEntries(batch({ shareRatio: 1 }));
+  const result = buildNonControllingInterestEntries(batch({ shareRatio: 1 }), groupAccounts);
   assert.deepEqual(result, { ok: true, data: [] });
 });
 
@@ -90,7 +105,7 @@ test("requires a unique frozen closing rate for foreign-currency allocation", ()
   const input = batch({ currency: "CAD" });
   input.exchangeRates = input.exchangeRates.filter((rate) =>
     rate.applications.some((application) => application.periodBasis === "current"));
-  const result = buildNonControllingInterestEntries(input);
+  const result = buildNonControllingInterestEntries(input, groupAccounts);
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.issue.field, "rateApplications");
 });

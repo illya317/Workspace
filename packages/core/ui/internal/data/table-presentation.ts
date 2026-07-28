@@ -75,7 +75,7 @@ export function resolveStandardTableMinWidth(columnCount: number, scroll?: DataS
 }
 
 export function resolveDataTableLayoutClass(matrix: boolean) {
-  return matrix ? "table-fixed min-w-max w-full" : "table-fixed w-full";
+  return matrix ? "table-fixed min-w-max w-full" : "table-auto w-full";
 }
 
 function resolveWrapClass(wrap?: DataSurfaceWrap) {

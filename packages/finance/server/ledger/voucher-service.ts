@@ -1,4 +1,5 @@
 import { matchText } from "@workspace/core/search";
+import type { FinanceGroupVoucherDocumentType } from "@workspace/finance/types";
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import {
@@ -10,6 +11,7 @@ import { consolidationEntryReviewBlockReason } from "../domain/consolidation-ent
 import {
   groupVoucherAccountName,
   groupVoucherCompanySummary,
+  groupVoucherOccurrenceDate,
 } from "./group-voucher-presentation";
 
 interface VoucherItemInput {
@@ -29,7 +31,7 @@ export interface ListVouchersInput {
   page: number;
   pageSize: number;
   voucherKind?: "standard" | "group";
-  documentType?: "groupAdjustment" | "elimination" | "reclassification";
+  documentType?: FinanceGroupVoucherDocumentType;
   origin?: "manual" | "system";
 }
 
@@ -57,9 +59,19 @@ const voucherChronologicalOrder = [
 
 type VoucherListRow = Prisma.FinanceVoucherGetPayload<{ include: typeof voucherListInclude }>;
 
+function voucherMatchingLabel(sourceMetadata: Prisma.JsonValue | null) {
+  if (!sourceMetadata || typeof sourceMetadata !== "object" || Array.isArray(sourceMetadata)) return null;
+  const evidence = sourceMetadata.evidence;
+  if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) return null;
+  const matching = evidence.matching;
+  if (!matching || typeof matching !== "object" || Array.isArray(matching)) return null;
+  return typeof matching.label === "string" && matching.label.trim() ? matching.label.trim() : null;
+}
+
 function toVoucherListDto(voucher: VoucherListRow) {
   return {
     ...voucher,
+    matchingLabel: voucherMatchingLabel(voucher.sourceMetadata),
     cashFlowAllocations: voucher.cashFlowAllocations.map((allocation) => ({
       ...allocation,
       amount: Number(allocation.amount),
@@ -208,9 +220,17 @@ async function listGroupJournals(input: ListVouchersInput) {
         lines: {
           orderBy: { lineNo: "asc" },
           include: {
-            entity: { select: { companyId: true, companyName: true } },
-            counterpartyEntity: { select: { companyId: true, companyName: true } },
+            entity: { select: { companyId: true, companyCode: true, companyName: true } },
+            counterpartyEntity: { select: { companyId: true, companyCode: true, companyName: true } },
             groupAccount: { select: { id: true, code: true, name: true } },
+            sourceVoucherItem: { select: { voucher: { select: { date: true } } } },
+            sourceOpenItem: {
+              select: {
+                documentDate: true,
+                voucherItem: { select: { voucher: { select: { date: true } } } },
+              },
+            },
+            sourceCashFlowAllocation: { select: { voucher: { select: { date: true } } } },
           },
         },
       },
@@ -227,21 +247,24 @@ async function listGroupJournals(input: ListVouchersInput) {
         where: { id: { in: companyIds } },
         select: {
           id: true,
+          code: true,
+          sortOrder: true,
           party: { select: { name: true, fullName: true } },
         },
       })
     : [];
-  const companyNameById = new Map(companies.map((company) => [
-    company.id,
-    company.party.name || company.party.fullName,
-  ]));
+  const companyById = new Map(companies.map((company) => [company.id, {
+    companyCode: company.code,
+    companyName: company.party.name || company.party.fullName,
+    sortOrder: company.sortOrder,
+  }]));
   const vouchers = rows.map((entry) => {
     const items = entry.lines.map((line) => {
-      const entityName = companyNameById.get(line.entity.companyId) ?? line.entity.companyName;
+      const entityName = companyById.get(line.entity.companyId)?.companyName ?? line.entity.companyName;
       const counterpartyName = line.counterpartyEntity
-        ? companyNameById.get(line.counterpartyEntity.companyId) ?? line.counterpartyEntity.companyName
+        ? companyById.get(line.counterpartyEntity.companyId)?.companyName ?? line.counterpartyEntity.companyName
         : line.counterpartyCompanyId
-          ? companyNameById.get(line.counterpartyCompanyId) ?? null
+          ? companyById.get(line.counterpartyCompanyId)?.companyName ?? null
           : null;
       return {
         id: line.id,
@@ -277,6 +300,12 @@ async function listGroupJournals(input: ListVouchersInput) {
           ?? line.sourceSnapshotId
           ?? line.sourceVoucherItemId
           ?? null,
+        sourceDate: groupVoucherOccurrenceDate({
+          voucherDate: line.sourceVoucherItem?.voucher.date,
+          openItemVoucherDate: line.sourceOpenItem?.voucherItem?.voucher.date,
+          openItemDocumentDate: line.sourceOpenItem?.documentDate,
+          cashFlowVoucherDate: line.sourceCashFlowAllocation?.voucher.date,
+        }),
         counterpartyEntitySnapshotId: line.counterpartyEntitySnapshotId,
         counterpartyCompanyId: line.counterpartyCompanyId,
       };
@@ -287,13 +316,31 @@ async function listGroupJournals(input: ListVouchersInput) {
       date: entry.postingDate,
       periodId: 0,
       period: { id: 0, year: Number(entry.postingDate.slice(0, 4)), month: Number(entry.postingDate.slice(5, 7)) },
-      description: groupVoucherCompanySummary(items),
+      description: groupVoucherCompanySummary(entry.lines.flatMap((line) => {
+        const entity = companyById.get(line.entity.companyId);
+        const counterpartyCompanyId = line.counterpartyEntity?.companyId ?? line.counterpartyCompanyId;
+        const counterparty = counterpartyCompanyId ? companyById.get(counterpartyCompanyId) : null;
+        return [
+          {
+            companyId: line.entity.companyId,
+            companyCode: entity?.companyCode ?? line.entity.companyCode,
+            companyName: entity?.companyName ?? line.entity.companyName,
+            sortOrder: entity?.sortOrder ?? Number.MAX_SAFE_INTEGER,
+          },
+          ...(counterpartyCompanyId ? [{
+            companyId: counterpartyCompanyId,
+            companyCode: counterparty?.companyCode ?? line.counterpartyEntity?.companyCode ?? "",
+            companyName: counterparty?.companyName ?? line.counterpartyEntity?.companyName ?? null,
+            sortOrder: counterparty?.sortOrder ?? Number.MAX_SAFE_INTEGER,
+          }] : []),
+        ];
+      })),
       totalDebit: entry.lines.reduce((sum, line) => sum + Number(line.debit), 0),
       totalCredit: entry.lines.reduce((sum, line) => sum + Number(line.credit), 0),
       status: entry.status,
       companyCode: null,
       voucherKind: "group" as const,
-      documentType: entry.documentType as "groupAdjustment" | "elimination" | "reclassification",
+      documentType: entry.documentType as FinanceGroupVoucherDocumentType,
       postingLevel: entry.postingLevel as "10" | "20" | "30",
       origin: entry.origin as "manual" | "system",
       entryType: entry.entryType,

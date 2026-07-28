@@ -35,6 +35,7 @@ import {
   emptyAssetDraft,
   editAssetDraft,
 } from "./assetScheduleUi";
+import { useLedgerExportAction } from "./useLedgerExportAction";
 
 type AssetView = "cards" | "period" | "adjustments" | "reconciliation";
 
@@ -42,6 +43,7 @@ export default function AssetScheduleTab({
   canCreate,
   canUpdate,
   canRevise,
+  canExport,
   defaultScope,
   navigation,
   lifecycleBlocks = [],
@@ -49,6 +51,7 @@ export default function AssetScheduleTab({
   canCreate: boolean;
   canUpdate: boolean;
   canRevise: boolean;
+  canExport: boolean;
   defaultScope: FinanceLedgerDefaultScope | null;
   navigation?: PageSurfaceTabBarSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
@@ -68,6 +71,17 @@ export default function AssetScheduleTab({
   const [saving, setSaving] = useState(false);
   const feedback = useFeedback();
   const activeView: AssetView = isAssetView(navigation?.activeChild) ? navigation.activeChild : "cards";
+  const exportAction = useLedgerExportAction({
+    canExport,
+    view: "assets",
+    companyCode,
+    year,
+    month,
+    keyword,
+    assetView: activeView,
+    disabled: !companyCode || !year || !month,
+    fallbackFilename: `${companyCode || "公司"}-${year || "年度"}.${month.padStart(2, "0")}-${assetViewLabel(activeView)}.xlsx`,
+  });
 
   const load = useCallback(async () => {
     if (!companyCode || !year || !month) {
@@ -158,6 +172,7 @@ export default function AssetScheduleTab({
   const extraItems: SurfaceToolbarItems = [
     ...(activeView === "period" && canRevise ? [{ kind: "action-group" as const, key: "asset-period-actions", actions: [{ key: "recalculate", kind: "refresh" as const, label: "重新计算", disabled: saving || workspace?.scope.isClosed, onClick: () => void recalculate() }] }] : []),
     ...(activeView === "cards" ? [] : [{ kind: "text" as const, key: "asset-period-state", content: periodStateText(workspace) }]),
+    ...(exportAction ? [exportAction] : []),
   ];
   const toolbarItems = useFinanceFilterToolbarItems({
     companyFilter: companyCode,
@@ -195,7 +210,7 @@ export default function AssetScheduleTab({
 
   function adjustmentCreateSection(): BodySurfaceSectionSpec {
     return { key: "asset-adjustment-create", body: { kind: "create", create: {
-      id: "finance-asset-adjustment-create", trigger: "toolbar", presentation: "modal", title: "补录调整事项", open: Boolean(adjustmentDraft), canCreate: canRevise, disabled: saving,
+      id: "finance-asset-adjustment-create", trigger: "toolbar", presentation: "modal", title: "独立调整事项", open: Boolean(adjustmentDraft), canCreate: canRevise, disabled: saving,
       content: { kind: "sections", sections: adjustmentFormSections(adjustmentDraft ?? emptyAdjustmentDraft(companyCode, Number(year), Number(month)), workspace?.cards ?? [], (key, value) => setAdjustmentDraft((current) => ({ ...(current ?? emptyAdjustmentDraft(companyCode, Number(year), Number(month))), [key]: value }) as CreateFinanceAssetAdjustmentInput)) },
       submission: { action: "save", disabled: saving || !adjustmentDraft?.accountCode || !adjustmentDraft.reason || adjustmentDraft.amount === 0, execute: saveAdjustment },
       onOpenChange: (open) => setAdjustmentDraft(open ? emptyAdjustmentDraft(companyCode, Number(year), Number(month)) : null), onCancel: () => setAdjustmentDraft(null),
@@ -240,7 +255,7 @@ function buildViewSections({ view, workspace, cards, periodRows, page, pageSize,
     createPageTableSection("asset-cards", { rows: pageRows(cards), columns: assetCardColumns, visibleColumns: assetCardColumns.map((column) => column.key), rowKey: (row) => row.id, emptyText: "暂无资产卡片", presentation: { density: "compact" }, scroll: { x: true }, rowActions: canEdit ? (row) => [{ key: "edit", kind: "edit", label: "编辑资产", disabled: saving, onClick: () => onEdit(row) }] : undefined }),
   ];
   if (view === "period") return [
-    createMessageSection("asset-period-rule", { tone: "muted", content: "正常折旧/摊销由资产卡片政策计算；补录金额只进入调整事项，不修改资产原值、期限或未来月份公式。" }),
+    createMessageSection("asset-period-rule", { tone: "muted", content: "正常折旧/摊销由资产卡片政策计算；独立调整金额只进入调整事项，不修改资产原值、期限或未来月份公式。" }),
     createPageTableSection("asset-period-rows", { rows: pageRows(periodRows), columns: assetPeriodColumns, visibleColumns: assetPeriodColumns.map((column) => column.key), rowKey: (row) => row.assetId, emptyText: "本期尚未生成折旧摊销", presentation: { density: "compact" }, scroll: { x: true } }),
   ];
   if (view === "adjustments") return [
@@ -253,6 +268,15 @@ function buildViewSections({ view, workspace, cards, periodRows, page, pageSize,
 
 function isAssetView(value: unknown): value is AssetView {
   return value === "cards" || value === "period" || value === "adjustments" || value === "reconciliation";
+}
+
+function assetViewLabel(value: AssetView) {
+  return {
+    cards: "资产卡片",
+    period: "本期折旧摊销",
+    adjustments: "调整事项",
+    reconciliation: "折旧摊销勾稽",
+  }[value];
 }
 
 function errorMessage(value: unknown, fallback: string) {

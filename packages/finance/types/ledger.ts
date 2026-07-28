@@ -5,7 +5,7 @@ export interface Account {
 }
 
 export const WORKSPACE_VOUCHER_SOURCE_SYSTEM = "WORKSPACE";
-export const SUPPLEMENTAL_VOUCHER_TYPE_NAME = "补录凭证";
+export const CONSOLIDATION_VOUCHER_TYPE_NAME = "合并凭证";
 
 export interface VoucherItem {
   id: number;
@@ -30,6 +30,7 @@ export interface VoucherItem {
   matchSide?: "left" | "right" | null;
   sourceKind?: "auxiliaryBalance" | "openItem" | "cashFlowAllocation" | "workpaper" | "voucher" | null;
   sourceRecordId?: number | null;
+  sourceDate?: string | null;
   counterpartyEntitySnapshotId?: number | null;
   counterpartyCompanyId?: number | null;
 }
@@ -66,11 +67,12 @@ export interface Voucher {
   sourceSystem?: string | null;
   voucherTypeCode?: string | null;
   voucherTypeName?: string | null;
+  matchingLabel?: string | null;
   isAdjustment?: boolean;
   items: VoucherItem[];
   cashFlowAllocations?: VoucherCashFlowAllocation[];
   voucherKind?: "standard" | "group";
-  documentType?: "groupAdjustment" | "elimination" | "reclassification";
+  documentType?: FinanceGroupVoucherDocumentType;
   postingLevel?: "10" | "20" | "30";
   origin?: "manual" | "system";
   batchId?: number;
@@ -90,7 +92,20 @@ export interface VoucherResponse {
 }
 
 export type FinanceCounterpartyBalanceCategory = "ar" | "ap" | "otherAr" | "otherAp";
-export type FinanceLedgerExportView = "accounts" | "vouchers" | "balances" | "counterparty";
+export type FinanceGroupVoucherDocumentType =
+  | "groupAdjustment"
+  | "elimination"
+  | "reclassification"
+  | "allocation";
+export type FinanceLedgerExportView =
+  | "accounts"
+  | "groupAccounts"
+  | "vouchers"
+  | "balances"
+  | "counterparty"
+  | "assets";
+
+export type FinanceAssetExportView = "cards" | "period" | "adjustments" | "reconciliation";
 
 export interface FinanceCounterpartyBalanceRow {
   id: string;

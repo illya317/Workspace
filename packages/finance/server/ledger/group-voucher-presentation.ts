@@ -9,18 +9,39 @@ const GROUP_VOUCHER_ACCOUNT_NAMES = new Map([
 ].map((line) => [line.lineCode, simpleStatementLabel(line.label)]));
 
 export function groupVoucherCompanySummary(
-  lines: readonly { entityName: string | null; counterpartyName: string | null }[],
+  companies: readonly {
+    companyId: number;
+    companyCode: string;
+    companyName: string | null;
+    sortOrder: number;
+  }[],
 ) {
-  const names = [...new Set(lines.flatMap((line) => [
-    normalizedName(line.entityName),
-    normalizedName(line.counterpartyName),
-  ]).filter((name): name is string => Boolean(name)))];
+  const names = [...new Map(companies.flatMap((company) => {
+    const name = normalizedName(company.companyName);
+    return name ? [[company.companyId, { ...company, companyName: name }] as const] : [];
+  })).values()]
+    .sort((left, right) => left.sortOrder - right.sortOrder
+      || left.companyCode.localeCompare(right.companyCode, "zh-CN", { numeric: true }))
+    .map((company) => company.companyName);
   if (names.length >= 2) return `${names[0]} ↔ ${names[1]}`;
   return names[0] ?? "—";
 }
 
 export function groupVoucherAccountName(lineCode: string) {
   return GROUP_VOUCHER_ACCOUNT_NAMES.get(lineCode) ?? lineCode;
+}
+
+export function groupVoucherOccurrenceDate(source: {
+  voucherDate?: string | null;
+  openItemVoucherDate?: string | null;
+  openItemDocumentDate?: string | null;
+  cashFlowVoucherDate?: string | null;
+}) {
+  return source.voucherDate
+    ?? source.openItemVoucherDate
+    ?? source.openItemDocumentDate
+    ?? source.cashFlowVoucherDate
+    ?? null;
 }
 
 function normalizedName(value: string | null) {

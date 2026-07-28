@@ -6,6 +6,14 @@ export interface RefreshStatementExchangeRateCommand {
   userId: number;
 }
 
+export interface VoucherHistoricalInvestmentRateCommand {
+  voucherItemId: number;
+  voucherDate: string;
+  rate: number;
+  matchingLabel: string;
+  userId: number;
+}
+
 function validDate(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const date = new Date(`${value}T00:00:00Z`);
@@ -25,5 +33,26 @@ export function buildRefreshStatementExchangeRateCommand(
   return okCommand<RefreshStatementExchangeRateCommand>({
     userId,
     input: { currencyCode, targetDate: raw.targetDate },
+  });
+}
+
+export function buildVoucherHistoricalInvestmentRateCommand(
+  raw: Omit<VoucherHistoricalInvestmentRateCommand, "userId">,
+  userId: number,
+) {
+  if (!Number.isInteger(userId) || userId <= 0) return failCommand("当前用户无效", 401);
+  if (!Number.isInteger(raw.voucherItemId) || raw.voucherItemId <= 0) {
+    return failCommand("投资凭证明细无效", 400, "voucherItemId");
+  }
+  if (!validDate(raw.voucherDate)) return failCommand("投资凭证日期无效", 400, "voucherDate");
+  if (!Number.isFinite(raw.rate) || raw.rate <= 0) return failCommand("历史折算率必须为正数", 400, "rate");
+  const matchingLabel = raw.matchingLabel.trim();
+  if (!matchingLabel) return failCommand("凭证匹配说明不能为空", 400, "matchingLabel");
+  return okCommand<VoucherHistoricalInvestmentRateCommand>({
+    voucherItemId: raw.voucherItemId,
+    voucherDate: raw.voucherDate,
+    rate: raw.rate,
+    matchingLabel,
+    userId,
   });
 }

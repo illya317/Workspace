@@ -2,7 +2,7 @@
 
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import {
-  SUPPLEMENTAL_VOUCHER_TYPE_NAME,
+  CONSOLIDATION_VOUCHER_TYPE_NAME,
   WORKSPACE_VOUCHER_SOURCE_SYSTEM,
   type Voucher,
 } from "@workspace/finance/types";
@@ -10,7 +10,7 @@ import { formatFinanceAmount } from "../formatters";
 
 export function voucherRecordingSource(voucher: Pick<Voucher, "sourceSystem" | "voucherTypeName">) {
   if (voucher.sourceSystem === WORKSPACE_VOUCHER_SOURCE_SYSTEM
-    && voucher.voucherTypeName === SUPPLEMENTAL_VOUCHER_TYPE_NAME) return "Workspace 补录";
+    && voucher.voucherTypeName === CONSOLIDATION_VOUCHER_TYPE_NAME) return "Workspace 合并";
   if (voucher.sourceSystem === "TPLUS") return "T+";
   return voucher.sourceSystem || "Workspace";
 }
@@ -55,10 +55,11 @@ export function getVoucherColumns(
       defaultVisible: true,
       cell: (v: Voucher) => options.group
         ? { kind: "text" as const, value: v.description, wrap: "truncate" as const }
-        : v.reviewBlockReason
+        : v.reviewBlockReason || v.matchingLabel
         ? { kind: "stack" as const, gap: "xs" as const, items: [
             { kind: "text" as const, value: v.description, wrap: "truncate" as const },
-            { kind: "text" as const, value: v.reviewBlockReason, tone: "muted" as const, wrap: "wrap" as const },
+            ...(v.matchingLabel ? [{ kind: "text" as const, value: `匹配：${v.matchingLabel}`, tone: "muted" as const, wrap: "wrap" as const }] : []),
+            ...(v.reviewBlockReason ? [{ kind: "text" as const, value: v.reviewBlockReason, tone: "muted" as const, wrap: "wrap" as const }] : []),
           ] }
         : { kind: "text" as const, value: v.description, wrap: "truncate" as const },
     },

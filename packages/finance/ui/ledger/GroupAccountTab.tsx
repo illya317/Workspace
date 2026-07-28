@@ -49,19 +49,13 @@ import {
   groupAccountMasterFields,
 } from "./groupAccountConsolidationRule";
 import { groupAccountReclassSections, useGroupAccountReclassRule } from "./useGroupAccountReclassRule";
-
+import { useLedgerExportAction } from "./useLedgerExportAction";
 export default function GroupAccountTab({
-  navigation,
-  lifecycleBlocks = [],
-  canRevise,
-  canDelete,
-  canApprove,
+  navigation, lifecycleBlocks = [], canRevise, canDelete, canApprove, canExport,
 }: {
   navigation?: PageSurfaceTabBarSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
-  canRevise: boolean;
-  canDelete: boolean;
-  canApprove: boolean;
+  canRevise: boolean; canDelete: boolean; canApprove: boolean; canExport: boolean;
 }) {
   const businessTimeZone = useTenantConfig().localization.businessTimeZone;
   const [response, setResponse] = useState<FinanceGroupAccountCatalogResponse | null>(null);
@@ -101,6 +95,11 @@ export default function GroupAccountTab({
   const groupAccountDirty = groupAccountDirtyParts.master || groupAccountDirtyParts.consolidation;
   const editDirty = groupAccountDirty || reclassRuleDirty;
   const feedback = useFeedback({ unsavedChanges: editDirty });
+  const exportAction = useLedgerExportAction({
+    canExport, view: "groupAccounts", policyVersionId: String(response?.selectedPolicyVersionId ?? ""), keyword,
+    accountCategory: categoryFilter, accountUsage: accountUsageFilter, reviewStatus: reviewStatusFilter,
+    fallbackFilename: `${response?.policyVersions.find((version) => version.id === response.selectedPolicyVersionId)?.code ?? "当前版本"}-集团科目.xlsx`,
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -317,6 +316,7 @@ export default function GroupAccountTab({
       options: [...REVIEW_STATUS_FILTER_OPTIONS],
       onChange: setReviewStatusFilter,
     },
+    ...(exportAction ? [exportAction] : []),
   ];
   const toolbarItems = useFinanceFilterToolbarItems({
     keyword,

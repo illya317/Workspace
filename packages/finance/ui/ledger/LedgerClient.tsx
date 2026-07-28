@@ -60,7 +60,7 @@ export default function LedgerClient({
   return (
     <>
       {activeTab === "accounts" && activeNestedChild === "group-accounts"
-        ? <GroupAccountTab canRevise={canRevise} canDelete={canDelete} canApprove={canApproveLedger} {...pageChrome} />
+        ? <GroupAccountTab canRevise={canRevise} canDelete={canDelete} canApprove={canApproveLedger} canExport={canExport} {...pageChrome} />
         : activeTab === "accounts"
           ? <AccountTab canRevise={canRevise} canExport={canExport} defaultScope={defaultScope} {...pageChrome} />
           : null}
@@ -68,7 +68,7 @@ export default function LedgerClient({
         ? <ReclassTab canExport={canExport} defaultScope={defaultScope} {...pageChrome} />
         : activeTab === "vouchers"
           ? <VoucherTab
-              canExport={activeNestedChild === "company" ? canExport : false}
+              canExport={canExport}
               defaultScope={defaultScope}
               voucherKind={activeNestedChild === "consolidation" ? "group" : "standard"}
               {...pageChrome}
@@ -76,7 +76,7 @@ export default function LedgerClient({
           : null}
       {activeTab === "ledger" && <LedgerTab canExport={canExport} defaultScope={defaultScope} {...pageChrome} />}
       {activeTab === "counterparty" && <CounterpartyBalanceTab canExport={canExport} category={counterpartyCategory(activeNestedChild)} defaultScope={defaultScope} {...pageChrome} />}
-      {activeTab === "depreciation" && <AssetScheduleTab canCreate={canCreate} canUpdate={canUpdate} canRevise={canRevise} defaultScope={defaultScope} {...pageChrome} />}
+      {activeTab === "depreciation" && <AssetScheduleTab canCreate={canCreate} canUpdate={canUpdate} canRevise={canRevise} canExport={canExport} defaultScope={defaultScope} {...pageChrome} />}
     </>
   );
 }

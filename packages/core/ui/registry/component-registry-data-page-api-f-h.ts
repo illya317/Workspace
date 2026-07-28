@@ -8,7 +8,7 @@ export const page_api_registry_entries = [
   },
   {
     name: "DataTable",
-    description: "通用数据表格",
+    description: "通用数据表格；普通列按内容和可用空间自适应，矩阵列保持固定布局",
     composes: ["ActionButton", "dataTableClassNames"],
   },
   {

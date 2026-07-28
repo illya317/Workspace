@@ -16,7 +16,7 @@ const optionalMonth = z.preprocess(
 );
 
 const querySchema = z.object({
-  view: z.enum(["accounts", "vouchers", "balances", "counterparty"]),
+  view: z.enum(["accounts", "groupAccounts", "vouchers", "balances", "counterparty", "assets"]),
   companyCode: z.string().trim().optional(),
   year: optionalYear,
   month: optionalMonth,
@@ -24,6 +24,14 @@ const querySchema = z.object({
   subjectLevel: z.string().optional(),
   scope: z.enum(["mapped", "unmapped", "inactive", "all"]).optional(),
   category: z.enum(["ar", "ap", "otherAr", "otherAp"]).optional(),
+  voucherKind: z.enum(["standard", "group"]).default("standard"),
+  documentType: z.enum(["groupAdjustment", "elimination", "reclassification", "allocation"]).optional(),
+  origin: z.enum(["manual", "system"]).optional(),
+  policyVersionId: z.coerce.number().int().positive().optional(),
+  accountCategory: z.enum(["asset", "liability", "common", "equity", "cost", "revenue", "expense"]).optional(),
+  accountUsage: z.enum(["consolidation", "reclassification"]).optional(),
+  reviewStatus: z.enum(["confirmed", "reviewed", "pending_review", "pending_delete"]).optional(),
+  assetView: z.enum(["cards", "period", "adjustments", "reconciliation"]).optional(),
 });
 
 export const GET = createCommandRoute({

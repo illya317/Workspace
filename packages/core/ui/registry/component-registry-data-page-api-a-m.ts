@@ -62,7 +62,7 @@ export const page_api_registry_entries = [
         children: [
           {
             name: "table",
-            description: "行列数据表；桌面长表锁定表头并支持矩阵首列锚定，移动端统一转为主次分明、可展开和可操作的记录卡片。",
+            description: "行列数据表；桌面普通表按内容和可用空间自适应列宽，矩阵保持固定列宽并支持首列锚定，移动端统一转为主次分明、可展开和可操作的记录卡片。",
             children: [
               { name: "rows", description: "表格数据行。" },
               { name: "columns", description: "表格列和单元格声明。" },

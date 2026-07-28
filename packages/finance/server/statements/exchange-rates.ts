@@ -4,6 +4,7 @@ import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/
 import { prisma } from "@workspace/platform/server/prisma";
 import {
   buildRefreshStatementExchangeRateCommand,
+  buildVoucherHistoricalInvestmentRateCommand,
   type RefreshStatementExchangeRateCommand,
 } from "../domain/statement-exchange-rate-validation";
 import {
@@ -120,6 +121,46 @@ export async function ensureChinaMoneyCentralParityRate(input: {
         ...data,
       },
     });
+  });
+}
+
+export async function ensureVoucherHistoricalInvestmentRate(input: {
+  voucherItemId: number;
+  voucherDate: string;
+  rate: number;
+  matchingLabel: string;
+  userId: number;
+}) {
+  const validated = buildVoucherHistoricalInvestmentRateCommand(input, input.userId);
+  if (!validated.ok) throw new ChinaMoneyRateError(validated.issue.message, validated.issue.status);
+  const command = validated.data;
+  const existing = await prisma.financeStatementExchangeRate.findMany({
+    where: {
+      baseCurrency: "CAD",
+      quoteCurrency: "CNY",
+      rateKind: "historicalInvestment",
+      rateDate: command.voucherDate,
+    },
+    orderBy: [{ version: "desc" }, { id: "desc" }],
+  });
+  const sameRate = existing.find((row) => Number(row.rate) === command.rate);
+  if (sameRate) return sameRate;
+  return prisma.financeStatementExchangeRate.create({
+    data: {
+      baseCurrency: "CAD",
+      quoteCurrency: "CNY",
+      rateKind: "historicalInvestment",
+      rateDate: command.voucherDate,
+      rate: command.rate,
+      sourceName: "Workspace 合并凭证",
+      sourceField: "凭证匹配历史折算率",
+      sourceUrl: `workspace://finance/voucher-items/${command.voucherItemId}`,
+      publishedAt: null,
+      capturedAt: new Date(),
+      note: `匹配：${command.matchingLabel}`,
+      version: (existing[0]?.version ?? 0) + 1,
+      updatedBy: command.userId,
+    },
   });
 }
 

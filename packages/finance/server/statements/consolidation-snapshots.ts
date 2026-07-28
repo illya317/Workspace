@@ -388,7 +388,7 @@ export async function loadAvailableRateFacts(
           id: { in: exchangeRateIds },
           baseCurrency: "CAD",
           quoteCurrency: "CNY",
-          rateKind: "centralParity",
+          rateKind: { in: ["centralParity", "historicalInvestment"] },
           rateDate: { lte: periodEnd },
         }
       : {

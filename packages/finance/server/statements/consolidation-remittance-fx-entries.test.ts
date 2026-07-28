@@ -6,7 +6,11 @@ import type { ConsolidationVoucherMatchGroup } from "../domain/consolidation-ent
 
 import { buildRemittanceFxEntries } from "./consolidation-remittance-fx-entries";
 
-function batch(rate: number, bookedAmountCny: number): ConsolidationBatchSnapshot {
+function batch(
+  rate: number,
+  bookedAmountCny: number,
+  matchingLineCode?: "paidInCapital" | "capitalReserve",
+): ConsolidationBatchSnapshot {
   return {
     entities: [
       { id: 1, companyId: 11, companyCode: "P01", companyName: "投资方" },
@@ -41,6 +45,7 @@ function batch(rate: number, bookedAmountCny: number): ConsolidationBatchSnapsho
           bookedAmountCny,
           currencyCode: "CAD",
           originalAmount: 100,
+          matchingLineCode,
         },
       }],
     }],
@@ -55,6 +60,14 @@ test("negative remittance difference is an OCI loss on the debit side", () => {
     ["capitalReserve", 500, 0],
     ["longTermInvest", 0, 520],
     ["otherComprehensiveIncome", 20, 0],
+  ]);
+});
+
+test("voucher matching can bind an investment directly to paid-in capital", () => {
+  const [entry] = buildRemittanceFxEntries(batch(5.05056, 505.056, "paidInCapital"));
+  assert.deepEqual(entry?.lines.map((line) => [line.lineCode, line.accountCode, line.debit, line.credit]), [
+    ["paidInCapital", "3001", 505.06, 0],
+    ["longTermInvest", "1511", 0, 505.06],
   ]);
 });
 

@@ -17,12 +17,36 @@ test("standard voucher columns expose the recording source", () => {
   assert.equal(columns.some((column) => column.key === "recordingSource" && column.label === "录入来源"), true);
   assert.equal(voucherRecordingSource({ sourceSystem: "T6", voucherTypeName: "记账凭证" }), "T6");
   assert.equal(voucherRecordingSource({ sourceSystem: "TPLUS", voucherTypeName: "记账凭证" }), "T+");
-  assert.equal(voucherRecordingSource({ sourceSystem: "WORKSPACE", voucherTypeName: "补录凭证" }), "Workspace 补录");
+  assert.equal(voucherRecordingSource({ sourceSystem: "WORKSPACE", voucherTypeName: "合并凭证" }), "Workspace 合并");
 });
 
-test("expanded group voucher items omit duplicate description and source evidence", () => {
-  assert.deepEqual(
-    getGroupItemColumns().map((column) => column.key),
-    ["seq", "account", "entity", "counterparty", "debit", "credit"],
-  );
+test("expanded group voucher items use compact sequence and entity-only columns", () => {
+  const columns = getGroupItemColumns();
+  assert.deepEqual(columns.map((column) => column.key), ["seq", "sourceDate", "account", "entity", "debit", "credit"]);
+  assert.equal(columns.find((column) => column.key === "seq")?.width, "xs");
+  const entity = columns.find((column) => column.key === "entity");
+  const account = columns.find((column) => column.key === "account");
+  assert.equal(account?.cell({
+    id: 1,
+    account: { code: "NCI", name: "少数股东权益" },
+    debit: 0,
+    credit: 0,
+    description: null,
+  }), "少数股东权益");
+  assert.equal(account?.cell({
+    id: 2,
+    account: { code: "122101", name: "其他应收款" },
+    debit: 0,
+    credit: 0,
+    description: null,
+  }), "其他应收款 · 122101");
+  assert.equal(entity?.cell({
+    id: 1,
+    account: null,
+    debit: 0,
+    credit: 0,
+    description: null,
+    entityName: "丰华生物",
+    counterpartyName: "上海悦通",
+  }), "丰华生物");
 });

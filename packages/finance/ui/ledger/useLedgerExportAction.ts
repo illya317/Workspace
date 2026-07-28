@@ -3,7 +3,9 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useFeedback, type SurfaceToolbarItems } from "@workspace/core/ui";
 import type {
+  FinanceAssetExportView,
   FinanceCounterpartyBalanceCategory,
+  FinanceGroupVoucherDocumentType,
   FinanceLedgerExportView,
 } from "../../types/ledger";
 import { useCallback, useState } from "react";
@@ -19,6 +21,14 @@ interface LedgerExportActionInput {
   subjectLevel?: string;
   scope?: string;
   category?: FinanceCounterpartyBalanceCategory;
+  voucherKind?: "standard" | "group";
+  documentType?: FinanceGroupVoucherDocumentType;
+  origin?: "manual" | "system";
+  policyVersionId?: string;
+  accountCategory?: string;
+  accountUsage?: string;
+  reviewStatus?: string;
+  assetView?: FinanceAssetExportView;
   disabled?: boolean;
   fallbackFilename: string;
 }
@@ -38,6 +48,14 @@ export function useLedgerExportAction(input: LedgerExportActionInput): SurfaceTo
       setQuery(query, "subjectLevel", input.subjectLevel);
       setQuery(query, "scope", input.scope);
       setQuery(query, "category", input.category);
+      setQuery(query, "voucherKind", input.voucherKind);
+      setQuery(query, "documentType", input.documentType);
+      setQuery(query, "origin", input.origin);
+      setQuery(query, "policyVersionId", input.policyVersionId);
+      setQuery(query, "accountCategory", input.accountCategory);
+      setQuery(query, "accountUsage", input.accountUsage);
+      setQuery(query, "reviewStatus", input.reviewStatus);
+      setQuery(query, "assetView", input.assetView);
       await downloadFinanceWorkbook(
         workspacePath(`/api/modules/finance/ledger/export?${query.toString()}`),
         input.fallbackFilename,

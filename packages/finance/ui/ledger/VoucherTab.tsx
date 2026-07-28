@@ -7,11 +7,12 @@ import type { BodySurfaceSectionSpec, DataSurfaceCellSpec, DataSurfaceColumnSpec
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { getBaseItemColumns, getGroupItemColumns, type VoucherItemRow } from "../components/VoucherItemTable";
 import { getVoucherColumns } from "./VoucherColumns";
-import type { Voucher, VoucherResponse } from "@workspace/finance/types";
+import type { FinanceGroupVoucherDocumentType, Voucher, VoucherResponse } from "@workspace/finance/types";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import type { FinanceLedgerDefaultScope } from "./defaultScope";
 import { cashFlowAllocationsForItem } from "./voucherCashFlow";
 import { useLedgerExportAction } from "./useLedgerExportAction";
+import { GROUP_VOUCHER_DOCUMENT_TYPE_OPTIONS } from "./groupVoucherDocumentTypes";
 
 // ─── Component ───────────────────────────────────────────
 
@@ -68,7 +69,14 @@ export default function VoucherTab({
     year: yearFilter,
     month: monthFilter,
     keyword,
-    fallbackFilename: `${companyNameByCode.get(companyFilter) || companyFilter || "全部公司"}-${yearFilter || "全部年度"}${monthFilter ? `.${monthFilter.padStart(2, "0")}` : ""}-凭证明细.xlsx`,
+    voucherKind,
+    documentType: voucherKind === "group" && documentType
+      ? documentType as FinanceGroupVoucherDocumentType
+      : undefined,
+    origin: voucherKind === "group" && origin ? origin as "manual" | "system" : undefined,
+    fallbackFilename: voucherKind === "group"
+      ? `${yearFilter || "全部年度"}${monthFilter ? `.${monthFilter.padStart(2, "0")}` : ""}-合并明细.xlsx`
+      : `${companyNameByCode.get(companyFilter) || companyFilter || "全部公司"}-${yearFilter || "全部年度"}${monthFilter ? `.${monthFilter.padStart(2, "0")}` : ""}-凭证明细.xlsx`,
   });
 
   useEffect(() => {
@@ -150,12 +158,7 @@ export default function VoucherTab({
           key: "group-document-type",
           label: "凭证类别",
           value: documentType,
-          options: [
-            { value: "", label: "全部类别" },
-            { value: "groupAdjustment", label: "报告调整" },
-            { value: "elimination", label: "内部抵销" },
-            { value: "reclassification", label: "列报重分类" },
-          ],
+          options: GROUP_VOUCHER_DOCUMENT_TYPE_OPTIONS,
           onChange: (value: string) => { setDocumentType(value); setPage(1); },
         },
         {
@@ -171,7 +174,7 @@ export default function VoucherTab({
           onChange: (value: string) => { setOrigin(value); setPage(1); },
         },
       ] : []),
-      ...(voucherKind === "standard" && exportAction ? [exportAction] : []),
+      ...(exportAction ? [exportAction] : []),
     ],
   });
 
@@ -210,6 +213,7 @@ function voucherItemsPreview(voucher: Voucher, columns: DataSurfaceColumnSpec<Vo
       rows: voucher.items.map((item: VoucherItemRow, index: number) => ({
         ...item,
         _idx: index,
+        sourceDate: voucher.voucherKind === "group" ? item.sourceDate ?? null : voucher.date,
         cashFlowAllocations: cashFlowAllocationsForItem(item.id, voucher.cashFlowAllocations ?? []),
       })),
       columns,

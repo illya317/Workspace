@@ -111,7 +111,7 @@ export function validateConsolidationFxFacts(
     }
     if (application.applicationType === "closing") continue;
     if (application.applicationType === "historicalCapital") {
-      const key = `${application.entitySnapshotId}:${application.periodBasis}:${application.targetDate}`;
+      const key = `${application.entitySnapshotId}:${application.periodBasis}:${application.targetDate}:${application.capitalLineCode ?? "unclassified"}`;
       if (historicalCapitalKeys.has(key)) {
         return failCommand("同一境外实体、期间口径和资本发生日只能绑定一条权益资本历史汇率", 409, "rateApplications");
       }
@@ -120,6 +120,10 @@ export function validateConsolidationFxFacts(
         || application.voucher !== null
         || !application.capitalOriginalAmount
         || application.capitalOriginalAmount <= 0
+        || application.capitalLineCode !== undefined
+          && application.capitalLineCode !== null
+          && application.capitalLineCode !== "paidInCapital"
+          && application.capitalLineCode !== "capitalReserve"
         || !validRateDate(application.targetDate, rate.rateDate)
         || application.periodBasis === "comparative" && application.targetDate > facts.comparativePeriodEnd) {
         return failCommand("境外权益资本必须绑定出资日或此前7日内的历史牌价及正数原币金额", 409, "rateApplications");
@@ -135,7 +139,7 @@ export function validateConsolidationFxFacts(
       || voucher.currencyCode?.toUpperCase() !== "CAD"
       || voucher.originalAmount === null
       || !validRateDate(application.targetDate, rate.rateDate)) {
-      return failCommand("投资款必须绑定投资日或此前7日内的人民币汇率中间价及原币凭证", 409, "rateApplications");
+      return failCommand("投资款必须绑定凭证匹配的历史折算率，或投资日及此前7日内的人民币汇率中间价，并保留原币凭证", 409, "rateApplications");
     }
     if (!requiredInvestmentIds.has(application.voucherItemId)) {
       return failCommand("投资日汇率绑定了当前批次不适用的凭证明细", 409, "rateApplications");
