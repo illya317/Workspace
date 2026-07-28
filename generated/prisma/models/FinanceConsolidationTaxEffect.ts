@@ -605,16 +605,6 @@ export type FinanceConsolidationTaxEffectUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type FinanceConsolidationTaxEffectListRelationFilter = {
-  every?: Prisma.FinanceConsolidationTaxEffectWhereInput
-  some?: Prisma.FinanceConsolidationTaxEffectWhereInput
-  none?: Prisma.FinanceConsolidationTaxEffectWhereInput
-}
-
-export type FinanceConsolidationTaxEffectOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
 export type FinanceConsolidationTaxEffectEntryIdEffectKeyCompoundUniqueInput = {
   entryId: number
   effectKey: string
@@ -702,6 +692,16 @@ export type FinanceConsolidationTaxEffectSumOrderByAggregateInput = {
   differenceAmount?: Prisma.SortOrder
   taxRate?: Prisma.SortOrder
   preparedBy?: Prisma.SortOrder
+}
+
+export type FinanceConsolidationTaxEffectListRelationFilter = {
+  every?: Prisma.FinanceConsolidationTaxEffectWhereInput
+  some?: Prisma.FinanceConsolidationTaxEffectWhereInput
+  none?: Prisma.FinanceConsolidationTaxEffectWhereInput
+}
+
+export type FinanceConsolidationTaxEffectOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type FinanceConsolidationTaxEffectCreateNestedManyWithoutEntityInput = {

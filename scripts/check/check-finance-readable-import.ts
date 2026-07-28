@@ -79,11 +79,13 @@ async function checkBatchControls() {
     const warnings = parseWarnings(batch.warnings);
     if (warnings.length) failures.push(`${spec.companyCode}-${spec.year} warnings: ${warnings.join("; ")}`);
     const control = (batch.controlJson ?? {}) as Control;
-    const [posted, draft, itemTotals, accounts] = await Promise.all([
+    const validVoucher = { status: { in: ["posted", "draft"] } } as const;
+    const [posted, draft, items, itemTotals, accounts] = await Promise.all([
       prisma.financeVoucher.count({ where: { importId: batch.id, status: "posted" } }),
       prisma.financeVoucher.count({ where: { importId: batch.id, status: "draft" } }),
+      prisma.financeVoucherItem.count({ where: { importId: batch.id, voucher: validVoucher } }),
       prisma.financeVoucherItem.aggregate({
-        where: { importId: batch.id },
+        where: { importId: batch.id, voucher: validVoucher },
         _sum: { debit: true, credit: true },
       }),
       prisma.financeAccount.count({
@@ -97,10 +99,10 @@ async function checkBatchControls() {
     ]);
     const actual = {
       accounts,
-      vouchers: batch._count.vouchers,
+      vouchers: posted + draft,
       postedVouchers: posted,
       draftVouchers: draft,
-      items: batch._count.items,
+      items,
       debit: roundMoney(itemTotals._sum.debit ?? 0),
       credit: roundMoney(itemTotals._sum.credit ?? 0),
       sourceBalances: batch._count.sourceBalances,
@@ -234,6 +236,9 @@ async function main() {
     sourceVoucherDifferences(),
     checkReports(),
   ]);
+  if (sourceDifferences.length) {
+    failures.push(`source balance and voucher movements differ: ${JSON.stringify(sourceDifferences.slice(0, 20))}`);
+  }
   const result = {
     ok: failures.length === 0,
     batches,

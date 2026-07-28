@@ -334,11 +334,6 @@ export type FinanceCashFlowItem = Prisma.FinanceCashFlowItemModel
  */
 export type FinanceCashFlowAllocation = Prisma.FinanceCashFlowAllocationModel
 /**
- * Model FinanceCashFlowAllocationAdjustment
- * 现金流分配的报表列示调整：来源事实不变，只把指定金额从来源行转入目标行
- */
-export type FinanceCashFlowAllocationAdjustment = Prisma.FinanceCashFlowAllocationAdjustmentModel
-/**
  * Model FinanceConsolidationEntryLine
  * 合并抵销分录借贷行（事实表，主体、对方主体和匹配来源均保存真实外键；同时冻结来源审计摘要）。
  */
@@ -369,15 +364,15 @@ export type FinanceConsolidationOutputSnapshot = Prisma.FinanceConsolidationOutp
  */
 export type FinanceConsolidationScopeSelection = Prisma.FinanceConsolidationScopeSelectionModel
 /**
+ * Model FinanceConsolidationTaxEffect
+ * 抵销分录税务影响（事实表，保存暂时性差异判断；税额由 service 按差异和税率派生）。
+ */
+export type FinanceConsolidationTaxEffect = Prisma.FinanceConsolidationTaxEffectModel
+/**
  * Model FinanceConsolidationBatch
  * 合并报表批次（事实头，来源于人工创建/复核生命周期）。每个版本冻结范围、来源、汇率和抵销事实。
  */
 export type FinanceConsolidationBatch = Prisma.FinanceConsolidationBatchModel
-/**
- * Model FinanceCompanyCurrencyPolicy
- * 公司财务本位币政策；用于覆盖已确认错误的 ERP 账套本位币，创建批次时冻结。
- */
-export type FinanceCompanyCurrencyPolicy = Prisma.FinanceCompanyCurrencyPolicyModel
 /**
  * Model FinanceConsolidationBatchEvent
  * 合并批次追加式事件流。生命周期迁移和物理删除审计只允许新增，不允许覆盖。
@@ -409,11 +404,6 @@ export type FinanceConsolidationRateSnapshot = Prisma.FinanceConsolidationRateSn
  */
 export type FinanceConsolidationEntry = Prisma.FinanceConsolidationEntryModel
 /**
- * Model FinanceConsolidationTaxEffect
- * 抵销分录税务影响（事实表，保存暂时性差异判断；税额由 service 按差异和税率派生）。
- */
-export type FinanceConsolidationTaxEffect = Prisma.FinanceConsolidationTaxEffectModel
-/**
  * Model FinanceDataImport
  * 财务成本数据导入批次。每次从 Excel/JSON 导入时生成一条记录，作为该批次所有明细行的事实来源追溯。
  */
@@ -443,6 +433,11 @@ export type FinanceCostAnalysisRow = Prisma.FinanceCostAnalysisRowModel
  * 车间日报。记录生产车间每日各批次产品的人员投入、工序、工分和完成数量。employeeId/positionId 关联到员工和岗位，用于人工成本归集和计件工资计算。
  */
 export type FinanceWorkshopReport = Prisma.FinanceWorkshopReportModel
+/**
+ * Model FinanceCompanyCurrencyPolicy
+ * 公司财务本位币政策；用于覆盖已确认错误的 ERP 账套本位币，创建批次时冻结。
+ */
+export type FinanceCompanyCurrencyPolicy = Prisma.FinanceCompanyCurrencyPolicyModel
 /**
  * Model FinanceAuxiliaryMember
  * ERP 辅助核算成员（客户、供应商、个人、部门、项目和费用等来源主数据）
@@ -568,11 +563,6 @@ export type FinanceAccount = Prisma.FinanceAccountModel
  * 会计期间
  */
 export type FinancePeriod = Prisma.FinancePeriodModel
-/**
- * Model FinanceStatementVoucherExclusion
- * 单体报表来源例外：保留原始凭证，只从指定报表口径中排除，避免修改或删除总账事实
- */
-export type FinanceStatementVoucherExclusion = Prisma.FinanceStatementVoucherExclusionModel
 /**
  * Model FinanceVoucher
  * 记账凭证

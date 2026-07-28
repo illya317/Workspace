@@ -86,7 +86,7 @@ function normalizeAccounts(rows: Record<string, unknown>[]): NormalizedAccount[]
   });
 }
 
-function normalizeVouchers(
+export function normalizeT6Vouchers(
   rows: Record<string, unknown>[],
   currencyCodes: Map<string, string>,
   accountSources: Map<string, string>,
@@ -95,11 +95,12 @@ function normalizeVouchers(
   const groups = new Map<string, Record<string, unknown>[]>();
   for (const row of rows) {
     const month = numberValue(row, "iperiod");
-    if (month < 1 || month > 12 || booleanValue(row, "bdelete")) continue;
+    if (month < 1 || month > 12) continue;
     const key = `${month}:${textValue(row, "isignseq")}:${textValue(row, "ino_id")}`;
     groups.set(key, [...(groups.get(key) ?? []), row]);
   }
-  return [...groups.entries()].map(([sourceKey, group]) => {
+  return [...groups.entries()].flatMap(([sourceKey, group]) => {
+    if (group.some((row) => booleanValue(row, "bdelete") || booleanValue(row, "iflag"))) return [];
     const sorted = group.sort((left, right) => numberValue(left, "inid") - numberValue(right, "inid"));
     const first = sorted[0];
     const month = numberValue(first, "iperiod");
@@ -125,7 +126,7 @@ function normalizeVouchers(
     const totalCredit = roundMoney(items.reduce((sum, item) => sum + item.credit, 0));
     const type = voucherTypes.get(sign);
     const sourcePosted = sorted.every((row) => numberValue(row, "ibook") === 1);
-    return {
+    return [{
       sourceKey, voucherNo: `${dateText(first.dbill_date)?.slice(0, 7) ?? `${new Date().getFullYear()}-${String(month).padStart(2, "0")}`}-${sign}-${number}`,
       date: dateText(first.dbill_date) ?? "", month, description: items[0]?.description ?? "",
       totalDebit, totalCredit,
@@ -145,7 +146,7 @@ function normalizeVouchers(
         ...Array.from({ length: 16 }, (_, index) => `cDefine${index + 1}`),
       ]),
       items,
-    };
+    }];
   });
 }
 
@@ -192,7 +193,7 @@ export async function loadT6Batch(
   const voucherTypes = new Map(signRows.map((row) => [
     textValue(row, "csign"), { name: textValue(row, "ctext"), isAdjustment: booleanValue(row, "bAdjustSign") },
   ]));
-  const vouchers = normalizeVouchers(journalRows, currencyCodes, accountSources, voucherTypes);
+  const vouchers = normalizeT6Vouchers(journalRows, currencyCodes, accountSources, voucherTypes);
   const voucherKeys = new Set(vouchers.map((item) => item.sourceKey));
   const cashFlowAllocations = cashRows.flatMap((row) => {
     const month = numberValue(row, "iPeriod");

@@ -53,7 +53,7 @@ model FinanceStatementExchangeRate {
   id            Int       @id @default(autoincrement())
   baseCurrency  String
   quoteCurrency String
-  rateKind      String // centralParity；历史数据可能为 closing | historicalInvestment
+  rateKind      String // centralParity | monthlyAverage；历史数据可能为 closing | historicalInvestment
   rateDate      String // YYYY-MM-DD
   rate          Decimal   @db.Decimal(20, 8) // 人民币/1外币
   sourceName    String    @default("中国外汇交易中心")

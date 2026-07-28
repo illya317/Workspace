@@ -9,6 +9,7 @@ import {
 import {
   ChinaMoneyRateError,
   fetchChinaMoneyCentralParity,
+  fetchChinaMoneyMonthlyAverage,
 } from "./chinamoney-exchange-rates";
 import {
   chinaMoneyHistorySourceCoversTargetDate,
@@ -105,6 +106,73 @@ export async function ensureChinaMoneyCentralParityRate(input: {
       version: 1,
       updatedBy: userId,
     };
+    if (existing[0]) {
+      const row = await tx.financeStatementExchangeRate.update({ where: { id: existing[0].id }, data });
+      if (existing.length > 1) {
+        await tx.financeStatementExchangeRate.deleteMany({ where: { id: { in: existing.slice(1).map((item) => item.id) } } });
+      }
+      return row;
+    }
+    return tx.financeStatementExchangeRate.create({
+      data: {
+        baseCurrency: quote.baseCurrency,
+        quoteCurrency: quote.quoteCurrency,
+        rateDate: quote.rateDate,
+        ...data,
+      },
+    });
+  });
+}
+
+export async function ensureChinaMoneyMonthlyAverageRate(input: {
+  currencyCode: string;
+  targetDate: string;
+  userId: number;
+  forceRefresh?: boolean;
+}) {
+  const validated = buildRefreshStatementExchangeRateCommand(input, input.userId);
+  if (!validated.ok) throw new ChinaMoneyRateError(validated.issue.message, validated.issue.status);
+  const { input: normalizedInput, userId } = validated.data;
+  if (!input.forceRefresh) {
+    const cached = await prisma.financeStatementExchangeRate.findFirst({
+      where: {
+        baseCurrency: normalizedInput.currencyCode,
+        quoteCurrency: "CNY",
+        rateKind: "monthlyAverage",
+        rateDate: normalizedInput.targetDate,
+        sourceUrl: { contains: `endDate=${normalizedInput.targetDate}` },
+      },
+      orderBy: [{ capturedAt: "desc" }, { id: "desc" }],
+    });
+    if (cached && chinaMoneyHistorySourceCoversTargetDate(cached.sourceUrl, normalizedInput.targetDate)) return cached;
+  }
+  const quote = await fetchChinaMoneyMonthlyAverage(normalizedInput);
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.financeStatementExchangeRate.findMany({
+      where: {
+        baseCurrency: quote.baseCurrency,
+        quoteCurrency: quote.quoteCurrency,
+        rateKind: "monthlyAverage",
+        rateDate: quote.rateDate,
+      },
+      orderBy: [{ capturedAt: "desc" }, { id: "desc" }],
+    });
+    const evidence = {
+      rateKind: "monthlyAverage",
+      rate: quote.rate,
+      sourceName: "中国外汇交易中心",
+      sourceField: `${quote.sourcePair} 月平均人民币汇率中间价（每 ${quote.sourceUnit} ${quote.baseCurrency}）`,
+      sourceUrl: quote.sourceUrl,
+      publishedAt: new Date(`${quote.lastRateDate}T09:15:00+08:00`),
+      note: `${quote.periodStartDate}至${quote.periodEndDate}共${quote.observationCount}个工作日中间价算术平均；首个牌价日${quote.firstRateDate}，末个牌价日${quote.lastRateDate}；系统归一化为1 ${quote.baseCurrency}=${quote.rate} CNY`,
+    };
+    if (existing[0] && isSameChinaMoneyRateEvidence(existing[0], evidence)) {
+      if (existing.length > 1) {
+        await tx.financeStatementExchangeRate.deleteMany({ where: { id: { in: existing.slice(1).map((item) => item.id) } } });
+      }
+      return existing[0];
+    }
+    const data = { ...evidence, capturedAt: new Date(), version: 1, updatedBy: userId };
     if (existing[0]) {
       const row = await tx.financeStatementExchangeRate.update({ where: { id: existing[0].id }, data });
       if (existing.length > 1) {

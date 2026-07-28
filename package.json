@@ -155,7 +155,6 @@
     "company:check": "node scripts/check/with-check-lock.js -- node scripts/check/check-company-hardcoding.js",
     "finance:group-chart:sync": "node --conditions=react-server --import tsx scripts/sync-finance-group-chart.ts",
     "finance:group-chart:check": "node --conditions=react-server --import tsx scripts/check/check-finance-group-chart.ts",
-    "finance:statements:check-630": "node --conditions=react-server --import tsx scripts/check/check-finance-630-statements.ts",
     "core-ui:contracts": "node --import tsx scripts/generate-core-ui-surface-contracts.ts",
     "core-ui:contracts:check": "node scripts/check/with-check-lock.js -- node --import tsx scripts/generate-core-ui-surface-contracts.ts --check",
     "deps:snapshot:sync": "node scripts/sync-external-snapshots.mjs",

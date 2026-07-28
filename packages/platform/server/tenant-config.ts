@@ -33,6 +33,12 @@ const timeZoneString = nonEmptyString.refine((value) => {
     return false;
   }
 }, "must be a valid IANA time zone");
+const isoDateString = nonEmptyString
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "must use YYYY-MM-DD")
+  .refine((value) => {
+    const parsed = new Date(`${value}T00:00:00.000Z`);
+    return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+  }, "must be a valid calendar date");
 const relativeConfigPath = nonEmptyString.refine((value) => !path.isAbsolute(value), "must be relative to WORKSPACE_CONFIG_DIR");
 const companyDocumentSchema = z.object({
   key: nonEmptyString.regex(/^[a-z][a-z0-9-]*$/, "must be a stable lowercase key"),
@@ -113,8 +119,30 @@ const profileSchema = z.object({
       sourceOriginalAmount: z.number().positive(),
       payableCounterpartyCompanyCode: nonEmptyString,
       payableCounterpartyReferenceCode: nonEmptyString,
-    })),
-  }).default({ openingCapitalReclassifications: [] }),
+    })).default([]),
+    retainedEarningsOpeningBalances: z.array(z.object({
+      key: nonEmptyString.regex(/^[a-z][a-z0-9-]*$/, "must be a stable lowercase key"),
+      foreignCompanyCode: nonEmptyString,
+      openingDate: isoDateString,
+      presentationCurrencyCode: z.literal("CNY"),
+      openingAmount: z.number().finite(),
+      evidence: nonEmptyString,
+    })).default([]),
+  }).superRefine((value, context) => {
+    const keys = new Set<string>();
+    const companyDates = new Set<string>();
+    for (const [index, baseline] of value.retainedEarningsOpeningBalances.entries()) {
+      if (keys.has(baseline.key)) {
+        context.addIssue({ code: "custom", path: ["retainedEarningsOpeningBalances", index, "key"], message: "must be unique" });
+      }
+      keys.add(baseline.key);
+      const companyDate = `${baseline.foreignCompanyCode}:${baseline.openingDate}`;
+      if (companyDates.has(companyDate)) {
+        context.addIssue({ code: "custom", path: ["retainedEarningsOpeningBalances", index], message: "company and openingDate must be unique" });
+      }
+      companyDates.add(companyDate);
+    }
+  }).default({ openingCapitalReclassifications: [], retainedEarningsOpeningBalances: [] }),
   work: z.object({
     companyProjectCodePrefix: nonEmptyString,
     companyProjectSequenceStart: z.number().int().positive(),

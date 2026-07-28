@@ -23,6 +23,15 @@ export interface HistoricalCapitalFact {
   companyCode: string;
   targetDate: string;
   originalAmount: number;
+  equityLineCode: string;
+  evidence: string;
+}
+
+export interface RetainedEarningsRollforwardFact {
+  companyCode: string;
+  targetDate: string;
+  originalAmount: number;
+  equityLineCode: "undistributedProfit";
   evidence: string;
 }
 
@@ -34,13 +43,101 @@ export interface ConsolidationCurrencyPolicyFact {
 
 export interface ConsolidationRateApplicationFact {
   exchangeRateId: number;
-  applicationType: "closing" | "historicalInvestment" | "historicalCapital";
+  applicationType: "closing" | "historicalInvestment" | "historicalCapital" | "historicalEquity" | "monthlyAverage";
   periodBasis: "current" | "comparative";
   entitySnapshotId: number;
+  targetDate?: string;
   voucherItemId?: number | null;
   capitalContributionDate?: string | null;
   capitalOriginalAmount?: number | null;
+  equityLineCode?: string | null;
   evidence: string;
+}
+
+function valueRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+export function retainedEarningsFactsFromFrozenSources(input: {
+  sources: Array<{ companyId: number; reportType: string; reportPayload: unknown }>;
+  companies: Array<{ companyId: number; companyCode: string; functionalCurrency: string | null }>;
+}): RetainedEarningsRollforwardFact[] {
+  const companyById = new Map(input.companies.map((company) => [company.companyId, company]));
+  const facts: RetainedEarningsRollforwardFact[] = [];
+  for (const source of input.sources) {
+    const company = companyById.get(source.companyId);
+    if (source.reportType !== "balanceSheet" || company?.functionalCurrency !== "CAD") continue;
+    const rollforward = valueRecord(valueRecord(source.reportPayload)?.equityRollforward);
+    const seed = valueRecord(rollforward?.seed);
+    const openingDate = typeof seed?.openingDate === "string" ? seed.openingDate : "";
+    const openingOriginalAmount = Number(seed?.originalAmount);
+    const openingCnyAmount = Number(seed?.openingRetainedEarningsCny);
+    const openingEvidence = typeof seed?.evidence === "string" ? seed.evidence.trim() : "";
+    if (!/^\d{4}-12-31$/.test(openingDate)
+      || !Number.isFinite(openingOriginalAmount)
+      || !Number.isFinite(openingCnyAmount)
+      || !openingEvidence) {
+      throw new ConsolidationSnapshotError(`${company.companyCode} CAD来源缺少经批准的上年末人民币未分配利润事实`, 409);
+    }
+    if (!Array.isArray(rollforward?.periods)) {
+      throw new ConsolidationSnapshotError(`${company.companyCode} CAD来源缺少未分配利润逐月滚算事实`, 409);
+    }
+    for (const value of rollforward.periods) {
+      const period = valueRecord(value);
+      const targetDate = typeof period?.targetDate === "string" ? period.targetDate : "";
+      const netProfit = Number(period?.netProfitOriginalAmount);
+      const otherAdjustment = Number(period?.otherAdjustmentOriginalAmount);
+      if (!targetDate || !Number.isFinite(netProfit) || !Number.isFinite(otherAdjustment)) {
+        throw new ConsolidationSnapshotError(`${company.companyCode} CAD来源存在无效未分配利润月度滚算事实`, 409);
+      }
+      const originalAmount = money(netProfit + otherAdjustment);
+      if (Math.abs(originalAmount) <= 0.004) continue;
+      facts.push({
+        companyCode: company.companyCode,
+        targetDate,
+        originalAmount,
+        equityLineCode: "undistributedProfit",
+        evidence: `净利润 ${money(netProfit)} CAD；分红及其他调整 ${money(otherAdjustment)} CAD`,
+      });
+    }
+  }
+  return facts.sort((left, right) => left.companyCode.localeCompare(right.companyCode)
+    || left.targetDate.localeCompare(right.targetDate));
+}
+
+export function buildRetainedEarningsRateApplications(input: {
+  facts: RetainedEarningsRollforwardFact[];
+  monthlyAverageRateIdByTargetDate: ReadonlyMap<string, number>;
+  currentPeriodEnd: string;
+  comparativeEquityPeriodEnd: string;
+  comparativeCompanyIds: ReadonlySet<number>;
+  companyIdByCode: ReadonlyMap<string, number>;
+  snapshotIdByCompany: ReadonlyMap<number, number>;
+}) {
+  return input.facts.flatMap((fact) => {
+    const exchangeRateId = input.monthlyAverageRateIdByTargetDate.get(fact.targetDate);
+    const companyId = input.companyIdByCode.get(fact.companyCode);
+    const entitySnapshotId = companyId ? input.snapshotIdByCompany.get(companyId) : null;
+    if (!exchangeRateId || !companyId || !entitySnapshotId || fact.targetDate > input.currentPeriodEnd) return [];
+    const shared = {
+      exchangeRateId,
+      applicationType: "historicalEquity" as const,
+      entitySnapshotId,
+      targetDate: fact.targetDate,
+      voucherItemId: null,
+      capitalOriginalAmount: fact.originalAmount,
+      equityLineCode: fact.equityLineCode,
+      evidence: `未分配利润人民币滚算；${fact.evidence}`,
+    };
+    return [
+      { ...shared, periodBasis: "current" as const },
+      ...(fact.targetDate <= input.comparativeEquityPeriodEnd && input.comparativeCompanyIds.has(companyId)
+        ? [{ ...shared, periodBasis: "comparative" as const }]
+        : []),
+    ];
+  });
 }
 
 export function buildHistoricalCapitalRateApplications(input: {
@@ -63,6 +160,7 @@ export function buildHistoricalCapitalRateApplications(input: {
       voucherItemId: null,
       capitalContributionDate: fact.targetDate,
       capitalOriginalAmount: fact.originalAmount,
+      equityLineCode: fact.equityLineCode,
       evidence: `ERP 资本明细自动识别；${fact.evidence}`,
     };
     return [
@@ -76,6 +174,15 @@ export function buildHistoricalCapitalRateApplications(input: {
 
 function money(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function equityLineCode(accountCode: string, accountName: string) {
+  if (accountName.includes("实收资本") || accountName === "股本") return "paidInCapital";
+  if (accountName.includes("其他权益工具")) return "otherEquityInstruments";
+  if (accountName.includes("资本公积")) return "capitalReserve";
+  if (accountName.includes("库存股")) return "treasuryStock";
+  if (accountName.includes("盈余公积") || accountCode === "3101" || accountCode === "4101") return "surplusReserve";
+  return null;
 }
 
 function isPostedVoucher(voucher: { status: string; sourcePosted: boolean | null }) {
@@ -106,15 +213,17 @@ export function aggregateHistoricalCapitalFacts(input: {
     companyCode: string;
     targetDate: string;
     originalAmount: number;
+    equityLineCode: string;
     evidence: string[];
   }>();
   const append = (fact: HistoricalCapitalFact) => {
-    if (fact.originalAmount <= 0.004) return;
-    const key = `${fact.companyCode}:${fact.targetDate}`;
+    if (Math.abs(fact.originalAmount) <= 0.004) return;
+    const key = `${fact.companyCode}:${fact.equityLineCode}:${fact.targetDate}`;
     const current = grouped.get(key) ?? {
       companyCode: fact.companyCode,
       targetDate: fact.targetDate,
       originalAmount: 0,
+      equityLineCode: fact.equityLineCode,
       evidence: [],
     };
     current.originalAmount = money(current.originalAmount + fact.originalAmount);
@@ -122,18 +231,24 @@ export function aggregateHistoricalCapitalFacts(input: {
     grouped.set(key, current);
   };
   for (const row of input.opening) {
+    const lineCode = equityLineCode(row.accountCode, row.accountName);
+    if (!lineCode) continue;
     append({
       companyCode: row.companyCode,
       targetDate: row.targetDate,
       originalAmount: money(row.openingCredit - row.openingDebit),
+      equityLineCode: lineCode,
       evidence: `${row.accountCode} ${row.accountName}：最早可用账期期初余额，原出资日缺失，以该账期起始日作为可复核历史折算日`,
     });
   }
   for (const row of input.movements) {
+    const lineCode = equityLineCode(row.accountCode, row.accountName);
+    if (!lineCode) continue;
     append({
       companyCode: row.companyCode,
       targetDate: row.targetDate,
       originalAmount: money(row.credit - row.debit),
+      equityLineCode: lineCode,
       evidence: `${row.voucherNo} · ${row.accountCode} ${row.accountName}${row.description ? ` · ${row.description}` : ""}`,
     });
   }
@@ -143,8 +258,9 @@ export function aggregateHistoricalCapitalFacts(input: {
       originalAmount: money(fact.originalAmount),
       evidence: fact.evidence.join("；"),
     }))
-    .filter((fact) => fact.originalAmount > 0.004)
+    .filter((fact) => Math.abs(fact.originalAmount) > 0.004)
     .sort((left, right) => left.companyCode.localeCompare(right.companyCode)
+      || left.equityLineCode.localeCompare(right.equityLineCode)
       || left.targetDate.localeCompare(right.targetDate));
 }
 
@@ -167,6 +283,9 @@ export async function loadHistoricalCapitalFacts(
       { name: { contains: "实收资本" } },
       { name: { contains: "股本" } },
       { name: { contains: "资本公积" } },
+      { name: { contains: "盈余公积" } },
+      { name: { contains: "其他权益工具" } },
+      { name: { contains: "库存股" } },
     ],
   };
   const [openingRows, movementRows] = await Promise.all([
@@ -349,8 +468,19 @@ export async function applyConsolidationRatePolicies(input: {
     if (application.applicationType === "historicalInvestment" && !voucher) {
       throw new ConsolidationSnapshotError("投资日汇率必须绑定当前批次范围内的 CAD 长期股权投资凭证", 409);
     }
-    if (application.applicationType === "historicalCapital" && (!application.capitalContributionDate || !application.capitalOriginalAmount)) {
-      throw new ConsolidationSnapshotError("境外权益资本历史汇率必须填写出资日期和原币金额", 409);
+    if (application.applicationType === "historicalCapital" && (
+      !application.capitalContributionDate
+      || !application.capitalOriginalAmount
+      || !application.equityLineCode
+    )) {
+      throw new ConsolidationSnapshotError("境外权益历史汇率必须填写发生日期、权益项目和原币金额", 409);
+    }
+    if (application.applicationType === "historicalEquity" && (
+      !application.targetDate
+      || !application.capitalOriginalAmount
+      || application.equityLineCode !== "undistributedProfit"
+    )) {
+      throw new ConsolidationSnapshotError("未分配利润滚算必须填写月份、权益项目和非零原币变动", 409);
     }
     const snapshot: ConsolidationRateApplicationSnapshot = {
       applicationType: application.applicationType,
@@ -359,9 +489,11 @@ export async function applyConsolidationRatePolicies(input: {
       voucherItemId: voucher?.id ?? null,
       targetDate: voucher?.voucherDate
         ?? application.capitalContributionDate
+        ?? application.targetDate
         ?? (application.periodBasis === "current" ? input.periodEnd : comparativePeriodEnd),
       evidence: application.evidence,
       capitalOriginalAmount: application.capitalOriginalAmount ?? null,
+      equityLineCode: application.equityLineCode ?? null,
       voucher: voucher ? {
         companyCode: voucher.companyCode,
         voucherNo: voucher.voucherNo,

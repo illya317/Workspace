@@ -21,7 +21,6 @@ export interface CreateFinanceGroupAccountCommandInput {
   consolidationRole: "none" | "intercompanyReceivable" | "intercompanyPayable" | "intercompanyRevenue" | "intercompanyExpense" | "investmentInSubsidiary" | "shareCapital" | "capitalReserve" | "dividendReceivable" | "dividendPayable" | "inventory" | "fixedAsset" | "cashFlow" | "difference";
   counterpartyRequirement: "none" | "optional" | "required";
   movementType: "closingBalance" | "periodMovement" | "transaction";
-  translationRateType: "closing" | "average" | "historical" | "transactionDate";
 }
 
 export interface DeleteFinanceGroupAccountCommandInput {
@@ -104,9 +103,6 @@ export function buildCreateFinanceGroupAccountCommand(input: CreateFinanceGroupA
   }
   if (!["closingBalance", "periodMovement", "transaction"].includes(input.movementType)) {
     return failCommand("合并变动口径无效", 400, "movementType");
-  }
-  if (!["closing", "average", "historical", "transactionDate"].includes(input.translationRateType)) {
-    return failCommand("合并折算口径无效", 400, "translationRateType");
   }
   const requiresCounterparty = input.consolidationRole.startsWith("intercompany")
     || input.consolidationRole === "investmentInSubsidiary"

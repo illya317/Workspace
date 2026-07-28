@@ -140,8 +140,7 @@ export async function importAuxiliaryReclassAdjustments(input: {
 
     for (const row of existing) {
       const entry = entryBySource.get(row.sourceAccountCode);
-      if (row.sourceType === "manual" || row.sourceType === "reference_workpaper"
-        || row.status === "adjusted" || row.status === "rejected") {
+      if (row.sourceType === "manual" || row.status === "adjusted" || row.status === "rejected") {
         skippedProtected += 1;
         entryBySource.delete(row.sourceAccountCode);
         continue;

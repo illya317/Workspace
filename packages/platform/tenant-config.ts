@@ -198,6 +198,14 @@ export type TenantFinanceConsolidationPolicies = {
     payableCounterpartyCompanyCode: string;
     payableCounterpartyReferenceCode: string;
   }>;
+  retainedEarningsOpeningBalances: Array<{
+    key: string;
+    foreignCompanyCode: string;
+    openingDate: string;
+    presentationCurrencyCode: "CNY";
+    openingAmount: number;
+    evidence: string;
+  }>;
 };
 
 export type TenantRuntimeConfig = {

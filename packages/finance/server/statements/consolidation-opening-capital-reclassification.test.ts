@@ -7,17 +7,17 @@ import { buildOpeningCapitalReclassificationEntries } from "./consolidation-open
 
 const policy = {
   key: "canada-opening-capital-505060",
-  foreignCompanyCode: "05",
+  foreignCompanyCode: "CA01",
   sourceCurrencyCode: "CAD" as const,
   sourceOriginalAmount: 100_000,
-  payableCounterpartyCompanyCode: "04",
+  payableCounterpartyCompanyCode: "ZH01",
   payableCounterpartyReferenceCode: "505060",
 };
 
 function batch(): ConsolidationBatchSnapshot {
   return {
     rateFingerprint: "rate-fingerprint",
-    entities: [{ id: 5, companyId: 50, companyCode: "05", companyName: "加拿大主体" }],
+    entities: [{ id: 5, companyId: 50, companyCode: "CA01", companyName: "境外示例主体" }],
     exchangeRates: [{
       id: 1,
       exchangeRateId: 10,
@@ -39,6 +39,7 @@ function batch(): ConsolidationBatchSnapshot {
         targetDate: "2020-01-01",
         evidence: "期初资本",
         capitalOriginalAmount: 100_000,
+        equityLineCode: "paidInCapital",
         voucher: null,
       }],
     }, {
@@ -62,6 +63,7 @@ function batch(): ConsolidationBatchSnapshot {
         targetDate: "2020-09-30",
         evidence: "后续资本",
         capitalOriginalAmount: 100_000,
+        equityLineCode: "capitalReserve",
         voucher: null,
       }],
     }],
@@ -72,7 +74,7 @@ test("reclassifies Canada opening paid-in capital to the configured 505060 payab
   const result = buildOpeningCapitalReclassificationEntries(
     batch(),
     [policy],
-    new Map([["04", { id: 40, code: "04", name: "丰华生物制药（江苏）有限责任公司" }]]),
+    new Map([["ZH01", { id: 40, code: "ZH01", name: "境内示例主体" }]]),
   );
   assert.equal(result.ok, true);
   if (!result.ok) return;

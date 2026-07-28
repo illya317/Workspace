@@ -62,7 +62,7 @@ model FinanceBalanceReclassAdjustment {
   amount            Float
   decision          String    @default("reclassify") // reclassify | no_reclass
   basis             String    @default("account_net") // 实际执行口径：account_net = 按科目净额 | counterparty_gross = 按往来户逐户毛额
-  sourceType        String    @default("automatic_rule") // automatic_rule | auxiliary_balance | reference_workpaper | balance_residual | manual
+  sourceType        String    @default("automatic_rule") // automatic_rule | auxiliary_balance | balance_residual | manual
   ruleId            Int?
   status            String    @default("approved") // approved | adjusted | rejected
   note              String?

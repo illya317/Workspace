@@ -73,24 +73,6 @@ model FinancePeriod {
   @@unique([companyCode, year, month])
 }
 
-/// 单体报表来源例外：保留原始凭证，只从指定报表口径中排除，避免修改或删除总账事实
-model FinanceStatementVoucherExclusion {
-  id            Int      @id @default(autoincrement())
-  voucherId     Int
-  companyCode   String
-  statementType String // balance | income | cashflow
-  enabled       Boolean  @default(true)
-  sourceType    String   @default("reference_workpaper")
-  note          String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now()) @updatedAt
-
-  voucher FinanceVoucher @relation(fields: [voucherId], references: [id], onDelete: Cascade)
-
-  @@unique([voucherId, statementType])
-  @@index([companyCode, statementType, enabled])
-}
-
 /// 记账凭证
 model FinanceVoucher {
   id                       Int                                @id @default(autoincrement())
@@ -133,7 +115,6 @@ model FinanceVoucher {
   import                   FinanceLedgerImport?               @relation(fields: [importId], references: [id])
   items                    FinanceVoucherItem[]
   cashFlowAllocations      FinanceCashFlowAllocation[]
-  statementExclusions      FinanceStatementVoucherExclusion[]
   assetPeriodEntries       FinanceAssetPeriodEntry[]
   assetAdjustments         FinanceAssetAdjustment[]
 

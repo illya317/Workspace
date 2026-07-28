@@ -8,16 +8,16 @@ import {
 
 test("group voucher summary uses the first two distinct company short names", () => {
   assert.equal(groupVoucherCompanySummary([
-    { entityName: "丰华生物", counterpartyName: "丰华悦通" },
-    { entityName: "丰华悦通", counterpartyName: "丰华生物" },
-  ]), "丰华生物 ↔ 丰华悦通");
+    { entityName: "示例主体甲", counterpartyName: "示例主体乙" },
+    { entityName: "示例主体乙", counterpartyName: "示例主体甲" },
+  ]), "示例主体甲 ↔ 示例主体乙");
 });
 
 test("group voucher summary does not duplicate one-sided company names", () => {
   assert.equal(groupVoucherCompanySummary([
-    { entityName: "丰华制药", counterpartyName: null },
-    { entityName: "丰华制药", counterpartyName: null },
-  ]), "丰华制药");
+    { entityName: "示例主体甲", counterpartyName: null },
+    { entityName: "示例主体甲", counterpartyName: null },
+  ]), "示例主体甲");
 });
 
 test("group voucher account names use concise statement labels instead of line notes", () => {

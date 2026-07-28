@@ -1,6 +1,7 @@
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { deriveFinanceGroupAccountTranslationRateType } from "@workspace/finance/types/group-account";
 
 import {
   buildCreateFinanceGroupAccountCommand,
@@ -80,7 +81,7 @@ export async function createFinanceGroupAccount(input: CreateFinanceGroupAccount
         consolidationRole: data.consolidationRole,
         counterpartyRequirement: data.counterpartyRequirement,
         movementType: data.movementType,
-        translationRateType: data.translationRateType,
+        translationRateType: deriveFinanceGroupAccountTranslationRateType(data),
       } });
       return created;
     });

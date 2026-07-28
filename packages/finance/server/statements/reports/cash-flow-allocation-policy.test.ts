@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {
-  applyCashFlowPresentationAdjustment,
-  normalizeCashFlowAllocationAmount,
-} from "./cash-flow-allocation-policy";
+import { normalizeCashFlowAllocationAmount } from "./cash-flow-allocation-policy";
 
 const cashDebit = { debit: 7.75, credit: 0, account: { code: "100201" } };
 const cashCredit = { debit: 0, credit: 10, account: { code: "100201" } };
@@ -31,22 +28,4 @@ test("subtracts a receipt mistakenly allocated to an outflow source item", () =>
     ownerVoucherItem: cashCredit,
     counterpartItem: null,
   }), 10);
-});
-
-test("moves only the configured presentation amount between cash-flow lines", () => {
-  assert.deepEqual(applyCashFlowPresentationAdjustment({
-    sourceLineCode: "otherOpOut",
-    normalizedAmount: 128.75,
-    adjustment: {
-      sourceLineCode: "otherOpOut",
-      targetLineCode: "staffPayment",
-      amount: 39.2,
-      enabled: true,
-    },
-  }), {
-    sourceAmount: 89.55,
-    targetLineCode: "staffPayment",
-    targetAmount: 39.2,
-    diagnostic: null,
-  });
 });

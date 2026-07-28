@@ -1,22 +1,21 @@
 import type { StatementReportType } from "@workspace/finance/types";
+import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
+import type { TenantFinanceConsolidationPolicies } from "@workspace/platform/tenant-config";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 import { consolidationSourceFactFingerprint } from "./consolidation-fingerprints";
 import {
   loadConsolidationSourceReadiness,
   type ConsolidationEntitySourceReadiness,
 } from "./consolidation-source-readiness";
 import { generateFinanceReport } from "./report-generator";
-import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
+import { generateDirectStatementReport } from "./reports/direct";
+import { generateFrozenEquityRollforward } from "./consolidation-equity-rollforward";
+import { ConsolidationSnapshotError } from "./consolidation-snapshot-error";
 
 export { consolidationFingerprint } from "./consolidation-fingerprints";
-
+export { ConsolidationSnapshotError } from "./consolidation-snapshot-error";
 const REPORT_TYPES = ["balanceSheet", "incomeStatement", "cashFlow"] as const;
-
-export class ConsolidationSnapshotError extends Error {
-  constructor(message: string, readonly status = 400) {
-    super(message);
-  }
-}
 
 export interface ConsolidationScopeFact {
   companyId: number;
@@ -35,6 +34,9 @@ export interface ConsolidationScopeFact {
   functionalCurrency: string | null;
   currencyEvidence: string | null;
   currencyDecidedBy: number | null;
+  openingRetainedEarningsDate: string | null;
+  openingRetainedEarningsCny: number | null;
+  openingRetainedEarningsEvidence: string | null;
 }
 
 export interface ConsolidationSourceFact {
@@ -101,12 +103,52 @@ function normalizedCurrencyCode(sourceCode: string, sourceName: string) {
   return null;
 }
 
+type RetainedEarningsOpeningBalance = TenantFinanceConsolidationPolicies["retainedEarningsOpeningBalances"][number];
+
+export function retainedEarningsOpeningBalanceFor(
+  policies: readonly RetainedEarningsOpeningBalance[],
+  companyCode: string,
+  asOfDate: string,
+) {
+  const reportYear = Number(asOfDate.slice(0, 4));
+  if (!Number.isInteger(reportYear)) return null;
+  const openingDate = `${reportYear - 1}-12-31`;
+  return policies.find((policy) => (
+    policy.foreignCompanyCode === companyCode
+    && policy.openingDate === openingDate
+    && policy.presentationCurrencyCode === "CNY"
+  )) ?? null;
+}
+
+export function tenantRetainedEarningsOpeningFields(
+  companyCode: string,
+  asOfDate: string,
+): Pick<ConsolidationScopeFact,
+  "openingRetainedEarningsDate" | "openingRetainedEarningsCny" | "openingRetainedEarningsEvidence"> {
+  const openingBalance = retainedEarningsOpeningBalanceFor(
+    getTenantProfile().financeConsolidationPolicies.retainedEarningsOpeningBalances,
+    companyCode,
+    asOfDate,
+  );
+  return {
+    openingRetainedEarningsDate: openingBalance?.openingDate ?? null,
+    openingRetainedEarningsCny: openingBalance?.openingAmount ?? null,
+    openingRetainedEarningsEvidence: openingBalance?.evidence ?? null,
+  };
+}
+
 async function generateFrozenReportPayload(
   companyCode: string,
   year: number,
   month: number,
   periodKind: StatementPeriodKind,
   reportType: StatementReportType,
+  includeEquityRollforward: boolean,
+  retainedEarningsPolicy?: {
+    openingDate: string;
+    openingRetainedEarningsCny: number;
+    evidence: string;
+  },
 ) {
   const response = await generateFinanceReport({
     companyCode,
@@ -116,11 +158,48 @@ async function generateFrozenReportPayload(
     reportType: reportTypeForGenerator(reportType),
   });
   const payload = await response.json().catch(() => ({ error: "报表生成结果无法解析" }));
+  const monthlyPeriods = reportType === "balanceSheet" || !response.ok
+    ? undefined
+    : {
+        current: await generateFrozenMonthlyPeriods(companyCode, year, month, reportType),
+        comparative: await generateFrozenMonthlyPeriods(companyCode, year - 1, month, reportType),
+      };
+  const equityRollforward = reportType === "balanceSheet" && response.ok && includeEquityRollforward
+    ? await generateFrozenEquityRollforward(companyCode, year, month, retainedEarningsPolicy)
+    : undefined;
   return jsonSnapshot({
     httpStatus: response.status,
     capturedAt: new Date().toISOString(),
     payload,
+    ...(monthlyPeriods ? { monthlyPeriods } : {}),
+    ...(equityRollforward ? { equityRollforward } : {}),
   });
+}
+
+async function generateFrozenMonthlyPeriods(
+  companyCode: string,
+  year: number,
+  throughMonth: number,
+  reportType: Exclude<StatementReportType, "balanceSheet">,
+) {
+  const periods: Array<{
+    year: number;
+    month: number;
+    lines: Array<{ lineCode: string; label: string; amount: number }>;
+  }> = [];
+  for (let month = 1; month <= throughMonth; month += 1) {
+    const report = await generateDirectStatementReport(companyCode, year, month, reportType);
+    periods.push({
+      year,
+      month,
+      lines: report.lines.map((line) => ({
+        lineCode: line.lineCode,
+        label: line.label,
+        amount: line.currentMonthAmount ?? 0,
+      })),
+    });
+  }
+  return periods;
 }
 
 interface ConsolidationRelationshipLoadOptions {
@@ -184,6 +263,9 @@ async function loadConsolidationRelationshipFacts(
     functionalCurrency: null,
     currencyEvidence: null,
     currencyDecidedBy: null,
+    openingRetainedEarningsDate: null,
+    openingRetainedEarningsCny: null,
+    openingRetainedEarningsEvidence: null,
   }];
   const ownerByCompany = new Map<number, number>();
   const visit = (currentParentId: number, path: Set<number>) => {
@@ -223,6 +305,9 @@ async function loadConsolidationRelationshipFacts(
         functionalCurrency: null,
         currencyEvidence: null,
         currencyDecidedBy: null,
+        openingRetainedEarningsDate: null,
+        openingRetainedEarningsCny: null,
+        openingRetainedEarningsEvidence: null,
       });
       visit(relation.issuerCompanyId, new Set([...path, relation.issuerCompanyId]));
     }
@@ -265,14 +350,16 @@ async function loadConsolidationRelationshipFacts(
     if (policy) {
       fact.functionalCurrency = policy.functionalCurrency.trim().toUpperCase();
       fact.currencyEvidence = `公司财务本位币政策：${policy.source}；${policy.evidence}；更新于 ${policy.updatedAt.toISOString()}`;
-      continue;
+    } else {
+      const currency = baseCurrencyByCompany.get(fact.companyCode);
+      if (currency) {
+        fact.functionalCurrency = normalizedCurrencyCode(currency.sourceCode, currency.sourceName);
+        fact.currencyEvidence = fact.functionalCurrency
+          ? `ERP本位币主数据：${currency.sourceSystem}/${currency.sourceLedger} ${currency.sourceCode} ${currency.sourceName}，抓取于 ${currency.updatedAt.toISOString()}`
+          : null;
+      }
     }
-    const currency = baseCurrencyByCompany.get(fact.companyCode);
-    if (!currency) continue;
-    fact.functionalCurrency = normalizedCurrencyCode(currency.sourceCode, currency.sourceName);
-    fact.currencyEvidence = fact.functionalCurrency
-      ? `ERP本位币主数据：${currency.sourceSystem}/${currency.sourceLedger} ${currency.sourceCode} ${currency.sourceName}，抓取于 ${currency.updatedAt.toISOString()}`
-      : null;
+    Object.assign(fact, tenantRetainedEarningsOpeningFields(fact.companyCode, asOfDate));
   }
   return facts;
 }
@@ -317,7 +404,24 @@ async function loadSourceFact(
   const reportReadiness = readiness.reports[reportType];
   const systemCount = reportReadiness.count;
   const reportPayload = reportReadiness.ready
-    ? await generateFrozenReportPayload(scope.companyCode, year, month, periodKind, reportType)
+    ? await generateFrozenReportPayload(
+        scope.companyCode,
+        year,
+        month,
+        periodKind,
+        reportType,
+        scope.functionalCurrency === "CAD",
+        scope.functionalCurrency === "CAD"
+          && scope.openingRetainedEarningsDate
+          && scope.openingRetainedEarningsCny !== null
+          && scope.openingRetainedEarningsEvidence
+          ? {
+              openingDate: scope.openingRetainedEarningsDate,
+              openingRetainedEarningsCny: scope.openingRetainedEarningsCny,
+              evidence: scope.openingRetainedEarningsEvidence,
+            }
+          : undefined,
+      )
     : jsonSnapshot({ capturedAt: new Date().toISOString(), payload: { type: reportType, source: "missing", lines: [] } });
   const reportReady = reportReadiness.ready && successfulFrozenReportPayload(reportPayload);
   const sourceKind: ConsolidationSourceFact["sourceKind"] = reportReady ? "system" : "missing";
@@ -388,13 +492,13 @@ export async function loadAvailableRateFacts(
           id: { in: exchangeRateIds },
           baseCurrency: "CAD",
           quoteCurrency: "CNY",
-          rateKind: "centralParity",
+          rateKind: { in: ["centralParity", "monthlyAverage"] },
           rateDate: { lte: periodEnd },
         }
       : {
           baseCurrency: "CAD",
           quoteCurrency: "CNY",
-          rateKind: "centralParity",
+          rateKind: { in: ["centralParity", "monthlyAverage"] },
           rateDate: { lte: periodEnd },
         },
     orderBy: [{ rateDate: "desc" }, { version: "desc" }],

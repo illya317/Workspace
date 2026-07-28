@@ -47,6 +47,10 @@ OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy
 - 新业务类型若没有合适 handler，应先把可复用导入能力作为源码变更开发和评审；业务参数与台账仍只写私有清单。
 - 上传成功不等于已应用。只有独立数据变更流程完成备份、handler、结果断言和生产回执后，才算完成数据发布；不得借代码部署顺带执行。
 
+### Finance 外币折算人民币期初基准
+
+境外公司未分配利润的人民币期初基准属于租户级会计政策，放在私有 `TenantProfile.financeConsolidationPolicies.retainedEarningsOpeningBalances`，不注册数据发布 handler，也不写入 migration、seed 或源码。配置按境外公司和基准日唯一，必须保留稳定 key、列报币种、经批准金额及审批证据；租户配置清单随部署单独同步。批次创建或刷新时会把配置值及从境外公司账自动读取的同期原币余额共同冻结，所需基准缺失时 fail-closed。
+
 ## Prisma 放置规则
 
 - `prisma/schema.prisma`：模型、关系、索引、约束所需的结构声明；不得放租户公司、人员、产品或权限实例。

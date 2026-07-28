@@ -1,5 +1,6 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
+import { deriveFinanceGroupAccountTranslationRateType } from "@workspace/finance/types/group-account";
 
 import {
   buildFinanceGroupChartSyncCommand,
@@ -119,7 +120,7 @@ export async function syncFinanceGroupChartInTransaction(
       parentGroupAccountId,
       isActive: true,
       reviewStatus: sourceKind === "reference_seed" ? "confirmed" : "pending_review",
-      ...defaultConsolidationAttributes(code, account.category),
+      ...defaultConsolidationAttributes(code, account.name, account.category),
     } });
     groups.push(group);
     createdGroupAccounts += 1;
@@ -235,19 +236,41 @@ export async function syncFinanceGroupChartInTransaction(
   };
 }
 
-function defaultConsolidationAttributes(code: string, category: string) {
+function defaultConsolidationAttributes(code: string, name: string, category: string) {
   const base = {
     consolidationRole: "none",
     counterpartyRequirement: "none",
     movementType: ["revenue", "expense", "cost"].includes(category) ? "periodMovement" : "closingBalance",
-    translationRateType: ["revenue", "expense", "cost"].includes(category) ? "average" : "closing",
   };
-  if (/^(1122|1221)/.test(code)) return { ...base, consolidationRole: "intercompanyReceivable", counterpartyRequirement: "required" };
-  if (/^(2202|2241)/.test(code)) return { ...base, consolidationRole: "intercompanyPayable", counterpartyRequirement: "required" };
-  if (/^(1511|1512)/.test(code)) return { ...base, consolidationRole: "investmentInSubsidiary", counterpartyRequirement: "required", translationRateType: "historical" };
-  if (/^(4001|3001)/.test(code)) return { ...base, consolidationRole: "shareCapital", translationRateType: "historical" };
-  if (/^(4002|3002)/.test(code)) return { ...base, consolidationRole: "capitalReserve", translationRateType: "historical" };
-  return base;
+  const attributes = /^(1122|1221)/.test(code)
+    ? { ...base, consolidationRole: "intercompanyReceivable", counterpartyRequirement: "required" }
+    : /^(2202|2241)/.test(code)
+      ? { ...base, consolidationRole: "intercompanyPayable", counterpartyRequirement: "required" }
+      : /^(1511|1512)/.test(code)
+        ? { ...base, consolidationRole: "investmentInSubsidiary", counterpartyRequirement: "required" }
+        : /^(4001|3001)/.test(code)
+          ? { ...base, consolidationRole: "shareCapital" }
+          : /^(4002|3002)/.test(code)
+            ? { ...base, consolidationRole: "capitalReserve" }
+            : base;
+  return withTranslationPolicy(attributes, code, name, category);
+}
+
+function withTranslationPolicy<T extends { consolidationRole: string }>(
+  attributes: T,
+  code: string,
+  name: string,
+  category: string,
+) {
+  return {
+    ...attributes,
+    translationRateType: deriveFinanceGroupAccountTranslationRateType({
+      code,
+      name,
+      category,
+      consolidationRole: attributes.consolidationRole,
+    }),
+  };
 }
 
 function accountKey(account: Pick<FinanceGroupSourceAccount, "companyCode" | "sourceScopeKey" | "code">) {
@@ -291,6 +314,7 @@ async function ensurePolicyVersionRevisions(
     parentGroupAccountId: group.parentId,
     isActive: group.isActive,
     reviewStatus: group.reviewStatus,
+    translationRateType: deriveFinanceGroupAccountTranslationRateType(group),
   })) });
 }
 

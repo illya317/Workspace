@@ -98,6 +98,26 @@ test("finance reviewed-origin repairs use a pinned private input file", () => {
   }), /escapes/);
 });
 
+test("finance supplemental vouchers use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "finance-supplemental-voucher-v1",
+    parameters: { inputFile: "finance/supplemental-voucher.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/finance/supplemental-voucher.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "finance-supplemental-voucher-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  }), /escapes/);
+});
+
 test("HR lifecycle compatibility repairs use a pinned private input file", () => {
   const command = buildDataReleaseHandlerCommand({
     handler: "hr-lifecycle-compatibility-v1",

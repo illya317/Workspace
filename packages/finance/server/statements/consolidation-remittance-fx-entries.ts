@@ -49,28 +49,6 @@ function money(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-function record(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : null;
-}
-
-function reportLineAmount(
-  batch: ConsolidationBatchSnapshot,
-  entitySnapshotId: number,
-  lineCode: string,
-) {
-  const source = (batch.sources ?? []).find((item) => (
-    item.entitySnapshotId === entitySnapshotId && item.reportType === "balanceSheet"
-  ));
-  const envelope = record(source?.reportPayload);
-  const payload = record(envelope?.payload ?? envelope);
-  const equity = Array.isArray(payload?.equity) ? payload.equity : [];
-  const line = equity.map(record).find((item) => item?.lineCode === lineCode);
-  const amount = Number(line?.amount);
-  return Number.isFinite(amount) && amount > 0 ? money(amount) : 0;
-}
-
 function historicalCapitalEntries(
   batch: ConsolidationBatchSnapshot,
   groups: readonly ConsolidationVoucherMatchGroup[],
@@ -81,6 +59,7 @@ function historicalCapitalEntries(
     .filter((application) => (
       application.applicationType === "historicalCapital"
       && application.periodBasis === "current"
+      && (application.equityLineCode === "paidInCapital" || application.equityLineCode === "capitalReserve")
       && application.capitalOriginalAmount
       && application.capitalOriginalAmount > 0
     ))
@@ -102,15 +81,12 @@ function historicalCapitalEntries(
     const investmentAmount = money(investmentFacts.reduce((sum, fact) => sum + fact.signedAmount, 0));
     if (capitalBindings.length === 0 || investmentFacts.length === 0 || investmentAmount <= 0) return [];
 
-    let paidInCapitalRemaining = reportLineAmount(batch, investee.id, "paidInCapital");
     let lineNo = 1;
     const capitalLines: RemittanceFxEntryLine[] = [];
     const capitalEvidence: string[] = [];
     for (const { rate, application, applicationIndex } of capitalBindings) {
       const originalAmount = money(application.capitalOriginalAmount!);
-      const paidInOriginal = money(Math.min(paidInCapitalRemaining, originalAmount));
-      const capitalReserveOriginal = money(originalAmount - paidInOriginal);
-      paidInCapitalRemaining = money(paidInCapitalRemaining - paidInOriginal);
+      const lineCode = application.equityLineCode as "paidInCapital" | "capitalReserve";
       const sourceFingerprint = fingerprint({
         version: "historical-capital-investment-elimination-v1",
         rate: [rate.id, rate.exchangeRateId, rate.exchangeRateVersion, rate.rateDate, rate.rate],
@@ -146,9 +122,8 @@ function historicalCapitalEntries(
           counterpartyCompanyId: investor.companyId,
         });
       };
-      appendCapitalLine("paidInCapital", "3001", paidInOriginal);
-      appendCapitalLine("capitalReserve", "3002", capitalReserveOriginal);
-      capitalEvidence.push(`${application.targetDate} ${originalAmount} CAD × ${rate.rate}`);
+      appendCapitalLine(lineCode, lineCode === "paidInCapital" ? "3001" : "3002", originalAmount);
+      capitalEvidence.push(`${application.targetDate} ${lineCode} ${originalAmount} CAD × ${rate.rate}`);
     }
     const translatedCapital = money(capitalLines.reduce((sum, line) => sum + line.debit, 0));
     const investmentLines: RemittanceFxEntryLine[] = investmentFacts.map((fact) => {

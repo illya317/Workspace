@@ -18,15 +18,16 @@ import {
 } from "./consolidation-fingerprints";
 import {
   comparativeEntitySnapshotIds,
-  comparativePeriodEndDate,
 } from "./consolidation-comparative";
 import { claimConsolidationBatchRevision } from "./consolidation-mutations";
 import {
   applyConsolidationRatePolicies,
   buildHistoricalCapitalRateApplications,
+  buildRetainedEarningsRateApplications,
   loadCadInvestmentVoucherFacts,
   loadHistoricalCapitalFacts,
   parseConsolidationRateApplications,
+  retainedEarningsFactsFromFrozenSources,
   type ConsolidationCurrencyPolicyFact,
   type ConsolidationRateApplicationFact,
 } from "./consolidation-rate-applications";
@@ -35,17 +36,26 @@ import {
   loadAvailableRateFacts,
   loadSelectedSourceFacts,
   periodEndDate,
+  tenantRetainedEarningsOpeningFields,
   type ConsolidationRateFact,
   type ConsolidationScopeFact,
   type ConsolidationSourceFact,
 } from "./consolidation-snapshots";
 import { ChinaMoneyRateError } from "./chinamoney-exchange-rates";
-import { ensureChinaMoneyCentralParityRate } from "./exchange-rates";
+import {
+  ensureChinaMoneyCentralParityRate,
+  ensureChinaMoneyMonthlyAverageRate,
+} from "./exchange-rates";
 import { consolidationSourcesReady } from "./consolidation-source-coverage";
+import {
+  consolidationMonthEndDate,
+  consolidationPeriodRateRequirements,
+} from "./consolidation-period-rates";
 
 type DraftBatch = NonNullable<Awaited<ReturnType<typeof loadConsolidationBatchRow>>>;
 
 function scopeFactsBySnapshotId(batch: DraftBatch) {
+  const asOfDate = periodEndDate(batch.year, batch.month);
   return new Map(batch.entities.map((entity) => [entity.id, {
     companyId: entity.companyId,
     companyCode: entity.companyCode,
@@ -63,6 +73,7 @@ function scopeFactsBySnapshotId(batch: DraftBatch) {
     functionalCurrency: entity.functionalCurrency,
     currencyEvidence: entity.currencyEvidence,
     currencyDecidedBy: entity.currencyDecidedBy,
+    ...tenantRetainedEarningsOpeningFields(entity.companyCode, asOfDate),
   } satisfies ConsolidationScopeFact]));
 }
 
@@ -119,7 +130,7 @@ async function loadAutomaticRateFacts(
   if (cadEntityIds.size === 0) return [];
 
   const selectedPeriodEnd = periodEndDate(batch.year, batch.month);
-  const comparativePeriodEnd = comparativePeriodEndDate(selectedPeriodEnd);
+  const comparativeEquityPeriodEnd = consolidationMonthEndDate(batch.year - 1, 12);
   const entitySnapshotIdByCompanyId = new Map(batch.entities.map((entity) => [entity.companyId, entity.id]));
   const requiredComparativeEntityIds = comparativeEntitySnapshotIds(sources.map((source) => ({
     entitySnapshotId: entitySnapshotIdByCompanyId.get(source.companyId)!,
@@ -133,6 +144,14 @@ async function loadAutomaticRateFacts(
     loadHistoricalCapitalFacts(cadCompanyCodes, selectedPeriodEnd),
     loadCadInvestmentVoucherFacts(batch.entities.map((entity) => entity.companyCode), selectedPeriodEnd),
   ]);
+  const retainedEarningsFacts = retainedEarningsFactsFromFrozenSources({
+    sources,
+    companies: batch.entities.map((entity) => ({
+      companyId: entity.companyId,
+      companyCode: entity.companyCode,
+      functionalCurrency: entity.functionalCurrency,
+    })),
+  });
   const cadEntities = batch.entities.filter((entity) => cadEntityIds.has(entity.id));
   const mappedInvestments = investmentFacts.flatMap((investment) => {
     const investor = batch.entities.find((entity) => entity.companyCode === investment.companyCode);
@@ -141,32 +160,52 @@ async function loadAutomaticRateFacts(
       : [];
     return directCandidates.length === 1 ? [{ investment, entity: directCandidates[0]! }] : [];
   });
-  const targetDates = [
-    selectedPeriodEnd,
-    ...(requiredComparativeEntityIds.length > 0 ? [comparativePeriodEnd] : []),
+  const rateRequirements = consolidationPeriodRateRequirements(batch.year, batch.month);
+  const closingTargetDates = [
+    ...rateRequirements.closing.current,
+    ...(requiredComparativeEntityIds.length > 0 ? rateRequirements.closing.comparative : []),
     ...historicalCapitalFacts.map((fact) => fact.targetDate),
     ...mappedInvestments.map(({ investment }) => investment.voucherDate),
   ];
   const rateIdByTargetDate = new Map<string, number>();
-  for (const targetDate of [...new Set(targetDates)].sort()) {
+  for (const targetDate of [...new Set(closingTargetDates)].sort()) {
     const rate = await ensureChinaMoneyCentralParityRate({ currencyCode: "CAD", targetDate, userId });
     rateIdByTargetDate.set(targetDate, rate.id);
   }
-  const currentRateId = rateIdByTargetDate.get(selectedPeriodEnd)!;
-  const comparativeRateId = rateIdByTargetDate.get(comparativePeriodEnd);
-  const rateApplications: ConsolidationRateApplicationFact[] = cadEntities.flatMap((entity) => [{
-    exchangeRateId: currentRateId,
-    applicationType: "closing" as const,
-    periodBasis: "current" as const,
-    entitySnapshotId: entity.id,
-    evidence: `${selectedPeriodEnd} 中国货币网人民币汇率中间价，由系统自动采用`,
-  }, ...(comparativeRateId && requiredComparativeEntityIds.includes(entity.id) ? [{
-    exchangeRateId: comparativeRateId,
-    applicationType: "closing" as const,
-    periodBasis: "comparative" as const,
-    entitySnapshotId: entity.id,
-    evidence: `${comparativePeriodEnd} 中国货币网人民币汇率中间价，由系统自动采用`,
-  }] : [])]);
+  const averageRateIdByTargetDate = new Map<string, number>();
+  const averageTargetDates = [
+    ...rateRequirements.monthlyAverage.current,
+    ...(requiredComparativeEntityIds.length > 0 ? rateRequirements.monthlyAverage.comparative : []),
+    ...retainedEarningsFacts.map((fact) => fact.targetDate),
+  ];
+  for (const targetDate of [...new Set(averageTargetDates)].sort()) {
+    const rate = await ensureChinaMoneyMonthlyAverageRate({ currencyCode: "CAD", targetDate, userId });
+    averageRateIdByTargetDate.set(targetDate, rate.id);
+  }
+  const rateApplications: ConsolidationRateApplicationFact[] = cadEntities.flatMap((entity) => {
+    const periods = [
+      { periodBasis: "current" as const, include: true },
+      { periodBasis: "comparative" as const, include: requiredComparativeEntityIds.includes(entity.id) },
+    ];
+    return periods.flatMap(({ periodBasis, include }) => include ? [
+      ...rateRequirements.closing[periodBasis].map((targetDate) => ({
+        exchangeRateId: rateIdByTargetDate.get(targetDate)!,
+        applicationType: "closing" as const,
+        periodBasis,
+        entitySnapshotId: entity.id,
+        targetDate,
+        evidence: `${targetDate} 中国货币网人民币汇率中间价，由系统自动采用`,
+      })),
+      ...rateRequirements.monthlyAverage[periodBasis].map((targetDate) => ({
+        exchangeRateId: averageRateIdByTargetDate.get(targetDate)!,
+        applicationType: "monthlyAverage" as const,
+        periodBasis,
+        entitySnapshotId: entity.id,
+        targetDate,
+        evidence: `${targetDate.slice(0, 7)} 中国货币网人民币汇率中间价月平均，由系统自动采用`,
+      })),
+    ] : []);
+  });
   const companyIdByCode = new Map(batch.entities.map((entity) => [entity.companyCode, entity.companyId]));
   const comparativeCompanyIds = new Set(batch.entities
     .filter((entity) => requiredComparativeEntityIds.includes(entity.id))
@@ -174,7 +213,16 @@ async function loadAutomaticRateFacts(
   rateApplications.push(...buildHistoricalCapitalRateApplications({
     facts: historicalCapitalFacts,
     rateIdByTargetDate,
-    comparativePeriodEnd,
+    comparativePeriodEnd: comparativeEquityPeriodEnd,
+    comparativeCompanyIds,
+    companyIdByCode,
+    snapshotIdByCompany: entitySnapshotIdByCompanyId,
+  }));
+  rateApplications.push(...buildRetainedEarningsRateApplications({
+    facts: retainedEarningsFacts,
+    monthlyAverageRateIdByTargetDate: averageRateIdByTargetDate,
+    currentPeriodEnd: selectedPeriodEnd,
+    comparativeEquityPeriodEnd,
     comparativeCompanyIds,
     companyIdByCode,
     snapshotIdByCompany: entitySnapshotIdByCompanyId,
@@ -189,7 +237,7 @@ async function loadAutomaticRateFacts(
       evidence: `投资凭证 ${investment.voucherNo} 按 ${investment.voucherDate} 中国货币网人民币汇率中间价自动折算`,
     };
     rateApplications.push({ ...shared, periodBasis: "current" });
-    if (investment.voucherDate <= comparativePeriodEnd && requiredComparativeEntityIds.includes(entity.id)) {
+    if (investment.voucherDate <= comparativeEquityPeriodEnd && requiredComparativeEntityIds.includes(entity.id)) {
       rateApplications.push({ ...shared, periodBasis: "comparative" });
     }
   }
@@ -213,16 +261,26 @@ function hasCompleteFx(batch: DraftBatch, preparedRates: ConsolidationRateFact[]
   if (!policies) return false;
   const cadEntityIds = policies.filter((policy) => policy.functionalCurrency === "CAD").map((policy) => policy.entitySnapshotId);
   if (cadEntityIds.length === 0) return true;
-  const periodEnd = periodEndDate(batch.year, batch.month);
   const applications = (preparedRates ?? batch.exchangeRates).flatMap((rate) =>
     parseConsolidationRateApplications(rate.applications),
   );
-  return cadEntityIds.every((entitySnapshotId) => applications.some((application) =>
-    application.applicationType === "closing"
-    && application.periodBasis === "current"
-    && application.entitySnapshotId === entitySnapshotId
-    && application.targetDate === periodEnd,
-  ));
+  const comparativeEntityIds = new Set(comparativeEntitySnapshotIds(batch.sources)
+    .filter((entityId) => cadEntityIds.includes(entityId)));
+  const requirements = consolidationPeriodRateRequirements(batch.year, batch.month);
+  return cadEntityIds.every((entitySnapshotId) => (
+    ["current", "comparative"] as const
+  ).every((periodBasis) => (
+    periodBasis === "current" || comparativeEntityIds.has(entitySnapshotId)
+      ? (["closing", "monthlyAverage"] as const).every((applicationType) => (
+          requirements[applicationType][periodBasis].every((targetDate) => applications.some((application) =>
+            application.applicationType === applicationType
+            && application.periodBasis === periodBasis
+            && application.entitySnapshotId === entitySnapshotId
+            && application.targetDate === targetDate,
+          ))
+        ))
+      : true
+  )));
 }
 
 function automaticDecisions(

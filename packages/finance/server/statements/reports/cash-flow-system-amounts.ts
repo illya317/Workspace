@@ -1,9 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import type { CashFlowLineRow } from "../config/load-config-reports";
-import {
-  applyCashFlowPresentationAdjustment,
-  normalizeCashFlowAllocationAmount,
-} from "./cash-flow-allocation-policy";
+import { normalizeCashFlowAllocationAmount } from "./cash-flow-allocation-policy";
 
 export interface CashFlowSystemResult {
   amounts: Map<string, number>;
@@ -80,31 +77,13 @@ async function cashBalances(
   periodBasis: "yearToDate" | "month",
 ) {
   const openingMonth = periodBasis === "month" ? month : 1;
-  const [balances, exclusions] = await Promise.all([
-    prisma.financeAccountBalance.findMany({
+  const balances = await prisma.financeAccountBalance.findMany({
     where: {
       period: { companyCode, year, month: { in: [...new Set([openingMonth, month])] } },
       account: { OR: [{ code: { startsWith: "1001" } }, { code: { startsWith: "1002" } }, { code: { startsWith: "1012" } }] },
     },
     include: { account: { select: { code: true } }, period: { select: { month: true } } },
-    }),
-    prisma.financeStatementVoucherExclusion.findMany({
-      where: {
-        companyCode,
-        statementType: "cashflow",
-        enabled: true,
-        voucher: { status: "posted", period: { year, month: { lte: month } } },
-      },
-      include: {
-        voucher: {
-          include: {
-            period: { select: { month: true } },
-            items: { include: { account: { select: { code: true } } } },
-          },
-        },
-      },
-    }),
-  ]);
+  });
   const selectCashRoots = (targetMonth: number) => ["1001", "1002", "1012"].flatMap((prefix) => {
     const candidates = balances.filter((item) => (
       item.period.month === targetMonth && item.account.code.startsWith(prefix)
@@ -116,19 +95,11 @@ async function cashBalances(
   });
   const opening = selectCashRoots(openingMonth);
   const ending = selectCashRoots(month);
-  const excludedCashMovement = (throughMonth: number) => exclusions.reduce((sum, exclusion) => {
-    if (exclusion.voucher.period.month > throughMonth) return sum;
-    return sum + exclusion.voucher.items.reduce((voucherSum, item) => (
-      ["1001", "1002", "1012"].some((prefix) => item.account.code.startsWith(prefix))
-        ? voucherSum + item.debit - item.credit
-        : voucherSum
-    ), 0);
-  }, 0);
   const openingRaw = opening.reduce((sum, item) => sum + item.openingDebit - item.openingCredit, 0);
   const endingRaw = ending.reduce((sum, item) => sum + item.closingDebit - item.closingCredit, 0);
   return {
-    opening: roundMoney(openingRaw - excludedCashMovement(openingMonth - 1)),
-    ending: roundMoney(endingRaw - excludedCashMovement(month)),
+    opening: roundMoney(openingRaw),
+    ending: roundMoney(endingRaw),
   };
 }
 
@@ -143,24 +114,17 @@ export async function computeCashFlowSystemAmounts(
     where: {
       companyCode,
       period: { year, month: periodBasis === "month" ? month : { lte: month } },
-      voucher: {
-        status: "posted",
-        statementExclusions: { none: { statementType: "cashflow", enabled: true } },
-      },
+      voucher: { status: "posted" },
     },
     include: {
       cashFlowItem: { select: { sourceName: true } },
       ownerVoucherItem: { select: { debit: true, credit: true, account: { select: { code: true } } } },
       counterpartItem: { select: { debit: true, credit: true, account: { select: { code: true } } } },
-      statementAdjustment: {
-        select: { sourceLineCode: true, targetLineCode: true, amount: true, enabled: true },
-      },
     },
   });
   const amounts = new Map(config.map((line) => [line.lineCode, 0]));
   const configByCode = new Map(config.map((line) => [line.lineCode, line]));
   const unmapped = new Set<string>();
-  const adjustmentDiagnostics: string[] = [];
   for (const allocation of allocations) {
     const lineCode = sourceLineCode(allocation.cashFlowItem.sourceName);
     if (lineCode === null) continue;
@@ -174,21 +138,7 @@ export async function computeCashFlowSystemAmounts(
       ownerVoucherItem: allocation.ownerVoucherItem,
       counterpartItem: allocation.counterpartItem,
     });
-    const presentation = applyCashFlowPresentationAdjustment({
-      sourceLineCode: lineCode,
-      normalizedAmount,
-      adjustment: allocation.statementAdjustment
-        ? { ...allocation.statementAdjustment, amount: Number(allocation.statementAdjustment.amount) }
-        : null,
-    });
-    amounts.set(lineCode, roundMoney((amounts.get(lineCode) ?? 0) + presentation.sourceAmount));
-    if (presentation.targetLineCode) {
-      amounts.set(
-        presentation.targetLineCode,
-        roundMoney((amounts.get(presentation.targetLineCode) ?? 0) + presentation.targetAmount),
-      );
-    }
-    if (presentation.diagnostic) adjustmentDiagnostics.push(presentation.diagnostic);
+    amounts.set(lineCode, roundMoney((amounts.get(lineCode) ?? 0) + normalizedAmount));
   }
   applyDerivedLines(amounts);
   const cash = await cashBalances(companyCode, year, month, periodBasis);
@@ -198,7 +148,6 @@ export async function computeCashFlowSystemAmounts(
   const allocationChange = amounts.get("netIncrease") ?? 0;
   const diagnostics: string[] = [];
   if (unmapped.size) diagnostics.push(`有 ${unmapped.size} 个来源现金流项目未映射到法定行`);
-  diagnostics.push(...adjustmentDiagnostics);
   if (allocations.length > 0 && cashChange !== allocationChange) {
     diagnostics.push(`现金流分配净额 ${allocationChange.toFixed(2)} 与货币资金变动 ${cashChange.toFixed(2)} 相差 ${roundMoney(allocationChange - cashChange).toFixed(2)}`);
   }

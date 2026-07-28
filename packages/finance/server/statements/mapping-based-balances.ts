@@ -230,51 +230,6 @@ export async function aggregateMappingBasedBalances(
     }
   }
 
-  // Reference workpapers may explicitly exclude a posted voucher from the
-  // balance-sheet presentation without mutating the ledger. Reverse only the
-  // mapped line contribution; the original voucher and balances stay intact.
-  if (balancePoint === "closing") {
-    const exclusions = await prisma.financeStatementVoucherExclusion.findMany({
-      where: {
-        companyCode,
-        statementType: "balance",
-        enabled: true,
-        voucher: { status: "posted", period: { year, month: { lte: month } } },
-      },
-      include: {
-        voucher: {
-          include: {
-            items: { include: { account: { select: { code: true, category: true } } } },
-          },
-        },
-      },
-    });
-    for (const exclusion of exclusions) {
-      for (const item of exclusion.voucher.items) {
-        const resolved = resolveMappedLineWithOperator(
-          item.account.code,
-          parentMap,
-          mappingMap,
-          operatorMap,
-        );
-        const presentation = resolved ?? (PROFIT_OR_LOSS_CATEGORIES.has(item.account.category)
-          ? { lineCode: "undistributedProfit", operator: "add" as const }
-          : null);
-        if (!presentation) continue;
-        const side = lineSideMap.get(presentation.lineCode) || "debit";
-        const naturalContribution = side === "debit"
-          ? item.debit - item.credit
-          : item.credit - item.debit;
-        const presentedContribution = presentation.operator === "subtract"
-          ? -Math.abs(naturalContribution)
-          : naturalContribution;
-        const agg = byLine.get(presentation.lineCode) || { debit: 0, credit: 0, accountCodes: [] };
-        applySignedContribution(agg, -presentedContribution, side, `excluded:${item.account.code}`);
-        byLine.set(presentation.lineCode, agg);
-      }
-    }
-  }
-
   // 9. Build result
   const byLineCode: LeafAggregation[] = [];
   for (const [lineCode, agg] of byLine) {

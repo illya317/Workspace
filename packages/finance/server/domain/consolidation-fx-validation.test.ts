@@ -3,15 +3,44 @@ import test from "node:test";
 
 import { validateConsolidationFxFacts } from "./consolidation-fx-validation";
 
-const closingApplication = {
-  applicationType: "closing" as const,
-  periodBasis: "current" as const,
-  entitySnapshotId: 2,
-  voucherItemId: null,
-  targetDate: "2026-06-30",
-  evidence: "期末折算",
-  voucher: null,
-};
+function requiredCurrentRates() {
+  const closingDates = ["2025-12-31", "2026-05-31", "2026-06-30"];
+  const averageDates = ["2026-01-31", "2026-02-28", "2026-03-31", "2026-04-30", "2026-05-31", "2026-06-30"];
+  return [
+    ...closingDates.map((targetDate, index) => ({
+      exchangeRateId: 100 + index,
+      rateKind: "centralParity",
+      rateDate: targetDate,
+      recordedBy: 10,
+      recordedAt: "2026-06-30T08:00:00.000Z",
+      applications: [{
+        applicationType: "closing" as const,
+        periodBasis: "current" as const,
+        entitySnapshotId: 2,
+        voucherItemId: null,
+        targetDate,
+        evidence: "现金及资产负债表时点折算",
+        voucher: null,
+      }],
+    })),
+    ...averageDates.map((targetDate, index) => ({
+      exchangeRateId: 200 + index,
+      rateKind: "monthlyAverage",
+      rateDate: targetDate,
+      recordedBy: 10,
+      recordedAt: "2026-06-30T08:00:00.000Z",
+      applications: [{
+        applicationType: "monthlyAverage" as const,
+        periodBasis: "current" as const,
+        entitySnapshotId: 2,
+        voucherItemId: null,
+        targetDate,
+        evidence: "当月中间价算术平均",
+        voucher: null,
+      }],
+    })),
+  ];
+}
 
 const investmentApplication = {
   applicationType: "historicalInvestment" as const,
@@ -41,7 +70,7 @@ test("accepts complete CNY/CAD currency policies and applied rates", () => {
       { id: 2, functionalCurrency: "CAD", currencyEvidence: "加拿大主体经营环境" },
     ],
     rates: [
-      { exchangeRateId: 10, rateKind: "closing", rateDate: "2026-06-30", recordedBy: 10, recordedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
+      ...requiredCurrentRates(),
       { exchangeRateId: 11, rateKind: "historicalInvestment", rateDate: "2025-03-14", recordedBy: 10, recordedAt: "2025-03-15T08:00:00.000Z", applications: [investmentApplication] },
     ],
     requiredInvestmentVoucherIds: [88],
@@ -56,7 +85,7 @@ test("accepts entity-level historical capital evidence without a voucher", () =>
     comparativePeriodEnd: "2025-06-30",
     entities: [{ id: 2, functionalCurrency: "CAD", currencyEvidence: "加拿大主体经营环境" }],
     rates: [
-      { exchangeRateId: 10, rateKind: "closing", rateDate: "2026-06-30", recordedBy: 10, recordedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
+      ...requiredCurrentRates(),
       { exchangeRateId: 12, rateKind: "historicalInvestment", rateDate: "2025-01-01", recordedBy: 10, recordedAt: "2025-01-02T08:00:00.000Z", applications: [{
         applicationType: "historicalCapital",
         periodBasis: "current",
@@ -65,6 +94,7 @@ test("accepts entity-level historical capital evidence without a voucher", () =>
         targetDate: "2025-01-01",
         evidence: "出资协议与银行回单",
         capitalOriginalAmount: 1_000_000,
+        equityLineCode: "paidInCapital",
         voucher: null,
       }] },
     ],
@@ -80,7 +110,7 @@ test("accepts multiple historical capital occurrence dates for one foreign entit
     comparativePeriodEnd: "2025-06-30",
     entities: [{ id: 2, functionalCurrency: "CAD", currencyEvidence: "加拿大主体经营环境" }],
     rates: [
-      { exchangeRateId: 10, rateKind: "centralParity", rateDate: "2026-06-30", recordedBy: 10, recordedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
+      ...requiredCurrentRates(),
       { exchangeRateId: 12, rateKind: "centralParity", rateDate: "2020-01-01", recordedBy: 10, recordedAt: "2026-06-30T08:00:00.000Z", applications: [{
         applicationType: "historicalCapital",
         periodBasis: "current",
@@ -89,6 +119,7 @@ test("accepts multiple historical capital occurrence dates for one foreign entit
         targetDate: "2020-01-01",
         evidence: "期初资本",
         capitalOriginalAmount: 100_000,
+        equityLineCode: "paidInCapital",
         voucher: null,
       }] },
       { exchangeRateId: 13, rateKind: "centralParity", rateDate: "2024-04-01", recordedBy: 10, recordedAt: "2026-06-30T08:00:00.000Z", applications: [{
@@ -99,6 +130,7 @@ test("accepts multiple historical capital occurrence dates for one foreign entit
         targetDate: "2024-04-01",
         evidence: "资本公积凭证",
         capitalOriginalAmount: 51_326.6,
+        equityLineCode: "capitalReserve",
         voucher: null,
       }] },
     ],
@@ -127,7 +159,7 @@ test("rejects a historical rate more than seven days before investment", () => {
     comparativePeriodEnd: "2025-06-30",
     entities: [{ id: 2, functionalCurrency: "CAD", currencyEvidence: "加拿大主体经营环境" }],
     rates: [
-      { exchangeRateId: 10, rateKind: "closing", rateDate: "2026-06-30", recordedBy: 10, recordedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
+      ...requiredCurrentRates(),
       { exchangeRateId: 11, rateKind: "historicalInvestment", rateDate: "2025-03-01", recordedBy: 10, recordedAt: "2025-03-02T08:00:00.000Z", applications: [investmentApplication] },
     ],
     requiredInvestmentVoucherIds: [88],
@@ -143,7 +175,7 @@ test("requires an application for every CAD investment voucher", () => {
     comparativePeriodEnd: "2025-06-30",
     entities: [{ id: 2, functionalCurrency: "CAD", currencyEvidence: "加拿大主体经营环境" }],
     rates: [
-      { exchangeRateId: 10, rateKind: "closing", rateDate: "2026-06-30", recordedBy: 10, recordedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
+      ...requiredCurrentRates(),
       { exchangeRateId: 11, rateKind: "historicalInvestment", rateDate: "2025-03-14", recordedBy: 10, recordedAt: "2025-03-15T08:00:00.000Z", applications: [investmentApplication] },
     ],
     requiredInvestmentVoucherIds: [88, 89],
@@ -165,7 +197,7 @@ test("requires frozen rate recorder evidence", () => {
       rateDate: "2026-06-30",
       recordedBy: null,
       recordedAt: null,
-      applications: [closingApplication],
+      applications: requiredCurrentRates()[0]!.applications,
     }],
     requiredInvestmentVoucherIds: [],
     requiredComparativeEntityIds: [],

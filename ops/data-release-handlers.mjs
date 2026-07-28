@@ -51,6 +51,23 @@ function financeReviewedOriginMappingsCommand(execution, context) {
   };
 }
 
+function financeSupplementalVoucherCommand(execution, context) {
+  const parameters = execution.parameters;
+  if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
+    || Object.keys(parameters).sort().join(",") !== "inputFile") {
+    fail("finance-supplemental-voucher-v1 parameters must contain only inputFile");
+  }
+  const inputFile = relativeSourcePath(parameters.inputFile, "finance-supplemental-voucher-v1 inputFile");
+  return {
+    executable: process.execPath,
+    args: [
+      path.join(context.repositoryRoot, "scripts/repair/repair-finance-supplemental-voucher.mjs"),
+      "--execute",
+      `--input-file=${path.join(context.sourceRoot, inputFile)}`,
+    ],
+  };
+}
+
 function hrLifecycleCompatibilityCommand(execution, context) {
   const parameters = execution.parameters;
   if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
@@ -104,6 +121,7 @@ function hrSocialInsuranceBaselineCommand(execution, context) {
 
 const HANDLERS = new Map([
   ["finance-reviewed-origin-mappings-v1", financeReviewedOriginMappingsCommand],
+  ["finance-supplemental-voucher-v1", financeSupplementalVoucherCommand],
   ["hr-employment-agreement-baseline-v1", hrEmploymentAgreementBaselineCommand],
   ["hr-social-insurance-baseline-v1", hrSocialInsuranceBaselineCommand],
   ["hr-lifecycle-compatibility-v1", hrLifecycleCompatibilityCommand],

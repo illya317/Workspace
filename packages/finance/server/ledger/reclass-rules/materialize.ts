@@ -109,6 +109,7 @@ export async function materializeAuxiliaryAdjustments(
   policyVersionId: number,
   changedSourceGroupAccountIds: readonly number[],
   actorUserId?: number | null,
+  periodIds?: readonly number[],
 ) {
   const command = buildMaterializeReclassAdjustmentsCommand(changedSourceGroupAccountIds);
   if (!command.ok) throw new Error(command.issue.message);
@@ -144,6 +145,7 @@ export async function materializeAuxiliaryAdjustments(
     }),
     tx.financeAuxiliaryBalance.findMany({
       where: {
+        ...(periodIds?.length ? { periodId: { in: [...periodIds] } } : {}),
         OR: accountScopes.map((scope) => {
           const [companyCode, code] = scope.split("\u001f");
           return { period: { companyCode }, account: { code } };
@@ -161,7 +163,9 @@ export async function materializeAuxiliaryAdjustments(
       },
     }),
     tx.financeBalanceReclassAdjustment.findMany({
-      where: { policyVersionId, sourceGroupAccountId: { in: sourceGroupAccountIds } },
+      where: periodIds?.length
+        ? { periodId: { in: [...periodIds] } }
+        : { policyVersionId, sourceGroupAccountId: { in: sourceGroupAccountIds } },
       select: adjustmentSnapshotSelect,
     }),
   ]);
@@ -190,7 +194,7 @@ export async function materializeAuxiliaryAdjustments(
   const januaryScopes = [...new Set(balances.flatMap((balance) => balance.period?.month === 1
     ? [`${balance.period.companyCode}::${balance.period.year - 1}`]
     : []))];
-  const priorYearEndPeriods = januaryScopes.length === 0 ? [] : await tx.financePeriod.findMany({
+  const priorYearEndPeriods = periodIds?.length || januaryScopes.length === 0 ? [] : await tx.financePeriod.findMany({
     where: {
       month: 12,
       OR: januaryScopes.map((scope) => {
@@ -231,12 +235,20 @@ export async function materializeAuxiliaryAdjustments(
     ? [[balance.period.id, balance.period] as const]
     : []));
   const existingByKey = new Map(existing.map((row) => [`${row.periodId}::${row.sourceAccountCode}`, row]));
+  const scopedExisting = periodIds?.length
+    ? existing.filter((row) => (
+        planByKey.has(`${row.periodId}::${row.sourceAccountCode}`)
+        || (row.policyVersionId === policyVersionId
+          && row.sourceGroupAccountId !== null
+          && sourceGroupAccountIds.includes(row.sourceGroupAccountId))
+      ))
+    : existing;
   let written = 0;
   let updated = 0;
   let deleted = 0;
   let skippedProtected = 0;
 
-  for (const row of existing) {
+  for (const row of scopedExisting) {
     const key = `${row.periodId}::${row.sourceAccountCode}`;
     const plan = planByKey.get(key);
     if (isProtectedSource(row.sourceType, row.status)) {
@@ -364,7 +376,6 @@ function auxiliaryData(plan: AuxiliaryAdjustmentPlan) {
 
 function isProtectedSource(sourceType: string, status: string) {
   return sourceType === "manual"
-    || sourceType === "reference_workpaper"
     || status === "adjusted"
     || status === "rejected";
 }

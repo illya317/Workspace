@@ -35,6 +35,7 @@ import {
   liveSourceCoverage,
 } from "./consolidation-source-coverage";
 import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
+import { consolidationPeriodRateRequirements } from "./consolidation-period-rates";
 
 interface ConsolidationOverviewInput {
   year?: number;
@@ -347,6 +348,7 @@ export async function loadConsolidationOverview(
   const frozenRateApplications = requestedBatch?.exchangeRates.flatMap((rate) =>
     parseConsolidationRateApplications(rate.applications).map((application) => ({ rate, application })),
   ) ?? [];
+  const rateRequirements = consolidationPeriodRateRequirements(selectedPeriod.year, selectedPeriod.month);
   const validClosingApplications = frozenRateApplications.filter(({ rate, application }) =>
     (rate.rateKind === "closing" || rate.rateKind === "centralParity")
     && application.applicationType === "closing"
@@ -355,13 +357,6 @@ export async function loadConsolidationOverview(
     && application.targetDate === selectedPeriodEnd
     && isClosingRateNearPeriodEnd(rate.rateDate, selectedPeriodEnd),
   );
-  const closingApplicationCounts = new Map<number, number>();
-  for (const { application } of validClosingApplications) {
-    closingApplicationCounts.set(
-      application.entitySnapshotId,
-      (closingApplicationCounts.get(application.entitySnapshotId) ?? 0) + 1,
-    );
-  }
   const comparativeCadEntityIds = new Set(comparativeEntitySnapshotIds(requestedBatch?.sources ?? [])
     .filter((entityId) => cadEntityIds.has(entityId)));
   const validComparativeClosingApplications = frozenRateApplications.filter(({ rate, application }) =>
@@ -372,15 +367,45 @@ export async function loadConsolidationOverview(
     && application.targetDate === selectedComparativePeriodEnd
     && isClosingRateNearPeriodEnd(rate.rateDate, selectedComparativePeriodEnd),
   );
-  const comparativeClosingApplicationCounts = new Map<number, number>();
-  for (const { application } of validComparativeClosingApplications) {
-    comparativeClosingApplicationCounts.set(
-      application.entitySnapshotId,
-      (comparativeClosingApplicationCounts.get(application.entitySnapshotId) ?? 0) + 1,
-    );
-  }
-  const closingCoverageComplete = [...cadEntityIds].every((entityId) => closingApplicationCounts.get(entityId) === 1)
-    && [...comparativeCadEntityIds].every((entityId) => comparativeClosingApplicationCounts.get(entityId) === 1);
+  const closingCoverageComplete = ([
+    ...[...cadEntityIds].map((entityId) => ({ entityId, periodBasis: "current" as const })),
+    ...[...comparativeCadEntityIds].map((entityId) => ({ entityId, periodBasis: "comparative" as const })),
+  ]).every(({ entityId, periodBasis }) => rateRequirements.closing[periodBasis].every((targetDate) => (
+    frozenRateApplications.filter(({ rate, application }) => (
+      (rate.rateKind === "closing" || rate.rateKind === "centralParity")
+      && application.applicationType === "closing"
+      && application.periodBasis === periodBasis
+      && application.entitySnapshotId === entityId
+      && application.targetDate === targetDate
+      && isClosingRateNearPeriodEnd(rate.rateDate, targetDate)
+    )).length === 1
+  )));
+  const validCurrentAverageApplications = frozenRateApplications.filter(({ rate, application }) => (
+    rate.rateKind === "monthlyAverage"
+    && application.applicationType === "monthlyAverage"
+    && application.periodBasis === "current"
+    && rate.rateDate === application.targetDate
+  ));
+  const validComparativeAverageApplications = frozenRateApplications.filter(({ rate, application }) => (
+    rate.rateKind === "monthlyAverage"
+    && application.applicationType === "monthlyAverage"
+    && application.periodBasis === "comparative"
+    && rate.rateDate === application.targetDate
+  ));
+  const averageCoverageComplete = ([
+    ...[...cadEntityIds].map((entityId) => ({ entityId, periodBasis: "current" as const })),
+    ...[...comparativeCadEntityIds].map((entityId) => ({ entityId, periodBasis: "comparative" as const })),
+  ]).every(({ entityId, periodBasis }) => rateRequirements.monthlyAverage[periodBasis].every((targetDate) => (
+    frozenRateApplications.filter(({ rate, application }) => (
+      rate.rateKind === "monthlyAverage"
+      && application.applicationType === "monthlyAverage"
+      && application.periodBasis === periodBasis
+      && application.entitySnapshotId === entityId
+      && application.targetDate === targetDate
+      && rate.rateDate === targetDate
+    )).length === 1
+  )));
+  const fxCoverageComplete = closingCoverageComplete && averageCoverageComplete;
   const frozenClosingRateId = validClosingApplications[0]?.rate.exchangeRateId;
   const closingRate = requestedBatch
     ? rates.find((rate) => rate.id === frozenClosingRateId) ?? null
@@ -390,7 +415,9 @@ export async function loadConsolidationOverview(
     ? rates.find((rate) => rate.id === frozenComparativeClosingRateId) ?? null
     : rates.find((rate) => (rate.rateKind === "closing" || rate.rateKind === "centralParity") && isClosingRateNearPeriodEnd(rate.rateDate, selectedComparativePeriodEnd)) ?? null;
   const currentHistoricalApplications = frozenRateApplications.filter(({ application }) => (
-    (application.applicationType === "historicalInvestment" || application.applicationType === "historicalCapital")
+    (application.applicationType === "historicalInvestment"
+      || application.applicationType === "historicalCapital"
+      || application.applicationType === "historicalEquity")
     && application.periodBasis === "current"
   ));
   const historicalApplicationByVoucher = new Map(currentHistoricalApplications
@@ -446,7 +473,7 @@ export async function loadConsolidationOverview(
     { key: "scope", label: "合并范围", status: includedEntities.length > 1 ? "ready" : "blocked", detail: scopeError ?? (includedEntities.length > 1 ? `已识别 ${includedEntities.length} 个合并实体` : "尚无完整合并范围"), facts: { parentCompanyId, entityCount: includedEntities.length, batchId: requestedBatch?.id ?? null, scopeAsOf }, evidence: scopeError ? [scopeError] : includedEntities.map((entity) => `${entity.code} ${entity.name}`), dependencyKeys: [], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "scope") },
     { key: "ownership", label: "股权比例", status: invalidOwnership > 0 ? "blocked" : includedEntities.length > 1 ? "ready" : "blocked", detail: invalidOwnership > 0 ? `${invalidOwnership} 条直接持股比例缺失或超出0至1` : partialOwnershipCount > 0 ? "持股比例有效；少数股东权益及损益分配本阶段暂不处理" : "批次范围内直接持股比例有效", facts: { invalidOwnership, partialOwnershipCount, subsidiaryCount: includedEntities.filter((entity) => entity.role === "子公司").length }, evidence: includedEntities.filter((entity) => entity.role === "子公司").map((entity) => `${entity.parentName ?? "待确认母公司"} → ${entity.name} ${entity.shareRatio ?? "未填"}`), dependencyKeys: ["scope"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "ownership") },
     { key: "sources", label: "个别三表", status: missingSources > 0 ? "blocked" : allSources.length > 0 ? "ready" : "blocked", detail: missingSources > 0 ? `${missingSources} 份未就绪；全部单体报表就绪后才能生成合并工作底稿` : `${allSources.length} 份均已就绪并自动保存快照`, facts: { total: allSources.length, missing: missingSources }, evidence: allSources.filter((source) => source.fingerprint).map((source) => source.fingerprint!), dependencyKeys: ["scope"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "sources") },
-    { key: "fx", label: "外币折算与汇率", status: !requestedBatch || !currencyPoliciesComplete ? "blocked" : cadEntityIds.size === 0 ? "ready" : !canadaSourceStatementsReady || !closingCoverageComplete ? "blocked" : "ready", detail: !requestedBatch ? "需先生成合并批次" : !currencyPoliciesComplete ? "币种主数据仍有实体缺少本位币，不能自动折算" : cadEntityIds.size === 0 ? "批次内实体均为 CNY 本位币" : !canadaSourceStatementsReady ? "CAD 本位币主体个别三表尚未冻结完整" : !closingCoverageComplete ? `尚未取得适用日期的中国货币网中间价；${comparativeCadEntityIds.size} 个含非零上期数的主体还需要比较期汇率` : "期末及必要发生日中间价已自动抓取并冻结；并购日处理本阶段暂不启用", facts: { cadEntityCount: cadEntityIds.size, comparativeCadEntityCount: comparativeCadEntityIds.size, incompleteCurrencyPolicyCount: requestedBatch?.entities.filter((entity) => !entity.functionalCurrency || !entity.currencyEvidence?.trim()).length ?? 0, closingBindingCount: validClosingApplications.length, comparativeClosingBindingCount: validComparativeClosingApplications.length, closingRateId: closingRate?.id ?? null, comparativeClosingRateId: comparativeClosingRate?.id ?? null, historicalRateCount, missingInvestmentRateCount }, evidence: requestedBatch?.exchangeRates.map((rate) => `#${rate.exchangeRateId} v${rate.exchangeRateVersion} ${rate.rateKind} ${rate.rateDate}`) ?? [], dependencyKeys: ["sources"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "fx") },
+    { key: "fx", label: "外币折算与汇率", status: !requestedBatch || !currencyPoliciesComplete ? "blocked" : cadEntityIds.size === 0 ? "ready" : !canadaSourceStatementsReady || !fxCoverageComplete ? "blocked" : "ready", detail: !requestedBatch ? "需先生成合并批次" : !currencyPoliciesComplete ? "币种主数据仍有实体缺少本位币，不能自动折算" : cadEntityIds.size === 0 ? "批次内实体均为 CNY 本位币" : !canadaSourceStatementsReady ? "CAD 本位币主体个别三表尚未冻结完整" : !fxCoverageComplete ? `尚未完整取得逐月平均及现金时点汇率；${comparativeCadEntityIds.size} 个含非零上期数的主体还需要比较期汇率` : "逐月平均、现金时点及必要发生日汇率已自动抓取并冻结；并购日处理本阶段暂不启用", facts: { cadEntityCount: cadEntityIds.size, comparativeCadEntityCount: comparativeCadEntityIds.size, incompleteCurrencyPolicyCount: requestedBatch?.entities.filter((entity) => !entity.functionalCurrency || !entity.currencyEvidence?.trim()).length ?? 0, closingBindingCount: validClosingApplications.length, comparativeClosingBindingCount: validComparativeClosingApplications.length, monthlyAverageBindingCount: validCurrentAverageApplications.length, comparativeMonthlyAverageBindingCount: validComparativeAverageApplications.length, closingRateId: closingRate?.id ?? null, comparativeClosingRateId: comparativeClosingRate?.id ?? null, historicalRateCount, missingInvestmentRateCount }, evidence: requestedBatch?.exchangeRates.map((rate) => `#${rate.exchangeRateId} v${rate.exchangeRateVersion} ${rate.rateKind} ${rate.rateDate}`) ?? [], dependencyKeys: ["sources"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "fx") },
     { key: "eliminations", label: "合并抵销", status: missingEliminationPackages.length > 0 || incompleteMatchingEntries > 0 ? "blocked" : inProgressEntries > 0 ? "attention" : "ready", detail: missingEliminationPackages.length > 0 ? `${missingEliminationPackages.length} 类抵销事项尚无分录或不适用结论` : incompleteMatchingEntries > 0 ? `${incompleteMatchingEntries} 笔内部往来/交易/资金抵销缺少双方结构化来源或差额处置` : inProgressEntries > 0 ? `${inProgressEntries} 笔抵销分录编制或复核中` : `${approvedEntries} 笔抵销分录已批准，其余类别已有不适用结论`, facts: { approvedEntries, inProgressEntries, incompleteMatchingEntries, unresolvedPackageCount: missingEliminationPackages.length }, evidence: requestedBatch?.entries.map((entry) => `${entry.entryNo} v${entry.version} ${entry.status}`) ?? [], dependencyKeys: ["ownership", "sources", "fx"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "eliminations") },
     { key: "tax", label: "抵销税务影响", status: "ready", detail: "递延所得税本阶段暂不处理，不作为生成和发布阻断项", facts: { deferred: true }, evidence: [], dependencyKeys: ["eliminations"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "tax") },
     { key: "review", label: "编制、复核、锁定与发布", status: requestedBatch?.status === "locked" || requestedBatch?.status === "published" ? "ready" : requestedBatch ? "attention" : "blocked", detail: requestedBatch ? `批次 v${requestedBatch.version} 当前状态：${requestedBatch.status}` : "尚未创建合并批次", facts: { batchId: requestedBatch?.id ?? null, version: requestedBatch?.version ?? null, status: requestedBatch?.status ?? "none", reviewedBy: requestedBatch?.reviewedBy ?? null }, evidence: requestedBatch?.reviewNote ? [requestedBatch.reviewNote] : [], dependencyKeys: ["scope", "ownership", "sources", "fx", "eliminations"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "review", requestedBatch?.status) },
@@ -506,7 +533,7 @@ export async function loadConsolidationOverview(
     adjustmentComparisons,
     checks,
     eliminations: eliminationPackages(requestedBatch),
-    fxPolicy: { pair: "CAD/CNY", sourceName: "中国外汇交易中心", sourceField: "人民币汇率中间价", unit: "人民币/1外币", sourceUrl: "https://www.chinamoney.com.cn/chinese/bkccpr/", status: currencyPoliciesComplete && (cadEntityIds.size === 0 || closingCoverageComplete && canadaSourceStatementsReady) ? "ready" : rates.length > 0 ? "partiallyConfigured" : "notConfigured", periodEndDate: selectedPeriodEnd, comparativePeriodEndDate: selectedComparativePeriodEnd, closingRate, comparativeClosingRate, historicalRateCount, rates, investmentEvidence, missingInvestmentRateCount, canadaSourceStatementsReady, note: "系统自动抓取并冻结本期/比较期期末以及实收资本、股本、资本公积发生日的中国货币网人民币汇率中间价；并购日处理本阶段暂不启用。" },
+    fxPolicy: { pair: "CAD/CNY", sourceName: "中国外汇交易中心", sourceField: "人民币汇率中间价", unit: "人民币/1外币", sourceUrl: "https://www.chinamoney.com.cn/chinese/bkccpr/", status: currencyPoliciesComplete && (cadEntityIds.size === 0 || fxCoverageComplete && canadaSourceStatementsReady) ? "ready" : rates.length > 0 ? "partiallyConfigured" : "notConfigured", periodEndDate: selectedPeriodEnd, comparativePeriodEndDate: selectedComparativePeriodEnd, closingRate, comparativeClosingRate, historicalRateCount, rates, investmentEvidence, missingInvestmentRateCount, canadaSourceStatementsReady, note: "资产负债采用期末中间价，实收资本和资本公积采用发生日中间价，利润表及现金流量期间发生额采用当月全部工作日中间价算术平均；系统自动抓取并冻结证据。" },
     outputs: [
       { key: "balanceSheet", label: "合并资产负债表", status: published ? "published" : "unpublished", description: published ? `来自已发布批次 v${requestedBatch?.version}` : "完成控制链并锁定批次后生成。" },
       { key: "incomeStatement", label: "合并利润表", status: published ? "published" : "unpublished", description: published ? `来自已发布批次 v${requestedBatch?.version}` : "完成抵销、少数股东损益和复核后生成。" },

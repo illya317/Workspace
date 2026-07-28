@@ -1,4 +1,5 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { deriveFinanceGroupAccountTranslationRateType } from "@workspace/finance/types/group-account";
 
 import {
   buildFinanceAccountingPolicyVersionAdvanceCommand,
@@ -106,7 +107,7 @@ export async function advanceFinanceAccountingPolicyVersionInTransaction(
       consolidationRole: revision.consolidationRole,
       counterpartyRequirement: revision.counterpartyRequirement,
       movementType: revision.movementType,
-      translationRateType: revision.translationRateType,
+      translationRateType: deriveFinanceGroupAccountTranslationRateType(revision),
     })) });
   }
   if (mappings.length) {

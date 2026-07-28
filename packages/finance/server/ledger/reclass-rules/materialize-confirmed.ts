@@ -7,6 +7,7 @@ export async function materializeConfirmedReclassAdjustments(
   policyVersionId: number,
   sourceGroupAccountIds: readonly number[],
   actorUserId?: number | null,
+  periodIds?: readonly number[],
 ) {
   const rootSourceGroupAccountIds = sourceGroupAccountIds.length > 0
     ? sourceGroupAccountIds
@@ -35,8 +36,10 @@ export async function materializeConfirmedReclassAdjustments(
     policyVersionId,
     effectiveSourceGroupAccountIds,
     actorUserId,
+    periodIds,
   );
   const automatic = await materializeAutomaticRuleAdjustments(tx, {
+    periodIds,
     policyVersionId,
     sourceGroupAccountIds: sourceGroupAccountIds.length > 0 ? effectiveSourceGroupAccountIds : [],
     actorUserId,

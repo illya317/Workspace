@@ -8,6 +8,23 @@ mock.module("./report-generator", {
 mock.module("./consolidation-source-readiness", {
   namedExports: { loadConsolidationSourceReadiness: async () => ({ byCompany: new Map() }) },
 });
+mock.module("@workspace/platform/server/tenant-config", {
+  namedExports: {
+    getTenantProfile: () => ({
+      financeConsolidationPolicies: {
+        openingCapitalReclassifications: [],
+        retainedEarningsOpeningBalances: [{
+          key: "example-opening-re",
+          foreignCompanyCode: "M",
+          openingDate: "2025-12-31",
+          presentationCurrencyCode: "CNY",
+          openingAmount: -123.45,
+          evidence: "approved example",
+        }],
+      },
+    }),
+  },
+});
 
 function relation(input: {
   id: number;
@@ -53,7 +70,45 @@ mock.module("@workspace/platform/server/prisma", {
   },
 });
 
-const { loadConsolidationScopeFactsWithOverrides } = await import("./consolidation-snapshots");
+const {
+  loadConsolidationScopeFactsWithOverrides,
+  retainedEarningsOpeningBalanceFor,
+  tenantRetainedEarningsOpeningFields,
+} = await import("./consolidation-snapshots");
+const { assertConsecutiveOpeningPeriods } = await import("./consolidation-equity-rollforward");
+
+test("CAD retained earnings opening baseline blocks a missing month", () => {
+  assert.throws(() => assertConsecutiveOpeningPeriods(
+    2026,
+    3,
+    [{ year: 2026, month: 1 }, { year: 2026, month: 3 }],
+  ), /缺少 2026-02 月会计期间/);
+});
+
+test("retained earnings opening balance is selected from tenant policy by company and prior year end", () => {
+  const balance = retainedEarningsOpeningBalanceFor([{
+    key: "future-opening-re",
+    foreignCompanyCode: "CA01",
+    openingDate: "2030-12-31",
+    presentationCurrencyCode: "CNY",
+    openingAmount: -900,
+    evidence: "approved future example",
+  }], "CA01", "2031-06-30");
+  assert.equal(balance?.openingAmount, -900);
+  assert.equal(retainedEarningsOpeningBalanceFor(
+    balance ? [balance] : [],
+    "CA01",
+    "2032-06-30",
+  ), null);
+});
+
+test("existing batch refresh can rehydrate retained earnings opening fields from tenant policy", () => {
+  assert.deepEqual(tenantRetainedEarningsOpeningFields("M", "2026-06-30"), {
+    openingRetainedEarningsDate: "2025-12-31",
+    openingRetainedEarningsCny: -123.45,
+    openingRetainedEarningsEvidence: "approved example",
+  });
+});
 
 test("strict Finance scope resolution still rejects multiple direct owners", async () => {
   await assert.rejects(
@@ -73,4 +128,7 @@ test("excluding the duplicated candidate yields a connected Finance scope", asyn
     new Map([[2, true], [3, false]]),
   );
   assert.deepEqual(scope.map((item) => item.companyId), [1, 2]);
+  assert.equal(scope[1]?.openingRetainedEarningsDate, "2025-12-31");
+  assert.equal(scope[1]?.openingRetainedEarningsCny, -123.45);
+  assert.equal(scope[1]?.openingRetainedEarningsEvidence, "approved example");
 });

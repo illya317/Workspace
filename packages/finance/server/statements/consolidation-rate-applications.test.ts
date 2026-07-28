@@ -75,15 +75,17 @@ test("aggregates opening capital and posted capital movements by company and occ
     companyCode: fact.companyCode,
     targetDate: fact.targetDate,
     originalAmount: fact.originalAmount,
+    equityLineCode: fact.equityLineCode,
   })), [
-    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 421_462.29 },
-    { companyCode: "ZX05", targetDate: "2024-04-01", originalAmount: 51_336.6 },
+    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 321_462.29, equityLineCode: "capitalReserve" },
+    { companyCode: "ZX05", targetDate: "2024-04-01", originalAmount: 51_336.6, equityLineCode: "capitalReserve" },
+    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 100_000, equityLineCode: "paidInCapital" },
   ]);
   assert.match(facts[0]!.evidence, /最早可用账期期初余额/);
   assert.match(facts[1]!.evidence, /2024-04-记-0004/);
 });
 
-test("ignores debit-side reductions and zero capital facts in the current additive policy", () => {
+test("preserves debit-side equity reductions as signed historical facts", () => {
   assert.deepEqual(aggregateHistoricalCapitalFacts({
     opening: [{
       companyCode: "ZX05",
@@ -103,5 +105,8 @@ test("ignores debit-side reductions and zero capital facts in the current additi
       debit: 50,
       credit: 0,
     }],
-  }), []);
+  }).map((fact) => ({ equityLineCode: fact.equityLineCode, originalAmount: fact.originalAmount })), [
+    { equityLineCode: "capitalReserve", originalAmount: -50 },
+    { equityLineCode: "paidInCapital", originalAmount: -100 },
+  ]);
 });

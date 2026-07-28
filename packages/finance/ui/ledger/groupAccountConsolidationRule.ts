@@ -7,7 +7,7 @@ const CONSOLIDATION_FIELD_KEYS = new Set([
   "consolidationRole",
   "counterpartyRequirement",
   "movementType",
-  "translationRateType",
+  "statutoryTranslationPolicy",
 ]);
 
 export function groupAccountMasterFields(fields: FormSurfaceFieldSpec[]) {
@@ -47,7 +47,6 @@ export function groupAccountDraftDirtyParts(
       || left.parentGroupAccountId !== right.parentGroupAccountId,
     consolidation: left.consolidationRole !== right.consolidationRole
       || left.counterpartyRequirement !== right.counterpartyRequirement
-      || left.movementType !== right.movementType
-      || left.translationRateType !== right.translationRateType,
+      || left.movementType !== right.movementType,
   };
 }

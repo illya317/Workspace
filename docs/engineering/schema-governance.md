@@ -20,7 +20,7 @@
 | `external.prisma` | 共享主体与外部角色 | Party, PartyNameHistory, ExternalPartyProfile, ExternalPartyRole, ExternalPartySourceMapping |
 | `finance-assets.prisma` | 财务资产卡片、期间记录与调整 | FinanceAssetCard, FinanceAssetCostLine, FinanceAssetExpenseAllocation, FinanceAssetImportBatch, FinanceAssetPeriodEntry, FinanceAssetAdjustment |
 | `finance-budget.prisma` | 预算管理 | FinanceBudgetVersion, FinanceBudgetDept, FinanceBudgetRd |
-| `finance-cashflow.prisma` | 现金流项目、分配与调整 | FinanceCashFlowItem, FinanceCashFlowAllocation, FinanceCashFlowAllocationAdjustment |
+| `finance-cashflow.prisma` | 现金流项目与分配 | FinanceCashFlowItem, FinanceCashFlowAllocation |
 | `finance-consolidation-entry-line.prisma` | 合并抵销分录行 | FinanceConsolidationEntryLine |
 | `finance-consolidation-match.prisma` | 合并匹配组、来源与公司映射规则 | FinanceConsolidationMatchGroup, FinanceConsolidationMatchSource, FinanceVoucherCompanyMappingRule |
 | `finance-consolidation-output.prisma` | 合并输出快照 | FinanceConsolidationOutputSnapshot |
@@ -31,7 +31,7 @@
 | `finance-group-chart.prisma` | 集团科目与共享会计政策版本 | FinanceGroupAccount, FinanceAccountingPolicyVersion, FinanceGroupAccountRevision, FinanceGroupAccountMapping |
 | `finance-import-evidence.prisma` | 财务导入证据、映射与血缘 | FinanceReadableSourcePackage, FinanceReadableImportRun, FinanceSourceLedgerMapping, FinanceAccountAuxiliaryRequirement, FinanceSourcePeriodStatus, FinanceSourceSubsystemStatus, FinanceAccountLineage |
 | `finance-import.prisma` | 财务导入批次与来源余额 | FinanceLedgerImport, FinanceSourceAccountBalance |
-| `finance-ledger.prisma` | 财务总账、凭证、余额与快照 | FinanceAccount, FinancePeriod, FinanceStatementVoucherExclusion, FinanceVoucher, FinanceVoucherItem, FinanceAccountBalance, FinanceBalanceSnapshot, FinanceBalanceSnapshotRow |
+| `finance-ledger.prisma` | 财务总账、凭证、余额与快照 | FinanceAccount, FinancePeriod, FinanceVoucher, FinanceVoucherItem, FinanceAccountBalance, FinanceBalanceSnapshot, FinanceBalanceSnapshotRow |
 | `finance-reclass.prisma` | 重分类规则、调整与结果 | FinanceReclassRule, FinanceReclassItemRule, FinanceBalanceReclassAdjustment, FinanceBalanceReclassAdjustmentHistory, ReclassResult |
 | `finance-statement-source.prisma` | 报表来源包、工作表与行 | FinanceStatementSourcePackage, FinanceStatementSourceSheet, FinanceStatementSourceLine |
 | `finance-statement.prisma` | 财务报表底稿与汇率 | FinanceStatementWorkpaper, FinanceStatementWorkpaperLine, FinanceStatementExchangeRate |

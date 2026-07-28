@@ -7,13 +7,23 @@ import {
   buildSaveFinanceGroupAccountMappingChangeSetCommand,
   buildUpdateFinanceGroupAccountCommand,
 } from "../../domain/group-chart-validation";
+import { deriveFinanceGroupAccountTranslationRateType } from "@workspace/finance/types/group-account";
 
 const defaultConsolidationFields = {
   consolidationRole: "none" as const,
   counterpartyRequirement: "none" as const,
   movementType: "closingBalance" as const,
-  translationRateType: "closing" as const,
 };
+
+test("group-account translation policy is statutory and derived from report semantics", () => {
+  assert.equal(deriveFinanceGroupAccountTranslationRateType({ code: "1001", name: "货币资金", category: "asset" }), "closing");
+  assert.equal(deriveFinanceGroupAccountTranslationRateType({ code: "1511", name: "长期股权投资", category: "asset" }), "closing");
+  assert.equal(deriveFinanceGroupAccountTranslationRateType({ code: "6001", name: "主营业务收入", category: "revenue" }), "average");
+  assert.equal(deriveFinanceGroupAccountTranslationRateType({ code: "4001", name: "实收资本", category: "equity" }), "historical");
+  assert.equal(deriveFinanceGroupAccountTranslationRateType({ code: "4101", name: "盈余公积", category: "equity" }), "historical");
+  assert.equal(deriveFinanceGroupAccountTranslationRateType({ code: "4104", name: "未分配利润", category: "equity" }), "retainedEarningsRollforward");
+  assert.equal(deriveFinanceGroupAccountTranslationRateType({ code: "4003", name: "其他综合收益", category: "equity" }), "translationDifference");
+});
 
 test("group-account creation enforces Chinese category code prefixes", () => {
   const valid = buildCreateFinanceGroupAccountCommand({

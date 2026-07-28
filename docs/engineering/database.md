@@ -1379,24 +1379,6 @@
 | ownerVoucherItem | FinanceVoucherItem? | @relation("FinanceCashFlowOwnerItem", fields: [ownerVoucherItemId], references: [id]) |  |
 | counterpartItem | FinanceVoucherItem? | @relation("FinanceCashFlowCounterpartItem", fields: [counterpartItemId], references: [id]) |  |
 | consolidationEntryLines | FinanceConsolidationEntryLine[] | - |  |
-| statementAdjustment | FinanceCashFlowAllocationAdjustment? | - |  |
-
-### FinanceCashFlowAllocationAdjustment
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| allocationId | Int | @unique |  |
-| companyCode | String | - |  |
-| sourceLineCode | String | - |  |
-| targetLineCode | String | - |  |
-| amount | Decimal | @db.Decimal(20, 2) |  |
-| enabled | Boolean | @default(true) |  |
-| sourceType | String | @default("reference_workpaper") |  |
-| note | String? | - |  |
-| createdAt | DateTime | @default(now()) |  |
-| updatedAt | DateTime | @default(now()) @updatedAt |  |
-| allocation | FinanceCashFlowAllocation | @relation(fields: [allocationId], references: [id], onDelete: Cascade) |  |
 
 ### FinanceConsolidationEntryLine
 
@@ -1539,6 +1521,32 @@
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 
+### FinanceConsolidationTaxEffect
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| entryId | Int | - |  |
+| entitySnapshotId | Int? | - |  |
+| effectKey | String | - |  |
+| taxEffectType | String | - | deductible | taxable |
+| differenceAmount | Decimal | @db.Decimal(20, 2) |  |
+| taxRate | Decimal | @db.Decimal(12, 8) |  |
+| recognition | String | - | asset | liability | unrecognized |
+| periodBasis | String | @default("current") | current | comparative |
+| jurisdiction | String? | - |  |
+| recognitionLocation | String? | - | profitOrLoss | otherComprehensiveIncome | equity |
+| balanceSheetLineCode | String? | - |  |
+| counterpartLineCode | String? | - |  |
+| reversalPeriod | String? | - |  |
+| recoverabilityConclusion | String | - |  |
+| evidence | String | - |  |
+| preparedBy | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| entry | FinanceConsolidationEntry | @relation(fields: [entryId], references: [id], onDelete: Cascade) |  |
+| entity | FinanceConsolidationEntitySnapshot? | @relation(fields: [entitySnapshotId], references: [id], onDelete: Restrict) |  |
+
 ### FinanceConsolidationBatch
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -1579,20 +1587,6 @@
 | events | FinanceConsolidationBatchEvent[] | - |  |
 | outputSnapshot | FinanceConsolidationOutputSnapshot? | - |  |
 | matchGroups | FinanceConsolidationMatchGroup[] | - |  |
-
-### FinanceCompanyCurrencyPolicy
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| companyId | Int | @unique |  |
-| functionalCurrency | String | - |  |
-| source | String | - |  |
-| evidence | String | - |  |
-| effectiveFrom | DateTime? | - |  |
-| createdAt | DateTime | @default(now()) |  |
-| updatedAt | DateTime | @default(now()) @updatedAt |  |
-| company | Company | @relation(fields: [companyId], references: [id], onDelete: Restrict) |  |
 
 ### FinanceConsolidationBatchEvent
 
@@ -1764,32 +1758,6 @@
 | taxEffects | FinanceConsolidationTaxEffect[] | - |  |
 | matchGroup | FinanceConsolidationMatchGroup? | - |  |
 
-### FinanceConsolidationTaxEffect
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| entryId | Int | - |  |
-| entitySnapshotId | Int? | - |  |
-| effectKey | String | - |  |
-| taxEffectType | String | - | deductible | taxable |
-| differenceAmount | Decimal | @db.Decimal(20, 2) |  |
-| taxRate | Decimal | @db.Decimal(12, 8) |  |
-| recognition | String | - | asset | liability | unrecognized |
-| periodBasis | String | @default("current") | current | comparative |
-| jurisdiction | String? | - |  |
-| recognitionLocation | String? | - | profitOrLoss | otherComprehensiveIncome | equity |
-| balanceSheetLineCode | String? | - |  |
-| counterpartLineCode | String? | - |  |
-| reversalPeriod | String? | - |  |
-| recoverabilityConclusion | String | - |  |
-| evidence | String | - |  |
-| preparedBy | Int | - |  |
-| createdAt | DateTime | @default(now()) |  |
-| updatedAt | DateTime | @default(now()) @updatedAt |  |
-| entry | FinanceConsolidationEntry | @relation(fields: [entryId], references: [id], onDelete: Cascade) |  |
-| entity | FinanceConsolidationEntitySnapshot? | @relation(fields: [entitySnapshotId], references: [id], onDelete: Restrict) |  |
-
 ### FinanceDataImport
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -1949,6 +1917,23 @@
 | position | Position? | @relation(fields: [positionId], references: [id]) |  |
 | employee | Employee? | @relation(fields: [employeeId], references: [id]) |  |
 | import | FinanceDataImport | @relation(fields: [importId], references: [id], onDelete: Cascade) |  |
+
+### FinanceCompanyCurrencyPolicy
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyId | Int | @unique |  |
+| functionalCurrency | String | - |  |
+| source | String | - |  |
+| evidence | String | - |  |
+| effectiveFrom | DateTime? | - |  |
+| openingRetainedEarningsDate | DateTime? | - |  |
+| openingRetainedEarningsCny | Decimal? | @db.Decimal(20, 2) |  |
+| openingRetainedEarningsEvidence | String? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| company | Company | @relation(fields: [companyId], references: [id], onDelete: Restrict) |  |
 
 ### FinanceAuxiliaryMember
 
@@ -2191,7 +2176,7 @@
 | consolidationRole | String | @default("none") | none | intercompanyReceivable | intercompanyPayable | intercompanyRevenue | intercompanyExpense | investmentInSubsidiary | shareCapital | capitalReserve | dividendReceivable | dividendPayable | inventory | fixedAsset | cashFlow | difference |
 | counterpartyRequirement | String | @default("none") | none | optional | required |
 | movementType | String | @default("closingBalance") | closingBalance | periodMovement | transaction |
-| translationRateType | String | @default("closing") | closing | average | historical | transactionDate |
+| translationRateType | String | @default("closing") | 后端派生：closing | average | historical | retainedEarningsRollforward | translationDifference |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | policyVersion | FinanceAccountingPolicyVersion | @relation(fields: [policyVersionId], references: [id], onDelete: Restrict) |  |
@@ -2544,21 +2529,6 @@
 | assetAdjustments | FinanceAssetAdjustment[] | - |  |
 | sourceStatuses | FinanceSourcePeriodStatus[] | - |  |
 
-### FinanceStatementVoucherExclusion
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| voucherId | Int | - |  |
-| companyCode | String | - |  |
-| statementType | String | - | balance | income | cashflow |
-| enabled | Boolean | @default(true) |  |
-| sourceType | String | @default("reference_workpaper") |  |
-| note | String? | - |  |
-| createdAt | DateTime | @default(now()) |  |
-| updatedAt | DateTime | @default(now()) @updatedAt |  |
-| voucher | FinanceVoucher | @relation(fields: [voucherId], references: [id], onDelete: Cascade) |  |
-
 ### FinanceVoucher
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -2603,7 +2573,6 @@
 | import | FinanceLedgerImport? | @relation(fields: [importId], references: [id]) |  |
 | items | FinanceVoucherItem[] | - |  |
 | cashFlowAllocations | FinanceCashFlowAllocation[] | - |  |
-| statementExclusions | FinanceStatementVoucherExclusion[] | - |  |
 | assetPeriodEntries | FinanceAssetPeriodEntry[] | - |  |
 | assetAdjustments | FinanceAssetAdjustment[] | - |  |
 
@@ -2768,7 +2737,7 @@
 | amount | Float | - |  |
 | decision | String | @default("reclassify") | reclassify | no_reclass |
 | basis | String | @default("account_net") | 实际执行口径：account_net = 按科目净额 | counterparty_gross = 按往来户逐户毛额 |
-| sourceType | String | @default("automatic_rule") | automatic_rule | auxiliary_balance | reference_workpaper | balance_residual | manual |
+| sourceType | String | @default("automatic_rule") | automatic_rule | auxiliary_balance | balance_residual | manual |
 | ruleId | Int? | - |  |
 | status | String | @default("approved") | approved | adjusted | rejected |
 | note | String? | - |  |
@@ -2937,7 +2906,7 @@
 | id | Int | @id @default(autoincrement()) |  |
 | baseCurrency | String | - |  |
 | quoteCurrency | String | - |  |
-| rateKind | String | - | centralParity；历史数据可能为 closing | historicalInvestment |
+| rateKind | String | - | centralParity | monthlyAverage；历史数据可能为 closing | historicalInvestment |
 | rateDate | String | - | YYYY-MM-DD |
 | rate | Decimal | @db.Decimal(20, 8) | 人民币/1外币 |
 | sourceName | String | @default("中国外汇交易中心") |  |

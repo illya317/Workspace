@@ -4,6 +4,7 @@ import type {
   FinanceGroupAccountCatalogRow,
   UpdateFinanceGroupAccountInput,
 } from "@workspace/finance/types";
+import { deriveFinanceGroupAccountTranslationRateType } from "@workspace/finance/types/group-account";
 
 import { balanceDirectionLabel } from "./groupAccountMappingPresentation";
 
@@ -33,7 +34,6 @@ export function emptyGroupAccountCatalogCreateDraft(): GroupAccountCatalogCreate
     consolidationRole: "none",
     counterpartyRequirement: "none",
     movementType: "closingBalance",
-    translationRateType: "closing",
   };
 }
 
@@ -53,7 +53,6 @@ export function groupAccountCatalogEditDraft(row: FinanceGroupAccountCatalogRow)
     consolidationRole: row.consolidationRole,
     counterpartyRequirement: row.counterpartyRequirement,
     movementType: row.movementType,
-    translationRateType: row.translationRateType,
     expectedUpdatedAt: row.updatedAt,
   };
 }
@@ -205,16 +204,11 @@ export function groupAccountCatalogCreateSections(
           onChange: (value: unknown) => onChange({ movementType: value as GroupAccountCatalogCreateDraft["movementType"] }),
         },
         {
-          key: "translationRateType",
-          label: "集团报表折算方法",
-          spec: { valueType: "string" as const, control: "choice" as const, options: { source: "static" as const, items: [
-            { value: "closing", label: "期末日汇率" },
-            { value: "average", label: "期间平均汇率" },
-            { value: "historical", label: "原始确认日汇率" },
-            { value: "transactionDate", label: "每笔交易日汇率" },
-          ] } },
-          value: draft.translationRateType,
-          onChange: (value: unknown) => onChange({ translationRateType: value as GroupAccountCatalogCreateDraft["translationRateType"] }),
+          key: "statutoryTranslationPolicy",
+          label: "法定折算口径",
+          spec: { valueType: "string" as const, control: "text" as const },
+          value: statutoryTranslationPolicyLabel(deriveFinanceGroupAccountTranslationRateType(draft)),
+          readOnly: true,
         },
       ] : []),
     ],
@@ -258,4 +252,16 @@ export function groupAccountCatalogEditSections(
 
 function defaultDirection(category: GroupAccountCatalogCreateDraft["category"]) {
   return category === "liability" || category === "equity" || category === "revenue" ? "credit" : "debit";
+}
+
+function statutoryTranslationPolicyLabel(
+  value: ReturnType<typeof deriveFinanceGroupAccountTranslationRateType>,
+) {
+  return ({
+    closing: "期末汇率",
+    average: "逐月月平均汇率",
+    historical: "发生日历史汇率",
+    retainedEarningsRollforward: "人民币滚动",
+    translationDifference: "折算差额计入其他综合收益",
+  } as const)[value];
 }

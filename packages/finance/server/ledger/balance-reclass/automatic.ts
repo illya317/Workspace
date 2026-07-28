@@ -222,7 +222,9 @@ export async function materializeAutomaticRuleAdjustments(
       },
     }),
     tx.financeBalanceReclassAdjustment.findMany({
-      where: existingWhere,
+      where: command.data.periodIds.length > 0
+        ? { periodId: { in: periodIds } }
+        : existingWhere,
       select: adjustmentSnapshotSelect,
     }),
   ]);
@@ -282,12 +284,21 @@ export async function materializeAutomaticRuleAdjustments(
   )).filter((plan) => command.data.sourceGroupAccountIds.length === 0
     || command.data.sourceGroupAccountIds.includes(plan.sourceGroupAccountId));
   const planByKey = new Map(plans.map((plan) => [`${plan.periodId}::${plan.sourceAccountCode}`, plan]));
+  const scopedExisting = command.data.periodIds.length > 0
+    ? existing.filter((row) => {
+        const key = `${row.periodId}::${row.sourceAccountCode}`;
+        if (planByKey.has(key)) return true;
+        if (command.data.policyVersionId !== undefined && row.policyVersionId !== command.data.policyVersionId) return false;
+        return command.data.sourceGroupAccountIds.length === 0
+          || (row.sourceGroupAccountId !== null && command.data.sourceGroupAccountIds.includes(row.sourceGroupAccountId));
+      })
+    : existing;
 
   let written = 0;
   let updated = 0;
   let deleted = 0;
   let skippedProtected = 0;
-  for (const row of existing) {
+  for (const row of scopedExisting) {
     const snapshot = numericSnapshot(row);
     const key = `${row.periodId}::${row.sourceAccountCode}`;
     const plan = planByKey.get(key);

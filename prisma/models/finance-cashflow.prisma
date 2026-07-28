@@ -47,29 +47,9 @@ model FinanceCashFlowAllocation {
   ownerVoucherItem        FinanceVoucherItem?                  @relation("FinanceCashFlowOwnerItem", fields: [ownerVoucherItemId], references: [id])
   counterpartItem         FinanceVoucherItem?                  @relation("FinanceCashFlowCounterpartItem", fields: [counterpartItemId], references: [id])
   consolidationEntryLines FinanceConsolidationEntryLine[]
-  statementAdjustment     FinanceCashFlowAllocationAdjustment?
 
   @@unique([sourceSystem, sourceDatabase, sourceKey])
   @@index([importId])
   @@index([companyCode, periodId, cashFlowItemId])
   @@index([voucherId])
-}
-
-/// 现金流分配的报表列示调整：来源事实不变，只把指定金额从来源行转入目标行
-model FinanceCashFlowAllocationAdjustment {
-  id             Int      @id @default(autoincrement())
-  allocationId   Int      @unique
-  companyCode    String
-  sourceLineCode String
-  targetLineCode String
-  amount         Decimal  @db.Decimal(20, 2)
-  enabled        Boolean  @default(true)
-  sourceType     String   @default("reference_workpaper")
-  note           String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @default(now()) @updatedAt
-
-  allocation FinanceCashFlowAllocation @relation(fields: [allocationId], references: [id], onDelete: Cascade)
-
-  @@index([companyCode, enabled])
 }

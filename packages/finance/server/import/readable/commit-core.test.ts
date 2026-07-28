@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import type { Prisma } from "@workspace/platform/server/prisma";
-import { markLegacyVouchersOutsideSourceInvalid, upsertVouchers } from "./commit-core";
+import { markVouchersOutsideSourceInvalid, upsertVouchers } from "./commit-core";
 import type { NormalizedReadableBatch } from "./types";
 
 function spec(overrides: Partial<NormalizedReadableBatch["spec"]> = {}): NormalizedReadableBatch["spec"] {
@@ -19,11 +19,12 @@ function spec(overrides: Partial<NormalizedReadableBatch["spec"]> = {}): Normali
   };
 }
 
-test("archives stale legacy vouchers so historical consolidation references stay intact", async () => {
+test("archives stale legacy and current-source vouchers so historical references stay intact", async () => {
   let update: unknown;
+  let lookup: unknown;
   const tx = {
     financeVoucher: {
-      findMany: async () => [{ id: 11 }, { id: 12 }],
+      findMany: async (args: unknown) => { lookup = args; return [{ id: 11 }, { id: 12 }]; },
       updateMany: async (args: unknown) => { update = args; },
     },
   } as unknown as Prisma.TransactionClient;
@@ -37,7 +38,19 @@ test("archives stale legacy vouchers so historical consolidation references stay
     }),
   } as unknown as NormalizedReadableBatch;
 
-  await markLegacyVouchersOutsideSourceInvalid(tx, batch, new Map([[6, 60]]), new Map([["source", 11]]));
+  await markVouchersOutsideSourceInvalid(tx, batch, new Map([[6, 60]]), new Map([["source", 11]]));
+
+  assert.deepEqual(lookup, {
+    where: {
+      companyCode: "ZX02",
+      periodId: { in: [60] },
+      OR: [
+        { sourceSystem: null },
+        { sourceSystem: "T6", sourceDatabase: "UFDATA_002_2026" },
+      ],
+    },
+    select: { id: true },
+  });
 
   assert.deepEqual(update, {
     where: { id: { in: [12] } },

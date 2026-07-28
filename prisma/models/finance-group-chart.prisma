@@ -76,7 +76,7 @@ model FinanceGroupAccountRevision {
   consolidationRole      String                       @default("none") // none | intercompanyReceivable | intercompanyPayable | intercompanyRevenue | intercompanyExpense | investmentInSubsidiary | shareCapital | capitalReserve | dividendReceivable | dividendPayable | inventory | fixedAsset | cashFlow | difference
   counterpartyRequirement String                      @default("none") // none | optional | required
   movementType            String                      @default("closingBalance") // closingBalance | periodMovement | transaction
-  translationRateType     String                      @default("closing") // closing | average | historical | transactionDate
+  translationRateType     String                      @default("closing") // 后端派生：closing | average | historical | retainedEarningsRollforward | translationDifference
   createdAt            DateTime                       @default(now())
   updatedAt            DateTime                       @default(now()) @updatedAt
   policyVersion        FinanceAccountingPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)

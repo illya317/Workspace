@@ -29,9 +29,6 @@ const balanceRows = [
     },
   },
 ];
-let exclusionRows: Array<{
-  voucher: { items: Array<{ debit: number; credit: number; account: { code: string; category: string } }> };
-}> = [];
 let supplementalRows: Array<{
   debit: number;
   credit: number;
@@ -51,7 +48,6 @@ mock.module("@workspace/platform/server/prisma", {
       },
       financeBalanceSnapshot: { findFirst: async () => ({ year: 2024 }) },
       financeVoucherItem: { findMany: async () => supplementalRows },
-      financeStatementVoucherExclusion: { findMany: async () => exclusionRows },
     },
   },
 } as never);
@@ -59,7 +55,6 @@ mock.module("@workspace/platform/server/prisma", {
 const { aggregateMappingBasedBalances } = await import("./mapping-based-balances");
 
 test("presents an unclosed expense residual through undistributed profit", async () => {
-  exclusionRows = [];
   supplementalRows = [];
   const result = await aggregateMappingBasedBalances("02", 2026, 7);
   const retainedEarnings = result.byLineCode.find((line) => line.lineCode === "undistributedProfit");
@@ -83,22 +78,7 @@ test("presents an unclosed expense residual through undistributed profit", async
   assert.equal(result.resolvedCount, 1);
 });
 
-test("reverses an explicitly excluded voucher from balance-sheet presentation only", async () => {
-  supplementalRows = [];
-  exclusionRows = [{
-    voucher: {
-      items: [{ debit: 80, credit: 0, account: { code: "660112", category: "expense" } }],
-    },
-  }];
-
-  const result = await aggregateMappingBasedBalances("02", 2026, 7);
-  const retainedEarnings = result.byLineCode.find((line) => line.lineCode === "undistributedProfit");
-
-  assert.equal(retainedEarnings?.net, 0);
-});
-
 test("adds pre-baseline Workspace supplements without mutating ERP balances", async () => {
-  exclusionRows = [];
   supplementalRows = [
     { debit: 505_060, credit: 0, account: { code: "1511", category: "asset" } },
     { debit: 0, credit: 505_060, account: { code: "2241", category: "liability" } },

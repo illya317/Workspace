@@ -1,6 +1,7 @@
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { deriveFinanceGroupAccountTranslationRateType } from "@workspace/finance/types/group-account";
 
 import {
   buildUpdateFinanceGroupAccountCommand,
@@ -112,7 +113,7 @@ export async function updateFinanceGroupAccount(input: UpdateFinanceGroupAccount
           consolidationRole: data.consolidationRole,
           counterpartyRequirement: data.counterpartyRequirement,
           movementType: data.movementType,
-          translationRateType: data.translationRateType,
+          translationRateType: deriveFinanceGroupAccountTranslationRateType(data),
         },
       });
       if (updated.count !== 1) throw new FinanceGroupAccountUpdateConflictError();

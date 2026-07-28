@@ -102,6 +102,7 @@ test("historical capital rates generate a partial-ownership Canada elimination v
         targetDate: "2025-03-14",
         evidence: "实收资本",
         capitalOriginalAmount: 100,
+        equityLineCode: "paidInCapital",
         voucher: null,
       }],
     }, {
@@ -122,6 +123,7 @@ test("historical capital rates generate a partial-ownership Canada elimination v
         targetDate: "2025-04-01",
         evidence: "资本公积",
         capitalOriginalAmount: 50,
+        equityLineCode: "capitalReserve",
         voucher: null,
       }],
     }],

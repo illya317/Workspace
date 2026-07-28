@@ -4,6 +4,10 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
+import {
+  consolidationMonthEndDate,
+  consolidationPeriodRateRequirements,
+} from "../statements/consolidation-period-rates";
 
 export interface ConsolidationFxValidationFacts {
   periodEnd: string;
@@ -37,6 +41,10 @@ function validRateDate(targetDate: string, rateDate: string) {
 export function validateConsolidationFxFacts(
   facts: ConsolidationFxValidationFacts,
 ): DomainValidationResult<{ ready: true }> {
+  const periodMatch = /^(\d{4})-(\d{2})-\d{2}$/.exec(facts.periodEnd);
+  if (!periodMatch) return failCommand("合并期间截止日无效", 409, "periodEnd");
+  const requirements = consolidationPeriodRateRequirements(Number(periodMatch[1]), Number(periodMatch[2]));
+  const comparativeEquityPeriodEnd = consolidationMonthEndDate(Number(periodMatch[1]) - 1, 12);
   const entityById = new Map(facts.entities.map((entity) => [entity.id, entity]));
   for (const entity of facts.entities) {
     if (!entity.functionalCurrency || !entity.currencyEvidence?.trim()) {
@@ -64,33 +72,70 @@ export function validateConsolidationFxFacts(
   for (const entity of cadEntities) {
     for (const periodBasis of ["current", "comparative"] as const) {
       const expected = periodBasis === "current" || comparativeEntityIds.has(entity.id);
-      const targetDate = periodBasis === "current" ? facts.periodEnd : facts.comparativePeriodEnd;
       const closing = rateApplications.filter(({ application }) =>
         application.applicationType === "closing"
         && application.periodBasis === periodBasis
         && application.entitySnapshotId === entity.id,
       );
-      if (closing.length !== (expected ? 1 : 0)) {
+      const expectedDates = expected ? requirements.closing[periodBasis] : [];
+      if (closing.length !== expectedDates.length) {
         return failCommand(
           expected
-            ? `每个适用的 CAD 本位币实体必须且只能绑定一条${periodBasis === "current" ? "本期" : "比较期"}期末汇率`
+            ? `每个适用的 CAD 本位币实体必须完整绑定${periodBasis === "current" ? "本期" : "比较期"}现金及资产负债表所需期末汇率`
             : "没有非零上期数的 CAD 实体不能绑定比较期期末汇率",
           409,
           "rateApplications",
         );
       }
       if (!expected) continue;
-      const { rate, application } = closing[0]!;
-      if ((rate.rateKind !== "closing" && rate.rateKind !== "centralParity")
-        || application.targetDate !== targetDate
-        || application.voucherItemId !== null
-        || application.voucher !== null
-        || !validRateDate(targetDate, rate.rateDate)) {
+      for (const targetDate of expectedDates) {
+        const matches = closing.filter(({ application }) => application.targetDate === targetDate);
+        const match = matches[0];
+        if (matches.length !== 1 || !match
+          || (match.rate.rateKind !== "closing" && match.rate.rateKind !== "centralParity")
+          || match.application.voucherItemId !== null
+          || match.application.voucher !== null
+          || !validRateDate(targetDate, match.rate.rateDate)) {
+          return failCommand(
+            `CAD ${periodBasis === "current" ? "本期" : "比较期"}期末汇率必须逐时点采用对应日期或此前7日内的人民币汇率中间价`,
+            409,
+            "rateApplications",
+          );
+        }
+      }
+    }
+    for (const periodBasis of ["current", "comparative"] as const) {
+      const expected = periodBasis === "current" || comparativeEntityIds.has(entity.id);
+      const averages = rateApplications.filter(({ application }) =>
+        application.applicationType === "monthlyAverage"
+        && application.periodBasis === periodBasis
+        && application.entitySnapshotId === entity.id,
+      );
+      const expectedDates = expected ? requirements.monthlyAverage[periodBasis] : [];
+      if (averages.length !== expectedDates.length) {
         return failCommand(
-          `CAD ${periodBasis === "current" ? "本期" : "比较期"}期末汇率必须采用对应期末或此前7日内的人民币汇率中间价`,
+          expected
+            ? `每个适用的 CAD 本位币实体必须完整绑定${periodBasis === "current" ? "本期" : "比较期"}逐月平均汇率`
+            : "没有非零上期数的 CAD 实体不能绑定比较期月平均汇率",
           409,
           "rateApplications",
         );
+      }
+      if (!expected) continue;
+      for (const targetDate of expectedDates) {
+        const matches = averages.filter(({ application }) => application.targetDate === targetDate);
+        const match = matches[0];
+        if (matches.length !== 1 || !match
+          || match.rate.rateKind !== "monthlyAverage"
+          || match.rate.rateDate !== targetDate
+          || match.application.voucherItemId !== null
+          || match.application.voucher !== null) {
+          return failCommand(
+            `CAD ${periodBasis === "current" ? "本期" : "比较期"}期间发生额必须逐月采用对应月份的人民币汇率中间价月平均`,
+            409,
+            "rateApplications",
+          );
+        }
       }
     }
   }
@@ -109,20 +154,28 @@ export function validateConsolidationFxFacts(
     if (application.periodBasis !== "current" && application.periodBasis !== "comparative") {
       return failCommand("汇率应用缺少有效的本期或比较期口径", 409, "rateApplications");
     }
-    if (application.applicationType === "closing") continue;
-    if (application.applicationType === "historicalCapital") {
-      const key = `${application.entitySnapshotId}:${application.periodBasis}:${application.targetDate}`;
+    if (application.applicationType === "closing" || application.applicationType === "monthlyAverage") continue;
+    if (application.applicationType === "historicalCapital" || application.applicationType === "historicalEquity") {
+      const key = `${application.entitySnapshotId}:${application.periodBasis}:${application.equityLineCode}:${application.targetDate}`;
       if (historicalCapitalKeys.has(key)) {
-        return failCommand("同一境外实体、期间口径和资本发生日只能绑定一条权益资本历史汇率", 409, "rateApplications");
+        return failCommand("同一境外实体、期间口径、权益项目和发生日只能绑定一条权益历史汇率", 409, "rateApplications");
       }
-      if ((rate.rateKind !== "historicalInvestment" && rate.rateKind !== "centralParity")
+      const validHistoricalRate = application.applicationType === "historicalEquity"
+        ? rate.rateKind === "monthlyAverage"
+          ? rate.rateDate === application.targetDate
+          : (rate.rateKind === "historicalInvestment" || rate.rateKind === "centralParity")
+            && validRateDate(application.targetDate, rate.rateDate)
+        : (rate.rateKind === "historicalInvestment" || rate.rateKind === "centralParity")
+          && validRateDate(application.targetDate, rate.rateDate);
+      if (!validHistoricalRate
         || application.voucherItemId !== null
         || application.voucher !== null
+        || !application.equityLineCode
         || !application.capitalOriginalAmount
-        || application.capitalOriginalAmount <= 0
-        || !validRateDate(application.targetDate, rate.rateDate)
-        || application.periodBasis === "comparative" && application.targetDate > facts.comparativePeriodEnd) {
-        return failCommand("境外权益资本必须绑定出资日或此前7日内的历史牌价及正数原币金额", 409, "rateApplications");
+        || application.applicationType === "historicalEquity" && application.equityLineCode !== "undistributedProfit"
+        || application.applicationType === "historicalCapital" && application.equityLineCode === "undistributedProfit"
+        || application.periodBasis === "comparative" && application.targetDate > comparativeEquityPeriodEnd) {
+        return failCommand("境外权益必须绑定对应发生日汇率、权益项目和非零原币金额", 409, "rateApplications");
       }
       historicalCapitalKeys.add(key);
       continue;
@@ -148,7 +201,7 @@ export function validateConsolidationFxFacts(
     }
     if (application.periodBasis === "comparative"
       && (!comparativeEntityIds.has(application.entitySnapshotId)
-        || voucher.voucherDate > facts.comparativePeriodEnd)) {
+        || voucher.voucherDate > comparativeEquityPeriodEnd)) {
       return failCommand("比较期投资历史汇率只能覆盖比较期末前已发生且主体存在上期数的投资", 409, "rateApplications");
     }
     applications.set(application.voucherItemId, application);
@@ -160,7 +213,7 @@ export function validateConsolidationFxFacts(
   const expectedComparativeInvestmentIds = new Set([...currentInvestmentById]
     .filter(([, application]) => (
       comparativeEntityIds.has(application.entitySnapshotId)
-      && application.voucher!.voucherDate <= facts.comparativePeriodEnd
+      && application.voucher!.voucherDate <= comparativeEquityPeriodEnd
     ))
     .map(([id]) => id));
   if ([...expectedComparativeInvestmentIds].some((id) => {

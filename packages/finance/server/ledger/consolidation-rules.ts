@@ -2,7 +2,10 @@ import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 
-import type { FinanceConsolidationRuleResponse } from "@workspace/finance/types";
+import {
+  deriveFinanceGroupAccountTranslationRateType,
+  type FinanceConsolidationRuleResponse,
+} from "@workspace/finance/types";
 import {
   buildSaveFinanceConsolidationRuleCommand,
   type SaveFinanceConsolidationRuleCommandInput,
@@ -34,6 +37,7 @@ export async function listFinanceConsolidationRules(input: { policyVersionId?: n
       groupAccountId: true,
       code: true,
       name: true,
+      category: true,
       consolidationRole: true,
       counterpartyRequirement: true,
       movementType: true,
@@ -126,7 +130,7 @@ export async function listFinanceConsolidationRules(input: { policyVersionId?: n
           consolidationRole: account.consolidationRole as FinanceConsolidationRuleResponse["rows"][number]["selectors"][number]["resolvedGroupAccounts"][number]["consolidationRole"],
           counterpartyRequirement: account.counterpartyRequirement as FinanceConsolidationRuleResponse["rows"][number]["selectors"][number]["resolvedGroupAccounts"][number]["counterpartyRequirement"],
           movementType: account.movementType as FinanceConsolidationRuleResponse["rows"][number]["selectors"][number]["resolvedGroupAccounts"][number]["movementType"],
-          translationRateType: account.translationRateType as FinanceConsolidationRuleResponse["rows"][number]["selectors"][number]["resolvedGroupAccounts"][number]["translationRateType"],
+          translationRateType: deriveFinanceGroupAccountTranslationRateType(account),
         })),
       })),
     })),
