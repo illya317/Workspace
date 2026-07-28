@@ -102,6 +102,16 @@ export type TenantProfile = {
     defaultAnalysisYear: number;
     openingBalanceBaselineYear: number;
   };
+  financeConsolidationPolicies?: {
+    retainedEarningsOpeningBalances: Array<{
+      key: string;
+      foreignCompanyCode: string;
+      openingDate: string;
+      presentationCurrencyCode: string;
+      openingAmount: number;
+      evidence: string;
+    }>;
+  };
   work: {
     companyProjectCodePrefix: string;
     companyProjectSequenceStart: number;

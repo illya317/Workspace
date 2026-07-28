@@ -27,7 +27,7 @@ export type ConsolidationControlKey =
   | "tax"
   | `elimination:${ConsolidationEntryType}`;
 export type StatementSourceKind = "workpaper" | "system" | "missing";
-export type StatementExchangeRateKind = "centralParity" | "closing" | "historicalInvestment";
+export type StatementExchangeRateKind = "centralParity" | "monthlyAverage" | "closing" | "historicalInvestment";
 
 export interface ConsolidationPeriodOption {
   year: number;
@@ -198,7 +198,7 @@ export interface ConsolidationEntitySnapshot {
 }
 
 export interface ConsolidationRateApplicationSnapshot {
-  applicationType: "closing" | "historicalInvestment" | "historicalCapital";
+  applicationType: "closing" | "flowAverage" | "cashPoint" | "historicalInvestment" | "historicalCapital";
   periodBasis: "current" | "comparative";
   entitySnapshotId: number;
   voucherItemId: number | null;

@@ -32,6 +32,44 @@ const investmentApplication = {
   },
 };
 
+function currentFlowAndCashRates() {
+  const monthEnds = ["2026-01-31", "2026-02-28", "2026-03-31", "2026-04-30", "2026-05-31", "2026-06-30"];
+  return [
+    ...monthEnds.map((targetDate, index) => ({
+      exchangeRateId: 100 + index,
+      rateKind: "monthlyAverage",
+      rateDate: targetDate,
+      recordedBy: 10,
+      recordedAt: "2026-06-30T08:00:00.000Z",
+      applications: [{
+        applicationType: "flowAverage" as const,
+        periodBasis: "current" as const,
+        entitySnapshotId: 2,
+        voucherItemId: null,
+        targetDate,
+        evidence: "月平均汇率",
+        voucher: null,
+      }],
+    })),
+    ...["2025-12-31", "2026-05-31"].map((targetDate, index) => ({
+      exchangeRateId: 200 + index,
+      rateKind: "centralParity",
+      rateDate: targetDate,
+      recordedBy: 10,
+      recordedAt: "2026-06-30T08:00:00.000Z",
+      applications: [{
+        applicationType: "cashPoint" as const,
+        periodBasis: "current" as const,
+        entitySnapshotId: 2,
+        voucherItemId: null,
+        targetDate,
+        evidence: "现金时点汇率",
+        voucher: null,
+      }],
+    })),
+  ];
+}
+
 test("accepts complete CNY/CAD currency policies and applied rates", () => {
   const result = validateConsolidationFxFacts({
     periodEnd: "2026-06-30",
@@ -43,6 +81,7 @@ test("accepts complete CNY/CAD currency policies and applied rates", () => {
     rates: [
       { exchangeRateId: 10, rateKind: "closing", rateDate: "2026-06-30", recordedBy: 10, recordedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
       { exchangeRateId: 11, rateKind: "historicalInvestment", rateDate: "2025-03-14", recordedBy: 10, recordedAt: "2025-03-15T08:00:00.000Z", applications: [investmentApplication] },
+      ...currentFlowAndCashRates(),
     ],
     requiredInvestmentVoucherIds: [88],
     requiredComparativeEntityIds: [],
@@ -67,6 +106,7 @@ test("accepts entity-level historical capital evidence without a voucher", () =>
         capitalOriginalAmount: 1_000_000,
         voucher: null,
       }] },
+      ...currentFlowAndCashRates(),
     ],
     requiredInvestmentVoucherIds: [],
     requiredComparativeEntityIds: [],
@@ -101,6 +141,7 @@ test("accepts multiple historical capital occurrence dates for one foreign entit
         capitalOriginalAmount: 51_326.6,
         voucher: null,
       }] },
+      ...currentFlowAndCashRates(),
     ],
     requiredInvestmentVoucherIds: [],
     requiredComparativeEntityIds: [],

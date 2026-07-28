@@ -40,9 +40,10 @@ export interface ConsolidationCurrencyPolicyFact {
 
 export interface ConsolidationRateApplicationFact {
   exchangeRateId: number;
-  applicationType: "closing" | "historicalInvestment" | "historicalCapital";
+  applicationType: "closing" | "flowAverage" | "cashPoint" | "historicalInvestment" | "historicalCapital";
   periodBasis: "current" | "comparative";
   entitySnapshotId: number;
+  targetDate?: string;
   voucherItemId?: number | null;
   capitalContributionDate?: string | null;
   capitalOriginalAmount?: number | null;
@@ -424,6 +425,7 @@ export async function applyConsolidationRatePolicies(input: {
       entitySnapshotId: application.entitySnapshotId,
       voucherItemId: voucher?.id ?? null,
       targetDate: voucher?.voucherDate
+        ?? application.targetDate
         ?? application.capitalContributionDate
         ?? (application.periodBasis === "current" ? input.periodEnd : comparativePeriodEnd),
       evidence: application.evidence,

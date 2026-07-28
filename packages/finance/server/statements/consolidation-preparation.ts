@@ -42,11 +42,23 @@ import {
 import { ChinaMoneyRateError } from "./chinamoney-exchange-rates";
 import {
   ensureChinaMoneyCentralParityRate,
+  ensureChinaMoneyMonthlyAverageRate,
   ensureVoucherHistoricalInvestmentRate,
 } from "./exchange-rates";
 import { consolidationSourcesReady } from "./consolidation-source-coverage";
 
 type DraftBatch = NonNullable<Awaited<ReturnType<typeof loadConsolidationBatchRow>>>;
+
+function flowMonthEnds(year: number, month: number) {
+  return Array.from({ length: month }, (_, index) => periodEndDate(year, index + 1));
+}
+
+function cashPointDates(year: number, month: number) {
+  return [...new Set([
+    `${year - 1}-12-31`,
+    periodEndDate(month === 1 ? year - 1 : year, month === 1 ? 12 : month - 1),
+  ])];
+}
 
 function scopeFactsBySnapshotId(batch: DraftBatch) {
   return new Map(batch.entities.map((entity) => [entity.id, {
@@ -166,6 +178,8 @@ async function loadAutomaticRateFacts(
   const targetDates = [
     selectedPeriodEnd,
     ...(requiredComparativeEntityIds.length > 0 ? [comparativePeriodEnd] : []),
+    ...cashPointDates(batch.year, batch.month),
+    ...(requiredComparativeEntityIds.length > 0 ? cashPointDates(batch.year - 1, batch.month) : []),
     ...historicalCapitalFacts.map((fact) => fact.targetDate),
     ...mappedInvestments.filter(({ investment }) => !investment.historicalRate)
       .map(({ investment }) => investment.voucherDate),
@@ -174,6 +188,15 @@ async function loadAutomaticRateFacts(
   for (const targetDate of [...new Set(targetDates)].sort()) {
     const rate = await ensureChinaMoneyCentralParityRate({ currencyCode: "CAD", targetDate, userId });
     rateIdByTargetDate.set(targetDate, rate.id);
+  }
+  const monthlyRateIdByTargetDate = new Map<string, number>();
+  for (const targetDate of [
+    ...flowMonthEnds(batch.year, batch.month),
+    ...(requiredComparativeEntityIds.length > 0 ? flowMonthEnds(batch.year - 1, batch.month) : []),
+  ]) {
+    const [year, month] = targetDate.split("-").map(Number);
+    const rate = await ensureChinaMoneyMonthlyAverageRate({ currencyCode: "CAD", year, month, userId });
+    monthlyRateIdByTargetDate.set(targetDate, rate.id);
   }
   const explicitRateIdByVoucherItemId = new Map<number, number>();
   for (const { investment } of mappedInvestments) {
@@ -202,6 +225,52 @@ async function loadAutomaticRateFacts(
     entitySnapshotId: entity.id,
     evidence: `${comparativePeriodEnd} 中国货币网人民币汇率中间价，由系统自动采用`,
   }] : [])]);
+  for (const entity of cadEntities) {
+    for (const targetDate of flowMonthEnds(batch.year, batch.month)) {
+      rateApplications.push({
+        exchangeRateId: monthlyRateIdByTargetDate.get(targetDate)!,
+        applicationType: "flowAverage",
+        periodBasis: "current",
+        entitySnapshotId: entity.id,
+        targetDate,
+        evidence: `${targetDate.slice(0, 7)} 中国货币网全部有效交易日人民币汇率中间价算术平均`,
+      });
+    }
+    if (requiredComparativeEntityIds.includes(entity.id)) {
+      for (const targetDate of flowMonthEnds(batch.year - 1, batch.month)) {
+        rateApplications.push({
+          exchangeRateId: monthlyRateIdByTargetDate.get(targetDate)!,
+          applicationType: "flowAverage",
+          periodBasis: "comparative",
+          entitySnapshotId: entity.id,
+          targetDate,
+          evidence: `${targetDate.slice(0, 7)} 中国货币网全部有效交易日人民币汇率中间价算术平均`,
+        });
+      }
+    }
+    for (const targetDate of cashPointDates(batch.year, batch.month)) {
+      rateApplications.push({
+        exchangeRateId: rateIdByTargetDate.get(targetDate)!,
+        applicationType: "cashPoint",
+        periodBasis: "current",
+        entitySnapshotId: entity.id,
+        targetDate,
+        evidence: `${targetDate} 现金余额时点人民币汇率中间价`,
+      });
+    }
+    if (requiredComparativeEntityIds.includes(entity.id)) {
+      for (const targetDate of cashPointDates(batch.year - 1, batch.month)) {
+        rateApplications.push({
+          exchangeRateId: rateIdByTargetDate.get(targetDate)!,
+          applicationType: "cashPoint",
+          periodBasis: "comparative",
+          entitySnapshotId: entity.id,
+          targetDate,
+          evidence: `${targetDate} 现金余额时点人民币汇率中间价`,
+        });
+      }
+    }
+  }
   const companyIdByCode = new Map(batch.entities.map((entity) => [entity.companyCode, entity.companyId]));
   const comparativeCompanyIds = new Set(batch.entities
     .filter((entity) => requiredComparativeEntityIds.includes(entity.id))

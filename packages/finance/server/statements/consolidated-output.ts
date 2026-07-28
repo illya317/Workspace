@@ -7,7 +7,8 @@ import type {
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 import { recomputeConsolidatedIncome } from "./consolidation-nci-allocation";
 import { applyConsolidationTaxAdjustments } from "./consolidation-tax-adjustments";
-import { ensureLiabilityGrandTotal } from "./consolidated-output-balance-lines";
+import { ensureLiabilityGrandTotal, recomputeBalance } from "./consolidated-output-balance-lines";
+import { translateSourceLines } from "./consolidated-output-translation";
 import type { ConsolidationReplayPackage } from "./consolidation-replay";
 import {
   applyCurrentMonthAdjustment,
@@ -15,11 +16,7 @@ import {
   mergeCurrentMonthAmounts,
   setDerivedLineAmounts,
   sumLineAmounts,
-  translatedCurrentMonthAmounts,
 } from "./consolidated-line-amounts";
-import { cnyPerForeignUnit, historicalEquityRate } from "./consolidation-frozen-rates";
-
-type FrozenReportLine = Omit<ConsolidatedOutputLine, "sourceAmount" | "adjustmentAmount">;
 
 const REPORT_LABELS: Record<StatementReportType, string> = {
   balanceSheet: "合并资产负债表",
@@ -28,25 +25,6 @@ const REPORT_LABELS: Record<StatementReportType, string> = {
 };
 
 const CNY_CODES = new Set(["CNY", "RMB", "人民币"]);
-const HISTORICAL_CAPITAL_LINE_CODES = new Set([
-  "paidInCapital",
-  "otherEquityInstruments",
-  "capitalReserve",
-  "treasuryStock",
-]);
-const TRANSLATION_DIFFERENCE_LINE_CODE = "otherComprehensiveIncome";
-
-type EntityTranslationPolicy = {
-  currency: "CNY";
-} | {
-  currency: "CAD";
-  entitySnapshotId: number;
-  entityLabel: string;
-  closingRate: number;
-  comparativeClosingRate: number | null;
-  historicalCapitalRate: number | null;
-  comparativeHistoricalCapitalRate: number | null;
-};
 
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -77,88 +55,7 @@ function payloadLines(reportType: StatementReportType, reportPayload: unknown): 
   return Array.isArray(payload.lines) ? payload.lines : null;
 }
 
-function parseFrozenLine(value: unknown): FrozenReportLine | null {
-  const row = record(value);
-  if (!row) return null;
-  const amount = finiteNumber(row.amount);
-  const currentMonthAmount = finiteNumber(row.currentMonthAmount);
-  const previousAmount = finiteNumber(row.previousAmount);
-  const lineCode = typeof row.lineCode === "string" ? row.lineCode.trim() : "";
-  const label = typeof row.label === "string" ? row.label.trim() : "";
-  const section = typeof row.section === "string" ? row.section.trim() : "";
-  const side = row.side === "debit" || row.side === "credit" ? row.side : null;
-  const direction = row.direction === "in" || row.direction === "out" || row.direction === "net"
-    ? row.direction
-    : null;
-  if (!lineCode || !label || !section || !side || amount === null || previousAmount === null) return null;
-  return {
-    lineCode,
-    label,
-    code: typeof row.code === "string" && row.code.trim() ? row.code : null,
-    amount,
-    ...(currentMonthAmount === null ? {} : { currentMonthAmount }),
-    previousAmount,
-    section,
-    side,
-    direction,
-    subtract: row.subtract === true,
-    isHeader: row.isHeader === true,
-    isTotal: row.isTotal === true,
-    isGrandTotal: row.isGrandTotal === true,
-  };
-}
-
-function entityAppliedRate(
-  replay: ConsolidationReplayPackage,
-  entitySnapshotId: number,
-  periodBasis: "current" | "comparative",
-): DomainValidationResult<number | null> {
-  const matches = replay.exchangeRates.flatMap((rate) => rate.applications
-    .filter((application) => (
-      (rate.rateKind === "closing" || rate.rateKind === "centralParity")
-      && application.applicationType === "closing"
-      && application.periodBasis === periodBasis
-      && application.entitySnapshotId === entitySnapshotId
-    ))
-    .map(() => rate));
-  if (matches.length === 0) return okCommand(null);
-  if (matches.length !== 1) return failCommand(`CAD 实体 ${entitySnapshotId} 在同一期间必须且只能绑定一条期末汇率`, 409, "rateApplications");
-  return cnyPerForeignUnit(matches[0]!);
-}
-
-function buildEntityTranslationPolicy(
-  replay: ConsolidationReplayPackage,
-  entitySnapshotId: number,
-  functionalCurrency: string,
-): DomainValidationResult<EntityTranslationPolicy> {
-  if (CNY_CODES.has(functionalCurrency.toUpperCase())) return okCommand({ currency: "CNY" });
-  if (functionalCurrency.toUpperCase() !== "CAD") {
-    return failCommand(`暂不支持 ${functionalCurrency} 本位币的合并折算`, 409, "functionalCurrency");
-  }
-  const closing = entityAppliedRate(replay, entitySnapshotId, "current");
-  if (!closing.ok) return closing;
-  if (closing.data === null) {
-    return failCommand(`CAD 实体 ${entitySnapshotId} 缺少本期期末汇率`, 409, "rateApplications");
-  }
-  const comparativeClosing = entityAppliedRate(replay, entitySnapshotId, "comparative");
-  if (!comparativeClosing.ok) return comparativeClosing;
-  const historicalCapital = historicalEquityRate(replay.exchangeRates, entitySnapshotId, "current");
-  if (!historicalCapital.ok) return historicalCapital;
-  const comparativeHistoricalCapital = historicalEquityRate(replay.exchangeRates, entitySnapshotId, "comparative");
-  if (!comparativeHistoricalCapital.ok) return comparativeHistoricalCapital;
-  const entity = replay.entities.find((candidate) => candidate.id === entitySnapshotId);
-  return okCommand({
-    currency: "CAD",
-    entitySnapshotId,
-    entityLabel: entity ? `${entity.companyCode} ${entity.companyName}` : String(entitySnapshotId),
-    closingRate: closing.data,
-    comparativeClosingRate: comparativeClosing.data,
-    historicalCapitalRate: historicalCapital.data,
-    comparativeHistoricalCapitalRate: comparativeHistoricalCapital.data,
-  });
-}
-
-function sameLineDefinition(left: ConsolidatedOutputLine, right: FrozenReportLine) {
+function sameLineDefinition(left: ConsolidatedOutputLine, right: ConsolidatedOutputLine) {
   return left.label === right.label
     && left.section === right.section
     && left.side === right.side
@@ -169,145 +66,6 @@ function sameLineDefinition(left: ConsolidatedOutputLine, right: FrozenReportLin
     && left.isGrandTotal === right.isGrandTotal;
 }
 
-function recomputeBalance(lines: ConsolidatedOutputLine[]) {
-  for (const line of lines.filter((candidate) => candidate.isTotal)) {
-    const total = sumLineAmounts(lines, (candidate) => (
-      candidate.section === line.section
-      && !candidate.isHeader
-      && !candidate.isTotal
-      && !candidate.isGrandTotal
-    ));
-    setDerivedLineAmounts(line, total.amount, total.previousAmount, total.currentMonthAmount);
-  }
-  const grandSections: Record<string, string[]> = {
-    totalAssets: ["currentAssets", "nonCurrentAssets"],
-    totalLiabilities: ["currentLiabilities", "nonCurrentLiabilities"],
-  };
-  for (const line of lines.filter((candidate) => candidate.isGrandTotal)) {
-    const sections = grandSections[line.lineCode];
-    if (!sections) continue;
-    const total = sumLineAmounts(lines, (candidate) => candidate.isTotal && sections.includes(candidate.section));
-    setDerivedLineAmounts(line, total.amount, total.previousAmount, total.currentMonthAmount);
-  }
-}
-
-function rateForSourceLine(
-  policy: EntityTranslationPolicy,
-  reportType: StatementReportType,
-  line: FrozenReportLine,
-  periodBasis: "current" | "comparative",
-): DomainValidationResult<number> {
-  if (policy.currency === "CNY") return okCommand(1);
-  const sourceAmount = periodBasis === "current" ? line.amount : line.previousAmount;
-  if (sourceAmount === 0) return okCommand(1);
-  const closingRate = periodBasis === "current" ? policy.closingRate : policy.comparativeClosingRate;
-  if (closingRate === null) {
-    return failCommand(
-      `${policy.entityLabel} 的${REPORT_LABELS[reportType]}含非零上期数，但批次未冻结比较期期末汇率`,
-      409,
-      "comparativeExchangeRates",
-    );
-  }
-  if (reportType !== "balanceSheet") return okCommand(closingRate);
-  if (line.isHeader || line.isTotal || line.isGrandTotal || line.section !== "equity") {
-    return okCommand(closingRate);
-  }
-  if (HISTORICAL_CAPITAL_LINE_CODES.has(line.lineCode)) {
-    const historicalRate = periodBasis === "current"
-      ? policy.historicalCapitalRate
-      : policy.comparativeHistoricalCapitalRate;
-    if (historicalRate === null) {
-      return failCommand(
-        `${policy.entityLabel} 存在非零${periodBasis === "current" ? "本期" : "比较期"}权益资本，但缺少该期间适用的投资日历史汇率及原币金额`,
-        409,
-        "historicalEquityRates",
-      );
-    }
-    return okCommand(historicalRate);
-  }
-  if (line.lineCode === TRANSLATION_DIFFERENCE_LINE_CODE) return okCommand(closingRate);
-  return okCommand(closingRate);
-}
-
-function applyCadTranslationDifference(
-  policy: Extract<EntityTranslationPolicy, { currency: "CAD" }>,
-  lines: ConsolidatedOutputLine[],
-): DomainValidationResult<ConsolidatedOutputLine[]> {
-  recomputeBalance(lines);
-  const byCode = new Map(lines.map((line) => [line.lineCode, line]));
-  const balanceTotal = (lineCode: string, fallbackSections: string[]) => {
-    const line = byCode.get(lineCode);
-    if (line) return { amount: line.amount, previousAmount: line.previousAmount };
-    const sectionTotals = lines.filter((candidate) => candidate.isTotal && fallbackSections.includes(candidate.section));
-    return sectionTotals.length > 0
-      ? sumLineAmounts(sectionTotals, () => true)
-      : null;
-  };
-  const assets = balanceTotal("totalAssets", ["currentAssets", "nonCurrentAssets"]);
-  const liabilities = balanceTotal("totalLiabilities", ["currentLiabilities", "nonCurrentLiabilities"]);
-  const equity = balanceTotal("totalEquity", ["equity"]);
-  if (!assets || !liabilities || !equity) {
-    return failCommand(`${policy.entityLabel} 缺少计算外币报表折算差额所需的规范合计行`, 409, "translationDifference");
-  }
-  const difference = money(assets.amount - liabilities.amount - equity.amount);
-  const previousDifference = money(assets.previousAmount - liabilities.previousAmount - equity.previousAmount);
-  if (difference !== 0 || previousDifference !== 0) {
-    const translationLine = byCode.get(TRANSLATION_DIFFERENCE_LINE_CODE);
-    if (!translationLine || translationLine.isHeader || translationLine.isTotal || translationLine.isGrandTotal) {
-      return failCommand(
-        `${policy.entityLabel} 缺少规范其他综合收益行，无法单独列示外币报表折算差额`,
-        409,
-        "translationDifference",
-      );
-    }
-    translationLine.amount = money(translationLine.amount + difference);
-    translationLine.previousAmount = money(translationLine.previousAmount + previousDifference);
-  }
-  recomputeBalance(lines);
-  for (const line of lines) {
-    line.sourceAmount = line.amount;
-    line.adjustmentAmount = 0;
-    line.previousSourceAmount = line.previousAmount;
-    line.previousAdjustmentAmount = 0;
-  }
-  return okCommand(lines);
-}
-
-function translateSourceLines(
-  replay: ConsolidationReplayPackage,
-  entitySnapshotId: number,
-  functionalCurrency: string,
-  reportType: StatementReportType,
-  sourceRows: unknown[],
-): DomainValidationResult<ConsolidatedOutputLine[]> {
-  const policy = buildEntityTranslationPolicy(replay, entitySnapshotId, functionalCurrency);
-  if (!policy.ok) return policy;
-  const translated: ConsolidatedOutputLine[] = [];
-  for (const rawLine of sourceRows) {
-    const parsed = parseFrozenLine(rawLine);
-    if (!parsed) return failCommand(`${REPORT_LABELS[reportType]}来源缺少规范行标识或借贷方向`, 409, "reportPayload");
-    const rate = rateForSourceLine(policy.data, reportType, parsed, "current");
-    if (!rate.ok) return rate;
-    const comparativeRate = rateForSourceLine(policy.data, reportType, parsed, "comparative");
-    if (!comparativeRate.ok) return comparativeRate;
-    const amount = money(parsed.amount * rate.data);
-    const previousAmount = money(parsed.previousAmount * comparativeRate.data);
-    translated.push({
-      ...parsed,
-      amount,
-      ...translatedCurrentMonthAmounts(parsed.currentMonthAmount, rate.data),
-      previousAmount,
-      sourceAmount: amount,
-      adjustmentAmount: 0,
-      previousSourceAmount: previousAmount,
-      previousAdjustmentAmount: 0,
-    });
-  }
-  if (reportType === "balanceSheet" && policy.data.currency === "CAD") {
-    return applyCadTranslationDifference(policy.data, translated);
-  }
-  return okCommand(translated);
-}
 
 const CASH_FLOW_DERIVATIONS: Record<string, { add: string[]; subtract?: string[] }> = {
   operatingInSubtotal: { add: ["salesReceipt", "taxRefund", "otherOpIn"] },
@@ -416,7 +174,7 @@ export function buildConsolidatedReportOutput(
       if (!entity) return failCommand("个别报表来源引用了范围外主体", 409, "sources");
       const rows = payloadLines(reportType, source.reportPayload);
       if (!rows) return failCommand(`${REPORT_LABELS[reportType]}来源快照不可重放`, 409, "reportPayload");
-      const translated = translateSourceLines(replay, source.entitySnapshotId, currency, reportType, rows);
+      const translated = translateSourceLines(replay, source.entitySnapshotId, currency, reportType, source.reportPayload, rows);
       if (!translated.ok) return translated;
       for (const translatedLine of translated.data) {
         const entityAmount = {
