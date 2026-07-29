@@ -10,6 +10,15 @@ const {
   resolveWorkspaceSnapshot,
   workspaceSnapshotMatches,
 } = require("./workspace-snapshot");
+const { enforceCheckMemoryLimit } = require("./check-memory-policy");
+
+let boundedNodeOptions;
+try {
+  boundedNodeOptions = enforceCheckMemoryLimit(process.env.NODE_OPTIONS);
+} catch (error) {
+  console.error(`Check memory policy rejected this command: ${error.message}`);
+  process.exit(2);
+}
 
 const args = process.argv.slice(2);
 const separatorIndex = args.indexOf("--");
@@ -498,6 +507,7 @@ function signalChildTree(child, signal) {
     ...process.env,
     CHECK_LOCK: "0",
     CHECK_WORKSPACE_SNAPSHOT_KEY: workspaceSnapshot.key,
+    NODE_OPTIONS: boundedNodeOptions,
   };
   const checkLockOwnerPid = lock.acquired ? String(process.pid) : process.env.CHECK_LOCK_OWNER_PID;
   if (checkLockOwnerPid) childEnvironment.CHECK_LOCK_OWNER_PID = checkLockOwnerPid;

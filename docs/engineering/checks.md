@@ -78,7 +78,7 @@
 
 `typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。Workspace 的根编译 solution 由 `tsconfig.json`、公共 `tsconfig.base.json`、各 `packages/*/tsconfig.json`、`tsconfig.app.json`、`tsconfig.prisma-client.json` 和 `tsconfig.tooling.json` 组成。根 solution 继承 base 供仓库 `tsx` 运行时解析 alias，但保持 `files: []`，不拥有源码。Core 没有 Workspace 上游；Platform 只引用 Core 和生成的 Prisma Client；每个业务 package 只引用 Core 和 Platform；App 与 tooling 引用全部 package。每个生成的 `apps/<unit>/tsconfig.json` 另形成 `app-<unit>` deploy scope，由 deploy contract/builder 显式消费，不手工并入根 solution。`typecheck:references:check` 锁定根工程图、源码 ownership 和缓存契约，禁止通过新增 reference 合法化反向或跨业务依赖，也禁止新增无人负责检查的 TS/TSX/MTS/CTS；生成 App 的文件精确性另由 `deploy:apps:check` 负责，已退出运行面的 `scripts/migrate/sqlite-legacy/` 是唯一显式源码排除。
 
-`npm run typecheck:scope -- production` 这类 scoped 检查只构建目标工程及其上游，适合单模块开发；`typecheck:quick` 从当前 staged/working-tree 变更选择直接 package/App scope，不检查反向下游，也绝不自动升级为全图；`typecheck:affected` 用于 CI 从可信 changed-files evidence 选择 owner unit 及反向消费者；`typecheck:full` 才构建根 solution，只作 CI/发布权威入口。这些入口共享 project-reference 增量产物：声明文件固定输出到 `.cache/types/`，build info 固定输出到 `.cache/tsbuild/`，不会写入源码目录或进入 Next 的 source include。CI 必须同时缓存两者，不能只恢复 build info 而缺少下游需要的声明输出。不要为了触发“干净检查”删除 `.cache`；入口都固定使用 `4096 MiB` Node old-space。
+`npm run typecheck:scope -- production` 这类 scoped 检查只构建目标工程及其上游，适合单模块开发；`typecheck:quick` 从当前 staged/working-tree 变更选择直接 package/App scope，不检查反向下游，也绝不自动升级为全图；`typecheck:affected` 用于 CI 从可信 changed-files evidence 选择 owner unit 及反向消费者；`typecheck:full` 才构建根 solution，只作 CI/发布权威入口。这些入口共享 project-reference 增量产物：声明文件固定输出到 `.cache/types/`，build info 固定输出到 `.cache/tsbuild/`，不会写入源码目录或进入 Next 的 source include。CI 必须同时缓存两者，不能只恢复 build info 而缺少下游需要的声明输出。不要为了触发“干净检查”删除 `.cache`；本地入口的 Node old-space 硬上限为 `4096 MiB`，不得通过提高内存重试。
 
 根 monolith 的 Next 通过 `next.config.ts#typescript.tsconfigPath` 使用 `tsconfig.app.json` 检查路由壳。当前 Next 16 会提示 project references 尚未完全支持，并尝试自己的 incremental build；因此 Next build 是 App/框架集成门禁，不能替代 `typecheck:full` 对完整工程图的权威检查。独立 unit builder 会先运行 deploy graph 派生的全部 package 与 `app-<unit>` scopes，生成的 unit Next config 才设置 `ignoreBuildErrors`，只跳过这次重复且不完整的 Next project-reference 类型遍历。
 
@@ -139,7 +139,7 @@
 
 ### build
 
-`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再生成源码分析 snapshot 并执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 snapshot + Next 生产构建，避免重复 generate。两个入口都固定给 Next 构建进程 `6144 MiB` Node old-space，覆盖 Turbopack 编译后仍需运行的完整 route/type graph 检查，避免在 `Running TypeScript` 阶段触顶旧的 `4096 MiB` 上限。Full 与 deploy-unit packager 会把 snapshot 复制到实际 `server.js` 入口旁，运行时不扫描源码。Agent/企微路由不携带源码读取依赖；standalone 只能包含模型 runtime、会话存储和受保护业务 API connector 所需闭包。
+`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再生成源码分析 snapshot 并执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 snapshot + Next 生产构建，避免重复 generate。本地两个入口都固定给 Next 构建进程 `4096 MiB` Node old-space；检查锁会拒绝更高配置。若构建需要更多时间，只能提高 `CHECK_LOCK_TIMEOUT_MS` 或调用端等待时间，不能提高内存；在上限内仍无法完成时停止本地重试并交由 CI/发布门禁。Full 与 deploy-unit packager 会把 snapshot 复制到实际 `server.js` 入口旁，运行时不扫描源码。Agent/企微路由不携带源码读取依赖；standalone 只能包含模型 runtime、会话存储和受保护业务 API connector 所需闭包。
 
 ### tests
 
