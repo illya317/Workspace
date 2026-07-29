@@ -360,7 +360,6 @@ export async function updateEmployeePageDraft(input: {
   if (conflictingUser) return serviceError("关联账号已绑定其他员工", 409);
   await prisma.$transaction(async (tx) => {
     for (const id of ids) {
-      const original = rows.find((row) => row.id === id)!;
       const values = changesById.get(id) ?? {};
       await ensureEditHistoryBaseline("Employee", id, command.data.userId, tx);
       await tx.employee.update({
