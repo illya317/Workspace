@@ -46,7 +46,7 @@ test("JSON command never replays a lost response body implicitly", async () => {
       ok: true,
       status: 200,
       json: async () => { throw new TypeError("response body was lost"); },
-    } as Response;
+    } as unknown as Response;
   }) as typeof fetch;
   try {
     await assert.rejects(

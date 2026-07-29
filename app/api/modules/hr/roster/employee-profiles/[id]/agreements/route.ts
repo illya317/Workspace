@@ -7,7 +7,6 @@ import {
   listEmploymentAgreementsForEmployee,
 } from "@workspace/hr/server";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { directCommandId } from "@workspace/platform/server/direct-command-meta";
 
 export const GET = createCommandRoute({
@@ -26,9 +25,7 @@ export const POST = createCommandRoute({
   bodyError: "协议生命周期命令无效",
   buildCommand: ({ params, body, user, request }) => buildHrRouteCommand({
     employeeId: params.id,
-    command: body.kind === "end" && !body.effectiveThrough
-      ? { ...body, effectiveThrough: workspaceBusinessDate(new Date()) }
-      : body,
+    command: body,
     userId: user.userId,
     idempotencyKey: directCommandId(request),
   }),

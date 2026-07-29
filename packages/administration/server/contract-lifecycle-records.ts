@@ -142,8 +142,8 @@ export function mergeContractLegalSnapshot(current: Record<string, unknown>, pat
       next.signedOnPrecision = patch.signedOn ? "day" : null;
       next.legacySignDateRaw = null;
     } else {
-      next.signedOnPrecision = current.signedOnPrecision;
-      next.legacySignDateRaw = current.legacySignDateRaw;
+      next.signedOnPrecision = nullableText(current.signedOnPrecision);
+      next.legacySignDateRaw = nullableText(current.legacySignDateRaw);
     }
   }
   if (Object.prototype.hasOwnProperty.call(patch, "expiresOn")) {
@@ -152,8 +152,8 @@ export function mergeContractLegalSnapshot(current: Record<string, unknown>, pat
       next.expiresOnPrecision = patch.expiresOn ? "day" : null;
       next.legacyEndDateRaw = null;
     } else {
-      next.expiresOnPrecision = current.expiresOnPrecision;
-      next.legacyEndDateRaw = current.legacyEndDateRaw;
+      next.expiresOnPrecision = nullableText(current.expiresOnPrecision);
+      next.legacyEndDateRaw = nullableText(current.legacyEndDateRaw);
     }
   }
   return buildContractLegalSnapshot(next);

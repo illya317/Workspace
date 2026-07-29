@@ -9,7 +9,7 @@ import { formatPhoneNumber, normalizeChineseIdNumber, normalizePhoneValue } from
 import { fromPercentDisplay, normalizeInputValue, toPercentDisplay } from "./profile-input-utils";
 import { majorOptions, normalizeRank, rankGroups, readAliasTags, serializeAliasTags } from "./EmployeeProfileFieldOptions";
 
-type EditableRecord = Record<string, unknown> & { id?: number; isNew?: boolean };
+type EditableRecord = Record<string, unknown> & { id?: string | number; isNew?: boolean };
 
 export function profileFieldSpec(
   field: ProfileField,

@@ -55,6 +55,7 @@ function agreement(overrides: Partial<ContractRow> = {}): ContractRow {
 
 function profile(contract: ContractRow | ContractRow[]): EmployeeProfile {
   return {
+    asOfDate: "2026-07-29",
     employee: { id: 7 },
     contracts: Array.isArray(contract) ? contract : [contract],
   } as EmployeeProfile;
@@ -114,6 +115,7 @@ test("removing a persisted card ends its current term", async () => {
   assert.deepEqual(JSON.parse(String(calls[0].init?.body)), {
     kind: "end",
     termUid: "term-001",
+    effectiveThrough: "2026-07-29",
     reason: "从员工档案结束合同",
     agreementUid: "agreement-001",
     expectedVersion: 1,
@@ -174,6 +176,47 @@ test("multiple new agreements keep their returned anchors distinct", async () =>
     agreementUid: "agreement-b",
     expectedVersion: 1,
   });
+});
+
+test("blank new agreement placeholders are filtered before any command is sent", async () => {
+  const validDraft = agreement({ id: "", agreementUid: null, version: null, isNew: true, terms: [] });
+  const blankPlaceholder = agreement({
+    id: "",
+    agreementUid: null,
+    version: null,
+    isNew: true,
+    company: "",
+    insuranceStatus: null,
+    legalRelation: "",
+    contractType: "",
+    employmentForm: "",
+    firstContractStartDate: null,
+    firstContractEndDate: null,
+    secondContractStartDate: null,
+    secondContractEndDate: null,
+    thirdContractStartDate: null,
+    thirdContractEndDate: null,
+    permanentContractDate: null,
+    confidentialityDate: null,
+    nonCompeteDate: null,
+    isPrimary: false,
+    isInsuredHere: false,
+    terms: [],
+  });
+  const created = agreement();
+  const calls: Array<{ init?: RequestInit }> = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (async (_input: string | URL | Request, init?: RequestInit) => {
+    calls.push({ init });
+    return Response.json({ agreements: [created] });
+  }) as typeof fetch;
+  try {
+    await persistEmployeeAgreements(profile([]), [validDraft, blankPlaceholder]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+  assert.equal(calls.length, 1);
+  assert.equal(JSON.parse(String(calls[0].init?.body)).kind, "create");
 });
 
 test("creating a primary agreement refreshes versions before editing an existing agreement", async () => {

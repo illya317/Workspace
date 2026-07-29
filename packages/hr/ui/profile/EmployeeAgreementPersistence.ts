@@ -4,7 +4,12 @@ import type {
   EmployeeProfile,
   EmploymentAgreementTermRow,
 } from "@workspace/hr/types";
-import { normalizeContractRow, normalizeValue, valuesEqual } from "./EmployeeProfilePersistenceValues";
+import {
+  normalizeContractRow,
+  normalizeValue,
+  persistableContractRows,
+  valuesEqual,
+} from "./EmployeeProfilePersistenceValues";
 
 const CONTENT_FIELDS = [
   "company",
@@ -19,7 +24,6 @@ const CONTENT_FIELDS = [
 type ContentField = typeof CONTENT_FIELDS[number];
 type AgreementResponse = { agreements: ContractRow[] };
 type AgreementCommand = Record<string, unknown>;
-type DraftContractRow = ContractRow & { isNew?: boolean };
 
 type DesiredTerm = {
   effectiveFrom: string;
@@ -29,7 +33,8 @@ type DesiredTerm = {
 
 export async function persistEmployeeAgreements(profile: EmployeeProfile, rows: ContractRow[]) {
   const employeeId = profile.employee.id;
-  const draftsByUid = new Map(rows.flatMap((row) => row.agreementUid ? [[row.agreementUid, row]] : []));
+  const persistableRows = persistableContractRows(rows);
+  const draftsByUid = new Map(persistableRows.flatMap((row) => row.agreementUid ? [[row.agreementUid, row]] : []));
   const currentByUid = new Map(profile.contracts.flatMap((row) => row.agreementUid ? [[row.agreementUid, row]] : []));
 
   for (const original of profile.contracts) {
@@ -37,11 +42,11 @@ export async function persistEmployeeAgreements(profile: EmployeeProfile, rows: 
     if (original.source !== "normalized" || !original.version) {
       throw new Error("历史合同尚未迁移，不能从员工档案直接结束");
     }
-    currentByUid.set(original.agreementUid, await endAgreement(employeeId, original));
+    currentByUid.set(original.agreementUid, await endAgreement(employeeId, original, profile.asOfDate));
   }
 
-  for (const draft of rows.map(normalizeContractRow)) {
-    if (isNewRow(draft)) {
+  for (const draft of persistableRows.map(normalizeContractRow)) {
+    if (draft.isNew) {
       const created = await createAgreement(employeeId, currentByUid, draft);
       await syncTerms(employeeId, created, draft, currentByUid);
       continue;
@@ -58,7 +63,7 @@ export async function persistEmployeeAgreements(profile: EmployeeProfile, rows: 
     await syncTerms(employeeId, afterContent, draft, currentByUid);
   }
 
-  const desiredPrimary = rows.find((row) => row.agreementUid && row.isPrimary);
+  const desiredPrimary = persistableRows.find((row) => row.agreementUid && row.isPrimary);
   if (desiredPrimary?.agreementUid) {
     const current = currentByUid.get(desiredPrimary.agreementUid);
     if (current && !current.isPrimary) {
@@ -159,7 +164,7 @@ async function syncTerms(
   if (current.agreementUid) currentByUid.set(current.agreementUid, current);
 }
 
-async function endAgreement(employeeId: number, initial: ContractRow) {
+async function endAgreement(employeeId: number, initial: ContractRow, effectiveThrough: string) {
   let current = initial;
   for (const term of authoritativeTerms(current).filter((item) => item.temporalState === "upcoming")) {
     current = await sendExistingCommand(employeeId, current, {
@@ -173,6 +178,7 @@ async function endAgreement(employeeId: number, initial: ContractRow) {
   return sendExistingCommand(employeeId, current, {
     kind: "end",
     termUid: active.termUid,
+    effectiveThrough,
     reason: "从员工档案结束合同",
   });
 }
@@ -231,10 +237,6 @@ function agreementContent(row: ContractRow) {
 
 function contentPatch(row: ContractRow, fields: readonly ContentField[]) {
   return Object.fromEntries(fields.map((field) => [field, normalizeValue(row[field])])) as Record<ContentField, unknown>;
-}
-
-function isNewRow(row: ContractRow): row is DraftContractRow {
-  return Boolean((row as DraftContractRow).isNew);
 }
 
 function rowsEqual(left: ContractRow, right: ContractRow) {

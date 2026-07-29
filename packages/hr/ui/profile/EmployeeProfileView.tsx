@@ -262,7 +262,7 @@ function changeEmployment(rows: EmploymentRow[], activeIndex: number, field: Pro
 }
 
 function changeContract(rows: ContractRow[], index: number, field: ProfileField, value: unknown, option?: ReferenceOption) {
-  const nextRows = updateProfileRow(rows, index, field, value, option) as ContractRow[];
+  const nextRows = updateProfileRow(rows, index, field, value, option);
   if (field.key !== "isPrimary" || value !== true) return nextRows;
   return nextRows.map((row, rowIndex) => rowIndex === index ? row : { ...row, isPrimary: false });
 }

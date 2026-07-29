@@ -277,6 +277,7 @@ export const HR_CONTRACTS_ANALYSIS_SOURCE = defineWorkspaceAnalysisReadModel<Con
     { key: "isActive", label: "雇佣在职状态", description: "按合同所属雇佣记录的在职状态筛选。", kind: "boolean", queryKey: "isActive" },
   ],
   fields: {
+    isNew: omit("controlPlane", "仅用于员工档案尚未保存的本地草稿，不是持久化合同事实。"),
     id: field({ label: "合同合成 ID", description: "规范化协议 UID 或由雇佣记录与合同序号组成的兼容标识。", valueKind: "text", sensitivity: "internal" }),
     agreementUid: field({ label: "协议 UID", description: "规范化雇佣协议 anchor 的稳定标识；legacy 行为空。", valueKind: "text", sensitivity: "internal" }),
     employmentId: field({ label: "雇佣记录 ID", description: "合同所属雇佣记录内部 ID。", valueKind: "integer", sensitivity: "internal" }),

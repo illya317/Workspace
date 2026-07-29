@@ -57,6 +57,14 @@ export type EmployeeAssignmentCreateCommand = Omit<AssignmentState, "id" | "vers
   userId: number;
 };
 
+type EmploymentPeriodCreateState =
+  | { replayId: number; replayVersion: number }
+  | { replayId: null; replayVersion: null };
+
+type EmployeeAssignmentCreateState =
+  | { replayId: number; replayVersion: number; candidate: AssignmentState }
+  | { replayId: null; replayVersion: null; candidate: AssignmentState };
+
 export function buildEmploymentPeriodCreateCommand(
   input: EmploymentPeriodCreateInput & { employeeId?: unknown; userId?: unknown },
 ): DomainValidationResult<EmploymentPeriodCreateCommand> {
@@ -133,7 +141,7 @@ export function buildEmployeeAssignmentCreateCommand(
 export async function validateEmploymentPeriodCreateState(
   tx: Prisma.TransactionClient,
   command: EmploymentPeriodCreateCommand,
-) {
+): Promise<DomainValidationResult<EmploymentPeriodCreateState>> {
   const [employee, employments, assignments] = await Promise.all([
     tx.employee.findUnique({ where: { id: command.employeeId }, select: { id: true } }),
     tx.employment.findMany({
@@ -158,7 +166,7 @@ export async function validateEmploymentPeriodCreateState(
 export async function validateEmployeeAssignmentCreateState(
   tx: Prisma.TransactionClient,
   command: EmployeeAssignmentCreateCommand,
-) {
+): Promise<DomainValidationResult<EmployeeAssignmentCreateState>> {
   const [employee, employments, assignments] = await Promise.all([
     tx.employee.findUnique({ where: { id: command.employeeId }, select: { id: true } }),
     tx.employment.findMany({ where: { employeeId: command.employeeId }, select: { joinDate: true, leaveDate: true } }),
@@ -201,23 +209,23 @@ function assignmentFactsEqual(row: AssignmentState, candidate: AssignmentState) 
     .every((field) => row[field as keyof AssignmentState] === candidate[field as keyof AssignmentState]);
 }
 
-function businessDate(value: unknown, label: string, required: boolean) {
+function businessDate(value: unknown, label: string, required: boolean): DomainValidationResult<string | null> {
   if (value === null || value === undefined || value === "") {
-    return required ? failCommand<string | null>(`${label}必填`, 400) : okCommand<string | null>(null);
+    return required ? failCommand(`${label}必填`, 400) : okCommand<string | null>(null);
   }
   const parsed = parseBusinessDate(value);
-  return parsed ? okCommand<string | null>(parsed) : failCommand<string | null>(`${label}无效`, 400);
+  return parsed ? okCommand<string | null>(parsed) : failCommand(`${label}无效`, 400);
 }
 
-function requiredId(value: unknown, label: string, field: string) {
+function requiredId(value: unknown, label: string, field: string): DomainValidationResult<number> {
   const parsed = positiveInteger(value);
-  return parsed ? okCommand(parsed) : failCommand<number>(`${label}无效`, 400, field);
+  return parsed ? okCommand(parsed) : failCommand(`${label}无效`, 400, field);
 }
 
-function optionalId(value: unknown, field: string) {
+function optionalId(value: unknown, field: string): DomainValidationResult<number | null> {
   if (value === null || value === undefined || value === "") return okCommand<number | null>(null);
   const parsed = positiveInteger(value);
-  return parsed ? okCommand<number | null>(parsed) : failCommand<number | null>("关联记录无效", 400, field);
+  return parsed ? okCommand<number | null>(parsed) : failCommand("关联记录无效", 400, field);
 }
 
 function positiveInteger(value: unknown) {

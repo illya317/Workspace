@@ -9,13 +9,15 @@ export {
   validateCurrentAssignments,
 } from "./EmployeeAssignmentDraftValidation";
 export {
+  isBlankNewContract,
   normalizeContractRow,
   normalizeValue,
+  persistableContractRows,
   valuesEqual,
 } from "./EmployeeProfilePersistenceValues";
 
-export type EditableRecord = Record<string, unknown> & { id?: number; isNew?: boolean };
-export type RowBase = { id?: number; isNew?: boolean };
+export type EditableRecord = Record<string, unknown> & { id?: string | number; isNew?: boolean };
+export type RowBase = { id?: string | number; isNew?: boolean };
 export { createFieldRegionSection } from "./EmployeeProfileFieldRegion";
 export {
   createEmptyFormSection,
@@ -45,30 +47,6 @@ export function isCurrentByDateRange(startDate: unknown, endDate: unknown) {
   const start = normalizeValue(startDate);
   const end = normalizeValue(endDate);
   return (!start || String(start) <= today) && (!end || String(end) >= today);
-}
-
-export function isBlankNewContract(row: ContractRow) {
-  return Boolean(row.isNew)
-    && !row.company
-    && !row.insuranceStatus
-    && !row.legalRelation
-    && !row.contractType
-    && !row.employmentForm
-    && !row.firstContractStartDate
-    && !row.firstContractEndDate
-    && !row.secondContractStartDate
-    && !row.secondContractEndDate
-    && !row.thirdContractStartDate
-    && !row.thirdContractEndDate
-    && !row.permanentContractDate
-    && !row.confidentialityDate
-    && !row.nonCompeteDate
-    && !row.isPrimary
-    && !row.isInsuredHere;
-}
-
-export function persistableContractRows(rows: ContractRow[]) {
-  return rows.filter((row) => !isBlankNewContract(row));
 }
 
 export function formatAlias(value: string | null) {

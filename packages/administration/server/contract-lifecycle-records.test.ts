@@ -68,8 +68,8 @@ function normalizedFullForm(signedOn = "2024-05-01") {
     partyBId: null,
     handlerEmployeeId: null,
   });
-  assert.equal(normalized.ok, true);
   if (!normalized.ok) throw new Error(normalized.issue.message);
+  assert.equal(normalized.ok, true);
   return normalized.data;
 }
 

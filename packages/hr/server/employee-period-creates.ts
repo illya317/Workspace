@@ -31,7 +31,7 @@ export async function createEmploymentPeriod(
     const persisted = await runSerializableTransaction(async (tx) => {
       const state = mapValidationToServiceResult(await validateEmploymentPeriodCreateState(tx, command.data));
       if (!state.ok) return state;
-      if (state.data.replayId) return serviceOk({ success: true as const, id: state.data.replayId, version: state.data.replayVersion!, changed: false });
+      if (state.data.replayId !== null) return serviceOk({ success: true as const, id: state.data.replayId, version: state.data.replayVersion, changed: false });
       const now = new Date();
       const created = await tx.employment.create({
         data: {
@@ -73,7 +73,7 @@ export async function createEmployeeAssignment(
     const persisted = await runSerializableTransaction(async (tx) => {
       const state = mapValidationToServiceResult(await validateEmployeeAssignmentCreateState(tx, command.data));
       if (!state.ok) return state;
-      if (state.data.replayId) return serviceOk({ success: true as const, id: state.data.replayId, version: state.data.replayVersion!, changed: false });
+      if (state.data.replayId !== null) return serviceOk({ success: true as const, id: state.data.replayId, version: state.data.replayVersion, changed: false });
       const now = new Date();
       const created = await tx.eDP.create({
         data: {

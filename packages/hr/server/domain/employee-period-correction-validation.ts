@@ -13,7 +13,7 @@ import {
 import type { Prisma } from "@workspace/platform/server/prisma";
 import { parseAllocationWeight, validateEmploymentOption } from "../field-validation";
 import { validateEmploymentPersonnelTypeTransition } from "./employment-validation";
-import { HR_ASSIGNMENT_TEMPORAL, HR_EMPLOYMENT_TEMPORAL } from "../../business-temporal";
+import { HR_EMPLOYMENT_TEMPORAL } from "../../business-temporal";
 import { validateAssignmentTimeline } from "./employee-lifecycle-validation";
 import { isFunctionalPosition } from "./position-report-override-validation";
 
@@ -42,7 +42,6 @@ const ASSIGNMENT_PATCH_FIELDS = [
 type EmploymentPatchField = typeof EMPLOYMENT_PATCH_FIELDS[number];
 type AssignmentPatchField = typeof ASSIGNMENT_PATCH_FIELDS[number];
 export type EmploymentPatch = Partial<Record<EmploymentPatchField, string | null>>;
-type AssignmentPatch = Partial<Record<AssignmentPatchField, number | boolean | string | null>>;
 
 export type EmployeePeriodCorrectionInput = {
   entityType?: unknown;
@@ -92,6 +91,8 @@ export type AssignmentState = {
   reportToPositionId: number | null;
   allocationWeight: string | null;
 };
+
+type AssignmentPatch = Partial<Pick<AssignmentState, AssignmentPatchField>>;
 
 export type EmployeePeriodCorrectionState =
   | { entityType: "Employment"; current: EmploymentState; next: EmploymentState }
@@ -203,7 +204,6 @@ async function validateEmploymentState(
   tx: Prisma.TransactionClient,
   command: Extract<EmployeePeriodCorrectionCommand, { entityType: "Employment" }>,
 ): Promise<DomainValidationResult<EmployeePeriodCorrectionState>> {
-  if (HR_EMPLOYMENT_TEMPORAL.policy.revision === "forbid") return failCommand("该雇佣期间不允许修正", 409);
   const [current, employments, assignments] = await Promise.all([
     tx.employment.findFirst({
       where: { id: command.periodId, employeeId: command.employeeId },
@@ -246,7 +246,6 @@ async function validateAssignmentState(
   tx: Prisma.TransactionClient,
   command: Extract<EmployeePeriodCorrectionCommand, { entityType: "EDP" }>,
 ): Promise<DomainValidationResult<EmployeePeriodCorrectionState>> {
-  if (HR_ASSIGNMENT_TEMPORAL.policy.revision === "forbid") return failCommand("该任职期间不允许修正", 409);
   const [current, assignments, employments] = await Promise.all([
     tx.eDP.findFirst({
       where: { id: command.periodId, employeeId: command.employeeId },
@@ -260,7 +259,7 @@ async function validateAssignmentState(
   ]);
   if (!current) return failCommand("任职期间不存在", 404);
   if (current.version !== command.expectedVersion) return failCommand("任职期间已被修改，请刷新后重试", 409);
-  const next = { ...current, ...command.patch };
+  const next: AssignmentState = { ...current, ...command.patch };
   if (!next.startDate) return failCommand("任职开始日期必填", 400, "startDate");
   if (next.endDate && next.startDate > next.endDate) return failCommand("任职开始日期不能晚于结束日期", 409, "endDate");
   if (!next.reportingCompanyId || !next.departmentId || !next.positionId) {
@@ -291,11 +290,15 @@ export function validateAssignmentCorrectionTimeline(
 }
 
 export async function validateAssignmentPlacement(tx: Prisma.TransactionClient, row: AssignmentState) {
+  const { reportingCompanyId, departmentId, positionId } = row;
+  if (!reportingCompanyId || !departmentId || !positionId) {
+    return failCommand("汇报公司、部门和岗位必须完整填写", 400);
+  }
   const [company, department, position] = await Promise.all([
-    tx.company.findUnique({ where: { id: row.reportingCompanyId! }, select: { id: true, isActive: true } }),
-    tx.department.findUnique({ where: { id: row.departmentId! }, select: { id: true, isArchived: true } }),
+    tx.company.findUnique({ where: { id: reportingCompanyId }, select: { id: true, isActive: true } }),
+    tx.department.findUnique({ where: { id: departmentId }, select: { id: true, isArchived: true } }),
     tx.position.findUnique({
-      where: { id: row.positionId! },
+      where: { id: positionId },
       select: {
         id: true,
         departmentId: true,
@@ -315,16 +318,16 @@ export async function validateAssignmentPlacement(tx: Prisma.TransactionClient, 
     ? await tx.positionReportOverride.findFirst({
         where: {
           id: row.positionReportOverrideId,
-          positionId: row.positionId!,
-          companyId: row.reportingCompanyId!,
-          departmentId: row.departmentId!,
+          positionId,
+          companyId: reportingCompanyId,
+          departmentId,
           isActive: true,
         },
         select: { id: true },
       })
     : null;
   if (row.positionReportOverrideId && !override) return failCommand("特殊汇报配置无效", 409, "positionReportOverrideId");
-  if (!override && position.departmentId !== row.departmentId) {
+  if (!override && position.departmentId !== departmentId) {
     return failCommand(functional ? "该职能岗位未对所选公司和部门启用" : "普通岗位只能选择其所属部门", 409, "departmentId");
   }
   const parsedWeight = parseAllocationWeight(row.allocationWeight);
@@ -339,7 +342,7 @@ export async function validateAssignmentPlacement(tx: Prisma.TransactionClient, 
   ]);
   if (!reportTo) return failCommand("汇报岗位不存在", 404, "reportToPositionId");
   if (reportTo.isArchived) return failCommand("归档岗位不能作为汇报岗位", 409, "reportToPositionId");
-  const ancestorIds = organizationAncestorIds(row.departmentId, departments);
+  const ancestorIds = organizationAncestorIds(departmentId, departments);
   if (!reportTo.departmentId || !ancestorIds.includes(reportTo.departmentId)) {
     return failCommand("汇报岗位必须来源于任职组织或其上级组织", 409, "reportToPositionId");
   }
@@ -384,21 +387,24 @@ export function employeePeriodCorrectionHasChanges(
   return Object.entries(patch).some(([field, value]) => current[field] !== value);
 }
 
-function strictPatchRecord<const TField extends string>(value: unknown, fields: readonly TField[]) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return failCommand<Record<TField, unknown>>("修正内容无效", 400, "patch");
+function strictPatchRecord<const TField extends string>(
+  value: unknown,
+  fields: readonly TField[],
+): DomainValidationResult<Record<TField, unknown>> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return failCommand("修正内容无效", 400, "patch");
   const record = value as Record<string, unknown>;
   const keys = Object.keys(record);
-  if (keys.length === 0) return failCommand<Record<TField, unknown>>("没有需要保存的修改", 400, "patch");
+  if (keys.length === 0) return failCommand("没有需要保存的修改", 400, "patch");
   const allowed = new Set<string>(fields);
   const unsupported = keys.find((key) => !allowed.has(key));
-  if (unsupported) return failCommand<Record<TField, unknown>>(`字段 ${unsupported} 不支持在此处修正`, 400, unsupported);
+  if (unsupported) return failCommand(`字段 ${unsupported} 不支持在此处修正`, 400, unsupported);
   return okCommand(record as Record<TField, unknown>);
 }
 
-function nullableBusinessDate(value: unknown, label: string) {
+function nullableBusinessDate(value: unknown, label: string): DomainValidationResult<string | null> {
   if (value === null || value === undefined || value === "") return okCommand<string | null>(null);
   const parsed = parseBusinessDate(value);
-  return parsed ? okCommand<string | null>(parsed) : failCommand<string | null>(`${label}无效`, 400);
+  return parsed ? okCommand<string | null>(parsed) : failCommand(`${label}无效`, 400);
 }
 
 function optionalText(value: unknown) {
