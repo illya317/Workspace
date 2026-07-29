@@ -5,12 +5,14 @@ import { defaultBusinessCodeConfig } from "./business-code-config";
 import {
   applyBusinessCodeObjectExample,
   businessCodeObjectExample,
+  businessCodeTemplateCompatibleObjectKeys,
   businessCodeTemplateOptions,
   createBusinessCodeTemplate,
   deleteBusinessCodeTemplate,
   selectBusinessCodeTemplate,
   updateBusinessCodeTemplate,
 } from "./business-code-management";
+import { BUSINESS_CODE_SYSTEM_TEMPLATES } from "./business-code-registry";
 import { defaultBusinessCodeTemplateSettings } from "./business-code-template";
 
 const tenantDefaults = {
@@ -65,23 +67,25 @@ test("custom templates are created once and appear for every compatible object",
   const config = defaultBusinessCodeConfig(tenantDefaults);
   const updated = createBusinessCodeTemplate(config, {
     name: "月度五位流水",
-    baseTemplateKey: "system.dateSequence",
     settings: {
-      kind: "sequential",
-      rule: {
+      version: 2,
+      rules: [{
+        key: "default",
+        name: "默认规则",
+        priority: 100,
+        conditions: [],
         segments: [
           { kind: "literal", value: "CODE-" },
-          { kind: "date", source: "createdAt", format: "YYMM" },
+          { kind: "date", field: "createdAt", format: "YYMM" },
           { kind: "literal", value: "-" },
           { kind: "sequence", length: 5 },
         ],
-        sequenceStart: 1,
-      },
+        sequence: { start: 1, scope: ["createdAt"] },
+      }],
     },
   });
   const template = updated.management.templates[0];
   assert.ok(template);
-  assert.equal(template.baseTemplateKey, "system.dateSequence");
   assert.equal(template.example, "CODE-2607-00001");
   assert.equal(businessCodeTemplateOptions(updated, "hr.employee").some((item) => item.value === template.key), true);
   assert.equal(businessCodeTemplateOptions(updated, "finance.asset").some((item) => item.value === template.key), false);
@@ -91,7 +95,6 @@ test("editing a selected custom template reapplies its rule to compatible object
   const config = defaultBusinessCodeConfig(tenantDefaults);
   const created = createBusinessCodeTemplate(config, {
     name: "员工流水",
-    baseTemplateKey: "system.sequential",
     settings: defaultBusinessCodeTemplateSettings("system.sequential"),
   });
   const template = created.management.templates[0];
@@ -100,10 +103,16 @@ test("editing a selected custom template reapplies its rule to compatible object
   const updated = updateBusinessCodeTemplate(selected, {
     key: template.key,
     name: "员工六位流水",
-    baseTemplateKey: template.baseTemplateKey,
     settings: {
-      kind: "sequential",
-      rule: { segments: [{ kind: "sequence", length: 6 }], sequenceStart: 1 },
+      version: 2,
+      rules: [{
+        key: "default",
+        name: "默认规则",
+        priority: 100,
+        conditions: [],
+        segments: [{ kind: "sequence", length: 6 }],
+        sequence: { start: 1, scope: [] },
+      }],
     },
   });
   assert.equal(businessCodeObjectExample(updated, "hr.employee"), "000001");
@@ -114,7 +123,6 @@ test("custom templates can only be deleted after all code objects stop using the
   const config = defaultBusinessCodeConfig(tenantDefaults);
   const created = createBusinessCodeTemplate(config, {
     name: "员工流水",
-    baseTemplateKey: "system.sequential",
     settings: defaultBusinessCodeTemplateSettings("system.sequential"),
   });
   const template = created.management.templates[0];
@@ -122,4 +130,21 @@ test("custom templates can only be deleted after all code objects stop using the
   const selected = selectBusinessCodeTemplate(created, "hr.employee", template.key);
   assert.throws(() => deleteBusinessCodeTemplate(selected, template.key), /员工编码/);
   assert.equal(deleteBusinessCodeTemplate(created, template.key).management.templates.length, 0);
+});
+
+test("every system baseline can be recreated through the same blank-template interface", () => {
+  let config = defaultBusinessCodeConfig(tenantDefaults);
+  for (const system of BUSINESS_CODE_SYSTEM_TEMPLATES) {
+    const compatibleBefore = businessCodeTemplateCompatibleObjectKeys(config, system.settings);
+    assert.ok(compatibleBefore.length > 0, `${system.label} should have a registered adapter`);
+    config = createBusinessCodeTemplate(config, {
+      name: `${system.label}副本`,
+      settings: system.settings,
+    });
+    const created = config.management.templates.at(-1);
+    assert.ok(created);
+    assert.deepEqual(created.settings, defaultBusinessCodeTemplateSettings(system.key));
+    assert.equal(created.example, system.example);
+    assert.deepEqual(businessCodeTemplateCompatibleObjectKeys(config, created.settings), compatibleBefore);
+  }
 });

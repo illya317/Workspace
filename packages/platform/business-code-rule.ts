@@ -18,6 +18,8 @@ export type BusinessCodeSegment =
 export type ComposableBusinessCodeRule = {
   segments: BusinessCodeSegment[];
   sequenceStart: number;
+  /** Explicit allocator scope. Undefined keeps legacy display-segment inference; [] means global. */
+  sequenceScope?: string[];
 };
 
 export type BusinessCodeRenderContext = {
@@ -206,7 +208,23 @@ export function parseComposableBusinessCodeRule(
   const sequenceStart = integerInRange(source.sequenceStart, 1, 999_999_999, "流水起始值");
   const sequenceLength = segments.find((segment) => segment.kind === "sequence")?.length ?? 0;
   if (sequenceStart > (10 ** sequenceLength) - 1) throw new Error("流水起始值超出配置位数");
-  return { segments, sequenceStart };
+  const sequenceScope = source.sequenceScope === undefined
+    ? undefined
+    : (() => {
+        if (!Array.isArray(source.sequenceScope) || source.sequenceScope.length > 8) {
+          throw new Error("流水作用域配置无效");
+        }
+        const parsed = source.sequenceScope.map((value, index) => {
+          const reference = typeof value === "string" ? value.trim() : "";
+          if (!reference || (allowedSources && !allowedSources.has(reference))) {
+            throw new Error(`第 ${index + 1} 个流水作用域不可用`);
+          }
+          return reference;
+        });
+        if (new Set(parsed).size !== parsed.length) throw new Error("流水作用域不能重复");
+        return parsed;
+      })();
+  return { segments, sequenceStart, ...(sequenceScope === undefined ? {} : { sequenceScope }) };
 }
 
 export function businessCodeSequenceSettings(rule: ComposableBusinessCodeRule) {
@@ -244,6 +262,17 @@ export function businessCodeScopeParts(
   context: BusinessCodeRenderContext,
 ) {
   const parts: Record<string, string> = {};
+  if (rule.sequenceScope !== undefined) {
+    for (const source of rule.sequenceScope) {
+      const temporal = rule.segments.find((segment) => (
+        (segment.kind === "date" || segment.kind === "datetime") && segment.source === source
+      ));
+      parts[source] = temporal && (temporal.kind === "date" || temporal.kind === "datetime")
+        ? formatBusinessCodeDate(contextValue(context, source), temporal.format, temporal.kind)
+        : String(contextValue(context, source)).trim();
+    }
+    return parts;
+  }
   for (const segment of rule.segments) {
     if (segment.kind === "reference") {
       parts[segment.source] = String(contextValue(context, segment.source)).trim();

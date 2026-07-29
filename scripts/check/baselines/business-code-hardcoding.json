@@ -1,0 +1,551 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "a1df8b9a1e167307",
+      "kind": "coded-literal",
+      "line": 39,
+      "snippet": "\"PA-RENT\": { assetAccountCode: \"1463\", accumulatedAccountCode: null },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "cc6415647e94aa7e",
+      "kind": "coded-literal",
+      "line": 40,
+      "snippet": "\"PA-PARKING\": { assetAccountCode: \"1123\", accumulatedAccountCode: null },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "07c98825b7d5b882",
+      "kind": "coded-literal",
+      "line": 41,
+      "snippet": "\"PA-NETWORK\": { assetAccountCode: \"1463\", accumulatedAccountCode: null },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "cccdbb6d9aa7dbd0",
+      "kind": "coded-literal",
+      "line": 42,
+      "snippet": "\"PA-OTHER\": { assetAccountCode: \"1463\", accumulatedAccountCode: null },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "60a076acc7c61005",
+      "kind": "coded-literal",
+      "line": 46,
+      "snippet": "\"FA-BUILDING\": { rule: \"用于生产经营、预计使用超过一个会计年度且成本能够可靠计量；出租或持有增值的房产需先复核投资性房地产分类。\", reviewRequired: true },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "f837cb3571c79675",
+      "kind": "coded-literal",
+      "line": 47,
+      "snippet": "\"FA-MACHINERY\": { rule: \"用于生产经营、预计使用超过一个会计年度且成本能够可靠计量的机器及生产设备。\" },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "5b13221419185467",
+      "kind": "coded-literal",
+      "line": 48,
+      "snippet": "\"FA-TRANSPORT\": { rule: \"企业拥有或控制、预计使用超过一个会计年度的运输工具。\" },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "15e8a297fff574bd",
+      "kind": "coded-literal",
+      "line": 49,
+      "snippet": "\"FA-ELECTRONIC\": { rule: \"企业拥有或控制、预计使用超过一个会计年度的电子设备。\" },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "6f7258b69ebc45c8",
+      "kind": "coded-literal",
+      "line": 50,
+      "snippet": "\"FA-OFFICE\": { rule: \"企业拥有或控制、预计使用超过一个会计年度的办公设备及家具。\" },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "4bd5d4167650a7a8",
+      "kind": "coded-literal",
+      "line": 51,
+      "snippet": "\"FA-OTHER\": { rule: \"符合固定资产确认条件、但不属于既有专门分类的其他有形资产。\", reviewRequired: true },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "27a5bf5a8682779f",
+      "kind": "coded-literal",
+      "line": 52,
+      "snippet": "\"IA-SOFTWARE\": { rule: \"可辨认、由企业控制且预期带来经济利益的软件权利；使用寿命按合同期限和预计受益期确定。\" },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "6170c0f4f6ec7811",
+      "kind": "coded-literal",
+      "line": 53,
+      "snippet": "\"IA-LAND-USE\": { rule: \"企业取得并控制的土地使用权；出租或持有增值目的需先复核投资性房地产分类。\", reviewRequired: true },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "9f27d2312a61d8eb",
+      "kind": "coded-literal",
+      "line": 54,
+      "snippet": "\"IA-LICENSE\": { rule: \"可辨认并受合同或法律权利保护的牌照、许可；使用寿命按权利期限和预计受益期确定。\", reviewRequired: true },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "cd70c447e1a0f799",
+      "kind": "coded-literal",
+      "line": 55,
+      "snippet": "\"IA-OTHER\": { rule: \"符合可辨认、无实物形态、企业控制及预期经济利益条件的其他无形资产。\", reviewRequired: true },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "1b0d4d6482730477",
+      "kind": "coded-literal",
+      "line": 56,
+      "snippet": "\"PA-RENT\": { rule: \"仅在不构成使用权资产且受益期不超过十二个月时作为预付；录入前先完成租赁识别。\", reviewRequired: true },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "54f18601756752d7",
+      "kind": "coded-literal",
+      "line": 57,
+      "snippet": "\"PA-PARKING\": { rule: \"先判断取得的是产权、长期使用权、租赁权还是短期服务；只有受益期不超过十二个月的预付款进入本分类。\", reviewRequired: true },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "bb88790373a3c060",
+      "kind": "coded-literal",
+      "line": 58,
+      "snippet": "\"PA-NETWORK\": { rule: \"已支付、对应未来网络或服务期间且预计在十二个月内结转的款项。\" },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "49dd206ed9024ad3",
+      "kind": "coded-literal",
+      "line": 59,
+      "snippet": "\"PA-OTHER\": { rule: \"已支付、对应未来商品或服务且预计在十二个月内结转的其他预付款。\", reviewRequired: true },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "7eab1912f8cc84de",
+      "kind": "coded-literal",
+      "line": 60,
+      "snippet": "\"LT-RENOVATION\": { rule: \"已经发生、受益期超过十二个月且不应计入其他资产成本的装修改造支出。\", reviewRequired: true },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "b494aabbca52edae",
+      "kind": "coded-literal",
+      "line": 61,
+      "snippet": "\"LT-LEASEHOLD\": { rule: \"租入资产改良支出单独判断并按受益期与剩余租赁期口径摊销，不直接并入使用权资产成本。\", reviewRequired: true },"
+    },
+    {
+      "file": "packages/finance/server/assets/account-policy.ts",
+      "fingerprint": "05a9acba21861c8c",
+      "kind": "coded-literal",
+      "line": 62,
+      "snippet": "\"LT-OTHER\": { rule: \"已经发生、受益期超过十二个月且不属于其他资产成本的其他长期待摊支出。\", reviewRequired: true },"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "a90db7abf9f6f2c4",
+      "kind": "coded-literal",
+      "line": 3,
+      "snippet": "if (category.includes(\"机器\")) return \"FA-MACHINERY\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "d501f0a08c8c83c6",
+      "kind": "coded-literal",
+      "line": 4,
+      "snippet": "if (category.includes(\"运输\")) return \"FA-TRANSPORT\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "88e0cb8956c011ea",
+      "kind": "coded-literal",
+      "line": 5,
+      "snippet": "if (category.includes(\"电子\")) return \"FA-ELECTRONIC\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "f53b928cb8cceb1d",
+      "kind": "coded-literal",
+      "line": 6,
+      "snippet": "if (category.includes(\"办公\")) return \"FA-OFFICE\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "79560c41fef859dc",
+      "kind": "coded-literal",
+      "line": 7,
+      "snippet": "if (category === \"其他\") return \"FA-OTHER\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "8f1f46363d43bf80",
+      "kind": "coded-literal",
+      "line": 8,
+      "snippet": "if (/计算机|笔记本|电视|手机|办公本|相机/.test(name)) return \"FA-ELECTRONIC\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "f06a2f125d49d4b8",
+      "kind": "coded-literal",
+      "line": 13,
+      "snippet": "if (name.includes(\"软件\")) return \"IA-SOFTWARE\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "aa5d5e4baf1ada7b",
+      "kind": "coded-literal",
+      "line": 14,
+      "snippet": "if (name.includes(\"土地\")) return \"IA-LAND-USE\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "1bc7796fb68027d2",
+      "kind": "coded-literal",
+      "line": 15,
+      "snippet": "if (/牌照|许可/.test(name)) return \"IA-LICENSE\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "88cc9a9a4569f125",
+      "kind": "coded-literal",
+      "line": 20,
+      "snippet": "if (name.includes(\"车位\")) return \"PA-PARKING\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "a549e7ae0bb860ed",
+      "kind": "coded-literal",
+      "line": 21,
+      "snippet": "if (/房租|宿舍/.test(name)) return \"PA-RENT\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "6b7c823daa74566c",
+      "kind": "coded-literal",
+      "line": 22,
+      "snippet": "if (name.includes(\"网络\")) return \"PA-NETWORK\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-category.ts",
+      "fingerprint": "1f0a9d2964d64388",
+      "kind": "coded-literal",
+      "line": 23,
+      "snippet": "return \"PA-OTHER\";"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-fixed-assets.ts",
+      "fingerprint": "612bfde237f550c7",
+      "kind": "code-construction",
+      "line": 34,
+      "snippet": "assetCode: `FA-${String(Number(row[0])).padStart(4, \"0\")}`,"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-fixed-assets.ts",
+      "fingerprint": "c2c1ad70109589b9",
+      "kind": "code-construction",
+      "line": 70,
+      "snippet": "assetCode: `FA-${cellText(row[0]).padStart(4, \"0\")}`,"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-fixed-assets.ts",
+      "fingerprint": "612bfde237f550c7",
+      "kind": "code-construction",
+      "line": 103,
+      "snippet": "assetCode: `FA-${String(Number(row[0])).padStart(4, \"0\")}`,"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-other-assets.ts",
+      "fingerprint": "863b771bfda3ea06",
+      "kind": "coded-literal",
+      "line": 41,
+      "snippet": "if (categoryCandidate === \"IA-LAND-USE\") result.blockers.push({ code: \"LAND_USE_RIGHT_RECOGNITION_REVIEW\", message: \"土地名称只能作为候选分类，需确认不属于投资性房地产并满足无形资产确认条件\", sourceSheet: \"9&10-2\", s"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-other-assets.ts",
+      "fingerprint": "0abee737fbba0361",
+      "kind": "coded-literal",
+      "line": 42,
+      "snippet": "if (categoryCandidate === \"IA-LICENSE\") result.blockers.push({ code: \"LICENSE_RECOGNITION_REVIEW\", message: \"牌照名称只能作为候选分类，需补可辨认、控制、未来利益及可靠计量证据\", sourceSheet: \"9&10-2\", sourceRange:"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-other-assets.ts",
+      "fingerprint": "52a6ea539f4004b4",
+      "kind": "code-construction",
+      "line": 45,
+      "snippet": "assetCode: `IA-${String(Number(row[0])).padStart(4, \"0\")}`,"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-other-assets.ts",
+      "fingerprint": "6bf1d7511a265c1d",
+      "kind": "code-construction",
+      "line": 119,
+      "snippet": "assetCode: `${longTerm ? \"LTDA\" : \"PA\"}-${String(sourceRow).padStart(4, \"0\")}`,"
+    },
+    {
+      "file": "packages/finance/server/assets/current-period-other-assets.ts",
+      "fingerprint": "5cecf370c59aadfa",
+      "kind": "coded-literal",
+      "line": 122,
+      "snippet": "categoryCandidate: longTerm ? \"LT-LEASEHOLD\" : prepaidCategoryCandidate(name),"
+    },
+    {
+      "file": "packages/finance/server/cost/domain/operational-analysis-template-validation.ts",
+      "fingerprint": "9ca2aa3365059524",
+      "kind": "code-construction",
+      "line": 30,
+      "snippet": "code: `${JSON.stringify(input.definition, null, 2)}\\n`,"
+    },
+    {
+      "file": "packages/finance/server/ledger/group-accounts/policy-version-service.ts",
+      "fingerprint": "a5d20cf9a2d71638",
+      "kind": "code-construction",
+      "line": 67,
+      "snippet": "code: `V${nextVersionNo}`,"
+    },
+    {
+      "file": "packages/finance/server/ledger/group-accounts/sync.ts",
+      "fingerprint": "d7ca09dc480d791c",
+      "kind": "code-construction",
+      "line": 320,
+      "snippet": "const preferred = `${parent.code}${localSuffix}`;"
+    },
+    {
+      "file": "packages/finance/server/ledger/group-accounts/sync.ts",
+      "fingerprint": "7b5dbd6817ff9e6b",
+      "kind": "code-construction",
+      "line": 348,
+      "snippet": ": Math.max(Number(`${expectedPrefix}000`), ...rootCodes) + 1;"
+    },
+    {
+      "file": "packages/finance/server/ledger/group-accounts/sync.ts",
+      "fingerprint": "8de074340231947f",
+      "kind": "code-construction",
+      "line": 349,
+      "snippet": "for (let code = firstCode; code <= Number(`${expectedPrefix}999`); code += 1) {"
+    },
+    {
+      "file": "packages/finance/server/statements/config/balance-sheet-lines.ts",
+      "fingerprint": "5133fe9f9a4daf6e",
+      "kind": "coded-literal",
+      "line": 54,
+      "snippet": "{ lineCode: \"otherReceivableNet\", label: \"其他应收款\", displayCode: \"1221-1231\", side: \"debit\", section: \"currentAssets\", prefixes: [\"1221\"], subtractPrefixes: [\"1231\"], reclassSource: "
+    },
+    {
+      "file": "packages/finance/server/statements/config/balance-sheet-lines.ts",
+      "fingerprint": "cf9a8149ce826a4d",
+      "kind": "coded-literal",
+      "line": 72,
+      "snippet": "{ lineCode: \"fixedAssets\", label: \"固定资产\", displayCode: \"1601-1602-1603\", side: \"debit\", section: \"nonCurrentAssets\", prefixes: [\"1601\"], subtractPrefixes: [\"1602\", \"1603\"] },"
+    },
+    {
+      "file": "packages/finance/server/statements/config/balance-sheet-lines.ts",
+      "fingerprint": "bdd6d96c11495564",
+      "kind": "coded-literal",
+      "line": 77,
+      "snippet": "{ lineCode: \"intangible\", label: \"无形资产\", displayCode: \"1701-1702\", side: \"debit\", section: \"nonCurrentAssets\", prefixes: [\"1701\"], subtractPrefixes: [\"1702\"] },"
+    },
+    {
+      "file": "packages/finance/server/statements/config/balance-sheet-lines.ts",
+      "fingerprint": "8b8ec11251ca97ae",
+      "kind": "coded-literal",
+      "line": 83,
+      "snippet": "{ lineCode: \"rightOfUse\", label: \"使用权资产\", displayCode: \"1641-1642-1607\", side: \"debit\", section: \"nonCurrentAssets\", prefixes: [\"1641\"], subtractPrefixes: [\"1642\", \"1607\"] },"
+    },
+    {
+      "file": "packages/finance/server/statements/group-voucher-numbering.ts",
+      "fingerprint": "eb34e20018962662",
+      "kind": "code-construction",
+      "line": 15,
+      "snippet": "return `${year}-${String(month).padStart(2, \"0\")}-合-${String(sequence).padStart(4, \"0\")}`;"
+    },
+    {
+      "file": "packages/finance/server/statements/group-voucher-numbering.ts",
+      "fingerprint": "523ecef5b51dc99b",
+      "kind": "code-construction",
+      "line": 23,
+      "snippet": "const period = `${year}-${String(month).padStart(2, \"0\")}`;"
+    },
+    {
+      "file": "packages/finance/server/statements/group-voucher-numbering.ts",
+      "fingerprint": "c4335d3863a41808",
+      "kind": "code-construction",
+      "line": 26,
+      "snippet": "if (!match || `${match[1]}-${match[2]}` !== period) return maximum;"
+    },
+    {
+      "file": "packages/finance/server/statements/report-detail.ts",
+      "fingerprint": "fc23ccd8ccd368d6",
+      "kind": "code-construction",
+      "line": 230,
+      "snippet": "code: `R-${value.role}-${value.sourceAccountCode}-${value.targetAccountCode}`,"
+    },
+    {
+      "file": "packages/hr/ui/tabs/department-position/department-code-input.tsx",
+      "fingerprint": "acc1e47693ab546a",
+      "kind": "code-construction",
+      "line": 44,
+      "snippet": "return prefix ? `${prefix}${separator}${rootSuffix}` : segment;"
+    },
+    {
+      "file": "packages/hr/ui/tabs/department-position/department-code-input.tsx",
+      "fingerprint": "a383518c71ca81dd",
+      "kind": "code-construction",
+      "line": 56,
+      "snippet": "return numberPart ? `${prefix}${separator}${numberPart}${level2Suffix}` : code;"
+    },
+    {
+      "file": "packages/hr/ui/tabs/department-position/department-code-input.tsx",
+      "fingerprint": "261b641b1b9d5fad",
+      "kind": "code-construction",
+      "line": 68,
+      "snippet": "return tail && Number(tail) > 0 ? `${prefix}${separator}${stem}${tail}` : code;"
+    },
+    {
+      "file": "packages/hr/ui/tabs/department-position/utils.ts",
+      "fingerprint": "3539f595c6cf2375",
+      "kind": "code-construction",
+      "line": 429,
+      "snippet": "const code = `${prefix}${String(number).padStart(codeConfig.position.sequenceLength, \"0\")}`;"
+    },
+    {
+      "file": "packages/hr/utils/department-code-cascade.ts",
+      "fingerprint": "05a092989e3d3165",
+      "kind": "code-construction",
+      "line": 58,
+      "snippet": "return `${prefix}${departmentRule.separator}${parentNumberWithoutLevel2Suffix}${childTail}`;"
+    },
+    {
+      "file": "packages/platform/document-editor/slot-numbering.ts",
+      "fingerprint": "bbb8d8f6f77cf925",
+      "kind": "code-construction",
+      "line": 31,
+      "snippet": "const match = part.alias?.trim().match(new RegExp(`^${prefix}(\\\\d+)$`, \"i\"));"
+    },
+    {
+      "file": "packages/platform/document-editor/slot-numbering.ts",
+      "fingerprint": "85f1d3bdf3ca6d3c",
+      "kind": "code-construction",
+      "line": 36,
+      "snippet": "return `${prefix}${index}`;"
+    },
+    {
+      "file": "packages/platform/document-editor/slot-numbering.ts",
+      "fingerprint": "714383476f74cb54",
+      "kind": "code-construction",
+      "line": 45,
+      "snippet": "return alias === prefix ? null : `编号必须是 ${prefix}`;"
+    },
+    {
+      "file": "packages/platform/document-editor/slot-numbering.ts",
+      "fingerprint": "a63673b7740b8e3a",
+      "kind": "code-construction",
+      "line": 48,
+      "snippet": "return `编号必须是 ${prefix}+数字`;"
+    },
+    {
+      "file": "packages/platform/document-editor/slot-numbering.ts",
+      "fingerprint": "f9da40312bbd7031",
+      "kind": "code-construction",
+      "line": 58,
+      "snippet": "return conflict ? `编号已存在：${alias}` : null;"
+    },
+    {
+      "file": "packages/platform/document-editor/slot-numbering.ts",
+      "fingerprint": "9695bc8573711ff8",
+      "kind": "code-construction",
+      "line": 68,
+      "snippet": "return [product, stage, [sequence, test].filter(Boolean).join(\" \")].filter(Boolean).join(\" / \");"
+    },
+    {
+      "file": "packages/work/server/project-normalization.ts",
+      "fingerprint": "7a7a0ea281c781a8",
+      "kind": "code-construction",
+      "line": 183,
+      "snippet": "return `${prefixCode.trim()}${separator}${yearText}`;"
+    },
+    {
+      "file": "packages/work/server/project-normalization.ts",
+      "fingerprint": "b3a5a40eb31270a8",
+      "kind": "code-construction",
+      "line": 203,
+      "snippet": "where: { code: { startsWith: `${prefix}${numbering.separator}` } },"
+    },
+    {
+      "file": "packages/work/server/work-okr-cycles.ts",
+      "fingerprint": "9cf9ad620518a4cd",
+      "kind": "code-construction",
+      "line": 145,
+      "snippet": "code: `${year}-H${half}`,"
+    },
+    {
+      "file": "packages/work/server/work-okr-cycles.ts",
+      "fingerprint": "f2199b9b109f7326",
+      "kind": "code-construction",
+      "line": 159,
+      "snippet": "code: `${year}-Q${quarter}`,"
+    },
+    {
+      "file": "packages/work/server/work-okr-cycles.ts",
+      "fingerprint": "661d91f878b51945",
+      "kind": "code-construction",
+      "line": 172,
+      "snippet": "code: `${year}-${pad2(month)}`,"
+    },
+    {
+      "file": "packages/work/server/work-okr-cycles.ts",
+      "fingerprint": "e0777176686fda47",
+      "kind": "code-construction",
+      "line": 188,
+      "snippet": "code: `${year}-W${pad2(sequence)}`,"
+    },
+    {
+      "file": "scripts/import/external-party-master-source.mjs",
+      "fingerprint": "7a40a439ac5b3f52",
+      "kind": "code-construction",
+      "line": 42,
+      "snippet": "return `CUS-${companyCode}-SHP-${digest}`;"
+    },
+    {
+      "file": "scripts/import/external-party-master-source.mjs",
+      "fingerprint": "afa4e850a4d91b11",
+      "kind": "coded-literal",
+      "line": 46,
+      "snippet": "const prefix = category === \"customer\" ? \"CUS\" : \"SUP\";"
+    },
+    {
+      "file": "scripts/import/external-party-master-source.mjs",
+      "fingerprint": "9fb6aeed5f7246d9",
+      "kind": "code-construction",
+      "line": 47,
+      "snippet": "return `${prefix}-${companyCode}-${sourceCode}`;"
+    },
+    {
+      "file": "scripts/import/external-party-master-source.mjs",
+      "fingerprint": "b53874359dcf7fbd",
+      "kind": "code-construction",
+      "line": 51,
+      "snippet": "return `TEMP-${archiveRoleCode(category, companyCode, sourceCode)}`;"
+    },
+    {
+      "file": "scripts/import/external-party-master-source.mjs",
+      "fingerprint": "da72810f4bed6c45",
+      "kind": "code-construction",
+      "line": 55,
+      "snippet": "return `TEMP-${stableProvisionalCode(companyCode, sourceName)}`;"
+    },
+    {
+      "file": "scripts/import/import-external-party-master.mjs",
+      "fingerprint": "4ccee08972489d51",
+      "kind": "code-construction",
+      "line": 438,
+      "snippet": "mapping.role.code.startsWith(`CUS-${company.code}-SHP-`)"
+    }
+  ]
+}

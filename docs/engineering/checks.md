@@ -41,6 +41,7 @@
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
 | 周期性清债 | `npm run check:hygiene` | 强制巡检租户硬编码和简单 structure hygiene 债务；active baseline 固定为零，定时 CI 每晚 strict 执行，Hygiene 至少每周复查结果。 |
+| 业务编码治理 | `npm run business-code:check` | 校验编码对象/模板 registry、自动生成文档和页面唯一入口，并阻断未登记对象及 baseline 之外的新硬编码；所有权与 baseline 收缩见 `business-code-governance.md`。 |
 | Core UI surface 边界 | `npm run arch:surface-boundaries` | 输出完整 Surface 声明关系与业务侧 deprecated escape hatch 报告；声明 owner、允许路径和规模边界同时由 `gate:ui` 硬阻断。 |
 | Core UI 新建入口 | `npm run arch:create-surface-entry` | 禁止业务侧自行声明新建 `+`、旧 Toolbar create 或直接 import 旧 renderer；折叠、树展开和数值增减不在扫描范围。 |
 | 全项目保存/提交运行时 | `npm run arch:action-runtime-ui` | 禁止业务 UI 用权限布尔值手拼保存/提交、同时暴露两个持久化出口，或在 CreateSurface 硬编码提交；必须由 ActionRuntime 映射最终动作。 |

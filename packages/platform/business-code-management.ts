@@ -1,5 +1,4 @@
 import {
-  defaultFinanceAssetCodeRule,
   formatProjectBusinessCode,
   type BusinessCodeConfig,
 } from "./business-code-config";
@@ -9,13 +8,11 @@ import {
   businessCodeObjectDefinition,
   type BusinessCodeCustomTemplate,
   type BusinessCodeObjectKey,
-  type BusinessCodeSystemTemplateKey,
-  type BusinessCodeTemplateFamily,
   type BusinessCodeTemplateSettings,
 } from "./business-code-registry";
 import {
   businessCodeTemplateExample,
-  defaultBusinessCodeTemplateSettings,
+  businessCodeTemplateTemporalKind,
   parseBusinessCodeTemplateSettings,
 } from "./business-code-template";
 import {
@@ -25,6 +22,14 @@ import {
   type BusinessCodeTemporalKind,
   type ComposableBusinessCodeRule,
 } from "./business-code-rule";
+import {
+  applyBusinessCodeTemplateSettings,
+} from "./business-code-template-adapters";
+
+export {
+  applyBusinessCodeTemplateSettings,
+  businessCodeTemplateCompatibleObjectKeys,
+} from "./business-code-template-adapters";
 
 const PREVIEW_DATE = {
   year: 2026,
@@ -43,7 +48,6 @@ export type BusinessCodeTemplateOption = {
 
 export type CreateBusinessCodeTemplateInput = {
   name: string;
-  baseTemplateKey: BusinessCodeSystemTemplateKey;
   settings: BusinessCodeTemplateSettings;
 };
 
@@ -57,9 +61,7 @@ function identifierExample(config: BusinessCodeConfig) {
       ? "A1B2C3D4E5F6"
       : "组织编码示例";
   const characters = Array.from(source);
-  return Array.from({ length: identifierLength }, (_, index) => (
-    characters[index % characters.length]
-  )).join("");
+  return Array.from({ length: identifierLength }, (_, index) => characters[index % characters.length]).join("");
 }
 
 function departmentExamples(config: BusinessCodeConfig) {
@@ -105,59 +107,38 @@ export function businessCodeObjectExample(config: BusinessCodeConfig, key: Busin
 }
 
 function selectedTemplate(config: BusinessCodeConfig, key: BusinessCodeObjectKey) {
-  return config.management.templateByObject[key]
-    ?? businessCodeObjectDefinition(key).defaultTemplateKey;
+  return config.management.templateByObject[key] ?? businessCodeObjectDefinition(key).defaultTemplateKey;
 }
 
 function customTemplate(config: BusinessCodeConfig, key: string) {
   return config.management.templates.find((template) => template.key === key);
 }
 
-function baseTemplateKey(config: BusinessCodeConfig, templateKey: string): BusinessCodeSystemTemplateKey {
-  const system = BUSINESS_CODE_SYSTEM_TEMPLATES.find((template) => template.key === templateKey);
-  if (system) return system.key;
-  const custom = customTemplate(config, templateKey);
-  if (!custom) throw new Error("所选编码模板不存在");
-  return custom.baseTemplateKey;
-}
-
-function templateFamily(config: BusinessCodeConfig, templateKey: string): BusinessCodeTemplateFamily {
-  const system = BUSINESS_CODE_SYSTEM_TEMPLATES.find((template) => template.key === templateKey);
-  const custom = customTemplate(config, templateKey);
-  const family = system?.family ?? custom?.family;
-  if (!family) throw new Error("所选编码模板不存在");
-  return family;
-}
-
-export function businessCodeTemplateOptions(
-  config: BusinessCodeConfig,
-  key: BusinessCodeObjectKey,
-): BusinessCodeTemplateOption[] {
-  const family = businessCodeObjectDefinition(key).family;
-  return [
-    ...BUSINESS_CODE_SYSTEM_TEMPLATES
-      .filter((template) => template.family === family)
-      .map((template) => ({ value: template.key, label: template.label })),
-    ...config.management.templates
-      .filter((template) => template.family === family)
-      .map((template) => ({ value: template.key, label: template.name })),
-  ];
-}
-
-export function selectBusinessCodeTemplate(
-  config: BusinessCodeConfig,
-  key: BusinessCodeObjectKey,
-  templateKey: string,
-) {
-  const definition = businessCodeObjectDefinition(key);
-  if (templateFamily(config, templateKey) !== definition.family) {
-    throw new Error("该模板不适用于此编码对象");
-  }
-  const custom = customTemplate(config, templateKey);
-  const system = BUSINESS_CODE_SYSTEM_TEMPLATES.find((template) => template.key === templateKey);
-  const settings = custom?.settings ?? (system ? defaultBusinessCodeTemplateSettings(system.key) : null);
+function templateSettings(config: BusinessCodeConfig, key: string) {
+  const system = BUSINESS_CODE_SYSTEM_TEMPLATES.find((template) => template.key === key);
+  const custom = customTemplate(config, key);
+  const settings = system?.settings ?? custom?.settings;
   if (!settings) throw new Error("所选编码模板不存在");
-  const applied = applyBusinessCodeTemplateSettings(config, key, settings);
+  return parseBusinessCodeTemplateSettings(settings);
+}
+
+export function businessCodeTemplateOptions(config: BusinessCodeConfig, key: BusinessCodeObjectKey): BusinessCodeTemplateOption[] {
+  const templates = [
+    ...BUSINESS_CODE_SYSTEM_TEMPLATES.map((template) => ({ key: template.key, name: template.label, settings: template.settings })),
+    ...config.management.templates,
+  ];
+  return templates.flatMap((template) => {
+    try {
+      applyBusinessCodeTemplateSettings(config, key, template.settings);
+      return [{ value: template.key, label: template.name }];
+    } catch {
+      return [];
+    }
+  });
+}
+
+export function selectBusinessCodeTemplate(config: BusinessCodeConfig, key: BusinessCodeObjectKey, templateKey: string) {
+  const applied = applyBusinessCodeTemplateSettings(config, key, templateSettings(config, templateKey));
   return {
     ...applied,
     management: {
@@ -167,39 +148,7 @@ export function selectBusinessCodeTemplate(
   };
 }
 
-export function applyBusinessCodeTemplateSettings(
-  config: BusinessCodeConfig,
-  key: BusinessCodeObjectKey,
-  settings: BusinessCodeTemplateSettings,
-) {
-  const definition = businessCodeObjectDefinition(key);
-  const parsed = parseBusinessCodeTemplateSettings(settings, definition.family);
-  if (parsed.kind === "sequential") {
-    if (key === "hr.employee") return { ...config, employee: parsed.rule };
-    if (key === "external.customer") return { ...config, customer: parsed.rule };
-    if (key === "external.supplier") return { ...config, supplier: parsed.rule };
-  }
-  if (parsed.kind === "organization" && key === "hr.organization") {
-    return { ...config, department: { ...parsed.rule } };
-  }
-  if (parsed.kind === "position" && key === "hr.position") {
-    return { ...config, position: { ...parsed.rule } };
-  }
-  if (parsed.kind === "project" && key === "work.project") {
-    return { ...config, project: { ...parsed.rule } };
-  }
-  if (parsed.kind === "financeAsset" && key === "finance.asset") {
-    return { ...config, financeAsset: parsed.rule };
-  }
-  throw new Error("模板规则无法应用到该编码对象");
-}
-
-type SequenceExample = {
-  prefix: string;
-  separator: string;
-  sequenceLength: number;
-  sequenceStart: number;
-};
+type SequenceExample = { prefix: string; separator: string; sequenceLength: number; sequenceStart: number };
 
 function parseSequenceExample(example: string): SequenceExample {
   const source = example.trim();
@@ -207,51 +156,14 @@ function parseSequenceExample(example: string): SequenceExample {
   if (!match) throw new Error("完整样例必须以流水数字结尾");
   const sequenceLength = match[2].length;
   const sequenceStart = Number(match[2]);
-  if (sequenceLength < 1 || sequenceLength > 12 || sequenceStart < 1) {
-    throw new Error("流水必须为 1 至 12 位且起始值大于 0");
-  }
+  if (sequenceLength < 1 || sequenceLength > 12 || sequenceStart < 1) throw new Error("流水必须为 1 至 12 位且起始值大于 0");
   const separatorCandidate = match[1].slice(-1);
   const separator = SEPARATOR_PATTERN.test(separatorCandidate) ? separatorCandidate : "";
-  return {
-    prefix: separator ? match[1].slice(0, -1) : match[1],
-    separator,
-    sequenceLength,
-    sequenceStart,
-  };
+  return { prefix: separator ? match[1].slice(0, -1) : match[1], separator, sequenceLength, sequenceStart };
 }
 
 function literalSegments(value: string): BusinessCodeSegment[] {
   return value ? [{ kind: "literal", value }] : [];
-}
-
-function sequentialRule(example: string, templateKey: BusinessCodeSystemTemplateKey): ComposableBusinessCodeRule {
-  const sequence = parseSequenceExample(example);
-  if (templateKey === "system.sequential") {
-    return {
-      segments: [
-        ...literalSegments(sequence.prefix),
-        ...literalSegments(sequence.separator),
-        { kind: "sequence", length: sequence.sequenceLength },
-      ],
-      sequenceStart: sequence.sequenceStart,
-    };
-  }
-  if (!sequence.separator) throw new Error("日期或时间模板需要连接符");
-  const dateBoundary = sequence.prefix.lastIndexOf(sequence.separator);
-  const temporalValue = dateBoundary >= 0 ? sequence.prefix.slice(dateBoundary + 1) : sequence.prefix;
-  const fixedPrefix = dateBoundary >= 0 ? sequence.prefix.slice(0, dateBoundary) : "";
-  const kind: BusinessCodeTemporalKind = templateKey === "system.datetimeSequence" ? "datetime" : "date";
-  const format = inferTemporalFormat(temporalValue, kind, templateKey === "system.yearSequence");
-  return {
-    segments: [
-      ...literalSegments(fixedPrefix),
-      ...literalSegments(fixedPrefix ? sequence.separator : ""),
-      { kind, source: "createdAt", format },
-      { kind: "literal", value: sequence.separator },
-      { kind: "sequence", length: sequence.sequenceLength },
-    ],
-    sequenceStart: sequence.sequenceStart,
-  };
 }
 
 function inferTemporalFormat(value: string, kind: BusinessCodeTemporalKind, yearOnly: boolean) {
@@ -265,17 +177,41 @@ function inferTemporalFormat(value: string, kind: BusinessCodeTemporalKind, year
   return match;
 }
 
+function sequentialRule(example: string, settings: BusinessCodeTemplateSettings): ComposableBusinessCodeRule {
+  const sequence = parseSequenceExample(example);
+  const temporal = businessCodeTemplateTemporalKind(settings);
+  if (!temporal) {
+    return {
+      segments: [...literalSegments(sequence.prefix), ...literalSegments(sequence.separator), { kind: "sequence", length: sequence.sequenceLength }],
+      sequenceStart: sequence.sequenceStart,
+      sequenceScope: [],
+    };
+  }
+  if (!sequence.separator) throw new Error("日期或时间模板需要连接符");
+  const dateBoundary = sequence.prefix.lastIndexOf(sequence.separator);
+  const temporalValue = dateBoundary >= 0 ? sequence.prefix.slice(dateBoundary + 1) : sequence.prefix;
+  const fixedPrefix = dateBoundary >= 0 ? sequence.prefix.slice(0, dateBoundary) : "";
+  const format = inferTemporalFormat(temporalValue, temporal.kind, temporal.yearOnly);
+  return {
+    segments: [
+      ...literalSegments(fixedPrefix),
+      ...literalSegments(fixedPrefix ? sequence.separator : ""),
+      { kind: temporal.kind, source: "createdAt", format },
+      { kind: "literal", value: sequence.separator },
+      { kind: "sequence", length: sequence.sequenceLength },
+    ],
+    sequenceStart: sequence.sequenceStart,
+    sequenceScope: ["createdAt"],
+  };
+}
+
 function parseOrganizationExample(config: BusinessCodeConfig, example: string): BusinessCodeConfig {
   const match = example.trim().match(/^(.*?)([-_/.:]?)(\d+)$/);
-  if (!match || !match[1] || match[1].length > 12) {
-    throw new Error("组织样例应为组织简称、可选连接符和层级数字，例如 FUN-001");
-  }
+  if (!match || !match[1] || match[1].length > 12) throw new Error("组织样例应为组织简称、可选连接符和层级数字，例如 FUN-001");
   const identifier = match[1];
   const identifierFormat = /^[A-Z]+$/.test(identifier)
     ? "uppercaseLetters"
-    : /^[A-Z0-9]+$/.test(identifier)
-      ? "uppercaseAlphanumeric"
-      : "freeText";
+    : /^[A-Z0-9]+$/.test(identifier) ? "uppercaseAlphanumeric" : "freeText";
   return {
     ...config,
     department: {
@@ -293,15 +229,7 @@ function parsePositionExample(config: BusinessCodeConfig, example: string): Busi
   if (!sequence.separator) throw new Error("岗位样例需要使用连接符分隔岗位标识、组织编码和流水");
   const parts = sequence.prefix.split(sequence.separator);
   if (parts.length < 2 || !parts[0]) throw new Error("岗位样例缺少岗位标识或组织编码");
-  return {
-    ...config,
-    position: {
-      prefix: parts[0],
-      separator: sequence.separator,
-      sequenceLength: sequence.sequenceLength,
-      sequenceStart: sequence.sequenceStart,
-    },
-  };
+  return { ...config, position: { prefix: parts[0], separator: sequence.separator, sequenceLength: sequence.sequenceLength, sequenceStart: sequence.sequenceStart } };
 }
 
 function parseProjectExample(config: BusinessCodeConfig, example: string): BusinessCodeConfig {
@@ -339,54 +267,36 @@ function parseFinanceAssetExample(config: BusinessCodeConfig, example: string): 
   if (parts.length < 3) throw new Error("财务资产样例必须包含公司、资产分类和年度");
   const year = parts.at(-1) ?? "";
   if (!/^\d{2}(?:\d{2})?$/.test(year)) throw new Error("财务资产年度必须为 2 位或 4 位数字");
-  const baseline = defaultFinanceAssetCodeRule();
   return {
     ...config,
     financeAsset: {
-      segments: baseline.segments.flatMap<BusinessCodeSegment>((segment) => {
+      segments: config.financeAsset.segments.flatMap<BusinessCodeSegment>((segment) => {
         if (segment.kind === "literal") return [{ ...segment, value: sequence.separator }];
         if (segment.kind === "date") return [{ ...segment, format: year.length === 4 ? "YYYY" : "YY" }];
         return [segment];
       }),
       sequenceStart: sequence.sequenceStart,
+      sequenceScope: ["companyCode", "assetCategoryCode", "fiscalYear"],
     },
   };
 }
 
-function parseExampleForFamily(
-  config: BusinessCodeConfig,
-  key: BusinessCodeObjectKey,
-  example: string,
-  templateKey: BusinessCodeSystemTemplateKey,
-) {
-  const family = businessCodeObjectDefinition(key).family;
-  if (family === "sequential") {
-    const rule = sequentialRule(example, templateKey);
+export function applyBusinessCodeObjectExample(config: BusinessCodeConfig, key: BusinessCodeObjectKey, example: string) {
+  const adapter = businessCodeObjectDefinition(key).adapter;
+  if (adapter === "sequential") {
+    const rule = sequentialRule(example, templateSettings(config, selectedTemplate(config, key)));
     if (key === "hr.employee") return { ...config, employee: rule };
     if (key === "external.customer") return { ...config, customer: rule };
     if (key === "external.supplier") return { ...config, supplier: rule };
   }
-  if (family === "organization") return parseOrganizationExample(config, example);
-  if (family === "position") return parsePositionExample(config, example);
-  if (family === "project") return parseProjectExample(config, example);
-  if (family === "financeAsset") return parseFinanceAssetExample(config, example);
+  if (adapter === "organization") return parseOrganizationExample(config, example);
+  if (adapter === "position") return parsePositionExample(config, example);
+  if (adapter === "project") return parseProjectExample(config, example);
+  if (adapter === "financeAsset") return parseFinanceAssetExample(config, example);
   throw new Error("该编码对象暂不支持样例解析");
 }
 
-export function applyBusinessCodeObjectExample(
-  config: BusinessCodeConfig,
-  key: BusinessCodeObjectKey,
-  example: string,
-) {
-  const templateKey = baseTemplateKey(config, selectedTemplate(config, key));
-  return parseExampleForFamily(config, key, example, templateKey);
-}
-
-export function businessCodeObjectExampleError(
-  config: BusinessCodeConfig,
-  key: BusinessCodeObjectKey,
-  example: string,
-) {
+export function businessCodeObjectExampleError(config: BusinessCodeConfig, key: BusinessCodeObjectKey, example: string) {
   try {
     applyBusinessCodeObjectExample(config, key, example);
     return undefined;
@@ -400,15 +310,10 @@ function slug(value: string) {
   return normalized || "template";
 }
 
-export function createBusinessCodeTemplate(
-  config: BusinessCodeConfig,
-  input: CreateBusinessCodeTemplateInput,
-) {
+export function createBusinessCodeTemplate(config: BusinessCodeConfig, input: CreateBusinessCodeTemplateInput) {
   const name = input.name.trim();
   if (!name) throw new Error("模板名称不能为空");
-  const base = BUSINESS_CODE_SYSTEM_TEMPLATES.find((template) => template.key === input.baseTemplateKey);
-  if (!base) throw new Error("基础模板不存在");
-  const settings = parseBusinessCodeTemplateSettings(input.settings, base.family);
+  const settings = parseBusinessCodeTemplateSettings(input.settings);
   const example = businessCodeTemplateExample(settings);
   const baseSlug = slug(name);
   let key = `custom.${baseSlug}`;
@@ -418,41 +323,20 @@ export function createBusinessCodeTemplate(
     key = `custom.${baseSlug}-${suffix}`;
     suffix += 1;
   }
-  const template: BusinessCodeCustomTemplate = {
-    key,
-    name,
-    family: base.family,
-    baseTemplateKey: base.key,
-    example,
-    settings,
-  };
+  const template: BusinessCodeCustomTemplate = { key, name, example, settings };
   return {
     ...config,
-    management: {
-      ...config.management,
-      templates: [...config.management.templates, template],
-    },
+    management: { ...config.management, templates: [...config.management.templates, template] },
   };
 }
 
-export function updateBusinessCodeTemplate(
-  config: BusinessCodeConfig,
-  input: UpdateBusinessCodeTemplateInput,
-) {
+export function updateBusinessCodeTemplate(config: BusinessCodeConfig, input: UpdateBusinessCodeTemplateInput) {
   const existing = customTemplate(config, input.key);
   if (!existing) throw new Error("自定义模板不存在");
   const name = input.name.trim();
   if (!name) throw new Error("模板名称不能为空");
-  if (input.baseTemplateKey !== existing.baseTemplateKey) {
-    throw new Error("已创建模板不能修改基础结构");
-  }
-  const settings = parseBusinessCodeTemplateSettings(input.settings, existing.family);
-  const template: BusinessCodeCustomTemplate = {
-    ...existing,
-    name,
-    settings,
-    example: businessCodeTemplateExample(settings),
-  };
+  const settings = parseBusinessCodeTemplateSettings(input.settings);
+  const template: BusinessCodeCustomTemplate = { ...existing, name, settings, example: businessCodeTemplateExample(settings) };
   let updated: BusinessCodeConfig = {
     ...config,
     management: {
@@ -471,18 +355,11 @@ export function updateBusinessCodeTemplate(
 export function deleteBusinessCodeTemplate(config: BusinessCodeConfig, key: string) {
   const template = customTemplate(config, key);
   if (!template) throw new Error("自定义模板不存在");
-  const usedBy = BUSINESS_CODE_OBJECTS.filter(
-    (definition) => config.management.templateByObject[definition.key] === key,
-  );
-  if (usedBy.length > 0) {
-    throw new Error(`请先更换使用该模板的编码：${usedBy.map((item) => item.label).join("、")}`);
-  }
+  const usedBy = BUSINESS_CODE_OBJECTS.filter((definition) => config.management.templateByObject[definition.key] === key);
+  if (usedBy.length > 0) throw new Error(`请先更换使用该模板的编码：${usedBy.map((item) => item.label).join("、")}`);
   return {
     ...config,
-    management: {
-      ...config.management,
-      templates: config.management.templates.filter((item) => item.key !== key),
-    },
+    management: { ...config.management, templates: config.management.templates.filter((item) => item.key !== key) },
   };
 }
 

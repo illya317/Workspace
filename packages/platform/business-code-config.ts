@@ -12,11 +12,10 @@ import {
   type BusinessCodeManagementConfig,
   type BusinessCodeObjectKey,
   type BusinessCodeSystemTemplateKey,
-  type BusinessCodeTemplateFamily,
 } from "./business-code-registry";
 import {
   businessCodeTemplateSettingsFromLegacy,
-  parseBusinessCodeTemplateSettings,
+  upgradeBusinessCodeTemplateSettings,
 } from "./business-code-template";
 
 export const BUSINESS_CODE_CONFIG_KEY = "businessCodeConfig";
@@ -91,6 +90,7 @@ function simpleRule(prefix: string, separator: string, sequenceLength: number): 
       { kind: "sequence", length: sequenceLength },
     ],
     sequenceStart: 1,
+    sequenceScope: [],
   };
 }
 
@@ -130,6 +130,7 @@ export function defaultFinanceAssetCodeRule(): ComposableBusinessCodeRule {
       { kind: "sequence", length: 5 },
     ],
     sequenceStart: 1,
+    sequenceScope: ["companyCode", "assetCategoryCode", "fiscalYear"],
   };
 }
 
@@ -142,7 +143,14 @@ export function parseFinanceAssetCodeRule(value: unknown): ComposableBusinessCod
     });
     const sequence = parsed.segments.find((segment) => segment.kind === "sequence");
     if (!sequence || sequence.length !== 5) throw new Error("资产编码流水必须为 5 位");
-    return parsed;
+    const requiredScope = ["companyCode", "assetCategoryCode", "fiscalYear"];
+    if (parsed.sequenceScope !== undefined && (
+      parsed.sequenceScope.length !== requiredScope.length
+      || !requiredScope.every((field) => parsed.sequenceScope?.includes(field))
+    )) {
+      throw new Error("资产编码流水作用域必须是公司、资产分类和账期年度");
+    }
+    return { ...parsed, sequenceScope: requiredScope };
   }
   if (typeof source.separator !== "string" || source.separator.length > 3) {
     throw new Error("资产编码分隔符配置无效");
@@ -225,9 +233,12 @@ function composedRule(
 ) {
   try {
     if (value && typeof value === "object" && Array.isArray((value as Record<string, unknown>).segments)) {
-      return options.legacy === "financeAsset"
+      const parsed = options.legacy === "financeAsset"
         ? parseFinanceAssetCodeRule(value)
         : parseComposableBusinessCodeRule(value, { allowedSources: options.allowedSources });
+      return parsed.sequenceScope === undefined
+        ? { ...parsed, sequenceScope: fallback.sequenceScope ?? [] }
+        : parsed;
     }
     const source = value && typeof value === "object" ? value as Record<string, unknown> : {};
     if (options.legacy === "sequential") {
@@ -261,29 +272,19 @@ function customTemplate(value: unknown): BusinessCodeCustomTemplate | null {
   const key = text(source.key, "", 64);
   const name = text(source.name, "", 40);
   const example = text(source.example, "", 120);
-  const families: readonly BusinessCodeTemplateFamily[] = [
-    "sequential",
-    "organization",
-    "position",
-    "project",
-    "financeAsset",
-  ];
   const baseTemplateKey = text(source.baseTemplateKey, "", 64);
   const baseTemplate = BUSINESS_CODE_SYSTEM_TEMPLATES.find((template) => template.key === baseTemplateKey);
   if (
     !key.startsWith("custom.")
     || !name
     || !example
-    || !families.includes(source.family as BusinessCodeTemplateFamily)
-    || !baseTemplate
-    || baseTemplate.family !== source.family
   ) {
     return null;
   }
   let settings;
   try {
     settings = source.settings
-      ? parseBusinessCodeTemplateSettings(source.settings, baseTemplate.family)
+      ? upgradeBusinessCodeTemplateSettings(source.settings, baseTemplate?.key)
       : businessCodeTemplateSettingsFromLegacy(
           baseTemplateKey as BusinessCodeSystemTemplateKey,
           example,
@@ -295,8 +296,6 @@ function customTemplate(value: unknown): BusinessCodeCustomTemplate | null {
     key,
     name,
     example,
-    family: source.family as BusinessCodeTemplateFamily,
-    baseTemplateKey: baseTemplateKey as BusinessCodeSystemTemplateKey,
     settings,
   };
 }
@@ -313,16 +312,15 @@ function normalizeBusinessCodeManagement(
   const assignmentSource = source.templateByObject && typeof source.templateByObject === "object"
     ? source.templateByObject as Record<string, unknown>
     : {};
-  const systemTemplates = new Map<string, (typeof BUSINESS_CODE_SYSTEM_TEMPLATES)[number]>(
-    BUSINESS_CODE_SYSTEM_TEMPLATES.map((template) => [template.key, template]),
-  );
-  const customTemplates = new Map(uniqueTemplates.map((template) => [template.key, template]));
+  const templateKeys = new Set<string>([
+    ...BUSINESS_CODE_SYSTEM_TEMPLATES.map((template) => template.key),
+    ...uniqueTemplates.map((template) => template.key),
+  ]);
   const templateByObject = Object.fromEntries(BUSINESS_CODE_OBJECTS.map((definition) => {
     const candidate = text(assignmentSource[definition.key], fallback.templateByObject[definition.key], 64);
-    const template = systemTemplates.get(candidate) ?? customTemplates.get(candidate);
     return [
       definition.key,
-      template?.family === definition.family ? candidate : definition.defaultTemplateKey,
+      templateKeys.has(candidate) ? candidate : definition.defaultTemplateKey,
     ];
   })) as Record<BusinessCodeObjectKey, string>;
   return { templates: uniqueTemplates, templateByObject };

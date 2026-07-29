@@ -1,17 +1,11 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { requireAdminApiAccess, isSuperAdmin } from "@workspace/platform/server/auth";
 import {
   getSystemConfig,
   updateSystemConfig,
 } from "@workspace/platform/server/system-config";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
-import { PERMISSION_ACTION_KEYS } from "@workspace/platform/permission-actions";
-
-const systemConfigSchema = z.object({
-  conflictStrategy: z.enum(["union", "deny_override"]).optional(),
-  agentAllowedActions: z.array(z.enum(PERMISSION_ACTION_KEYS)).max(PERMISSION_ACTION_KEYS.length).optional(),
-});
+import { systemConfigSchema } from "./schema";
 
 export async function GET(request: Request) {
   const auth = await requireAdminApiAccess(request);

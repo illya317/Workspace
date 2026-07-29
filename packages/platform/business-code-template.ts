@@ -1,108 +1,32 @@
 import {
+  BUSINESS_CODE_FIELDS,
   BUSINESS_CODE_SYSTEM_TEMPLATES,
+  businessCodeFieldDefinition,
+  businessCodeSystemTemplate,
+  type BusinessCodeFieldTransform,
   type BusinessCodeSystemTemplateKey,
-  type BusinessCodeTemplateFamily,
+  type BusinessCodeTemplateRule,
+  type BusinessCodeTemplateSegment,
   type BusinessCodeTemplateSettings,
 } from "./business-code-registry";
 import {
-  parseComposableBusinessCodeRule,
-  renderBusinessCode,
+  formatBusinessCodeDate,
+  parseBusinessCodeDateFormat,
   type BusinessCodeSegment,
-  type BusinessCodeTemporalParts,
-  type ComposableBusinessCodeRule,
+  type BusinessCodeTemporalKind,
 } from "./business-code-rule";
 
-const PREVIEW_DATE: BusinessCodeTemporalParts = {
-  year: 2026,
-  month: 7,
-  day: 29,
-  hour: 15,
-  minute: 8,
-  second: 6,
-};
+const FIELD_KEYS = new Set(BUSINESS_CODE_FIELDS.map((field) => field.key));
 
-function sequentialRule(format?: string, kind: "date" | "datetime" = "date"): ComposableBusinessCodeRule {
-  return {
-    segments: [
-      { kind: "literal", value: "CODE" },
-      { kind: "literal", value: "-" },
-      ...(format ? [{ kind, source: "createdAt", format } as const] : []),
-      ...(format ? [{ kind: "literal", value: "-" } as const] : []),
-      { kind: "sequence", length: 5 },
-    ],
-    sequenceStart: 1,
-  };
+function object(value: unknown, label: string) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${label}无效`);
+  return value as Record<string, unknown>;
 }
 
-function financeAssetRule(): ComposableBusinessCodeRule {
-  return {
-    segments: [
-      { kind: "reference", source: "companyCode" },
-      { kind: "literal", value: "-" },
-      { kind: "reference", source: "assetCategoryCode" },
-      { kind: "literal", value: "-" },
-      { kind: "date", source: "fiscalYear", format: "YYYY" },
-      { kind: "literal", value: "-" },
-      { kind: "sequence", length: 5 },
-    ],
-    sequenceStart: 1,
-  };
-}
-
-export function defaultBusinessCodeTemplateSettings(
-  baseTemplateKey: BusinessCodeSystemTemplateKey,
-): BusinessCodeTemplateSettings {
-  if (baseTemplateKey === "system.sequential") {
-    return { kind: "sequential", rule: sequentialRule() };
-  }
-  if (baseTemplateKey === "system.yearSequence") {
-    return { kind: "sequential", rule: sequentialRule("YY") };
-  }
-  if (baseTemplateKey === "system.dateSequence") {
-    return { kind: "sequential", rule: sequentialRule("YYMMDD") };
-  }
-  if (baseTemplateKey === "system.datetimeSequence") {
-    return { kind: "sequential", rule: sequentialRule("YYMMDDHHmmss", "datetime") };
-  }
-  if (baseTemplateKey === "system.organization") {
-    return {
-      kind: "organization",
-      rule: {
-        identifierFormat: "uppercaseLetters",
-        identifierLength: 3,
-        functionalPrefix: "FUN",
-        separator: "",
-        managementRootSuffix: "001",
-        level2Suffix: "00",
-        level2SequenceLength: 4,
-        level3SequenceLength: 2,
-      },
-    };
-  }
-  if (baseTemplateKey === "system.position") {
-    return {
-      kind: "position",
-      rule: { prefix: "GW", separator: "-", sequenceLength: 2, sequenceStart: 1 },
-    };
-  }
-  if (baseTemplateKey === "system.project") {
-    return {
-      kind: "project",
-      rule: {
-        companyPrefix: "PRJ",
-        separator: "-",
-        yearDigits: 2,
-        companySequenceLength: 3,
-        companySequenceStart: 1,
-        companySequenceEnd: 999,
-        departmentSequenceLength: 3,
-        departmentSequenceStart: 1,
-        otherSequenceLength: 3,
-        otherSequenceStart: 1,
-      },
-    };
-  }
-  return { kind: "financeAsset", rule: financeAssetRule() };
+function text(value: unknown, max: number, label: string) {
+  const parsed = typeof value === "string" ? value.trim() : "";
+  if (!parsed || parsed.length > max) throw new Error(`${label}无效`);
+  return parsed;
 }
 
 function integer(value: unknown, min: number, max: number, label: string) {
@@ -111,204 +35,355 @@ function integer(value: unknown, min: number, max: number, label: string) {
   return parsed;
 }
 
-function text(value: unknown, max: number, label: string, required = true) {
-  const parsed = typeof value === "string" ? value.trim() : "";
-  if ((required && !parsed) || parsed.length > max) throw new Error(`${label}无效`);
-  return parsed;
+function cloneSettings(settings: BusinessCodeTemplateSettings): BusinessCodeTemplateSettings {
+  return JSON.parse(JSON.stringify(settings)) as BusinessCodeTemplateSettings;
 }
 
-function object(value: unknown, label: string) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${label}无效`);
-  return value as Record<string, unknown>;
+function parseTransform(value: unknown, field: string, label: string): BusinessCodeFieldTransform | undefined {
+  if (value === undefined) return undefined;
+  const source = object(value, label);
+  const kind = source.kind;
+  const definition = businessCodeFieldDefinition(field);
+  if (kind === "none") return { kind };
+  if (
+    kind !== "uppercaseLetters"
+    && kind !== "uppercaseAlphanumeric"
+    && kind !== "compactText"
+    && kind !== "integer"
+    && kind !== "padInteger"
+  ) {
+    throw new Error(`${label}不支持`);
+  }
+  if (!definition?.transforms?.includes(kind)) throw new Error(`${label}不适用于所选业务字段`);
+  return { kind, length: integer(source.length, 1, 12, `${label}位数`) };
 }
 
-function validateSequenceRange(start: number, length: number, label: string) {
-  if (start > (10 ** length) - 1) throw new Error(`${label}超出配置位数`);
+function parseSegment(value: unknown, ruleIndex: number, segmentIndex: number): BusinessCodeTemplateSegment {
+  const source = object(value, `第 ${ruleIndex + 1} 条规则第 ${segmentIndex + 1} 个组成部分`);
+  const label = `第 ${ruleIndex + 1} 条规则第 ${segmentIndex + 1} 个组成部分`;
+  if (source.kind === "literal") {
+    return { kind: "literal", value: text(source.value, 24, `${label}固定文本`) };
+  }
+  if (source.kind === "field") {
+    const field = text(source.field, 64, `${label}业务字段`);
+    if (!FIELD_KEYS.has(field)) throw new Error(`${label}业务字段未登记`);
+    const definition = businessCodeFieldDefinition(field);
+    if (definition?.conditionOptions) throw new Error(`${label}不能使用条件字段作为编号内容`);
+    return { kind: "field", field, ...(source.transform === undefined ? {} : { transform: parseTransform(source.transform, field, `${label}安全转换`) }) };
+  }
+  if (source.kind === "date" || source.kind === "datetime") {
+    const field = text(source.field, 64, `${label}日期字段`);
+    const definition = businessCodeFieldDefinition(field);
+    if (!definition || (definition.valueKind !== "date" && definition.valueKind !== "datetime")) {
+      throw new Error(`${label}日期字段不可用`);
+    }
+    const format = text(source.format, 32, `${label}日期格式`);
+    const parsed = parseBusinessCodeDateFormat(format, source.kind);
+    if (!parsed.ok) throw new Error(`${label}：${parsed.error}`);
+    return { kind: source.kind, field, format };
+  }
+  if (source.kind === "sequence") {
+    return { kind: "sequence", length: integer(source.length, 1, 12, `${label}流水位数`) };
+  }
+  throw new Error(`${label}类型不支持`);
 }
 
-export function parseBusinessCodeTemplateSettings(
-  value: unknown,
-  expectedFamily?: BusinessCodeTemplateFamily,
-): BusinessCodeTemplateSettings {
+function parseRule(value: unknown, index: number): BusinessCodeTemplateRule {
+  const source = object(value, `第 ${index + 1} 条规则`);
+  const key = text(source.key, 64, `第 ${index + 1} 条规则标识`);
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(key)) throw new Error(`第 ${index + 1} 条规则标识只能使用小写字母、数字和连字符`);
+  const conditions = Array.isArray(source.conditions) ? source.conditions : [];
+  if (conditions.length > 4) throw new Error(`第 ${index + 1} 条规则最多配置 4 个条件`);
+  const conditionFields = new Set<string>();
+  const parsedConditions = conditions.map((raw, conditionIndex) => {
+    const condition = object(raw, `第 ${index + 1} 条规则第 ${conditionIndex + 1} 个条件`);
+    const field = text(condition.field, 64, `第 ${index + 1} 条规则条件字段`);
+    const definition = businessCodeFieldDefinition(field);
+    if (!definition?.conditionOptions) throw new Error(`第 ${index + 1} 条规则条件字段未登记`);
+    if (conditionFields.has(field)) throw new Error(`第 ${index + 1} 条规则不能重复使用条件字段`);
+    conditionFields.add(field);
+    const conditionValue = text(condition.value, 64, `第 ${index + 1} 条规则条件值`);
+    if (!definition.conditionOptions.some((option) => option.value === conditionValue)) {
+      throw new Error(`第 ${index + 1} 条规则条件值不可用`);
+    }
+    if (condition.operator !== "equals") throw new Error(`第 ${index + 1} 条规则只允许等于条件`);
+    return { field, operator: "equals" as const, value: conditionValue };
+  });
+
+  if (!Array.isArray(source.segments) || source.segments.length < 1 || source.segments.length > 12) {
+    throw new Error(`第 ${index + 1} 条规则必须包含 1 至 12 个组成部分`);
+  }
+  const segments = source.segments.map((segment, segmentIndex) => parseSegment(segment, index, segmentIndex));
+  const sequenceSegments = segments.filter((segment) => segment.kind === "sequence");
+  if (sequenceSegments.length > 1) throw new Error(`第 ${index + 1} 条规则最多包含一个流水号`);
+
+  let sequence: BusinessCodeTemplateRule["sequence"];
+  if (sequenceSegments.length === 1) {
+    const sequenceSource = object(source.sequence, `第 ${index + 1} 条规则流水设置`);
+    const length = sequenceSegments[0]?.kind === "sequence" ? sequenceSegments[0].length : 0;
+    const maximum = (10 ** length) - 1;
+    const start = integer(sequenceSource.start, 1, maximum, `第 ${index + 1} 条规则流水起始值`);
+    const end = sequenceSource.end === undefined
+      ? undefined
+      : integer(sequenceSource.end, start, maximum, `第 ${index + 1} 条规则流水结束值`);
+    const scope = Array.isArray(sequenceSource.scope)
+      ? sequenceSource.scope.map((item, scopeIndex) => {
+          const field = text(item, 64, `第 ${index + 1} 条规则第 ${scopeIndex + 1} 个流水作用域`);
+          if (!businessCodeFieldDefinition(field)?.scopeEligible) throw new Error(`第 ${index + 1} 条规则流水作用域未登记`);
+          return field;
+        })
+      : [];
+    if (new Set(scope).size !== scope.length) throw new Error(`第 ${index + 1} 条规则流水作用域不能重复`);
+    sequence = { start, ...(end === undefined ? {} : { end }), scope };
+  } else if (source.sequence !== undefined) {
+    throw new Error(`第 ${index + 1} 条规则没有流水号，不能配置流水设置`);
+  }
+
+  return {
+    key,
+    name: text(source.name, 40, `第 ${index + 1} 条规则名称`),
+    priority: integer(source.priority, 1, 9999, `第 ${index + 1} 条规则优先级`),
+    conditions: parsedConditions,
+    segments,
+    ...(sequence ? { sequence } : {}),
+  };
+}
+
+export function parseBusinessCodeTemplateSettings(value: unknown): BusinessCodeTemplateSettings {
   const source = object(value, "模板配置");
-  const kind = source.kind as BusinessCodeTemplateFamily;
-  if (expectedFamily && kind !== expectedFamily) throw new Error("模板类型与基础结构不一致");
-  const rule = object(source.rule, "模板规则");
-
-  if (kind === "sequential" || kind === "financeAsset") {
-    const parsed = parseComposableBusinessCodeRule(rule, {
-      allowedSources: kind === "financeAsset"
-        ? ["companyCode", "assetCategoryCode", "fiscalYear"]
-        : ["createdAt"],
-    });
-    if (kind === "financeAsset") {
-      const sequence = parsed.segments.find((segment) => segment.kind === "sequence");
-      if (sequence?.length !== 5) throw new Error("财务资产流水固定为 5 位");
-    }
-    return { kind, rule: parsed };
+  if (source.version !== 2) throw new Error("模板配置版本无效");
+  if (!Array.isArray(source.rules) || source.rules.length < 1 || source.rules.length > 8) {
+    throw new Error("模板必须包含 1 至 8 条规则分支");
   }
-
-  if (kind === "organization") {
-    const formats = ["uppercaseLetters", "uppercaseAlphanumeric", "freeText"] as const;
-    if (!formats.includes(rule.identifierFormat as (typeof formats)[number])) {
-      throw new Error("组织简称格式无效");
-    }
-    return {
-      kind,
-      rule: {
-        identifierFormat: rule.identifierFormat as (typeof formats)[number],
-        identifierLength: integer(rule.identifierLength, 1, 12, "组织简称位数"),
-        functionalPrefix: text(rule.functionalPrefix, 24, "职能组织标识"),
-        separator: text(rule.separator, 3, "连接符", false),
-        managementRootSuffix: text(rule.managementRootSuffix, 12, "管理组织根后缀"),
-        level2Suffix: text(rule.level2Suffix, 12, "二级组织后缀"),
-        level2SequenceLength: integer(rule.level2SequenceLength, 1, 6, "二级组织流水位数"),
-        level3SequenceLength: integer(rule.level3SequenceLength, 1, 6, "三级组织流水位数"),
-      },
-    };
-  }
-
-  if (kind === "position") {
-    const sequenceLength = integer(rule.sequenceLength, 1, 12, "岗位流水位数");
-    const sequenceStart = integer(rule.sequenceStart, 1, 999_999_999, "岗位流水起始值");
-    validateSequenceRange(sequenceStart, sequenceLength, "岗位流水起始值");
-    return {
-      kind,
-      rule: {
-        prefix: text(rule.prefix, 24, "岗位固定文本", false),
-        separator: text(rule.separator, 3, "连接符", false),
-        sequenceLength,
-        sequenceStart,
-      },
-    };
-  }
-
-  if (kind === "project") {
-    const companySequenceLength = integer(rule.companySequenceLength, 1, 12, "公司项目流水位数");
-    const companySequenceStart = integer(rule.companySequenceStart, 1, 999_999_999, "公司项目流水起始值");
-    const companySequenceEnd = integer(rule.companySequenceEnd, companySequenceStart, 999_999_999, "公司项目流水结束值");
-    const departmentSequenceLength = integer(rule.departmentSequenceLength, 1, 12, "部门项目流水位数");
-    const departmentSequenceStart = integer(rule.departmentSequenceStart, 1, 999_999_999, "部门项目流水起始值");
-    const otherSequenceLength = integer(rule.otherSequenceLength, 1, 12, "其他项目流水位数");
-    const otherSequenceStart = integer(rule.otherSequenceStart, 1, 999_999_999, "其他项目流水起始值");
-    validateSequenceRange(companySequenceStart, companySequenceLength, "公司项目流水起始值");
-    validateSequenceRange(companySequenceEnd, companySequenceLength, "公司项目流水结束值");
-    validateSequenceRange(departmentSequenceStart, departmentSequenceLength, "部门项目流水起始值");
-    validateSequenceRange(otherSequenceStart, otherSequenceLength, "其他项目流水起始值");
-    return {
-      kind,
-      rule: {
-        companyPrefix: text(rule.companyPrefix, 24, "项目固定文本"),
-        separator: text(rule.separator, 3, "连接符", false),
-        yearDigits: rule.yearDigits === 4 ? 4 : 2,
-        companySequenceLength,
-        companySequenceStart,
-        companySequenceEnd,
-        departmentSequenceLength,
-        departmentSequenceStart,
-        otherSequenceLength,
-        otherSequenceStart,
-      },
-    };
-  }
-
-  throw new Error("模板类型不支持");
+  const rules = source.rules.map(parseRule);
+  if (new Set(rules.map((rule) => rule.key)).size !== rules.length) throw new Error("规则标识不能重复");
+  if (new Set(rules.map((rule) => rule.priority)).size !== rules.length) throw new Error("规则优先级不能重复");
+  return { version: 2, rules: [...rules].sort((left, right) => right.priority - left.priority) };
 }
 
-function identifierExample(settings: Extract<BusinessCodeTemplateSettings, { kind: "organization" }>) {
-  const { identifierFormat, identifierLength } = settings.rule;
-  const source = identifierFormat === "uppercaseLetters"
-    ? "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    : identifierFormat === "uppercaseAlphanumeric"
-      ? "A1B2C3D4E5F6"
-      : "ORGCODE";
-  return Array.from({ length: identifierLength }, (_, index) => source[index % source.length]).join("");
+function transformField(value: unknown, transform?: BusinessCodeFieldTransform) {
+  const source = String(value ?? "").trim();
+  if (!transform || transform.kind === "none") return source;
+  if (transform.kind === "uppercaseLetters") return source.replace(/[^a-zA-Z]/g, "").toUpperCase().slice(0, transform.length);
+  if (transform.kind === "uppercaseAlphanumeric") return source.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, transform.length);
+  if (transform.kind === "compactText") return source.replace(/\s/g, "").slice(0, transform.length);
+  const integerText = source.replace(/\D/g, "").slice(0, transform.length);
+  if (transform.kind === "integer") return integerText ? String(Number(integerText)) : "";
+  return integerText.padStart(transform.length, "0");
+}
+
+function exampleValue(field: string) {
+  const value = businessCodeFieldDefinition(field)?.example;
+  if (value === undefined) throw new Error(`编码上下文缺少 ${field}`);
+  return value;
+}
+
+export function renderBusinessCodeTemplateRule(
+  rule: BusinessCodeTemplateRule,
+  values: Readonly<Record<string, unknown>> = {},
+  sequence = rule.sequence?.start ?? 1,
+) {
+  return rule.segments.map((segment) => {
+    if (segment.kind === "literal") return segment.value;
+    if (segment.kind === "sequence") return String(sequence).padStart(segment.length, "0");
+    const value = values[segment.field] ?? exampleValue(segment.field);
+    if (segment.kind === "field") return transformField(value, segment.transform);
+    return formatBusinessCodeDate(value as never, segment.format, segment.kind);
+  }).join("");
 }
 
 export function businessCodeTemplateExample(settings: BusinessCodeTemplateSettings) {
   const parsed = parseBusinessCodeTemplateSettings(settings);
-  if (parsed.kind === "sequential") {
-    return renderBusinessCode(parsed.rule, {
-      values: { createdAt: PREVIEW_DATE },
-      sequence: parsed.rule.sequenceStart,
-    });
-  }
-  if (parsed.kind === "financeAsset") {
-    return renderBusinessCode(parsed.rule, {
-      values: {
-        companyCode: "02",
-        assetCategoryCode: "FA-ELECTRONIC",
-        fiscalYear: PREVIEW_DATE.year,
-      },
-      sequence: parsed.rule.sequenceStart,
-    });
-  }
-  if (parsed.kind === "organization") {
-    const identifier = identifierExample(parsed);
-    return `${identifier}${parsed.rule.separator}${parsed.rule.managementRootSuffix}`;
-  }
-  if (parsed.kind === "position") {
-    return [
-      parsed.rule.prefix,
-      "FUN-001",
-      String(parsed.rule.sequenceStart).padStart(parsed.rule.sequenceLength, "0"),
-    ].filter(Boolean).join(parsed.rule.separator);
-  }
-  const year = parsed.rule.yearDigits === 4 ? "2026" : "26";
-  return [
-    parsed.rule.companyPrefix,
-    year,
-    String(parsed.rule.companySequenceStart).padStart(parsed.rule.companySequenceLength, "0"),
-  ].join(parsed.rule.separator);
+  const first = parsed.rules[0];
+  if (!first) return "—";
+  return renderBusinessCodeTemplateRule(first);
 }
 
 export function businessCodeTemplateSummary(settings: BusinessCodeTemplateSettings) {
   const parsed = parseBusinessCodeTemplateSettings(settings);
-  if (parsed.kind === "sequential" || parsed.kind === "financeAsset") {
-    return parsed.rule.segments.map((segment) => {
-      if (segment.kind === "literal") return segment.value;
-      if (segment.kind === "reference") return `{${segment.source}}`;
-      if (segment.kind === "sequence") return `{流水:${segment.length}}`;
-      return `{${segment.kind === "datetime" ? "时间" : "日期"}:${segment.format}}`;
-    }).join("");
+  if (parsed.rules.length > 1) return `${parsed.rules.length} 条条件规则`;
+  const rule = parsed.rules[0];
+  return rule?.segments.map((segment) => {
+    if (segment.kind === "literal") return segment.value;
+    if (segment.kind === "field") return `{${businessCodeFieldDefinition(segment.field)?.label ?? segment.field}}`;
+    if (segment.kind === "sequence") return `{流水:${segment.length}}`;
+    return `{${segment.kind === "datetime" ? "时间" : "日期"}:${segment.format}}`;
+  }).join("") ?? "—";
+}
+
+export function defaultBusinessCodeTemplateSettings(key: BusinessCodeSystemTemplateKey) {
+  return cloneSettings(businessCodeSystemTemplate(key).settings);
+}
+
+function legacySegments(rule: Record<string, unknown>): BusinessCodeTemplateSegment[] {
+  if (!Array.isArray(rule.segments)) return [];
+  return rule.segments.flatMap((raw): BusinessCodeTemplateSegment[] => {
+    if (!raw || typeof raw !== "object") return [];
+    const segment = raw as BusinessCodeSegment;
+    if (segment.kind === "literal") return [{ kind: "literal", value: segment.value }];
+    if (segment.kind === "reference") return [{ kind: "field", field: segment.source }];
+    if (segment.kind === "sequence") return [{ kind: "sequence", length: segment.length }];
+    return [{ kind: segment.kind, field: segment.source, format: segment.format }];
+  });
+}
+
+function legacyRuleSettings(
+  segments: BusinessCodeTemplateSegment[],
+  start: unknown,
+  scope: string[] = [],
+): BusinessCodeTemplateSettings {
+  return {
+    version: 2,
+    rules: [{
+      key: "default",
+      name: "默认规则",
+      priority: 100,
+      conditions: [],
+      segments,
+      ...(segments.some((segment) => segment.kind === "sequence")
+        ? { sequence: { start: integer(start, 1, 999_999_999, "流水起始值"), scope } }
+        : {}),
+    }],
+  };
+}
+
+function withLegacyOrganization(value: Record<string, unknown>) {
+  const settings = defaultBusinessCodeTemplateSettings("system.organization");
+  const identifierFormat = value.identifierFormat;
+  const transformKind = identifierFormat === "uppercaseAlphanumeric" || identifierFormat === "freeText"
+    ? (identifierFormat === "freeText" ? "compactText" : identifierFormat)
+    : "uppercaseLetters";
+  const identifierLength = integer(value.identifierLength, 1, 12, "组织简称位数");
+  const separator = typeof value.separator === "string" ? value.separator : "";
+  const rootSuffix = text(value.managementRootSuffix, 12, "管理组织根后缀");
+  const level2Suffix = text(value.level2Suffix, 12, "二级组织后缀");
+  const level2Length = integer(value.level2SequenceLength, 1, 6, "二级组织流水位数");
+  const level3Length = integer(value.level3SequenceLength, 1, 6, "三级组织流水位数");
+  settings.rules = settings.rules.map((rule) => ({
+    ...rule,
+    segments: rule.segments.map((segment) => {
+      if (segment.kind === "field" && segment.field === "organizationIdentifier") {
+        return { ...segment, transform: { kind: transformKind, length: identifierLength } };
+      }
+      if (segment.kind === "field" && segment.field === "localSequence") {
+        return {
+          ...segment,
+          transform: segment.transform?.kind === "padInteger"
+            ? { kind: "padInteger", length: level3Length }
+            : { kind: "integer", length: level2Length },
+        };
+      }
+      return segment;
+    }),
+  }));
+  const m1 = settings.rules.find((rule) => rule.key === "management-level-1");
+  if (m1) m1.segments = [m1.segments[0]!, { kind: "literal", value: `${separator}${rootSuffix}` }];
+  const m2 = settings.rules.find((rule) => rule.key === "management-level-2");
+  if (m2) m2.segments = [m2.segments[0]!, { kind: "literal", value: separator }, m2.segments[2]!, { kind: "literal", value: level2Suffix }];
+  const m3 = settings.rules.find((rule) => rule.key === "management-level-3");
+  if (m3) m3.segments = [m3.segments[0]!, { kind: "literal", value: separator }, m3.segments[2]!, m3.segments[3]!];
+  return settings;
+}
+
+function withLegacyPosition(value: Record<string, unknown>) {
+  const prefix = typeof value.prefix === "string" ? value.prefix : "";
+  const separator = typeof value.separator === "string" ? value.separator : "";
+  return legacyRuleSettings([
+    ...(prefix ? [{ kind: "literal" as const, value: `${prefix}${separator}` }] : []),
+    { kind: "field", field: "departmentCode" },
+    ...(separator ? [{ kind: "literal" as const, value: separator }] : []),
+    { kind: "sequence", length: integer(value.sequenceLength, 1, 12, "岗位流水位数") },
+  ], value.sequenceStart, ["departmentCode"]);
+}
+
+function withLegacyProject(value: Record<string, unknown>) {
+  const settings = defaultBusinessCodeTemplateSettings("system.project");
+  const prefix = text(value.companyPrefix, 24, "项目固定文本");
+  const separator = typeof value.separator === "string" ? value.separator : "";
+  const format = value.yearDigits === 4 ? "YYYY" : "YY";
+  return {
+    ...settings,
+    rules: settings.rules.map((rule) => {
+      const isDepartment = rule.key === "department";
+      const length = integer(
+        isDepartment ? value.departmentSequenceLength : rule.key === "other" ? value.otherSequenceLength : value.companySequenceLength,
+        1,
+        12,
+        "项目流水位数",
+      );
+      const start = integer(
+        isDepartment ? value.departmentSequenceStart : rule.key === "other" ? value.otherSequenceStart : value.companySequenceStart,
+        1,
+        999_999_999,
+        "项目流水起始值",
+      );
+      return {
+        ...rule,
+        segments: [
+          ...(isDepartment
+            ? [{ kind: "field" as const, field: "departmentCode" }]
+            : [{ kind: "literal" as const, value: prefix }]),
+          { kind: "literal" as const, value: separator },
+          { kind: "date" as const, field: "createdAt", format },
+          { kind: "literal" as const, value: separator },
+          { kind: "sequence" as const, length },
+        ],
+        sequence: {
+          start,
+          ...(rule.key === "company" ? { end: integer(value.companySequenceEnd, start, (10 ** length) - 1, "公司项目流水结束值") } : {}),
+          scope: isDepartment ? ["departmentCode", "createdAt"] : ["createdAt"],
+        },
+      };
+    }),
+  };
+}
+
+export function upgradeBusinessCodeTemplateSettings(
+  value: unknown,
+  baseTemplateKey?: BusinessCodeSystemTemplateKey,
+): BusinessCodeTemplateSettings {
+  try {
+    return parseBusinessCodeTemplateSettings(value);
+  } catch {
+    // Legacy template shapes are converted below; invalid values stay fail-closed.
   }
-  if (parsed.kind === "organization") return "组织简称 + 分层后缀";
-  if (parsed.kind === "position") return "固定文本 + 直属组织编码 + 流水";
-  return `固定文本 + ${parsed.rule.yearDigits} 位年度 + 分域流水`;
+  const source = object(value, "旧模板配置");
+  const rule = object(source.rule, "旧模板规则");
+  if (source.kind === "sequential") return parseBusinessCodeTemplateSettings(legacyRuleSettings(legacySegments(rule), rule.sequenceStart, []));
+  if (source.kind === "financeAsset") {
+    return parseBusinessCodeTemplateSettings(legacyRuleSettings(
+      legacySegments(rule),
+      rule.sequenceStart,
+      ["companyCode", "assetCategoryCode", "fiscalYear"],
+    ));
+  }
+  if (source.kind === "organization") return parseBusinessCodeTemplateSettings(withLegacyOrganization(rule));
+  if (source.kind === "position") return parseBusinessCodeTemplateSettings(withLegacyPosition(rule));
+  if (source.kind === "project") return parseBusinessCodeTemplateSettings(withLegacyProject(rule));
+  if (baseTemplateKey) return defaultBusinessCodeTemplateSettings(baseTemplateKey);
+  throw new Error("模板配置版本无效");
 }
 
 export function businessCodeTemplateSettingsFromLegacy(
   baseTemplateKey: BusinessCodeSystemTemplateKey,
-  example: string,
+  _example: string,
 ) {
-  const fallback = defaultBusinessCodeTemplateSettings(baseTemplateKey);
-  const source = example.trim();
-  try {
-    if (fallback.kind !== "sequential") return fallback;
-    const match = source.match(/^(.*?)(\d+)$/);
-    if (!match) return fallback;
-    const sequenceLength = match[2].length;
-    const sequenceStart = Number(match[2]);
-    const prefix = match[1];
-    const last = prefix.slice(-1);
-    const separator = /^[-_/.:]$/.test(last) ? last : "";
-    const fixed = separator ? prefix.slice(0, -1) : prefix;
-    const segments: BusinessCodeSegment[] = [
-      ...(fixed ? [{ kind: "literal" as const, value: fixed }] : []),
-      ...(separator ? [{ kind: "literal" as const, value: separator }] : []),
-      { kind: "sequence", length: sequenceLength },
-    ];
-    return parseBusinessCodeTemplateSettings({
-      kind: "sequential",
-      rule: { segments, sequenceStart },
-    }, "sequential");
-  } catch {
-    return fallback;
-  }
+  return defaultBusinessCodeTemplateSettings(baseTemplateKey);
 }
 
-export function businessCodeTemplateFamilyForBase(baseTemplateKey: BusinessCodeSystemTemplateKey) {
-  const template = BUSINESS_CODE_SYSTEM_TEMPLATES.find((item) => item.key === baseTemplateKey);
-  if (!template) throw new Error("基础模板不存在");
-  return template.family;
+export function businessCodeTemplateTemporalKind(settings: BusinessCodeTemplateSettings): {
+  kind: BusinessCodeTemporalKind;
+  yearOnly: boolean;
+} | null {
+  const parsed = parseBusinessCodeTemplateSettings(settings);
+  const temporal = parsed.rules[0]?.segments.find((segment) => segment.kind === "date" || segment.kind === "datetime");
+  if (!temporal || (temporal.kind !== "date" && temporal.kind !== "datetime")) return null;
+  return { kind: temporal.kind, yearOnly: temporal.format === "YY" || temporal.format === "YYYY" };
+}
+
+export function registeredBusinessCodeSystemSettings() {
+  return BUSINESS_CODE_SYSTEM_TEMPLATES.map((template) => ({
+    key: template.key,
+    settings: defaultBusinessCodeTemplateSettings(template.key),
+  }));
 }
