@@ -182,7 +182,7 @@ export function useCloseWorkpaperSection(input: {
       header: {
         title: `${taskLabels.get(taskKey) ?? taskKey}底稿`,
         description: workpaper?.status === "reviewed"
-          ? `已由用户 #${workpaper.reviewedByUserId} 完成独立复核；再次保存会显式退回编制状态并清除旧复核。`
+          ? "已完成独立复核；再次保存会显式退回编制状态并清除旧复核。"
           : "提交复核需填写结论，并至少提供一项受控证据或同公司同期间已记账凭证。",
       },
       content: { items: fields, layout: { flow: "grid", columns: 2, density: "compact", commandPlacement: "below" } },
