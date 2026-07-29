@@ -18,6 +18,7 @@ import FormSurface from "../../FormSurface";
 import CreateSurface from "../../CreateSurface";
 import MobileExperienceBoundary from "../../MobileExperienceBoundary";
 import { CreateSurfaceAnchorTarget } from "../create/CreateSurfaceAnchorContext";
+import { DataSurfaceMeter } from "./DataSurfaceMeter";
 import { joinClassNames } from "../common/card-utils";
 import { textOverflowTitle } from "../common/text-overflow";
 import { resolveDataTableScroll, resolveTableToneClass } from "./table-presentation";
@@ -42,23 +43,16 @@ import type {
 type StructuredDataSurfaceProps = Extract<DataSurfaceProps, { kind: "structured" }>;
 
 const MATRIX_ROW_HEADER_WIDTH = "20rem";
+const DISPLAY_SPEC_KINDS = new Set([
+  "text", "empty", "stack", "disclosure", "link", "badge", "number", "amount", "meter",
+]);
 
 function hasSpecKind(value: unknown): value is { kind: string } {
   return Boolean(value !== null && value !== undefined && typeof value === "object" && "kind" in value);
 }
 
 function isDisplaySpec(value: ReactNode | DataSurfaceDisplaySpec): value is DataSurfaceDisplaySpec {
-  if (!hasSpecKind(value)) return false;
-  return (
-    value.kind === "text"
-    || value.kind === "empty"
-    || value.kind === "stack"
-    || value.kind === "disclosure"
-    || value.kind === "link"
-    || value.kind === "badge"
-    || value.kind === "number"
-    || value.kind === "amount"
-  );
+  return hasSpecKind(value) && DISPLAY_SPEC_KINDS.has(value.kind);
 }
 
 export function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactNode {
@@ -77,6 +71,9 @@ export function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactN
   if (value.kind === "amount") {
     const { kind: _kind, ...props } = value;
     return <span className="block w-full text-right tabular-nums"><AmountCell {...props} /></span>;
+  }
+  if (value.kind === "meter") {
+    return <DataSurfaceMeter spec={value} />;
   }
   if (value.kind === "stack") {
     const gapClass = value.gap === "none" ? "" : value.gap === "sm" ? "space-y-2" : "space-y-1";

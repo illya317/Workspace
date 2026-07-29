@@ -126,6 +126,10 @@ const c=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8"));
 for (const scope of c.compiler.typecheckScopes) console.log(scope);
 ' "$CONTRACT_FILE")
 
+if ! npm run source-code-analysis:snapshot:optional; then
+  echo "[警告] 源码分析 snapshot 未生成；继续 deploy-unit 构建" >&2
+fi
+
 BUILD_DIRECTORY="$APP_ROOT/.next"
 rm -rf "$BUILD_DIRECTORY"
 if [ -d "$NEXT_CACHE_ROOT" ]; then
@@ -163,6 +167,15 @@ mkdir -p "$APP_DIRECTORY/.next"
 cp -R "$BUILD_DIRECTORY/static" "$APP_DIRECTORY/.next/static"
 rm -rf "$APP_DIRECTORY/public"
 cp -R public "$APP_DIRECTORY/public"
+if [ -f .cache/source-code-analysis/snapshot.json ]; then
+  if ! {
+    mkdir -p "$APP_DIRECTORY/.workspace/source-code-analysis" &&
+      cp .cache/source-code-analysis/snapshot.json "$APP_DIRECTORY/.workspace/source-code-analysis/snapshot.json"
+  }; then
+    echo "[警告] 源码分析 snapshot 未写入 deploy-unit 产物；业务产物继续生成" >&2
+    rm -f "$APP_DIRECTORY/.workspace/source-code-analysis/snapshot.json" || true
+  fi
+fi
 cp "$CONTRACT_FILE" "$STANDALONE_ROOT/.deploy-unit-contract.json"
 cp "$NAVIGATION_MANIFEST_FILE" "$STANDALONE_ROOT/.deploy-navigation-manifest.json"
 cp "$CONTROL_PLANE_REQUIREMENTS_FILE" "$STANDALONE_ROOT/.control-plane-requirements.json"

@@ -13,6 +13,7 @@ export type {
   DataSurfaceColumnSpec,
   DataSurfaceCommandSpec,
   DataSurfaceDisplaySpec,
+  DataSurfaceDisclosureSpec,
   DataSurfaceEmphasis,
   DataSurfaceFont,
   DataSurfaceFrame,

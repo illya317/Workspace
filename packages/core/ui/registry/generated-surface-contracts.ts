@@ -1701,6 +1701,34 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               description: "类型：boolean。",
                             },
                             {
+                              name: "disclosure",
+                              description: "横向展开组语义；Core 统一渲染触发列、明细范围和首尾边界。",
+                              children: [
+                                {
+                                  name: "groupKey",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "role",
+                                  description: "可选值：detail / trigger。",
+                                  children: [
+                                    {
+                                      name: "detail",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "trigger",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "expanded",
+                                  description: "类型：boolean。",
+                                },
+                              ],
+                            },
+                            {
                               name: "onHeaderClick",
                               description: "类型：() => void。",
                             },
@@ -10019,6 +10047,34 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             {
                                               name: "numeric",
                                               description: "类型：boolean。",
+                                            },
+                                            {
+                                              name: "disclosure",
+                                              description: "横向展开组语义；Core 统一渲染触发列、明细范围和首尾边界。",
+                                              children: [
+                                                {
+                                                  name: "groupKey",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "role",
+                                                  description: "可选值：detail / trigger。",
+                                                  children: [
+                                                    {
+                                                      name: "detail",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "trigger",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "expanded",
+                                                  description: "类型：boolean。",
+                                                },
+                                              ],
                                             },
                                             {
                                               name: "onHeaderClick",
@@ -19917,6 +19973,34 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             {
                                               name: "numeric",
                                               description: "类型：boolean。",
+                                            },
+                                            {
+                                              name: "disclosure",
+                                              description: "横向展开组语义；Core 统一渲染触发列、明细范围和首尾边界。",
+                                              children: [
+                                                {
+                                                  name: "groupKey",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "role",
+                                                  description: "可选值：detail / trigger。",
+                                                  children: [
+                                                    {
+                                                      name: "detail",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "trigger",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "expanded",
+                                                  description: "类型：boolean。",
+                                                },
+                                              ],
                                             },
                                             {
                                               name: "onHeaderClick",
@@ -29863,6 +29947,34 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         {
                                           name: "numeric",
                                           description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "disclosure",
+                                          description: "横向展开组语义；Core 统一渲染触发列、明细范围和首尾边界。",
+                                          children: [
+                                            {
+                                              name: "groupKey",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "role",
+                                              description: "可选值：detail / trigger。",
+                                              children: [
+                                                {
+                                                  name: "detail",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "trigger",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "expanded",
+                                              description: "类型：boolean。",
+                                            },
+                                          ],
                                         },
                                         {
                                           name: "onHeaderClick",
@@ -42455,6 +42567,34 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 {
                   name: "numeric",
                   description: "类型：boolean。",
+                },
+                {
+                  name: "disclosure",
+                  description: "横向展开组语义；Core 统一渲染触发列、明细范围和首尾边界。",
+                  children: [
+                    {
+                      name: "groupKey",
+                      description: "类型：string。",
+                    },
+                    {
+                      name: "role",
+                      description: "可选值：detail / trigger。",
+                      children: [
+                        {
+                          name: "detail",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "trigger",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
+                    {
+                      name: "expanded",
+                      description: "类型：boolean。",
+                    },
+                  ],
                 },
                 {
                   name: "onHeaderClick",
@@ -60655,6 +60795,34 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "类型：boolean。",
                                         },
                                         {
+                                          name: "disclosure",
+                                          description: "横向展开组语义；Core 统一渲染触发列、明细范围和首尾边界。",
+                                          children: [
+                                            {
+                                              name: "groupKey",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "role",
+                                              description: "可选值：detail / trigger。",
+                                              children: [
+                                                {
+                                                  name: "detail",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "trigger",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "expanded",
+                                              description: "类型：boolean。",
+                                            },
+                                          ],
+                                        },
+                                        {
                                           name: "onHeaderClick",
                                           description: "类型：() => void。",
                                         },
@@ -68973,6 +69141,34 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         {
                                                           name: "numeric",
                                                           description: "类型：boolean。",
+                                                        },
+                                                        {
+                                                          name: "disclosure",
+                                                          description: "横向展开组语义；Core 统一渲染触发列、明细范围和首尾边界。",
+                                                          children: [
+                                                            {
+                                                              name: "groupKey",
+                                                              description: "类型：string。",
+                                                            },
+                                                            {
+                                                              name: "role",
+                                                              description: "可选值：detail / trigger。",
+                                                              children: [
+                                                                {
+                                                                  name: "detail",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "trigger",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
+                                                            {
+                                                              name: "expanded",
+                                                              description: "类型：boolean。",
+                                                            },
+                                                          ],
                                                         },
                                                         {
                                                           name: "onHeaderClick",
@@ -78871,6 +79067,34 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         {
                                                           name: "numeric",
                                                           description: "类型：boolean。",
+                                                        },
+                                                        {
+                                                          name: "disclosure",
+                                                          description: "横向展开组语义；Core 统一渲染触发列、明细范围和首尾边界。",
+                                                          children: [
+                                                            {
+                                                              name: "groupKey",
+                                                              description: "类型：string。",
+                                                            },
+                                                            {
+                                                              name: "role",
+                                                              description: "可选值：detail / trigger。",
+                                                              children: [
+                                                                {
+                                                                  name: "detail",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "trigger",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
+                                                            {
+                                                              name: "expanded",
+                                                              description: "类型：boolean。",
+                                                            },
+                                                          ],
                                                         },
                                                         {
                                                           name: "onHeaderClick",
@@ -88817,6 +89041,34 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     {
                                                       name: "numeric",
                                                       description: "类型：boolean。",
+                                                    },
+                                                    {
+                                                      name: "disclosure",
+                                                      description: "横向展开组语义；Core 统一渲染触发列、明细范围和首尾边界。",
+                                                      children: [
+                                                        {
+                                                          name: "groupKey",
+                                                          description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "role",
+                                                          description: "可选值：detail / trigger。",
+                                                          children: [
+                                                            {
+                                                              name: "detail",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "trigger",
+                                                              description: "字面量取值。",
+                                                            },
+                                                          ],
+                                                        },
+                                                        {
+                                                          name: "expanded",
+                                                          description: "类型：boolean。",
+                                                        },
+                                                      ],
                                                     },
                                                     {
                                                       name: "onHeaderClick",

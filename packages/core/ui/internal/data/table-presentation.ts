@@ -135,6 +135,34 @@ export function resolveTableRowStateClass(state: DataSurfaceRowState = "normal")
   return "";
 }
 
+export function resolveTableDisclosureClass(options: {
+  axis: "column" | "row";
+  role: "trigger" | "detail";
+  expanded?: boolean;
+  surface?: "header" | "body";
+  start?: boolean;
+  end?: boolean;
+}) {
+  if (options.role === "trigger" && options.expanded === false) return "";
+  if (options.axis === "row") {
+    return options.role === "trigger"
+      ? "!bg-emerald-50 text-emerald-950 shadow-[inset_3px_0_0_#10b981]"
+      : "!bg-emerald-50/60 text-slate-800 shadow-[inset_3px_0_0_#6ee7b7]";
+  }
+  const tone = options.surface === "header"
+    ? options.role === "trigger"
+      ? "!bg-emerald-100 text-emerald-950"
+      : "!bg-emerald-50 text-emerald-900"
+    : options.role === "trigger"
+      ? "!bg-emerald-50 text-emerald-950"
+      : "!bg-emerald-50/60";
+  return joinClassNames(
+    tone,
+    options.start ? "!border-l-2 !border-l-emerald-300" : "",
+    options.end ? "!border-r-2 !border-r-emerald-300" : "",
+  );
+}
+
 export function resolveSurfaceFrameClass(frame: DataSurfaceFrame = "plain", scroll?: DataSurfaceScrollSpec) {
   const maxHeight = scroll?.maxHeight === "sm"
     ? "max-h-64 max-sm:max-h-none"

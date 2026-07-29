@@ -21,6 +21,10 @@ export type DataSurfaceStructuredCellRole = "header" | "label" | "value" | "empt
 export type DataSurfaceRowHeight = "sm" | "md" | "lg" | number;
 export type DataSurfaceMobilePresentation = "list" | "landscape" | "unavailable";
 
+export type DataSurfaceDisclosureSpec =
+  | { groupKey: string; role: "trigger"; expanded: boolean }
+  | { groupKey: string; role: "detail" };
+
 export interface DataSurfaceMobileSpec {
   presentation?: DataSurfaceMobilePresentation;
   title?: string;
@@ -77,7 +81,8 @@ export type DataSurfaceDisplaySpec =
   | { kind: "link"; label: ReactNode; href: string; external?: boolean; tone?: DataSurfaceTone; font?: DataSurfaceFont }
   | ({ kind: "badge" } & DataSurfaceBadgeSpec)
   | ({ kind: "number" } & DataSurfaceNumberSpec)
-  | ({ kind: "amount" } & DataSurfaceAmountSpec);
+  | ({ kind: "amount" } & DataSurfaceAmountSpec)
+  | { kind: "meter"; value: number; max: number; label: ReactNode; title?: string };
 
 export interface DataSurfaceCellInputSpec {
   kind: "input";
@@ -236,6 +241,8 @@ export interface DataSurfaceColumnSpec<T> {
   emphasis?: DataSurfaceEmphasis;
   font?: DataSurfaceFont;
   numeric?: boolean;
+  /** 横向展开组语义；Core 统一渲染触发列、明细范围和首尾边界。 */
+  disclosure?: DataSurfaceDisclosureSpec;
   onHeaderClick?: () => void;
   cell: (row: T) => ReactNode | DataSurfaceCellSpec;
 }

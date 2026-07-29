@@ -24,6 +24,8 @@
 | 仅检查拆分质量 | `npm run complexity:split-quality` | 防止为过 `max-lines` 把大文件随便搬家。 |
 | 当前变更阻断项 | `npm run check:blockers` | 跑业务阻断和 UI 阻断；这些问题由当前改动 agent 自己修。 |
 | 业务阻断 | `npm run gate:domain` | API、route、resource、RBAC、domain validation、app route 和包边界。 |
+| 源码模块声明 | `npm run source-code-analysis:check` | 校验每个受治理源码文件唯一归属 declared module + role、模块 interface 路径存在、declared module 依赖图无环，并要求高置信度单文件混合职责为零；同一检查已进入 `gate:domain`。 |
+| 源码分析 snapshot | `npm run source-code-analysis:snapshot` / `npm run source-code-analysis:report` | 写入 `.cache/source-code-analysis/snapshot.json` 或输出 JSON；dev、build 和 deploy artifact 会尽力自动生成，但生成/读取失败不得阻断原功能。严格失败只在显式声明检查中发生。 |
 | UI 阻断 | `npm run gate:ui` | Core UI 唯一入口、PageSurface 协议、Toolbar/Input/Selector 等结构性 UI 边界。 |
 | 架构兼容入口 | `npm run check:arch` | 等价于 `npm run check:blockers`。`npm run arch:gate` 保留为兼容总入口。 |
 | Prisma schema、model、migration | `npm run check:data` | 跑 schema 合法性、schema governance 和 migration diff。 |
@@ -102,6 +104,7 @@
 - 写入链路的 domain validation 收口。
 - 全局执行时间统一使用 `plannedStartDate / plannedEndDate / actualStartDate / actualEndDate`；实际日期输入必须设置今日上限，`actualEndDate` 只能在 `status=done` 时编辑。项目、WorkPlan、WorkItem 和周期拆解写入必须调用 Platform completion/date policy；Prisma 字段、公开 DTO/API 旧别名、UI 漏配和 domain 漏调用均由 `gate:domain` 阻断。
 - app route hierarchy、module gate、package boundary 和 auth chain。
+- 源码模块声明必须覆盖全部受治理文件且只能命中一次；声明的 interface 路径必须存在，模块级依赖循环直接阻断。非法包依赖继续由 package boundary gate 判定。
 - `app/(modules)` 页面只能挂对应 package/platform UI；直接 import Core UI、手写 DOM 或在 app page 里组合页面 UI 会失败。
 - 模块 API route 必须命中模块台账派生 contract，并使用 `createApiRouteHandler` / `requireApiAccess` / 已接入 `requireApiAccess` 的 `with-auth` wrapper。
 - 业务通知必须走 notification registry 的 `sendNotification(type + payload)`，不得在业务侧直接拼 `createNotification` 或直接写 `prisma.notification.create/createMany/upsert`。
@@ -136,7 +139,7 @@
 
 ### build
 
-`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 Next 生产构建，避免重复 generate。两个入口都固定给 Next 构建进程 `6144 MiB` Node old-space，覆盖 Turbopack 编译后仍需运行的完整 route/type graph 检查，避免在 `Running TypeScript` 阶段触顶旧的 `4096 MiB` 上限。Agent/企微路由不携带源码读取依赖；standalone 只能包含模型 runtime、会话存储和受保护业务 API connector 所需闭包。
+`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再生成源码分析 snapshot 并执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 snapshot + Next 生产构建，避免重复 generate。两个入口都固定给 Next 构建进程 `6144 MiB` Node old-space，覆盖 Turbopack 编译后仍需运行的完整 route/type graph 检查，避免在 `Running TypeScript` 阶段触顶旧的 `4096 MiB` 上限。Full 与 deploy-unit packager 会把 snapshot 复制到实际 `server.js` 入口旁，运行时不扫描源码。Agent/企微路由不携带源码读取依赖；standalone 只能包含模型 runtime、会话存储和受保护业务 API connector 所需闭包。
 
 ### tests
 

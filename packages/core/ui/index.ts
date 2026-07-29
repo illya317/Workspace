@@ -66,6 +66,7 @@ export type {
   DataSurfaceColumnSpec,
   DataSurfaceCommandSpec,
   DataSurfaceDisplaySpec,
+  DataSurfaceDisclosureSpec,
   DataSurfaceKind,
   DataSurfaceLooseRow,
   DataSurfaceMobilePresentation,

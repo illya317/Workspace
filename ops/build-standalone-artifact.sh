@@ -289,6 +289,12 @@ else
     npm run build
 fi
 
+if [ ! -f .cache/source-code-analysis/snapshot.json ]; then
+  if ! npm run source-code-analysis:snapshot:optional; then
+    echo "[警告] 源码分析 snapshot 未生成；继续 standalone 打包" >&2
+  fi
+fi
+
 if [ ! -f .next/BUILD_ID ] || [ "$(cat .next/BUILD_ID)" != "$SOURCE_SHA" ]; then
   echo "[错误] .next/BUILD_ID 与 canonical source SHA 不一致；禁止打包错误构建"
   exit 1
@@ -310,6 +316,15 @@ mkdir -p "$standalone_app_dir/.next"
 cp -r .next/static "$standalone_app_dir/.next/static"
 rm -rf "$standalone_app_dir/public"
 cp -R public "$standalone_app_dir/public"
+if [ -f .cache/source-code-analysis/snapshot.json ]; then
+  if ! {
+    mkdir -p "$standalone_app_dir/.workspace/source-code-analysis" &&
+      cp .cache/source-code-analysis/snapshot.json "$standalone_app_dir/.workspace/source-code-analysis/snapshot.json"
+  }; then
+    echo "[警告] 源码分析 snapshot 未写入 standalone 产物；业务产物继续生成" >&2
+    rm -f "$standalone_app_dir/.workspace/source-code-analysis/snapshot.json" || true
+  fi
+fi
 # Runtime branding and avatar links point outside the repository. They must never enter the
 # portable standalone artifact; production relinks them from REMOTE_WORKSPACE_CONFIG_DIR after extract.
 for runtime_asset in \

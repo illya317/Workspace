@@ -13,6 +13,7 @@ const lockPath = path.join(repositoryRoot, ".cache/runtime/local-dev-server.lock
 const nextCliPath = path.join(repositoryRoot, "node_modules/next/dist/bin/next");
 const prismaCliPath = path.join(repositoryRoot, "node_modules/prisma/build/index.js");
 const workspaceCheckPath = path.join(repositoryRoot, "scripts/check/check-workspace-runtime.js");
+const sourceCodeAnalysisPath = path.join(repositoryRoot, "scripts/arch/source-code-analysis/cli.ts");
 
 export function assertFixedDevArguments(args) {
   if (args.length === 0) return;
@@ -140,6 +141,21 @@ async function runDevelopmentMigrations() {
   }
 }
 
+async function runSourceCodeAnalysisSnapshot() {
+  const child = spawn(process.execPath, ["--import", "tsx", sourceCodeAnalysisPath, "--write", "--optional"], {
+    cwd: repositoryRoot,
+    env: process.env,
+    stdio: "inherit",
+  });
+  const result = await new Promise((resolve) => {
+    child.once("error", (error) => resolve({ code: 1, signal: null, error }));
+    child.once("exit", (code, signal) => resolve({ code, signal }));
+  });
+  if (result.code !== 0) {
+    console.warn("[警告] 源码分析 snapshot 未生成；本地应用继续启动，严格声明检查由 gate:domain 负责。", result.error ?? "");
+  }
+}
+
 async function runNextDev() {
   const child = spawn(process.execPath, [nextCliPath, "dev", "--port", String(LOCAL_DEV_PORT)], {
     cwd: repositoryRoot,
@@ -177,6 +193,7 @@ export async function main(args = process.argv.slice(2)) {
 
     await runWorkspacePreflight();
     await runDevelopmentMigrations();
+    await runSourceCodeAnalysisSnapshot();
     await fs.rm(path.join(repositoryRoot, ".next"), { recursive: true, force: true });
     const result = await runNextDev();
     if (result.code !== null) return result.code;

@@ -175,6 +175,10 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 
 普通表格默认随页面自然展开，不创建横向或纵向内滚动。桌面普通表格由 Core 按表头、单元格内容和容器剩余空间自适应列宽；业务声明的 `width` 是紧凑列或重点列的宽度提示，不得导致其他内容列在仍有空白时被固定等分截断。矩阵继续使用固定列宽。短名称、状态、比例、日期、来源等可压缩字段即使表头随页面滚出视口，仍应优先保持连续阅读；不要仅因行数多或担心表头消失就声明 `scroll`。只有二维矩阵、列内容确实不可压缩，或交互明确需要固定高度视窗时才声明滚动；固定高度视窗必须同时声明 `maxHeight`，由 Core 锁定表头。
 
+DataSurface 的展开范围由 Core 统一表达。纵向展开沿用 `expandedRowKey(s) + expandedRow`，Core 自动高亮触发行与详情行；横向展开列通过 `column.disclosure` 声明同一 `groupKey` 下的 `trigger/detail`，触发列同时声明 `expanded`。Core 根据可见列自动推导连续范围、首尾边界、表头与内容染色及键盘展开语义。业务不得声明颜色、边框、阴影或自行给展开单元格拼 class；未展开的 trigger 不着色，detail 只在真实展开时进入可见列。
+
+需要在表格数值后表达相对规模时，使用 `DataSurfaceDisplaySpec kind="meter"`，只声明 `value / max / label`。Core 统一计算长度并渲染底纹；业务不得用字符条、渐变字符串、内联宽度或自定义颜色复刻。meter 只辅助扫描，`label` 仍是可复制、可核对的权威显示值。
+
 表格或记录中的系统编码、文件名等可截断文本使用 `DataSurfaceDisplaySpec kind="text" + wrap="truncate"`；需要与同列常规编码保持稳定长度时可声明 `maxChars`。Core 统一按字符宽度显示省略号，并把完整文本写入悬停标题；业务不得先截断 `value`、拼接 `...` 或丢失可复制的完整值。
 
 业务状态类 Boolean 必须用 `control: "choice"` + 静态产品文案选项表达，并在回调边界还原为 `boolean`；`control: "boolean"` + `presentation: "checkbox"` 只用于明确的勾选/确认语义。Core 不提供 `switch` presentation，业务不得自行复刻开关 renderer。
@@ -271,6 +275,21 @@ Platform Core UI direct import 按以下 recipe 清：
 2. `packages/core/ui/index.ts`
 3. `packages/core/ui/registry/component-registry-data-*.ts`
 4. 必要时更新 `docs/engineering/core-ui-governance.md` 或 `docs/engineering/reusable-components.md`
+
+### Core 授权改动同轮闭环
+
+用户明确授权修改 Core，表示当前 agent 可以进入 UI-system 范围，不表示可以只改 implementation。任何 Core UI 公共能力新增、删除或语义变化，都必须由实施者在同一轮、同一工作区快照内完成以下闭环后再交还任务，不能留给下一位 agent，也不能把 CI 当作首次发现遗漏的工具：
+
+1. **声明**：同步 Surface/type interface、公开行为和必要的可访问性语义；业务只声明意图，不新增颜色、间距、阴影、renderer 等视觉参数。
+2. **实现**：更新所属公开 UI implementation；需要拆分时放入 `packages/core/ui/internal/**` 的 Private Impl，不为私有文件制造公共入口。
+3. **导出**：公共类型、helper 或 runtime 入口同步 `packages/core/ui/<Surface>.tsx` 与 `packages/core/ui/index.ts`；删除时反向清理，不保留 stale export。
+4. **注册**：公共能力同步 component registry 的中文 `description`、`declares`、`composes`；Private Impl 不单独注册。可见能力变化同时更新 `/settings/ui` 所消费的声明关系或现有展示入口。
+5. **生成**：凡 Surface contract 变化，立即运行 `npm run core-ui:contracts` 写回生成 contract，并运行 `npm run core-ui:contracts:check`；不得手改生成文件，也不得等 CI 报漂移。
+6. **文档**：更新本规范、`reusable-components.md` 或所属模块 `ARCHITECTURE.md` 中受影响的 interface、调用约束和迁移口径。
+7. **验证**：补齐通过公开 interface 的行为测试，运行本任务文件 ESLint；直接修改 Core TypeScript contract 时串行运行一次 `npm run typecheck:scope -- core`；用 `CORE_UI_CHANGE=1 npm run gate:ui` 验证结构门禁，并按任务需要完成真实页面或静态渲染检查。
+8. **交接**：交还前列出已经同步的声明、registry、生成物和验证结果。若共享工作区的无关改动阻断总门禁或页面运行，必须给出精确文件与失败项，同时保留本任务专项检查通过证据；不得把本任务尚未完成的同步项包装成“等 CI 再看”。
+
+这套闭环同样适用于修改已有 Surface 的新声明字段；“没有新增组件”不是跳过 registry、生成 contract 或治理文档的理由。
 
 新增会进入 `/settings/ui` 的封装组件必须有明确 `declares`；若声明项过多或高度耦合，应拆新的 Surface。基础/私有实现不得作为业务 import。
 

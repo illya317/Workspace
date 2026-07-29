@@ -22,6 +22,8 @@ Agent 开工先读 `AGENTS.md` 和 `docs/README.md`，再进入自己的 `docs/r
 
 如果一个任务横跨两层，先写计划，拆成多个 commit。不要一次让 agent 同时改 schema、导入、API、UI、权限和部署脚本。
 
+所有层默认遵守 `docs/engineering/deep-module-design.md`：模块以小而稳定的 interface 承载大量行为；给人的 UI 同样属于 interface。后端字段、完整生命周期、工作流节点、内部 action 和权限矩阵不得机械展开成用户选项；UI 只表达当前上下文中的业务意图，写入通过 Zod 与 domain validator 在进入持久化前返回准确、可操作的错误。
+
 ## 2. 业务模块目录契约
 
 每个业务模块都应形成同一组入口：
@@ -44,6 +46,8 @@ app/api/modules/<domain>/<l2>/
 ```
 
 不是每个模块第一天都要建满所有文件，但新增代码时必须往这个方向收敛。
+
+源码所有权与职责投影统一声明在 `scripts/arch/source-code-analysis/declarations.ts`。每个受治理文件必须唯一归属一个 declared module，并落入 UI、输入边界、领域校验、业务实现、数据适配、组合壳、契约、测试或工具 role；role 是统计维度，不自动构成新模块。单文件仍须守住可独立变化的 seam：输入 schema、domain validator、reference/persistence adapter、第三方 transport 和 React host 不得在同一文件交叉实现；事务型 application service 的持久化编排属于一个原子 use case，不强制增加透传 repository。页面/API 壳属于 composition/input，不能为了统计把拼装代码伪装成领域模块。详细标准见 `docs/engineering/deep-module-design.md`。
 
 ## 3. 新业务模块接入清单
 

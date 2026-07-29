@@ -17,6 +17,8 @@ test("unit builder uses governed typecheck and one exact Linux standalone artifa
   assert.match(build, /NEXT_PUBLIC_DEPLOY_UNIT_NAVIGATION="\$NAVIGATION_MANIFEST"/);
   assert.match(build, /render-deploy-navigation-manifest\.ts/);
   assert.match(build, /\.\/node_modules\/\.bin\/next build "\$APP_ROOT"/);
+  assert.match(build, /npm run source-code-analysis:snapshot:optional/);
+  assert.match(build, /\.workspace\/source-code-analysis\/snapshot\.json/);
   assert.match(build, /tar -C "\$STANDALONE_ROOT" -czf "\$ARTIFACT_FILE"/);
   assert.match(build, /control-plane-requirements\.mjs write/);
   assert.match(build, /assistant-runtime\.mjs bundle/);
