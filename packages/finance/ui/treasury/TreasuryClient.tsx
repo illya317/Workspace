@@ -263,7 +263,7 @@ function TreasuryWorkspacePage({
     loans: loansBody,
     interest: interestBody,
   };
-  const blockerSections = workspace.blockers.length ? [createBlockerSection(workspace.blockers, (blocker) => {
+  const blockerSections = workspace.blockers.length ? [treasuryBlockerSection(workspace.blockers, (blocker) => {
     if (blocker.entityKind === "bank_reconciliation") onActiveViewChange("bank-reconciliation");
     else if (blocker.entityKind === "interest_workpaper") onActiveViewChange("interest");
     onTargetEntityIdChange(blocker.entityId);
@@ -282,7 +282,7 @@ function TreasuryWorkspacePage({
   );
 }
 
-function createBlockerSection(
+function treasuryBlockerSection(
   blockers: TreasuryBlockerDto[],
   onOpen: (blocker: TreasuryBlockerDto) => void,
 ) {

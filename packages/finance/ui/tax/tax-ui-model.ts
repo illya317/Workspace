@@ -215,7 +215,7 @@ export function buildTaxWriteInput(
       month: scope.month,
       status: draft.status,
       note: optionalText(draft.note),
-      accrualLines: draft.accrualLines.map(toAccrualInput),
+      accrualLines: draft.accrualLines.map(accrualInputFromDraft),
     };
     return draft.id && draft.version
       ? { kind: "workpaper_update", id: draft.id, version: draft.version, ...shared }
@@ -293,7 +293,7 @@ export function draftIsValid(draft: TaxDraft | null, periodId: number | null) {
       : draft.allocations.every((row) => row.filingId && (optionalNumber(row.allocatedAmount) ?? 0) > 0) && allocated <= amount));
 }
 
-function toAccrualInput(line: AccrualLineDraft): TaxAccrualLineInput {
+function accrualInputFromDraft(line: AccrualLineDraft): TaxAccrualLineInput {
   const baseRate = line.method === "base_rate";
   return {
     ...sourceInput(line),
