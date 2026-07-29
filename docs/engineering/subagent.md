@@ -13,7 +13,7 @@ Workspace 正在按 **Core / Platform / Apps** 拆分。Sub agent 不要按旧�
 | Core | `packages/core/` | 通用 UI、表格、筛选、表单字段、日期、FK 搜索、tag 输入、routing/search helper |
 | Platform | `packages/platform/` | 登录后平台壳、模块注册聚合、导航、权限资源、审计、用户、Portal、server runtime 契约 |
 | Apps | `packages/hr/`, `packages/production/`, `packages/finance/`, `packages/work/`, `packages/administration/`, `packages/library/` | 各业务模块自己的 `ui/server/types/constants/import/module` |
-| Route shell | `app/(modules)/<domain>/`, `app/(system)/settings/`, `app/api/modules/<domain>/`, `app/api/settings/` | Next 页面/API 壳。只做挂载、认证、权限、Zod 参数校验、调用 package service、返回 DTO |
+| Route shell | `app/(modules)/<domain>/`, `app/(modules)/settings/`, `app/api/modules/<domain>/`, `app/api/settings/` | Next 页面/API 壳。只做挂载、认证、权限、Zod 参数校验、调用 package service、返回 DTO |
 
 ## 角色分流
 

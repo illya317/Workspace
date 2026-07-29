@@ -1,3 +1,4 @@
+-- workspace:migration-mode=maintenance
 -- Department reference carried with the submitted name snapshot.
 ALTER TABLE "ErpDueDiligenceSubmission" ADD COLUMN "departmentId" INTEGER;
 CREATE INDEX "ErpDueDiligenceSubmission_departmentId_idx" ON "ErpDueDiligenceSubmission"("departmentId");

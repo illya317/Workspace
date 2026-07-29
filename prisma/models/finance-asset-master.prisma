@@ -86,8 +86,20 @@ model FinanceAssetCard {
   residualRate             Decimal                         @default(0) @db.Decimal(10, 6)
   usefulLifeMonths         Int?
   method                   String                          @default("straight_line")
+  initializationMode       String                          @default("standard")
   openingAccumulatedAmount Decimal                         @default(0) @db.Decimal(20, 2)
+  openingImpairmentAmount  Decimal                         @default(0) @db.Decimal(20, 2)
+  openingNetBookValue      Decimal?                        @db.Decimal(20, 2)
   openingAsOfDate          String?
+  cutoverDate              String?
+  remainingUsefulLifeMonthsAtCutover Int?
+  cutoverResidualValue     Decimal?                        @db.Decimal(20, 2)
+  cutoverAllocationStatus  String?
+  cutoverReconciliationFingerprint String?
+  cutoverPeriodId          Int?
+  cutoverAssetBalanceId    Int?
+  cutoverAccumulatedBalanceId Int?
+  cutoverImpairmentBalanceId Int?
   status                   String                          @default("active")
   nonAmortizationReason    String?
   note                     String?
@@ -102,6 +114,10 @@ model FinanceAssetCard {
   category                 FinanceAssetCategory            @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   assetAccount             FinanceAccount?                 @relation("FinanceAssetCardAssetAccount", fields: [assetAccountId], references: [id], onDelete: Restrict)
   accumulatedAccount       FinanceAccount?                 @relation("FinanceAssetCardAccumulatedAccount", fields: [accumulatedAccountId], references: [id], onDelete: Restrict)
+  cutoverPeriod            FinancePeriod?                  @relation("FinanceAssetCardCutoverPeriod", fields: [cutoverPeriodId], references: [id], onDelete: Restrict)
+  cutoverAssetBalance      FinanceAccountBalance?          @relation("FinanceAssetCardCutoverAssetBalance", fields: [cutoverAssetBalanceId], references: [id], onDelete: Restrict)
+  cutoverAccumulatedBalance FinanceAccountBalance?         @relation("FinanceAssetCardCutoverAccumulatedBalance", fields: [cutoverAccumulatedBalanceId], references: [id], onDelete: Restrict)
+  cutoverImpairmentBalance FinanceAccountBalance?          @relation("FinanceAssetCardCutoverImpairmentBalance", fields: [cutoverImpairmentBalanceId], references: [id], onDelete: Restrict)
   costLines                FinanceAssetCostLine[]
   allocations              FinanceAssetExpenseAllocation[]
   periodEntries            FinanceAssetPeriodEntry[]
@@ -114,6 +130,10 @@ model FinanceAssetCard {
   @@unique([companyCode, assetCode])
   @@index([assetAccountId])
   @@index([accumulatedAccountId])
+  @@index([cutoverPeriodId])
+  @@index([cutoverAssetBalanceId])
+  @@index([cutoverAccumulatedBalanceId])
+  @@index([cutoverImpairmentBalanceId])
   @@unique([companyCode, sourceKey])
   @@index([companyCode, status, assetKind])
   @@index([categoryId])
@@ -204,9 +224,18 @@ model FinanceAssetImportBatch {
   importedBy    Int?
   importedAt    DateTime @default(now())
   note          String?
+  cutoverDate   String?
+  cutoverPeriodId Int?
+  ledgerReconciliationFingerprint String?
+  ledgerNetBookValue Decimal? @db.Decimal(20, 2)
+  importedNetBookValue Decimal? @db.Decimal(20, 2)
+  unallocatedNetBookValue Decimal? @db.Decimal(20, 2)
+  reconciliationStatus String?
   acquisitionEvidence FinanceAssetAcquisitionEvidence[]
   company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  cutoverPeriod FinancePeriod? @relation("FinanceAssetImportBatchCutoverPeriod", fields: [cutoverPeriodId], references: [id], onDelete: Restrict)
 
   @@unique([companyCode, checksum])
   @@index([companyId])
+  @@index([cutoverPeriodId])
 }

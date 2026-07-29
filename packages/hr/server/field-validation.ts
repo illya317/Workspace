@@ -1,4 +1,3 @@
-import { prisma } from "@workspace/platform/server/prisma";
 import {
   isValidDateValue,
   rejectInvalidDateField,
@@ -7,17 +6,14 @@ import { isAllowedHrOption, normalizeProfessionalTitle, tenantHrFieldOptions } f
 import { getTenantPublicConfig } from "@workspace/platform/server/tenant-config";
 import { normalizePhoneValue, validateChineseIdNumber } from "@workspace/hr/utils/identity";
 import { STANDARD_EMPLOYMENT_AGREEMENT_TYPES } from "@workspace/hr/constants";
+import { companyNameExists } from "./field-reference-adapter";
 
 export { isValidDateValue, rejectInvalidDateField };
 
 export async function isValidCompanyName(value: unknown) {
   if (value === null || value === undefined || value === "") return true;
   if (typeof value !== "string") return false;
-  const company = await prisma.company.findFirst({
-    where: { party: { name: value } },
-    select: { id: true },
-  });
-  return Boolean(company);
+  return companyNameExists(value);
 }
 
 export function normalizeEmployeeOption(field: string, value: unknown) {

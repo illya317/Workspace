@@ -47,8 +47,8 @@ export function systemApiRoutes(): ApiRouteRegistration[] {
 
 export function assistantIntegrationApiRoutes(): ApiRouteRegistration[] {
   return [
-    { method: "GET", pathPrefix: "/api/agent", access: "protected", notes: "Authenticated Agent capability discovery is filtered by the current user's registered tool permissions.", migrationNote: "Legacy headless assistant URL retained under agent.assistant." },
-    { method: "POST", pathPrefix: "/api/agent", access: "protected", notes: "Authenticated Agent sessions may create proposals, while every domain execution is re-authorized by its owning L1.", migrationNote: "Legacy headless assistant URL retained under agent.assistant." },
+    { method: "GET", pathPrefix: "/api/agent", access: "protected", notes: "Authenticated Agent capability discovery is filtered by the current user's registered tool permissions.", migrationNote: "Capability API remains rooted at /api/agent and binds to agent.assistant instead of the Agent L1 root resource." },
+    { method: "POST", pathPrefix: "/api/agent", access: "protected", notes: "Authenticated Agent sessions may create proposals, while every domain execution is re-authorized by its owning L1.", migrationNote: "Capability API remains rooted at /api/agent and binds to agent.assistant instead of the Agent L1 root resource." },
     { method: "POST", pathPrefix: "/api/integrations/wecom/agent", access: "public", notes: "HMAC-authenticated localhost bridge from the WeCom intelligent-robot worker; sender RBAC is enforced by Platform." },
     { method: "GET", pathPrefix: "/api/integrations/wecom/agent/artifacts", access: "internal", notes: "HMAC-authenticated artifact stream for the WeCom worker; signed claims and Library permissions are rechecked." },
     { method: "POST", pathPrefix: "/api/integrations/wecom/agent/artifacts/cleanup", access: "internal", notes: "HMAC-authenticated maintenance call removes expired generated packages while retaining their audit rows." },

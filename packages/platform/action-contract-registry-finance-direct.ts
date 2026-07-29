@@ -1,5 +1,5 @@
 import { defineActionContractMetadataList, type ActionMutationDomainBindingReference } from "./action-contract";
-import { registeredActionFacts, registeredImport, registeredLifecycle, registeredWrite } from "./action-contract-registry-helpers";
+import { registeredActionFacts, registeredLifecycle, registeredWrite } from "./action-contract-registry-helpers";
 
 const d = (validatorKey: string, commitKey: string): ActionMutationDomainBindingReference => ({ validatorKey, commitKey });
 const financeValidation = (name: string) => `packages/finance/server/domain/finance-validation.${name}`;
@@ -119,7 +119,6 @@ export const FINANCE_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetad
   registeredLifecycle({ key: "finance.statements.consolidationBatch.lock", activeEntity: "FinanceConsolidationBatch", operation: "custom", targetIdKey: "batchId", versionKey: "expectedRevision", domain: d(consolidationRouteCommand("buildLockConsolidationBatchRouteCommand"), consolidationRouteCommand("executeConsolidationBatchLifecycleRouteCommand")), auditPolicy: "history" }),
   registeredLifecycle({ key: "finance.statements.consolidationBatch.publish", activeEntity: "FinanceConsolidationBatch", operation: "custom", targetIdKey: "batchId", versionKey: "expectedRevision", domain: d(consolidationRouteCommand("buildPublishConsolidationBatchRouteCommand"), consolidationRouteCommand("executeConsolidationBatchLifecycleRouteCommand")), auditPolicy: "history" }),
 
-  registeredImport({ key: "finance.budget.import", activeEntity: "FinanceBudget", transport: "file", domain: d(financeValidation("buildBudgetImportCommand"), "packages/finance/server/budget/service.importBudgetWorkbook") }),
   registeredWrite({ key: "finance.budget.version.create", activeEntity: "BudgetVersion", domain: d(financeValidation("buildBudgetVersionCreateCommand"), "packages/finance/server/budget/budget-version.createBudgetVersion"), shape: "full_record", target: "new_record", commitMode: "activate" }),
   registeredLifecycle({ key: "finance.budget.version.activate", activeEntity: "BudgetVersion", operation: "activate", domain: d(financeValidation("buildFinanceIdCommand"), "packages/finance/server/budget/budget-version.activateBudgetVersion"), auditPolicy: "event" }),
   registeredLifecycle({ key: "finance.cost.import.delete", activeEntity: "FinanceCostImport", operation: "delete", domain: d(routeCommand("buildFinanceActorRouteIdCommand"), routeCommand("executeDeleteCostImportCommand")), referencePolicy: "domain" }),

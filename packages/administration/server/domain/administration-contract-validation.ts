@@ -1,4 +1,4 @@
-import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import type { Prisma } from "@workspace/platform/server/prisma";
 import {
   failCommand,
   okCommand,
@@ -7,6 +7,7 @@ import {
 import { validateFkValue } from "@workspace/platform/server/relation-registry";
 import { ADMINISTRATION_FK_REGISTRY } from "../fk-registry";
 import type { ContractCreateInput, ContractUpdateInput } from "../schemas";
+import { findActiveContractCategoryId } from "../contract-reference-adapter";
 
 export interface ContractWriteCommand {
   userId: number;
@@ -34,13 +35,13 @@ function nullableText(value: string | null | undefined) {
 function normalizeAmount(
   value: string | number | null | undefined,
   field: "amount" | "executedAmount",
-): DomainValidationResult<Prisma.Decimal | null> {
+): DomainValidationResult<string | null> {
   if (value == null || value === "") return okCommand(null);
   const text = String(value).trim();
   if (!/^-?\d+(\.\d{1,2})?$/.test(text)) {
     return failCommand(`${field} 最多保留两位小数`, 400, field);
   }
-  return okCommand(new Prisma.Decimal(text));
+  return okCommand(text);
 }
 
 function normalizeDate(value: string | null | undefined, field: "signedOn" | "expiresOn") {
@@ -94,11 +95,8 @@ async function normalizeReferences(data: ContractCreateInput | ContractUpdateInp
 
 async function validateCategoryId(value: number | undefined) {
   if (value === undefined) return okCommand(undefined);
-  const category = await prisma.contractCategory.findFirst({
-    where: { id: value, isActive: true },
-    select: { id: true },
-  });
-  return category ? okCommand(category.id) : failCommand("合同类型不存在或已停用", 400, "categoryId");
+  const categoryId = await findActiveContractCategoryId(value);
+  return categoryId ? okCommand(categoryId) : failCommand("合同类型不存在或已停用", 400, "categoryId");
 }
 
 export function buildContractData(

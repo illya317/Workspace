@@ -10,6 +10,7 @@ export type {
   DataSurfaceCellInputSpec,
   DataSurfaceCellSelectionGridSpec,
   DataSurfaceCellSpec,
+  DataSurfaceCellState,
   DataSurfaceColumnSpec,
   DataSurfaceCommandSpec,
   DataSurfaceDisplaySpec,

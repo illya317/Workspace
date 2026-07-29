@@ -17,6 +17,7 @@ import {
 import { resolveFinanceAssetCategoryPolicy } from "./account-policy-resolver";
 import { assetImpairmentCalculationBasisFingerprint, assetScopeFingerprint, financeClosePeriodBounds } from "./period-scope";
 import { replayAssetAccumulatedAmounts } from "./accumulated-replay";
+import { FINANCE_ASSET_LEGACY_CUTOVER_MODE } from "./legacy-cutover";
 import { moneyEquals, moneyExceeds, moneyIsNonZero } from "./money-cents";
 
 const money = (value: unknown) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
@@ -127,7 +128,10 @@ async function assertImpairmentAllocationBasis(
     select: {
       id: true, version: true, status: true, categoryId: true, acquisitionDate: true, depreciationStartDate: true,
       originalCost: true, residualRate: true, usefulLifeMonths: true, method: true, assetAccountCode: true, assetAccountId: true,
-      accumulatedAccountCode: true, accumulatedAccountId: true, openingAccumulatedAmount: true, openingAsOfDate: true,
+      accumulatedAccountCode: true, accumulatedAccountId: true, openingAccumulatedAmount: true, openingImpairmentAmount: true,
+      openingNetBookValue: true, initializationMode: true, openingAsOfDate: true, cutoverDate: true,
+      remainingUsefulLifeMonthsAtCutover: true, cutoverResidualValue: true, cutoverAllocationStatus: true,
+      cutoverReconciliationFingerprint: true,
       disposal: { select: { disposalDate: true, status: true } },
     },
     orderBy: { id: "asc" },
@@ -227,6 +231,8 @@ async function assertImpairmentAllocationBasis(
       assetId: card.id,
       companyCode: input.companyCode,
       openingAccumulatedAmount: card.openingAccumulatedAmount,
+      openingImpairmentAmount: card.openingImpairmentAmount,
+      openingIncludesImpairment: card.initializationMode === FINANCE_ASSET_LEGACY_CUTOVER_MODE,
       openingAsOfDate: card.openingAsOfDate,
       priorEntries: priorEntries.map((row) => ({ ...row, periodId: row.period.id, periodEndDate: row.period.endDate, voucher: replayVoucher(row.voucher) })),
       priorAdjustments: priorAdjustments.map((row) => ({ ...row, periodId: row.period.id, periodEndDate: row.period.endDate, voucher: replayVoucher(row.voucher) })),

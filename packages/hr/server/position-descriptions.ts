@@ -1,6 +1,6 @@
 import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
-import { getPublishedHrPositionDescriptionOfficialTemplate } from "@workspace/platform/server/docs-editor";
+import { getPublishedHrPositionDescriptionOfficialTemplate } from "@workspace/platform/server/document-template-catalog";
 import { prisma } from "@workspace/platform/server/prisma";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { parseBusinessDate } from "@workspace/platform/contracts/business-temporal";

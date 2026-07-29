@@ -6,7 +6,7 @@
 
 | 内容 | 位置 | Owner |
 |---|---|---|
-| 线上文档中心页面 | `app/(docs)/docs/*` | Feature |
+| 线上文档中心页面 | `app/(modules)/docs/*` | Feature |
 | 用户操作流程、制度、说明 | `docs/product/*` 或产品页面 | Feature |
 | 业务参考资料和外部资料来源 | `docs/product/reference/*` | 对应业务 Feature / Data |
 | 教育、会计准则等数据来源说明 | `docs/product/reference/*` | Data |

@@ -10,6 +10,7 @@ import {
 } from "@workspace/core/ui";
 import type { SourceCodeAnalysisSnapshot } from "@workspace/platform/source-code-analysis-contract";
 import { createSourceCodeAnalysisSection } from "./SourceCodeAnalysisSection";
+import type { SourceCodeAnalysisCellKey } from "./source-code-analysis-relations";
 
 type ModuleStatus = "enabled" | "hidden" | "disabled";
 type StatusTone = "success" | "warning" | "muted";
@@ -99,6 +100,7 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
   const [saving, setSaving] = useState(false);
   const [selectedResourceKey, setSelectedResourceKey] = useState<string | null>(null);
   const [expandedAnalysisGroupKey, setExpandedAnalysisGroupKey] = useState<string | null>(null);
+  const [selectedAnalysisCell, setSelectedAnalysisCell] = useState<SourceCodeAnalysisCellKey | null>(null);
   const [data, setData] = useState<ModuleManagementResponse | null>(null);
 
   useEffect(() => {
@@ -243,6 +245,15 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
           expandedGroupKey: expandedAnalysisGroupKey,
           onToggleGroup: (groupKey) => {
             setExpandedAnalysisGroupKey((current) => current === groupKey ? null : groupKey);
+          },
+        }, {
+          selectedCell: selectedAnalysisCell,
+          onSelectCell: (cell) => {
+            setSelectedAnalysisCell((current) => current
+              && current.moduleKey === cell.moduleKey
+              && current.groupKey === cell.groupKey
+              ? null
+              : cell);
           },
         })]),
         desktop: { ratio: [3, 7] },

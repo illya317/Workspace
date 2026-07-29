@@ -4,10 +4,12 @@ import type {
 } from "@workspace/platform/source-code-analysis-contract";
 
 export interface SourceCodeAnalysisDisplayGroup {
-  key: string;
+  key: SourceCodeAnalysisDisplayGroupKey;
   label: string;
   roles: readonly SourceCodeAnalysisRole[];
 }
+
+export type SourceCodeAnalysisDisplayGroupKey = "ui" | "boundary" | "domain" | "persistence" | "other";
 
 export const SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS: readonly SourceCodeAnalysisDisplayGroup[] = [
   { key: "ui", label: "UI", roles: ["ui"] },
@@ -22,4 +24,10 @@ export function displayGroupLines(
   group: SourceCodeAnalysisDisplayGroup,
 ) {
   return group.roles.reduce((sum, role) => sum + roles[role], 0);
+}
+
+export function displayGroupKeyForRole(role: SourceCodeAnalysisRole): SourceCodeAnalysisDisplayGroupKey {
+  const group = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((candidate) => candidate.roles.includes(role));
+  if (!group) throw new Error(`Unknown source code analysis role: ${role}`);
+  return group.key;
 }

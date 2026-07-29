@@ -21,7 +21,7 @@ import {
 } from "@workspace/platform/ui/workflow";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { sanitizeDepartmentDescriptionDetails } from "./draft-utils";
-import type { Department, DepartmentDescriptionDraft } from "./types";
+import type { Department, DepartmentDescriptionDraft, OrganizationCodeConfig } from "./types";
 import { canUseDepartmentAsParentForHierarchy } from "./utils";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 
@@ -90,20 +90,27 @@ export function HrDepartmentWorkflowPage({
 }) {
   const operatingCommitteeCode = useTenantConfig().organization.operatingCommittee.departmentCode;
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [codeConfig, setCodeConfig] = useState<OrganizationCodeConfig | null>(null);
   useEffect(() => {
     let mounted = true;
-    void requestJson<{ departments?: Department[] }>("/api/modules/hr/roster/departments?pageSize=500", {
+    void requestJson<{ departments?: Department[]; codeConfig?: OrganizationCodeConfig }>("/api/modules/hr/roster/departments?pageSize=500", {
       fallbackMessage: "加载组织列表失败",
     }).then((data) => {
-      if (mounted) setDepartments(data.departments ?? []);
+      if (mounted) {
+        setDepartments(data.departments ?? []);
+        setCodeConfig(data.codeConfig ?? null);
+      }
     }).catch(() => {
-      if (mounted) setDepartments([]);
+      if (mounted) {
+        setDepartments([]);
+        setCodeConfig(null);
+      }
     });
     return () => { mounted = false; };
   }, []);
   return (
     <WorkflowRequestsPage<HrDepartmentWorkflowRequest>
-      {...hrDepartmentWorkflowPanelProps({ currentUserId, notify, departments, operatingCommitteeCode })}
+      {...hrDepartmentWorkflowPanelProps({ currentUserId, notify, departments, codeConfig, operatingCommitteeCode })}
       navigation={navigation}
     />
   );
@@ -121,8 +128,20 @@ export function useHrDepartmentWorkflowSection({
   notify: (toast: { message: string; type: "success" | "error" }) => void;
 }): BodySurfaceSectionSpec {
   const operatingCommitteeCode = useTenantConfig().organization.operatingCommittee.departmentCode;
+  const [codeConfig, setCodeConfig] = useState<OrganizationCodeConfig | null>(null);
+  useEffect(() => {
+    let mounted = true;
+    void requestJson<{ codeConfig?: OrganizationCodeConfig }>("/api/modules/hr/roster/departments?pageSize=1", {
+      fallbackMessage: "加载组织编码规则失败",
+    }).then((data) => {
+      if (mounted) setCodeConfig(data.codeConfig ?? null);
+    }).catch(() => {
+      if (mounted) setCodeConfig(null);
+    });
+    return () => { mounted = false; };
+  }, []);
   return useWorkflowRequestsSection<HrDepartmentWorkflowRequest>({
-    ...hrDepartmentWorkflowPanelProps({ currentUserId, notify, onCommitted: reloadData, operatingCommitteeCode }),
+    ...hrDepartmentWorkflowPanelProps({ currentUserId, notify, onCommitted: reloadData, codeConfig, operatingCommitteeCode }),
     filterRequests: (requests) => {
       if (!selectedDepartmentId) return requests;
       const related = requests.filter((request) => (
@@ -140,12 +159,14 @@ function hrDepartmentWorkflowPanelProps({
   notify,
   onCommitted,
   departments = [],
+  codeConfig,
   operatingCommitteeCode,
 }: {
   currentUserId: number;
   notify: (toast: { message: string; type: "success" | "error" }) => void;
   onCommitted?: () => void | Promise<void>;
   departments?: Department[];
+  codeConfig: OrganizationCodeConfig | null;
   operatingCommitteeCode: string;
 }) {
   return {
@@ -160,7 +181,7 @@ function hrDepartmentWorkflowPanelProps({
     canEditPayload: (request: HrDepartmentWorkflowRequest) => canEditDepartmentWorkflowPayload(request, currentUserId),
     payloadValue: (request: HrDepartmentWorkflowRequest) => ({ ...request.latestPayload.data }),
     payloadText: (request: HrDepartmentWorkflowRequest) => JSON.stringify(request.latestPayload.data, null, 2),
-    requestPayloadSections: departmentWorkflowPayloadSections({ departments, operatingCommitteeCode }),
+    requestPayloadSections: departmentWorkflowPayloadSections({ departments, codeConfig, operatingCommitteeCode }),
     updateBody: (request: HrDepartmentWorkflowRequest, data: Record<string, unknown>) => ({
       payload: data,
       version: request.version,
@@ -180,9 +201,11 @@ function canEditDepartmentWorkflowPayload(request: HrDepartmentWorkflowRequest, 
 
 function departmentWorkflowPayloadSections({
   departments,
+  codeConfig,
   operatingCommitteeCode,
 }: {
   departments: Department[];
+  codeConfig: OrganizationCodeConfig | null;
   operatingCommitteeCode: string;
 }) {
   return ({
@@ -193,7 +216,7 @@ function departmentWorkflowPayloadSections({
     onSave,
   }: WorkflowRequestPayloadSectionsContext<HrDepartmentWorkflowRequest>): BodySurfaceSectionSpec[] => {
     const draft = normalizeDepartmentPayload(value);
-    const fieldState = editable && !saving ? "normal" as const : "disabled" as const;
+    const fieldState = editable && !saving && codeConfig ? "normal" as const : "disabled" as const;
     const parentOptions = [
       { value: "", label: "无" },
       ...departments
@@ -250,7 +273,7 @@ function departmentWorkflowPayloadSections({
                 spec: {
                   valueType: "string",
                   control: "text",
-                  mask: { kind: "editableSegment", ...departmentCodeEditableSegment(draft.level, draft.hierarchyKind) },
+                  mask: { kind: "editableSegment", ...departmentCodeEditableSegment(draft.level, draft.hierarchyKind, codeConfig) },
                   state: fieldState,
                 },
                 value: draft.code,

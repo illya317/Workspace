@@ -4,6 +4,7 @@
 
 ## 总原则
 
+- 给人的 UI 是模块 interface，必须遵守 `docs/engineering/deep-module-design.md`。后端字段、完整生命周期、状态转换、内部 action 和权限矩阵不得机械展开成前端选项；页面只呈现当前上下文中合法且确实需要人决定的业务意图。
 - Core 负责通用交互契约：下拉、筛选、搜索、日期、确认弹窗、表格、字段展示、tag 输入。
 - Platform 负责登录后平台壳：导航、模块首页、Portal、用户菜单、审计日志、资源注册聚合。
 - Apps 只写业务语义：HR、Finance、Production、Work、Administration、Library 只负责把业务字段、选项、校验、DTO 接到 Core/Platform 组件上。
@@ -45,6 +46,7 @@
 
 - Toolbar 的动作按钮必须来自 `ActionGlyph` 封闭集合。`ActionButton` 是纯图标按钮，只接 `kind + label`，不接 children；业务不再新增文字型 toolbar `button` item。
 - 非 Toolbar 的 icon-only cell/action 也必须复用 `ActionGlyph`，新增 SVG 先注册到 `ACTION_GLYPH_KINDS` 等元数据，不在业务/平台文件里手写 `<svg>`。
+- 可排序重复项统一使用 `move-up` / `move-down` SVG 动作；不得退回“上移 / 下移”大号文字按钮，也不得在业务层手画箭头。
 - 新增动作 icon 时必须同时维护四处元数据：`ACTION_GLYPH_KINDS`、`ACTION_GLYPH_GROUPS`、`ACTION_GLYPH_TOOLBAR_GROUPS`、`ACTION_GLYPH_ORDER`。`ACTION_GLYPH_ORDER` 的字段固定为 `icon / group / subgroup / order`，order 使用大间距预留插入空间。
 - Toolbar action spec 选择受控动作语义或 icon；根 `FormSurfaceActionSpec` 只声明 `key / action / label / disabled / onClick`，不允许声明 icon、variant、size、位置和排序。两者都不 runtime import `Toolbar` / `ActionButton`，也不手排顺序和分组；Core 按 `ACTION_GLYPH_ORDER.order` 自动排序。
 - 非默认动作默认从 `edit` 区开始，和编辑动作混排。`view/search/filter/meta` 只承载视图切换、搜索、筛选、字段、列显隐和计数等默认控件。

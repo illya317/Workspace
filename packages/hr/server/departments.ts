@@ -5,7 +5,6 @@ import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { currentEmploymentDateWhere, currentOpenEndedDateWhere } from "@workspace/platform/server/relation-registry";
 import { matchAnyField } from "@workspace/platform/search";
-import { deriveDepartmentCodeCascade } from "@workspace/hr/utils/department-code-cascade";
 import { getCompanyNameSync, loadCompanyMap } from "@workspace/platform/server/company-directory";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import {
@@ -35,6 +34,8 @@ import {
   type DepartmentStructurePayload,
   type PositionStructurePayload,
 } from "./organization-structure-lifecycle-service";
+import { getBusinessCodeConfig } from "@workspace/platform/server/system-config";
+import { configuredDepartmentCodeCascade } from "./department-code-cascade-service";
 
 function parseDetails(details: string | null) {
   if (!details) return null;
@@ -106,7 +107,7 @@ function managerEmployeeNames(
 
 export async function listDepartments(input: { keyword: string; page: number; pageSize: number; archived?: boolean; summary?: boolean; userId?: number }) {
   const asOfDate = workspaceBusinessDate(new Date());
-  const [depts, companyMap, actionRuntimes] = await Promise.all([
+  const [depts, companyMap, actionRuntimes, businessCodeConfig] = await Promise.all([
     prisma.department.findMany({
       include: {
         _count: { select: { edps: true } },
@@ -164,6 +165,7 @@ export async function listDepartments(input: { keyword: string; page: number; pa
           resolveHrDepartmentActionRuntime(input.userId, "update"),
         ]).then(([create, update]) => ({ create, update }))
       : null,
+    getBusinessCodeConfig(),
   ]);
 
   let departments = depts.map((department) => {
@@ -220,7 +222,16 @@ export async function listDepartments(input: { keyword: string; page: number; pa
 
   const total = departments.length;
   const start = (input.page - 1) * input.pageSize;
-  return { departments: departments.slice(start, start + input.pageSize), total, asOfDate, actionRuntimes };
+  return {
+    departments: departments.slice(start, start + input.pageSize),
+    total,
+    asOfDate,
+    actionRuntimes,
+    codeConfig: {
+      department: businessCodeConfig.department,
+      position: businessCodeConfig.position,
+    },
+  };
 }
 
 export async function commitDepartmentCreateCommand(
@@ -304,38 +315,9 @@ export async function commitDepartmentUpdateCommand(
     throw error;
   }
 
-  let cascade: ReturnType<typeof deriveDepartmentCodeCascade> | null = null;
-  if (data.code !== undefined) {
-    const existing = await prisma.department.findUnique({
-      where: { id },
-      select: { code: true, hierarchyKind: true, level: true },
-    });
-    if (existing && data.code !== existing.code) {
-      const [allDepartments, allPositions] = await Promise.all([
-        prisma.department.findMany({ select: { id: true, code: true, hierarchyKind: true, level: true, parentId: true } }),
-        prisma.position.findMany({ select: { id: true, code: true, departmentId: true } }),
-      ]);
-      if (hierarchyKind(existing.hierarchyKind) === "M") {
-        cascade = deriveDepartmentCodeCascade({
-          changedDepartment: { id, code: existing.code, level: existing.level, parentId: null },
-          newCode: String(data.code),
-          departments: allDepartments.filter((department) => hierarchyKind(department.hierarchyKind) === "M"),
-          positions: allPositions,
-        });
-      } else {
-        cascade = {
-          departments: [],
-          positions: allPositions
-            .filter((position) => position.departmentId === id)
-            .map((position) => {
-              const suffix = String(position.code || "").trim().split("-").pop() || "";
-              return /^\d{1,2}$/.test(suffix) ? { id: position.id, code: `GW-${String(data.code)}-${suffix.padStart(2, "0")}` } : { id: position.id, code: position.code };
-            })
-            .filter((position) => allPositions.find((item) => item.id === position.id)?.code !== position.code),
-        };
-      }
-    }
-  }
+  const cascade = data.code === undefined
+    ? null
+    : await configuredDepartmentCodeCascade(id, String(data.code));
 
   try {
     const outcome = await runOrganizationStructureTransaction(async (tx) => {

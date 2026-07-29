@@ -173,7 +173,7 @@ function generatedMarkdown() {
     )),
     "",
   ];
-  return `${lines.join("\n")}\n`;
+  return lines.join("\n");
 }
 
 function run() {

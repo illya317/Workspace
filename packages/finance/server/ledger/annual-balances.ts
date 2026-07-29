@@ -131,10 +131,7 @@ export async function materializeBaselineToPeriod(
   return { period, results };
 }
 
-/**
- * 从导入预览创建 Snapshot 批次 + 明细行。
- * 2024 默认 baseline + active，其他年份默认 reconcile。
- */
+/** 从导入预览创建 Snapshot 批次 + 明细行。公司的首个年度快照成为 baseline，后续导入默认为 reconcile。 */
 export async function createSnapshotFromPreview(
   preview: PreviewResult,
   accountCodeToId: Map<string, number>,
@@ -143,8 +140,12 @@ export async function createSnapshotFromPreview(
   if (!command.ok) throw new Error(command.issue.message);
   if (!preview.balances || preview.balances.length === 0) return 0;
 
-  const snapshotType = preview.year === 2024 ? "baseline" : "reconcile";
-  const isActive = preview.year === 2024;
+  const existingBaseline = await prisma.financeBalanceSnapshot.findFirst({
+    where: { companyCode: preview.companyCode, snapshotType: "baseline", isActive: true },
+    select: { id: true },
+  });
+  const snapshotType = existingBaseline ? "reconcile" : "baseline";
+  const isActive = !existingBaseline;
 
   // 如果是 baseline 且要设 active，先取消同 (companyCode, year) 下其他 active baseline
   if (snapshotType === "baseline" && isActive) {

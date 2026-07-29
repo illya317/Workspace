@@ -62,13 +62,21 @@ const prisma = {
     assetAccountId: 1601,
     accumulatedAccountCode: "1602",
     accumulatedAccountId: 1602,
+    initializationMode: "standard",
+    openingImpairmentAmount: 0,
+    openingNetBookValue: null,
     openingAsOfDate: null,
+    cutoverDate: null,
+    remainingUsefulLifeMonthsAtCutover: null,
+    cutoverResidualValue: null,
+    cutoverAllocationStatus: null,
+    cutoverReconciliationFingerprint: null,
     disposal: null,
   }] },
 };
 
-mock.module("@workspace/platform/server/prisma", { exports: { prisma } });
-mock.module("./account-policy-resolver", { exports: {
+mock.module("@workspace/platform/server/prisma", { namedExports: { prisma } });
+mock.module("./account-policy-resolver", { namedExports: {
   resolveFinanceAssetCategoryPolicy: async () => ({
     assetAccount: { id: 1601, code: "1601" },
     accumulatedAccount: { id: 1602, code: "1602" },
@@ -142,7 +150,15 @@ test("impairment confirmation and close-load persistence shapes retain identical
     assetAccountId: 1601,
     accumulatedAccountCode: "1602",
     accumulatedAccountId: 1602,
+    initializationMode: "standard",
+    openingImpairmentAmount: 0,
+    openingNetBookValue: null,
     openingAsOfDate: null,
+    cutoverDate: null,
+    remainingUsefulLifeMonthsAtCutover: null,
+    cutoverResidualValue: null,
+    cutoverAllocationStatus: null,
+    cutoverReconciliationFingerprint: null,
   }];
   assert.equal(context.cards[0]?.assetAccountId, 1601);
   assert.equal(context.cards[0]?.accumulatedAccountId, 1602);

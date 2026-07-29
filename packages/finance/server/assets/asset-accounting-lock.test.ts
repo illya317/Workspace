@@ -22,14 +22,28 @@ const basis = {
   usefulLifeMonths: 60,
   method: "straight_line",
   openingAccumulatedAmount: 0,
+  openingImpairmentAmount: 0,
+  openingNetBookValue: null,
   openingAsOfDate: null,
+  initializationMode: "standard",
+  cutoverDate: null,
+  remainingUsefulLifeMonthsAtCutover: null,
+  cutoverResidualValue: null,
+  cutoverAllocationStatus: null,
+  cutoverReconciliationFingerprint: null,
+  cutoverPeriodId: null,
+  cutoverAssetBalanceId: null,
+  cutoverAccumulatedBalanceId: null,
+  cutoverImpairmentBalanceId: null,
   nonAmortizationReason: null,
   note: null,
   editedBy: 7,
-};
+} satisfies ReturnType<typeof assetCardWriteData>;
 
 test("accounting-basis lock ignores display fields but detects governed basis changes", () => {
-  assert.equal(assetAccountingBasisChanged({ ...basis, name: "旧名称", note: "旧备注" }, { ...basis, name: "新名称", note: "新备注" }), false);
+  const oldDisplay = { ...basis, name: "旧名称", note: "旧备注" };
+  const newDisplay = { ...basis, name: "新名称", note: "新备注" };
+  assert.equal(assetAccountingBasisChanged(oldDisplay, newDisplay), false);
   assert.equal(assetAccountingBasisChanged(basis, { ...basis, originalCost: 10001 }), true);
   assert.equal(assetAccountingBasisChanged(basis, { ...basis, categoryId: 3 }), true);
   assert.equal(assetAccountingBasisChanged({ ...basis, assetAccountId: null }, basis), true);

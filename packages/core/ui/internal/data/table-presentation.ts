@@ -2,6 +2,7 @@ import { joinClassNames } from "../common/card-utils";
 import type { DataTablePresentation } from "./DataTable.types";
 import type {
   DataSurfaceAlign,
+  DataSurfaceCellState,
   DataSurfaceEmphasis,
   DataSurfaceFont,
   DataSurfaceFrame,
@@ -133,6 +134,20 @@ export function resolveTableRowStateClass(state: DataSurfaceRowState = "normal")
   if (state === "danger") return "bg-red-50 text-red-900";
   if (state === "info") return "bg-sky-50 text-sky-900";
   return "";
+}
+
+export function resolveTableCellStateClass(state: DataSurfaceCellState = "normal") {
+  if (state === "selected") return "!bg-slate-100 !text-slate-950 ring-2 ring-inset ring-slate-400";
+  if (state === "muted") return "!bg-slate-50/70 !text-slate-400";
+  if (state === "success") return "!bg-emerald-50 !text-emerald-900 ring-1 ring-inset ring-emerald-200";
+  if (state === "warning") return "!bg-amber-50 !text-amber-900";
+  if (state === "danger") return "!bg-red-50 !text-red-900";
+  if (state === "info") return "!bg-sky-50 !text-sky-900";
+  return "";
+}
+
+export function resolveTableCellSelectionClass(selected = false) {
+  return selected ? "relative z-[1] ring-2 ring-inset ring-slate-500" : "";
 }
 
 export function resolveTableDisclosureClass(options: {

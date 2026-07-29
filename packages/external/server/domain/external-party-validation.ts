@@ -167,7 +167,6 @@ export function buildExternalPartyCreateCommand(
 ): DomainValidationResult<ExternalPartyCreateCommand> {
   const validUserId = positiveInt(userId, "userId");
   if (!validUserId.ok) return validUserId;
-  if (!input.code.trim()) return failCommand("编码必填", 400, "code");
   if (!idempotencyKey.trim()) return failCommand("缺少 Idempotency-Key 请求头", 400);
   if (!input.name.trim()) return failCommand("名称必填", 400, "name");
   const identityNumber = normalizedIdentity(input.identityNumber);
@@ -189,7 +188,7 @@ export function buildExternalPartyCreateCommand(
     },
     roleData: {
       ...normalizeRoleData(input),
-      code: input.code.trim(),
+      code: input.code?.trim() ?? "",
     },
     availabilityFrom: input.availabilityFrom?.trim() || null,
     availabilityThrough: input.availabilityThrough?.trim() || null,

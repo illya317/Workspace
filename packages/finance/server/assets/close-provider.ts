@@ -1,45 +1,18 @@
-import type {
-  FinanceCloseBlockerDto,
-  FinanceCloseProviderInspection,
-  FinanceCloseScope,
-} from "../../types/close";
+import type { FinanceCloseBlockerDto, FinanceCloseProviderInspection, FinanceCloseScope } from "../../types/close";
 import { financeCloseInspectionFingerprint } from "../close/inspection-identity";
 import { calculateFinanceAssetPeriod } from "./calculator";
 import { assetReplayVoucherIsControlled, replayAssetAccumulatedAmounts } from "./accumulated-replay";
-import {
-  assetScopeFingerprint,
-  assetImpairmentCalculationBasisFingerprint,
-  dateInFinanceClosePeriod,
-  financeClosePeriodBounds,
-} from "./period-scope";
+import { assetScopeFingerprint, assetImpairmentCalculationBasisFingerprint, dateInFinanceClosePeriod, financeClosePeriodBounds } from "./period-scope";
 import { buildFinanceAssetCloseProviders } from "./close-provider-data";
 import {
-  accumulateAmount,
-  acquisitionEvidenceSummary,
-  resolveConfirmedDisposalDate,
-  disposalVoucherMatches,
-  fullVoucherSummary,
-  impairmentVoucherMatches,
-  impairmentVoucherSummary,
-  policySnapshotMatches,
-  postedVoucherInScope,
-  relevantPolicies,
-  scopedVoucherSummary,
-  uniqueDepreciationVouchers,
-  voucherItemsMatchTotals,
-  type AssetCloseCard,
-  type AssetDepreciationCloseFacts,
-  type AssetDepreciationVoucherFact,
-  type AssetImpairmentCloseFacts,
-  type AssetMovementCloseFacts,
+  accumulateAmount, acquisitionEvidenceSummary, resolveConfirmedDisposalDate, disposalVoucherMatches,
+  fullVoucherSummary, impairmentVoucherMatches, impairmentVoucherSummary, policySnapshotMatches,
+  postedVoucherInScope, relevantPolicies, scopedVoucherSummary, uniqueDepreciationVouchers,
+  voucherItemsMatchTotals, type AssetCloseCard, type AssetDepreciationCloseFacts,
+  type AssetDepreciationVoucherFact, type AssetImpairmentCloseFacts, type AssetMovementCloseFacts,
 } from "./close-provider-evidence";
-import {
-  moneyEquals,
-  moneyIsNonZero,
-  moneyIsZero,
-  moneyToCents,
-  voucherItemsAreFullyConsumed,
-} from "./money-cents";
+import { moneyEquals, moneyIsNonZero, moneyIsZero, moneyToCents, voucherItemsAreFullyConsumed } from "./money-cents";
+import { FINANCE_ASSET_LEGACY_CUTOVER_MODE } from "./legacy-cutover";
 
 export type { AssetCloseCard, AssetDepreciationCloseFacts, AssetImpairmentCloseFacts, AssetMovementCloseFacts, AssetPolicyFact } from "./close-provider-evidence";
 
@@ -84,12 +57,13 @@ export function inspectAssetMovementCloseFacts(
     const payload = { scope, periodId: null };
     return result("blocked", "asset-movements-close-v2", deepLink, payload, [issue("asset_period_missing", "资产关账期间不存在", deepLink)]);
   }
+  const periodId = facts.period.id;
   const policyByCategory = new Map(facts.policies.map((policy) => [policy.categoryId, policy]));
   const blockers: FinanceCloseBlockerDto[] = [];
   const { start, end } = financeClosePeriodBounds(scope);
   const relevantCards = facts.cards.filter((card) => !card.disposal || card.disposal.status !== "confirmed" || card.disposal.disposalDate >= start);
   if (relevantCards.length === 0) {
-    const payload = { periodId: facts.period.id, applicable: false, applicabilityEstablished: facts.applicabilityEstablished, assetGlBalance: money(facts.assetGlBalance), assetCount: 0 };
+    const payload = { periodId, applicable: false, applicabilityEstablished: facts.applicabilityEstablished, assetGlBalance: money(facts.assetGlBalance), assetCount: 0 };
     if (!facts.applicabilityEstablished) return result("blocked", "asset-movements-close-v2", deepLink, payload, [issue("asset_applicability_unproven", "尚未配置公司年度资产政策，无法证明本期不适用资产增减关账", deepLink)]);
     if (moneyIsNonZero(facts.assetGlBalance)) return result("blocked", "asset-movements-close-v2", deepLink, payload, [issue("asset_cards_missing_with_gl_balance", "资产台账为空但年度政策资产科目存在余额", deepLink)]);
     return result("ready", "asset-movements-close-v2", deepLink, payload);
@@ -122,7 +96,7 @@ export function inspectAssetMovementCloseFacts(
       blockers.push(issue("asset_acquisition_evidence_invalid", `资产 ${card.assetCode} 的取得证据缺少确认人、确认时间、版本或证据说明`, deepLink));
     }
     if (evidence.companyCode !== card.companyCode || evidence.companyCode !== scope.companyCode || !evidence.companyId || evidence.companyId !== card.companyId
-      || evidence.periodId !== facts.period.id || !moneyEquals(evidence.amount, card.originalCost)) {
+      || evidence.periodId !== periodId || !moneyEquals(evidence.amount, card.originalCost)) {
       blockers.push(issue("asset_acquisition_evidence_scope_mismatch", `资产 ${card.assetCode} 的取得证据期间或金额与卡片不一致`, deepLink));
       continue;
     }
@@ -133,7 +107,7 @@ export function inspectAssetMovementCloseFacts(
       if (!policy || moneyToCents(evidence.amount) <= 0 || item.accountCode !== policy.assetAccountCode
         || !moneyEquals(item.debit, evidence.amount) || !moneyIsZero(item.credit)
         || !counterparty || !moneyIsZero(counterparty.debit) || !moneyEquals(counterparty.credit, evidence.amount)
-        || !postedVoucherInScope(voucher, facts.period.id, scope.companyCode)
+        || !postedVoucherInScope(voucher, periodId, scope.companyCode)
         || !moneyEquals(voucher.totalDebit, voucher.totalCredit)
         || !moneyEquals(voucher.totalDebit, evidence.amount)
         || !voucherItemsMatchTotals(voucher)
@@ -158,6 +132,8 @@ export function inspectAssetMovementCloseFacts(
       assetId: card.id,
       companyCode: scope.companyCode,
       openingAccumulatedAmount: card.openingAccumulatedAmount,
+      openingImpairmentAmount: card.openingImpairmentAmount,
+      openingIncludesImpairment: card.initializationMode === FINANCE_ASSET_LEGACY_CUTOVER_MODE,
       openingAsOfDate: card.openingAsOfDate,
       priorEntries: facts.priorEntries,
       priorAdjustments: facts.priorAdjustments,
@@ -184,11 +160,11 @@ export function inspectAssetMovementCloseFacts(
       voucher: row.voucher ? fullVoucherSummary(row.voucher) : null,
     }));
     if (facts.entries.some((row) => row.assetId === card.id && moneyIsNonZero(row.normalAmount)
-      && (row.status !== "posted" || !assetReplayVoucherIsControlled(row.voucher, scope.companyCode, facts.period.id)))) {
+      && (row.status !== "posted" || !assetReplayVoucherIsControlled(row.voucher, scope.companyCode, periodId)))) {
       blockers.push(issue("asset_disposal_basis_unprovable", `资产 ${card.assetCode} 的本期折旧摊销缺少完整已过账凭证事实`, scopedLink("adjustments", scope)));
     }
     if (facts.adjustments.some((row) => row.assetId === card.id && row.status === "confirmed" && moneyIsNonZero(row.amount)
-      && !assetReplayVoucherIsControlled(row.voucher, scope.companyCode, facts.period.id))) {
+      && !assetReplayVoucherIsControlled(row.voucher, scope.companyCode, periodId))) {
       blockers.push(issue("asset_disposal_basis_unprovable", `资产 ${card.assetCode} 的本期折旧摊销调整缺少完整已过账凭证事实`, scopedLink("adjustments", scope)));
     }
     disposalEvidenceSummaries.push({
@@ -226,12 +202,12 @@ export function inspectAssetMovementCloseFacts(
       || !disposal.confirmedBy || disposal.version < 1 || !Number.isFinite(Date.parse(disposal.confirmedAt))) {
       blockers.push(issue("asset_disposal_evidence_invalid", `资产 ${card.assetCode} 的处置事实缺少公司范围、类型、原因或确认审计证据`, scopedLink("adjustments", scope)));
     }
-    if (!policy || !disposalVoucherMatches({ card, disposal, policy, accumulated, impairment, gainLoss, periodId: facts.period.id, companyCode: scope.companyCode })) {
+    if (!policy || !disposalVoucherMatches({ card, disposal, policy, accumulated, impairment, gainLoss, periodId, companyCode: scope.companyCode })) {
       blockers.push(issue("asset_disposal_voucher_invalid", `资产 ${card.assetCode} 的处置专用凭证未按原值、累计金额、减值、收入和损益恒等式完整入账`, scopedLink("adjustments", scope)));
     }
   }
   const payload = {
-    periodId: facts.period.id,
+    periodId,
     assetScopeFingerprint: assetScopeFingerprint(relevantCards),
     assetCount: relevantCards.length,
     acquisitionIds: acquisitions.map((card) => card.id).sort((left, right) => left - right),
@@ -262,12 +238,13 @@ export function inspectAssetDepreciationCloseFacts(
     const payload = { scope, periodId: null };
     return result("blocked", "asset-depreciation-close-v2", deepLink, payload, [issue("asset_period_missing", "折旧摊销期间不存在", deepLink)]);
   }
+  const periodId = facts.period.id;
   const { start, end } = financeClosePeriodBounds(scope);
   const policyByCategory = new Map(facts.policies.map((policy) => [policy.categoryId, policy]));
   const blockers: FinanceCloseBlockerDto[] = [];
   const relevantCards = facts.cards.filter((card) => !card.disposal || card.disposal.status !== "confirmed" || card.disposal.disposalDate >= start);
   if (relevantCards.length === 0) {
-    const payload = { periodId: facts.period.id, applicable: false, applicabilityEstablished: facts.applicabilityEstablished, assetGlBalance: money(facts.assetGlBalance), assetCount: 0 };
+    const payload = { periodId, applicable: false, applicabilityEstablished: facts.applicabilityEstablished, assetGlBalance: money(facts.assetGlBalance), assetCount: 0 };
     if (!facts.applicabilityEstablished) return result("blocked", "asset-depreciation-close-v2", deepLink, payload, [issue("asset_applicability_unproven", "尚未配置公司年度资产政策，无法证明本期不适用折旧摊销", deepLink)]);
     if (moneyIsNonZero(facts.assetGlBalance)) return result("blocked", "asset-depreciation-close-v2", deepLink, payload, [issue("asset_cards_missing_with_gl_balance", "资产台账为空但年度政策资产科目存在余额", deepLink)]);
     return result("ready", "asset-depreciation-close-v2", deepLink, payload);
@@ -287,7 +264,11 @@ export function inspectAssetDepreciationCloseFacts(
     }
     if (card.status === "active" && confirmedDisposal && confirmedDisposal.disposalDate <= end) blockers.push(issue("asset_disposal_status_inconsistent", `资产 ${card.assetCode} 已确认处置但卡片仍为使用中`, deepLink));
     if (!card.category.depreciable) continue;
-    if (card.usefulLifeMonths == null) {
+    if (card.initializationMode === FINANCE_ASSET_LEGACY_CUTOVER_MODE && card.cutoverAllocationStatus !== "allocated") {
+      blockers.push(issue("asset_cutover_allocation_pending", `资产 ${card.assetCode} 的总账切点余额尚未归卡，不生成本期折旧摊销`, deepLink));
+      continue;
+    }
+    if (card.usefulLifeMonths == null && card.initializationMode !== FINANCE_ASSET_LEGACY_CUTOVER_MODE) {
       if (card.assetKind !== "intangible" || !card.nonAmortizationReason?.trim()) {
         blockers.push(issue("asset_useful_life_missing", `资产 ${card.assetCode} 缺少折旧摊销期限或明确的不摊销依据`, deepLink));
       }
@@ -309,6 +290,8 @@ export function inspectAssetDepreciationCloseFacts(
       assetId: card.id,
       companyCode: scope.companyCode,
       openingAccumulatedAmount: card.openingAccumulatedAmount,
+      openingImpairmentAmount: card.openingImpairmentAmount,
+      openingIncludesImpairment: card.initializationMode === FINANCE_ASSET_LEGACY_CUTOVER_MODE,
       openingAsOfDate: card.openingAsOfDate,
       priorEntries: facts.priorEntries,
       priorAdjustments: facts.priorAdjustments,
@@ -318,7 +301,7 @@ export function inspectAssetDepreciationCloseFacts(
     const replay = calculateFinanceAssetPeriod({
       originalCost: money(card.originalCost),
       residualRate: Number(card.residualRate),
-      usefulLifeMonths: card.usefulLifeMonths!,
+      usefulLifeMonths: card.usefulLifeMonths ?? card.remainingUsefulLifeMonthsAtCutover!,
       accumulatedBefore: replayBasis.accumulatedBefore,
       impairmentBefore: replayBasis.impairmentBefore,
       depreciationStartDate: card.depreciationStartDate!,
@@ -326,6 +309,16 @@ export function inspectAssetDepreciationCloseFacts(
       month: scope.month,
       assetKind: card.assetKind as "fixed_asset" | "intangible" | "prepaid" | "long_term_deferred",
       disposalDate: resolveConfirmedDisposalDate(card),
+      initializationMode: card.initializationMode as "standard" | "legacy_cutover",
+      legacyCutover: card.initializationMode === FINANCE_ASSET_LEGACY_CUTOVER_MODE ? {
+        originalCost: money(card.originalCost),
+        openingAccumulatedAmount: money(card.openingAccumulatedAmount),
+        openingImpairmentAmount: money(card.openingImpairmentAmount),
+        openingNetBookValue: money(card.openingNetBookValue),
+        cutoverDate: card.cutoverDate!,
+        remainingUsefulLifeMonthsAtCutover: card.remainingUsefulLifeMonthsAtCutover!,
+        cutoverResidualValue: money(card.cutoverResidualValue),
+      } : undefined,
     });
     const expected = replay.periodAmount;
     if (replay.lifecycleBlocker) blockers.push(issue(replay.lifecycleBlocker, `资产 ${card.assetCode} 的处置月终止摊销口径缺失，需通过明确政策或调整事实处理`, deepLink));
@@ -335,7 +328,7 @@ export function inspectAssetDepreciationCloseFacts(
       continue;
     }
     if (!moneyEquals(entry.normalAmount, expected)) blockers.push(issue("asset_period_calculation_difference", `资产 ${card.assetCode} 的本期折旧摊销金额与政策重算结果不一致`, deepLink));
-    if (moneyIsNonZero(entry.normalAmount) && (entry.status !== "posted" || !postedVoucherInScope(entry.voucher, facts.period.id, scope.companyCode))) {
+    if (moneyIsNonZero(entry.normalAmount) && (entry.status !== "posted" || !postedVoucherInScope(entry.voucher, periodId, scope.companyCode))) {
       blockers.push(issue("asset_period_voucher_missing", `资产 ${card.assetCode} 的非零折旧摊销条目必须为已过账并关联本期专用凭证`, deepLink));
     } else if (moneyIsZero(entry.normalAmount) && !["calculated", "confirmed", "posted"].includes(entry.status)) {
       blockers.push(issue("asset_period_entry_status_invalid", `资产 ${card.assetCode} 的零额折旧摊销条目状态无效`, deepLink));
@@ -348,7 +341,7 @@ export function inspectAssetDepreciationCloseFacts(
   }
   const confirmedAdjustments = facts.adjustments.filter((adjustment) => adjustment.status === "confirmed");
   for (const adjustment of confirmedAdjustments) {
-    if (!postedVoucherInScope(adjustment.voucher, facts.period.id, scope.companyCode)) {
+    if (!postedVoucherInScope(adjustment.voucher, periodId, scope.companyCode)) {
       blockers.push(issue("asset_adjustment_voucher_missing", `已确认折旧摊销调整 ${adjustment.id} 未关联同期间已过账凭证`, deepLink));
     }
     if (moneyIsNonZero(adjustment.amount)) {
@@ -410,7 +403,7 @@ export function inspectAssetDepreciationCloseFacts(
     if (!moneyEquals(ledgerByAccount.get(accountCode) ?? 0, amount)) blockers.push(issue("asset_ledger_reconciliation_difference", `累计折旧/摊销科目 ${accountCode} 与本期总账发生额不一致`, scopedLink("period", scope)));
   }
   const payload = {
-    periodId: facts.period.id,
+    periodId,
     assetScopeFingerprint: assetScopeFingerprint(relevantCards),
     dueAssetIds: [...dueIds].sort((left, right) => left - right),
     entries: facts.entries.map((entry) => ({ id: entry.id, assetId: entry.assetId, normalAmount: money(entry.normalAmount), status: entry.status, voucherId: entry.voucher?.id ?? null })).sort((left, right) => left.id - right.id),
@@ -441,8 +434,9 @@ export function inspectAssetImpairmentCloseFacts(
     const payload = { scope, periodId: null };
     return result("blocked", "asset-impairment-close-v2", deepLink, payload, [issue("asset_period_missing", "资产减值评估期间不存在", deepLink)]);
   }
+  const periodId = facts.period.id;
   if (!facts.assessment) {
-    const payload = { periodId: facts.period.id, assetScopeFingerprint: assetScopeFingerprint(facts.cards), assetCount: facts.cards.length, assessmentId: null };
+    const payload = { periodId, assetScopeFingerprint: assetScopeFingerprint(facts.cards), assetCount: facts.cards.length, assessmentId: null };
     return result("pending", "asset-impairment-close-v2", deepLink, payload);
   }
   const assessment = facts.assessment;
@@ -460,6 +454,8 @@ export function inspectAssetImpairmentCloseFacts(
       assetId: card.id,
       companyCode: scope.companyCode,
       openingAccumulatedAmount: card.openingAccumulatedAmount,
+      openingImpairmentAmount: card.openingImpairmentAmount,
+      openingIncludesImpairment: card.initializationMode === FINANCE_ASSET_LEGACY_CUTOVER_MODE,
       openingAsOfDate: card.openingAsOfDate,
       priorEntries: facts.priorEntries,
       priorAdjustments: facts.priorAdjustments,
@@ -473,10 +469,10 @@ export function inspectAssetImpairmentCloseFacts(
     entries: facts.entries.map((row) => ({ id: row.id, assetId: row.assetId, amount: row.normalAmount, status: row.status, voucherId: row.voucher?.id ?? null })),
     adjustments: facts.adjustments.map((row) => ({ id: row.id, assetId: row.assetId, amount: row.amount, status: row.status, voucherId: row.voucher?.id ?? null })),
   });
-  if (facts.entries.some((entry) => moneyIsNonZero(entry.normalAmount) && (entry.status !== "posted" || !postedVoucherInScope(entry.voucher, facts.period.id, scope.companyCode)))) {
+  if (facts.entries.some((entry) => moneyIsNonZero(entry.normalAmount) && (entry.status !== "posted" || !postedVoucherInScope(entry.voucher, periodId, scope.companyCode)))) {
     blockers.push(issue("asset_impairment_basis_unlocked", "本期非零折旧摊销尚未通过专用凭证过账，不能锁定期末减值基础", deepLink));
   }
-  if (facts.adjustments.some((adjustment) => adjustment.status === "confirmed" && moneyIsNonZero(adjustment.amount) && !postedVoucherInScope(adjustment.voucher, facts.period.id, scope.companyCode))) {
+  if (facts.adjustments.some((adjustment) => adjustment.status === "confirmed" && moneyIsNonZero(adjustment.amount) && !postedVoucherInScope(adjustment.voucher, periodId, scope.companyCode))) {
     blockers.push(issue("asset_impairment_basis_unlocked", "本期折旧摊销调整尚未过账，不能锁定期末减值基础", deepLink));
   }
   if (assessment.status !== "confirmed") blockers.push(issue("asset_impairment_unconfirmed", "本期资产减值评估尚未确认", deepLink));
@@ -491,7 +487,7 @@ export function inspectAssetImpairmentCloseFacts(
     blockers.push(issue("asset_impairment_conclusion_invalid", "本期资产减值评估结论无效", deepLink));
   }
   if (assessment.conclusion === "impairment_recorded") {
-    if (assessment.impairmentAmount <= 0 || !impairmentVoucherMatches(assessment.voucher, facts.period.id, scope.companyCode, assessment.impairmentAmount, assessment.allocations, facts.cards, facts.policies)) {
+    if (assessment.impairmentAmount <= 0 || !impairmentVoucherMatches(assessment.voucher, periodId, scope.companyCode, assessment.impairmentAmount, assessment.allocations, facts.cards, facts.policies)) {
       blockers.push(issue("asset_impairment_voucher_mismatch", "已确认减值必须按公司年度政策的减值损失/准备科目形成同期间整张专用凭证", deepLink));
     }
     const scopeIds = new Set(facts.cards.map((card) => card.id));
@@ -506,7 +502,7 @@ export function inspectAssetImpairmentCloseFacts(
     blockers.push(issue("asset_impairment_amount_unexpected", "未确认减值时不得保留减值金额或凭证", deepLink));
   }
   const payload = {
-    periodId: facts.period.id,
+    periodId,
     assessmentId: assessment.id,
     assessmentVersion: assessment.version,
     status: assessment.status,

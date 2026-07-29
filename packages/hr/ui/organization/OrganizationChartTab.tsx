@@ -14,6 +14,7 @@ import {
   buildOrganizationChartVisual,
   type OrganizationChartDepartment,
 } from "./organization-chart";
+import type { OrganizationCodeConfig } from "../tabs/department-position/types";
 
 const ORGANIZATION_CHART_COPY = {
   missingRootText: "尚未建立董事会组织层级",
@@ -22,6 +23,7 @@ const ORGANIZATION_CHART_COPY = {
 
 export default function OrganizationChartTab({ surface }: { surface: RosterSurfaceTabBarProps }) {
   const [departments, setDepartments] = useState<OrganizationChartDepartment[]>([]);
+  const [functionalPrefix, setFunctionalPrefix] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,8 +35,12 @@ export default function OrganizationChartTab({ surface }: { surface: RosterSurfa
       signal: controller.signal,
     }).then(async (response) => {
       if (!response.ok) throw new Error("组织架构加载失败");
-      const payload = await response.json() as { departments?: OrganizationChartDepartment[] };
+      const payload = await response.json() as {
+        departments?: OrganizationChartDepartment[];
+        codeConfig?: OrganizationCodeConfig;
+      };
       setDepartments(payload.departments ?? []);
+      setFunctionalPrefix(payload.codeConfig?.department.functionalPrefix ?? null);
     }).catch((loadError: unknown) => {
       if (loadError instanceof DOMException && loadError.name === "AbortError") return;
       setError(loadError instanceof Error ? loadError.message : "组织架构加载失败");
@@ -45,8 +51,8 @@ export default function OrganizationChartTab({ surface }: { surface: RosterSurfa
   }, []);
 
   const visual = useMemo(
-    () => buildOrganizationChartVisual(departments, ORGANIZATION_CHART_COPY),
-    [departments],
+    () => buildOrganizationChartVisual(departments, ORGANIZATION_CHART_COPY, functionalPrefix ?? ""),
+    [departments, functionalPrefix],
   );
   const body = loading
     ? createPageBody([createStatusSection("organization-loading", {

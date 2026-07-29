@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { archiveTemplate } from "@workspace/platform/server/docs-editor";
+import { archiveTemplate } from "@workspace/docs/server";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 

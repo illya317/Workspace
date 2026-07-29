@@ -5,6 +5,7 @@ const { spawnSync } = require("node:child_process");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const checks = [
   ["company hardcoding", "company:check"],
+  ["Business code hardcoding", "business-code:check"],
   ["Structure simple hygiene ratchet", "arch:structure:hygiene"],
 ];
 

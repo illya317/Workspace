@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+/* eslint-disable max-lines */
 
 import type { ParsedAssetWorkbook } from "./current-period-workbook-types";
 import {
@@ -40,16 +41,18 @@ const parsedWorkbook: ParsedAssetWorkbook = {
   renovationCostEvidence: [],
   controls: [],
   blockers: [],
+  warnings: [],
   readyForImport: true,
 };
 
 const resolvedPolicy = {
   policyId: 10,
   policyVersion: 1,
-  category: { id: 20, code: "FA-ELECTRONIC", name: "电子设备", assetKind: "fixed_asset" as const },
+  category: { id: 20, code: "FA-ELECTRONIC", name: "电子设备", assetKind: "fixed_asset" as const, depreciable: true },
   assetAccount: { id: 30, code: "1601", name: "固定资产" },
   accumulatedAccount: { id: 31, code: "1602", name: "累计折旧" },
   expenseAccount: { id: 32, code: "6602", name: "管理费用" },
+  impairmentAllowanceAccount: null,
   defaultUsefulLifeMonths: 36,
   defaultResidualRate: 0.03,
   defaultMethod: "straight_line",
@@ -105,16 +108,28 @@ test("new sourceKey allocates and writes its canonical code in the same transact
   assert.equal(harness.capture.createData?.sourceKey, importedAsset.sourceKey);
   assert.match(String(harness.capture.createData?.note), /sourceAssetCode=EXCEL-001/);
   assert.equal(harness.capture.createData?.method, "straight_line");
+  assert.equal(harness.capture.importBatchData?.reconciliationStatus, "matched");
 });
 
-test("an identical second import keeps its code, evidence, and posted period entry", async () => {
+test("rejects a synthetic renovation import from an ordinary callback", async () => {
+  const renovationCostEvidence = Array.from({ length: 11 }, (_, index) => {
+    const sourceRow = 18 + index;
+    const excluded = sourceRow === 20;
+    return { sourceFile: "current.xlsx", sourceSheet: "9&10-3", sourceRow, sourceRange: `9&10-3!A${sourceRow}:E${sourceRow}`, sourceKey: `9&10-3:${sourceRow}`, amount: 100 + index, treatment: excluded ? "excluded_from_source_total" as const : "included" as const, reason: excluded ? "来源总计公式明确排除" : undefined };
+  });
+  const parsed = { ...parsedWorkbook, assets: [{ ...importedAsset, assetCode: "SOURCE-EVIDENCE-ROW-29", legacySynthetic: true as const }], renovationCostEvidence };
+  const harness = createHarness({ parsed });
+  await assert.rejects(() => importAssetWorkbook(importInput(), harness.dependencies), /执行级 governed reconciler/);
+  assert.equal(harness.capture.writeCalls, 0);
+});
+
+test("an identical second import keeps its code and does not create a cutover-period depreciation row", async () => {
   const harness = createHarness();
 
   await importAssetWorkbook(importInput(), harness.dependencies);
   assert.equal(harness.capture.allocationCalls.length, 1);
   assert.equal(harness.capture.persistedAssetCode, "TEST-FA-ELECTRONIC-2026-00002");
 
-  harness.setCurrentPeriodEntry({ normalAmount: 10, status: "posted", voucherId: 88 });
   const periodEntryUpserts = harness.capture.periodEntryUpsertCalls;
   const result = await importAssetWorkbook(importInput(), harness.dependencies);
 
@@ -160,20 +175,6 @@ test("reimport cannot bypass the accounting-basis lock on an existing governed a
   assert.equal(harness.capture.acquisitionEvidenceData, undefined);
 });
 
-test("reimport preserves a posted current-period entry and rejects changed depreciation facts", async () => {
-  const same = createHarness({ currentPeriodEntry: { normalAmount: 10, status: "posted", voucherId: 88 } });
-  await importAssetWorkbook(importInput(), same.dependencies);
-  assert.equal(same.capture.periodEntryData, undefined);
-
-  const changed = createHarness({
-    currentPeriodEntry: { normalAmount: 9.99, status: "posted", voucherId: 88 },
-  });
-  await assert.rejects(
-    () => importAssetWorkbook(importInput(), changed.dependencies),
-    /本期折旧摊销已过账，重导金额不一致/,
-  );
-});
-
 test("rejects a workbook whose company label does not match the target company identity", async () => {
   const harness = createHarness({
     parsed: { ...parsedWorkbook, workbookCompanyLabels: ["另一家公司"] },
@@ -188,19 +189,16 @@ test("rejects a workbook whose company label does not match the target company i
   assert.equal(harness.capture.allocationCalls.length, 0);
 });
 
-test("rejects every import into a closed accounting period before any asset write", async () => {
-  const harness = createHarness({ period: { id: 40, isClosed: true } });
-
-  await assert.rejects(
-    () => importAssetWorkbook(importInput(), harness.dependencies),
-    /目标会计期间已关账/,
-  );
-
-  assert.equal(harness.capture.writeCalls, 0);
-  assert.equal(harness.capture.allocationCalls.length, 0);
+test("accepts the authoritative closed cutover period without creating a historical period row", async () => {
+  const harness = createHarness();
+  await importAssetWorkbook(importInput(), harness.dependencies);
+  assert.equal(harness.capture.periodEntryUpsertCalls, 0);
+  assert.equal(harness.capture.createData?.initializationMode, "legacy_cutover");
+  assert.equal(harness.capture.createData?.openingAsOfDate, "2026-06-30");
+  assert.equal(harness.capture.createData?.depreciationStartDate, "2026-07-01");
 });
 
-test("rejects a parser result without evidenced depreciation start before opening a transaction", async () => {
+test("missing historical start evidence is non-blocking for a GL-controlled cutover", async () => {
   const harness = createHarness({
     parsed: {
       ...parsedWorkbook,
@@ -208,13 +206,74 @@ test("rejects a parser result without evidenced depreciation start before openin
     },
   });
 
-  await assert.rejects(
-    () => importAssetWorkbook(importInput(), harness.dependencies),
-    /折旧摊销起算日期缺少明确来源证据/,
-  );
+  await importAssetWorkbook(importInput(), harness.dependencies);
+  assert.equal(harness.capture.createData?.depreciationStartDate, "2026-07-01");
+});
 
-  assert.equal(harness.capture.transactionOptions, undefined);
+test("rejects a plain callback that attempts to downgrade audited parser blockers", async () => {
+  const existingWarning = {
+    code: "POLICY_EVIDENCE_PENDING",
+    message: "政策证据待补",
+    sourceSheet: "9&10-1",
+    sourceRange: "9&10-1!A4:Q4",
+  };
+  const overriddenBlocker = {
+    code: "FIXED_DEPRECIATION_CONTROL_FAILED",
+    message: "固定资产逐行本月折旧与来源总计不一致（差异 0.01）",
+    sourceSheet: "9&10-1",
+    sourceRange: "9&10-1!D22:AA22",
+  };
+  const harness = createHarness({
+    parsed: {
+      ...parsedWorkbook,
+      blockers: [overriddenBlocker],
+      warnings: [existingWarning],
+      readyForImport: false,
+    },
+  });
+
+  await assert.rejects(() => importAssetWorkbook(importInput(), harness.dependencies), /执行级 governed reconciler/);
   assert.equal(harness.capture.writeCalls, 0);
+});
+
+test("rejects a plain callback that forges a ledger control adjustment", async () => {
+  const harness = createHarness();
+  const base = harness.dependencies.reconcileCutover;
+  harness.dependencies.reconcileCutover = (async (tx, input) => {
+    const forged = await base(tx, input);
+    return { ...forged, allocations: forged.allocations.map((row) => ({ ...row, ledgerControlAdjustment: 1 })) };
+  }) as AssetWorkbookImportDependencies["reconcileCutover"];
+  await assert.rejects(() => importAssetWorkbook(importInput(), harness.dependencies), /执行级 governed reconciler/);
+  assert.equal(harness.capture.writeCalls, 0);
+});
+
+test("non-audited parser blockers remain fail-closed before opening a transaction", async () => {
+  const harness = createHarness({
+    parsed: {
+      ...parsedWorkbook,
+      blockers: [{ code: "ASSET_AMOUNT_INVALID", message: "资产金额非法", sourceSheet: "9&10-1", sourceRange: "9&10-1!K4" }],
+      readyForImport: false,
+    },
+  });
+
+  await assert.rejects(() => importAssetWorkbook(importInput(), harness.dependencies), /ASSET_AMOUNT_INVALID/);
+  assert.equal(harness.capture.transactionOptions, undefined);
+});
+
+test("audited parser controls remain blocking outside the 2026-06 cutover", async () => {
+  const harness = createHarness({
+    parsed: {
+      ...parsedWorkbook,
+      blockers: [{ code: "FIXED_NET_CONTROL_FAILED", message: "期末净值控制失败", sourceSheet: "9&10-1" }],
+      readyForImport: false,
+    },
+  });
+
+  await assert.rejects(
+    () => importAssetWorkbook({ ...importInput(), year: 2025, month: 12 }, harness.dependencies),
+    /FIXED_NET_CONTROL_FAILED/,
+  );
+  assert.equal(harness.capture.transactionOptions, undefined);
 });
 
 test("rejects an annual policy whose method is not implemented before asset writes", async () => {
@@ -247,15 +306,16 @@ function importInput() {
 function createHarness(options: {
   existing?: { assetCode: string; status: string } | null;
   company?: { id: number; code: string; party: { name: string; fullName: string | null } } | null;
-  period?: { id: number; isClosed: boolean } | null;
+  period?: { id: number; companyCode: string; companyId: number; year: number; month: number; startDate: string; endDate: string; isClosed: boolean } | null;
   existingEvidence?: { companyCode: string; companyId: number; importBatchId: number | null; voucherItemId: number | null; sourceChecksum: string | null } | null;
   currentPeriodEntry?: { normalAmount: number; status: string; voucherId: number | null } | null;
   concurrentChange?: "version" | "acquisition" | "posted" | "impairment";
   parsed?: ParsedAssetWorkbook;
 } = {}) {
+  const effectiveAsset = (options.parsed ?? parsedWorkbook).assets[0]!;
   const existing = options.existing ?? null;
   let storedEvidence = options.existingEvidence ?? null;
-  let storedPeriodEntry = options.currentPeriodEntry ?? null;
+  let storedPeriodEntry: ({ id?: number } & NonNullable<typeof options.currentPeriodEntry>) | null = options.currentPeriodEntry ?? null;
   const capture: {
     allocationCalls: Array<{ tx: unknown; input: Record<string, unknown> }>;
     createData?: Record<string, unknown>;
@@ -264,11 +324,14 @@ function createHarness(options: {
     persistedStatus?: string;
     writeCalls: number;
     acquisitionEvidenceData?: Record<string, unknown>;
+    importBatchData?: Record<string, unknown>;
     periodEntryData?: Record<string, unknown>;
     periodEntryUpsertCalls: number;
     cardUpdateManyCalls: number;
+    costLineUpsertCalls: number;
+    costLines: Map<string, Record<string, unknown>>;
     transactionOptions?: Record<string, unknown>;
-  } = { allocationCalls: [], writeCalls: 0, periodEntryUpsertCalls: 0, cardUpdateManyCalls: 0 };
+  } = { allocationCalls: [], writeCalls: 0, periodEntryUpsertCalls: 0, cardUpdateManyCalls: 0, costLineUpsertCalls: 0, costLines: new Map() };
   let concurrentChangePending = options.concurrentChange;
   let storedCard: Record<string, unknown> | null = existing ? {
     id: 50,
@@ -287,8 +350,20 @@ function createHarness(options: {
     residualRate: importedAsset.residualRate,
     usefulLifeMonths: importedAsset.usefulLifeMonths,
     method: resolvedPolicy.defaultMethod,
-    openingAccumulatedAmount: importedAsset.openingAccumulatedAmount,
-    openingAsOfDate: importedAsset.openingAsOfDate,
+    initializationMode: "legacy_cutover",
+    openingAccumulatedAmount: 110,
+    openingImpairmentAmount: 0,
+    openingNetBookValue: 1_090,
+    openingAsOfDate: "2026-06-30",
+    cutoverDate: "2026-06-30",
+    remainingUsefulLifeMonthsAtCutover: 30,
+    cutoverResidualValue: 36,
+    cutoverAllocationStatus: "allocated",
+    cutoverReconciliationFingerprint: "a".repeat(64),
+    cutoverPeriodId: 40,
+    cutoverAssetBalanceId: 41,
+    cutoverAccumulatedBalanceId: 42,
+    cutoverImpairmentBalanceId: null,
     nonAmortizationReason: null,
     version: 1,
     note: null,
@@ -305,7 +380,13 @@ function createHarness(options: {
         : options.company,
     },
     financePeriod: {
-      findUnique: async () => options.period === undefined ? { id: 40, isClosed: false } : options.period,
+      findUnique: async () => options.period === undefined ? { id: 40, companyCode: "TEST", companyId: 1, year: 2026, month: 6, startDate: "2026-06-01", endDate: "2026-06-30", isClosed: true } : options.period,
+    },
+    financeAccountBalance: {
+      findMany: async () => [
+        { id: 41, accountId: 30, periodId: 40, companyCode: "TEST", companyId: 1, closingDebit: effectiveAsset.originalCost, closingCredit: 0, account: { code: "1601", balanceDirection: "debit", companyCode: "TEST", companyId: 1, year: 2026, isActive: true } },
+        { id: 42, accountId: 31, periodId: 40, companyCode: "TEST", companyId: 1, closingDebit: 0, closingCredit: Math.round((effectiveAsset.originalCost - effectiveAsset.closingNetAmount + Number.EPSILON) * 100) / 100, account: { code: "1602", balanceDirection: "credit", companyCode: "TEST", companyId: 1, year: 2026, isActive: true } },
+      ],
     },
     financeAssetCategory: {
       findMany: async () => [{ id: 20, code: "FA-ELECTRONIC", assetKind: "fixed_asset" }],
@@ -350,8 +431,8 @@ function createHarness(options: {
           version: Number(storedCard.version) + (version?.increment ?? 0),
         };
         storedCard = persisted;
-        capture.persistedAssetCode = String(persisted.assetCode);
-        capture.persistedStatus = String(persisted.status);
+        capture.persistedAssetCode = String(persisted["assetCode"]);
+        capture.persistedStatus = String(persisted["status"]);
         return { count: 1 };
       },
       create: async (args: { data: Record<string, unknown> }) => {
@@ -369,14 +450,25 @@ function createHarness(options: {
         capture.writeCalls += 1;
         capture.periodEntryUpsertCalls += 1;
         capture.periodEntryData = storedPeriodEntry ? args.update : args.create;
-        storedPeriodEntry = { id: 60, ...capture.periodEntryData } as typeof storedPeriodEntry;
+        storedPeriodEntry = { id: 60, ...capture.periodEntryData } as unknown as typeof storedPeriodEntry;
         return storedPeriodEntry;
       },
     },
     financeAssetImportBatch: {
-      upsert: async () => {
+      upsert: async (args: { create: Record<string, unknown>; update: Record<string, unknown> }) => {
         capture.writeCalls += 1;
+        capture.importBatchData = args.create;
         return { id: 70 };
+      },
+    },
+    financeAssetCostLine: {
+      findMany: async () => [...capture.costLines.keys()].map((sourceKey) => ({ sourceKey })),
+      upsert: async (args: { where: { assetId_sourceKey: { sourceKey: string } }; create: Record<string, unknown>; update: Record<string, unknown> }) => {
+        capture.writeCalls += 1;
+        capture.costLineUpsertCalls += 1;
+        const sourceKey = args.where.assetId_sourceKey.sourceKey;
+        capture.costLines.set(sourceKey, capture.costLines.has(sourceKey) ? { ...capture.costLines.get(sourceKey), ...args.update } : args.create);
+        return capture.costLines.get(sourceKey);
       },
     },
     financeAssetAcquisitionEvidence: {
@@ -404,6 +496,7 @@ function createHarness(options: {
       capture.allocationCalls.push({ tx, input });
       return { code: "TEST-FA-ELECTRONIC-2026-00002" };
     }) as unknown as AssetWorkbookImportDependencies["allocateAssetCode"],
+    reconcileCutover: (async (_tx, input) => cutoverResult(options.parsed ?? parsedWorkbook, input.assets[0]!)) as AssetWorkbookImportDependencies["reconcileCutover"],
   };
   return {
     capture,
@@ -413,5 +506,48 @@ function createHarness(options: {
       storedPeriodEntry = entry;
       if (storedCard) storedCard.periodEntries = entry.status === "posted" || entry.voucherId != null ? [{ id: 60 }] : [];
     },
+  };
+}
+
+function cutoverResult(
+  parsed: ParsedAssetWorkbook,
+  basis: { remainingUsefulLifeMonthsAtCutover: number; cutoverResidualValue: number },
+) {
+  const asset = parsed.assets[0]!;
+  const openingAccumulatedAmount = Math.round((asset.originalCost - asset.closingNetAmount + Number.EPSILON) * 100) / 100;
+  return {
+    cutoverDate: "2026-06-30",
+    period: { id: 40, companyCode: "TEST", companyId: 1, year: 2026, month: 6, endDate: "2026-06-30", isClosed: true },
+    fingerprint: "a".repeat(64),
+    status: "matched" as const,
+    ledgerNetBookValue: asset.closingNetAmount,
+    importedNetBookValue: asset.closingNetAmount,
+    unallocatedNetBookValue: 0,
+    warnings: [],
+    accountControls: [{
+      key: "asset:30", role: "asset" as const, sourceKeys: [asset.sourceKey], accountId: 30, accountCode: "1601", balanceId: 41,
+      selection: "full_account" as const, allocationMode: "standard" as const, approvalReason: null, approvedSelectedAmount: null, expectedDirection: "debit" as const, workspaceClosingDebit: asset.originalCost, workspaceClosingCredit: 0,
+      sourceClosingDebit: asset.originalCost, sourceClosingCredit: 0, sourceSelectedAmount: asset.originalCost, allocatedAmount: asset.originalCost, difference: 0,
+    }, {
+      key: "accumulated:31", role: "accumulated" as const, sourceKeys: [asset.sourceKey], accountId: 31, accountCode: "1602", balanceId: 42,
+      selection: "full_account" as const, allocationMode: "standard" as const, approvalReason: null, approvedSelectedAmount: null, expectedDirection: "credit" as const, workspaceClosingDebit: 0, workspaceClosingCredit: openingAccumulatedAmount,
+      sourceClosingDebit: 0, sourceClosingCredit: openingAccumulatedAmount, sourceSelectedAmount: openingAccumulatedAmount, allocatedAmount: openingAccumulatedAmount, difference: 0,
+    }],
+    allocations: [{
+      sourceKey: asset.sourceKey,
+      openingAccumulatedAmount,
+      openingImpairmentAmount: 0,
+      openingNetBookValue: asset.closingNetAmount,
+      cutoverResidualValue: basis.cutoverResidualValue,
+      remainingUsefulLifeMonthsAtCutover: basis.remainingUsefulLifeMonthsAtCutover,
+      allocationStatus: "allocated" as const,
+      roundingAdjustment: 0,
+      ledgerControlAdjustment: 0,
+      ledgerControlAllocationMode: null,
+      ledgerControlApprovalReason: null,
+      assetBalance: { id: 41, accountId: 30, periodId: 40, companyCode: "TEST" },
+      accumulatedBalance: { id: 42, accountId: 31, periodId: 40, companyCode: "TEST" },
+      impairmentBalance: null,
+    }],
   };
 }

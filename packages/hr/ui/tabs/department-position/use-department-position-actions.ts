@@ -12,6 +12,7 @@ import type {
   Position,
   PositionDraft,
   Selection,
+  OrganizationCodeConfig,
 } from "./types";
 import { composePositionCode, positionCodeSuffix, serializeAlias } from "./utils";
 import {
@@ -50,6 +51,7 @@ export function useDepartmentPositionActions({
   setSelection,
   setToast,
   showActionPrompt,
+  codeConfig,
 }: {
   createPositionCode: string;
   createPositionDescriptionDraft: DescriptionDraft;
@@ -74,6 +76,7 @@ export function useDepartmentPositionActions({
   setSelection: (selection: Selection) => void;
   setToast: ToastSetter;
   showActionPrompt: ActionPrompt;
+  codeConfig: OrganizationCodeConfig | null;
 }) {
   const dirty = positionDirty || descriptionDirty;
 
@@ -81,10 +84,12 @@ export function useDepartmentPositionActions({
     if (!dirty) return;
     if (draft && (!draft.code.trim() || !draft.name.trim())) return setToast({ type: "error", message: "岗位编码和名称不能为空" });
     if (draft?.departmentId) {
+      if (!codeConfig) return setToast({ type: "error", message: "编码配置尚未加载" });
       const department = departmentById.get(draft.departmentId);
-      const suffix = positionCodeSuffix(draft.code);
-      if (!department || !/^\d{2}$/.test(suffix) || draft.code !== composePositionCode(department, suffix, draft.code)) {
-        setToast({ type: "error", message: "岗位编码必须由直属组织编码和两位序号组成" });
+      const suffix = positionCodeSuffix(draft.code, codeConfig);
+      const sequencePattern = new RegExp(`^\\d{${codeConfig.position.sequenceLength}}$`);
+      if (!department || !sequencePattern.test(suffix) || draft.code !== composePositionCode(department, suffix, draft.code, codeConfig)) {
+        setToast({ type: "error", message: `岗位编码必须由直属组织编码和 ${codeConfig.position.sequenceLength} 位序号组成` });
         return;
       }
     }

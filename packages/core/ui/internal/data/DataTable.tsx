@@ -18,6 +18,8 @@ import {
   resolveDataTableLayoutClass,
   resolveStandardTableColumnWidths,
   resolveStandardTableMinWidth,
+  resolveTableCellSelectionClass,
+  resolveTableCellStateClass,
   resolveTableColumnClass,
   resolveTableDisclosureClass,
   resolveTablePresentation,
@@ -261,7 +263,7 @@ export default function DataTable<T>({
                       data-disclosure-axis={col.disclosure ? "column" : undefined}
                       data-disclosure-role={col.disclosure?.role}
                       data-disclosure-group={col.disclosure?.groupKey}
-                      className={`${tablePresentation.cell} ${resolveTableColumnClass(col)} ${matrixPinnedColumnClass(columnIndex, false, matrix)} ${disclosureColumnClass(visible, columnIndex, "body")}`}
+                      className={`${tablePresentation.cell} ${resolveTableColumnClass(col)} ${matrixPinnedColumnClass(columnIndex, false, matrix)} ${disclosureColumnClass(visible, columnIndex, "body")} ${resolveTableCellStateClass(col.cellState?.(row))} ${resolveTableCellSelectionClass(col.cellSelected?.(row))}`}
                     >
                       <DesktopTableCellValue
                         column={col}

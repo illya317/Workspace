@@ -1,4 +1,4 @@
-export const SOURCE_CODE_ANALYSIS_SCHEMA_VERSION = 2 as const;
+export const SOURCE_CODE_ANALYSIS_SCHEMA_VERSION = 3 as const;
 
 export const SOURCE_CODE_ANALYSIS_MODULE_CATEGORIES = [
   "product",
@@ -50,6 +50,14 @@ export const SOURCE_CODE_ANALYSIS_ROLE_LABELS: Record<SourceCodeAnalysisRole, st
 
 export type SourceCodeAnalysisRoleCounts = Record<SourceCodeAnalysisRole, number>;
 
+export interface SourceCodeAnalysisDependencyEdge {
+  sourceModuleKey: string;
+  sourceRole: SourceCodeAnalysisRole;
+  targetModuleKey: string;
+  targetRole: SourceCodeAnalysisRole;
+  importCount: number;
+}
+
 export interface SourceCodeAnalysisModuleRow {
   key: string;
   label: string;
@@ -84,6 +92,7 @@ export interface SourceCodeAnalysisSnapshot {
     mixedResponsibilityFileCount: number;
   };
   modules: SourceCodeAnalysisModuleRow[];
+  dependencyEdges: SourceCodeAnalysisDependencyEdge[];
   dependencyCycles: string[][];
   diagnostics: {
     unclassifiedFiles: string[];

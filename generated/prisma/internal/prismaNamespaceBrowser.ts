@@ -1421,8 +1421,20 @@ export const FinanceAssetCardScalarFieldEnum = {
   residualRate: 'residualRate',
   usefulLifeMonths: 'usefulLifeMonths',
   method: 'method',
+  initializationMode: 'initializationMode',
   openingAccumulatedAmount: 'openingAccumulatedAmount',
+  openingImpairmentAmount: 'openingImpairmentAmount',
+  openingNetBookValue: 'openingNetBookValue',
   openingAsOfDate: 'openingAsOfDate',
+  cutoverDate: 'cutoverDate',
+  remainingUsefulLifeMonthsAtCutover: 'remainingUsefulLifeMonthsAtCutover',
+  cutoverResidualValue: 'cutoverResidualValue',
+  cutoverAllocationStatus: 'cutoverAllocationStatus',
+  cutoverReconciliationFingerprint: 'cutoverReconciliationFingerprint',
+  cutoverPeriodId: 'cutoverPeriodId',
+  cutoverAssetBalanceId: 'cutoverAssetBalanceId',
+  cutoverAccumulatedBalanceId: 'cutoverAccumulatedBalanceId',
+  cutoverImpairmentBalanceId: 'cutoverImpairmentBalanceId',
   status: 'status',
   nonAmortizationReason: 'nonAmortizationReason',
   note: 'note',
@@ -1505,7 +1517,14 @@ export const FinanceAssetImportBatchScalarFieldEnum = {
   warningCount: 'warningCount',
   importedBy: 'importedBy',
   importedAt: 'importedAt',
-  note: 'note'
+  note: 'note',
+  cutoverDate: 'cutoverDate',
+  cutoverPeriodId: 'cutoverPeriodId',
+  ledgerReconciliationFingerprint: 'ledgerReconciliationFingerprint',
+  ledgerNetBookValue: 'ledgerNetBookValue',
+  importedNetBookValue: 'importedNetBookValue',
+  unallocatedNetBookValue: 'unallocatedNetBookValue',
+  reconciliationStatus: 'reconciliationStatus'
 } as const
 
 export type FinanceAssetImportBatchScalarFieldEnum = (typeof FinanceAssetImportBatchScalarFieldEnum)[keyof typeof FinanceAssetImportBatchScalarFieldEnum]

@@ -20,7 +20,6 @@ import type { FinanceLedgerDefaultScope } from "./defaultScope";
 import {
   createReclassWorkbenchColumns,
   filterReclassEntries,
-  type ReclassWorkbenchFilter,
 } from "./reclassWorkbench";
 
 export default function ReclassTab({
@@ -39,7 +38,6 @@ export default function ReclassTab({
   const [monthFilter, setMonthFilter] = useState(defaultScope ? String(defaultScope.month) : "");
   const [periodKind, setPeriodKind] = useState<StatementPeriodKind>("month");
   const [keyword, setKeyword] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ReclassWorkbenchFilter>("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [entries, setEntries] = useState<ReclassEntry[]>([]);
@@ -71,24 +69,9 @@ export default function ReclassTab({
   }, [companyFilter, feedback, monthFilter, yearFilter]);
 
   useEffect(() => { void loadAdjustments(); }, [loadAdjustments]);
-  useEffect(() => { setPage(1); }, [companyFilter, keyword, monthFilter, statusFilter, yearFilter]);
+  useEffect(() => { setPage(1); }, [companyFilter, keyword, monthFilter, yearFilter]);
 
-  const filtered = useMemo(() => filterReclassEntries(entries, statusFilter, keyword), [entries, keyword, statusFilter]);
-  const filterOptions = useMemo(() => {
-    const pending = entries.filter((row) => row.status === "pending").length;
-    const automatic = entries.filter((row) => row.status === "automatic").length;
-    const manual = entries.filter((row) => row.status === "manual").length;
-    const noProcess = entries.filter((row) => row.status === "no_process").length;
-    const historical = entries.filter((row) => row.status === "historical").length;
-    return [
-      { value: "all", label: `全部 ${entries.length}` },
-      { value: "pending", label: `待处理 ${pending}` },
-      { value: "automatic", label: `自动分类 ${automatic}` },
-      { value: "manual", label: `人工分类 ${manual}` },
-      { value: "no_process", label: `无需处理 ${noProcess}` },
-      { value: "historical", label: `历史记录 ${historical}` },
-    ];
-  }, [entries]);
+  const filtered = useMemo(() => filterReclassEntries(entries, keyword), [entries, keyword]);
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
 
@@ -108,14 +91,6 @@ export default function ReclassTab({
   );
 
   const extraToolbarItems: SurfaceToolbarItems = [
-    {
-      kind: "select",
-      key: "reclass-status",
-      label: "分类方式",
-      value: statusFilter,
-      options: filterOptions,
-      onChange: (value: string) => setStatusFilter(value as ReclassWorkbenchFilter),
-    },
     ...(canExport ? [{
       kind: "action-group" as const,
       key: "reclass-export",

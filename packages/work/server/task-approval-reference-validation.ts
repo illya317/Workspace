@@ -1,5 +1,5 @@
-import { prisma } from "@workspace/platform/server/prisma";
 import { canViewProject } from "./access";
+import { findApprovalProjectPhaseReference } from "./task-approval-reference-adapter";
 
 export function normalizeApprovalParticipants(value: unknown) {
   if (Array.isArray(value)) return value.map((item) => String(item).trim()).filter(Boolean);
@@ -16,7 +16,7 @@ export async function validateReferencedProjectVisibility(actorUserId: number, d
   if (linkedProjectId) ids.add(linkedProjectId);
   const linkedProjectPhaseId = positiveNumber(data.linkedProjectPhaseId);
   const phase = linkedProjectPhaseId
-    ? await prisma.projectPlanPhase.findUnique({ where: { id: linkedProjectPhaseId }, select: { projectId: true } })
+    ? await findApprovalProjectPhaseReference(linkedProjectPhaseId)
     : null;
   if (phase?.projectId) ids.add(phase.projectId);
   for (const projectId of ids) {

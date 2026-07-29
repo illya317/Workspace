@@ -13,7 +13,6 @@ import {
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
 import { employmentIsActiveOnDate } from "@workspace/platform/server/relation-registry";
-import { prisma } from "@workspace/platform/server/prisma";
 import { isEmploymentPositionOptionalTitle } from "@workspace/hr/constants/employee-temporal-write-policy";
 import {
   employeeCanOnboardAt,
@@ -27,6 +26,7 @@ import { parseAllocationWeight, validateEmploymentOption } from "../field-valida
 import { resolveEdpPositionAssignment } from "./position-report-override-validation";
 import { assignmentPeriodContainsDate } from "./employee-business-temporal";
 import { HR_ASSIGNMENT_TEMPORAL, HR_EMPLOYMENT_TEMPORAL } from "../../business-temporal";
+import { findEmployeeLifecycleReference } from "../employee-lifecycle-reference-adapter";
 
 export const EMPLOYEE_LIFECYCLE_EVENT_TYPES = [
   "onboard",
@@ -345,31 +345,7 @@ export async function buildEmployeeLifecycleCommand(
   const employmentFields = normalizeEmploymentFields(input);
   if (!employmentFields.ok) return employmentFields;
 
-  const employee = await prisma.employee.findUnique({
-    where: { id: employeeId },
-    select: {
-      id: true,
-      employments: { select: { id: true, version: true, isActive: true, joinDate: true, leaveDate: true } },
-      positions: {
-        select: {
-          id: true,
-          version: true,
-          employeeId: true,
-          reportingCompanyId: true,
-          departmentId: true,
-          positionId: true,
-          positionReportOverrideId: true,
-          isPrimary: true,
-          startDate: true,
-          endDate: true,
-          reportTo: true,
-          reportToPositionId: true,
-          allocationWeight: true,
-        },
-      },
-      lifecycleEvents: { select: { id: true }, take: 1 },
-    },
-  });
+  const employee = await findEmployeeLifecycleReference(employeeId);
   if (!employee) return failCommand("员工不存在", 404);
 
   const sourceAssignmentId = positiveInteger(input.sourceAssignmentId);

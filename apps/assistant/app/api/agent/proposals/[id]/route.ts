@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
 import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
-import { getAgentProposalForUser } from "@workspace/platform/server/agent";
+import { getAgentProposalForUser } from "@workspace/agent/server";
 
 export async function GET(
   request: Request,

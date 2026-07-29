@@ -18,10 +18,11 @@ import {
 } from "../domain/asset-validation";
 import { assetPeriodVoucherLinkFingerprint } from "./period-scope";
 import { resolveFinanceCompanyAccountsFromGroupPolicyAt } from "../ledger/group-accounts/company-account-resolver";
+import { resolveFinanceGroupPolicyCompany } from "../group-policy-scope";
 import { financeAssetPolicySemanticsMatch, type FinanceAssetPolicySemanticSnapshot } from "./asset-policy-inheritance";
 import { assetAccountingBasisChanged, assetCardWriteData } from "./asset-card-write-policy";
-import { moneyIsNonZero } from "./money-cents";
 import { requireStoredFinanceAssetDepreciationMethod } from "./depreciation-method";
+import { uniqueLinkedAssetVoucherNo } from "./workspace-utils";
 
 export { assetAccountingBasisChanged } from "./asset-card-write-policy";
 export { deleteFinanceAssetCategoryPolicy, updateFinanceAssetCategoryPolicy } from "./asset-policy-service";
@@ -134,7 +135,15 @@ function toCardDto(card: Awaited<ReturnType<typeof loadCards>>[number], accounts
     residualRate: Number(card.residualRate),
     usefulLifeMonths: card.usefulLifeMonths,
     method: requireStoredFinanceAssetDepreciationMethod(card.method, `资产 ${card.assetCode}`),
+    initializationMode: card.initializationMode as FinanceAssetCardDto["initializationMode"],
     openingAccumulatedAmount: money(card.openingAccumulatedAmount),
+    openingImpairmentAmount: money(card.openingImpairmentAmount),
+    openingNetBookValue: card.openingNetBookValue == null ? null : money(card.openingNetBookValue),
+    cutoverDate: card.cutoverDate,
+    remainingUsefulLifeMonthsAtCutover: card.remainingUsefulLifeMonthsAtCutover,
+    cutoverResidualValue: card.cutoverResidualValue == null ? null : money(card.cutoverResidualValue),
+    cutoverAllocationStatus: card.cutoverAllocationStatus as FinanceAssetCardDto["cutoverAllocationStatus"],
+    cutoverReconciliationFingerprint: card.cutoverReconciliationFingerprint,
     status: card.status,
     nonAmortizationReason: card.nonAmortizationReason,
     note: card.note,
@@ -295,7 +304,10 @@ async function loadAssetPolicyCategories(companyCode: string, year: number) {
       !inheritedCategory
       || inheritedCategory.policySource !== "group"
       || Boolean(inheritedCategory.policyMappingIssue)
-      || !financeAssetPolicySemanticsMatch(policySemanticSnapshot(companyCategory), policySemanticSnapshot(inheritedCategory))
+      || !financeAssetPolicySemanticsMatch(
+        policySemanticSnapshot({ ...companyCategory, policySource: "company_override" }),
+        policySemanticSnapshot(inheritedCategory),
+      )
     );
     if (isCompanyOverride) return { ...companyCategory, policySource: "company_override" };
     if (!inheritedCategory) return { ...companyCategory, policySource: "system_default" };
@@ -337,16 +349,17 @@ function remapInheritedPolicyAccounts(
   const impairmentAllowance = category.impairmentAllowanceAccountId ? resolutions.get(category.impairmentAllowanceAccountId)?.targetAccount ?? null : null;
   const disposalGainLoss = category.disposalGainLossAccountId ? resolutions.get(category.disposalGainLossAccountId)?.targetAccount ?? null : null;
   const unresolved = [
-    category.assetAccountId ? ["资产科目", resolutions.get(category.assetAccountId)?.status] as const : null,
-    category.accumulatedAccountId ? ["累计折旧/摊销科目", resolutions.get(category.accumulatedAccountId)?.status] as const : null,
-    category.expenseAccountId ? ["折旧/摊销费用科目", resolutions.get(category.expenseAccountId)?.status] as const : null,
-    category.impairmentLossAccountId ? ["减值损失科目", resolutions.get(category.impairmentLossAccountId)?.status] as const : null,
-    category.impairmentAllowanceAccountId ? ["减值准备科目", resolutions.get(category.impairmentAllowanceAccountId)?.status] as const : null,
-    category.disposalGainLossAccountId ? ["资产处置损益科目", resolutions.get(category.disposalGainLossAccountId)?.status] as const : null,
-  ].filter((item): item is readonly [string, string | undefined] => Boolean(item && item[1] !== "mapped"));
+    [category.assetAccountId, "资产科目"],
+    [category.accumulatedAccountId, "累计折旧/摊销科目"],
+    [category.expenseAccountId, "折旧/摊销费用科目"],
+    [category.impairmentLossAccountId, "减值损失科目"],
+    [category.impairmentAllowanceAccountId, "减值准备科目"],
+    [category.disposalGainLossAccountId, "资产处置损益科目"],
+  ] as const;
+  const unresolvedLabels = unresolved.flatMap(([accountId, label]) => accountId != null && resolutions.get(accountId)?.status !== "mapped" ? [label] : []);
   return {
     ...category,
-    policyMappingIssue: unresolved.length > 0 ? `${unresolved.map(([label]) => label).join("、")}无法通过现有集团科目映射唯一落到当前公司，请单独设置公司政策` : null,
+    policyMappingIssue: unresolvedLabels.length > 0 ? `${unresolvedLabels.join("、")}无法通过现有集团科目映射唯一落到当前公司，请单独设置公司政策` : null,
     assetAccountId: asset?.id ?? null,
     assetAccountCode: asset?.code ?? category.assetAccountCode,
     assetAccountName: asset?.name ?? null,
@@ -497,7 +510,7 @@ export async function listFinanceAssetWorkspace(scope: { companyCode: string; ye
       version: row.version,
     })),
     periodVoucherLink: {
-      voucherNo: uniqueLinkedVoucherNo(entries, confirmedAdjustments),
+      voucherNo: uniqueLinkedAssetVoucherNo(entries, confirmedAdjustments),
       linkFingerprint: assetPeriodVoucherLinkFingerprint({
         entries: entries.map((entry) => ({
           id: entry.id,
@@ -528,19 +541,4 @@ function emptyWorkspace(
   cards: FinanceAssetCardDto[],
 ): FinanceAssetWorkspaceDto {
   return { scope: { ...scope, periodId: null, isClosed: false }, policyGroup, categories, cards, periodRows: [], adjustments: [], impairmentAssessment: null, disposals: [], periodVoucherLink: { voucherNo: null, linkFingerprint: assetPeriodVoucherLinkFingerprint({ entries: [], adjustments: [] }) }, metrics: { normalAmount: 0, adjustmentAmount: 0, periodAmount: 0 } };
-}
-
-function uniqueLinkedVoucherNo(
-  entries: Array<{ normalAmount: unknown; voucher?: { voucherNo: string } | null }>,
-  adjustments: Array<{ amount: unknown; voucher?: { voucherNo: string } | null }>,
-) {
-  const linked = unique([
-    ...entries.filter((row) => moneyIsNonZero(row.normalAmount)).flatMap((row) => row.voucher?.voucherNo ?? []),
-    ...adjustments.filter((row) => moneyIsNonZero(row.amount)).flatMap((row) => row.voucher?.voucherNo ?? []),
-  ]);
-  return linked.length === 1 ? linked[0]! : null;
-}
-
-function unique<T>(items: T[]) {
-  return [...new Set(items)];
 }

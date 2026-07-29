@@ -6,7 +6,7 @@ import { isPermissionActionKey } from "../permission-actions";
 import { isPermissionActionSupported } from "../permission-resource-policy";
 import { rotateUserApiKey } from "./personal-api-key";
 import { prisma } from "./prisma";
-import { validateAgentActorUserFieldChange } from "./agent/actor-user-policy";
+import { validateAgentActorUserFieldChange } from "./agent-actor-user-policy";
 
 export type CreateAdminUserInput = {
   username: string;

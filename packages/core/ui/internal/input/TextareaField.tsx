@@ -25,10 +25,12 @@ export interface TextareaFieldProps {
   resize?: "none" | "vertical" | "both";
 }
 
+export const DEFAULT_TEXTAREA_ROWS = 1;
+
 export default function TextareaField({
   value = "",
   onChange,
-  rows = 3,
+  rows = DEFAULT_TEXTAREA_ROWS,
   autoGrow = false,
   className = "",
   autoFocus,

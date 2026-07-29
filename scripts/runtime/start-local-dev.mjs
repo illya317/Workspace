@@ -6,6 +6,8 @@ import net from "node:net";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { superviseNextDev } from "./local-dev-supervisor.mjs";
+
 export const LOCAL_DEV_PORT = 3000;
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -157,29 +159,12 @@ async function runSourceCodeAnalysisSnapshot() {
 }
 
 async function runNextDev() {
-  const child = spawn(process.execPath, [nextCliPath, "dev", "--port", String(LOCAL_DEV_PORT)], {
-    cwd: repositoryRoot,
-    env: { ...process.env, PORT: String(LOCAL_DEV_PORT) },
-    stdio: "inherit",
+  return superviseNextDev({
+    repositoryRoot,
+    nextCliPath,
+    port: LOCAL_DEV_PORT,
+    isPortAvailable: () => isPortAvailable(LOCAL_DEV_PORT),
   });
-
-  const forwardSignal = (signal) => {
-    if (!child.killed) child.kill(signal);
-  };
-  const onSigint = () => forwardSignal("SIGINT");
-  const onSigterm = () => forwardSignal("SIGTERM");
-  process.on("SIGINT", onSigint);
-  process.on("SIGTERM", onSigterm);
-
-  try {
-    return await new Promise((resolve, reject) => {
-      child.once("error", reject);
-      child.once("exit", (code, signal) => resolve({ code, signal }));
-    });
-  } finally {
-    process.off("SIGINT", onSigint);
-    process.off("SIGTERM", onSigterm);
-  }
 }
 
 export async function main(args = process.argv.slice(2)) {

@@ -115,7 +115,7 @@ export default function DepartmentPositionTab({
   const canEdit = hrCanEdit(user);
   const canEditPosition = canEdit && !isOrganizationMode && !showArchived;
   const canArchiveDepartmentPosition = canArchive && !isOrganizationMode;
-  const { departments, departmentActionRuntimes, error, loadData, loading, positions } = useDepartmentPositionData({
+  const { departments, departmentActionRuntimes, codeConfig, error, loadData, loading, positions } = useDepartmentPositionData({
     compact: isOrganizationMode,
     setSelection,
     showArchived,
@@ -158,6 +158,7 @@ export default function DepartmentPositionTab({
     departments,
     isOrganizationMode,
     positions,
+    codeConfig,
     search,
     selection,
   });
@@ -230,6 +231,7 @@ export default function DepartmentPositionTab({
     updateDraftCodeSuffix,
     updateDraftDepartment,
   } = useDepartmentPositionDrafts({
+    codeConfig,
     departmentById,
     selectedDepartment,
     selectedPosition,
@@ -269,6 +271,7 @@ export default function DepartmentPositionTab({
     setSelection,
     setToast,
     showActionPrompt,
+    codeConfig,
   });
   useDepartmentPositionSideEffects({
     archivedDepartments,
@@ -291,6 +294,7 @@ export default function DepartmentPositionTab({
     canArchive: canArchiveDepartmentPosition,
     departmentActionRuntime: departmentUpdateRuntime,
     canEditPosition,
+    codeConfig,
     createPanel,
     createPositionCode,
     createPositionDescriptionDetailsSurface,
@@ -395,6 +399,7 @@ export default function DepartmentPositionTab({
 	      treeSelector={treeSelector}
 	      createPanel={createPanel}
 	      departments={departments}
+      codeConfig={codeConfig}
       departmentById={departmentById}
       departmentCreateRuntime={departmentCreateRuntime}
       isOrganizationMode={isOrganizationMode}

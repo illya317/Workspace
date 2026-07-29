@@ -66,6 +66,9 @@ packages/library/server/
     roster-due-diligence.ts     # Workspace 尽调版花名册生成器
     generated-document.ts       # 统一入库：写文件 → upsert LibraryDocument → 创建 Version
 
+packages/library/import/catalog.ts              # 词表导入输入 adapter：一次性完成 Zod 与 domain command 校验
+packages/library/server/catalog-import-service.ts # 已校验 catalog command 的 Prisma 事务提交
+
 prisma/models/library.prisma  # 文档、版本、目录、分类、标签、尽调和生成来源
 prisma/models/library-processing.prisma # 处理任务、派生物、chunk、索引代次和导出任务
 prisma/models/library-governance.prisma # 标签候选、实体提及和检索/RAG 金标集

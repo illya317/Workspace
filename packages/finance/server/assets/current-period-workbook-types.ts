@@ -20,6 +20,7 @@ export type AssetSourceEvidence = {
 };
 
 export type ParsedCurrentPeriodAsset = AssetSourceEvidence & {
+  legacySynthetic?: true;
   assetCode: string;
   name: string;
   assetKind: FinanceAssetKind;
@@ -68,6 +69,7 @@ export type AssetWorkbookBlocker = {
   message: string;
   sourceSheet: string;
   sourceRange?: string;
+  note?: string;
 };
 
 export type ParsedAssetWorkbook = {
@@ -78,6 +80,7 @@ export type ParsedAssetWorkbook = {
   renovationCostEvidence: ParsedAssetCostEvidence[];
   controls: AssetWorkbookControl[];
   blockers: AssetWorkbookBlocker[];
+  warnings: AssetWorkbookBlocker[];
   readyForImport: boolean;
 };
 

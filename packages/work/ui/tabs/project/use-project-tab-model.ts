@@ -1,11 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { z } from "zod";
 import { useFeedback } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
-import { actualEndDateForStatus, validateCompletionSchedule } from "@workspace/platform/completion-date-policy";
+import { actualEndDateForStatus } from "@workspace/platform/completion-date-policy";
 import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 import { type WorkProjectActionPermissions, type WorkUser } from "@workspace/work/types";
 import { createProject, deleteProject, listProjectSpaces, syncMembers, updateProjectField } from "./api";
@@ -32,32 +31,7 @@ import {
   projectMatchesFilter,
   type ProjectTypeFilter,
 } from "./project-tab-helpers";
-
-const nullableDateSchema = z.preprocess(
-  (value) => value === "" ? null : value,
-  z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "日期格式错误").nullable()
-);
-const projectSaveSchema = z.object({
-  name: z.string().trim().min(1, "项目名称不能为空"),
-  projectType: z.enum(["company", "department", "other"]),
-  leadingDepartmentId: z.number().nullable(),
-  enablingDepartmentIds: z.array(z.number()),
-  workspaceEnabled: z.boolean(),
-  status: z.enum(["pending", "active", "done"]),
-  plannedStartDate: nullableDateSchema,
-  plannedEndDate: nullableDateSchema,
-  actualStartDate: nullableDateSchema,
-  actualEndDate: nullableDateSchema,
-}).superRefine((data, ctx) => {
-  if (data.enablingDepartmentIds.length === 0) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "请选择赋能部门", path: ["enablingDepartmentIds"] });
-  }
-  if (data.projectType === "department" && !data.leadingDepartmentId) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "部门项目必须选择归口部门", path: ["leadingDepartmentId"] });
-  }
-  const scheduleError = validateCompletionSchedule(data);
-  if (scheduleError) ctx.addIssue({ code: z.ZodIssueCode.custom, message: scheduleError, path: ["actualEndDate"] });
-});
+import { projectSaveInputError } from "./project-save-input";
 
 const PROJECT_CONTENT_SYNC_FIELDS = [
   "description",
@@ -237,21 +211,8 @@ export function useProjectTabModel(
   async function saveProject() {
     if (!draft || !dirty) return;
     const name = draft.name.trim();
-    const validation = projectSaveSchema.safeParse({
-      name,
-      projectType: draft.projectType,
-      leadingDepartmentId: draft.leadingDepartmentId,
-      enablingDepartmentIds: draft.enablingDepartmentIds,
-      workspaceEnabled: draft.workspaceEnabled,
-      status: draft.status as "pending" | "active" | "done",
-      plannedStartDate: draft.plannedStartDate,
-      plannedEndDate: draft.plannedEndDate,
-      actualStartDate: draft.actualStartDate,
-      actualEndDate: draft.actualEndDate,
-    });
-    if (!validation.success) {
-      return setToast({ type: "error", message: validation.error.issues[0]?.message || "项目信息无效" });
-    }
+    const validationError = projectSaveInputError(draft, name);
+    if (validationError) return setToast({ type: "error", message: validationError });
     setSaving(true);
     try {
       if (!draft.id) {

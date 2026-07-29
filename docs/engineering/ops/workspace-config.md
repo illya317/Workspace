@@ -41,6 +41,10 @@ npm run workspace:check -- --ops-env /absolute/path/to/private/ops/.env
 
 本地 `npm run dev` 会先运行同一工作区检查，再对 `.env` 指向的开发库执行已提交的 `prisma migrate deploy --schema=./prisma`；配置检查或 migration 失败时服务都不会启动，因此不会等到用户点击页面才暴露缺表、缺列或原始文件读取错误。`npm run db:generate` 只生成 Prisma Client，不会修改数据库，不能把它当成 migration 已执行。若 3000 上的 dev server 已经在运行，而当前分支新合入了 `prisma/migrations/*`，必须重启 `npm run dev`，或先显式运行 `scripts/runtime/run-with-repo-node.sh npx --no-install prisma migrate deploy --schema=./prisma`，再验证新功能。生产部署同样在启动候选和公开切换前验证私有配置。可选能力在未配置时应返回受控的 unavailable 状态；必需租户配置始终 fail closed，不在 UI 请求过程中临时生成。
 
+在 macOS 本地开发中，同一启动器还负责监测 port 3000 listener 的物理内存 footprint。启动后 3 分钟为保护期，之后每 30 秒采样；硬阈值为 `min(8 GiB, max(5 GiB, 物理内存的 68%))`，连续两次越线才会安静重启 Next 子进程。自动重启后冷却 15 分钟，一小时最多两次；超过后熔断并保留当前进程供人工检查。软阈值仅写入状态，不会触发重启。状态与 generation 写入 `.cache/runtime/local-dev-status.json`，用 `npm run dev:status` 查看。
+
+需要保证开发服务连续性的 agent 应显式取得有界租约：`npm run dev:guard -- pause 30m --reason "<用途>"`。任何有效租约都会取消待执行的自动重启并抑制硬阈值恢复，但监测仍继续；最终租约到期或通过 `npm run dev:guard -- resume <lease-id>` 释放后，必须重新出现两次硬阈值样本才会恢复。单个租约默认 30 分钟、最长 2 小时，可通过 `npm run dev:guard -- extend <lease-id> 30m` 续期。租约只控制自动内存恢复，不阻止用户手动停止 dev server。
+
 把系统交付给另一家客户时，必须创建新的 `WORKSPACE_CONFIG_DIR` 和独立数据库，不能复用现有租户私有目录。现有租户内部增加法人或经营公司才是在同一目录中更新 `companies.json` 及相关 Finance/Work 配置。
 
 ## 图片位置

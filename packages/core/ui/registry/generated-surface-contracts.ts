@@ -54,7 +54,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "icon",
-                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                       children: [
                         {
                           name: "add",
@@ -142,6 +142,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                         },
                         {
                           name: "more",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "move-down",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "move-up",
                           description: "字面量取值。",
                         },
                         {
@@ -1732,6 +1740,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               name: "onHeaderClick",
                               description: "类型：() => void。",
                             },
+                            {
+                              name: "cellState",
+                              description: "单元格关系状态；调用方只声明语义，背景、文字和选中描边由 Core 统一渲染。",
+                            },
+                            {
+                              name: "cellSelected",
+                              description: "单元格是否为当前选择；Core 使用独立中性描边，不占用关系状态色。",
+                            },
                           ],
                         },
                         {
@@ -3302,6 +3318,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                       ],
                                     },
+                                    {
+                                      name: "fieldLayout",
+                                      description: "可选值：inline / stack。",
+                                      children: [
+                                        {
+                                          name: "inline",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "stack",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
                                   ],
                                 },
                                 {
@@ -3318,7 +3348,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -3406,6 +3436,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -3710,6 +3748,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "normal",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "fieldLayout",
+                                      description: "可选值：inline / stack。",
+                                      children: [
+                                        {
+                                          name: "inline",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "stack",
                                           description: "字面量取值。",
                                         },
                                       ],
@@ -4256,7 +4308,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "icon",
-                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                               children: [
                                                 {
                                                   name: "add",
@@ -4344,6 +4396,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "more",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-down",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-up",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -4940,7 +5000,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "icon",
-                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                           children: [
                                             {
                                               name: "add",
@@ -5028,6 +5088,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "more",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-down",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-up",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -5228,7 +5296,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "referenceInput",
-                                      description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
+                                      description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
                                       children: [
                                         {
                                           name: "key",
@@ -5330,7 +5398,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "create",
-                                          description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
+                                          description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
                                         },
                                       ],
                                     },
@@ -5546,6 +5614,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             },
                           ],
                         },
+                        {
+                          name: "fieldLayout",
+                          description: "可选值：inline / stack。",
+                          children: [
+                            {
+                              name: "inline",
+                              description: "字面量取值。",
+                            },
+                            {
+                              name: "stack",
+                              description: "字面量取值。",
+                            },
+                          ],
+                        },
                       ],
                     },
                   ],
@@ -5574,7 +5656,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "action",
-                      description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
+                      description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
                       children: [
                         {
                           name: "add",
@@ -5690,6 +5772,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                         },
                         {
                           name: "more",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "move-down",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "move-up",
                           description: "字面量取值。",
                         },
                         {
@@ -5860,7 +5950,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             },
                             {
                               name: "icon",
-                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                               children: [
                                 {
                                   name: "add",
@@ -5948,6 +6038,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "more",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "move-down",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "move-up",
                                   description: "字面量取值。",
                                 },
                                 {
@@ -6180,7 +6278,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "icon",
-                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                   children: [
                     {
                       name: "add",
@@ -6272,6 +6370,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {
@@ -6636,7 +6742,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "icon",
-                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                       children: [
                         {
                           name: "add",
@@ -6728,6 +6834,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                         },
                         {
                           name: "more",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "move-down",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "move-up",
                           description: "字面量取值。",
                         },
                         {
@@ -7290,7 +7404,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "icon",
-                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                   children: [
                     {
                       name: "add",
@@ -7382,6 +7496,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {
@@ -7746,7 +7868,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "icon",
-                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                       children: [
                         {
                           name: "add",
@@ -7838,6 +7960,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                         },
                         {
                           name: "more",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "move-down",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "move-up",
                           description: "字面量取值。",
                         },
                         {
@@ -8402,7 +8532,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -8490,6 +8620,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -10080,6 +10218,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               name: "onHeaderClick",
                                               description: "类型：() => void。",
                                             },
+                                            {
+                                              name: "cellState",
+                                              description: "单元格关系状态；调用方只声明语义，背景、文字和选中描边由 Core 统一渲染。",
+                                            },
+                                            {
+                                              name: "cellSelected",
+                                              description: "单元格是否为当前选择；Core 使用独立中性描边，不占用关系状态色。",
+                                            },
                                           ],
                                         },
                                         {
@@ -11650,6 +11796,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                       ],
                                                     },
+                                                    {
+                                                      name: "fieldLayout",
+                                                      description: "可选值：inline / stack。",
+                                                      children: [
+                                                        {
+                                                          name: "inline",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "stack",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
                                                   ],
                                                 },
                                                 {
@@ -11666,7 +11826,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "icon",
-                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                       children: [
                                                         {
                                                           name: "add",
@@ -11754,6 +11914,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "more",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "move-down",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "move-up",
                                                           description: "字面量取值。",
                                                         },
                                                         {
@@ -12058,6 +12226,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "normal",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      name: "fieldLayout",
+                                                      description: "可选值：inline / stack。",
+                                                      children: [
+                                                        {
+                                                          name: "inline",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "stack",
                                                           description: "字面量取值。",
                                                         },
                                                       ],
@@ -12604,7 +12786,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "icon",
-                                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                               children: [
                                                                 {
                                                                   name: "add",
@@ -12692,6 +12874,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "more",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "move-down",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "move-up",
                                                                   description: "字面量取值。",
                                                                 },
                                                                 {
@@ -13288,7 +13478,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "icon",
-                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                           children: [
                                                             {
                                                               name: "add",
@@ -13376,6 +13566,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "more",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "move-down",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "move-up",
                                                               description: "字面量取值。",
                                                             },
                                                             {
@@ -13576,7 +13774,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "referenceInput",
-                                                      description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
+                                                      description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
                                                       children: [
                                                         {
                                                           name: "key",
@@ -13678,7 +13876,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "create",
-                                                          description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
+                                                          description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
                                                         },
                                                       ],
                                                     },
@@ -13894,6 +14092,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                           ],
                                         },
+                                        {
+                                          name: "fieldLayout",
+                                          description: "可选值：inline / stack。",
+                                          children: [
+                                            {
+                                              name: "inline",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "stack",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
+                                        },
                                       ],
                                     },
                                   ],
@@ -13922,7 +14134,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "action",
-                                      description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
+                                      description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
                                       children: [
                                         {
                                           name: "add",
@@ -14038,6 +14250,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -14208,7 +14428,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "icon",
-                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                               children: [
                                                 {
                                                   name: "add",
@@ -14296,6 +14516,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "more",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-down",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-up",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -14528,7 +14756,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -14620,6 +14848,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -14974,7 +15210,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -15066,6 +15302,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -15628,7 +15872,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -15720,6 +15964,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -16074,7 +16326,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -16166,6 +16418,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -16990,7 +17250,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -17082,6 +17342,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -18378,7 +18646,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -18466,6 +18734,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -20056,6 +20332,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               name: "onHeaderClick",
                                               description: "类型：() => void。",
                                             },
+                                            {
+                                              name: "cellState",
+                                              description: "单元格关系状态；调用方只声明语义，背景、文字和选中描边由 Core 统一渲染。",
+                                            },
+                                            {
+                                              name: "cellSelected",
+                                              description: "单元格是否为当前选择；Core 使用独立中性描边，不占用关系状态色。",
+                                            },
                                           ],
                                         },
                                         {
@@ -21626,6 +21910,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                       ],
                                                     },
+                                                    {
+                                                      name: "fieldLayout",
+                                                      description: "可选值：inline / stack。",
+                                                      children: [
+                                                        {
+                                                          name: "inline",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "stack",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
                                                   ],
                                                 },
                                                 {
@@ -21642,7 +21940,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "icon",
-                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                       children: [
                                                         {
                                                           name: "add",
@@ -21730,6 +22028,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "more",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "move-down",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "move-up",
                                                           description: "字面量取值。",
                                                         },
                                                         {
@@ -22034,6 +22340,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "normal",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      name: "fieldLayout",
+                                                      description: "可选值：inline / stack。",
+                                                      children: [
+                                                        {
+                                                          name: "inline",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "stack",
                                                           description: "字面量取值。",
                                                         },
                                                       ],
@@ -22580,7 +22900,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "icon",
-                                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                               children: [
                                                                 {
                                                                   name: "add",
@@ -22668,6 +22988,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "more",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "move-down",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "move-up",
                                                                   description: "字面量取值。",
                                                                 },
                                                                 {
@@ -23264,7 +23592,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "icon",
-                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                           children: [
                                                             {
                                                               name: "add",
@@ -23352,6 +23680,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "more",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "move-down",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "move-up",
                                                               description: "字面量取值。",
                                                             },
                                                             {
@@ -23552,7 +23888,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "referenceInput",
-                                                      description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
+                                                      description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
                                                       children: [
                                                         {
                                                           name: "key",
@@ -23654,7 +23990,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "create",
-                                                          description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
+                                                          description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
                                                         },
                                                       ],
                                                     },
@@ -23870,6 +24206,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                           ],
                                         },
+                                        {
+                                          name: "fieldLayout",
+                                          description: "可选值：inline / stack。",
+                                          children: [
+                                            {
+                                              name: "inline",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "stack",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
+                                        },
                                       ],
                                     },
                                   ],
@@ -23898,7 +24248,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "action",
-                                      description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
+                                      description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
                                       children: [
                                         {
                                           name: "add",
@@ -24014,6 +24364,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -24184,7 +24542,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "icon",
-                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                               children: [
                                                 {
                                                   name: "add",
@@ -24272,6 +24630,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "more",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-down",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-up",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -24504,7 +24870,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -24596,6 +24962,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -24950,7 +25324,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -25042,6 +25416,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -25604,7 +25986,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -25696,6 +26078,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -26050,7 +26440,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -26142,6 +26532,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -26966,7 +27364,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -27058,6 +27456,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -28402,7 +28808,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -28490,6 +28896,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -30080,6 +30494,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           name: "onHeaderClick",
                                           description: "类型：() => void。",
                                         },
+                                        {
+                                          name: "cellState",
+                                          description: "单元格关系状态；调用方只声明语义，背景、文字和选中描边由 Core 统一渲染。",
+                                        },
+                                        {
+                                          name: "cellSelected",
+                                          description: "单元格是否为当前选择；Core 使用独立中性描边，不占用关系状态色。",
+                                        },
                                       ],
                                     },
                                     {
@@ -31650,6 +32072,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                   ],
                                                 },
+                                                {
+                                                  name: "fieldLayout",
+                                                  description: "可选值：inline / stack。",
+                                                  children: [
+                                                    {
+                                                      name: "inline",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "stack",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
                                               ],
                                             },
                                             {
@@ -31666,7 +32102,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "icon",
-                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                   children: [
                                                     {
                                                       name: "add",
@@ -31754,6 +32190,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "more",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-down",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-up",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -32058,6 +32502,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "normal",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "fieldLayout",
+                                                  description: "可选值：inline / stack。",
+                                                  children: [
+                                                    {
+                                                      name: "inline",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "stack",
                                                       description: "字面量取值。",
                                                     },
                                                   ],
@@ -32604,7 +33062,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "icon",
-                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                           children: [
                                                             {
                                                               name: "add",
@@ -32692,6 +33150,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "more",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "move-down",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "move-up",
                                                               description: "字面量取值。",
                                                             },
                                                             {
@@ -33288,7 +33754,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "icon",
-                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                       children: [
                                                         {
                                                           name: "add",
@@ -33376,6 +33842,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "more",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "move-down",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "move-up",
                                                           description: "字面量取值。",
                                                         },
                                                         {
@@ -33576,7 +34050,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "referenceInput",
-                                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
+                                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
                                                   children: [
                                                     {
                                                       name: "key",
@@ -33678,7 +34152,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "create",
-                                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
+                                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
                                                     },
                                                   ],
                                                 },
@@ -33894,6 +34368,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                       ],
                                     },
+                                    {
+                                      name: "fieldLayout",
+                                      description: "可选值：inline / stack。",
+                                      children: [
+                                        {
+                                          name: "inline",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "stack",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
                                   ],
                                 },
                               ],
@@ -33922,7 +34410,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "action",
-                                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
+                                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
                                   children: [
                                     {
                                       name: "add",
@@ -34038,6 +34526,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -34208,7 +34704,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "icon",
-                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                           children: [
                                             {
                                               name: "add",
@@ -34296,6 +34792,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "more",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-down",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-up",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -34528,7 +35032,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             },
                             {
                               name: "icon",
-                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                               children: [
                                 {
                                   name: "add",
@@ -34620,6 +35124,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "more",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "move-down",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "move-up",
                                   description: "字面量取值。",
                                 },
                                 {
@@ -34984,7 +35496,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -35076,6 +35588,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -35638,7 +36158,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             },
                             {
                               name: "icon",
-                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                               children: [
                                 {
                                   name: "add",
@@ -35730,6 +36250,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "more",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "move-down",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "move-up",
                                   description: "字面量取值。",
                                 },
                                 {
@@ -36094,7 +36622,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -36186,6 +36714,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -37100,7 +37636,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -37192,6 +37728,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -38778,7 +39322,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "icon",
-                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                       children: [
                         {
                           name: "add",
@@ -38870,6 +39414,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                         },
                         {
                           name: "more",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "move-down",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "move-up",
                           description: "字面量取值。",
                         },
                         {
@@ -40310,7 +40862,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "icon",
-                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                   children: [
                     {
                       name: "add",
@@ -40398,6 +40950,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {
@@ -41720,7 +42280,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "icon",
-                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                   children: [
                     {
                       name: "add",
@@ -41808,6 +42368,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {
@@ -42182,7 +42750,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "icon",
-                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                   children: [
                     {
                       name: "add",
@@ -42270,6 +42838,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {
@@ -42800,6 +43376,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                   name: "onHeaderClick",
                   description: "类型：() => void。",
                 },
+                {
+                  name: "cellState",
+                  description: "单元格关系状态；调用方只声明语义，背景、文字和选中描边由 Core 统一渲染。",
+                },
+                {
+                  name: "cellSelected",
+                  description: "单元格是否为当前选择；Core 使用独立中性描边，不占用关系状态色。",
+                },
               ],
             },
             {
@@ -43206,7 +43790,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "icon",
-                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                   children: [
                     {
                       name: "add",
@@ -43294,6 +43878,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {
@@ -44796,6 +45388,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                   ],
                                 },
+                                {
+                                  name: "fieldLayout",
+                                  description: "可选值：inline / stack。",
+                                  children: [
+                                    {
+                                      name: "inline",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "stack",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
                               ],
                             },
                             {
@@ -44812,7 +45418,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -44900,6 +45506,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -45204,6 +45818,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "normal",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "fieldLayout",
+                                  description: "可选值：inline / stack。",
+                                  children: [
+                                    {
+                                      name: "inline",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "stack",
                                       description: "字面量取值。",
                                     },
                                   ],
@@ -45750,7 +46378,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "icon",
-                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                           children: [
                                             {
                                               name: "add",
@@ -45838,6 +46466,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "more",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-down",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-up",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -46434,7 +47070,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -46522,6 +47158,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -46722,7 +47366,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "referenceInput",
-                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
+                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
                                   children: [
                                     {
                                       name: "key",
@@ -46824,7 +47468,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "create",
-                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
+                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
                                     },
                                   ],
                                 },
@@ -47040,6 +47684,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                         },
                       ],
                     },
+                    {
+                      name: "fieldLayout",
+                      description: "可选值：inline / stack。",
+                      children: [
+                        {
+                          name: "inline",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "stack",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
                   ],
                 },
               ],
@@ -47068,7 +47726,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "action",
-                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
+                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
                   children: [
                     {
                       name: "add",
@@ -47184,6 +47842,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {
@@ -48418,6 +49084,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                   ],
                                 },
+                                {
+                                  name: "fieldLayout",
+                                  description: "可选值：inline / stack。",
+                                  children: [
+                                    {
+                                      name: "inline",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "stack",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
                               ],
                             },
                             {
@@ -48434,7 +49114,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -48522,6 +49202,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -48826,6 +49514,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "normal",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "fieldLayout",
+                                  description: "可选值：inline / stack。",
+                                  children: [
+                                    {
+                                      name: "inline",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "stack",
                                       description: "字面量取值。",
                                     },
                                   ],
@@ -49372,7 +50074,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "icon",
-                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                           children: [
                                             {
                                               name: "add",
@@ -49460,6 +50162,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "more",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-down",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-up",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -50056,7 +50766,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -50144,6 +50854,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -50344,7 +51062,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "referenceInput",
-                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
+                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
                                   children: [
                                     {
                                       name: "key",
@@ -50446,7 +51164,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "create",
-                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
+                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
                                     },
                                   ],
                                 },
@@ -50662,6 +51380,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                         },
                       ],
                     },
+                    {
+                      name: "fieldLayout",
+                      description: "可选值：inline / stack。",
+                      children: [
+                        {
+                          name: "inline",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "stack",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
                   ],
                 },
               ],
@@ -50690,7 +51422,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "action",
-                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
+                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
                   children: [
                     {
                       name: "add",
@@ -50806,6 +51538,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {
@@ -51054,6 +51794,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                         },
                         {
                           name: "normal",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
+                    {
+                      name: "fieldLayout",
+                      description: "可选值：inline / stack。",
+                      children: [
+                        {
+                          name: "inline",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "stack",
                           description: "字面量取值。",
                         },
                       ],
@@ -52144,6 +52898,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                   ],
                                 },
+                                {
+                                  name: "fieldLayout",
+                                  description: "可选值：inline / stack。",
+                                  children: [
+                                    {
+                                      name: "inline",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "stack",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
                               ],
                             },
                             {
@@ -52160,7 +52928,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -52248,6 +53016,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -52552,6 +53328,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "normal",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "fieldLayout",
+                                  description: "可选值：inline / stack。",
+                                  children: [
+                                    {
+                                      name: "inline",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "stack",
                                       description: "字面量取值。",
                                     },
                                   ],
@@ -53098,7 +53888,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "icon",
-                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                           children: [
                                             {
                                               name: "add",
@@ -53186,6 +53976,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "more",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-down",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-up",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -53782,7 +54580,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -53870,6 +54668,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -54070,7 +54876,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "referenceInput",
-                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
+                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
                                   children: [
                                     {
                                       name: "key",
@@ -54172,7 +54978,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "create",
-                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
+                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
                                     },
                                   ],
                                 },
@@ -54316,7 +55122,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "icon",
-                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                   children: [
                     {
                       name: "add",
@@ -54404,6 +55210,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {
@@ -54626,7 +55440,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "action",
-                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
+                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
                   children: [
                     {
                       name: "add",
@@ -54742,6 +55556,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {
@@ -55976,6 +56798,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                   ],
                                 },
+                                {
+                                  name: "fieldLayout",
+                                  description: "可选值：inline / stack。",
+                                  children: [
+                                    {
+                                      name: "inline",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "stack",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
                               ],
                             },
                             {
@@ -55992,7 +56828,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -56080,6 +56916,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -56384,6 +57228,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "normal",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "fieldLayout",
+                                  description: "可选值：inline / stack。",
+                                  children: [
+                                    {
+                                      name: "inline",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "stack",
                                       description: "字面量取值。",
                                     },
                                   ],
@@ -56930,7 +57788,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "icon",
-                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                           children: [
                                             {
                                               name: "add",
@@ -57018,6 +57876,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "more",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-down",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-up",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -57614,7 +58480,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "icon",
-                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                       children: [
                                         {
                                           name: "add",
@@ -57702,6 +58568,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "more",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-down",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "move-up",
                                           description: "字面量取值。",
                                         },
                                         {
@@ -57902,7 +58776,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "referenceInput",
-                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
+                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
                                   children: [
                                     {
                                       name: "key",
@@ -58004,7 +58878,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "create",
-                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
+                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
                                     },
                                   ],
                                 },
@@ -58220,6 +59094,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                         },
                       ],
                     },
+                    {
+                      name: "fieldLayout",
+                      description: "可选值：inline / stack。",
+                      children: [
+                        {
+                          name: "inline",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "stack",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
                   ],
                 },
               ],
@@ -58248,7 +59136,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "action",
-                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
+                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
                   children: [
                     {
                       name: "add",
@@ -58364,6 +59252,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {
@@ -59348,7 +60244,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -59436,6 +60332,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -61026,6 +61930,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           name: "onHeaderClick",
                                           description: "类型：() => void。",
                                         },
+                                        {
+                                          name: "cellState",
+                                          description: "单元格关系状态；调用方只声明语义，背景、文字和选中描边由 Core 统一渲染。",
+                                        },
+                                        {
+                                          name: "cellSelected",
+                                          description: "单元格是否为当前选择；Core 使用独立中性描边，不占用关系状态色。",
+                                        },
                                       ],
                                     },
                                     {
@@ -62596,6 +63508,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                   ],
                                                 },
+                                                {
+                                                  name: "fieldLayout",
+                                                  description: "可选值：inline / stack。",
+                                                  children: [
+                                                    {
+                                                      name: "inline",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "stack",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
                                               ],
                                             },
                                             {
@@ -62612,7 +63538,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "icon",
-                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                   children: [
                                                     {
                                                       name: "add",
@@ -62700,6 +63626,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "more",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-down",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-up",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -63004,6 +63938,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "normal",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "fieldLayout",
+                                                  description: "可选值：inline / stack。",
+                                                  children: [
+                                                    {
+                                                      name: "inline",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "stack",
                                                       description: "字面量取值。",
                                                     },
                                                   ],
@@ -63550,7 +64498,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "icon",
-                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                           children: [
                                                             {
                                                               name: "add",
@@ -63638,6 +64586,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "more",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "move-down",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "move-up",
                                                               description: "字面量取值。",
                                                             },
                                                             {
@@ -64234,7 +65190,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "icon",
-                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                       children: [
                                                         {
                                                           name: "add",
@@ -64322,6 +65278,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "more",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "move-down",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "move-up",
                                                           description: "字面量取值。",
                                                         },
                                                         {
@@ -64522,7 +65486,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "referenceInput",
-                                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
+                                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
                                                   children: [
                                                     {
                                                       name: "key",
@@ -64624,7 +65588,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "create",
-                                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
+                                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
                                                     },
                                                   ],
                                                 },
@@ -64840,6 +65804,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                       ],
                                     },
+                                    {
+                                      name: "fieldLayout",
+                                      description: "可选值：inline / stack。",
+                                      children: [
+                                        {
+                                          name: "inline",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "stack",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
                                   ],
                                 },
                               ],
@@ -64868,7 +65846,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "action",
-                                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
+                                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
                                   children: [
                                     {
                                       name: "add",
@@ -64984,6 +65962,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -65154,7 +66140,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "icon",
-                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                           children: [
                                             {
                                               name: "add",
@@ -65242,6 +66228,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "more",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-down",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-up",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -65474,7 +66468,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             },
                             {
                               name: "icon",
-                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                               children: [
                                 {
                                   name: "add",
@@ -65566,6 +66560,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "more",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "move-down",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "move-up",
                                   description: "字面量取值。",
                                 },
                                 {
@@ -65930,7 +66932,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -66022,6 +67024,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -66584,7 +67594,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             },
                             {
                               name: "icon",
-                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                               children: [
                                 {
                                   name: "add",
@@ -66676,6 +67686,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "more",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "move-down",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "move-up",
                                   description: "字面量取值。",
                                 },
                                 {
@@ -67040,7 +68058,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -67132,6 +68150,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -67696,7 +68722,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "icon",
-                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                   children: [
                                                     {
                                                       name: "add",
@@ -67784,6 +68810,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "more",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-down",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-up",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -69374,6 +70408,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           name: "onHeaderClick",
                                                           description: "类型：() => void。",
                                                         },
+                                                        {
+                                                          name: "cellState",
+                                                          description: "单元格关系状态；调用方只声明语义，背景、文字和选中描边由 Core 统一渲染。",
+                                                        },
+                                                        {
+                                                          name: "cellSelected",
+                                                          description: "单元格是否为当前选择；Core 使用独立中性描边，不占用关系状态色。",
+                                                        },
                                                       ],
                                                     },
                                                     {
@@ -70944,6 +71986,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                   ],
                                                                 },
+                                                                {
+                                                                  name: "fieldLayout",
+                                                                  description: "可选值：inline / stack。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "inline",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "stack",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                  ],
+                                                                },
                                                               ],
                                                             },
                                                             {
@@ -70960,7 +72016,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "icon",
-                                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                                   children: [
                                                                     {
                                                                       name: "add",
@@ -71048,6 +72104,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "more",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "move-down",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "move-up",
                                                                       description: "字面量取值。",
                                                                     },
                                                                     {
@@ -71352,6 +72416,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "normal",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                  ],
+                                                                },
+                                                                {
+                                                                  name: "fieldLayout",
+                                                                  description: "可选值：inline / stack。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "inline",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "stack",
                                                                       description: "字面量取值。",
                                                                     },
                                                                   ],
@@ -71898,7 +72976,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                         },
                                                                         {
                                                                           name: "icon",
-                                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                                           children: [
                                                                             {
                                                                               name: "add",
@@ -71986,6 +73064,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                             },
                                                                             {
                                                                               name: "more",
+                                                                              description: "字面量取值。",
+                                                                            },
+                                                                            {
+                                                                              name: "move-down",
+                                                                              description: "字面量取值。",
+                                                                            },
+                                                                            {
+                                                                              name: "move-up",
                                                                               description: "字面量取值。",
                                                                             },
                                                                             {
@@ -72582,7 +73668,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "icon",
-                                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                                       children: [
                                                                         {
                                                                           name: "add",
@@ -72670,6 +73756,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                         },
                                                                         {
                                                                           name: "more",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                        {
+                                                                          name: "move-down",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                        {
+                                                                          name: "move-up",
                                                                           description: "字面量取值。",
                                                                         },
                                                                         {
@@ -72870,7 +73964,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "referenceInput",
-                                                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
+                                                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
                                                                   children: [
                                                                     {
                                                                       name: "key",
@@ -72972,7 +74066,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "create",
-                                                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
+                                                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
                                                                     },
                                                                   ],
                                                                 },
@@ -73188,6 +74282,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                       ],
                                                     },
+                                                    {
+                                                      name: "fieldLayout",
+                                                      description: "可选值：inline / stack。",
+                                                      children: [
+                                                        {
+                                                          name: "inline",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "stack",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
                                                   ],
                                                 },
                                               ],
@@ -73216,7 +74324,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "action",
-                                                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
+                                                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
                                                   children: [
                                                     {
                                                       name: "add",
@@ -73332,6 +74440,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "more",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-down",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-up",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -73502,7 +74618,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "icon",
-                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                           children: [
                                                             {
                                                               name: "add",
@@ -73590,6 +74706,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "more",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "move-down",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "move-up",
                                                               description: "字面量取值。",
                                                             },
                                                             {
@@ -73822,7 +74946,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "icon",
-                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                               children: [
                                                 {
                                                   name: "add",
@@ -73914,6 +75038,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "more",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-down",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-up",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -74268,7 +75400,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "icon",
-                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                   children: [
                                                     {
                                                       name: "add",
@@ -74360,6 +75492,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "more",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-down",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-up",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -74922,7 +76062,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "icon",
-                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                               children: [
                                                 {
                                                   name: "add",
@@ -75014,6 +76154,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "more",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-down",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-up",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -75368,7 +76516,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "icon",
-                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                   children: [
                                                     {
                                                       name: "add",
@@ -75460,6 +76608,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "more",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-down",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-up",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -76284,7 +77440,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "icon",
-                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                   children: [
                                                     {
                                                       name: "add",
@@ -76376,6 +77532,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "more",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-down",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-up",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -77672,7 +78836,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "icon",
-                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                   children: [
                                                     {
                                                       name: "add",
@@ -77760,6 +78924,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "more",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-down",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-up",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -79350,6 +80522,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           name: "onHeaderClick",
                                                           description: "类型：() => void。",
                                                         },
+                                                        {
+                                                          name: "cellState",
+                                                          description: "单元格关系状态；调用方只声明语义，背景、文字和选中描边由 Core 统一渲染。",
+                                                        },
+                                                        {
+                                                          name: "cellSelected",
+                                                          description: "单元格是否为当前选择；Core 使用独立中性描边，不占用关系状态色。",
+                                                        },
                                                       ],
                                                     },
                                                     {
@@ -80920,6 +82100,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                   ],
                                                                 },
+                                                                {
+                                                                  name: "fieldLayout",
+                                                                  description: "可选值：inline / stack。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "inline",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "stack",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                  ],
+                                                                },
                                                               ],
                                                             },
                                                             {
@@ -80936,7 +82130,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "icon",
-                                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                                   children: [
                                                                     {
                                                                       name: "add",
@@ -81024,6 +82218,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "more",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "move-down",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "move-up",
                                                                       description: "字面量取值。",
                                                                     },
                                                                     {
@@ -81328,6 +82530,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "normal",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                  ],
+                                                                },
+                                                                {
+                                                                  name: "fieldLayout",
+                                                                  description: "可选值：inline / stack。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "inline",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "stack",
                                                                       description: "字面量取值。",
                                                                     },
                                                                   ],
@@ -81874,7 +83090,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                         },
                                                                         {
                                                                           name: "icon",
-                                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                                           children: [
                                                                             {
                                                                               name: "add",
@@ -81962,6 +83178,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                             },
                                                                             {
                                                                               name: "more",
+                                                                              description: "字面量取值。",
+                                                                            },
+                                                                            {
+                                                                              name: "move-down",
+                                                                              description: "字面量取值。",
+                                                                            },
+                                                                            {
+                                                                              name: "move-up",
                                                                               description: "字面量取值。",
                                                                             },
                                                                             {
@@ -82558,7 +83782,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "icon",
-                                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                                       children: [
                                                                         {
                                                                           name: "add",
@@ -82646,6 +83870,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                         },
                                                                         {
                                                                           name: "more",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                        {
+                                                                          name: "move-down",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                        {
+                                                                          name: "move-up",
                                                                           description: "字面量取值。",
                                                                         },
                                                                         {
@@ -82846,7 +84078,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "referenceInput",
-                                                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
+                                                                  description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
                                                                   children: [
                                                                     {
                                                                       name: "key",
@@ -82948,7 +84180,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "create",
-                                                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
+                                                                      description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
                                                                     },
                                                                   ],
                                                                 },
@@ -83164,6 +84396,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                       ],
                                                     },
+                                                    {
+                                                      name: "fieldLayout",
+                                                      description: "可选值：inline / stack。",
+                                                      children: [
+                                                        {
+                                                          name: "inline",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "stack",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
                                                   ],
                                                 },
                                               ],
@@ -83192,7 +84438,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "action",
-                                                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
+                                                  description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
                                                   children: [
                                                     {
                                                       name: "add",
@@ -83308,6 +84554,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "more",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-down",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-up",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -83478,7 +84732,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "icon",
-                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                           children: [
                                                             {
                                                               name: "add",
@@ -83566,6 +84820,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "more",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "move-down",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "move-up",
                                                               description: "字面量取值。",
                                                             },
                                                             {
@@ -83798,7 +85060,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "icon",
-                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                               children: [
                                                 {
                                                   name: "add",
@@ -83890,6 +85152,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "more",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-down",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-up",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -84244,7 +85514,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "icon",
-                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                   children: [
                                                     {
                                                       name: "add",
@@ -84336,6 +85606,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "more",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-down",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-up",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -84898,7 +86176,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "icon",
-                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                               children: [
                                                 {
                                                   name: "add",
@@ -84990,6 +86268,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "more",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-down",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-up",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -85344,7 +86630,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "icon",
-                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                   children: [
                                                     {
                                                       name: "add",
@@ -85436,6 +86722,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "more",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-down",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-up",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -86260,7 +87554,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "icon",
-                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                   children: [
                                                     {
                                                       name: "add",
@@ -86352,6 +87646,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "more",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-down",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "move-up",
                                                       description: "字面量取值。",
                                                     },
                                                     {
@@ -87696,7 +88998,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "icon",
-                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                               children: [
                                                 {
                                                   name: "add",
@@ -87784,6 +89086,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "more",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-down",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-up",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -89374,6 +90684,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                       name: "onHeaderClick",
                                                       description: "类型：() => void。",
                                                     },
+                                                    {
+                                                      name: "cellState",
+                                                      description: "单元格关系状态；调用方只声明语义，背景、文字和选中描边由 Core 统一渲染。",
+                                                    },
+                                                    {
+                                                      name: "cellSelected",
+                                                      description: "单元格是否为当前选择；Core 使用独立中性描边，不占用关系状态色。",
+                                                    },
                                                   ],
                                                 },
                                                 {
@@ -90944,6 +92262,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                               ],
                                                             },
+                                                            {
+                                                              name: "fieldLayout",
+                                                              description: "可选值：inline / stack。",
+                                                              children: [
+                                                                {
+                                                                  name: "inline",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "stack",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
                                                           ],
                                                         },
                                                         {
@@ -90960,7 +92292,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "icon",
-                                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                               children: [
                                                                 {
                                                                   name: "add",
@@ -91048,6 +92380,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "more",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "move-down",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "move-up",
                                                                   description: "字面量取值。",
                                                                 },
                                                                 {
@@ -91352,6 +92692,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "normal",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
+                                                            {
+                                                              name: "fieldLayout",
+                                                              description: "可选值：inline / stack。",
+                                                              children: [
+                                                                {
+                                                                  name: "inline",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "stack",
                                                                   description: "字面量取值。",
                                                                 },
                                                               ],
@@ -91898,7 +93252,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "icon",
-                                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                                       children: [
                                                                         {
                                                                           name: "add",
@@ -91986,6 +93340,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                         },
                                                                         {
                                                                           name: "more",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                        {
+                                                                          name: "move-down",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                        {
+                                                                          name: "move-up",
                                                                           description: "字面量取值。",
                                                                         },
                                                                         {
@@ -92582,7 +93944,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "icon",
-                                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                                   children: [
                                                                     {
                                                                       name: "add",
@@ -92670,6 +94032,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     },
                                                                     {
                                                                       name: "more",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "move-down",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "move-up",
                                                                       description: "字面量取值。",
                                                                     },
                                                                     {
@@ -92870,7 +94240,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             },
                                                             {
                                                               name: "referenceInput",
-                                                              description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
+                                                              description: "类型：{ key: string; addLabel?: string; placeholder?: string; presentation?: 'inline' | 'modal'; modalTitle?: string; modalSize?: 'sm' | 'md' | 'lg' | 'xl'; searchLabel?: ReactNode; fkKey: string; endpoint: string; lifecycleScope?: SurfaceLifecycleScope; queryParams?: Record<string, string | number | boolean | null | undefined>; visibleCount?: number; onAppend: (option: ReferenceOption) => void; onRemoveLast?: () => void; create?: { title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }; }。",
                                                               children: [
                                                                 {
                                                                   name: "key",
@@ -92972,7 +94342,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 },
                                                                 {
                                                                   name: "create",
-                                                                  description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
+                                                                  description: "类型：{ title?: ReactNode; description?: ReactNode; fields: FormSurfaceFieldSpec[]; layout?: Pick<FormSurfaceLayoutSpec, 'columns' | 'mode' | 'density' | 'fieldLayout'>; submit: FormSurfaceCommandSpec; actions?: FormSurfaceCommandSpec[]; }。",
                                                                 },
                                                               ],
                                                             },
@@ -93188,6 +94558,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                   ],
                                                 },
+                                                {
+                                                  name: "fieldLayout",
+                                                  description: "可选值：inline / stack。",
+                                                  children: [
+                                                    {
+                                                      name: "inline",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "stack",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
                                               ],
                                             },
                                           ],
@@ -93216,7 +94600,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "action",
-                                              description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
+                                              description: "可选值：add / apiUse / approve / archive / assistant / audit / back / cancel / close / collapse / configure / confirm / copy / create / delete / download / edit / entry / expand / export / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / unarchive / unlink / unlock / update / upload / view。",
                                               children: [
                                                 {
                                                   name: "add",
@@ -93332,6 +94716,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "more",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-down",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-up",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -93502,7 +94894,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     },
                                                     {
                                                       name: "icon",
-                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                                      description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                                       children: [
                                                         {
                                                           name: "add",
@@ -93590,6 +94982,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         },
                                                         {
                                                           name: "more",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "move-down",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "move-up",
                                                           description: "字面量取值。",
                                                         },
                                                         {
@@ -93822,7 +95222,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "icon",
-                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                           children: [
                                             {
                                               name: "add",
@@ -93914,6 +95314,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "more",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-down",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-up",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -94278,7 +95686,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "icon",
-                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                               children: [
                                                 {
                                                   name: "add",
@@ -94370,6 +95778,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "more",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-down",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-up",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -94932,7 +96348,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "icon",
-                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                          description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                           children: [
                                             {
                                               name: "add",
@@ -95024,6 +96440,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "more",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-down",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "move-up",
                                               description: "字面量取值。",
                                             },
                                             {
@@ -95388,7 +96812,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "icon",
-                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                               children: [
                                                 {
                                                   name: "add",
@@ -95480,6 +96904,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "more",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-down",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-up",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -96394,7 +97826,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             },
                                             {
                                               name: "icon",
-                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                              description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                               children: [
                                                 {
                                                   name: "add",
@@ -96486,6 +97918,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 },
                                                 {
                                                   name: "more",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-down",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "move-up",
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -98072,7 +99512,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "icon",
-                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "add",
@@ -98164,6 +99604,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "more",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "move-up",
                                       description: "字面量取值。",
                                     },
                                     {
@@ -99610,7 +101058,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "kind",
-                                  description: "可选值：apiUse / approve / archive / assistant / audit / back / cancel / check / close / configure / confirm / copy / delete / delete-bin / delete-minus / double-check / download / edit / entry / export / eye-off / filter / generate / grant / history / import / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / tree-collapse / tree-expand / unlink / unlock / update / upload / verified / view / withdraw / x。",
+                                  description: "可选值：apiUse / approve / archive / assistant / audit / back / cancel / check / close / configure / confirm / copy / delete / delete-bin / delete-minus / double-check / download / edit / entry / export / eye-off / filter / generate / grant / history / import / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / read / reclass / refresh / reject / remove / reset / restore / retry / reverse / revise / save / search / send / settings / share / sort / stop / submit / tree-collapse / tree-expand / unlink / unlock / update / upload / verified / view / withdraw / x。",
                                   children: [
                                     {
                                       name: "apiUse",
@@ -99731,6 +101179,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     {
                                       name: "more",
                                       description: "more 分支声明。",
+                                    },
+                                    {
+                                      name: "move-down",
+                                      description: "move-down 分支声明。",
+                                    },
+                                    {
+                                      name: "move-up",
+                                      description: "move-up 分支声明。",
                                     },
                                     {
                                       name: "open",
@@ -100276,7 +101732,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                           children: [
                             {
                               name: "icon",
-                              description: "可选值：approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                              description: "可选值：approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                               children: [
                                 {
                                   name: "approve",
@@ -100360,6 +101816,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 },
                                 {
                                   name: "more",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "move-down",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "move-up",
                                   description: "字面量取值。",
                                 },
                                 {
@@ -101888,7 +103352,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "icon",
-                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                   children: [
                     {
                       name: "add",
@@ -101980,6 +103444,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {
@@ -102498,7 +103970,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                 },
                 {
                   name: "icon",
-                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
+                  description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / create / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / move-down / move-up / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                   children: [
                     {
                       name: "add",
@@ -102590,6 +104062,14 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     },
                     {
                       name: "more",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-down",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "move-up",
                       description: "字面量取值。",
                     },
                     {

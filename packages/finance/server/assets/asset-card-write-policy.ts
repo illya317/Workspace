@@ -26,8 +26,20 @@ export function assetCardWriteData(
     residualRate: residualRatePercentToDecimal(input.residualRatePercent ?? 0),
     usefulLifeMonths: input.usefulLifeMonths ?? null,
     method: requireStoredFinanceAssetDepreciationMethod(input.method, `资产 ${assetCode}`),
+    initializationMode: "standard",
     openingAccumulatedAmount: input.openingAccumulatedAmount ?? 0,
+    openingImpairmentAmount: 0,
+    openingNetBookValue: null,
     openingAsOfDate: input.openingAsOfDate || null,
+    cutoverDate: null,
+    remainingUsefulLifeMonthsAtCutover: null,
+    cutoverResidualValue: null,
+    cutoverAllocationStatus: null,
+    cutoverReconciliationFingerprint: null,
+    cutoverPeriodId: null,
+    cutoverAssetBalanceId: null,
+    cutoverAccumulatedBalanceId: null,
+    cutoverImpairmentBalanceId: null,
     nonAmortizationReason: input.nonAmortizationReason || null,
     note: input.note || null,
     editedBy: userId,
@@ -50,7 +62,19 @@ export function assetAccountingBasisChanged(
     usefulLifeMonths: number | null;
     method: string;
     openingAccumulatedAmount: unknown;
+    openingImpairmentAmount: unknown;
+    openingNetBookValue: unknown;
     openingAsOfDate: string | null;
+    initializationMode: string;
+    cutoverDate: string | null;
+    remainingUsefulLifeMonthsAtCutover: number | null;
+    cutoverResidualValue: unknown;
+    cutoverAllocationStatus: string | null;
+    cutoverReconciliationFingerprint: string | null;
+    cutoverPeriodId: number | null;
+    cutoverAssetBalanceId: number | null;
+    cutoverAccumulatedBalanceId: number | null;
+    cutoverImpairmentBalanceId: number | null;
     nonAmortizationReason: string | null;
   },
   requested: ReturnType<typeof assetCardWriteData>,
@@ -69,6 +93,22 @@ export function assetAccountingBasisChanged(
     || existing.usefulLifeMonths !== requested.usefulLifeMonths
     || existing.method !== requested.method
     || money(existing.openingAccumulatedAmount) !== money(requested.openingAccumulatedAmount)
+    || money(existing.openingImpairmentAmount ?? 0) !== money(requested.openingImpairmentAmount)
+    || nullableMoney(existing.openingNetBookValue) !== nullableMoney(requested.openingNetBookValue)
     || existing.openingAsOfDate !== requested.openingAsOfDate
+    || (existing.initializationMode ?? "standard") !== requested.initializationMode
+    || (existing.cutoverDate ?? null) !== requested.cutoverDate
+    || (existing.remainingUsefulLifeMonthsAtCutover ?? null) !== requested.remainingUsefulLifeMonthsAtCutover
+    || nullableMoney(existing.cutoverResidualValue) !== nullableMoney(requested.cutoverResidualValue)
+    || (existing.cutoverAllocationStatus ?? null) !== requested.cutoverAllocationStatus
+    || (existing.cutoverReconciliationFingerprint ?? null) !== requested.cutoverReconciliationFingerprint
+    || (existing.cutoverPeriodId ?? null) !== requested.cutoverPeriodId
+    || (existing.cutoverAssetBalanceId ?? null) !== requested.cutoverAssetBalanceId
+    || (existing.cutoverAccumulatedBalanceId ?? null) !== requested.cutoverAccumulatedBalanceId
+    || (existing.cutoverImpairmentBalanceId ?? null) !== requested.cutoverImpairmentBalanceId
     || (existing.nonAmortizationReason ?? null) !== (requested.nonAmortizationReason ?? null);
+}
+
+function nullableMoney(value: unknown) {
+  return value == null ? null : money(value);
 }

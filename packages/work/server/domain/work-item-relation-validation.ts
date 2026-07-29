@@ -1,7 +1,16 @@
-import { prisma } from "@workspace/platform/server/prisma";
 import { validateWorkSourceDepartmentSelection } from "../work-source-departments";
 import { validateWorkOwnerAssignment } from "../work-owner-eligibility";
 import { validateWorkCollaborationReference } from "../work-collaboration-references";
+import {
+  findMeetingActionCandidateReference,
+  findMeetingDecisionReference,
+  findMeetingReference,
+  findParentWorkItemReference,
+  findProjectPhaseRelationReference,
+  findProjectRelationReference,
+  findWorkItemParentId,
+  findWorkPlanRelationReference,
+} from "../work-item-reference-adapter";
 
 export interface WorkItemRelationInput {
   actorUserId?: number | null;
@@ -27,17 +36,7 @@ export interface WorkItemRelationInput {
 
 export async function validateWorkItemRelations(input: WorkItemRelationInput) {
   if (!input.planId) return "必须选择工作计划";
-  const plan = await prisma.workPlan.findUnique({
-    where: { id: input.planId },
-    select: {
-      targetType: true,
-      targetId: true,
-      kind: true,
-      collaborationId: true,
-      status: true,
-      isArchived: true,
-    },
-  });
+  const plan = await findWorkPlanRelationReference(input.planId);
   if (!plan) return "工作计划不存在";
   if (plan.targetType !== input.targetType || plan.targetId !== input.targetId) return "工作计划不属于当前空间";
   if (plan.isArchived) return "已归档计划不能新增、恢复或调整工作项";
@@ -74,11 +73,11 @@ export async function validateWorkItemRelations(input: WorkItemRelationInput) {
   const meetingSourceError = await validateMeetingSource(input);
   if (meetingSourceError) return meetingSourceError;
   if (input.linkedProjectId) {
-    const project = await prisma.project.findUnique({ where: { id: input.linkedProjectId }, select: { id: true } });
+    const project = await findProjectRelationReference(input.linkedProjectId);
     if (!project) return "关联项目不存在";
   }
   if (input.linkedProjectPhaseId) {
-    const phase = await prisma.projectPlanPhase.findUnique({ where: { id: input.linkedProjectPhaseId }, select: { id: true, projectId: true } });
+    const phase = await findProjectPhaseRelationReference(input.linkedProjectPhaseId);
     if (!phase) return "关联项目阶段不存在";
     if (input.linkedProjectId && phase.projectId !== input.linkedProjectId) return "关联项目阶段不属于所选项目";
   }
@@ -104,10 +103,7 @@ function hasDepartmentOrProjectSource(input: Pick<WorkItemRelationInput, "source
 async function validateParentRelation(input: WorkItemRelationInput) {
   if (!input.parentWorkItemId) return null;
   if (input.currentWorkId && input.parentWorkItemId === input.currentWorkId) return "上级工作项不能选择自己";
-  const parent = await prisma.workItem.findUnique({
-    where: { id: input.parentWorkItemId },
-    select: { id: true, targetType: true, targetId: true, planId: true, itemType: true, parentWorkItemId: true, routineTaskType: true, status: true, isArchived: true },
-  });
+  const parent = await findParentWorkItemReference(input.parentWorkItemId);
   if (!parent) return "上级工作项不存在";
   if (parent.targetType !== input.targetType || parent.targetId !== input.targetId) return "上级工作项不属于当前空间";
   if (parent.planId !== input.planId) return "上级工作项不属于当前 OKR 计划";
@@ -123,10 +119,7 @@ async function validateParentRelation(input: WorkItemRelationInput) {
   let cursor = parent.parentWorkItemId;
   while (cursor) {
     if (input.currentWorkId && cursor === input.currentWorkId) return "上级工作项不能选择自己的子节点";
-    const ancestor = await prisma.workItem.findUnique({
-      where: { id: cursor },
-      select: { parentWorkItemId: true },
-    });
+    const ancestor = await findWorkItemParentId(cursor);
     cursor = ancestor?.parentWorkItemId ?? null;
   }
   return null;
@@ -136,23 +129,17 @@ async function validateMeetingSource(input: Pick<WorkItemRelationInput, "sourceT
   if (input.sourceType !== "meeting") return null;
   let meetingId = input.sourceMeetingId ?? null;
   if (meetingId) {
-    const meeting = await prisma.meeting.findUnique({ where: { id: meetingId }, select: { id: true } });
+    const meeting = await findMeetingReference(meetingId);
     if (!meeting) return "来源会议不存在";
   }
   if (input.sourceMeetingDecisionId) {
-    const decision = await prisma.meetingDecision.findUnique({
-      where: { id: input.sourceMeetingDecisionId },
-      select: { meetingId: true },
-    });
+    const decision = await findMeetingDecisionReference(input.sourceMeetingDecisionId);
     if (!decision) return "来源会议决议不存在";
     if (meetingId && decision.meetingId !== meetingId) return "来源会议决议不属于所选会议";
     meetingId = decision.meetingId;
   }
   if (input.sourceMeetingActionCandidateId) {
-    const candidate = await prisma.meetingActionCandidate.findUnique({
-      where: { id: input.sourceMeetingActionCandidateId },
-      select: { meetingId: true },
-    });
+    const candidate = await findMeetingActionCandidateReference(input.sourceMeetingActionCandidateId);
     if (!candidate) return "来源会议行动候选不存在";
     if (meetingId && candidate.meetingId !== meetingId) return "来源会议行动候选不属于所选会议";
   }

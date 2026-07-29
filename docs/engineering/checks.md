@@ -29,6 +29,7 @@
 | UI 阻断 | `npm run gate:ui` | Core UI 唯一入口、PageSurface 协议、Toolbar/Input/Selector 等结构性 UI 边界。 |
 | 架构兼容入口 | `npm run check:arch` | 等价于 `npm run check:blockers`。`npm run arch:gate` 保留为兼容总入口。 |
 | Prisma schema、model、migration | `npm run check:data` | 跑 schema 合法性、schema governance 和 migration diff。 |
+| 导入主数据引用 | `npm run import-reference:check` | 要求每个受控 data-release handler 声明引用契约，并阻断新增“已有主数据却仍只存 code/name/裸 ID”的 schema 字段。 |
 | 所有 Node 行为/工具测试 | `npm test` / `npm run test:node` | 自动发现 `packages/`、`scripts/`、`app/`、`ops/` 下的 JS/TS `.test.*`，是 PR / CI 的标准 Node 测试入口。 |
 | 产品行为测试 | `npm run test:behavior` | 执行 `packages/`、`app/` 和 `scripts/runtime/` 下的行为测试；不包含扫描器自测。 |
 | 工程工具自测 | `npm run test:tooling` | 执行 `scripts/` 与 `ops/` 下的 checker/scanner、CI/CD contract fixture 与测试基础设施安全测试。 |

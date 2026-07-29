@@ -55,6 +55,7 @@ function appScope(file) {
   if (file.startsWith("app/(modules)/agent/") || file.startsWith("app/api/agent/") || file.startsWith("app/api/integrations/")) {
     return "app-assistant";
   }
+  if (file.startsWith("app/(modules)/settings/")) return "app-workspace-shell";
 
   const businessModule = file.match(/^app\/\(modules\)\/([a-z][a-z0-9-]*)\//);
   if (businessModule) return `app-${businessModule[1]}`;
@@ -65,7 +66,6 @@ function appScope(file) {
     return `app-${unit}`;
   }
 
-  if (file.startsWith("app/(docs)/") || file.startsWith("app/api/modules/docs/")) return "app-docs";
   if (
     file.startsWith("app/(auth)/")
     || file.startsWith("app/(system)/")

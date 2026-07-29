@@ -1,3 +1,4 @@
+-- workspace:migration-mode=maintenance
 -- AlterTable
 ALTER TABLE "FinanceAccount" ADD COLUMN "companyId" INTEGER;
 

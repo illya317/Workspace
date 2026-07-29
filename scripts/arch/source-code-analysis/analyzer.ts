@@ -321,6 +321,7 @@ export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceC
       mixedResponsibilityFileCount: mixedResponsibilityFiles.length,
     },
     modules: [...rows.values()],
+    dependencyEdges: dependencyAnalysis.dependencyEdges,
     dependencyCycles: cycles,
     diagnostics: { unclassifiedFiles, ambiguousFiles, missingInterfaces, mixedResponsibilityFiles },
   };

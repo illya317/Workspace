@@ -2,9 +2,11 @@ import "server-only";
 
 import type { ApprovalHandlerSource, ApprovalRequestRecord } from "./types";
 import { isRootAdminUser } from "../auth/root";
-import { currentEmploymentDateWhere, currentOpenEndedDateWhere } from "../relation-registry";
-import { prisma } from "../prisma";
 import { findWorkflowApprovalTarget } from "../workflow-policy-nodes";
+import {
+  listActiveEmployeeUserIds,
+  listActivePositionUserIds,
+} from "./workflow-node-handler-reference-adapter";
 
 export async function resolveWorkflowNodeHandlerUserIds<TPayload>(
   request: ApprovalRequestRecord<TPayload>,
@@ -26,8 +28,14 @@ export async function resolveWorkflowNodeHandlerUserIds<TPayload>(
       }
       return input.resolvePermission();
     }
-    if (assignee.fieldKind === "position") return listActivePositionUserIds(assignee.value);
-    if (assignee.fieldKind === "employee") return listEmployeeUserIds(assignee.value);
+    if (assignee.fieldKind === "position") {
+      const positionId = positiveInteger(assignee.value);
+      return positionId ? listActivePositionUserIds(positionId) : [];
+    }
+    if (assignee.fieldKind === "employee") {
+      const employeeId = positiveInteger(assignee.value);
+      return employeeId ? listActiveEmployeeUserIds(employeeId) : [];
+    }
     return [];
   }));
 
@@ -44,35 +52,6 @@ async function excludeRootAdminUserIds(userIds: number[]) {
     await isRootAdminUser(userId) ? null : userId
   )));
   return candidates.filter((userId): userId is number => userId !== null);
-}
-
-async function listActivePositionUserIds(value: string | null) {
-  const positionId = positiveInteger(value);
-  if (!positionId) return [];
-  const employees = await prisma.employee.findMany({
-    where: {
-      userId: { not: null },
-      employments: { some: currentEmploymentDateWhere() },
-      positions: { some: currentOpenEndedDateWhere({ positionId }) },
-    },
-    select: { userId: true },
-    orderBy: { employeeId: "asc" },
-  });
-  return employees.flatMap((employee) => employee.userId ? [employee.userId] : []);
-}
-
-async function listEmployeeUserIds(value: string | null) {
-  const employeeId = positiveInteger(value);
-  if (!employeeId) return [];
-  const employee = await prisma.employee.findFirst({
-    where: {
-      id: employeeId,
-      userId: { not: null },
-      employments: { some: currentEmploymentDateWhere() },
-    },
-    select: { userId: true },
-  });
-  return employee?.userId ? [employee.userId] : [];
 }
 
 function positiveInteger(value: string | null) {

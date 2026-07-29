@@ -10,7 +10,7 @@ import {
   agentBusinessApiProposalExecutors,
   agentProposalActionErrorStatus,
   confirmProposalAction,
-} from "@workspace/platform/server/agent";
+} from "@workspace/agent/server";
 import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
 
 export async function POST(

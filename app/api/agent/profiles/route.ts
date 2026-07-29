@@ -3,7 +3,7 @@ import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/plat
 import {
   agentBusinessApiTools,
   listAvailableAgentProfiles,
-} from "@workspace/platform/server/agent";
+} from "@workspace/agent/server";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export async function GET(request: Request) {

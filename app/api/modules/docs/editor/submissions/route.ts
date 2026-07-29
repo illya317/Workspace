@@ -5,7 +5,7 @@ import {
   buildListDocsTemplateSubmissionsRouteCommand,
   executeCreateDocsTemplateSubmissionRouteCommand,
   executeListDocsTemplateSubmissionsRouteCommand,
-} from "@workspace/platform/server/docs-editor";
+} from "@workspace/docs/server";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const optionalNumber = z.preprocess(

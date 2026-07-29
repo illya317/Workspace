@@ -16,6 +16,7 @@ export type DataSurfaceTone = "default" | "muted" | "success" | "warning" | "dan
 export type DataSurfaceEmphasis = "normal" | "medium" | "strong";
 export type DataSurfaceFont = "default" | "mono";
 export type DataSurfaceFrame = "plain" | "clipped" | "bordered";
+export type DataSurfaceCellState = "normal" | "selected" | "muted" | "success" | "warning" | "danger" | "info";
 export type DataSurfaceRowState = "normal" | "selected" | "section" | "total" | "muted" | "warning" | "danger" | "info";
 export type DataSurfaceStructuredCellRole = "header" | "label" | "value" | "empty" | "title" | "signature";
 export type DataSurfaceRowHeight = "sm" | "md" | "lg" | number;
@@ -244,6 +245,10 @@ export interface DataSurfaceColumnSpec<T> {
   /** 横向展开组语义；Core 统一渲染触发列、明细范围和首尾边界。 */
   disclosure?: DataSurfaceDisclosureSpec;
   onHeaderClick?: () => void;
+  /** 单元格关系状态；调用方只声明语义，背景、文字和选中描边由 Core 统一渲染。 */
+  cellState?: (row: T) => DataSurfaceCellState;
+  /** 单元格是否为当前选择；Core 使用独立中性描边，不占用关系状态色。 */
+  cellSelected?: (row: T) => boolean;
   cell: (row: T) => ReactNode | DataSurfaceCellSpec;
 }
 

@@ -90,6 +90,8 @@ model FinancePeriod {
   assetImpairmentAssessments FinanceAssetImpairmentAssessment[]
   assetDisposals      FinanceAssetDisposal[]
   assetAcquisitionEvidence FinanceAssetAcquisitionEvidence[]
+  assetCutoverCards  FinanceAssetCard[]                @relation("FinanceAssetCardCutoverPeriod")
+  assetCutoverImportBatches FinanceAssetImportBatch[]  @relation("FinanceAssetImportBatchCutoverPeriod")
   sourceStatuses      FinanceSourcePeriodStatus[]
   bankReconciliations FinanceBankReconciliation[]
   interestWorkpapers  FinanceInterestWorkpaper[]
@@ -239,6 +241,9 @@ model FinanceAccountBalance {
   period        FinancePeriod  @relation(fields: [periodId], references: [id])
   account       FinanceAccount @relation(fields: [accountId], references: [id])
   company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  assetCutoverCards FinanceAssetCard[] @relation("FinanceAssetCardCutoverAssetBalance")
+  accumulatedAssetCutoverCards FinanceAssetCard[] @relation("FinanceAssetCardCutoverAccumulatedBalance")
+  impairmentAssetCutoverCards FinanceAssetCard[] @relation("FinanceAssetCardCutoverImpairmentBalance")
 
   @@unique([accountId, periodId])
   @@index([companyId])

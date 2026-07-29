@@ -11,7 +11,7 @@
 | Engineering System | 开发 agent / 工程维护者 | `docs/engineering/*` | 项目架构、开发规范、CI/check、RBAC、DB、Core UI、部署运行态 |
 | Generated Docs | Data / 工程维护者 | `docs/generated/*` | 由脚本生成的 API / DB / table 文档；不要手工改正文 |
 | Product / Module Knowledge | 做具体业务的人 | `app/(modules)/*/ARCHITECTURE.md`, `app/(modules)/*/MODULE.md` | 模块长期业务知识、边界、权限口径、数据语义 |
-| User Docs / Operating Docs | 最终用户 / 业务使用者 | `app/(docs)/docs/*`, `docs/product/*` | 使用说明、流程说明、制度文档、业务参考资料 |
+| User Docs / Operating Docs | 最终用户 / 业务使用者 | `app/(modules)/docs/*`, `docs/product/*` | 使用说明、流程说明、制度文档、业务参考资料 |
 | Planning Policy | 规划治理 | `docs/planning/README.md` | 只写规划放置原则；实际计划和回溯不进入 Git |
 | Reference | 特殊资料维护者 | `docs/reference/*` | 不属于上述分类的长期参考资料；必须声明 owner 和用途 |
 
@@ -44,6 +44,7 @@
 | Agent 项目总览和新鲜度 | `docs/engineering/project-overview.md` | Coordinator / Architecture |
 | 开工分流和交接 | `docs/engineering/agent-startup.md`, `docs/engineering/subagent.md`, `docs/engineering/agent-handbook.md` | Coordinator |
 | 架构边界和 gate | `docs/engineering/architecture-governance.md`, `docs/engineering/module-boundaries.md` | Architecture |
+| 深模块、意图接口和易纠错设计 | `docs/engineering/deep-module-design.md` | Architecture |
 | Structure 任务包执行 | `docs/engineering/structure-agent-execution.md` | Architecture |
 | Core UI 五层治理 | `docs/engineering/core-ui-governance.md` | Architecture / UI-system |
 | Core UI 和页面 primitive | `docs/engineering/reusable-components.md` | Architecture / UI-system |
@@ -54,6 +55,7 @@
 | 现有模块新增能力 | `docs/engineering/existing-module-feature-checklist.md` | Feature |
 | ActionContract | `docs/engineering/action-contracts.md` | Architecture / Platform |
 | 业务有效时间与生命周期 | `docs/engineering/business-temporal.md` | Architecture / Platform / Data |
+| 业务编码规则与硬编码 gate | `docs/engineering/business-code-governance.md` | Architecture / Platform / Hygiene |
 | 通用审批链 | `docs/engineering/approvals.md` | Platform / Architecture |
 | 数据库和 schema | `docs/engineering/schema-governance.md`, `docs/engineering/database.md` | Data |
 | 生成文档说明 | `docs/generated/README.md`, `docs/generated/*` | Data |
@@ -70,9 +72,10 @@
 |---|---|---|
 | 产品/用户文档说明 | `docs/product/README.md` | Feature |
 | 关联方名录与身份关联 | `docs/product/external-related-parties.md` | External / Finance / HR Feature |
+| 业务编码设置与导入规则 | `docs/product/business-code-rules.md` | Platform / 各业务 Feature |
 | 教育数据来源 | `docs/product/reference/education-data.md` | Data / Feature |
 | 财务会计准则参考 | `docs/product/reference/casc/` | Finance Feature / Data |
-| 线上文档中心页面 | `app/(docs)/docs/*` | Feature |
+| 线上文档中心页面 | `app/(modules)/docs/*` | Feature |
 
 `docs/product/*` 明确保留，用来放最终用户、业务使用者或业务资料维护者看的内容。不要把它合并进 `docs/engineering/*`。
 
@@ -89,7 +92,7 @@
 - 新规则优先补到对应 `docs/engineering/*` 专题文档，再在本索引或角色文档挂入口。
 - 文档 owner、同步触发条件和 stale 归属以 `docs/OWNERS.md` 为准。
 - 业务模块长期知识写在对应 `app/(modules)/*/ARCHITECTURE.md` 或 `MODULE.md`，不要塞进工程规范。
-- 给最终用户看的内容进入 `docs/product/*` 或 `app/(docs)/docs/*`，不要和 agent 开发规范混放。
+- 给最终用户看的内容进入 `docs/product/*` 或 `app/(modules)/docs/*`，不要和 agent 开发规范混放。
 - 执行计划、完成清单和过期记录都不要提交到源码；只把稳定、跨租户适用的原则提炼到权威文档。
 - 自动生成文档不要手工改正文，改生成脚本或源数据。
 - 删除代码入口时同步删除文档里的旧路径，避免 agent 按旧路径继续开发。

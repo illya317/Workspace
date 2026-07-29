@@ -1,8 +1,8 @@
 {
   "note": "Level 1.5 legacy ratchet. These entries are pre-existing debt only; scripts/arch/scan.ts fails on any new match.",
   "appUiFiles": [
-    "app/(docs)/docs/company/page.tsx",
-    "app/(docs)/docs/page.tsx",
+    "app/(modules)/docs/company/page.tsx",
+    "app/(modules)/docs/page.tsx",
     "app/(modules)/finance/loading.tsx",
     "app/(modules)/hr/loading.tsx",
     "app/error.tsx",

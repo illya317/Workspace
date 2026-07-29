@@ -11,7 +11,7 @@ mock.module("../personal-api-key", {
 mock.module("../rbac/action-grants", {
   namedExports: { evaluatePermissionAction: async () => false },
 } as never);
-mock.module("../agent/api-delegation", {
+mock.module("../agent-api-delegation", {
   namedExports: {
     AGENT_API_DELEGATION_HEADER: "x-workspace-agent-api-delegation",
     verifyAgentApiDelegation: async () => null,

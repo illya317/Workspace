@@ -36,6 +36,16 @@ import {
   createExternalPartyRoleInTransaction,
   updateExternalPartyRoleInTransaction,
 } from "./external-party-role-lifecycle-service";
+import { formatSequentialBusinessCode } from "@workspace/platform/business-code-config";
+import {
+  businessCodeScopeParts,
+  businessCodeSequenceSettings,
+} from "@workspace/platform/business-code-rule";
+import {
+  allocateBusinessCodeSequence,
+  businessCodeScopeKey,
+} from "@workspace/platform/server/business-code-sequence";
+import { getBusinessCodeConfig } from "@workspace/platform/server/system-config";
 
 const CATEGORY_RESOURCE_KEY: Record<ExternalPartyCategory, string> = {
   customer: "external.customers",
@@ -44,6 +54,36 @@ const CATEGORY_RESOURCE_KEY: Record<ExternalPartyCategory, string> = {
 
 function oppositeCategory(category: ExternalPartyCategory): ExternalPartyCategory {
   return category === "customer" ? "supplier" : "customer";
+}
+
+async function configuredExternalRoleData(
+  command: ExternalPartyCreateCommand,
+  tx: Prisma.TransactionClient,
+) {
+  if (command.roleData.code.trim()) return command.roleData;
+  const config = await getBusinessCodeConfig(tx);
+  const rule = command.category === "customer" ? config.customer : config.supplier;
+  const createdAt = new Date();
+  const sequenceSettings = businessCodeSequenceSettings(rule);
+  const configuredScope = businessCodeScopeParts(rule, { values: { createdAt }, sequence: sequenceSettings.start });
+  const scopeKey = businessCodeScopeKey(Object.keys(configuredScope).length
+    ? configuredScope
+    : { category: command.category });
+
+  while (true) {
+    const sequence = await allocateBusinessCodeSequence(tx, {
+      ruleKey: `external.${command.category}`,
+      scopeKey,
+      sequenceStart: sequenceSettings.start,
+    });
+    if (sequence > sequenceSettings.maximum) throw new Error(`${command.category === "customer" ? "客户" : "供应商"}编码已用尽`);
+    const code = formatSequentialBusinessCode(rule, sequence, createdAt);
+    const existing = await tx.externalPartyRole.findUnique({
+      where: { category_code: { category: command.category, code } },
+      select: { id: true },
+    });
+    if (!existing) return { ...command.roleData, code };
+  }
 }
 
 async function visibleRoleCategories(userId: number, category: ExternalPartyCategory) {
@@ -178,7 +218,9 @@ export async function commitCreateExternalPartyCommand(command: ExternalPartyCre
             request: {
               partyId: resolved.party.id,
               category: command.category,
-              roleData: command.roleData,
+              roleData: command.roleData.code
+                ? command.roleData
+                : { ...command.roleData, code: existingRole.code },
               validFrom: command.availabilityFrom || asOfDate,
               validThrough: command.availabilityThrough,
               asOfDate,
@@ -197,10 +239,11 @@ export async function commitCreateExternalPartyCommand(command: ExternalPartyCre
           create: { partyId: resolved.party.id, relatedPartyType: command.subjectData.relatedPartyType },
           update: {},
         });
+        const roleData = await configuredExternalRoleData(command, tx);
         const role = await createExternalPartyRoleInTransaction(tx, {
           partyId: resolved.party.id,
           category: command.category,
-          roleData: command.roleData,
+          roleData,
           validFrom: command.availabilityFrom || asOfDate,
           validThrough: command.availabilityThrough,
           userId: command.userId,
@@ -217,6 +260,7 @@ export async function commitCreateExternalPartyCommand(command: ExternalPartyCre
         return projectedRecord(party, command.category, visibleCategories, asOfDate);
       }
       const { relatedPartyType, ...identityData } = command.subjectData;
+      const roleData = await configuredExternalRoleData(command, tx);
       const party = await tx.party.create({
         data: {
           ...identityData,
@@ -229,7 +273,7 @@ export async function commitCreateExternalPartyCommand(command: ExternalPartyCre
       const role = await createExternalPartyRoleInTransaction(tx, {
         partyId: party.id,
         category: command.category,
-        roleData: command.roleData,
+        roleData,
         validFrom: command.availabilityFrom || asOfDate,
         validThrough: command.availabilityThrough,
         userId: command.userId,

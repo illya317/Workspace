@@ -81,6 +81,8 @@ ops/*.local.sh
 # Local scratch artifacts
 /tmp/
 /outputs/
+/.codex-tmp/
+/output/
 
 # Agent worktrees
 /.claude/

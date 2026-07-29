@@ -24,7 +24,7 @@ test("the checked-in impact map is valid and every registered spec exists", () =
 
 test("account settings changes select save and reload coverage without failing closed", () => {
   const impact = resolveModuleImpact(map, [
-    "packages/platform/ui/settings/AccountSettingsPanel.tsx",
+    "packages/settings/ui/settings/AccountSettingsPanel.tsx",
   ]);
 
   assert.deepEqual(impact.requiredSuites, ["settings-account-save"]);
@@ -33,11 +33,11 @@ test("account settings changes select save and reload coverage without failing c
   assert.equal(impact.failClosed, false);
 });
 
-test("broad platform settings pages fail closed when account-save does not cover them", () => {
-  const changedPath = "packages/platform/ui/settings/pages.tsx";
+test("broad Settings L1 pages fail closed when account-save does not cover them", () => {
+  const changedPath = "packages/settings/ui/settings/pages.tsx";
   const impact = resolveModuleImpact(map, [changedPath]);
 
-  assert.deepEqual(impact.affectedModules, ["platform"]);
+  assert.deepEqual(impact.affectedModules, ["settings"]);
   assert.deepEqual(impact.matchedRuleIds, []);
   assert.deepEqual(impact.requiredSuites, []);
   assert.deepEqual(impact.unmappedModulePaths, [changedPath]);

@@ -1,3 +1,4 @@
+-- workspace:migration-mode=expand
 CREATE TABLE "BusinessCodeSequence" (
     "ruleKey" TEXT NOT NULL,
     "scopeKey" TEXT NOT NULL,

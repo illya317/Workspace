@@ -31,10 +31,10 @@
 <body>
 <div class="container">
 <h1>Workspace API Reference</h1>
-<p class="subtitle">491 endpoints across 8 groups；访问标记来自 API contract 与 route wrapper</p>
+<p class="subtitle">492 endpoints across 8 groups；访问标记来自 API contract 与 route wrapper</p>
 <div class="summary">
   <div class="summary-grid">
-    <div class="summary-item"><div class="num">200</div><div class="label">GET</div></div>
+    <div class="summary-item"><div class="num">201</div><div class="label">GET</div></div>
     <div class="summary-item"><div class="num">171</div><div class="label">POST</div></div>
     <div class="summary-item"><div class="num">70</div><div class="label">PUT</div></div>
     <div class="summary-item"><div class="num">14</div><div class="label">PATCH</div></div>
@@ -904,7 +904,7 @@
 <div class="endpoint">
   <span class="method" style="background:#dc2626">DELETE</span>
   <span class="path">/api/modules/finance/assets/policies</span>
-  <span class="auth">登录 + finance.assets.update</span>
+  <span class="auth">登录</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
@@ -1504,49 +1504,49 @@
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/finance/tax</span>
-  <span class="auth">登录 + finance.tax.read</span>
+  <span class="auth">登录</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#059669">POST</span>
   <span class="path">/api/modules/finance/tax</span>
-  <span class="auth">登录 + finance.tax.create</span>
+  <span class="auth">登录</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#d97706">PUT</span>
   <span class="path">/api/modules/finance/tax</span>
-  <span class="auth">登录 + finance.tax.update</span>
+  <span class="auth">登录</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/finance/tax/reference-options</span>
-  <span class="auth">登录 + finance.tax.read</span>
+  <span class="auth">登录</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/finance/treasury</span>
-  <span class="auth">登录 + finance.treasury.read</span>
+  <span class="auth">登录</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#059669">POST</span>
   <span class="path">/api/modules/finance/treasury</span>
-  <span class="auth">登录 + finance.treasury.create</span>
+  <span class="auth">登录</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#d97706">PUT</span>
   <span class="path">/api/modules/finance/treasury</span>
-  <span class="auth">登录 + finance.treasury.update</span>
+  <span class="auth">登录</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/finance/treasury/reference-options</span>
-  <span class="auth">登录 + finance.treasury.read</span>
+  <span class="auth">登录</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
@@ -2893,6 +2893,12 @@
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/settings/account/week-info</span>
   <span class="auth">公开（API contract）</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/admin/database-schema</span>
+  <span class="auth">登录 + settings.admin.read + service 授权 + 管理权限</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">

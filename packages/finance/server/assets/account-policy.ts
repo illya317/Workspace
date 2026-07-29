@@ -62,6 +62,10 @@ const CATEGORY_RULES: Record<string, { rule: string; reviewRequired?: boolean }>
   "LT-OTHER": { rule: "已经发生、受益期超过十二个月且不属于其他资产成本的其他长期待摊支出。", reviewRequired: true },
 };
 
+export const FINANCE_ASSET_LEASEHOLD_CATEGORY_CODE = Object.keys(CATEGORY_RULES).find(
+  (code) => CATEGORY_RULES[code]?.rule.startsWith("租入资产改良支出单独判断"),
+) ?? (() => { throw new Error("资产分类政策缺少租入资产改良分类"); })();
+
 const GENERIC_RULES: Record<FinanceAssetKind, string> = {
   fixed_asset: "用于生产经营、预计使用超过一个会计年度且成本能够可靠计量的有形资产。",
   intangible: "可辨认、无实物形态、由企业控制且预期带来经济利益的资产。",

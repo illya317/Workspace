@@ -35,6 +35,7 @@ export async function buildConfirmFinanceAssetDisposalCommand(
   const context = await (dependencies.findDisposalContext ?? findAssetDisposalContext)({ ...body, companyCode, reason, evidenceRef, voucherNo });
   if (!context.period) return failCommand("会计期间不存在", 400, "month");
   if (context.period.isClosed) return failCommand("会计期间已关闭，不能确认资产处置", 409, "month");
+  const periodId = context.period.id;
   if (!context.asset || context.asset.companyCode !== companyCode) return failCommand("资产卡片不存在或不属于当前公司", 400, "assetId");
   if (context.asset.version !== body.assetVersion) return failCommand("资产卡片已被其他人修改，请刷新后重试", 409, "assetVersion");
   if (context.asset.status !== "active") return failCommand("只有使用中的资产可以确认处置", 409, "assetId");
@@ -59,11 +60,11 @@ export async function buildConfirmFinanceAssetDisposalCommand(
   });
   if (replay.blockers.length) return failCommand(`资产累计金额无法重放：${replay.blockers.join("；")}`, 409, "assetId");
   if (context.currentEntries.some((row) => row.assetId === context.asset!.id && moneyIsNonZero(row.normalAmount)
-    && (row.status !== "posted" || !assetReplayVoucherIsControlled(row.voucher, companyCode, context.period.id)))) {
+    && (row.status !== "posted" || !assetReplayVoucherIsControlled(row.voucher, companyCode, periodId)))) {
     return failCommand("本期折旧摊销尚未通过同公司同期间的完整已过账凭证，不能确认处置", 409, "assetId");
   }
   if (context.currentAdjustments.some((row) => row.assetId === context.asset!.id && row.status === "confirmed" && moneyIsNonZero(row.amount)
-    && !assetReplayVoucherIsControlled(row.voucher, companyCode, context.period.id))) {
+    && !assetReplayVoucherIsControlled(row.voucher, companyCode, periodId))) {
     return failCommand("本期折旧摊销调整尚未通过同公司同期间的完整已过账凭证，不能确认处置", 409, "assetId");
   }
   const currentAccumulated = context.currentEntries.filter((row) => row.assetId === context.asset!.id).reduce((sum, row) => sum + row.normalAmount, 0)
@@ -72,7 +73,7 @@ export async function buildConfirmFinanceAssetDisposalCommand(
   const gainLoss = Math.round((context.asset.originalCost - accumulated - replay.impairmentBefore - body.proceedsAmount + Number.EPSILON) * 100) / 100;
   const voucherItems = resolveDisposalVoucherItems({ voucher: context.voucher, policy: context.policy, originalCost: context.asset.originalCost, accumulated, impairment: replay.impairmentBefore, proceeds: body.proceedsAmount, gainLoss, occupiedVoucherItemIds: context.occupiedVoucherItemIds });
   if (!voucherItems) return failCommand("处置凭证必须以唯一分录完整满足原值、累计金额、减值、收入和损益恒等式，且分录不得被其他处置复用", 400, "voucherNo");
-  return okCommand({ input: { ...body, companyCode, reason, evidenceRef, voucherNo }, userId, periodId: context.period.id, voucherId: context.voucher.id, voucherItems });
+  return okCommand({ input: { ...body, companyCode, reason, evidenceRef, voucherNo }, userId, periodId, voucherId: context.voucher.id, voucherItems });
 }
 
 function resolveDisposalVoucherItems(input: {

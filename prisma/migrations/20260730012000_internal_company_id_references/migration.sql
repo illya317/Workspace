@@ -1,3 +1,4 @@
+-- workspace:migration-mode=maintenance
 -- AlterTable
 ALTER TABLE "Employment" ADD COLUMN "companyId" INTEGER;
 

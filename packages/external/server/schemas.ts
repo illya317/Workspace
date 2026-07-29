@@ -41,7 +41,7 @@ const ExternalPartyFieldsSchema = z.object({
     "key_management_related",
     "other_related",
   ]).optional(),
-  code: z.string().trim().min(1, "编码必填").max(64),
+  code: z.string().trim().max(64).optional(),
   name: z.string().trim().min(1, "名称必填").max(120),
   fullName: optionalText(200),
   classification: optionalText(80),

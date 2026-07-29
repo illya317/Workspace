@@ -17,6 +17,13 @@ const baseCard = {
   method: "straight_line",
   openingAccumulatedAmount: 0,
   openingAsOfDate: null,
+  initializationMode: "standard",
+  openingImpairmentAmount: 0,
+  openingNetBookValue: null,
+  cutoverDate: null,
+  remainingUsefulLifeMonthsAtCutover: null,
+  cutoverResidualValue: null,
+  cutoverAllocationStatus: null,
   disposal: null,
 };
 
@@ -40,18 +47,88 @@ test("recalculation refuses a card snapshot whose method is not implemented", as
   assert.equal(harness.listCalls, 0);
 });
 
-function recalculationHarness(card: typeof baseCard | { [key: string]: unknown }) {
+test("legacy cutover writes July from remaining carrying amount and no June history row", async () => {
+  const legacy = {
+    ...baseCard,
+    initializationMode: "legacy_cutover",
+    openingAccumulatedAmount: 800,
+    openingImpairmentAmount: 40,
+    openingNetBookValue: 360,
+    openingAsOfDate: "2026-06-30",
+    cutoverDate: "2026-06-30",
+    depreciationStartDate: "2026-07-01",
+    remainingUsefulLifeMonthsAtCutover: 3,
+    cutoverResidualValue: 60,
+    cutoverAllocationStatus: "allocated",
+  };
+  const june = recalculationHarness(legacy, { year: 2026, month: 6, endDate: "2026-06-30" });
+  await recalculateFinanceAssetPeriod({ companyCode: "ZX02", year: 2026, month: 6 }, june.dependencies);
+  assert.equal(june.upserts.length, 0);
+
+  const july = recalculationHarness(legacy, { year: 2026, month: 7, endDate: "2026-07-31" });
+  await recalculateFinanceAssetPeriod({ companyCode: "ZX02", year: 2026, month: 7 }, july.dependencies);
+  assert.equal(july.upserts[0]?.normalAmount, 100);
+  assert.equal(july.upserts[0]?.calculationVersion, "legacy-cutover-remaining-value-v1");
+});
+
+test("pending cutover allocation does not generate a future depreciation row", async () => {
+  const harness = recalculationHarness({
+    ...baseCard,
+    initializationMode: "legacy_cutover",
+    openingAccumulatedAmount: 800,
+    openingImpairmentAmount: 0,
+    openingNetBookValue: 400,
+    openingAsOfDate: "2026-06-30",
+    cutoverDate: "2026-06-30",
+    depreciationStartDate: "2026-07-01",
+    remainingUsefulLifeMonthsAtCutover: 3,
+    cutoverResidualValue: 40,
+    cutoverAllocationStatus: "pending",
+  }, { year: 2026, month: 7, endDate: "2026-07-31" });
+  await recalculateFinanceAssetPeriod({ companyCode: "ZX02", year: 2026, month: 7 }, harness.dependencies);
+  assert.equal(harness.upserts.length, 0);
+});
+
+test("pending cutover allocation rejects a stale current-period depreciation row", async () => {
+  const harness = recalculationHarness({
+    ...baseCard,
+    initializationMode: "legacy_cutover",
+    openingAccumulatedAmount: 800,
+    openingImpairmentAmount: 0,
+    openingNetBookValue: 400,
+    openingAsOfDate: "2026-06-30",
+    cutoverDate: "2026-06-30",
+    depreciationStartDate: "2026-07-01",
+    remainingUsefulLifeMonthsAtCutover: 3,
+    cutoverResidualValue: 40,
+    cutoverAllocationStatus: "pending",
+  }, { year: 2026, month: 7, endDate: "2026-07-31" }, [{ id: 77, assetId: 1, status: "calculated", voucherId: null }]);
+  await assert.rejects(
+    () => recalculateFinanceAssetPeriod({ companyCode: "ZX02", year: 2026, month: 7 }, harness.dependencies),
+    /必须先清理已有折旧摊销条目/,
+  );
+});
+
+function recalculationHarness(
+  card: typeof baseCard | { [key: string]: unknown },
+  scope: { year: number; month: number; endDate: string } = { year: 2026, month: 6, endDate: "2026-06-30" },
+  currentEntries: Array<{ id: number; assetId: number; status: string; voucherId: number | null }> = [],
+) {
   let listCalls = 0;
+  const upserts: Array<Record<string, unknown>> = [];
   const tx = {
     financePeriod: {
-      findUnique: async () => ({ id: 60, isClosed: false, startDate: "2026-06-01" }),
+      findUnique: async () => ({ id: 60, isClosed: false, startDate: `${scope.year}-${String(scope.month).padStart(2, "0")}-01`, endDate: scope.endDate }),
     },
     financeAssetCard: {
       findMany: async () => [card],
     },
     financeAssetPeriodEntry: {
-      findMany: async () => [],
-      upsert: async () => ({ id: 1 }),
+      findMany: async (args: { where: { periodId?: number } }) => args.where.periodId ? currentEntries : [],
+      upsert: async (args: { create: Record<string, unknown>; update: Record<string, unknown> }) => {
+        upserts.push(args.create);
+        return { id: 1 };
+      },
     },
     financeAssetAdjustment: {
       findMany: async () => [],
@@ -71,6 +148,7 @@ function recalculationHarness(card: typeof baseCard | { [key: string]: unknown }
   };
   return {
     dependencies,
+    upserts,
     get listCalls() {
       return listCalls;
     },

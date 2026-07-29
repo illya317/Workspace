@@ -4,6 +4,7 @@ export type FinanceAssetExportView = "cards" | "period" | "adjustments";
 export type FinanceAssetUsefulLifeMode = "required" | "required_or_indefinite_basis";
 export type FinanceAssetPolicySource = "group" | "company_override" | "system_default";
 export type FinanceAssetImpairmentConclusion = "no_indication" | "no_impairment" | "impairment_recorded";
+export type FinanceAssetInitializationMode = "standard" | "legacy_cutover";
 
 export type FinanceAssetCategoryDto = {
   id: number;
@@ -65,7 +66,15 @@ export type FinanceAssetCardDto = {
   residualRate: number;
   usefulLifeMonths: number | null;
   method: FinanceAssetDepreciationMethod;
+  initializationMode: FinanceAssetInitializationMode;
   openingAccumulatedAmount: number;
+  openingImpairmentAmount: number;
+  openingNetBookValue: number | null;
+  cutoverDate: string | null;
+  remainingUsefulLifeMonthsAtCutover: number | null;
+  cutoverResidualValue: number | null;
+  cutoverAllocationStatus: "allocated" | "pending" | null;
+  cutoverReconciliationFingerprint: string | null;
   status: string;
   nonAmortizationReason: string | null;
   note: string | null;

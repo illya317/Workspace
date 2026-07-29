@@ -1,3 +1,8 @@
+import type {
+  BusinessCodeConfig,
+  SequentialBusinessCodeRule,
+} from "@workspace/platform/business-code-config";
+
 interface DepartmentNode {
   id: number;
   code: string;
@@ -11,25 +16,46 @@ interface PositionNode {
   departmentId: number | null;
 }
 
-function positionCodeSuffix(code: string): string {
-  const match = String(code || "").trim().match(/-(\d{1,2})$/);
-  if (match) return match[1].padStart(2, "0");
-  const tail = String(code || "").trim().split("-").pop() || "";
-  const digits = tail.replace(/\D/g, "").slice(0, 2);
-  return digits ? digits.padStart(2, "0") : "";
+function positionCodeSequence(code: string, rule: SequentialBusinessCodeRule): number | null {
+  const tail = rule.separator
+    ? String(code || "").trim().split(rule.separator).pop() || ""
+    : String(code || "").trim().slice(-rule.sequenceLength);
+  if (!/^\d+$/.test(tail) || tail.length > rule.sequenceLength) return null;
+  const sequence = Number(tail);
+  return Number.isInteger(sequence) && sequence >= rule.sequenceStart ? sequence : null;
 }
 
-function deriveChildCode(parentCode: string, childLevel: number, childOldCode: string): string {
-  const prefix = parentCode.slice(0, 3);
+function renderPositionCode(
+  departmentCode: string,
+  sequence: number,
+  rule: SequentialBusinessCodeRule,
+) {
+  return [
+    rule.prefix,
+    departmentCode,
+    String(sequence).padStart(rule.sequenceLength, "0"),
+  ].filter(Boolean).join(rule.separator);
+}
+
+function deriveChildCode(
+  parentCode: string,
+  childLevel: number,
+  childOldCode: string,
+  departmentRule: BusinessCodeConfig["department"],
+): string {
+  const identifierLength = departmentRule.identifierLength;
+  const prefix = parentCode.slice(0, identifierLength);
   if (childLevel === 2) {
-    // L2: 继承 L1 的前三位字母，保留原数字段（必须以 00 结尾）
-    return prefix + childOldCode.slice(3);
+    // L2: 继承 L1 的组织简称，保留原层级数字段
+    return prefix + childOldCode.slice(identifierLength);
   }
   if (childLevel === 3) {
-    // L3: 继承 L2 的前三位字母 + 数字段（去掉末尾 00），保留原最后两位
-    const parentNumberWithoutTrailingZeros = parentCode.slice(3, -2);
-    const childTail = childOldCode.slice(-2);
-    return `${prefix}${parentNumberWithoutTrailingZeros}${childTail}`;
+    const parentNumberWithoutLevel2Suffix = parentCode.slice(
+      identifierLength + departmentRule.separator.length,
+      -departmentRule.level2Suffix.length,
+    );
+    const childTail = childOldCode.slice(-departmentRule.level3SequenceLength);
+    return `${prefix}${departmentRule.separator}${parentNumberWithoutLevel2Suffix}${childTail}`;
   }
   return childOldCode;
 }
@@ -40,18 +66,27 @@ function deriveChildCode(parentCode: string, childLevel: number, childOldCode: s
  * 规则：
  * - L1 改前缀 -> L2/L3 只换前缀，数字段不变
  * - L2 改数字段 -> L3 只换数字段第一位，最后两位不变
- * - 岗位编码统一为 GW-{部门编码}-{序号}
+ * - 岗位编码按当前岗位编码规则重组
  */
 export function deriveDepartmentCodeCascade(params: {
   changedDepartment: DepartmentNode;
   newCode: string;
   departments: DepartmentNode[];
   positions: PositionNode[];
+  departmentRule: BusinessCodeConfig["department"];
+  positionRule: SequentialBusinessCodeRule;
 }): {
   departments: Array<{ id: number; code: string }>;
   positions: Array<{ id: number; code: string }>;
 } {
-  const { changedDepartment, newCode, departments, positions } = params;
+  const {
+    changedDepartment,
+    newCode,
+    departments,
+    positions,
+    departmentRule,
+    positionRule,
+  } = params;
   const newCodeById = new Map<number, string>();
   newCodeById.set(changedDepartment.id, newCode);
 
@@ -62,7 +97,12 @@ export function deriveDepartmentCodeCascade(params: {
     const parentCode = newCodeById.get(parentId)!;
     for (const child of departments) {
       if (child.parentId !== parentId) continue;
-      const childNewCode = deriveChildCode(parentCode, child.level, child.code);
+      const childNewCode = deriveChildCode(
+        parentCode,
+        child.level,
+        child.code,
+        departmentRule,
+      );
       newCodeById.set(child.id, childNewCode);
       queue.push(child.id);
     }
@@ -81,9 +121,9 @@ export function deriveDepartmentCodeCascade(params: {
     .filter((p) => p.departmentId != null && affectedDepartmentIds.has(p.departmentId))
     .map((p) => {
       const departmentCode = newCodeById.get(p.departmentId!)!;
-      const suffix = positionCodeSuffix(p.code);
-      if (!suffix) return { id: p.id, code: p.code };
-      return { id: p.id, code: `GW-${departmentCode}-${suffix}` };
+      const sequence = positionCodeSequence(p.code, positionRule);
+      if (sequence === null) return { id: p.id, code: p.code };
+      return { id: p.id, code: renderPositionCode(departmentCode, sequence, positionRule) };
     });
 
   return { departments: departmentUpdates, positions: positionUpdates };

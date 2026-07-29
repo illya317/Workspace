@@ -17,9 +17,9 @@ test("parses the Fenghua layout and normalizes intangible amortization labels", 
   assert.equal(intangible?.sourceRange, "9&10-2!A3:G3");
   const fixed = parsed.assets.find((asset) => asset.assetKind === "fixed_asset");
   assert.equal(fixed?.depreciationStartDate, undefined);
-  assert.ok(parsed.blockers.some((item) => item.code === "FIXED_DEPRECIATION_START_MISSING" && item.sourceRange === "9&10-1!A4:T4"));
+  assert.ok(parsed.warnings.some((item) => item.code === "FIXED_DEPRECIATION_START_MISSING" && item.sourceRange === "9&10-1!A4:T4"));
   assert.ok(parsed.blockers.some((item) => item.code === "DEFERRED_ACCUMULATED_CONTROL_FAILED"));
-  assert.ok(parsed.blockers.some((item) => item.code === "LEASEHOLD_IMPROVEMENT_EVIDENCE_MISSING"));
+  assert.ok(parsed.warnings.some((item) => item.code === "LEASEHOLD_IMPROVEMENT_EVIDENCE_MISSING"));
 });
 
 test("selects only the Yuetong current section and keeps source account hints", () => {
@@ -36,12 +36,12 @@ test("selects only the Yuetong current section and keeps source account hints", 
   assert.equal(software?.usefulLifeEvidence, "implied_amount_ratio");
   assert.equal(parking?.usefulLifeMonths, 12);
   assert.equal(parking?.usefulLifeEvidence, "source_term");
-  assert.ok(parsed.blockers.some((item) => item.code === "INTANGIBLE_USEFUL_LIFE_IMPLIED_ONLY"));
+  assert.ok(parsed.warnings.some((item) => item.code === "INTANGIBLE_USEFUL_LIFE_IMPLIED_ONLY"));
   assert.ok(parsed.controls.some((control) => control.key === "deferred_original_cost" && control.status === "missing"));
   assert.ok(parsed.blockers.some((item) => item.code === "DEFERRED_SOURCE_TOTAL_MISSING"));
   const fixed = parsed.assets.find((asset) => asset.assetKind === "fixed_asset");
   assert.equal(fixed?.depreciationStartDate, undefined);
-  assert.ok(parsed.blockers.some((item) => item.code === "FIXED_DEPRECIATION_START_MISSING" && item.sourceRange === "9&10-1!A3:AG3"));
+  assert.ok(parsed.warnings.some((item) => item.code === "FIXED_DEPRECIATION_START_MISSING" && item.sourceRange === "9&10-1!A3:AG3"));
 });
 
 test("fails closed for Tianlitong controls and keeps renovation invoices as evidence", () => {
@@ -55,9 +55,9 @@ test("fails closed for Tianlitong controls and keeps renovation invoices as evid
   assert.ok(!parsed.assets.some((asset) => asset.name.includes("装修")));
   assert.ok(parsed.blockers.some((item) => item.code === "FIXED_DEPRECIATION_CONTROL_FAILED"));
   assert.ok(parsed.blockers.some((item) => item.code === "ASSET_PERIOD_MISMATCH"));
-  assert.ok(parsed.blockers.some((item) => item.code === "INTANGIBLE_USEFUL_LIFE_MISSING"));
-  assert.ok(parsed.blockers.some((item) => item.code === "LICENSE_RECOGNITION_REVIEW"));
-  assert.ok(parsed.blockers.some((item) => item.code === "RENOVATION_CARD_EVIDENCE_MISSING"));
+  assert.ok(parsed.warnings.some((item) => item.code === "INTANGIBLE_USEFUL_LIFE_MISSING"));
+  assert.ok(parsed.warnings.some((item) => item.code === "LICENSE_RECOGNITION_REVIEW"));
+  assert.ok(parsed.warnings.some((item) => item.code === "RENOVATION_CARD_EVIDENCE_MISSING"));
   assert.equal(parsed.renovationCostEvidence.find((line) => line.sourceRow === 20)?.treatment, "excluded_from_source_total");
   assert.equal(parsed.controls.find((control) => control.key === "renovation_invoice_cost")?.status, "pass");
   assert.equal(parsed.readyForImport, false);

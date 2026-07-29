@@ -36,4 +36,7 @@ test("local dev applies migrations and source analysis before clearing the Next 
   assert.match(source, /"--write", "--optional"/);
   assert.match(source, /本地应用继续启动/);
   assert.doesNotMatch(source, /源码模块声明未通过，dev server 未启动/);
+  assert.match(source, /return superviseNextDev\(/);
+  assert.equal(source.match(/await runDevelopmentMigrations\(\)/g)?.length, 1);
+  assert.equal(source.match(/await fs\.rm\(path\.join\(repositoryRoot, "\.next"\)/g)?.length, 1);
 });

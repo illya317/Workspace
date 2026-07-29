@@ -227,6 +227,7 @@ export default function ExternalPartyClient({
         content: {
           kind: "sections" as const,
           sections: externalPartyFormSections(category, createDraft ?? emptyExternalPartyDraft(), updateCreateDraft, {
+            autoGenerateCode: true,
             existingCandidates: otherApiPath
               ? candidates.items.filter((party) => !party.roles.includes(category))
               : undefined,
@@ -237,7 +238,7 @@ export default function ExternalPartyClient({
         },
         submission: {
           action: "save" as const,
-          disabled: saving || !createDraft?.code.trim() || !createDraft.name.trim() || !createDraft.identityNumber.trim(),
+          disabled: saving || !createDraft?.name.trim() || !createDraft.identityNumber.trim(),
           execute: saveCreate,
         },
         onOpenChange: (open: boolean) => setCreateDraft(open ? emptyExternalPartyDraft() : null),

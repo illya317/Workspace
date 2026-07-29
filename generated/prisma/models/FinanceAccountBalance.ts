@@ -319,6 +319,9 @@ export type FinanceAccountBalanceWhereInput = {
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
   company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  assetCutoverCards?: Prisma.FinanceAssetCardListRelationFilter
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardListRelationFilter
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardListRelationFilter
 }
 
 export type FinanceAccountBalanceOrderByWithRelationInput = {
@@ -338,6 +341,9 @@ export type FinanceAccountBalanceOrderByWithRelationInput = {
   period?: Prisma.FinancePeriodOrderByWithRelationInput
   account?: Prisma.FinanceAccountOrderByWithRelationInput
   company?: Prisma.CompanyOrderByWithRelationInput
+  assetCutoverCards?: Prisma.FinanceAssetCardOrderByRelationAggregateInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardOrderByRelationAggregateInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardOrderByRelationAggregateInput
 }
 
 export type FinanceAccountBalanceWhereUniqueInput = Prisma.AtLeast<{
@@ -361,6 +367,9 @@ export type FinanceAccountBalanceWhereUniqueInput = Prisma.AtLeast<{
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
   company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  assetCutoverCards?: Prisma.FinanceAssetCardListRelationFilter
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardListRelationFilter
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardListRelationFilter
 }, "id" | "accountId_periodId">
 
 export type FinanceAccountBalanceOrderByWithAggregationInput = {
@@ -416,6 +425,9 @@ export type FinanceAccountBalanceCreateInput = {
   period: Prisma.FinancePeriodCreateNestedOneWithoutBalancesInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutBalancesInput
   company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountBalancesInput
+  assetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverAssetBalanceInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverAccumulatedBalanceInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverImpairmentBalanceInput
 }
 
 export type FinanceAccountBalanceUncheckedCreateInput = {
@@ -432,6 +444,9 @@ export type FinanceAccountBalanceUncheckedCreateInput = {
   companyId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  assetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAssetBalanceInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAccumulatedBalanceInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverImpairmentBalanceInput
 }
 
 export type FinanceAccountBalanceUpdateInput = {
@@ -447,6 +462,9 @@ export type FinanceAccountBalanceUpdateInput = {
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutBalancesNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutBalancesNestedInput
   company?: Prisma.CompanyUpdateOneWithoutFinanceAccountBalancesNestedInput
+  assetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverAssetBalanceNestedInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverAccumulatedBalanceNestedInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverImpairmentBalanceNestedInput
 }
 
 export type FinanceAccountBalanceUncheckedUpdateInput = {
@@ -463,6 +481,9 @@ export type FinanceAccountBalanceUncheckedUpdateInput = {
   companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAssetBalanceNestedInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAccumulatedBalanceNestedInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverImpairmentBalanceNestedInput
 }
 
 export type FinanceAccountBalanceCreateManyInput = {
@@ -507,6 +528,11 @@ export type FinanceAccountBalanceUncheckedUpdateManyInput = {
   companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAccountBalanceNullableScalarRelationFilter = {
+  is?: Prisma.FinanceAccountBalanceWhereInput | null
+  isNot?: Prisma.FinanceAccountBalanceWhereInput | null
 }
 
 export type FinanceAccountBalanceListRelationFilter = {
@@ -596,6 +622,54 @@ export type FinanceAccountBalanceSumOrderByAggregateInput = {
   closingDebit?: Prisma.SortOrder
   closingCredit?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
+}
+
+export type FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountBalanceCreateWithoutAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedCreateWithoutAssetCutoverCardsInput>
+  connectOrCreate?: Prisma.FinanceAccountBalanceCreateOrConnectWithoutAssetCutoverCardsInput
+  connect?: Prisma.FinanceAccountBalanceWhereUniqueInput
+}
+
+export type FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountBalanceCreateWithoutAccumulatedAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedCreateWithoutAccumulatedAssetCutoverCardsInput>
+  connectOrCreate?: Prisma.FinanceAccountBalanceCreateOrConnectWithoutAccumulatedAssetCutoverCardsInput
+  connect?: Prisma.FinanceAccountBalanceWhereUniqueInput
+}
+
+export type FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountBalanceCreateWithoutImpairmentAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedCreateWithoutImpairmentAssetCutoverCardsInput>
+  connectOrCreate?: Prisma.FinanceAccountBalanceCreateOrConnectWithoutImpairmentAssetCutoverCardsInput
+  connect?: Prisma.FinanceAccountBalanceWhereUniqueInput
+}
+
+export type FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountBalanceCreateWithoutAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedCreateWithoutAssetCutoverCardsInput>
+  connectOrCreate?: Prisma.FinanceAccountBalanceCreateOrConnectWithoutAssetCutoverCardsInput
+  upsert?: Prisma.FinanceAccountBalanceUpsertWithoutAssetCutoverCardsInput
+  disconnect?: Prisma.FinanceAccountBalanceWhereInput | boolean
+  delete?: Prisma.FinanceAccountBalanceWhereInput | boolean
+  connect?: Prisma.FinanceAccountBalanceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountBalanceUpdateToOneWithWhereWithoutAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUpdateWithoutAssetCutoverCardsInput>, Prisma.FinanceAccountBalanceUncheckedUpdateWithoutAssetCutoverCardsInput>
+}
+
+export type FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountBalanceCreateWithoutAccumulatedAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedCreateWithoutAccumulatedAssetCutoverCardsInput>
+  connectOrCreate?: Prisma.FinanceAccountBalanceCreateOrConnectWithoutAccumulatedAssetCutoverCardsInput
+  upsert?: Prisma.FinanceAccountBalanceUpsertWithoutAccumulatedAssetCutoverCardsInput
+  disconnect?: Prisma.FinanceAccountBalanceWhereInput | boolean
+  delete?: Prisma.FinanceAccountBalanceWhereInput | boolean
+  connect?: Prisma.FinanceAccountBalanceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountBalanceUpdateToOneWithWhereWithoutAccumulatedAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUpdateWithoutAccumulatedAssetCutoverCardsInput>, Prisma.FinanceAccountBalanceUncheckedUpdateWithoutAccumulatedAssetCutoverCardsInput>
+}
+
+export type FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountBalanceCreateWithoutImpairmentAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedCreateWithoutImpairmentAssetCutoverCardsInput>
+  connectOrCreate?: Prisma.FinanceAccountBalanceCreateOrConnectWithoutImpairmentAssetCutoverCardsInput
+  upsert?: Prisma.FinanceAccountBalanceUpsertWithoutImpairmentAssetCutoverCardsInput
+  disconnect?: Prisma.FinanceAccountBalanceWhereInput | boolean
+  delete?: Prisma.FinanceAccountBalanceWhereInput | boolean
+  connect?: Prisma.FinanceAccountBalanceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountBalanceUpdateToOneWithWhereWithoutImpairmentAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUpdateWithoutImpairmentAssetCutoverCardsInput>, Prisma.FinanceAccountBalanceUncheckedUpdateWithoutImpairmentAssetCutoverCardsInput>
 }
 
 export type FinanceAccountBalanceCreateNestedManyWithoutAccountInput = {
@@ -724,6 +798,264 @@ export type FinanceAccountBalanceUncheckedUpdateManyWithoutCompanyNestedInput = 
   deleteMany?: Prisma.FinanceAccountBalanceScalarWhereInput | Prisma.FinanceAccountBalanceScalarWhereInput[]
 }
 
+export type FinanceAccountBalanceCreateWithoutAssetCutoverCardsInput = {
+  openingDebit?: number
+  openingCredit?: number
+  currentDebit?: number
+  currentCredit?: number
+  closingDebit?: number
+  closingCredit?: number
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  period: Prisma.FinancePeriodCreateNestedOneWithoutBalancesInput
+  account: Prisma.FinanceAccountCreateNestedOneWithoutBalancesInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountBalancesInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverAccumulatedBalanceInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverImpairmentBalanceInput
+}
+
+export type FinanceAccountBalanceUncheckedCreateWithoutAssetCutoverCardsInput = {
+  id?: number
+  accountId: number
+  periodId: number
+  openingDebit?: number
+  openingCredit?: number
+  currentDebit?: number
+  currentCredit?: number
+  closingDebit?: number
+  closingCredit?: number
+  companyCode: string
+  companyId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAccumulatedBalanceInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverImpairmentBalanceInput
+}
+
+export type FinanceAccountBalanceCreateOrConnectWithoutAssetCutoverCardsInput = {
+  where: Prisma.FinanceAccountBalanceWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountBalanceCreateWithoutAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedCreateWithoutAssetCutoverCardsInput>
+}
+
+export type FinanceAccountBalanceCreateWithoutAccumulatedAssetCutoverCardsInput = {
+  openingDebit?: number
+  openingCredit?: number
+  currentDebit?: number
+  currentCredit?: number
+  closingDebit?: number
+  closingCredit?: number
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  period: Prisma.FinancePeriodCreateNestedOneWithoutBalancesInput
+  account: Prisma.FinanceAccountCreateNestedOneWithoutBalancesInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountBalancesInput
+  assetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverAssetBalanceInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverImpairmentBalanceInput
+}
+
+export type FinanceAccountBalanceUncheckedCreateWithoutAccumulatedAssetCutoverCardsInput = {
+  id?: number
+  accountId: number
+  periodId: number
+  openingDebit?: number
+  openingCredit?: number
+  currentDebit?: number
+  currentCredit?: number
+  closingDebit?: number
+  closingCredit?: number
+  companyCode: string
+  companyId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAssetBalanceInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverImpairmentBalanceInput
+}
+
+export type FinanceAccountBalanceCreateOrConnectWithoutAccumulatedAssetCutoverCardsInput = {
+  where: Prisma.FinanceAccountBalanceWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountBalanceCreateWithoutAccumulatedAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedCreateWithoutAccumulatedAssetCutoverCardsInput>
+}
+
+export type FinanceAccountBalanceCreateWithoutImpairmentAssetCutoverCardsInput = {
+  openingDebit?: number
+  openingCredit?: number
+  currentDebit?: number
+  currentCredit?: number
+  closingDebit?: number
+  closingCredit?: number
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  period: Prisma.FinancePeriodCreateNestedOneWithoutBalancesInput
+  account: Prisma.FinanceAccountCreateNestedOneWithoutBalancesInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountBalancesInput
+  assetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverAssetBalanceInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverAccumulatedBalanceInput
+}
+
+export type FinanceAccountBalanceUncheckedCreateWithoutImpairmentAssetCutoverCardsInput = {
+  id?: number
+  accountId: number
+  periodId: number
+  openingDebit?: number
+  openingCredit?: number
+  currentDebit?: number
+  currentCredit?: number
+  closingDebit?: number
+  closingCredit?: number
+  companyCode: string
+  companyId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAssetBalanceInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAccumulatedBalanceInput
+}
+
+export type FinanceAccountBalanceCreateOrConnectWithoutImpairmentAssetCutoverCardsInput = {
+  where: Prisma.FinanceAccountBalanceWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountBalanceCreateWithoutImpairmentAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedCreateWithoutImpairmentAssetCutoverCardsInput>
+}
+
+export type FinanceAccountBalanceUpsertWithoutAssetCutoverCardsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountBalanceUpdateWithoutAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedUpdateWithoutAssetCutoverCardsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountBalanceCreateWithoutAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedCreateWithoutAssetCutoverCardsInput>
+  where?: Prisma.FinanceAccountBalanceWhereInput
+}
+
+export type FinanceAccountBalanceUpdateToOneWithWhereWithoutAssetCutoverCardsInput = {
+  where?: Prisma.FinanceAccountBalanceWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountBalanceUpdateWithoutAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedUpdateWithoutAssetCutoverCardsInput>
+}
+
+export type FinanceAccountBalanceUpdateWithoutAssetCutoverCardsInput = {
+  openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  period?: Prisma.FinancePeriodUpdateOneRequiredWithoutBalancesNestedInput
+  account?: Prisma.FinanceAccountUpdateOneRequiredWithoutBalancesNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountBalancesNestedInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverAccumulatedBalanceNestedInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverImpairmentBalanceNestedInput
+}
+
+export type FinanceAccountBalanceUncheckedUpdateWithoutAssetCutoverCardsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  accountId?: Prisma.IntFieldUpdateOperationsInput | number
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAccumulatedBalanceNestedInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverImpairmentBalanceNestedInput
+}
+
+export type FinanceAccountBalanceUpsertWithoutAccumulatedAssetCutoverCardsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountBalanceUpdateWithoutAccumulatedAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedUpdateWithoutAccumulatedAssetCutoverCardsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountBalanceCreateWithoutAccumulatedAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedCreateWithoutAccumulatedAssetCutoverCardsInput>
+  where?: Prisma.FinanceAccountBalanceWhereInput
+}
+
+export type FinanceAccountBalanceUpdateToOneWithWhereWithoutAccumulatedAssetCutoverCardsInput = {
+  where?: Prisma.FinanceAccountBalanceWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountBalanceUpdateWithoutAccumulatedAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedUpdateWithoutAccumulatedAssetCutoverCardsInput>
+}
+
+export type FinanceAccountBalanceUpdateWithoutAccumulatedAssetCutoverCardsInput = {
+  openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  period?: Prisma.FinancePeriodUpdateOneRequiredWithoutBalancesNestedInput
+  account?: Prisma.FinanceAccountUpdateOneRequiredWithoutBalancesNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountBalancesNestedInput
+  assetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverAssetBalanceNestedInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverImpairmentBalanceNestedInput
+}
+
+export type FinanceAccountBalanceUncheckedUpdateWithoutAccumulatedAssetCutoverCardsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  accountId?: Prisma.IntFieldUpdateOperationsInput | number
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAssetBalanceNestedInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverImpairmentBalanceNestedInput
+}
+
+export type FinanceAccountBalanceUpsertWithoutImpairmentAssetCutoverCardsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountBalanceUpdateWithoutImpairmentAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedUpdateWithoutImpairmentAssetCutoverCardsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountBalanceCreateWithoutImpairmentAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedCreateWithoutImpairmentAssetCutoverCardsInput>
+  where?: Prisma.FinanceAccountBalanceWhereInput
+}
+
+export type FinanceAccountBalanceUpdateToOneWithWhereWithoutImpairmentAssetCutoverCardsInput = {
+  where?: Prisma.FinanceAccountBalanceWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountBalanceUpdateWithoutImpairmentAssetCutoverCardsInput, Prisma.FinanceAccountBalanceUncheckedUpdateWithoutImpairmentAssetCutoverCardsInput>
+}
+
+export type FinanceAccountBalanceUpdateWithoutImpairmentAssetCutoverCardsInput = {
+  openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  period?: Prisma.FinancePeriodUpdateOneRequiredWithoutBalancesNestedInput
+  account?: Prisma.FinanceAccountUpdateOneRequiredWithoutBalancesNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountBalancesNestedInput
+  assetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverAssetBalanceNestedInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverAccumulatedBalanceNestedInput
+}
+
+export type FinanceAccountBalanceUncheckedUpdateWithoutImpairmentAssetCutoverCardsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  accountId?: Prisma.IntFieldUpdateOperationsInput | number
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAssetBalanceNestedInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAccumulatedBalanceNestedInput
+}
+
 export type FinanceAccountBalanceCreateWithoutAccountInput = {
   openingDebit?: number
   openingCredit?: number
@@ -736,6 +1068,9 @@ export type FinanceAccountBalanceCreateWithoutAccountInput = {
   updatedAt?: Date | string
   period: Prisma.FinancePeriodCreateNestedOneWithoutBalancesInput
   company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountBalancesInput
+  assetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverAssetBalanceInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverAccumulatedBalanceInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverImpairmentBalanceInput
 }
 
 export type FinanceAccountBalanceUncheckedCreateWithoutAccountInput = {
@@ -751,6 +1086,9 @@ export type FinanceAccountBalanceUncheckedCreateWithoutAccountInput = {
   companyId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  assetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAssetBalanceInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAccumulatedBalanceInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverImpairmentBalanceInput
 }
 
 export type FinanceAccountBalanceCreateOrConnectWithoutAccountInput = {
@@ -810,6 +1148,9 @@ export type FinanceAccountBalanceCreateWithoutPeriodInput = {
   updatedAt?: Date | string
   account: Prisma.FinanceAccountCreateNestedOneWithoutBalancesInput
   company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountBalancesInput
+  assetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverAssetBalanceInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverAccumulatedBalanceInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverImpairmentBalanceInput
 }
 
 export type FinanceAccountBalanceUncheckedCreateWithoutPeriodInput = {
@@ -825,6 +1166,9 @@ export type FinanceAccountBalanceUncheckedCreateWithoutPeriodInput = {
   companyId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  assetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAssetBalanceInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAccumulatedBalanceInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverImpairmentBalanceInput
 }
 
 export type FinanceAccountBalanceCreateOrConnectWithoutPeriodInput = {
@@ -865,6 +1209,9 @@ export type FinanceAccountBalanceCreateWithoutCompanyInput = {
   updatedAt?: Date | string
   period: Prisma.FinancePeriodCreateNestedOneWithoutBalancesInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutBalancesInput
+  assetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverAssetBalanceInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverAccumulatedBalanceInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCutoverImpairmentBalanceInput
 }
 
 export type FinanceAccountBalanceUncheckedCreateWithoutCompanyInput = {
@@ -880,6 +1227,9 @@ export type FinanceAccountBalanceUncheckedCreateWithoutCompanyInput = {
   companyCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  assetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAssetBalanceInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAccumulatedBalanceInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverImpairmentBalanceInput
 }
 
 export type FinanceAccountBalanceCreateOrConnectWithoutCompanyInput = {
@@ -935,6 +1285,9 @@ export type FinanceAccountBalanceUpdateWithoutAccountInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutBalancesNestedInput
   company?: Prisma.CompanyUpdateOneWithoutFinanceAccountBalancesNestedInput
+  assetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverAssetBalanceNestedInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverAccumulatedBalanceNestedInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverImpairmentBalanceNestedInput
 }
 
 export type FinanceAccountBalanceUncheckedUpdateWithoutAccountInput = {
@@ -950,6 +1303,9 @@ export type FinanceAccountBalanceUncheckedUpdateWithoutAccountInput = {
   companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAssetBalanceNestedInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAccumulatedBalanceNestedInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverImpairmentBalanceNestedInput
 }
 
 export type FinanceAccountBalanceUncheckedUpdateManyWithoutAccountInput = {
@@ -994,6 +1350,9 @@ export type FinanceAccountBalanceUpdateWithoutPeriodInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutBalancesNestedInput
   company?: Prisma.CompanyUpdateOneWithoutFinanceAccountBalancesNestedInput
+  assetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverAssetBalanceNestedInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverAccumulatedBalanceNestedInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverImpairmentBalanceNestedInput
 }
 
 export type FinanceAccountBalanceUncheckedUpdateWithoutPeriodInput = {
@@ -1009,6 +1368,9 @@ export type FinanceAccountBalanceUncheckedUpdateWithoutPeriodInput = {
   companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAssetBalanceNestedInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAccumulatedBalanceNestedInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverImpairmentBalanceNestedInput
 }
 
 export type FinanceAccountBalanceUncheckedUpdateManyWithoutPeriodInput = {
@@ -1053,6 +1415,9 @@ export type FinanceAccountBalanceUpdateWithoutCompanyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutBalancesNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutBalancesNestedInput
+  assetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverAssetBalanceNestedInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverAccumulatedBalanceNestedInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUpdateManyWithoutCutoverImpairmentBalanceNestedInput
 }
 
 export type FinanceAccountBalanceUncheckedUpdateWithoutCompanyInput = {
@@ -1068,6 +1433,9 @@ export type FinanceAccountBalanceUncheckedUpdateWithoutCompanyInput = {
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAssetBalanceNestedInput
+  accumulatedAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAccumulatedBalanceNestedInput
+  impairmentAssetCutoverCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverImpairmentBalanceNestedInput
 }
 
 export type FinanceAccountBalanceUncheckedUpdateManyWithoutCompanyInput = {
@@ -1085,6 +1453,53 @@ export type FinanceAccountBalanceUncheckedUpdateManyWithoutCompanyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type FinanceAccountBalanceCountOutputType
+ */
+
+export type FinanceAccountBalanceCountOutputType = {
+  assetCutoverCards: number
+  accumulatedAssetCutoverCards: number
+  impairmentAssetCutoverCards: number
+}
+
+export type FinanceAccountBalanceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assetCutoverCards?: boolean | FinanceAccountBalanceCountOutputTypeCountAssetCutoverCardsArgs
+  accumulatedAssetCutoverCards?: boolean | FinanceAccountBalanceCountOutputTypeCountAccumulatedAssetCutoverCardsArgs
+  impairmentAssetCutoverCards?: boolean | FinanceAccountBalanceCountOutputTypeCountImpairmentAssetCutoverCardsArgs
+}
+
+/**
+ * FinanceAccountBalanceCountOutputType without action
+ */
+export type FinanceAccountBalanceCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccountBalanceCountOutputType
+   */
+  select?: Prisma.FinanceAccountBalanceCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * FinanceAccountBalanceCountOutputType without action
+ */
+export type FinanceAccountBalanceCountOutputTypeCountAssetCutoverCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetCardWhereInput
+}
+
+/**
+ * FinanceAccountBalanceCountOutputType without action
+ */
+export type FinanceAccountBalanceCountOutputTypeCountAccumulatedAssetCutoverCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetCardWhereInput
+}
+
+/**
+ * FinanceAccountBalanceCountOutputType without action
+ */
+export type FinanceAccountBalanceCountOutputTypeCountImpairmentAssetCutoverCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetCardWhereInput
+}
 
 
 export type FinanceAccountBalanceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1104,6 +1519,10 @@ export type FinanceAccountBalanceSelect<ExtArgs extends runtime.Types.Extensions
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   company?: boolean | Prisma.FinanceAccountBalance$companyArgs<ExtArgs>
+  assetCutoverCards?: boolean | Prisma.FinanceAccountBalance$assetCutoverCardsArgs<ExtArgs>
+  accumulatedAssetCutoverCards?: boolean | Prisma.FinanceAccountBalance$accumulatedAssetCutoverCardsArgs<ExtArgs>
+  impairmentAssetCutoverCards?: boolean | Prisma.FinanceAccountBalance$impairmentAssetCutoverCardsArgs<ExtArgs>
+  _count?: boolean | Prisma.FinanceAccountBalanceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAccountBalance"]>
 
 export type FinanceAccountBalanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1165,6 +1584,10 @@ export type FinanceAccountBalanceInclude<ExtArgs extends runtime.Types.Extension
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   company?: boolean | Prisma.FinanceAccountBalance$companyArgs<ExtArgs>
+  assetCutoverCards?: boolean | Prisma.FinanceAccountBalance$assetCutoverCardsArgs<ExtArgs>
+  accumulatedAssetCutoverCards?: boolean | Prisma.FinanceAccountBalance$accumulatedAssetCutoverCardsArgs<ExtArgs>
+  impairmentAssetCutoverCards?: boolean | Prisma.FinanceAccountBalance$impairmentAssetCutoverCardsArgs<ExtArgs>
+  _count?: boolean | Prisma.FinanceAccountBalanceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceAccountBalanceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
@@ -1183,6 +1606,9 @@ export type $FinanceAccountBalancePayload<ExtArgs extends runtime.Types.Extensio
     period: Prisma.$FinancePeriodPayload<ExtArgs>
     account: Prisma.$FinanceAccountPayload<ExtArgs>
     company: Prisma.$CompanyPayload<ExtArgs> | null
+    assetCutoverCards: Prisma.$FinanceAssetCardPayload<ExtArgs>[]
+    accumulatedAssetCutoverCards: Prisma.$FinanceAssetCardPayload<ExtArgs>[]
+    impairmentAssetCutoverCards: Prisma.$FinanceAssetCardPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1595,6 +2021,9 @@ export interface Prisma__FinanceAccountBalanceClient<T, Null = never, ExtArgs ex
   period<T extends Prisma.FinancePeriodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriodDefaultArgs<ExtArgs>>): Prisma.Prisma__FinancePeriodClient<runtime.Types.Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   account<T extends Prisma.FinanceAccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   company<T extends Prisma.FinanceAccountBalance$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountBalance$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  assetCutoverCards<T extends Prisma.FinanceAccountBalance$assetCutoverCardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountBalance$assetCutoverCardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  accumulatedAssetCutoverCards<T extends Prisma.FinanceAccountBalance$accumulatedAssetCutoverCardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountBalance$accumulatedAssetCutoverCardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  impairmentAssetCutoverCards<T extends Prisma.FinanceAccountBalance$impairmentAssetCutoverCardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountBalance$impairmentAssetCutoverCardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2054,6 +2483,78 @@ export type FinanceAccountBalance$companyArgs<ExtArgs extends runtime.Types.Exte
    */
   include?: Prisma.CompanyInclude<ExtArgs> | null
   where?: Prisma.CompanyWhereInput
+}
+
+/**
+ * FinanceAccountBalance.assetCutoverCards
+ */
+export type FinanceAccountBalance$assetCutoverCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetCard
+   */
+  select?: Prisma.FinanceAssetCardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetCard
+   */
+  omit?: Prisma.FinanceAssetCardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCardInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetCardWhereInput
+  orderBy?: Prisma.FinanceAssetCardOrderByWithRelationInput | Prisma.FinanceAssetCardOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetCardWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetCardScalarFieldEnum | Prisma.FinanceAssetCardScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccountBalance.accumulatedAssetCutoverCards
+ */
+export type FinanceAccountBalance$accumulatedAssetCutoverCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetCard
+   */
+  select?: Prisma.FinanceAssetCardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetCard
+   */
+  omit?: Prisma.FinanceAssetCardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCardInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetCardWhereInput
+  orderBy?: Prisma.FinanceAssetCardOrderByWithRelationInput | Prisma.FinanceAssetCardOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetCardWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetCardScalarFieldEnum | Prisma.FinanceAssetCardScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccountBalance.impairmentAssetCutoverCards
+ */
+export type FinanceAccountBalance$impairmentAssetCutoverCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetCard
+   */
+  select?: Prisma.FinanceAssetCardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetCard
+   */
+  omit?: Prisma.FinanceAssetCardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCardInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetCardWhereInput
+  orderBy?: Prisma.FinanceAssetCardOrderByWithRelationInput | Prisma.FinanceAssetCardOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetCardWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetCardScalarFieldEnum | Prisma.FinanceAssetCardScalarFieldEnum[]
 }
 
 /**

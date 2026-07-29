@@ -1,7 +1,10 @@
 import path from "node:path";
 import ts from "typescript";
 
-import type { SourceCodeAnalysisRole } from "../../../packages/platform/source-code-analysis-contract";
+import type {
+  SourceCodeAnalysisDependencyEdge,
+  SourceCodeAnalysisRole,
+} from "../../../packages/platform/source-code-analysis-contract";
 
 export interface DependencySourceFile {
   path: string;
@@ -88,17 +91,29 @@ export function analyzeSourceDependencies(files: DependencySourceFile[], moduleK
   const knownFiles = new Set(fileByPath.keys());
   const edges = new Map<string, Set<string>>();
   const crossModuleImportCounts = new Map<string, number>();
+  const dependencyEdges = new Map<string, SourceCodeAnalysisDependencyEdge>();
   for (const moduleKey of moduleKeys) {
     edges.set(moduleKey, new Set());
     crossModuleImportCounts.set(moduleKey, 0);
   }
 
   for (const file of files) {
-    if (file.role === "test" || file.role === "tooling") continue;
     for (const specifier of importSpecifiers(file)) {
       const targetPath = resolveSourceImport(file.path, specifier, knownFiles);
       const target = targetPath ? fileByPath.get(targetPath) : null;
-      if (!target || target.moduleKey === file.moduleKey) continue;
+      if (!target) continue;
+      const dependencyKey = [file.moduleKey, file.role, target.moduleKey, target.role].join("\0");
+      const existingDependency = dependencyEdges.get(dependencyKey);
+      dependencyEdges.set(dependencyKey, existingDependency
+        ? { ...existingDependency, importCount: existingDependency.importCount + 1 }
+        : {
+            sourceModuleKey: file.moduleKey,
+            sourceRole: file.role,
+            targetModuleKey: target.moduleKey,
+            targetRole: target.role,
+            importCount: 1,
+          });
+      if (file.role === "test" || file.role === "tooling" || target.moduleKey === file.moduleKey) continue;
       edges.get(file.moduleKey)?.add(target.moduleKey);
       crossModuleImportCounts.set(file.moduleKey, (crossModuleImportCounts.get(file.moduleKey) ?? 0) + 1);
     }
@@ -106,6 +121,9 @@ export function analyzeSourceDependencies(files: DependencySourceFile[], moduleK
 
   return {
     crossModuleImportCounts,
+    dependencyEdges: [...dependencyEdges.values()].sort((left, right) =>
+      [left.sourceModuleKey, left.sourceRole, left.targetModuleKey, left.targetRole].join("\0")
+        .localeCompare([right.sourceModuleKey, right.sourceRole, right.targetModuleKey, right.targetRole].join("\0"))),
     dependencies: new Map([...edges].map(([moduleKey, values]) => [moduleKey, [...values].sort()])),
     cycles: dependencyCycles(edges),
   };

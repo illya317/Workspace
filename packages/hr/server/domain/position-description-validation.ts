@@ -3,8 +3,8 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
-import { prisma } from "@workspace/platform/server/prisma";
 import { parseBusinessDate } from "@workspace/platform/contracts/business-temporal";
+import { findPositionDescriptionOwner } from "../position-description-reference-adapter";
 
 export interface PositionDescriptionUpdateInput {
   id?: unknown;
@@ -60,10 +60,7 @@ export async function buildPositionDescriptionUpdateCommand(
   if (!input.id) return failCommand("缺少id");
   const descriptionId = Number(input.id);
   if (!Number.isInteger(descriptionId) || descriptionId <= 0) return failCommand("岗位说明书ID无效");
-  const ownerPosition = await prisma.position.findFirst({
-    where: { positionDescriptionId: descriptionId },
-    select: { id: true },
-  });
+  const ownerPosition = await findPositionDescriptionOwner(descriptionId);
   if (!ownerPosition) return failCommand("岗位说明书未绑定岗位", 404);
 
   const revisionUid = String(input.revisionUid || "").trim();

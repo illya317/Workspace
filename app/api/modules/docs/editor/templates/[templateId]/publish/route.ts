@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { executePublishDocsEditorTemplate } from "@workspace/platform/server/docs-editor";
+import { executePublishDocsEditorTemplate } from "@workspace/docs/server";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 

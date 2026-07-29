@@ -12,6 +12,7 @@ const TASKS = {
   "action-registry": npmScript("action-registry:check", "Action registry"),
   "api-response-format": npmScript("check:api-response-format", "API response format"),
   "business-action-registry": npmScript("business-action-registry:check", "Business action registry"),
+  "business-code-hardcoding": npmScript("business-code:check", "Business code registry and hardcoding"),
   "business-identity": npmScript("gate:business-identity", "Business identity boundary"),
   "business-temporal": npmScript("business-temporal:check", "Business Temporal registry and write seams"),
   "build-next": npmScript("build:next", "Next production build", { cacheable: false }),
@@ -40,6 +41,7 @@ const TASKS = {
   "domain-changed": npmScript("domain:changed", "Changed domain validation"),
   "env": npmScript("env:check", "Environment", { cacheable: false }),
   "history-policy": npmScript("check:history-policy", "History policy"),
+  "import-reference": npmScript("import-reference:check", "Import reference governance"),
   "lint-changed": npmScript("lint:changed", "Changed lint"),
   "lint-full": npmScript("lint:full", "Full lint", { covers: ["lint-changed"] }),
   "playwright-lifecycle": npmScript("playwright:lifecycle:check", "Playwright lifecycle"),
@@ -83,7 +85,9 @@ const TASKS = {
 const SUITES = {
   contracts: [
     "api-response-format",
+    "business-code-hardcoding",
     "history-policy",
+    "import-reference",
     "business-temporal",
     "deploy-graph",
     "deploy-unit-apps",
@@ -112,8 +116,8 @@ const SUITES = {
   ],
   precommit: ["@changed"],
   refactor: ["split-quality", "lint-changed", "@contracts"],
-  data: ["db-validate", "schema", "db-migration-check", "data-release", "docs-editor-templates"],
-  docs: ["docs-architecture", "docs-action-contracts", "docs-permission-actions"],
+  data: ["db-validate", "schema", "db-migration-check", "data-release", "import-reference", "docs-editor-templates"],
+  docs: ["docs-architecture", "docs-action-contracts", "docs-permission-actions", "business-code-hardcoding"],
   "hygiene-warning": [
     "company-hardcoding-warning",
     "structure-hygiene-warning",

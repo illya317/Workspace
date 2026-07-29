@@ -1,6 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { createExecutionApprovedFinanceAssetErpGlCutoverReconciler, getApprovedFinanceAssetLegacySyntheticAssets, loadApprovedFinanceAssetCutoverConfig } from "@workspace/finance/server/assets/approved-cutover-config";
 import { parseAssetWorkbook } from "@workspace/finance/server/assets/current-period-workbook";
+import { applyFinanceAssetLegacySyntheticAssets } from "@workspace/finance/server/assets/legacy-synthetic-assets";
+import { requireClosingWorkbookActor } from "./closing-workbook-cutover-config";
 
 async function main() {
   const sourcePath = process.argv.find((value) => value.endsWith(".xlsx"));
@@ -11,34 +14,50 @@ async function main() {
   const year = Number(option("year"));
   const month = Number(option("month"));
   if (!sourcePath || !companyCode || !Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) {
-    throw new Error("用法: node --import tsx scripts/import/import-closing-workbook.ts <workbook.xlsx> --company=<code> --year=<yyyy> --month=<1-12> [--execute]");
+    throw new Error("用法: node --import tsx scripts/import/import-closing-workbook.ts <workbook.xlsx> --company=<code> --year=<yyyy> --month=<1-12> [--execute --actor=<username> --asset-gl-config=<config.json>] [--asset-only]");
   }
   const buffer = await fs.readFile(path.resolve(sourcePath));
   const scope = { sourceFile: path.basename(sourcePath), companyCode, year, month };
-  const parsed = parseAssetWorkbook(buffer, scope);
+  const cutoverConfigPath = option("asset-gl-config");
+  const cutoverOptions = cutoverConfigPath
+    ? await loadApprovedFinanceAssetCutoverConfig(cutoverConfigPath, { companyCode, year, month })
+    : null;
+  const parseWorkbookForCutover = (workbookBuffer: Buffer, workbookScope: typeof scope) => applyFinanceAssetLegacySyntheticAssets(
+    parseAssetWorkbook(workbookBuffer, workbookScope),
+    cutoverOptions ? [...getApprovedFinanceAssetLegacySyntheticAssets(cutoverOptions)] : [],
+  );
+  const parsed = parseWorkbookForCutover(buffer, scope);
   if (assetOutput) {
     await fs.mkdir(path.dirname(path.resolve(assetOutput)), { recursive: true });
     await fs.writeFile(path.resolve(assetOutput), `${JSON.stringify(parsed, null, 2)}\n`, "utf8");
   }
-  if (assetOnly) {
+  if (assetOnly && !execute) {
     console.log(JSON.stringify({ mode: "asset-dry-run", readyForImport: parsed.readyForImport, assets: parsed.assets.length, costEvidence: parsed.renovationCostEvidence.length, blockers: parsed.blockers.length, controls: parsed.controls }, null, 2));
     return;
   }
-  const { parseInventoryWorkbook } = await import("@workspace/inventory/server/workbook-import");
-  const inventory = parseInventoryWorkbook(buffer);
+  const inventory = assetOnly ? null : (await import("@workspace/inventory/server/workbook-import")).parseInventoryWorkbook(buffer);
   if (!execute) {
-    console.log(JSON.stringify({ mode: "dry-run", assets: parsed.assets.length, costEvidence: parsed.renovationCostEvidence.length, assetControls: parsed.controls, assetBlockers: parsed.blockers, inventoryLines: inventory.lines.length, inventoryChecks: inventory.checks }, null, 2));
+    console.log(JSON.stringify({ mode: "dry-run", assets: parsed.assets.length, costEvidence: parsed.renovationCostEvidence.length, assetControls: parsed.controls, assetBlockers: parsed.blockers, inventoryLines: inventory?.lines.length ?? 0, inventoryChecks: inventory?.checks ?? [] }, null, 2));
     return;
   }
-  const [{ importAssetWorkbook }, { importInventoryWorkbook }, { prisma }] = await Promise.all([
+  const actor = requireClosingWorkbookActor(option("actor"));
+  const [{ importAssetWorkbook }, inventoryModule, { prisma }] = await Promise.all([
     import("@workspace/finance/server/assets/workbook-import"),
-    import("@workspace/inventory/server/workbook-import"),
+    assetOnly ? Promise.resolve(null) : import("@workspace/inventory/server/workbook-import"),
     import("@workspace/platform/server/prisma"),
   ]);
+  if (!cutoverOptions) throw new Error("执行资产导入必须提供绝对路径 --asset-gl-config=<0600审批配置.json>");
+  const reconcileCutover = createExecutionApprovedFinanceAssetErpGlCutoverReconciler(cutoverOptions, actor);
   try {
-    const user = await prisma.user.findUnique({ where: { username: "admin" }, select: { id: true } });
-    const result = await importAssetWorkbook({ buffer, sourceFile: path.basename(sourcePath), companyCode, year, month, userId: user?.id });
-    const inventoryResult = await importInventoryWorkbook({ buffer, sourceFile: path.basename(sourcePath), companyCode, userId: user?.id });
+    const user = await prisma.user.findUnique({ where: { username: actor }, select: { id: true } });
+    if (!user) throw new Error(`资产导入操作者不存在：${actor}`);
+    const result = await importAssetWorkbook(
+      { buffer, sourceFile: path.basename(sourcePath), companyCode, year, month, userId: user.id },
+      { reconcileCutover, parseWorkbook: parseWorkbookForCutover },
+    );
+    const inventoryResult = inventoryModule
+      ? await inventoryModule.importInventoryWorkbook({ buffer, sourceFile: path.basename(sourcePath), companyCode, userId: user.id })
+      : null;
     console.log(JSON.stringify({ mode: "execute", assets: result, inventory: inventoryResult }, null, 2));
   } finally {
     await prisma.$disconnect();

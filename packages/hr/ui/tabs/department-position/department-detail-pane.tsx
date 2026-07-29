@@ -9,7 +9,7 @@ import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { canUseDepartmentAsParentForHierarchy, departmentDescendantIds, rebaseDepartmentCodeForParentChange, splitAliasText } from "./utils";
 import { useDepartmentDescriptionsSection } from "./department-descriptions-panel";
 import { createDirectPositionPanelSection } from "./navigation-panels";
-import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, DescriptionDraft, Position, Selection } from "./types";
+import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, DescriptionDraft, OrganizationCodeConfig, Position, Selection } from "./types";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 
 type DepartmentDetailPaneProps = {
@@ -30,6 +30,7 @@ type DepartmentDetailPaneProps = {
   createPositionDepartment: Department | undefined;
   createPositionDraft: CreatePositionDraft;
   departmentById: Map<number, Department>;
+  codeConfig: OrganizationCodeConfig | null;
   departmentDirty: boolean;
   departmentDescriptionDirty: boolean;
   saving: boolean;
@@ -64,6 +65,7 @@ export function useDepartmentDetailPaneSection({
   createPositionDepartment,
   createPositionDraft,
   departmentById,
+  codeConfig,
   departmentDirty,
   departmentDescriptionDirty,
   saving,
@@ -113,7 +115,7 @@ export function useDepartmentDetailPaneSection({
       spec: {
         valueType: "string",
         control: "text",
-        mask: { kind: "editableSegment", ...departmentCodeEditableSegment(departmentDraft.level, departmentDraft.hierarchyKind) },
+        mask: { kind: "editableSegment", ...departmentCodeEditableSegment(departmentDraft.level, departmentDraft.hierarchyKind, codeConfig) },
         state: !canEditDepartmentDraft ? "disabled" : "normal",
       },
       value: departmentDraft.code,
@@ -138,6 +140,7 @@ export function useDepartmentDetailPaneSection({
       value: departmentDraft.parentId == null ? "" : String(departmentDraft.parentId),
       placeholder: "无",
       onChange: next => {
+        if (!codeConfig) return;
         const nextParentId = next === "" ? null : Number(next);
         const parent = nextParentId == null ? undefined : departmentById.get(nextParentId);
         const nextLevel = parent && parent.hierarchyKind === departmentDraft.hierarchyKind
@@ -153,6 +156,7 @@ export function useDepartmentDetailPaneSection({
           level: nextLevel,
           parentId: nextParentId,
           departments,
+          codeConfig,
         }));
       },
     },

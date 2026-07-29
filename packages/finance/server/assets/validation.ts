@@ -90,7 +90,7 @@ export type FinanceAssetCategoryPolicyDeleteCommand = {
 };
 export type FinanceAssetPeriodVoucherLinkContext = {
   period: { id: number; isClosed: boolean } | null;
-  voucher: (FinanceAssetImpairmentVoucherReference & { items: Array<{ accountCode: string; debit: number; credit: number }> }) | null;
+  voucher: (Omit<FinanceAssetImpairmentVoucherReference, "items"> & { items: Array<{ accountCode: string; debit: number; credit: number }> }) | null;
   entries: Array<{
     id: number;
     voucherId: number | null;

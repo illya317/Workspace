@@ -33,6 +33,10 @@ export type FinanceAssetImportBatchAvgAggregateOutputType = {
   costLineCount: number | null
   warningCount: number | null
   importedBy: number | null
+  cutoverPeriodId: number | null
+  ledgerNetBookValue: runtime.Decimal | null
+  importedNetBookValue: runtime.Decimal | null
+  unallocatedNetBookValue: runtime.Decimal | null
 }
 
 export type FinanceAssetImportBatchSumAggregateOutputType = {
@@ -42,6 +46,10 @@ export type FinanceAssetImportBatchSumAggregateOutputType = {
   costLineCount: number | null
   warningCount: number | null
   importedBy: number | null
+  cutoverPeriodId: number | null
+  ledgerNetBookValue: runtime.Decimal | null
+  importedNetBookValue: runtime.Decimal | null
+  unallocatedNetBookValue: runtime.Decimal | null
 }
 
 export type FinanceAssetImportBatchMinAggregateOutputType = {
@@ -57,6 +65,13 @@ export type FinanceAssetImportBatchMinAggregateOutputType = {
   importedBy: number | null
   importedAt: Date | null
   note: string | null
+  cutoverDate: string | null
+  cutoverPeriodId: number | null
+  ledgerReconciliationFingerprint: string | null
+  ledgerNetBookValue: runtime.Decimal | null
+  importedNetBookValue: runtime.Decimal | null
+  unallocatedNetBookValue: runtime.Decimal | null
+  reconciliationStatus: string | null
 }
 
 export type FinanceAssetImportBatchMaxAggregateOutputType = {
@@ -72,6 +87,13 @@ export type FinanceAssetImportBatchMaxAggregateOutputType = {
   importedBy: number | null
   importedAt: Date | null
   note: string | null
+  cutoverDate: string | null
+  cutoverPeriodId: number | null
+  ledgerReconciliationFingerprint: string | null
+  ledgerNetBookValue: runtime.Decimal | null
+  importedNetBookValue: runtime.Decimal | null
+  unallocatedNetBookValue: runtime.Decimal | null
+  reconciliationStatus: string | null
 }
 
 export type FinanceAssetImportBatchCountAggregateOutputType = {
@@ -87,6 +109,13 @@ export type FinanceAssetImportBatchCountAggregateOutputType = {
   importedBy: number
   importedAt: number
   note: number
+  cutoverDate: number
+  cutoverPeriodId: number
+  ledgerReconciliationFingerprint: number
+  ledgerNetBookValue: number
+  importedNetBookValue: number
+  unallocatedNetBookValue: number
+  reconciliationStatus: number
   _all: number
 }
 
@@ -98,6 +127,10 @@ export type FinanceAssetImportBatchAvgAggregateInputType = {
   costLineCount?: true
   warningCount?: true
   importedBy?: true
+  cutoverPeriodId?: true
+  ledgerNetBookValue?: true
+  importedNetBookValue?: true
+  unallocatedNetBookValue?: true
 }
 
 export type FinanceAssetImportBatchSumAggregateInputType = {
@@ -107,6 +140,10 @@ export type FinanceAssetImportBatchSumAggregateInputType = {
   costLineCount?: true
   warningCount?: true
   importedBy?: true
+  cutoverPeriodId?: true
+  ledgerNetBookValue?: true
+  importedNetBookValue?: true
+  unallocatedNetBookValue?: true
 }
 
 export type FinanceAssetImportBatchMinAggregateInputType = {
@@ -122,6 +159,13 @@ export type FinanceAssetImportBatchMinAggregateInputType = {
   importedBy?: true
   importedAt?: true
   note?: true
+  cutoverDate?: true
+  cutoverPeriodId?: true
+  ledgerReconciliationFingerprint?: true
+  ledgerNetBookValue?: true
+  importedNetBookValue?: true
+  unallocatedNetBookValue?: true
+  reconciliationStatus?: true
 }
 
 export type FinanceAssetImportBatchMaxAggregateInputType = {
@@ -137,6 +181,13 @@ export type FinanceAssetImportBatchMaxAggregateInputType = {
   importedBy?: true
   importedAt?: true
   note?: true
+  cutoverDate?: true
+  cutoverPeriodId?: true
+  ledgerReconciliationFingerprint?: true
+  ledgerNetBookValue?: true
+  importedNetBookValue?: true
+  unallocatedNetBookValue?: true
+  reconciliationStatus?: true
 }
 
 export type FinanceAssetImportBatchCountAggregateInputType = {
@@ -152,6 +203,13 @@ export type FinanceAssetImportBatchCountAggregateInputType = {
   importedBy?: true
   importedAt?: true
   note?: true
+  cutoverDate?: true
+  cutoverPeriodId?: true
+  ledgerReconciliationFingerprint?: true
+  ledgerNetBookValue?: true
+  importedNetBookValue?: true
+  unallocatedNetBookValue?: true
+  reconciliationStatus?: true
   _all?: true
 }
 
@@ -254,6 +312,13 @@ export type FinanceAssetImportBatchGroupByOutputType = {
   importedBy: number | null
   importedAt: Date
   note: string | null
+  cutoverDate: string | null
+  cutoverPeriodId: number | null
+  ledgerReconciliationFingerprint: string | null
+  ledgerNetBookValue: runtime.Decimal | null
+  importedNetBookValue: runtime.Decimal | null
+  unallocatedNetBookValue: runtime.Decimal | null
+  reconciliationStatus: string | null
   _count: FinanceAssetImportBatchCountAggregateOutputType | null
   _avg: FinanceAssetImportBatchAvgAggregateOutputType | null
   _sum: FinanceAssetImportBatchSumAggregateOutputType | null
@@ -292,8 +357,16 @@ export type FinanceAssetImportBatchWhereInput = {
   importedBy?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
   importedAt?: Prisma.DateTimeFilter<"FinanceAssetImportBatch"> | Date | string
   note?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+  cutoverDate?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+  cutoverPeriodId?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
+  ledgerReconciliationFingerprint?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+  ledgerNetBookValue?: Prisma.DecimalNullableFilter<"FinanceAssetImportBatch"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.DecimalNullableFilter<"FinanceAssetImportBatch"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.DecimalNullableFilter<"FinanceAssetImportBatch"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
   acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceListRelationFilter
   company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  cutoverPeriod?: Prisma.XOR<Prisma.FinancePeriodNullableScalarRelationFilter, Prisma.FinancePeriodWhereInput> | null
 }
 
 export type FinanceAssetImportBatchOrderByWithRelationInput = {
@@ -309,8 +382,16 @@ export type FinanceAssetImportBatchOrderByWithRelationInput = {
   importedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   importedAt?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ledgerReconciliationFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
+  ledgerNetBookValue?: Prisma.SortOrderInput | Prisma.SortOrder
+  importedNetBookValue?: Prisma.SortOrderInput | Prisma.SortOrder
+  unallocatedNetBookValue?: Prisma.SortOrderInput | Prisma.SortOrder
+  reconciliationStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceOrderByRelationAggregateInput
   company?: Prisma.CompanyOrderByWithRelationInput
+  cutoverPeriod?: Prisma.FinancePeriodOrderByWithRelationInput
 }
 
 export type FinanceAssetImportBatchWhereUniqueInput = Prisma.AtLeast<{
@@ -330,8 +411,16 @@ export type FinanceAssetImportBatchWhereUniqueInput = Prisma.AtLeast<{
   importedBy?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
   importedAt?: Prisma.DateTimeFilter<"FinanceAssetImportBatch"> | Date | string
   note?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+  cutoverDate?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+  cutoverPeriodId?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
+  ledgerReconciliationFingerprint?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+  ledgerNetBookValue?: Prisma.DecimalNullableFilter<"FinanceAssetImportBatch"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.DecimalNullableFilter<"FinanceAssetImportBatch"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.DecimalNullableFilter<"FinanceAssetImportBatch"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
   acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceListRelationFilter
   company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  cutoverPeriod?: Prisma.XOR<Prisma.FinancePeriodNullableScalarRelationFilter, Prisma.FinancePeriodWhereInput> | null
 }, "id" | "companyCode_checksum">
 
 export type FinanceAssetImportBatchOrderByWithAggregationInput = {
@@ -347,6 +436,13 @@ export type FinanceAssetImportBatchOrderByWithAggregationInput = {
   importedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   importedAt?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ledgerReconciliationFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
+  ledgerNetBookValue?: Prisma.SortOrderInput | Prisma.SortOrder
+  importedNetBookValue?: Prisma.SortOrderInput | Prisma.SortOrder
+  unallocatedNetBookValue?: Prisma.SortOrderInput | Prisma.SortOrder
+  reconciliationStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.FinanceAssetImportBatchCountOrderByAggregateInput
   _avg?: Prisma.FinanceAssetImportBatchAvgOrderByAggregateInput
   _max?: Prisma.FinanceAssetImportBatchMaxOrderByAggregateInput
@@ -370,6 +466,13 @@ export type FinanceAssetImportBatchScalarWhereWithAggregatesInput = {
   importedBy?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetImportBatch"> | number | null
   importedAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceAssetImportBatch"> | Date | string
   note?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetImportBatch"> | string | null
+  cutoverDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetImportBatch"> | string | null
+  cutoverPeriodId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetImportBatch"> | number | null
+  ledgerReconciliationFingerprint?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetImportBatch"> | string | null
+  ledgerNetBookValue?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceAssetImportBatch"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceAssetImportBatch"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceAssetImportBatch"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetImportBatch"> | string | null
 }
 
 export type FinanceAssetImportBatchCreateInput = {
@@ -383,8 +486,15 @@ export type FinanceAssetImportBatchCreateInput = {
   importedBy?: number | null
   importedAt?: Date | string
   note?: string | null
+  cutoverDate?: string | null
+  ledgerReconciliationFingerprint?: string | null
+  ledgerNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: string | null
   acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedManyWithoutImportBatchInput
   company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetImportBatchesInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverImportBatchesInput
 }
 
 export type FinanceAssetImportBatchUncheckedCreateInput = {
@@ -400,6 +510,13 @@ export type FinanceAssetImportBatchUncheckedCreateInput = {
   importedBy?: number | null
   importedAt?: Date | string
   note?: string | null
+  cutoverDate?: string | null
+  cutoverPeriodId?: number | null
+  ledgerReconciliationFingerprint?: string | null
+  ledgerNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: string | null
   acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedManyWithoutImportBatchInput
 }
 
@@ -414,8 +531,15 @@ export type FinanceAssetImportBatchUpdateInput = {
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateManyWithoutImportBatchNestedInput
   company?: Prisma.CompanyUpdateOneWithoutFinanceAssetImportBatchesNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverImportBatchesNestedInput
 }
 
 export type FinanceAssetImportBatchUncheckedUpdateInput = {
@@ -431,6 +555,13 @@ export type FinanceAssetImportBatchUncheckedUpdateInput = {
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ledgerReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateManyWithoutImportBatchNestedInput
 }
 
@@ -447,6 +578,13 @@ export type FinanceAssetImportBatchCreateManyInput = {
   importedBy?: number | null
   importedAt?: Date | string
   note?: string | null
+  cutoverDate?: string | null
+  cutoverPeriodId?: number | null
+  ledgerReconciliationFingerprint?: string | null
+  ledgerNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: string | null
 }
 
 export type FinanceAssetImportBatchUpdateManyMutationInput = {
@@ -460,6 +598,12 @@ export type FinanceAssetImportBatchUpdateManyMutationInput = {
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type FinanceAssetImportBatchUncheckedUpdateManyInput = {
@@ -475,6 +619,13 @@ export type FinanceAssetImportBatchUncheckedUpdateManyInput = {
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ledgerReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type FinanceAssetImportBatchNullableScalarRelationFilter = {
@@ -500,6 +651,13 @@ export type FinanceAssetImportBatchCountOrderByAggregateInput = {
   importedBy?: Prisma.SortOrder
   importedAt?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  cutoverDate?: Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrder
+  ledgerReconciliationFingerprint?: Prisma.SortOrder
+  ledgerNetBookValue?: Prisma.SortOrder
+  importedNetBookValue?: Prisma.SortOrder
+  unallocatedNetBookValue?: Prisma.SortOrder
+  reconciliationStatus?: Prisma.SortOrder
 }
 
 export type FinanceAssetImportBatchAvgOrderByAggregateInput = {
@@ -509,6 +667,10 @@ export type FinanceAssetImportBatchAvgOrderByAggregateInput = {
   costLineCount?: Prisma.SortOrder
   warningCount?: Prisma.SortOrder
   importedBy?: Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrder
+  ledgerNetBookValue?: Prisma.SortOrder
+  importedNetBookValue?: Prisma.SortOrder
+  unallocatedNetBookValue?: Prisma.SortOrder
 }
 
 export type FinanceAssetImportBatchMaxOrderByAggregateInput = {
@@ -524,6 +686,13 @@ export type FinanceAssetImportBatchMaxOrderByAggregateInput = {
   importedBy?: Prisma.SortOrder
   importedAt?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  cutoverDate?: Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrder
+  ledgerReconciliationFingerprint?: Prisma.SortOrder
+  ledgerNetBookValue?: Prisma.SortOrder
+  importedNetBookValue?: Prisma.SortOrder
+  unallocatedNetBookValue?: Prisma.SortOrder
+  reconciliationStatus?: Prisma.SortOrder
 }
 
 export type FinanceAssetImportBatchMinOrderByAggregateInput = {
@@ -539,6 +708,13 @@ export type FinanceAssetImportBatchMinOrderByAggregateInput = {
   importedBy?: Prisma.SortOrder
   importedAt?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  cutoverDate?: Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrder
+  ledgerReconciliationFingerprint?: Prisma.SortOrder
+  ledgerNetBookValue?: Prisma.SortOrder
+  importedNetBookValue?: Prisma.SortOrder
+  unallocatedNetBookValue?: Prisma.SortOrder
+  reconciliationStatus?: Prisma.SortOrder
 }
 
 export type FinanceAssetImportBatchSumOrderByAggregateInput = {
@@ -548,6 +724,10 @@ export type FinanceAssetImportBatchSumOrderByAggregateInput = {
   costLineCount?: Prisma.SortOrder
   warningCount?: Prisma.SortOrder
   importedBy?: Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrder
+  ledgerNetBookValue?: Prisma.SortOrder
+  importedNetBookValue?: Prisma.SortOrder
+  unallocatedNetBookValue?: Prisma.SortOrder
 }
 
 export type FinanceAssetImportBatchListRelationFilter = {
@@ -574,6 +754,48 @@ export type FinanceAssetImportBatchUpdateOneWithoutAcquisitionEvidenceNestedInpu
   delete?: Prisma.FinanceAssetImportBatchWhereInput | boolean
   connect?: Prisma.FinanceAssetImportBatchWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAssetImportBatchUpdateToOneWithWhereWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetImportBatchUpdateWithoutAcquisitionEvidenceInput>, Prisma.FinanceAssetImportBatchUncheckedUpdateWithoutAcquisitionEvidenceInput>
+}
+
+export type FinanceAssetImportBatchCreateNestedManyWithoutCutoverPeriodInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutCutoverPeriodInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCutoverPeriodInput> | Prisma.FinanceAssetImportBatchCreateWithoutCutoverPeriodInput[] | Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCutoverPeriodInput[]
+  connectOrCreate?: Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCutoverPeriodInput | Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCutoverPeriodInput[]
+  createMany?: Prisma.FinanceAssetImportBatchCreateManyCutoverPeriodInputEnvelope
+  connect?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+}
+
+export type FinanceAssetImportBatchUncheckedCreateNestedManyWithoutCutoverPeriodInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutCutoverPeriodInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCutoverPeriodInput> | Prisma.FinanceAssetImportBatchCreateWithoutCutoverPeriodInput[] | Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCutoverPeriodInput[]
+  connectOrCreate?: Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCutoverPeriodInput | Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCutoverPeriodInput[]
+  createMany?: Prisma.FinanceAssetImportBatchCreateManyCutoverPeriodInputEnvelope
+  connect?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+}
+
+export type FinanceAssetImportBatchUpdateManyWithoutCutoverPeriodNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutCutoverPeriodInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCutoverPeriodInput> | Prisma.FinanceAssetImportBatchCreateWithoutCutoverPeriodInput[] | Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCutoverPeriodInput[]
+  connectOrCreate?: Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCutoverPeriodInput | Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCutoverPeriodInput[]
+  upsert?: Prisma.FinanceAssetImportBatchUpsertWithWhereUniqueWithoutCutoverPeriodInput | Prisma.FinanceAssetImportBatchUpsertWithWhereUniqueWithoutCutoverPeriodInput[]
+  createMany?: Prisma.FinanceAssetImportBatchCreateManyCutoverPeriodInputEnvelope
+  set?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  update?: Prisma.FinanceAssetImportBatchUpdateWithWhereUniqueWithoutCutoverPeriodInput | Prisma.FinanceAssetImportBatchUpdateWithWhereUniqueWithoutCutoverPeriodInput[]
+  updateMany?: Prisma.FinanceAssetImportBatchUpdateManyWithWhereWithoutCutoverPeriodInput | Prisma.FinanceAssetImportBatchUpdateManyWithWhereWithoutCutoverPeriodInput[]
+  deleteMany?: Prisma.FinanceAssetImportBatchScalarWhereInput | Prisma.FinanceAssetImportBatchScalarWhereInput[]
+}
+
+export type FinanceAssetImportBatchUncheckedUpdateManyWithoutCutoverPeriodNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutCutoverPeriodInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCutoverPeriodInput> | Prisma.FinanceAssetImportBatchCreateWithoutCutoverPeriodInput[] | Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCutoverPeriodInput[]
+  connectOrCreate?: Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCutoverPeriodInput | Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCutoverPeriodInput[]
+  upsert?: Prisma.FinanceAssetImportBatchUpsertWithWhereUniqueWithoutCutoverPeriodInput | Prisma.FinanceAssetImportBatchUpsertWithWhereUniqueWithoutCutoverPeriodInput[]
+  createMany?: Prisma.FinanceAssetImportBatchCreateManyCutoverPeriodInputEnvelope
+  set?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  update?: Prisma.FinanceAssetImportBatchUpdateWithWhereUniqueWithoutCutoverPeriodInput | Prisma.FinanceAssetImportBatchUpdateWithWhereUniqueWithoutCutoverPeriodInput[]
+  updateMany?: Prisma.FinanceAssetImportBatchUpdateManyWithWhereWithoutCutoverPeriodInput | Prisma.FinanceAssetImportBatchUpdateManyWithWhereWithoutCutoverPeriodInput[]
+  deleteMany?: Prisma.FinanceAssetImportBatchScalarWhereInput | Prisma.FinanceAssetImportBatchScalarWhereInput[]
 }
 
 export type FinanceAssetImportBatchCreateNestedManyWithoutCompanyInput = {
@@ -629,7 +851,14 @@ export type FinanceAssetImportBatchCreateWithoutAcquisitionEvidenceInput = {
   importedBy?: number | null
   importedAt?: Date | string
   note?: string | null
+  cutoverDate?: string | null
+  ledgerReconciliationFingerprint?: string | null
+  ledgerNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: string | null
   company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetImportBatchesInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverImportBatchesInput
 }
 
 export type FinanceAssetImportBatchUncheckedCreateWithoutAcquisitionEvidenceInput = {
@@ -645,6 +874,13 @@ export type FinanceAssetImportBatchUncheckedCreateWithoutAcquisitionEvidenceInpu
   importedBy?: number | null
   importedAt?: Date | string
   note?: string | null
+  cutoverDate?: string | null
+  cutoverPeriodId?: number | null
+  ledgerReconciliationFingerprint?: string | null
+  ledgerNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: string | null
 }
 
 export type FinanceAssetImportBatchCreateOrConnectWithoutAcquisitionEvidenceInput = {
@@ -674,7 +910,14 @@ export type FinanceAssetImportBatchUpdateWithoutAcquisitionEvidenceInput = {
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   company?: Prisma.CompanyUpdateOneWithoutFinanceAssetImportBatchesNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverImportBatchesNestedInput
 }
 
 export type FinanceAssetImportBatchUncheckedUpdateWithoutAcquisitionEvidenceInput = {
@@ -690,6 +933,107 @@ export type FinanceAssetImportBatchUncheckedUpdateWithoutAcquisitionEvidenceInpu
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ledgerReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type FinanceAssetImportBatchCreateWithoutCutoverPeriodInput = {
+  companyCode: string
+  sourceFile: string
+  checksum: string
+  status?: string
+  cardCount?: number
+  costLineCount?: number
+  warningCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+  cutoverDate?: string | null
+  ledgerReconciliationFingerprint?: string | null
+  ledgerNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedManyWithoutImportBatchInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetImportBatchesInput
+}
+
+export type FinanceAssetImportBatchUncheckedCreateWithoutCutoverPeriodInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  sourceFile: string
+  checksum: string
+  status?: string
+  cardCount?: number
+  costLineCount?: number
+  warningCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+  cutoverDate?: string | null
+  ledgerReconciliationFingerprint?: string | null
+  ledgerNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedManyWithoutImportBatchInput
+}
+
+export type FinanceAssetImportBatchCreateOrConnectWithoutCutoverPeriodInput = {
+  where: Prisma.FinanceAssetImportBatchWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutCutoverPeriodInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCutoverPeriodInput>
+}
+
+export type FinanceAssetImportBatchCreateManyCutoverPeriodInputEnvelope = {
+  data: Prisma.FinanceAssetImportBatchCreateManyCutoverPeriodInput | Prisma.FinanceAssetImportBatchCreateManyCutoverPeriodInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetImportBatchUpsertWithWhereUniqueWithoutCutoverPeriodInput = {
+  where: Prisma.FinanceAssetImportBatchWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetImportBatchUpdateWithoutCutoverPeriodInput, Prisma.FinanceAssetImportBatchUncheckedUpdateWithoutCutoverPeriodInput>
+  create: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutCutoverPeriodInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCutoverPeriodInput>
+}
+
+export type FinanceAssetImportBatchUpdateWithWhereUniqueWithoutCutoverPeriodInput = {
+  where: Prisma.FinanceAssetImportBatchWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetImportBatchUpdateWithoutCutoverPeriodInput, Prisma.FinanceAssetImportBatchUncheckedUpdateWithoutCutoverPeriodInput>
+}
+
+export type FinanceAssetImportBatchUpdateManyWithWhereWithoutCutoverPeriodInput = {
+  where: Prisma.FinanceAssetImportBatchScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetImportBatchUpdateManyMutationInput, Prisma.FinanceAssetImportBatchUncheckedUpdateManyWithoutCutoverPeriodInput>
+}
+
+export type FinanceAssetImportBatchScalarWhereInput = {
+  AND?: Prisma.FinanceAssetImportBatchScalarWhereInput | Prisma.FinanceAssetImportBatchScalarWhereInput[]
+  OR?: Prisma.FinanceAssetImportBatchScalarWhereInput[]
+  NOT?: Prisma.FinanceAssetImportBatchScalarWhereInput | Prisma.FinanceAssetImportBatchScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
+  companyCode?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
+  sourceFile?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
+  checksum?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
+  status?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
+  cardCount?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
+  costLineCount?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
+  warningCount?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
+  importedBy?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
+  importedAt?: Prisma.DateTimeFilter<"FinanceAssetImportBatch"> | Date | string
+  note?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+  cutoverDate?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+  cutoverPeriodId?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
+  ledgerReconciliationFingerprint?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+  ledgerNetBookValue?: Prisma.DecimalNullableFilter<"FinanceAssetImportBatch"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.DecimalNullableFilter<"FinanceAssetImportBatch"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.DecimalNullableFilter<"FinanceAssetImportBatch"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
 }
 
 export type FinanceAssetImportBatchCreateWithoutCompanyInput = {
@@ -703,7 +1047,14 @@ export type FinanceAssetImportBatchCreateWithoutCompanyInput = {
   importedBy?: number | null
   importedAt?: Date | string
   note?: string | null
+  cutoverDate?: string | null
+  ledgerReconciliationFingerprint?: string | null
+  ledgerNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: string | null
   acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedManyWithoutImportBatchInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverImportBatchesInput
 }
 
 export type FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput = {
@@ -718,6 +1069,13 @@ export type FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput = {
   importedBy?: number | null
   importedAt?: Date | string
   note?: string | null
+  cutoverDate?: string | null
+  cutoverPeriodId?: number | null
+  ledgerReconciliationFingerprint?: string | null
+  ledgerNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: string | null
   acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedManyWithoutImportBatchInput
 }
 
@@ -747,22 +1105,89 @@ export type FinanceAssetImportBatchUpdateManyWithWhereWithoutCompanyInput = {
   data: Prisma.XOR<Prisma.FinanceAssetImportBatchUpdateManyMutationInput, Prisma.FinanceAssetImportBatchUncheckedUpdateManyWithoutCompanyInput>
 }
 
-export type FinanceAssetImportBatchScalarWhereInput = {
-  AND?: Prisma.FinanceAssetImportBatchScalarWhereInput | Prisma.FinanceAssetImportBatchScalarWhereInput[]
-  OR?: Prisma.FinanceAssetImportBatchScalarWhereInput[]
-  NOT?: Prisma.FinanceAssetImportBatchScalarWhereInput | Prisma.FinanceAssetImportBatchScalarWhereInput[]
-  id?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
-  companyCode?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
-  companyId?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
-  sourceFile?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
-  checksum?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
-  status?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
-  cardCount?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
-  costLineCount?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
-  warningCount?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
-  importedBy?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
-  importedAt?: Prisma.DateTimeFilter<"FinanceAssetImportBatch"> | Date | string
-  note?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+export type FinanceAssetImportBatchCreateManyCutoverPeriodInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  sourceFile: string
+  checksum: string
+  status?: string
+  cardCount?: number
+  costLineCount?: number
+  warningCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+  cutoverDate?: string | null
+  ledgerReconciliationFingerprint?: string | null
+  ledgerNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: string | null
+}
+
+export type FinanceAssetImportBatchUpdateWithoutCutoverPeriodInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  checksum?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cardCount?: Prisma.IntFieldUpdateOperationsInput | number
+  costLineCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warningCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateManyWithoutImportBatchNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetImportBatchesNestedInput
+}
+
+export type FinanceAssetImportBatchUncheckedUpdateWithoutCutoverPeriodInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  checksum?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cardCount?: Prisma.IntFieldUpdateOperationsInput | number
+  costLineCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warningCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateManyWithoutImportBatchNestedInput
+}
+
+export type FinanceAssetImportBatchUncheckedUpdateManyWithoutCutoverPeriodInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  checksum?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cardCount?: Prisma.IntFieldUpdateOperationsInput | number
+  costLineCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warningCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type FinanceAssetImportBatchCreateManyCompanyInput = {
@@ -777,6 +1202,13 @@ export type FinanceAssetImportBatchCreateManyCompanyInput = {
   importedBy?: number | null
   importedAt?: Date | string
   note?: string | null
+  cutoverDate?: string | null
+  cutoverPeriodId?: number | null
+  ledgerReconciliationFingerprint?: string | null
+  ledgerNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: string | null
 }
 
 export type FinanceAssetImportBatchUpdateWithoutCompanyInput = {
@@ -790,7 +1222,14 @@ export type FinanceAssetImportBatchUpdateWithoutCompanyInput = {
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateManyWithoutImportBatchNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverImportBatchesNestedInput
 }
 
 export type FinanceAssetImportBatchUncheckedUpdateWithoutCompanyInput = {
@@ -805,6 +1244,13 @@ export type FinanceAssetImportBatchUncheckedUpdateWithoutCompanyInput = {
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ledgerReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateManyWithoutImportBatchNestedInput
 }
 
@@ -820,6 +1266,13 @@ export type FinanceAssetImportBatchUncheckedUpdateManyWithoutCompanyInput = {
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ledgerReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  importedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unallocatedNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  reconciliationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -866,8 +1319,16 @@ export type FinanceAssetImportBatchSelect<ExtArgs extends runtime.Types.Extensio
   importedBy?: boolean
   importedAt?: boolean
   note?: boolean
+  cutoverDate?: boolean
+  cutoverPeriodId?: boolean
+  ledgerReconciliationFingerprint?: boolean
+  ledgerNetBookValue?: boolean
+  importedNetBookValue?: boolean
+  unallocatedNetBookValue?: boolean
+  reconciliationStatus?: boolean
   acquisitionEvidence?: boolean | Prisma.FinanceAssetImportBatch$acquisitionEvidenceArgs<ExtArgs>
   company?: boolean | Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>
+  cutoverPeriod?: boolean | Prisma.FinanceAssetImportBatch$cutoverPeriodArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAssetImportBatchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetImportBatch"]>
 
@@ -884,7 +1345,15 @@ export type FinanceAssetImportBatchSelectCreateManyAndReturn<ExtArgs extends run
   importedBy?: boolean
   importedAt?: boolean
   note?: boolean
+  cutoverDate?: boolean
+  cutoverPeriodId?: boolean
+  ledgerReconciliationFingerprint?: boolean
+  ledgerNetBookValue?: boolean
+  importedNetBookValue?: boolean
+  unallocatedNetBookValue?: boolean
+  reconciliationStatus?: boolean
   company?: boolean | Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>
+  cutoverPeriod?: boolean | Prisma.FinanceAssetImportBatch$cutoverPeriodArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetImportBatch"]>
 
 export type FinanceAssetImportBatchSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -900,7 +1369,15 @@ export type FinanceAssetImportBatchSelectUpdateManyAndReturn<ExtArgs extends run
   importedBy?: boolean
   importedAt?: boolean
   note?: boolean
+  cutoverDate?: boolean
+  cutoverPeriodId?: boolean
+  ledgerReconciliationFingerprint?: boolean
+  ledgerNetBookValue?: boolean
+  importedNetBookValue?: boolean
+  unallocatedNetBookValue?: boolean
+  reconciliationStatus?: boolean
   company?: boolean | Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>
+  cutoverPeriod?: boolean | Prisma.FinanceAssetImportBatch$cutoverPeriodArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetImportBatch"]>
 
 export type FinanceAssetImportBatchSelectScalar = {
@@ -916,19 +1393,29 @@ export type FinanceAssetImportBatchSelectScalar = {
   importedBy?: boolean
   importedAt?: boolean
   note?: boolean
+  cutoverDate?: boolean
+  cutoverPeriodId?: boolean
+  ledgerReconciliationFingerprint?: boolean
+  ledgerNetBookValue?: boolean
+  importedNetBookValue?: boolean
+  unallocatedNetBookValue?: boolean
+  reconciliationStatus?: boolean
 }
 
-export type FinanceAssetImportBatchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "sourceFile" | "checksum" | "status" | "cardCount" | "costLineCount" | "warningCount" | "importedBy" | "importedAt" | "note", ExtArgs["result"]["financeAssetImportBatch"]>
+export type FinanceAssetImportBatchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "sourceFile" | "checksum" | "status" | "cardCount" | "costLineCount" | "warningCount" | "importedBy" | "importedAt" | "note" | "cutoverDate" | "cutoverPeriodId" | "ledgerReconciliationFingerprint" | "ledgerNetBookValue" | "importedNetBookValue" | "unallocatedNetBookValue" | "reconciliationStatus", ExtArgs["result"]["financeAssetImportBatch"]>
 export type FinanceAssetImportBatchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   acquisitionEvidence?: boolean | Prisma.FinanceAssetImportBatch$acquisitionEvidenceArgs<ExtArgs>
   company?: boolean | Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>
+  cutoverPeriod?: boolean | Prisma.FinanceAssetImportBatch$cutoverPeriodArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAssetImportBatchCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceAssetImportBatchIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>
+  cutoverPeriod?: boolean | Prisma.FinanceAssetImportBatch$cutoverPeriodArgs<ExtArgs>
 }
 export type FinanceAssetImportBatchIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>
+  cutoverPeriod?: boolean | Prisma.FinanceAssetImportBatch$cutoverPeriodArgs<ExtArgs>
 }
 
 export type $FinanceAssetImportBatchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -936,6 +1423,7 @@ export type $FinanceAssetImportBatchPayload<ExtArgs extends runtime.Types.Extens
   objects: {
     acquisitionEvidence: Prisma.$FinanceAssetAcquisitionEvidencePayload<ExtArgs>[]
     company: Prisma.$CompanyPayload<ExtArgs> | null
+    cutoverPeriod: Prisma.$FinancePeriodPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -950,6 +1438,13 @@ export type $FinanceAssetImportBatchPayload<ExtArgs extends runtime.Types.Extens
     importedBy: number | null
     importedAt: Date
     note: string | null
+    cutoverDate: string | null
+    cutoverPeriodId: number | null
+    ledgerReconciliationFingerprint: string | null
+    ledgerNetBookValue: runtime.Decimal | null
+    importedNetBookValue: runtime.Decimal | null
+    unallocatedNetBookValue: runtime.Decimal | null
+    reconciliationStatus: string | null
   }, ExtArgs["result"]["financeAssetImportBatch"]>
   composites: {}
 }
@@ -1346,6 +1841,7 @@ export interface Prisma__FinanceAssetImportBatchClient<T, Null = never, ExtArgs 
   readonly [Symbol.toStringTag]: "PrismaPromise"
   acquisitionEvidence<T extends Prisma.FinanceAssetImportBatch$acquisitionEvidenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetImportBatch$acquisitionEvidenceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetAcquisitionEvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   company<T extends Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  cutoverPeriod<T extends Prisma.FinanceAssetImportBatch$cutoverPeriodArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetImportBatch$cutoverPeriodArgs<ExtArgs>>): Prisma.Prisma__FinancePeriodClient<runtime.Types.Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1387,6 +1883,13 @@ export interface FinanceAssetImportBatchFieldRefs {
   readonly importedBy: Prisma.FieldRef<"FinanceAssetImportBatch", 'Int'>
   readonly importedAt: Prisma.FieldRef<"FinanceAssetImportBatch", 'DateTime'>
   readonly note: Prisma.FieldRef<"FinanceAssetImportBatch", 'String'>
+  readonly cutoverDate: Prisma.FieldRef<"FinanceAssetImportBatch", 'String'>
+  readonly cutoverPeriodId: Prisma.FieldRef<"FinanceAssetImportBatch", 'Int'>
+  readonly ledgerReconciliationFingerprint: Prisma.FieldRef<"FinanceAssetImportBatch", 'String'>
+  readonly ledgerNetBookValue: Prisma.FieldRef<"FinanceAssetImportBatch", 'Decimal'>
+  readonly importedNetBookValue: Prisma.FieldRef<"FinanceAssetImportBatch", 'Decimal'>
+  readonly unallocatedNetBookValue: Prisma.FieldRef<"FinanceAssetImportBatch", 'Decimal'>
+  readonly reconciliationStatus: Prisma.FieldRef<"FinanceAssetImportBatch", 'String'>
 }
     
 
@@ -1828,6 +2331,25 @@ export type FinanceAssetImportBatch$companyArgs<ExtArgs extends runtime.Types.Ex
    */
   include?: Prisma.CompanyInclude<ExtArgs> | null
   where?: Prisma.CompanyWhereInput
+}
+
+/**
+ * FinanceAssetImportBatch.cutoverPeriod
+ */
+export type FinanceAssetImportBatch$cutoverPeriodArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinancePeriod
+   */
+  select?: Prisma.FinancePeriodSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinancePeriod
+   */
+  omit?: Prisma.FinancePeriodOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinancePeriodInclude<ExtArgs> | null
+  where?: Prisma.FinancePeriodWhereInput
 }
 
 /**

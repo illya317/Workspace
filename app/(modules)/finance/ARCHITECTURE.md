@@ -33,6 +33,13 @@
 
 财务模块当前全部按 `workspace-owned` 管理。数据来源为 Workspace 本地资料、Excel 导入、ERP readable 归档和本地数据库表；不在运行时通过 ERP/ERPNext API 取数。
 
+### 公司身份口径
+
+- 页面公司候选统一来自共享 `Company` 目录，并与实际存在的财务期间取交集；不得在财务 UI 或 route 中写死公司编码、公司名称或固定年度。
+- Workspace 自主维护的公司级主档与交易在写入时必须校验启用中的 `Company`；新模型优先保存 `companyId` FK。兼容既有总账链的 `companyCode` 必须作为运行时作用域值传递并验证，不能由页面静态常量生成。
+- ERP 导入证据、来源映射、合并冻结快照等审计记录允许保留当时的 `companyCode` 快照；子表已能通过父记录得到公司时不重复增加公司字段。不得为追求字段一致而批量覆盖历史来源编码。
+- DTO 若返回 `companyCode`，页面展示公司名称时由共享公司目录解析；单公司工作台可在顶部作用域统一展示，不要求每个子行重复公司列，但主从详情不得让用户无法确认当前公司作用域。
+
 ### 总账会计 (`/finance/ledger`)
 
 `LedgerClient` 位于 `packages/finance/ui/ledger`，由 route 薄壳挂载，渲染多个 Tab：
@@ -60,6 +67,8 @@
 “资产卡片”和“会计政策”都采用主从分栏：左侧选择卡片或资产分类，右侧查看或编辑详情；工具栏新增入口直接在右侧打开新建表单，不使用弹窗。资产分类不是自由文本，而是按资产类型过滤的必选 `FinanceAssetCategory` FK。分类主数据只保存系统目录；可执行政策由 `FinanceAssetCategoryPolicy` 按公司、年度和分类保存分类判断、默认期限、残值率、期限边界、折旧方法及资产、累计、费用、减值损失、减值准备和处置损益科目。集团页以有效股权链的最上层母公司政策作为全集团默认，公司页只在偏离集团时形成公司特例；无特例时实时继承集团，不批量复制公司政策行，公司特例可显式删除并恢复集团默认，既有资产卡片科目快照不随之改写。集团政策科目先通过当期 `FinanceGroupAccountMapping` 定位稳定集团科目，再只读解析为目标公司的唯一有效 `FinanceAccount`；不得按相同编码猜测，不得因政策继承修改、重算或补写任何既有科目映射，缺失或多解时失败关闭并要求单独设置公司政策。六类科目字段都绑定真实 `FinanceAccount` FK，并在保存时重新校验公司、年度、科目类型和启用状态。这个“有效母公司 + 版本化集团科目映射 + 公司特例”的 seam 位于 Finance server，可供后续税务、资金等公司政策复用，不下沉到 Platform，也不改变总账科目映射的事实所有权。资产编号由统一业务编码模块按 `companyCode + category.code + fiscalYear + 5 位流水` 生成；新建页只显示不占号的候选预览，正式保存时在创建卡片的同一事务内原子占号，生成后永久只读。手工创建使用 `manual:<UUID>`，导入使用 `import:<companyCode>:<sourceKey>` 作为全局幂等键，避免手工、导入及不同公司共享相同键域；规则变化不重算既有编号。历史底稿原分类只保存在 `sourceCategory` 作为来源证据；缺失、无法唯一映射及历史“其他”统一落入不可新选的待复核分类，不伪装成已标准化数据。
 
 资产卡片只允许人工选择资产类型和资产分类；资产科目、累计折旧/摊销科目由当前公司和年度已保存的分类政策自动带出并只读。系统按中国企业会计常用口径和本期底稿证据提供待确认草稿：固定资产 `1601/1602`、无形资产 `1701/1702`、车位预付款 `1123`、房租/网络等一年内待摊项目 `1463`、长期待摊 `1801`；各公司最新可用科目年度会把真实科目 FK 齐备的草稿初始化为可编辑年度政策，已有人工政策不覆盖，缺少对应科目的组合继续保持未生效。分类候选不因政策未保存而隐藏，但草稿未保存前仍不参与卡片或本期 Excel 导入，禁止按资产类型用单一硬编码候选静默兜底。无形资产未设置确定期限时必须保留不摊销依据；预付分类的受益期不超过十二个月，长期待摊的受益期超过十二个月；房租、车位、土地使用权、牌照许可和租入资产改良等分类默认要求录入前复核，但具体判断文字和估计参数允许公司年度政策编辑。政策变更只影响之后新建或重新分类的卡片，既有卡片继续保留当次解析的科目编码和计算估计快照，不自动追溯改写。残值率按 `0–99` 的整数百分比录入，服务端统一换算为小数后存储并参与折旧计算。首次导入通过来源总计、期初、当期和累计金额控制 fail-closed 地发现漏提、错提；导入完成后不再提供持续总账勾稽视图。开放期间错误应重算并通过总账凭证更正，已关账期间按前期差错政策处理；既有独立调整记录仅作为历史审计事实保留。期间折旧摊销和历史调整继续使用全宽列表。
+
+历史资产初始化使用显式 `legacy_cutover`，当前切点为 `2026-06-30`：卡片保留原始原值，切点累计折旧摊销、减值、净值和剩余残值必须闭合，并保存剩余折旧摊销月份；切点卡片及导入批次直接关联已关账 `FinancePeriod` 和真实 `FinanceAccountBalance` FK，核对结果保存不可变指纹。系统不生成或重算切点以前的月度条目，从 `2026-07` 起按“切点净值减剩余残值”在剩余月份内直线分配，最后一期吸收分尾差；切点后的已确认减值未来适用。来源证据缺失只记 warning，来源期间、金额控制、公司/年度/科目 FK 和总账核对仍失败关闭；同科目差异绝对值不超过 `1.00` 时可按受控规则分配至该组最大账面价值卡并保留分配证据，重大未归卡余额标记 `pending_allocation`，该卡不生成后续折旧摊销且阻断关账，不得反向修改总账。
 
 ### 财务报表 (`/finance/statements`)
 
@@ -170,7 +179,7 @@ budget/page.tsx
 - `scripts/import/import-finance-readable.ts` 通过统一 prepare/commit 接口导入 readable 资料。T6 是开放结束年度的持续来源；TPlus 仅在迁移年度范围内执行一次历史衔接，并通过 `FinanceSourceLedgerMapping` 指向后续 T6 账套，不能继续作为新增年度来源。
 - prepare 阶段必须解析 `source-map.json`、manifest、validation summary 和 `SHA256SUMS.txt`，逐项校验本批次实际消费的 JSONL；缺表、错误表或校验和变化均失败关闭。`FinanceReadableSourcePackage`、`FinanceReadableImportRun` 和 `FinanceLedgerImport.checksum` 保存不可变来源包及每次应用证据，禁止用新快照静默覆盖来源身份。
 - T6 导入保留凭证类型、制单/审核/记账/出纳、附件、外部单据链、分录结算信息、科目辅助核算要求、`UA_Period` 期间日期，以及 `GL_mend` 的总账月结、`bAccClosed` 和各模块原始标志。T6 的期间锁定以 `GL_mend.bflag=true`（总账月末结账）派生，`bAccClosed` 只保留为来源审计事实；TPlus 只保留历史凭证、期初/未清项及 `AA_AccountAssociation` 科目衔接，不伪造关账状态。
-- 合并批次的本位币优先读取 `FinanceCompanyCurrencyPolicy` 中已经核定的公司财务政策，未维护时才回退到 ERP 基础币种。该政策只用于纠正已确认错误的 ERP 主数据；05 加拿大公司冻结为 CAD，汇率继续按期间由中国货币网自动抓取，不恢复人工汇率录入。
+- 合并批次的本位币优先读取 `FinanceCompanyCurrencyPolicy` 中已经核定的公司财务政策，未维护时才回退到 ERP 基础币种。该政策只用于纠正已确认错误的 ERP 主数据；境外经营的核定本位币属于数据库事实，汇率继续按期间从权威来源自动抓取，不恢复人工汇率录入，也不在源码文档写死租户公司编码。
 - `FinanceLedgerImport` 保存公司、年度、账套、数据库、快照日期和控制数；科目、凭证、分录及新增事实均保存稳定 source key，年度事务可幂等重跑。
 - `FinanceSourceAccountBalance` 保存 ERP 原始余额控制事实；`FinanceAccountBalance` 继续由期初事实加已过账凭证生成，报表不直接覆盖源控制数。
 - 辅助成员/余额/凭证链接、现金流分配、AP/AR 未清项、币种和银行账户使用独立规范化事实，供三表下钻和管理会计复用。
@@ -186,6 +195,12 @@ budget/page.tsx
 - `scripts/check/check-finance-readable-import.ts` 核对批次控制数、借贷平衡、月度连续性、法定资产负债表和当期三表。ERP 未提供或自身不勾稽的历史现金流分配作为 diagnostics 暴露，不自动制造抵销数。
 - readable 快照不包含固定资产卡片或折旧明细；资产折旧表必须等待独立来源，不能由总账余额反推卡片。
 
+### 期间关账工作区
+
+- `/finance/ledger?tab=closing` 固定汇总 27 项关账任务；每项使用独立 `contributorKey`，不得让多个任务共享同一总账或报表状态。客观事项直接消费期间、已记账凭证、余额、确认身份后的辅助余额、单体三表及锁定合并输出；关联方只认已确认的 `Company / Employee / Party` FK 与权威关系事实，不按名称猜测。
+- 无法由系统事实证明完整性的事项使用 `FinanceCloseWorkpaper`。底稿按公司、会计期间、任务唯一，状态为 `draft / prepared / reviewed / blocked`；提交复核必须有结论以及受治理证据或同公司同期间的 `posted` 凭证，复核人与编制人必须分离。每次保存和复核使用版本 CAS、幂等键及 `FinanceCloseWorkpaperEvent` 追加快照；已复核底稿再次编辑会显式退回编制状态并清空旧复核人。
+- contributor 只读取稳定 owner inspection，刷新后冻结不可变证据快照。最终“关账流程复核”先检查其独立复核底稿，再在同次 refresh plan 的第二阶段合并前 26 项状态；不得递归调用自身，也不得读取上次运行投影冒充本次结论。
+
 ## 科目余额口径
 
 科目余额分三层：
@@ -193,19 +208,13 @@ budget/page.tsx
 | 层 | 表 | 来源 | 用途 |
 |---|---|---|---|
 | 年度余额批次 | `FinanceBalanceSnapshot` | 一次本地资料导入 = 一行 | 追溯哪次导入、哪个文件、谁导入 |
-### 期间关账工作区
-
-- `/finance/ledger?tab=closing` 固定汇总 27 项关账任务；每项使用独立 `contributorKey`，不得让多个任务共享同一总账或报表状态。客观事项直接消费期间、已记账凭证、余额、确认身份后的辅助余额、单体三表及锁定合并输出；关联方只认已确认的 `Company / Employee / Party` FK 与权威关系事实，不按名称猜测。
-- 无法由系统事实证明完整性的事项使用 `FinanceCloseWorkpaper`。底稿按公司、会计期间、任务唯一，状态为 `draft / prepared / reviewed / blocked`；提交复核必须有结论以及受治理证据或同公司同期间的 `posted` 凭证，复核人与编制人必须分离。每次保存和复核使用版本 CAS、幂等键及 `FinanceCloseWorkpaperEvent` 追加快照；已复核底稿再次编辑会显式退回编制状态并清空旧复核人。
-- contributor 只读取稳定 owner inspection，刷新后冻结不可变证据快照。最终“关账流程复核”先检查其独立复核底稿，再在同次 refresh plan 的第二阶段合并前 26 项状态；不得递归调用自身，也不得读取上次运行投影冒充本次结论。
-
 | 年度余额明细 | `FinanceBalanceSnapshotRow` | 导入时每个科目的原始行 | 保存 `accountCode`/`accountName` 快照，审计可追溯到 Excel 原始行 |
 | 月度余额结果 | `FinanceAccountBalance` | 系统计算 | 按月展示、报表取数 |
 
 计算规则：
 
-1. 导入 2024 年度余额表后，**只写入 `FinanceBalanceSnapshot` + `FinanceBalanceSnapshotRow`**，`snapshotType="baseline"`, `isActive=true`。
-2. 后续年度余额表（2025+）导入时默认 `snapshotType="reconcile"`, `isActive=false`，仅用于本地校准核对。
+1. 每家公司首次导入年度余额表后，**只写入 `FinanceBalanceSnapshot` + `FinanceBalanceSnapshotRow`**，并设为 `snapshotType="baseline"`, `isActive=true`；基准年度由实际首个受控导入决定，不在代码中写死。
+2. 已存在 active baseline 后的年度余额表导入默认 `snapshotType="reconcile"`, `isActive=false`，仅用于本地校准核对。
 3. 点击科目余额“重新计算”时，系统从 active baseline snapshot 的 closing balance 开始，叠加已过账凭证逐月滚动到 `FinanceAccountBalance`。
 4. `FinanceAccountBalance` 是 `FinanceBalanceSnapshotRow` 的 materialized 缓存/展示层，不是数据源头。
 5. 换基准年份：将某个 reconcile snapshot 改为 `snapshotType="baseline"` + `isActive=true`（同 companyCode+year 下只有一个 active），然后重算受影响月份。
@@ -397,7 +406,7 @@ budget/page.tsx
 
 外币货币性项目在单体账期末重估产生的汇兑损益属于主体账事实；源财务软件漏记时，本系统只能形成 posting level 10 的主体调整、保留待回写状态和源账回写证据，不能作为内部抵销或集团层调整消化。境外经营财务报表从功能货币折算为人民币产生的外币报表折算差额属于集团列报事实，使用 posting level 30 的集团层调整且不得写回单体账。两者在凭证类型、复核证据和过账层级上必须分开。
 
-加拿大公司设立时实收资本为 CAD 100,000，境内对应支付 CNY 505,056，因此历史折算率固定为 `5.05056 CNY/CAD`，以后期间不得按期末汇率重估。该事实通过丰华生物 2019-05-31 的 `Workspace 合并`单体凭证追溯：借记 `1511 长期股权投资` CNY 505,056，贷记 `224101 其他应付款-单位` CNY 505,056，并将贷方往来对象绑定集团公司丰华制药；凭证下显示“匹配：加拿大公司实收资本”，结构化证据保留 CAD 原币金额、历史折算率、人民币金额和权益行类型。该凭证发生在当前 active ERP 余额基准以前，法定报表在基准期及以后作为持久总账叠加项消费，不改写 ERP 年度余额快照。只有缺少可追溯投资凭证时，系统才允许从境外公司最早可用资本期初余额回退到期初日及此前七日内的历史牌价；已有明确匹配的投资凭证不得再使用该兜底事实。
+境外公司设立资本的历史折算必须来自可追溯的投资凭证或受控来源证据，结构化保存原币金额、交易日或历史账期、汇率来源、人民币金额、权益行类型和关联公司 FK；公司名称、编码、日期、金额与固定汇率不得写入源码或公共文档。该凭证早于当前 active ERP 余额基准时，法定报表在基准期及以后作为持久总账叠加项消费，不改写 ERP 年度余额快照。只有缺少可追溯投资凭证时，系统才允许从境外公司最早可用资本期初余额回退到期初日及此前受控窗口内的权威历史牌价；已有明确匹配的投资凭证不得再使用兜底事实。
 
 合并抵销不改变各法律主体的当期纳税义务：纯应收应付余额抵销不生成所得税分录；内部收入成本或未实现利润抵销仍保留卖方依法确认的当期所得税，并在合并层按暂时性差异单独评估递延所得税。递延所得税模型作为对应合并凭证的关联税务影响保留；当前自动范围仅有往来余额和投资权益，因此不把缺少税效作为发布阻断，后续启用内部交易和未实现利润规则时必须同步启用税效复核。
 
@@ -409,24 +418,13 @@ budget/page.tsx
 
 详见 `app/(modules)/finance/budget/ARCHITECTURE.md`。
 
-预算数据来自 `prisma/seed-data/预算/` 下的 Excel 文件（部门费用预算、研发费用预算）。
+预算运行时只读取数据库版本，不读取仓库 Excel。租户预算源文件、引用映射和 manifest 只进入私有 data release。
 
-`FinanceBudgetVersion` 为版本头表（draft/active/archived），`FinanceBudgetDept` / `FinanceBudgetRd` 为事实表，通过 `versionId` 关联到版本。`accountId` 外键关联到 `FinanceAccount`。
+`FinanceBudgetVersion` 为版本头表（draft/active/archived），以 `companyId` FK 关联 `Company`；companyCode 仅作来源快照。`FinanceBudgetDept` / `FinanceBudgetRd` 通过 `versionId` 继承公司，分别使用 `departmentId` / `projectId`，并统一使用 `accountId` 关联 `FinanceAccount`。导入原文保留在 dept/project/accountName/category，不参与运行时身份判断。
 
-### 预算导入
+### 一次性预算导入
 
-```bash
-# 将 Excel 预算数据导入数据库（创建 draft 版本）
-curl -X POST /api/modules/finance/budget -H "Content-Type: application/json" -d '{"year":2026}'
-```
-
-### 预算科目同步脚本
-
-```bash
-npm run budget:sync-accounts
-```
-
-该脚本读取两份预算 Excel，将预算中未出现在 `FinanceAccount` 的科目创建为 `isActive=false` 的占位科目（编码格式 `BUDGET-{DEPT|RD}-###`）。**需在预算 Excel 变更后重新运行，然后重新导入预算到数据库**。
+预算不提供显式 POST 导入。受控 handler `finance-budget-v1` 从私有 data-release source 读取部门预算、研发预算和引用映射；Company、Department、Project 或 FinanceAccount 缺失/歧义时整批失败，不自动创建占位主数据。上传、verify、apply 与回执协议见 `docs/engineering/ops/data-releases.md`。
 
 ## API 规范
 
@@ -548,7 +546,7 @@ Capital Securities、External、HR、Inventory、Library、Production、Work。�
 | `/api/modules/finance/analysis/budget` | `finance.analysis.read` | 预算分析 |
 | `/api/modules/finance/analysis/fund-flow` | `finance.analysis.read` | 资金来源与用途管理分析 |
 | `/api/modules/finance/analysis/management` | `finance.analysis.read` | 统一管理会计读模型 |
-| `/api/modules/finance/budget` | `finance.budget.read/import` | 预算查询/导入 |
+| `/api/modules/finance/budget` | `finance.budget.read` | 预算查询 |
 | `/api/modules/finance/ledger/reclass-rules` | `finance.ledger.read/revise` | 重分类规则查询/change-set 保存 |
 | `/api/modules/finance/ledger/reclass-adjustments` | `finance.ledger.revise` | 期间重分类调整 change-set 保存 |
 | `/api/modules/finance/ledger/reclass-results` | `finance.ledger.read/revise` | 重分类结果列表/生成/审核 |

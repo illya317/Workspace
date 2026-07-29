@@ -3,13 +3,14 @@ import {
   createPageBody,
   createPageTableSection,
   createStatusSection,
-  createVisualizationSection,
   type BodySurfaceSectionSpec,
+  type DataSurfaceCellSpec,
   type DataSurfaceColumnSpec,
   type DataSurfaceDisplaySpec,
 } from "@workspace/core/ui";
 import type {
   SourceCodeAnalysisModuleCategory,
+  SourceCodeAnalysisDependencyEdge,
   SourceCodeAnalysisModuleRow,
   SourceCodeAnalysisRole,
   SourceCodeAnalysisRoleCounts,
@@ -22,7 +23,13 @@ import {
 import {
   SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS,
   displayGroupLines,
+  type SourceCodeAnalysisDisplayGroup,
 } from "./source-code-analysis-display";
+import {
+  sourceCodeAnalysisCellSelected,
+  sourceCodeAnalysisRelationCellState,
+  type SourceCodeAnalysisRelationSelection,
+} from "./source-code-analysis-relations";
 import {
   balanceCodeVolumeMatrix,
   formatBalancedCodeVolumeInTenThousands,
@@ -35,7 +42,7 @@ interface AnalysisTableRow extends SourceCodeAnalysisModuleRow {
   rowKind: "module" | "section" | "total";
 }
 
-const ANALYSIS_ROW_GROUPS: readonly Array<{
+const ANALYSIS_ROW_GROUPS: ReadonlyArray<{
   key: string;
   label: string;
   categories: readonly SourceCodeAnalysisModuleCategory[];
@@ -50,19 +57,56 @@ export interface SourceCodeAnalysisColumnDisclosure {
   onToggleGroup: (groupKey: string) => void;
 }
 
+interface SourceCodeAnalysisCellRelations {
+  dependencyEdges: readonly SourceCodeAnalysisDependencyEdge[];
+  selection: SourceCodeAnalysisRelationSelection;
+}
+
+function selectableAnalysisCell(
+  row: AnalysisTableRow,
+  group: SourceCodeAnalysisDisplayGroup,
+  content: string | DataSurfaceCellSpec,
+  relations?: SourceCodeAnalysisCellRelations,
+): string | DataSurfaceCellSpec {
+  if (!relations || row.rowKind !== "module" || displayGroupLines(row.roles, group) === 0) return content;
+  return {
+    kind: "interactive",
+    content: typeof content === "string" ? { kind: "text", value: content } : content,
+    ariaLabel: `分析${row.label}${group.label}的引用关系`,
+    onClick: () => relations.selection.onSelectCell({ moduleKey: row.key, groupKey: group.key }),
+  };
+}
+
 function roleColumn(
-  groupKey: string,
+  group: SourceCodeAnalysisDisplayGroup,
   role: SourceCodeAnalysisRole,
+  relations?: SourceCodeAnalysisCellRelations,
 ): DataSurfaceColumnSpec<AnalysisTableRow> {
   return {
-    key: `${groupKey}:${role}`,
+    key: `${group.key}:${role}`,
     label: SOURCE_CODE_ANALYSIS_ROLE_LABELS[role],
     align: "right",
     numeric: true,
-    disclosure: { groupKey, role: "detail" },
+    disclosure: { groupKey: group.key, role: "detail" },
+    cellState: (row) => sourceCodeAnalysisRelationCellState(
+      row,
+      group,
+      relations?.dependencyEdges ?? [],
+      relations?.selection.selectedCell ?? null,
+    ),
+    cellSelected: (row) => sourceCodeAnalysisCellSelected(
+      row,
+      group,
+      relations?.selection.selectedCell ?? null,
+    ),
     cell: (row) => row.rowKind === "section"
       ? null
-      : codeVolumeDisplay(row.displayRoles[role], row.roles[role]),
+      : selectableAnalysisCell(
+          row,
+          group,
+          codeVolumeDisplay(row.displayRoles[role], row.roles[role]),
+          relations,
+        ),
   };
 }
 
@@ -77,6 +121,7 @@ function codeVolumeDisplay(displayLines: number, sourceLines: number): string | 
 export function createSourceCodeAnalysisColumns(
   disclosure?: SourceCodeAnalysisColumnDisclosure,
   maxModuleLines = 1,
+  relations?: SourceCodeAnalysisCellRelations,
 ): DataSurfaceColumnSpec<AnalysisTableRow>[] {
   const columns: DataSurfaceColumnSpec<AnalysisTableRow>[] = [
     {
@@ -118,15 +163,31 @@ export function createSourceCodeAnalysisColumns(
       numeric: true,
       disclosure: interactive ? { groupKey: group.key, role: "trigger", expanded: Boolean(expanded) } : undefined,
       onHeaderClick: interactive ? () => disclosure?.onToggleGroup(group.key) : undefined,
+      cellState: (row) => sourceCodeAnalysisRelationCellState(
+        row,
+        group,
+        relations?.dependencyEdges ?? [],
+        relations?.selection.selectedCell ?? null,
+      ),
+      cellSelected: (row) => sourceCodeAnalysisCellSelected(
+        row,
+        group,
+        relations?.selection.selectedCell ?? null,
+      ),
       cell: (row) => row.rowKind === "section"
         ? null
-        : codeVolumeDisplay(
-            displayGroupLines(row.displayRoles, group),
-            displayGroupLines(row.roles, group),
+        : selectableAnalysisCell(
+            row,
+            group,
+            codeVolumeDisplay(
+              displayGroupLines(row.displayRoles, group),
+              displayGroupLines(row.roles, group),
+            ),
+            relations,
           ),
     });
     if (expanded) {
-      columns.push(...group.roles.map((role) => roleColumn(group.key, role)));
+      columns.push(...group.roles.map((role) => roleColumn(group, role, relations)));
     }
   }
 
@@ -213,44 +274,31 @@ export function analysisTableRows(snapshot: SourceCodeAnalysisSnapshot): Analysi
   return [...groupedRows, totalAnalysisRow(snapshot, moduleRows)];
 }
 
-function responsibilityCompositionSection(totalRow: AnalysisTableRow): BodySurfaceSectionSpec {
-  const totalLines = Math.max(totalRow.displayLines, 1);
-  return {
-    ...createVisualizationSection("source-code-analysis-composition", {
-      kind: "chart",
-      chart: {
-        visual: {
-          kind: "barChart",
-          bars: SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.map((group) => {
-            const lines = displayGroupLines(totalRow.displayRoles, group);
-            const percentage = (lines / totalLines) * 100;
-            const volume = formatCodeVolumeInTenThousands(lines);
-            return {
-              key: group.key,
-              label: group.label,
-              value: lines,
-              valueLabel: `${volume} · ${percentage.toLocaleString("zh-CN", { maximumFractionDigits: 1 })}%`,
-              title: `${group.label}：${volume} 万行，占 ${percentage.toLocaleString("zh-CN", { maximumFractionDigits: 1 })}%`,
-            };
-          }),
-          height: 116,
-        },
-      },
-    }),
-    header: { title: "职责构成" },
-  };
-}
-
 export function createSourceCodeAnalysisSection(
   snapshot: SourceCodeAnalysisSnapshot | null,
   disclosure?: SourceCodeAnalysisColumnDisclosure,
+  relationSelection?: SourceCodeAnalysisRelationSelection,
 ): BodySurfaceSectionSpec {
   const rows = snapshot ? analysisTableRows(snapshot) : [];
+  const selectedGroup = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) =>
+    group.key === relationSelection?.selectedCell?.groupKey);
+  const selectedCell = relationSelection?.selectedCell && selectedGroup
+    && rows.some((row) => row.rowKind === "module"
+      && row.key === relationSelection.selectedCell?.moduleKey
+      && displayGroupLines(row.roles, selectedGroup) > 0)
+    ? relationSelection.selectedCell
+    : null;
   const maxModuleLines = snapshot
     ? Math.max(1, ...rows.filter((row) => row.rowKind === "module").map((row) => row.displayLines))
     : 1;
-  const analysisColumns = createSourceCodeAnalysisColumns(disclosure, maxModuleLines);
-  const totalRow = rows.find((row) => row.rowKind === "total");
+  const analysisColumns = createSourceCodeAnalysisColumns(
+    disclosure,
+    maxModuleLines,
+    snapshot && relationSelection ? {
+      dependencyEdges: snapshot.dependencyEdges,
+      selection: { ...relationSelection, selectedCell },
+    } : undefined,
+  );
   const sections: BodySurfaceSectionSpec[] = snapshot ? [
     createMetricsSection("source-code-analysis-summary", {
       metrics: [
@@ -260,7 +308,6 @@ export function createSourceCodeAnalysisSection(
         { key: "cycles", label: "依赖循环", value: snapshot.summary.dependencyCycleCount },
       ],
     }),
-    ...(totalRow ? [responsibilityCompositionSection(totalRow)] : []),
     {
       ...createPageTableSection("source-code-analysis-table", {
         rows,
@@ -279,7 +326,14 @@ export function createSourceCodeAnalysisSection(
       }),
       header: {
         title: "职责分布",
-        badges: [{ key: "line-unit", label: "单位：万行", tone: "muted" }],
+        badges: [
+          { key: "line-unit", label: "单位：万行", tone: "muted" },
+          ...(selectedCell ? [
+            { key: "incoming", label: "引用选中格", tone: "info" as const },
+            { key: "outgoing", label: "被选中格引用", tone: "warning" as const },
+            { key: "bidirectional", label: "双向", tone: "success" as const },
+          ] : []),
+        ],
       },
     },
   ] : [

@@ -16,6 +16,7 @@ import { validateEmploymentPersonnelTypeTransition } from "./employment-validati
 import { HR_EMPLOYMENT_TEMPORAL } from "../../business-temporal";
 import { validateAssignmentTimeline } from "./employee-lifecycle-validation";
 import { isFunctionalPosition } from "./position-report-override-validation";
+import { getBusinessCodeConfig } from "@workspace/platform/server/system-config";
 
 const EMPLOYMENT_PATCH_FIELDS = [
   "joinDate",
@@ -313,7 +314,8 @@ export async function validateAssignmentPlacement(tx: Prisma.TransactionClient, 
   if (department.isArchived) return failCommand("归档部门不能用于任职", 409, "departmentId");
   if (!position) return failCommand("任职岗位不存在", 404, "positionId");
   if (position.isArchived) return failCommand("归档岗位不能用于任职", 409, "positionId");
-  const functional = isFunctionalPosition(position);
+  const functionalPrefix = (await getBusinessCodeConfig(tx)).department.functionalPrefix;
+  const functional = isFunctionalPosition(position, functionalPrefix);
   const override = row.positionReportOverrideId
     ? await tx.positionReportOverride.findFirst({
         where: {

@@ -1,3 +1,4 @@
+-- workspace:migration-mode=maintenance
 -- Keep the canonical Company.id reference and the imported/display code snapshot aligned.
 CREATE FUNCTION "sync_company_id_from_code"() RETURNS trigger AS $$
 DECLARE

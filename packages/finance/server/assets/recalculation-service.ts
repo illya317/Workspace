@@ -4,6 +4,7 @@ import { calculateFinanceAssetPeriod } from "./calculator";
 import { replayAssetAccumulatedAmounts } from "./accumulated-replay";
 import { listFinanceAssetWorkspace } from "./service";
 import { requireStoredFinanceAssetDepreciationMethod } from "./depreciation-method";
+import { FINANCE_ASSET_LEGACY_CUTOVER_MODE } from "./legacy-cutover";
 
 const money = (value: unknown) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 
@@ -32,7 +33,9 @@ export async function recalculateFinanceAssetPeriod(
     const cards = await tx.financeAssetCard.findMany({
       where: {
         companyCode: scope.companyCode,
-        usefulLifeMonths: { not: null },
+        AND: [
+          { OR: [{ usefulLifeMonths: { not: null } }, { initializationMode: FINANCE_ASSET_LEGACY_CUTOVER_MODE }] },
+        ],
         OR: [
           { status: "active" },
           { status: "disposed", disposal: { disposalDate: { gte: period.startDate }, status: "confirmed" } },
@@ -65,6 +68,14 @@ export async function recalculateFinanceAssetPeriod(
     ]);
     const currentByAsset = new Map(currentEntries.map((entry) => [entry.assetId, entry]));
     for (const card of cards) {
+      if (card.initializationMode === FINANCE_ASSET_LEGACY_CUTOVER_MODE && card.cutoverDate && period.endDate <= card.cutoverDate) {
+        if (currentByAsset.has(card.id)) throw new Error(`资产 ${card.assetCode} 的切点期间不得保留折旧摊销条目`);
+        continue;
+      }
+      if (card.initializationMode === FINANCE_ASSET_LEGACY_CUTOVER_MODE && card.cutoverAllocationStatus !== "allocated") {
+        if (currentByAsset.has(card.id)) throw new Error(`资产 ${card.assetCode} 的切点余额待分配，必须先清理已有折旧摊销条目`);
+        continue;
+      }
       if (!card.depreciationStartDate) {
         throw new Error(`资产 ${card.assetCode} 缺少折旧摊销起算日期，不能静默跳过重算`);
       }
@@ -77,6 +88,8 @@ export async function recalculateFinanceAssetPeriod(
         assetId: card.id,
         companyCode: scope.companyCode,
         openingAccumulatedAmount: card.openingAccumulatedAmount,
+        openingImpairmentAmount: card.openingImpairmentAmount,
+        openingIncludesImpairment: card.initializationMode === FINANCE_ASSET_LEGACY_CUTOVER_MODE,
         openingAsOfDate: card.openingAsOfDate,
         priorEntries: priorEntries.map((row) => ({ ...row, periodId: row.period.id, periodEndDate: row.period.endDate, voucher: replayVoucher(row.voucher) })),
         priorAdjustments: priorAdjustments.map((row) => ({ ...row, periodId: row.period.id, periodEndDate: row.period.endDate, voucher: replayVoucher(row.voucher) })),
@@ -94,16 +107,32 @@ export async function recalculateFinanceAssetPeriod(
         month: scope.month,
         assetKind: card.assetKind as "fixed_asset" | "intangible" | "prepaid" | "long_term_deferred",
         disposalDate: card.disposal?.status === "confirmed" ? card.disposal.disposalDate : null,
+        initializationMode: card.initializationMode as "standard" | "legacy_cutover",
+        legacyCutover: card.initializationMode === FINANCE_ASSET_LEGACY_CUTOVER_MODE ? {
+          originalCost: money(card.originalCost),
+          openingAccumulatedAmount: money(card.openingAccumulatedAmount),
+          openingImpairmentAmount: money(card.openingImpairmentAmount),
+          openingNetBookValue: money(card.openingNetBookValue),
+          cutoverDate: card.cutoverDate!,
+          remainingUsefulLifeMonthsAtCutover: card.remainingUsefulLifeMonthsAtCutover!,
+          cutoverResidualValue: money(card.cutoverResidualValue),
+        } : undefined,
       });
       if (result.lifecycleBlocker) throw new Error(`资产 ${card.assetCode} 的处置月终止摊销口径缺失，请先记录明确调整`);
       await tx.financeAssetPeriodEntry.upsert({
         where: { assetId_periodId: { assetId: card.id, periodId: period.id } },
-        create: { assetId: card.id, periodId: period.id, normalAmount: result.periodAmount, status: "calculated" },
-        update: { normalAmount: result.periodAmount, status: "calculated", voucherId: null },
+        create: { assetId: card.id, periodId: period.id, normalAmount: result.periodAmount, status: "calculated", calculationVersion: calculationVersion(card.initializationMode) },
+        update: { normalAmount: result.periodAmount, status: "calculated", voucherId: null, calculationVersion: calculationVersion(card.initializationMode) },
       });
     }
   }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   return dependencies.listWorkspace(scope);
+}
+
+function calculationVersion(initializationMode: string) {
+  return initializationMode === FINANCE_ASSET_LEGACY_CUTOVER_MODE
+    ? "legacy-cutover-remaining-value-v1"
+    : "straight-line-v1";
 }
 
 function replayVoucher(voucher: { id: number; status: string; companyCode: string; periodId: number; totalDebit: number; totalCredit: number; items: Array<{ debit: number; credit: number; account: { code: string } }> } | null) {

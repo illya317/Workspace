@@ -8,6 +8,7 @@ test("push suite flattens blockers and changed checks without repeating contract
   const ids = plan.tasks.map((task) => task.id);
 
   assert.equal(ids.filter((id) => id === "api-response-format").length, 1);
+  assert.equal(ids.filter((id) => id === "business-code-hardcoding").length, 1);
   assert.equal(ids.filter((id) => id === "history-policy").length, 1);
   assert.equal(ids.filter((id) => id === "business-temporal").length, 1);
   assert.equal(ids.filter((id) => id === "deploy-graph").length, 1);
@@ -18,7 +19,7 @@ test("push suite flattens blockers and changed checks without repeating contract
   assert.equal(ids.includes("domain-changed"), true);
   assert.equal(ids.includes("domain-architecture"), true);
   assert.equal(new Set(ids).size, ids.length);
-  assert.equal(plan.duplicateReferences, 8);
+  assert.equal(plan.duplicateReferences, 10);
   assert.equal(plan.coveredTaskReferences, 0);
 });
 
@@ -174,7 +175,9 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "playwright-lifecycle",
     "lint-changed",
     "api-response-format",
+    "business-code-hardcoding",
     "history-policy",
+    "import-reference",
     "business-temporal",
     "deploy-graph",
     "deploy-unit-apps",
@@ -189,7 +192,9 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "playwright-lifecycle",
     "lint-changed",
     "api-response-format",
+    "business-code-hardcoding",
     "history-policy",
+    "import-reference",
     "business-temporal",
     "deploy-graph",
     "deploy-unit-apps",
@@ -205,7 +210,9 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "test-focus",
     "business-identity",
     "api-response-format",
+    "business-code-hardcoding",
     "history-policy",
+    "import-reference",
     "business-temporal",
     "deploy-graph",
     "deploy-unit-apps",

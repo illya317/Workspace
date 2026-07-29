@@ -2,12 +2,13 @@
 
 import { createPageBody, BodySurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { useDepartmentCreateSurface } from "./department-create-panel";
-import type { Department } from "./types";
+import type { Department, OrganizationCodeConfig } from "./types";
 import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 
 export function useDepartmentPositionDetailSections({
   createPanel,
   departments,
+  codeConfig,
   departmentById,
   actionRuntime,
   onCreatePanelChange,
@@ -17,6 +18,7 @@ export function useDepartmentPositionDetailSections({
 }: {
   createPanel: "department" | "position" | null;
   departments: Department[];
+  codeConfig: OrganizationCodeConfig | null;
   departmentById: Map<number, Department>;
   actionRuntime: ActionRuntime | null;
   onCreatePanelChange: (panel: "department" | "position" | null) => void;
@@ -26,6 +28,7 @@ export function useDepartmentPositionDetailSections({
 }): BodySurfaceSectionSpec[] {
   const createDepartmentSurface = useDepartmentCreateSurface({
     departments,
+    codeConfig,
     departmentById,
     actionRuntime,
     open: createPanel === "department",
@@ -42,6 +45,7 @@ export function useDepartmentPositionDetailSections({
 export function DepartmentPositionDetailArea(props: {
   createPanel: "department" | "position" | null;
   departments: Department[];
+  codeConfig: OrganizationCodeConfig | null;
   departmentById: Map<number, Department>;
   actionRuntime: ActionRuntime | null;
   onCreatePanelChange: (panel: "department" | "position" | null) => void;

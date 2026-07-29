@@ -56,6 +56,17 @@ test("accepts an explicit existing subject when adding a second role", () => {
   if (result.ok) assert.equal(result.data.existingPartyId, 42);
 });
 
+test("allows create commands to leave the role code for server allocation", () => {
+  const result = buildExternalPartyCreateCommand("supplier", {
+    code: "",
+    name: "自动编号供应商",
+    identityNumber: "9132AUTO",
+  }, 7, "create-supplier-auto");
+
+  assert.equal(result.ok, true);
+  if (result.ok) assert.equal(result.data.roleData.code, "");
+});
+
 test("requires a unified code or identity number for a new role record", () => {
   const result = buildExternalPartyCreateCommand("customer", {
     code: "C-002",

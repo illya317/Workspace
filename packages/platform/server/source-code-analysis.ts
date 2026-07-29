@@ -33,7 +33,8 @@ function isSnapshot(value: unknown): value is SourceCodeAnalysisSnapshot {
     && typeof candidate.generatedAt === "string"
     && typeof candidate.sourceDigest === "string"
     && Boolean(candidate.summary && typeof candidate.summary.lines === "number")
-    && Array.isArray(candidate.modules);
+    && Array.isArray(candidate.modules)
+    && Array.isArray(candidate.dependencyEdges);
 }
 
 export function readSourceCodeAnalysisSnapshot() {

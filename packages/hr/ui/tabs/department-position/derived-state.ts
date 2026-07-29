@@ -5,6 +5,7 @@ import type {
   Department,
   DepartmentPositionStats,
   Position,
+  OrganizationCodeConfig,
   Selection,
 } from "./types";
 import {
@@ -22,6 +23,7 @@ export function useDepartmentPositionDerivedState({
   departments,
   isOrganizationMode,
   positions,
+  codeConfig,
   search,
   selection,
 }: {
@@ -30,6 +32,7 @@ export function useDepartmentPositionDerivedState({
   departments: Department[];
   isOrganizationMode: boolean;
   positions: Position[];
+  codeConfig: OrganizationCodeConfig | null;
   search: string;
   selection: Selection;
 }) {
@@ -39,8 +42,8 @@ export function useDepartmentPositionDerivedState({
   const positionById = useMemo(() => new Map(positions.map((position) => [position.id, position])), [positions]);
   const createPositionDepartment = createPositionDraft.departmentId ? departmentById.get(createPositionDraft.departmentId) : undefined;
   const createPositionCode = useMemo(
-    () => generatePositionCode(createPositionDepartment, positions),
-    [createPositionDepartment, positions]
+    () => codeConfig ? generatePositionCode(createPositionDepartment, positions, codeConfig) : "",
+    [codeConfig, createPositionDepartment, positions]
   );
 
   const positionsByDepartment = useMemo(() => {

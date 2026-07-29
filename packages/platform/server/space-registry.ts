@@ -7,7 +7,7 @@ import {
   getGroupCompanyContext,
   getOperatingCommitteeDepartmentContext,
 } from "./business-space-permissions";
-import { ensureDocsEditorSpaceForTarget } from "./docs-editor";
+import { ensureRegisteredDocsEditorSpaceForTarget } from "./docs-editor-space-adapter";
 import { prisma } from "./prisma";
 import { getUserPreferredDepartmentIds } from "./user-preferences";
 import { hasGlobalGrantManagementAccess } from "./rbac/admin-scope";
@@ -197,7 +197,7 @@ async function toResourceDto(
   const [scopedAccess, scopedGrant, docsSpace] = await Promise.all([
     evaluatePermissionAction(userId, permissionResourceKey, "read", { scopeId, projection: "space" }),
     canManageScopedPermissionGrant(userId, permissionResourceKey, scopeId),
-    resource.entryKind === "docs-editor" ? ensureDocsEditorSpaceForTarget(seed.spaceType, seed.targetId) : Promise.resolve(null),
+    resource.entryKind === "docs-editor" ? ensureRegisteredDocsEditorSpaceForTarget(seed.spaceType, seed.targetId) : Promise.resolve(null),
   ]);
   return {
     key: `${resource.entryKind}:${seed.spaceType}:${seed.targetId}`,

@@ -4,7 +4,13 @@ import type { ReactNode, Ref } from "react";
 import { useScrollToIndexedItem } from "../../../hooks/useScrollToIndexedItem";
 import FieldGrid from "../input/FieldGrid";
 import FormField from "./FormField";
-import { isInputField, renderCommands, renderFieldValue } from "./FormSurface.controls";
+import {
+  isInputField,
+  isMultilineInputField,
+  renderCommands,
+  renderFieldValue,
+  resolveFormSurfaceFieldSpan,
+} from "./FormSurface.controls";
 import { ACTION_GLYPH_ACTION_BY_KEY } from "../action/ActionGlyphs";
 import { orderFormSurfaceActions, renderFormSurfaceActions } from "./form-surface-actions";
 import { isFormSurfaceNativeSubmitAction } from "./form-surface-submit";
@@ -24,10 +30,10 @@ import type {
 type ResolvedFormLayout = Required<FormSurfaceLayoutSpec> & { commandPlacement: "below" | "inline" };
 
 function defaultLayout(kind: FormSurfaceKind): ResolvedFormLayout {
-  if (kind === "filters") return { flow: "inline", columns: 3, mode: "mixed", density: "compact", commandPlacement: "below" };
-  if (kind === "detail") return { flow: "grid", columns: 3, mode: "detail", density: "compact", commandPlacement: "below" };
-  if (kind === "login") return { flow: "single", columns: 1, mode: "mixed", density: "normal", commandPlacement: "below" };
-  return { flow: "grid", columns: 3, mode: "mixed", density: "normal", commandPlacement: "below" };
+  if (kind === "filters") return { flow: "inline", columns: 3, mode: "mixed", density: "compact", fieldLayout: "inline", commandPlacement: "below" };
+  if (kind === "detail") return { flow: "grid", columns: 3, mode: "detail", density: "compact", fieldLayout: "inline", commandPlacement: "below" };
+  if (kind === "login") return { flow: "single", columns: 1, mode: "mixed", density: "normal", fieldLayout: "inline", commandPlacement: "below" };
+  return { flow: "grid", columns: 3, mode: "mixed", density: "normal", fieldLayout: "inline", commandPlacement: "below" };
 }
 
 function resolveLayout(kind: FormSurfaceKind, layout?: FormSurfaceLayoutSpec | FormSurfaceFilterLayoutSpec): ResolvedFormLayout {
@@ -74,7 +80,7 @@ function renderGridItem<T>(
         data-form-section-frame={chrome === "card" ? (nestedCard ? "nested" : "primary") : undefined}
       >
         {header}
-        <FieldGrid columns={sectionLayout.columns} mode={sectionLayout.mode}>
+        <FieldGrid columns={sectionLayout.columns} mode={sectionLayout.mode} fieldLayout={sectionLayout.fieldLayout}>
           {field.items.map((item) => renderGridItem(item, sectionLayout, insideFrame || chrome === "card"))}
         </FieldGrid>
       </section>
@@ -88,7 +94,7 @@ function renderGridItem<T>(
       label={field.label}
       required={isFormSurfaceFieldRequired(field)}
       hint={field.error ?? field.hint}
-      span={field.span}
+      span={resolveFormSurfaceFieldSpan(field)}
       rowSpan={field.rowSpan}
       mode={layout.mode}
     >
@@ -187,7 +193,7 @@ function RepeatableGridItem<T>({
                   {renderCommands(item.actions)}
                 </div>
               )}
-              <FieldGrid columns={repeatableLayout.columns} mode={repeatableLayout.mode}>
+              <FieldGrid columns={repeatableLayout.columns} mode={repeatableLayout.mode} fieldLayout={repeatableLayout.fieldLayout}>
                 {item.items.map((nested) => renderGridItem(nested, repeatableLayout))}
               </FieldGrid>
             </div>
@@ -215,7 +221,7 @@ function renderInlineItem<T>(field: FormSurfaceItemSpec<T>, layout: ResolvedForm
             {headerActions}
           </div>
         )}
-        <FieldGrid columns={nestedLayout.columns} mode={nestedLayout.mode}>
+        <FieldGrid columns={nestedLayout.columns} mode={nestedLayout.mode} fieldLayout={nestedLayout.fieldLayout}>
           {field.items.map((item) => renderGridItem(item, nestedLayout, false))}
         </FieldGrid>
       </div>
@@ -225,8 +231,17 @@ function renderInlineItem<T>(field: FormSurfaceItemSpec<T>, layout: ResolvedForm
     return <InlineRepeatableBlock key={field.key} field={field} layout={resolveLayout("filters", { ...layout, ...field.layout })} />;
   }
   const fieldActions = isInputField(field) ? field.actions : undefined;
+  const multiline = isMultilineInputField(field);
   return (
-    <FormField key={field.key} label={field.label} required={isFormSurfaceFieldRequired(field)} hint={field.hint} error={field.error} layout="inline">
+    <FormField
+      key={field.key}
+      label={field.label}
+      required={isFormSurfaceFieldRequired(field)}
+      hint={field.hint}
+      error={field.error}
+      className={multiline ? "w-full basis-full" : undefined}
+      layout={multiline ? "stacked" : "inline"}
+    >
       {fieldActions?.length ? (
         <div className="flex min-w-0 items-center gap-2">
           <div className="min-w-0 flex-1">{renderFieldValue(field, layout.density)}</div>
@@ -283,7 +298,7 @@ function renderInlineRepeatableItems<T>(
               {renderCommands(item.actions)}
             </div>
           )}
-          <FieldGrid columns={layout.columns} mode={layout.mode}>{item.items.map((nested) => renderGridItem(nested, layout))}</FieldGrid>
+          <FieldGrid columns={layout.columns} mode={layout.mode} fieldLayout={layout.fieldLayout}>{item.items.map((nested) => renderGridItem(nested, layout))}</FieldGrid>
         </div>
       ))}
     </div>
@@ -312,13 +327,13 @@ function renderItems<T>(props: FormSurfaceProps<T>, layout: ResolvedFormLayout, 
   }
   if (props.kind === "login") {
     return (
-      <FieldGrid columns={1} mode="mixed" className="w-full gap-4">
+      <FieldGrid columns={1} mode="mixed" fieldLayout={layout.fieldLayout} className="w-full gap-4">
         {items.map(renderLoginItem)}
       </FieldGrid>
     );
   }
   return (
-    <FieldGrid columns={layout.columns} mode={layout.mode}>
+    <FieldGrid columns={layout.columns} mode={layout.mode} fieldLayout={layout.fieldLayout}>
       {items.map((field) => renderGridItem(field, layout, insideFrame))}
     </FieldGrid>
   );

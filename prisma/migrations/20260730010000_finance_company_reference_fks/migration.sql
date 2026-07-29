@@ -1,3 +1,4 @@
+-- workspace:migration-mode=maintenance
 -- AddForeignKey
 ALTER TABLE "FinanceStatementSourcePackage" ADD CONSTRAINT "FinanceStatementSourcePackage_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 

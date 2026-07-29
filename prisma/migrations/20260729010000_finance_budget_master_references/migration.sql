@@ -1,3 +1,4 @@
+-- workspace:migration-mode=maintenance
 ALTER TABLE "FinanceBudgetVersion" ADD COLUMN "companyId" INTEGER;
 ALTER TABLE "FinanceBudgetDept" ADD COLUMN "departmentId" INTEGER;
 ALTER TABLE "FinanceBudgetRd" ADD COLUMN "projectId" INTEGER;

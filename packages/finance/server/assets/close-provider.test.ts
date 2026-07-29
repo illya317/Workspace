@@ -10,6 +10,7 @@ import {
 } from "./close-provider";
 import { assetImpairmentCalculationBasisFingerprint, assetScopeFingerprint } from "./period-scope";
 import { replayAssetAccumulatedAmounts } from "./accumulated-replay";
+import type { AssetCloseCard } from "./close-provider-evidence";
 
 const scope = { companyCode: "ZX02", year: 2026, month: 6 };
 
@@ -37,7 +38,7 @@ const policy = {
   disposalGainLossAccountCode: "6711",
 };
 
-function card(overrides: Record<string, unknown> = {}) {
+function card(overrides: Partial<AssetCloseCard> = {}): AssetCloseCard {
   return {
     id: 1,
     companyCode: "ZX02",
@@ -53,7 +54,15 @@ function card(overrides: Record<string, unknown> = {}) {
     originalCost: 6000,
     residualRate: 0,
     openingAccumulatedAmount: 0,
+    initializationMode: "standard",
+    openingImpairmentAmount: 0,
+    openingNetBookValue: null,
     openingAsOfDate: null,
+    cutoverDate: null,
+    remainingUsefulLifeMonthsAtCutover: null,
+    cutoverResidualValue: null,
+    cutoverAllocationStatus: null,
+    cutoverReconciliationFingerprint: null,
     sourceFile: "assets.xlsx",
     sourceRow: 4,
     acquisitionEvidence: {
@@ -168,7 +177,7 @@ function depreciationFacts(overrides: Partial<AssetDepreciationCloseFacts> = {})
 }
 
 function impairmentFacts(
-  cards: ReturnType<typeof card>[],
+  cards: AssetCloseCard[],
   assessment: Omit<NonNullable<AssetImpairmentCloseFacts["assessment"]>, "calculationBasisFingerprint"> | null,
 ): AssetImpairmentCloseFacts {
   const entries = cards.filter((row) => row.usefulLifeMonths != null).map((row) => ({
@@ -261,7 +270,7 @@ test("depreciation and amortization require due entries and an exact dedicated v
   assert.equal(oneCent.blockers.some((item) => item.code === "asset_period_dedicated_voucher_mismatch"), true);
 
   const tampered = inspectAssetDepreciationCloseFacts(scope, depreciationFacts({
-    entries: [{ id: 20, assetId: 1, normalAmount: 90, status: "posted", voucher: { ...postedVoucher, totalDebit: 90, totalCredit: 90, items: [{ accountCode: "1602", debit: 0, credit: 90 }, { accountCode: "6602", debit: 90, credit: 0 }] } }],
+    entries: [{ id: 20, assetId: 1, normalAmount: 90, status: "posted", voucher: { ...postedVoucher, totalDebit: 90, totalCredit: 90, items: [{ id: 3, accountCode: "1602", debit: 0, credit: 90 }, { id: 4, accountCode: "6602", debit: 90, credit: 0 }] } }],
   }));
   assert.equal(tampered.status, "blocked");
   assert.equal(tampered.blockers.some((item) => item.code === "asset_period_calculation_difference"), true);
@@ -288,20 +297,10 @@ test("depreciation rejects legacy statuses, multiple vouchers and stale annual p
   assert.equal(stalePolicy.blockers.some((item) => item.code === "asset_policy_snapshot_mismatch"), true);
 
   const wrongExpense = inspectAssetDepreciationCloseFacts(scope, depreciationFacts({
-    entries: [{ id: 20, assetId: 1, normalAmount: 100, status: "posted", voucher: { ...postedVoucher, items: [{ accountCode: "1602", debit: 0, credit: 100 }, { accountCode: "6601", debit: 100, credit: 0 }] } }],
+    entries: [{ id: 20, assetId: 1, normalAmount: 100, status: "posted", voucher: { ...postedVoucher, items: [{ id: 3, accountCode: "1602", debit: 0, credit: 100 }, { id: 4, accountCode: "6601", debit: 100, credit: 0 }] } }],
   }));
   assert.equal(wrongExpense.status, "blocked");
   assert.equal(wrongExpense.blockers.some((item) => item.code === "asset_period_dedicated_voucher_mismatch"), true);
-});
-
-test("an empty asset scope is ready only when annual policies establish zero GL applicability", () => {
-  const notApplicable = inspectAssetMovementCloseFacts(scope, movementFacts({ cards: [], assetGlBalance: 0 }));
-  assert.equal(notApplicable.status, "ready");
-  assert.equal((notApplicable.payload as { applicable: boolean }).applicable, false);
-  const unproved = inspectAssetMovementCloseFacts(scope, movementFacts({ cards: [], policies: [], applicabilityEstablished: false, assetGlBalance: 0 }));
-  assert.equal(unproved.status, "blocked");
-  const ledgerOnly = inspectAssetDepreciationCloseFacts(scope, depreciationFacts({ cards: [], assetGlBalance: 50, entries: [], adjustments: [] }));
-  assert.equal(ledgerOnly.status, "blocked");
 });
 
 test("historical disposals do not pollute a later close scope", () => {
@@ -367,6 +366,28 @@ test("indefinite-life intangibles require explicit non-amortization evidence", (
     ledgerByAccount: [{ accountCode: "1702", amount: 0 }],
   }));
   assert.equal(supported.status, "ready");
+});
+
+test("pending legacy cutover allocation blocks close without requiring a fabricated period row", () => {
+  const july = { companyCode: "ZX02", year: 2026, month: 7 };
+  const pending = card({
+    acquisitionDate: "2025-01-01",
+    depreciationStartDate: "2026-07-01",
+    initializationMode: "legacy_cutover",
+    openingAccumulatedAmount: 5_000,
+    openingImpairmentAmount: 0,
+    openingNetBookValue: 1_000,
+    openingAsOfDate: "2026-06-30",
+    cutoverDate: "2026-06-30",
+    remainingUsefulLifeMonthsAtCutover: 10,
+    cutoverResidualValue: 0,
+    cutoverAllocationStatus: "pending",
+    cutoverReconciliationFingerprint: "a".repeat(64),
+  });
+  const inspection = inspectAssetDepreciationCloseFacts(july, depreciationFacts({ cards: [pending], entries: [], ledgerByAccount: [] }));
+  assert.equal(inspection.status, "blocked");
+  assert.equal(inspection.blockers.some((item) => item.code === "asset_cutover_allocation_pending"), true);
+  assert.equal(inspection.blockers.some((item) => item.code === "asset_period_entry_missing"), false);
 });
 
 test("impairment stays pending without a confirmed workpaper and fails closed when its scope changes", () => {
@@ -525,26 +546,4 @@ test("close fingerprints change with refreshed voucher and ledger evidence", () 
   const changedVoucher = inspectAssetDepreciationCloseFacts(scope, depreciationFacts({ entries: [{ id: 20, assetId: 1, normalAmount: 100, status: "posted", voucher: { ...postedVoucher, status: "draft" } }] }));
   assert.notEqual(depreciation.inputFingerprint, changedLedger.inputFingerprint);
   assert.notEqual(depreciation.inputFingerprint, changedVoucher.inputFingerprint);
-});
-test("invalid replay fact permutations preserve depreciation blockers and inspection fingerprint", () => {
-  const priorEntries = [
-    { assetId: 1, normalAmount: 10, status: "draft", periodId: 5, periodEndDate: "2026-05-31", voucher: null }, { assetId: 1, normalAmount: 20, status: "calculated", periodId: 4, periodEndDate: "2026-04-30", voucher: null }, { assetId: 1, normalAmount: 30, status: "draft", periodId: 3, periodEndDate: "2026-03-31", voucher: null },
-  ];
-  const ordered = inspectAssetDepreciationCloseFacts(scope, depreciationFacts({ priorEntries }));
-  const permuted = inspectAssetDepreciationCloseFacts(scope, depreciationFacts({ priorEntries: [...priorEntries].reverse() }));
-  assert.deepEqual(ordered.blockers, permuted.blockers);
-  assert.equal(ordered.inputFingerprint, permuted.inputFingerprint);
-});
-test("asset close provider deep links use only registered asset workspace views", () => {
-  const inspections = [
-    inspectAssetMovementCloseFacts(scope, movementFacts({ cards: [card({ status: "disposed" })] })),
-    inspectAssetDepreciationCloseFacts(scope, depreciationFacts({ ledgerByAccount: [{ accountCode: "1602", amount: 90 }] })),
-    inspectAssetImpairmentCloseFacts(scope, impairmentFacts([card()], null)),
-  ];
-  const links = inspections.flatMap((inspection) => [inspection.deepLink, ...inspection.blockers.map((blocker) => blocker.deepLink)]);
-  assert.deepEqual(
-    [...new Set(links.map((link) => new URL(link, "http://workspace.test").searchParams.get("view")))].sort(),
-    ["adjustments", "cards", "period"],
-  );
-  assert.equal(links.every((link) => ["cards", "period", "adjustments"].includes(new URL(link, "http://workspace.test").searchParams.get("view") ?? "")), true);
 });

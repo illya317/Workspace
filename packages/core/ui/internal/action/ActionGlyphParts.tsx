@@ -1,6 +1,6 @@
 import type { ActionGlyphRenderProps } from "./ActionGlyphPartsTypes";
 import { PermissionActionGlyph } from "./ActionGlyphPermissionParts";
-import { ArrowLeft, BotMessageSquare, ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, BotMessageSquare, ChevronDown, ChevronRight } from "lucide-react";
 
 export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphRenderProps) {
   if (kind === "permission-organization" || kind === "permission-derived") return <PermissionActionGlyph kind={kind} className={className} />;
@@ -286,6 +286,8 @@ export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphRenderPr
       </svg>
     );
   }
+  if (kind === "move-up") return <ArrowUp aria-hidden="true" className={className} strokeWidth={2} />;
+  if (kind === "move-down") return <ArrowDown aria-hidden="true" className={className} strokeWidth={2} />;
   if (kind === "more") {
     return (
       <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24">

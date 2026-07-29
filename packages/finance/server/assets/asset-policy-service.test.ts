@@ -20,7 +20,7 @@ let capturedGuard: GuardInput | null = null;
 const policyRecord = { id: 51, companyCode: "SUB", year: 2026, categoryId: 7, version: 3 };
 
 mock.module("@workspace/platform/server/prisma", {
-  exports: {
+  namedExports: {
     prisma: {
       financeAssetCategoryPolicy: {
         findUnique: async () => ({ id: policyRecord.id }),
@@ -30,13 +30,13 @@ mock.module("@workspace/platform/server/prisma", {
 });
 
 mock.module("../group-policy-scope", {
-  exports: {
+  namedExports: {
     resolveFinanceGroupPolicyCompany: async () => ({ id: 1, code: groupCompanyCode, name: "集团" }),
   },
 });
 
 mock.module("@workspace/platform/server/delete-guard", {
-  exports: {
+  namedExports: {
     guardedDelete: async (input: GuardInput) => {
       capturedGuard = input;
       const scope = await input.scopeGuard({ record: policyRecord, tx: {} });
@@ -58,17 +58,18 @@ test("company asset-policy override uses the standard guarded hard-delete contra
   groupCompanyCode = "GROUP";
   capturedGuard = null;
   assert.deepEqual(await deleteFinanceAssetCategoryPolicy(command), { deleted: true });
-  assert.ok(capturedGuard);
+  const guard = capturedGuard as GuardInput | null;
+  assert.ok(guard);
   assert.deepEqual({
-    entityType: capturedGuard.entityType,
-    modelKey: capturedGuard.modelKey,
-    id: capturedGuard.id,
-    userId: capturedGuard.userId,
-    deleteMode: capturedGuard.deleteMode,
-    expectedVersion: capturedGuard.expectedVersion,
-    auditPolicy: capturedGuard.auditPolicy,
-    referencePolicy: capturedGuard.referencePolicy,
-    transactionIsolation: capturedGuard.transactionIsolation,
+    entityType: guard.entityType,
+    modelKey: guard.modelKey,
+    id: guard.id,
+    userId: guard.userId,
+    deleteMode: guard.deleteMode,
+    expectedVersion: guard.expectedVersion,
+    auditPolicy: guard.auditPolicy,
+    referencePolicy: guard.referencePolicy,
+    transactionIsolation: guard.transactionIsolation,
   }, {
     entityType: "FinanceAssetCategoryPolicy",
     modelKey: "financeAssetCategoryPolicy",

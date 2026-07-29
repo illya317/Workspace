@@ -16,6 +16,14 @@ export type AssetScopeCard = {
   accumulatedAccountCode: string | null;
   accumulatedAccountId: number | null;
   openingAsOfDate: string | null;
+  initializationMode?: string;
+  openingImpairmentAmount?: unknown;
+  openingNetBookValue?: unknown;
+  cutoverDate?: string | null;
+  remainingUsefulLifeMonthsAtCutover?: number | null;
+  cutoverResidualValue?: unknown;
+  cutoverAllocationStatus?: string | null;
+  cutoverReconciliationFingerprint?: string | null;
 };
 
 export function assetScopeFingerprint(cards: AssetScopeCard[]) {
@@ -36,6 +44,14 @@ export function assetScopeFingerprint(cards: AssetScopeCard[]) {
       accumulatedAccountCode: card.accumulatedAccountCode,
       accumulatedAccountId: card.accumulatedAccountId,
       openingAsOfDate: card.openingAsOfDate,
+      initializationMode: card.initializationMode ?? "standard",
+      openingImpairmentAmount: Number(card.openingImpairmentAmount ?? 0).toFixed(2),
+      openingNetBookValue: card.openingNetBookValue == null ? null : Number(card.openingNetBookValue).toFixed(2),
+      cutoverDate: card.cutoverDate ?? null,
+      remainingUsefulLifeMonthsAtCutover: card.remainingUsefulLifeMonthsAtCutover ?? null,
+      cutoverResidualValue: card.cutoverResidualValue == null ? null : Number(card.cutoverResidualValue).toFixed(2),
+      cutoverAllocationStatus: card.cutoverAllocationStatus ?? null,
+      cutoverReconciliationFingerprint: card.cutoverReconciliationFingerprint ?? null,
     }))
     .sort((left, right) => left.id - right.id);
   return createHash("sha256").update(JSON.stringify(payload)).digest("hex");

@@ -5,7 +5,9 @@ const { main, resolveQuickTypecheckPlan } = require("./run-local-typecheck");
 
 const scopes = new Set([
   "app",
+  "app-assistant",
   "app-capital-securities",
+  "app-docs",
   "app-hr",
   "app-workspace-shell",
   "core",
@@ -32,6 +34,14 @@ test("quick typecheck maps route shells to their independent app scope", () => {
     "app/(modules)/hr/page.tsx",
     "app/api/modules/capitalSecurities/governance/route.ts",
   ], scopes).scopes, ["app-capital-securities", "app-hr"]);
+});
+
+test("quick typecheck maps Agent, Docs, and Settings L1 shells to their deploy app scopes", () => {
+  assert.deepEqual(resolveQuickTypecheckPlan([
+    "app/(modules)/agent/page.tsx",
+    "app/(modules)/docs/page.tsx",
+    "app/(modules)/settings/page.tsx",
+  ], scopes).scopes, ["app-assistant", "app-docs", "app-workspace-shell"]);
 });
 
 test("quick typecheck drops package scopes already covered by an app project", () => {

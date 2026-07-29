@@ -1,4 +1,4 @@
-import { Prisma } from "@workspace/platform/server/prisma";
+import type { Prisma } from "@workspace/platform/server/prisma";
 import {
   failCommand,
   okCommand,
@@ -7,8 +7,8 @@ import {
 import { validateFkValue } from "@workspace/platform/server/relation-registry";
 import { guardPositionArchive } from "../reference-guards";
 import { HR_FK_REGISTRY } from "../fk-registry";
-import { prisma } from "@workspace/platform/server/prisma";
 import { validatePositionInOrganizationScope } from "../position-organization-scope";
+import { findPositionDepartmentReference } from "../department-reference-adapter";
 import {
   parseOrganizationLifecycleMeta,
   type OrganizationLifecycleMeta,
@@ -178,7 +178,7 @@ export async function validatePositionFieldUpdate(
     return okCommand({ field, value: department.data });
   }
   if (field === "reportToPositionId") {
-    const position = await prisma.position.findUnique({ where: { id }, select: { departmentId: true } });
+    const position = id ? await findPositionDepartmentReference(id) : null;
     if (!position) return failCommand("岗位不存在", 404);
     const reportToPosition = await validateReportToPosition(value, position.departmentId, id);
     if (!reportToPosition.ok) return failCommand(reportToPosition.issue.message, reportToPosition.issue.status);
@@ -213,10 +213,7 @@ export async function buildPositionUpdateCommand(
     data.isArchived = archived;
     data.archivedAt = archived ? new Date() : null;
   }
-  const position = await prisma.position.findUnique({
-    where: { id },
-    select: { departmentId: true },
-  });
+  const position = await findPositionDepartmentReference(id);
   if (!position) return failCommand("岗位不存在", 404);
   const effectiveDepartmentId = typeof data.departmentId === "number" ? data.departmentId : position.departmentId;
   if (body.reportToPositionId !== undefined) {

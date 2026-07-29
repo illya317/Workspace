@@ -99,6 +99,7 @@ export const page_api_registry_entries = [
         name: "content",
         description: "字段树和布局声明。",
         children: [
+          { name: "layout", description: "section 统一字段格式；columns 声明列数，fieldLayout 只选择 inline 或 stack，宽度、截断、对齐和标签区高度由 Core 计算。" },
           { name: "field", description: "普通输入字段，具体 spec 交给 InputSurface。" },
           { name: "required", description: "统一必填契约；required、InputSurface validation.required 或 required state 任一声明都会同步必填星号、输入语义和提交前校验。" },
           { name: "readonly", description: "只读字段。" },

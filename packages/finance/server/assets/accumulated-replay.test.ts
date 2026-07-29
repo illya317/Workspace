@@ -65,6 +65,24 @@ test("impairment before the opening depreciation cutoff remains in the carrying 
   assert.equal(result.impairmentBefore, 80);
 });
 
+test("legacy cutover carries opening impairment once and replays only later impairment", () => {
+  const result = replayAssetAccumulatedAmounts({
+    assetId: 1,
+    companyCode: "ZX02",
+    openingAccumulatedAmount: 500,
+    openingImpairmentAmount: 80,
+    openingIncludesImpairment: true,
+    openingAsOfDate: "2026-06-30",
+    priorEntries: [],
+    priorAdjustments: [],
+    priorImpairments: [
+      { assetId: 1, amount: 80, status: "confirmed", periodId: 6, periodEndDate: "2026-06-30", voucher },
+      { assetId: 1, amount: 20, status: "confirmed", periodId: 7, periodEndDate: "2026-07-31", voucher: { ...voucher, periodId: 7 } },
+    ],
+  });
+  assert.equal(result.impairmentBefore, 100);
+});
+
 test("historical voucher items are revalidated and included in the replay fingerprint", () => {
   const base = {
     assetId: 1,

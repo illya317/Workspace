@@ -28,6 +28,14 @@ export type AssetCloseCard = AssetScopeCard & {
   assetKind: string;
   nonAmortizationReason: string | null;
   openingAccumulatedAmount: unknown;
+  initializationMode?: string;
+  openingImpairmentAmount?: unknown;
+  openingNetBookValue?: unknown;
+  cutoverDate?: string | null;
+  remainingUsefulLifeMonthsAtCutover?: number | null;
+  cutoverResidualValue?: unknown;
+  cutoverAllocationStatus?: string | null;
+  cutoverReconciliationFingerprint?: string | null;
   sourceFile: string | null;
   sourceRow: number | null;
   acquisitionEvidence: {

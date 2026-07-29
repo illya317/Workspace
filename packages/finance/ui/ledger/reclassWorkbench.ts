@@ -4,7 +4,6 @@ import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { ReclassBasis, ReclassEntry } from "@workspace/finance/types";
 import { formatFinanceAmount } from "../formatters";
 
-export type ReclassWorkbenchFilter = "all" | "pending" | "automatic" | "manual" | "no_process" | "historical";
 export type GroupRuleStatusFilter = "all" | "reclassified" | "no_reclass" | "unconfirmed";
 
 export function reclassBasisLabel(basis: ReclassBasis) {
@@ -22,15 +21,8 @@ export function isGrossRowWithoutFacts(row: ReclassEntry) {
   return row.basis === "counterparty_gross" && row.currentAbnormalAmount === null;
 }
 
-export function filterReclassEntries(entries: readonly ReclassEntry[], filter: ReclassWorkbenchFilter, keyword: string) {
+export function filterReclassEntries(entries: readonly ReclassEntry[], keyword: string) {
   return entries.filter((row) => {
-    const inFilter = filter === "all"
-      || (filter === "pending" && row.status === "pending")
-      || (filter === "automatic" && row.status === "automatic")
-      || (filter === "manual" && row.status === "manual")
-      || (filter === "no_process" && row.status === "no_process")
-      || (filter === "historical" && row.status === "historical");
-    if (!inFilter) return false;
     if (!keyword) return true;
     return [row.accountCode, row.accountName, row.targetAccountCode, row.targetAccountName]
       .some((value) => value && matchText(value, keyword));

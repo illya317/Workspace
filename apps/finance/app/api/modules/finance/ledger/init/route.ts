@@ -6,14 +6,14 @@ import {
   executeInitializeFinanceDefaultsCommand,
 } from "@workspace/finance/server/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";const initFinanceSchema = z.object({
-  year: z.coerce.number().int().default(2025),
-  month: z.coerce.number().int().min(1).max(12).default(1),
+  year: z.coerce.number().int().min(2000).max(2099),
+  month: z.coerce.number().int().min(1).max(12),
   companyCode: z.string().trim().min(1),
 });
 
 export const POST = createCommandRoute({
   bodySchema: initFinanceSchema,
-  bodyError: "companyCode 为必填",
+  bodyError: "公司和会计期间为必填",
   buildCommand: ({ body, user }) => buildInitializeFinanceDefaultsCommand(body, user.userId),
   action: executeInitializeFinanceDefaultsCommand,
 });

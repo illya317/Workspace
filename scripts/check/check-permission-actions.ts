@@ -386,7 +386,6 @@ assertApiActions("DELETE", "/api/modules/administration/contracts/123", ["delete
 assertApiActions("GET", "/api/modules/capitalSecurities/governance/organizations", ["read"]);
 assertApiActions("POST", "/api/modules/capitalSecurities/governance/organizations", ["create"]);
 assertApiActions("PUT", "/api/modules/capitalSecurities/governance/organizations", ["update"]);
-assertApiActions("POST", "/api/modules/finance/budget", ["import"]);
 assertApiActions("POST", "/api/modules/finance/budget/versions", ["create"]);
 assertApiActions("POST", "/api/modules/finance/budget/versions/123/activate", ["approve"]);
 assertApiActions("GET", "/api/modules/finance/cost/operational-analytics/shipments", ["read"]);

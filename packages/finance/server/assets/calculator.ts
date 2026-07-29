@@ -58,8 +58,18 @@ export function calculateStraightLinePeriod(input: StraightLinePeriodInput): Str
 export function calculateFinanceAssetPeriod(input: StraightLinePeriodInput & {
   assetKind: "fixed_asset" | "intangible" | "prepaid" | "long_term_deferred";
   disposalDate?: string | null;
+  initializationMode?: "standard" | typeof FINANCE_ASSET_LEGACY_CUTOVER_MODE;
+  legacyCutover?: FinanceAssetLegacyCutoverBasis;
 }) {
-  const normal = calculateStraightLinePeriod(input);
+  const normal = input.initializationMode === FINANCE_ASSET_LEGACY_CUTOVER_MODE
+    ? calculateFinanceAssetLegacyCutoverPeriod({
+        ...(input.legacyCutover ?? missingLegacyCutoverBasis()),
+        accumulatedBefore: input.accumulatedBefore,
+        impairmentBefore: input.impairmentBefore ?? 0,
+        year: input.year,
+        month: input.month,
+      })
+    : calculateStraightLinePeriod(input);
   if (!input.disposalDate) return { ...normal, lifecycleBlocker: null as string | null };
   const targetMonth = input.year * 12 + input.month - 1;
   const disposalMonth = monthIndex(input.disposalDate);
@@ -71,3 +81,12 @@ export function calculateFinanceAssetPeriod(input: StraightLinePeriodInput & {
   }
   return { ...normal, lifecycleBlocker: "asset_termination_policy_missing" };
 }
+
+function missingLegacyCutoverBasis(): never {
+  throw new Error("历史切点资产缺少承接基础");
+}
+import {
+  calculateFinanceAssetLegacyCutoverPeriod,
+  FINANCE_ASSET_LEGACY_CUTOVER_MODE,
+  type FinanceAssetLegacyCutoverBasis,
+} from "./legacy-cutover";

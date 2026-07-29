@@ -1,3 +1,4 @@
+-- workspace:migration-mode=maintenance
 -- CreateIndex
 CREATE INDEX "WorkResponsibilityReference_lockedPositionId_idx" ON "WorkResponsibilityReference"("lockedPositionId");
 

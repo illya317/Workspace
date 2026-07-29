@@ -14,7 +14,9 @@ const PACKAGES_DIR = path.join(ROOT, "packages");
 const WORKSPACE_PACKAGES = {
   "@workspace/core": "core",
   "@workspace/platform": "platform",
+  "@workspace/agent": "agent",
   "@workspace/administration": "administration",
+  "@workspace/docs": "docs",
   "@workspace/library": "library",
   "@workspace/hr": "hr",
   "@workspace/inventory": "inventory",
@@ -22,11 +24,13 @@ const WORKSPACE_PACKAGES = {
   "@workspace/finance": "finance",
   "@workspace/capital-securities": "capital-securities",
   "@workspace/external": "external",
+  "@workspace/settings": "settings",
   "@workspace/work": "work",
 };
 
 const API_MODULE_OWNERS = {
   administration: "administration",
+  docs: "docs",
   capitalSecurities: "capital-securities",
   external: "external",
   finance: "finance",
@@ -40,7 +44,7 @@ const API_MODULE_OWNERS = {
 const PACKAGE_RULES = {
   core: {
     forbidden: [
-      { pattern: /^@workspace\/(platform|administration|library|hr|inventory|production|finance|capital-securities|external|work)(\/|$)/, reason: "core must not depend on platform or domain packages" },
+      { pattern: /^@workspace\/(platform|agent|administration|docs|library|hr|inventory|production|finance|capital-securities|external|settings|work)(\/|$)/, reason: "core must not depend on platform or domain packages" },
       { pattern: /^@\//, reason: "core must not import app/server/lib aliases" },
     ],
   },
@@ -48,7 +52,7 @@ const PACKAGE_RULES = {
     forbidden: [
       { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
       { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "platform package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@workspace\/(administration|library|hr|inventory|finance|production|capital-securities|external|work)(\/|$)/, reason: "platform must not import domain packages" },
+      { pattern: /^@workspace\/(agent|administration|docs|library|hr|inventory|finance|production|capital-securities|external|settings|work)(\/|$)/, reason: "platform must not import domain packages" },
       { pattern: /^@\/app\/(administration|library|hr|inventory|finance|production|capital-securities|external|work)(\/|$)/, reason: "platform must not import domain UI directly" },
       { pattern: /^@\/server\/services\/(administration|library|hr|inventory|finance|production|capital-securities|external|work)(\/|$)/, reason: "platform must not import domain services directly" },
     ],
@@ -134,7 +138,20 @@ const PACKAGE_RULES = {
       { pattern: /^@\/server\/services\/(administration|library|hr|finance|production|capital-securities|external)(\/|$)/, reason: "work must not import other domain services" },
     ],
   },
+  agent: {
+    forbidden: [{ pattern: /^@\//, reason: "agent package must not import app-root aliases" }],
+  },
+  docs: {
+    forbidden: [{ pattern: /^@\//, reason: "docs package must not import app-root aliases" }],
+  },
+  settings: {
+    forbidden: [{ pattern: /^@\//, reason: "settings package must not import app-root aliases" }],
+  },
 };
+
+const L1_PACKAGE_NAMES = new Set(
+  Object.values(WORKSPACE_PACKAGES).filter((packageName) => packageName !== "core" && packageName !== "platform"),
+);
 
 function walk(dir, files = []) {
   if (!fs.existsSync(dir)) return files;
@@ -269,6 +286,20 @@ for (const packageName of Object.keys(PACKAGE_RULES)) {
       }
     }
     for (const specifier of imports) {
+      const targetPackage = WORKSPACE_PACKAGES[specifier.split("/").slice(0, 2).join("/")];
+      if (
+        L1_PACKAGE_NAMES.has(packageName)
+        && targetPackage
+        && targetPackage !== packageName
+        && L1_PACKAGE_NAMES.has(targetPackage)
+      ) {
+        violations.push({
+          file: path.relative(ROOT, file).replace(/\\/g, "/"),
+          specifier,
+          reason: `L1 package ${packageName} must not depend on sibling L1 package ${targetPackage}`,
+        });
+        continue;
+      }
       for (const rule of PACKAGE_RULES[packageName].forbidden) {
         if (rule.pattern.test(specifier)) {
           violations.push({

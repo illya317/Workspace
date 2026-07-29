@@ -24,3 +24,22 @@ export function buildImportCatalogRecordCommand(input: {
   if (!/^[a-f0-9]{64}$/.test(input.checksumSha256)) return failCommand("Invalid catalog SHA256", 400, "sha256");
   return okCommand({ stableKey: `${rootKey}:${relativePath}`, path: relativePath, checksumSha256: input.checksumSha256 });
 }
+
+export function assertImportCatalogRecordCommand(
+  input: ImportCatalogRecordCommand,
+): ImportCatalogRecordCommand {
+  const stableKeySuffix = `:${input.path}`;
+  if (!input.stableKey.endsWith(stableKeySuffix)) {
+    throw new Error("Catalog stable key does not match its path");
+  }
+  const command = buildImportCatalogRecordCommand({
+    rootKey: input.stableKey.slice(0, -stableKeySuffix.length),
+    path: input.path,
+    checksumSha256: input.checksumSha256,
+  });
+  if (!command.ok) throw new Error(command.issue.message);
+  if (command.data.stableKey !== input.stableKey) {
+    throw new Error("Catalog stable key is not canonical");
+  }
+  return command.data;
+}
