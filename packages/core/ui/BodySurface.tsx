@@ -13,9 +13,13 @@ import DetailModal from "./internal/common/DetailModal";
 import { renderBodyEmpty, renderBodyMessage, renderBodyStatus, renderModuleGrid, renderSectionBadges } from "./internal/body/BodySurfaceBlocks";
 import { assertNoSurfaceExplanatoryText } from "./internal/body/BodySurfaceGuardParts";
 import { BodySurfaceList } from "./internal/body/BodySurfaceList";
-import { resolveBodySurfaceSectionChrome, type BodySurfaceSectionChrome } from "./internal/body/body-surface-section-chrome";
+import {
+  resolveBodySurfaceSectionChrome,
+  resolveBodySurfaceSectionStackPosition,
+  type BodySurfaceSectionChrome,
+} from "./internal/body/body-surface-section-chrome";
 import { BodySurfaceSectionFrame } from "./internal/body/BodySurfaceSectionParts";
-import { sectionCardClassName, sectionStackPosition, type BodySectionStackPosition } from "./internal/body/BodySurfaceSectionStack.styles";
+import { sectionCardClassName, type BodySectionStackPosition } from "./internal/body/BodySurfaceSectionStack.styles";
 import { BodySurfaceRevealProvider } from "./internal/body/BodySurfaceRevealContext";
 import { useBodySurfaceSplitRuntime } from "./internal/body/BodySurfaceSplitContext";
 import { sectionVisibilityClassName } from "./internal/body/body-surface-visibility";
@@ -134,9 +138,14 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
   const mobileFlushData = chrome === "card"
     && section.body.kind === "data"
     && (section.body.data.kind === "table" || section.body.data.kind === "structured");
-  const nestedCard = chrome === "card" && frameDepth > 0;
+  const nestedSection = frameDepth > 0;
+  const sectionLayoutClassName = nestedSection
+    ? sectionCardClassName(stackPosition, true)
+    : chrome === "card"
+      ? sectionCardClassName(stackPosition)
+      : "space-y-4";
   const sectionClassName = joinClassNames(
-    chrome === "card" ? sectionCardClassName(stackPosition, nestedCard) : "space-y-4",
+    sectionLayoutClassName,
     chrome === "plain" && section.header?.title ? "pt-2" : "",
     mobileFlushData ? "max-sm:!space-y-0 max-sm:!p-0" : "",
     stretchClassName,
@@ -150,7 +159,7 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
       className={joinClassNames(stretchClassName, sectionVisibilityClassName(section.visibility))}
       visibility={section.visibility}
     >
-      <section className={sectionClassName} data-surface-frame={chrome === "card" ? (nestedCard ? "nested" : "primary") : undefined}>
+      <section className={sectionClassName} data-surface-frame={chrome === "card" ? "primary" : undefined}>
         {mobileFlushData && header ? <div className="px-3 pb-3 pt-3">{header}</div> : header}
         {createAnchor ? <CreateSurfaceAnchorTarget anchor={createAnchor} /> : null}
         {!section.disclosure || section.disclosure.expanded ? (
@@ -161,13 +170,6 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
       </section>
     </BodySurfaceSectionFrame>
   );
-}
-
-function stackPositionForSection(sections: BodySurfaceSectionSpec[], index: number, frameDepth: number, leadingCardSegment = false): BodySectionStackPosition | undefined {
-  if (resolveBodySurfaceSectionChrome(sections[index], frameDepth) !== "card") return undefined;
-  const previousIsCard = (index === 0 && leadingCardSegment) || (index > 0 && resolveBodySurfaceSectionChrome(sections[index - 1], frameDepth) === "card");
-  const nextIsCard = index < sections.length - 1 && resolveBodySurfaceSectionChrome(sections[index + 1], frameDepth) === "card";
-  return sectionStackPosition(previousIsCard, nextIsCard);
 }
 
 function sectionNavigationTitle(section: BodySurfaceSectionSpec) {
@@ -255,7 +257,7 @@ function BodySurfaceSectionStack({ sections, layout = "stack", gridColumns = 2, 
     <CreateSurfaceAnchorProvider><BodySurfaceRevealProvider>
       {canDrillDown ? <MobileSectionDrilldown sections={sections} /> : null}
       <div className={`${PAGE_SURFACE_BODY_SECTION_STACK_CLASS} ${canDrillDown ? "max-sm:hidden" : ""}`}>
-        {sections.map((section, index) => renderBodySection(section, false, stackPositionForSection(sections, index, frameDepth, leadingCardSegment), frameDepth))}
+        {sections.map((section, index) => renderBodySection(section, false, resolveBodySurfaceSectionStackPosition(sections, index, frameDepth, leadingCardSegment), frameDepth))}
       </div>
     </BodySurfaceRevealProvider></CreateSurfaceAnchorProvider>
   );

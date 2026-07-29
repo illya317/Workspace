@@ -20,8 +20,11 @@ test("nested body section uses hierarchy without another card frame", () => {
 });
 
 test("adjacent nested sections use a divider instead of card outlines", () => {
+  const firstClassName = sectionCardClassName("first", true);
   const className = sectionCardClassName("last", true);
+  assert.match(firstClassName, /\bpb-4\b/);
   assert.match(className, /\bborder-t\b/);
+  assert.match(className, /\bpt-4\b/);
   assert.doesNotMatch(className, /\brounded-/);
   assert.doesNotMatch(className, /\bshadow-/);
 });
