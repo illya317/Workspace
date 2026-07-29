@@ -55,6 +55,7 @@ export type Position = {
   headcountPlan: number | null;
   version: number;
   positionDescriptionVersion: string | null;
+  positionDescriptionSequence: number | null;
   effectiveDate: string | null;
   sourceFile: string | null;
   headcount: number;

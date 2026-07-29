@@ -1,12 +1,13 @@
 import { z } from "zod";
 
-import { organizationStructureLifecycleMetaFromRequest, updateDepartment } from "@workspace/hr/server";
-import { readRequestExpectedVersion, routeIdParamsSchema } from "@workspace/platform/server/api";
+import { organizationArchiveLifecycleMetaFromRequest, updateDepartment } from "@workspace/hr/server";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const archiveBodySchema = z.object({
   archived: z.boolean(),
+  version: z.number().int().min(0),
   effectiveOn: z.string().optional(),
   reason: z.string().optional().nullable(),
 });
@@ -20,12 +21,7 @@ export const POST = createCommandRoute({
     id: params.id,
     archived: body.archived,
     userId: user.userId,
-    lifecycle: organizationStructureLifecycleMetaFromRequest(request, {
-      expectedSequence: readRequestExpectedVersion(request),
-      effectiveOn: body.effectiveOn,
-      kind: body.archived ? "end-date" : "schedule",
-      reason: body.reason,
-    }),
+    lifecycle: organizationArchiveLifecycleMetaFromRequest(request, body),
   }),
   action: ({ id, archived, lifecycle, userId }) => updateDepartment({ id, isArchived: archived, lifecycle }, userId, "lifecycle"),
 });

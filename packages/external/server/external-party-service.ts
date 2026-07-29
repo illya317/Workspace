@@ -18,6 +18,7 @@ import {
   assertExternalPartyAggregateTouchInput,
   type ExternalPartyCreateCommand,
   type ExternalPartyDeleteCommand,
+  type ExternalPartyRoleMutableData,
   type ExternalPartySubjectMutableData,
   type ExternalPartyUpdateCommand,
 } from "./domain/external-party-validation";
@@ -29,6 +30,7 @@ import {
 } from "./legal-fact-service";
 import { LegalFactLifecycleError } from "./domain/legal-fact-lifecycle";
 import { ExternalPartyRoleLifecycleError } from "./domain/external-party-role-lifecycle";
+import { activeExternalPartyRolePeriods } from "./domain/external-party-role-lifecycle-validation";
 import {
   appendExternalPartyRoleAvailabilityInTransaction,
   createExternalPartyRoleInTransaction,
@@ -275,6 +277,17 @@ function changedSubjectData(
   };
 }
 
+function changedRoleData(
+  data: ExternalPartyRoleMutableData,
+  current: ExternalPartyWithRoles["externalRoles"][number],
+): ExternalPartyRoleMutableData {
+  return Object.fromEntries(
+    Object.entries(data).filter(([field, value]) => (
+      current[field as keyof typeof current] !== value
+    )),
+  ) as ExternalPartyRoleMutableData;
+}
+
 async function conflictingIdentity(command: ExternalPartyUpdateCommand, current: ExternalPartyWithRoles, tx: Prisma.TransactionClient) {
   const subjectType = command.subjectData.subjectType ?? current.subjectType;
   const identityNumber = command.subjectData.identityNumber === undefined
@@ -309,7 +322,15 @@ export async function commitUpdateExternalPartyCommand(command: ExternalPartyUpd
       const currentRole = current.externalRoles.find((role) => role.category === command.category);
       if (!currentRole) return serviceError("角色记录不存在", 404);
       const subjectData = changedSubjectData(command.subjectData, current);
+      const roleData = changedRoleData(command.roleData, currentRole);
       const changesSharedSubject = Object.keys(subjectData).length > 0;
+      const changesRole = Object.keys(roleData).length > 0;
+      const changesRelatedPartyType = command.subjectData.relatedPartyType !== undefined
+        && command.subjectData.relatedPartyType !== (current.externalProfile?.relatedPartyType ?? "unrelated");
+      const asOfDate = workspaceBusinessDate(new Date());
+      if (!changesSharedSubject && !changesRole && !changesRelatedPartyType) {
+        return projectedRecord(current, command.category, visibleCategories, asOfDate);
+      }
       const hasOppositeRole = current.externalRoles.some((role) => role.category === opposite);
       if (changesSharedSubject && hasOppositeRole && !canUpdateOpposite) {
         return serviceError("修改公共主体资料需要同时拥有客户和供应商修改权限", 403);
@@ -324,34 +345,31 @@ export async function commitUpdateExternalPartyCommand(command: ExternalPartyUpd
         if (!canGovernParty) return serviceError("该主体已被公司或股权关系引用，修改法定身份需要主体治理权限", 403);
       }
       await ensureEditHistoryBaseline("Party", current.id, command.userId, tx);
-      await ensureEditHistoryBaseline("ExternalPartyRole", currentRole.id, command.userId, tx);
-      if (Object.keys(command.roleData).length > 0) {
-        await updateExternalPartyRoleInTransaction(tx, currentRole.id, command.roleData);
+      if (changesRole) {
+        await ensureEditHistoryBaseline("ExternalPartyRole", currentRole.id, command.userId, tx);
+        await updateExternalPartyRoleInTransaction(tx, currentRole.id, roleData);
       }
-      if (command.subjectData.relatedPartyType !== undefined) {
+      if (changesRelatedPartyType) {
         await tx.externalPartyProfile.upsert({
           where: { partyId: current.id },
           create: { partyId: current.id, relatedPartyType: command.subjectData.relatedPartyType },
           update: { relatedPartyType: command.subjectData.relatedPartyType },
         });
       }
-      const asOfDate = workspaceBusinessDate(new Date());
       if (changesSharedSubject) {
-        if (command.expectedLegalFactRevision === undefined) {
-          return serviceError("缺少法定事实版本，请刷新后重试", 428);
-        }
         const currentSnapshot = legalFactSnapshotFromCurrent(current);
         await recordPartyLegalFactInTransaction({
           partyId: current.id,
           userId: command.userId,
           asOfDate,
-          expectedRevision: command.expectedLegalFactRevision,
+          expectedRevision: command.expectedLegalFactRevision
+            ?? Math.max(0, ...current.legalFactRevisions.map((revision) => revision.revision)),
           idempotencyKey: `${command.idempotencyKey}:legal-fact`,
           command: {
             kind: "change",
             effectiveOn: command.effectiveOn ?? asOfDate,
             snapshot: { ...currentSnapshot, ...subjectData },
-            reason: command.legalFactReason,
+            reason: command.legalFactReason ?? "直接编辑往来主体资料",
           },
           sourceType: "external-entry",
           sourceLabel: command.category === "customer" ? "客户主数据" : "供应商主数据",
@@ -367,7 +385,7 @@ export async function commitUpdateExternalPartyCommand(command: ExternalPartyUpd
         include: { externalProfile: true, externalRoles: { include: { availabilityPeriods: true } }, company: true, legalFactRevisions: true },
       });
       await snapshotHistory("Party", party.id, command.userId, tx);
-      await snapshotHistory("ExternalPartyRole", currentRole.id, command.userId, tx);
+      if (changesRole) await snapshotHistory("ExternalPartyRole", currentRole.id, command.userId, tx);
       return projectedRecord(party, command.category, visibleCategories, asOfDate);
     });
   } catch (error) {
@@ -408,6 +426,12 @@ export async function commitDeleteExternalPartyCommand(command: ExternalPartyDel
           : serviceError("幂等键已用于不同的角色生命周期命令", 409);
       }
       if (current.version !== command.expectedVersion) return serviceError("记录已被其他人修改，请刷新后重试", 409);
+      const hasEndablePeriod = activeExternalPartyRolePeriods(currentRole.availabilityPeriods.map((period) => ({
+        ...period,
+        recordedAt: period.recordedAt.toISOString(),
+      })))
+        .some((period) => period.validThrough === null || period.validThrough >= command.effectiveOn);
+      if (!hasEndablePeriod) return serviceOk({ success: true });
       await ensureEditHistoryBaseline("Party", current.id, command.userId, tx);
       await ensureEditHistoryBaseline("ExternalPartyRole", currentRole.id, command.userId, tx);
       await snapshotHistory("Party", current.id, command.userId, tx);

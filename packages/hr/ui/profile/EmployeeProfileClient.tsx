@@ -4,21 +4,27 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
 import { useFeedback } from "@workspace/core/ui";
-import { hrCanEdit, hrCanRevise, type HRUser } from "@workspace/hr/types";
+import { hrCanEdit, type HRUser } from "@workspace/hr/types";
 import {
+  contractFields,
   edpFields,
   employeeFields,
   employmentFields,
 } from "@workspace/hr/constants";
 import type { ProfileHistoryEntry } from "./EmployeeProfileSections";
-import EmployeeProfileView, { type EmployeeProfileSection } from "./EmployeeProfileView";
+import EmployeeProfileView from "./EmployeeProfileView";
 import {
   applyDateFields,
+  persistableContractRows,
+  persistableEdpRows,
   sameDraft,
+  validateCurrentAssignments,
   type EditableRecord,
 } from "./EmployeeProfileUtils";
 import {
   persistBasic,
+  persistContracts,
+  persistEdps,
   persistEmployments,
 } from "./EmployeeProfilePersistence";
 import type {
@@ -29,6 +35,90 @@ import type {
   EmploymentRow,
 } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
+
+type ProfileSection = "basic" | "employment" | "socialInsurance" | "edp" | "history";
+
+function newEmploymentRow(profile: EmployeeProfile): EmploymentRow {
+  return {
+    version: 0,
+    employeeId: profile.employee.id,
+    isActive: true,
+    currentCompany: null,
+    joinDate: null,
+    leaveDate: null,
+    leaveReason: null,
+    leaveNote: null,
+    officeLocation: null,
+    personnelType: null,
+    rank: null,
+    title: null,
+    temporalState: "invalid",
+    isNew: true,
+  };
+}
+
+function newEdpRow(profile: EmployeeProfile): EdpRow {
+  return {
+    version: 0,
+    employeeId: profile.employee.id,
+    reportingCompanyId: profile.summary.reportingCompanyId,
+    reportingCompanyName: profile.summary.reportingCompanyName,
+    departmentId: null,
+    departmentName: null,
+    departmentPath: null,
+    positionId: null,
+    positionReportOverrideId: null,
+    positionName: null,
+    isPrimary: false,
+    startDate: null,
+    endDate: null,
+    reportTo: null,
+    reportToPositionId: null,
+    allocationWeight: null,
+    allocationPercent: null,
+    temporalState: "invalid",
+    isNew: true,
+  };
+}
+
+function newContractRow(profile: EmployeeProfile, employments: EmploymentRow[]): ContractRow {
+  return {
+    id: "",
+    agreementUid: null,
+    employmentId: employments.find((row) => row.isActive)?.id ?? employments[0]?.id ?? 0,
+    employeeId: profile.employee.employeeId,
+    employeeName: profile.employee.name,
+    company: "",
+    isPrimary: false,
+    isInsuredHere: false,
+    insuranceStatus: null,
+    legalRelation: "",
+    contractType: "",
+    employmentForm: "",
+    firstContractStartDate: null,
+    firstContractEndDate: null,
+    secondContractStartDate: null,
+    secondContractEndDate: null,
+    thirdContractStartDate: null,
+    thirdContractEndDate: null,
+    permanentContractDate: null,
+    confidentialityDate: null,
+    nonCompeteDate: null,
+    expiryDate: null,
+    endDate: null,
+    recordState: "draft",
+    temporalState: "invalid",
+    version: null,
+    source: "normalized",
+    migrationState: "normalized",
+    missingFields: [],
+    currentRevisionUid: null,
+    terms: [],
+    revisions: [],
+    attachments: [],
+    isNew: true,
+  };
+}
 
 export default function EmployeeProfileClient({
   employeeId,
@@ -41,7 +131,6 @@ export default function EmployeeProfileClient({
 }) {
   const router = useRouter();
   const canEdit = hrCanEdit(user);
-  const canRevise = hrCanRevise(user);
   const [profile, setProfile] = useState<EmployeeProfile | null>(null);
   const [employeeDraft, setEmployeeDraft] = useState<EmployeeProfileEmployee | null>(null);
   const [employments, setEmployments] = useState<EmploymentRow[]>([]);
@@ -50,7 +139,7 @@ export default function EmployeeProfileClient({
   const [historyEntries, setHistoryEntries] = useState<ProfileHistoryEntry[]>([]);
   const [expandedHistoryId, setExpandedHistoryId] = useState<number | null>(null);
   const [historyLoading, setHistoryLoading] = useState(false);
-  const [activeSection, setActiveSection] = useState<EmployeeProfileSection>("basic");
+  const [activeSection, setActiveSection] = useState<ProfileSection>("basic");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -67,11 +156,12 @@ export default function EmployeeProfileClient({
       setProfile(nextProfile);
       setEmployeeDraft(applyDateFields(nextProfile.employee as unknown as EditableRecord, employeeFields) as unknown as EmployeeProfileEmployee);
       const nextEmployments = nextProfile.employments.map((item) => applyDateFields(item as unknown as EditableRecord, employmentFields) as unknown as EmploymentRow);
-      const nextEmploymentRows = nextEmployments;
+      const nextEmploymentRows = nextEmployments.length > 0 ? nextEmployments : [newEmploymentRow(nextProfile)];
       setEmployments(nextEmploymentRows);
-      setContracts(nextProfile.contracts);
+      const nextContracts = nextProfile.contracts.map((item) => applyDateFields(item as unknown as EditableRecord, contractFields) as unknown as ContractRow);
+      setContracts(nextContracts.length > 0 ? nextContracts : [newContractRow(nextProfile, nextEmploymentRows)]);
       const nextEdps = nextProfile.edps.map((item) => applyDateFields(item as unknown as EditableRecord, edpFields) as unknown as EdpRow);
-      setEdps(nextEdps);
+      setEdps(nextEdps.length > 0 ? nextEdps : [newEdpRow(nextProfile)]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "加载失败");
     } finally {
@@ -104,13 +194,15 @@ export default function EmployeeProfileClient({
 
   const dirtyState = useMemo(() => {
     const basic = Boolean(profile && employeeDraft && !sameDraft(employeeDraft, profile.employee));
-    const employment = Boolean(profile && !sameDraft(employments, profile.employments));
+    const employment = Boolean(profile && (!sameDraft(employments, profile.employments) || !sameDraft(persistableContractRows(contracts), profile.contracts)));
+    const edp = Boolean(profile && !sameDraft(persistableEdpRows(edps), profile.edps));
     return {
       basic,
       employment,
-      all: basic || employment,
+      edp,
+      all: basic || employment || edp,
     };
-  }, [employeeDraft, employments, profile]);
+  }, [contracts, edps, employeeDraft, employments, profile]);
   const feedback = useFeedback({ unsavedChanges: dirtyState.all });
 
   useEffect(() => {
@@ -132,7 +224,7 @@ export default function EmployeeProfileClient({
     setError(null);
     try {
       const nextEmployeeId = await task();
-      if (nextEmployeeId) router.replace(`/hr/roster/employees/${encodeURIComponent(nextEmployeeId)}`);
+      if (nextEmployeeId) router.replace(workspacePath(`/hr/roster/employees/${encodeURIComponent(nextEmployeeId)}`));
       else await load();
       await showSavePrompt("保存成功", successMessage, false);
     } catch (err) {
@@ -144,6 +236,15 @@ export default function EmployeeProfileClient({
 
   async function saveAll() {
     if (!profile || !employeeDraft) return;
+    if (dirtyState.edp) {
+      const assignmentCheck = validateCurrentAssignments(persistableEdpRows(edps));
+      if (!assignmentCheck.ok) {
+        setActiveSection("edp");
+        setError(null);
+        await showSavePrompt("部门岗位无法保存", assignmentCheck.message, true);
+        return;
+      }
+    }
     const identityChanged = employeeDraft.employeeId !== profile.employee.employeeId;
     const accountChanged = employeeDraft.userId !== profile.employee.userId;
     if (identityChanged || accountChanged) {
@@ -161,9 +262,15 @@ export default function EmployeeProfileClient({
     await runSave("all", async () => {
       if (dirtyState.basic) await persistBasic(profile, employeeDraft);
       if (dirtyState.employment) {
-        await persistEmployments(profile, employments);
+        const employmentsDirty = !sameDraft(employments, profile.employments);
+        const contractsDirty = !sameDraft(persistableContractRows(contracts), profile.contracts);
+        if (employmentsDirty) {
+          await persistEmployments(profile, employments);
+        }
+        if (contractsDirty) await persistContracts(profile, contracts);
       }
-      return employeeDraft.employeeId !== profile.employee.employeeId ? employeeDraft.employeeId : null;
+      if (dirtyState.edp) await persistEdps(profile, edps);
+      return identityChanged ? employeeDraft.employeeId : null;
     }, "员工资料已全部保存");
   }
 
@@ -172,7 +279,7 @@ export default function EmployeeProfileClient({
     if (canLeave) router.push("/hr/roster");
   }
 
-  function changeSection(section: EmployeeProfileSection) {
+  function changeSection(section: ProfileSection) {
     if (section === activeSection) return;
     setActiveSection(section);
   }
@@ -197,7 +304,6 @@ export default function EmployeeProfileClient({
       error={error}
       message={message}
       canEdit={canEdit}
-      canRevise={canRevise}
       saving={saving}
       activeSection={activeSection}
       onSectionChange={changeSection}
@@ -210,14 +316,20 @@ export default function EmployeeProfileClient({
       historyLoading={historyLoading}
       expandedHistoryId={expandedHistoryId}
       setEmployments={setEmployments}
+      setContracts={setContracts}
+      setEdps={setEdps}
+      setError={setError}
       onBack={() => void goBack()}
       onSaveAll={saveAll}
+      onAddContract={() => {
+        if (!profile) return;
+        setContracts((rows) => [newContractRow(profile, employments), ...rows]);
+      }}
       onEmployeeFieldChange={updateEmployeeField}
       onHistoryToggle={(id) => setExpandedHistoryId((current) => (current === id ? null : id))}
       onHistoryRefresh={loadHistory}
-      onLifecycleSaved={load}
-      onAgreementSaved={load}
       onSocialInsuranceSaved={load}
+      confirmDelete={feedback.confirmDelete}
     />
   );
 }

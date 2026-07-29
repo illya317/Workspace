@@ -16,7 +16,7 @@ import {
   type PageSurfaceTabBarSpec,
   type SelectorSurfaceProps,
 } from "@workspace/core/ui";
-import { postJson, putJson } from "@workspace/platform/ui/api-client";
+import { postDirectCommandJson, putDirectCommandJson } from "@workspace/platform/ui/api-client";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 import type { CompanyRecord } from "../types";
 import {
@@ -255,8 +255,8 @@ export default function CompanyGovernanceClient({
     try {
       const update = Boolean(companyDraft.id);
       const response = update
-        ? await putJson<{ success: true }>(COMPANIES_ENDPOINT, companyDraft, "保存公司失败")
-        : await postJson<{ record: { id: number } }>(COMPANIES_ENDPOINT, companyDraft, "新增公司失败");
+        ? await putDirectCommandJson<{ success: true }>(COMPANIES_ENDPOINT, companyDraft, "保存公司失败")
+        : await postDirectCommandJson<{ record: { id: number } }>(COMPANIES_ENDPOINT, companyDraft, "新增公司失败");
       const savedId = update ? companyDraft.id! : "record" in response ? response.record.id : null;
       if (!update) setKeyword("");
       const refreshed = await load(update ? undefined : "");

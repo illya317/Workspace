@@ -7,8 +7,10 @@ import {
   assertInitialOrganizationLifecycleMeta,
   classifyOrganizationVersion,
   liveOrganizationVersions,
+  organizationChangeIsNoOp,
   organizationVersionAt,
   planOrganizationEffectiveChange,
+  resolveSameDayCorrectionMeta,
   type OrganizationEffectiveVersion,
   type OrganizationLifecycleMeta,
 } from "./domain/organization-effective-version-validation";
@@ -140,7 +142,12 @@ export async function applyDepartmentStructureChange(
     supersedesId: row.supersedesId,
     payload: departmentPayload(row),
   }));
-  const result = await commitDepartmentPlan(tx, anchor.version, mapped, input, requestFingerprint);
+  const meta = resolveSameDayCorrectionMeta(mapped, input.meta, "组织资料");
+  if (organizationChangeIsNoOp(mapped, meta, input.payload)) return anchor;
+  const result = await commitDepartmentPlan(tx, anchor.version, mapped, {
+    ...input,
+    meta,
+  }, requestFingerprint);
   return result;
 }
 
@@ -276,13 +283,15 @@ export async function applyPositionStructureChange(
     payload: positionPayload(row),
   }));
   const asOf = workspaceBusinessDate(new Date());
+  const meta = resolveSameDayCorrectionMeta(mapped, input.meta, "岗位资料");
+  if (organizationChangeIsNoOp(mapped, meta, input.payload)) return anchor;
   const plan = planOrganizationEffectiveChange(mapped, {
-    kind: input.meta.kind,
-    effectiveOn: input.meta.effectiveOn,
+    kind: meta.kind,
+    effectiveOn: meta.effectiveOn,
     asOf,
-    reason: input.meta.reason,
-    targetVersionId: input.meta.targetVersionId
-      ?? (input.meta.kind === "correct" ? organizationVersionAt(mapped, input.meta.effectiveOn)?.id ?? null : null),
+    reason: meta.reason,
+    targetVersionId: meta.targetVersionId
+      ?? (meta.kind === "correct" ? organizationVersionAt(mapped, meta.effectiveOn)?.id ?? null : null),
     payload: input.payload,
   });
   const changeId = randomUUID();
@@ -292,7 +301,7 @@ export async function applyPositionStructureChange(
       id: changeId,
       aggregateType: "Position",
       aggregateId: input.positionId,
-      meta: input.meta,
+      meta,
       userId: input.userId,
       manifest: { targetVersionId: plan.targetVersionId, createdSequences: sequences },
       requestFingerprint,
@@ -411,13 +420,15 @@ export async function applyPositionReportOverrideChange(
     payload: overridePayload(row),
   }));
   const asOf = workspaceBusinessDate(new Date());
+  const meta = resolveSameDayCorrectionMeta(mapped, input.meta, "特殊汇报资料");
+  if (organizationChangeIsNoOp(mapped, meta, input.payload)) return anchor;
   const plan = planOrganizationEffectiveChange(mapped, {
-    kind: input.meta.kind,
-    effectiveOn: input.meta.effectiveOn,
+    kind: meta.kind,
+    effectiveOn: meta.effectiveOn,
     asOf,
-    reason: input.meta.reason,
-    targetVersionId: input.meta.targetVersionId
-      ?? (input.meta.kind === "correct" ? organizationVersionAt(mapped, input.meta.effectiveOn)?.id ?? null : null),
+    reason: meta.reason,
+    targetVersionId: meta.targetVersionId
+      ?? (meta.kind === "correct" ? organizationVersionAt(mapped, meta.effectiveOn)?.id ?? null : null),
     payload: input.payload,
   });
   const changeId = randomUUID();
@@ -427,7 +438,7 @@ export async function applyPositionReportOverrideChange(
       id: changeId,
       aggregateType: "PositionReportOverride",
       aggregateId: input.overrideId,
-      meta: input.meta,
+      meta,
       userId: input.userId,
       manifest: { targetVersionId: plan.targetVersionId, createdSequences: sequences },
       requestFingerprint,

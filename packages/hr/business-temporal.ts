@@ -94,7 +94,7 @@ export const HR_EMPLOYMENT_TEMPORAL = defineBusinessTemporalRegistration({
     revision: "audited-overwrite",
     deletion: "end-date",
   },
-  notes: "Employment 期间是读取事实源；禁止重叠、默认允许历史补录，周期修订走独立 command、expected version、EditHistory 与 EmployeePeriodRevision 原因台账。数据库延期约束与流程 adapter 仍待闭环。",
+  notes: "Employment 期间是读取事实源；禁止重叠、默认允许历史补录。普通编辑通过业务写入 Interface 自动记录版本、EditHistory 与 EmployeePeriodRevision，未来或追溯业务变化才进入显式 lifecycle command。数据库延期约束与流程 adapter 仍待闭环。",
 });
 
 export const HR_ASSIGNMENT_TEMPORAL = defineBusinessTemporalRegistration({

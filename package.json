@@ -16,6 +16,8 @@
     "check:api-response-format": "node scripts/check/with-check-lock.js -- node scripts/check/check-api-response-format.js",
     "check:history-policy": "node scripts/check/with-check-lock.js -- node --import tsx scripts/check/check-history-policy-registry.ts",
     "hr:temporal:preflight": "node --conditions=react-server --import tsx scripts/check/hr-business-temporal-preflight.ts",
+    "lifecycle:reconcile": "node scripts/check/run-lifecycle-reconciliation.mjs",
+    "lifecycle:operations:smoke": "node --conditions=react-server --import tsx scripts/check/organization-lifecycle-operation-smoke.ts",
     "business-temporal:check": "node --conditions=react-server --import tsx scripts/check/check-business-temporal-registry.ts && node --import tsx scripts/arch/business-temporal-write-seam.ts",
     "check:contracts": "node scripts/check/with-check-lock.js -- node scripts/check/run-check-suite.mjs contracts",
     "action-registry:check": "node scripts/check/with-check-lock.js -- node --import tsx scripts/check/check-action-registry.ts",

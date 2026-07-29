@@ -20,6 +20,7 @@ import { createCommandRoute } from "@workspace/platform/server/api-route";const 
 
 const updatePositionBodySchema = PositionCreateSchema.partial().extend({
   id: z.coerce.number().int().positive(),
+  version: z.coerce.number().int().min(0),
   isArchived: z.boolean().optional(),
 }).passthrough();
 
@@ -59,7 +60,7 @@ export const PUT = createCommandRoute({
       isArchived: body.isArchived,
       lifecycle: organizationStructureLifecycleMetaFromRequest(request, {
         ...body.lifecycle,
-        expectedSequence: readRequestExpectedVersion(request) ?? body.lifecycle?.expectedSequence,
+        expectedSequence: readRequestExpectedVersion(request) ?? body.version,
       }),
     },
     userId: user.userId,

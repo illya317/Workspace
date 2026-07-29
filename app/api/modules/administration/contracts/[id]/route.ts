@@ -1,5 +1,6 @@
 import { readRequestExpectedVersion, routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { directCommandId } from "@workspace/platform/server/direct-command-meta";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import {
   ContractUpdateSchema,
@@ -16,6 +17,7 @@ export const PATCH = createCommandRoute({
     body,
     userId: user.userId,
     expectedVersion: readRequestExpectedVersion(request),
+    idempotencyKey: directCommandId(request),
   }),
   action: executeUpdateContractCommand,
 });

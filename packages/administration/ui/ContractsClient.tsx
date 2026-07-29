@@ -13,6 +13,7 @@ import {
 } from "@workspace/core/ui";
 import type { FormSurfaceSectionSpec, PageSurfaceTabBarItemSpec, SelectorSurfaceProps } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
+import { directCommandFetch } from "@workspace/platform/ui/api-client";
 import {
   CONTRACT_LIFECYCLE_OPTIONS,
   contractOptionLabel,
@@ -182,7 +183,7 @@ export default function ContractsClient({
     if (!editing.categoryId) throw new Error("合同类型为必填");
     setSaving(true);
     try {
-      const response = await fetch(workspacePath("/api/modules/administration/contracts"), {
+      const response = await directCommandFetch("/api/modules/administration/contracts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editing),
@@ -206,7 +207,7 @@ export default function ContractsClient({
     }
     setSaving(true);
     try {
-      const response = await fetch(workspacePath(`/api/modules/administration/contracts/${editing.id}`), {
+      const response = await directCommandFetch(`/api/modules/administration/contracts/${editing.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "If-Match": String(editing.version) },
         body: JSON.stringify(editing),
@@ -235,7 +236,7 @@ export default function ContractsClient({
     });
     if (!confirmed) return;
     try {
-      const response = await fetch(workspacePath(`/api/modules/administration/contracts/${contract.id}/archive`), {
+      const response = await directCommandFetch(`/api/modules/administration/contracts/${contract.id}/archive`, {
         method: "POST",
         headers: { "If-Match": String(contract.version) },
       });
@@ -256,7 +257,7 @@ export default function ContractsClient({
     const confirmed = await feedback.confirmDelete({ message: "确定删除这条草稿合同吗？此操作不可撤销。" });
     if (!confirmed) return;
     try {
-      const response = await fetch(workspacePath(`/api/modules/administration/contracts/${contract.id}`), {
+      const response = await directCommandFetch(`/api/modules/administration/contracts/${contract.id}`, {
         method: "DELETE",
         headers: { "If-Match": String(contract.version) },
       });

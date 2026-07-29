@@ -97,6 +97,7 @@
     "./server/docs-editor/permissions": "./server/docs-editor/permissions.ts",
     "./server/docs-editor/space-permissions": "./server/docs-editor/space-permissions.ts",
     "./server/domain-validation": "./server/domain-validation.ts",
+    "./server/direct-command-meta": "./server/direct-command-meta.ts",
     "./server/dal/pagination": "./server/dal/pagination.ts",
     "./server/deploy-unit-runtime": "./server/deploy-unit-runtime.ts",
     "./server/fk-registry": "./server/fk-registry.ts",

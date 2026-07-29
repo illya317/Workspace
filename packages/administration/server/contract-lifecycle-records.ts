@@ -23,6 +23,10 @@ export type ContractLegalSnapshot = {
   handlerEmployeeId: number | null;
   signedOn: string | null;
   expiresOn: string | null;
+  signedOnPrecision?: string | null;
+  expiresOnPrecision?: string | null;
+  legacySignDateRaw?: string | null;
+  legacyEndDateRaw?: string | null;
   amount: string | null;
   executedAmount: string | null;
   currencyCode: string;
@@ -30,6 +34,8 @@ export type ContractLegalSnapshot = {
   location: string | null;
   remark: string | null;
 };
+
+export const CONTRACT_LEGAL_SNAPSHOT_SCHEMA_VERSION = 2;
 
 export type ContractMutationResult = {
   version: number;
@@ -45,6 +51,10 @@ export function isoContractDate(value: Date | null) {
 
 function nullableText(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function optionalNullableText(record: Record<string, unknown>, key: string) {
+  return Object.prototype.hasOwnProperty.call(record, key) ? nullableText(record[key]) : undefined;
 }
 
 function nullableNumber(value: unknown) {
@@ -80,6 +90,10 @@ export function buildContractLegalSnapshot(record: Record<string, unknown>): Con
     handlerEmployeeId: nullableNumber(record.handlerEmployeeId),
     signedOn: dateValue(record.signedOn),
     expiresOn: dateValue(record.expiresOn),
+    signedOnPrecision: optionalNullableText(record, "signedOnPrecision"),
+    expiresOnPrecision: optionalNullableText(record, "expiresOnPrecision"),
+    legacySignDateRaw: optionalNullableText(record, "legacySignDateRaw"),
+    legacyEndDateRaw: optionalNullableText(record, "legacyEndDateRaw"),
     amount: nullableDecimal(record.amount),
     executedAmount: nullableDecimal(record.executedAmount),
     currencyCode: String(record.currencyCode ?? "CNY"),
@@ -96,21 +110,53 @@ export function parseContractLegalSnapshot(value: Prisma.JsonValue): ContractLeg
 }
 
 export function contractSnapshotProjection(snapshot: ContractLegalSnapshot): Prisma.ContractUncheckedUpdateInput {
-  const signedOn = snapshot.signedOn ? new Date(`${snapshot.signedOn}T00:00:00.000Z`) : null;
-  const expiresOn = snapshot.expiresOn ? new Date(`${snapshot.expiresOn}T00:00:00.000Z`) : null;
-  return {
-    ...snapshot,
+  const {
     signedOn,
     expiresOn,
-    signedOnPrecision: signedOn ? "day" : null,
-    expiresOnPrecision: expiresOn ? "day" : null,
-    amount: snapshot.amount === null ? null : new Prisma.Decimal(snapshot.amount),
-    executedAmount: snapshot.executedAmount === null ? null : new Prisma.Decimal(snapshot.executedAmount),
+    signedOnPrecision,
+    expiresOnPrecision,
+    legacySignDateRaw,
+    legacyEndDateRaw,
+    amount,
+    executedAmount,
+    ...legalFields
+  } = snapshot;
+  return {
+    ...legalFields,
+    signedOn: signedOn ? new Date(`${signedOn}T00:00:00.000Z`) : null,
+    expiresOn: expiresOn ? new Date(`${expiresOn}T00:00:00.000Z`) : null,
+    ...(signedOnPrecision !== undefined ? { signedOnPrecision } : {}),
+    ...(expiresOnPrecision !== undefined ? { expiresOnPrecision } : {}),
+    ...(legacySignDateRaw !== undefined ? { legacySignDateRaw } : {}),
+    ...(legacyEndDateRaw !== undefined ? { legacyEndDateRaw } : {}),
+    amount: amount === null ? null : new Prisma.Decimal(amount),
+    executedAmount: executedAmount === null ? null : new Prisma.Decimal(executedAmount),
   };
 }
 
 export function mergeContractLegalSnapshot(current: Record<string, unknown>, patch: Prisma.ContractUncheckedUpdateInput) {
-  return buildContractLegalSnapshot({ ...current, ...patch });
+  const next = { ...current, ...patch };
+  if (Object.prototype.hasOwnProperty.call(patch, "signedOn")) {
+    const dateChanged = dateValue(current.signedOn) !== dateValue(patch.signedOn);
+    if (dateChanged) {
+      next.signedOnPrecision = patch.signedOn ? "day" : null;
+      next.legacySignDateRaw = null;
+    } else {
+      next.signedOnPrecision = current.signedOnPrecision;
+      next.legacySignDateRaw = current.legacySignDateRaw;
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, "expiresOn")) {
+    const dateChanged = dateValue(current.expiresOn) !== dateValue(patch.expiresOn);
+    if (dateChanged) {
+      next.expiresOnPrecision = patch.expiresOn ? "day" : null;
+      next.legacyEndDateRaw = null;
+    } else {
+      next.expiresOnPrecision = current.expiresOnPrecision;
+      next.legacyEndDateRaw = current.legacyEndDateRaw;
+    }
+  }
+  return buildContractLegalSnapshot(next);
 }
 
 function revisionSummary(revision: {

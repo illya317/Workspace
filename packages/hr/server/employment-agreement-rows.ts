@@ -53,7 +53,10 @@ export function normalizedEmploymentAgreementRow(
     : emptyContent();
   const confirmedTerms = terms.filter((term) => term.recordState === "confirmed");
   const latestConfirmedTerm = confirmedTerms.at(-1) ?? null;
-  const datefulTerms = terms.filter((term): term is EmploymentAgreementTermRow & { effectiveFrom: string } => Boolean(term.effectiveFrom));
+  const authoritativeTerms = terms.filter((term) => term.recordState === "confirmed" || term.recordState === "unknown");
+  const datefulTerms = authoritativeTerms.filter(
+    (term): term is EmploymentAgreementTermRow & { effectiveFrom: string } => Boolean(term.effectiveFrom),
+  );
   const ordered = [...datefulTerms].sort((left, right) => left.effectiveFrom.localeCompare(right.effectiveFrom));
   const primaryState = agreement.actualEndDate
     ? classifyInclusiveBusinessPeriod({ validFrom: ordered[0]?.effectiveFrom ?? null, validThrough: agreement.actualEndDate }, asOfDate)

@@ -58,7 +58,7 @@ FUN 职能岗位不复制到应用部门。`Position.departmentId` 继续表示�
 
 HR 数据质量 Provider 继续把雇佣、当前任职、组织归属和投入权重完整性作为内部巡检与迁移 preflight；这些都是系统不变量，不注册为个人通知或可订阅事件。新任职必须有汇报公司、部门、岗位和大于 0 的投入权重；除离职外的生命周期变更在生效日必须仍有当前任职，且当前任职必须且只能有一个主岗。主岗与权重相互独立，不要求主岗权重最大。生命周期事务提交成功后仍可按 Employee 触发重评，用于发现存量导入和非标准写入遗留问题，但不得向用户发送“订阅提醒”。
 
-员工详情“任职管理”页签内的生命周期办理区是人员结构变化的唯一在线入口，通过 `PUT /api/modules/hr/roster/employee-profiles/[id]/lifecycle` 登记入职、调岗、兼岗、投入调整、主岗变更、汇报关系变化和离职。变更类型必须按所选生效日的事实过滤：已有未结束雇佣或未来雇佣时不显示也不接受“入职”；只有从未入职、上一段雇佣已经结束后的重新入职，或系统唯一的旧空占位记录补登记时才允许。没有有效雇佣期间时不得选择调岗、兼岗、投入调整、主岗变更、汇报关系变化或离职；UI 候选与 domain validator 必须调用同一 HR lifecycle contract，不能只隐藏选项。变更类型属于数量很少且不可遗漏的固定业务枚举，下拉层必须一次完整显示当前全部可用动作，不使用滚动或较小 `visibleCount` 隐藏剩余项。兼岗只新增自己的任职期间和投入权重，不扣减或恢复其他岗位；投入调整只拆分被调整的任职；主岗变更在同一事务内截止原主岗和目标岗位旧版本并创建新版本，权重保持不变。route 只校验请求形状并调用 HR service；domain validator 校验生效日期、来源任职、目标岗位、汇报岗位和所有未来期间边界上的正数投入权重/唯一主岗，service 在同一事务内拆分 `Employment` / `EDP` 期间并写入不可变 `EmployeeLifecycleEvent` 台账。是否允许历史补录、是否允许重叠及如何修订统一读取 `HR_EMPLOYMENT_TEMPORAL` / `HR_ASSIGNMENT_TEMPORAL`：两者默认允许补录；Employment 禁止重叠，EDP 按槽位、唯一主岗和正数投入权重校验。离职继续受入职日期、有效雇佣期间和离职原因约束，并在投影后取消合法未来记录、将当前记录和非法但仍开放的旧记录截止到 D-1。普通 Employment 页面只修正办公地点、人员类型、职级、职务、离职原因与备注；`isActive/joinDate/leaveDate` 不走普通保存。既有 Employment / EDP 的历史事实在各自 TAB 的记录区选择目标后显式进入“纠正这条记录”，通过 `POST .../period-revisions` 提交 reason 与 expected revision；Employment 可纠正用工公司及期间，EDP 可纠正汇报公司、部门、岗位、主岗、投入权重、汇报岗位及期间。服务端重验完整时间线，并把前后值永久记录在 `EmployeePeriodRevision` 和“历史记录”列表中。现实变化仍必须走生命周期新增变更，不能借纠正覆盖真实历史。
+员工详情采用轻量写入 contract。普通新增直接调用 `POST /employments` 或员工级 `POST /assignments`；普通编辑和历史纠错统一调用 `PATCH /employee-profiles/[id]/periods/[periodId]`，请求只含实体类型、字段 patch 和 optimistic version。服务端在同一事务内派生 actor、记录时间、业务日、默认原因和内部命令标识，重验员工完整 Employment / EDP 时间线、归属、重叠、唯一主岗与正数投入权重；完全无变化时不递增版本、不写历史、不追加修订。当前卡片修改按当天事实记录；选择到历史记录时同一 PATCH 语义为纠错，并将字段级前后值写入 `EmployeePeriodRevision`。真正的未来/追溯结构事件或一次影响多条期间的入职、调岗、兼岗、主岗/汇报变化、投入变化和离职才进入显式 lifecycle event seam；该 seam 保留 Business Temporal planner 与不可变 `EmployeeLifecycleEvent`，但不作为普通资料编辑的前置步骤。`HR_EMPLOYMENT_TEMPORAL` / `HR_ASSIGNMENT_TEMPORAL` 继续提供内部不变量，不要求 UI 构造 sequence、effect manifest 或 lifecycle metadata。
 
 员工身份当前没有 draft / archived 状态，新建时会立即创建可登录 Workspace 账号，因此不存在可安全 hard delete 的“未启用草稿”。在线员工删除 route 与 action 已移除：离职走生命周期，账号禁用走独立账号管理，不能用删除员工替代任一动作。Employee、Employment、EDP 以及生命周期会联动的 EmployeeProject 审计记录仍可查看，但不能从通用审计界面恢复重建。员工用于内部个人往来时直接由财务辅助核算 FK 到 Employee，不要求批量创建个人 Party；仅当员工另有股东、供应商、客户或合同自然人身份时，才通过可审计的一对一 `EmployeePartyIdentityLink` 连接既有 Party，两个聚合各自保留权威事实。
 
@@ -70,16 +70,15 @@ HR 数据质量 Provider 继续把雇佣、当前任职、组织归属和投入�
 
 员工详情页的用工协议、社会保险与部门岗位使用专用卡片布局：
 
-- 协议：用工主体由 Employment / 用工关系确定，劳动或劳务、保密、竞业限制及补充协议作为独立 `EmploymentAgreement` anchor 管理。展示采用“签约主体 → 主体下协议表”的主从结构：主体层只列公司和协议数量，协议表列类型、签署日期、到期日期、结束日期、状态和附件数。协议 registration 必须声明标准 `recordView` 并直接使用 Platform `createBusinessTemporalRecordSections`；页面初始不选协议，点击行后只在该行下展开资料、期限操作、附件及“期限与版本记录”表格，再次点击收起，禁止恢复卡片堆叠或表外详情。新增协议必须声明为“签约主体”section header 的标准 `CreateSurface block`，展开区位于标题与原内容之间，不能手工追加到协议表后，新建时默认带入当前主体且允许重新选择公司。历史 baseline 与新建协议必须使用同一套正常界面；页面不得出现 `legacy`、`baseline`、迁移前、只读投影、`vnull`、状态未知或内部来源说明。`HR_EMPLOYMENT_AGREEMENT_TEMPORAL` 明确允许历史补录和期限重叠，因此提前续签不得自动错开或拒绝。协议资料使用单一界面：`missingFieldsJson` 中的字段原位可填写，其他字段原位只读，不复制补充表单，也不为补充增加第二个 edit；补资料/纠错时不同时显示期限保存，展开行只由根 FormSurface 持有动作。保存仍执行 `supplement-missing` patch。只有纠正已有事实才显式进入 `correct-existing` 模式并要求原因；两者都追加带 `changeKind` 的 superseding revision。现实主体变化必须新建协议/用工关系，不能通过纠错重写历史协议主体。期限区只保留续签、终止、修订历史期限和取消待生效期限，不向用户暴露草稿、发布、替代等技术动作。新建协议按开始日期自动归属唯一一条 Employment，不显示技术性的“雇佣记录”选择器；归属缺失或歧义时失败关闭。
-- 同一用工主体可以存在多份独立法律协议，不能按公司名合并 `EmploymentAgreement` anchor，也不再使用 `isPrimary` / “主合同”区分。选择器和协议卡片按用工主体、协议类型与期限区分，不显示内部 `version`。Term 的 `effectiveThrough` 表示约定到期日期；anchor 的 `actualEndDate` 只表示明确登记的真实结束日期。登记终止只更新 `actualEndDate`，不得覆盖 Term 原约定到期日期，也禁止把约定到期日投影成事实结束日期。
+- 协议：员工详情沿用简洁合同卡片；可见字段仍是公司、主合同标记、协议属性和最多三段/长期期限，不显示 command kind、revision、sequence、idempotency 或发布动作。Persistence Adapter 将卡片差异拆成规范化 `EmploymentAgreement` 命令，并用每次返回的新版本串行提交：新建、资料补全/纠错、期限新增/纠错、设主合同以及结束/取消未来期限。调用方不提供幂等键，route 在服务端生成；完全无变化时不发命令。服务端继续保存稳定 anchor、append-only content revision 和 term evidence。历史 JSON 只读且必须先迁移，不能恢复 whole-array 覆盖 route。
 - 每个 `EmploymentAgreement` 可以有多份附件。原件不可变保存；PDF 通过 Platform PDF optimization seam 生成校验后的压缩派生件，默认下载更小且校验通过的压缩版，同时始终保留原件下载。附件移除只做软删除并保留操作人、时间和原因，压缩失败不得影响原件归档。
 - 社会保险与协议完全解耦，由 `EmployeeSocialInsurancePeriod` 显式保存 `insured / stopped / uninsured / retired` 状态、可空参保公司、包含首尾月的 `YYYY-MM` 时间线及 `missingFieldsJson`。只有现行 `insured` 受同一员工唯一约束；参保转移在同一事务中把原记录转为 `stopped`、截止到新参保月份的上一个月并建立新记录。在线登记按状态条件必填：已参保要求公司和参保月份，已停保要求停保月份和原因，未参保不要求公司或月份，已退休的月份可选；UI 的星号与 domain contract 必须同源。月份必须走 Core `temporal + precision=month` 系统控件。历史已知状态必须预写正式表；公司或月份缺失时保留 `null` 并登记具体缺失字段，不能丢弃或靠空日期改判状态。UI 上方只做当前状态摘要，下方通过 Platform `createBusinessTemporalRecordSections` 标准 lifecycle record contract 展示全部正式记录（包括当前摘要来源行）并标记当前；点击记录后，已知字段只读，只有通用 mutation 配置中仍属于 `missingFields` 的字段可补充，保存追加 `EmployeeSocialInsurancePeriodRevision` 并逐项清除质量标记。未登记为缺失的可选空值显示“—”而非“待补充”。退休状态不能被用来伪造来源中不存在的参保公司和参保期间。`sourceKind / sourceRef / baseline key` 只用于审计，禁止投影进业务备注。模型仍保持固定单线，不拆险种，也不建立复杂参保计算 helper。
 - 历史合同 baseline 必须在上线前通过受控数据发布预先写入正式 `EmploymentAgreement / EmploymentAgreementTerm / EmploymentAgreementRevision` 表，不能推迟到用户首次保存。只要记录能建立稳定身份且不违反硬性业务规则，即使非关键字段缺失也必须入库。缺失语义由 `HR_EMPLOYMENT_AGREEMENT_TEMPORAL.baseline` 统一约束：没有明确无效/取消标记时按有效事实保留；缺少开始日期按开放下界保留，缺少到期日期按开放上界保留；其他缺失属性保持 `null`。实际缺失字段写入 anchor 的 `missingFieldsJson` 并在页面按真实字段名提示；只有 `baseline.requiredFields` 声明的必填字段缺失才形成 `baseline-incomplete` 并阻断依赖该字段的动作，非必填字段缺失不得限制续签、终止或普通保存。所有 baseline 聚合统一执行 Business Temporal 三分法及展示 contract：缺失字段补充、既有事实纠错、现实业务变化分别进入 patch-only、audited correction 与 new lifecycle fact；缺失字段原位可填、已有字段原位只读、纠错显式进入独立模式，禁止同一命令或同一界面混合。字段必填性由 `employment-agreement-field-contract` 同时驱动请求 schema、domain validator 和 UI `required`，严格满足 `star === required`，不得在 UI、导入和 service 另写一份必填规则。普通查询始终包含该合同。只有无法稳定识别、归属/FK 冲突、重复身份、JSON 无法解析或期限倒置等硬冲突才进入异常清单。原 `Employment.contracts` 始终保留为来源证据，正式记录的 `sourceKind / sourceRef` 只用于审计与幂等，不得暴露在业务界面。在线读取与保存只面向正式合同表；保存按正常合同的版本和不可变修订规则执行，不承担 baseline 建档。
-- 雇佣关系：上方投影当前/最近雇佣摘要，下方通过 `HR_EMPLOYMENT_TEMPORAL.ui.recordView` 与 Platform `createBusinessTemporalRecordSections` 展示全部雇佣周期。记录默认全部收起，点击某行后仅在该行下展开资料，再次点击收起；入离职日期等期间字段只读，办公地点、人员类型、职级、职务、离职原因和备注通过通用 `edit-existing + page-save` 配置修正，并在同页维护合同。禁止另写 HR 专属历史卡片、表外编辑区或默认展开当前记录。
-- 任职管理：同一 TAB 先只读展示员工-部门-岗位的当前、待生效、历史与异常期间，再登记历史、当天或未来生效的入职、调岗、兼岗、投入调整、主岗变更、汇报关系变化和离职，最后展示只包含日期/结构操作的事件台账。部门岗位和生命周期不得重新拆成两个平级员工详情入口。
+- 雇佣关系：在原员工资料卡片直接新增或编辑。入离职日期和普通资料走同一轻量记录 PATCH；服务端自动判断当前编辑或历史纠错并保留版本证据。
+- 任职管理：在原员工岗位卡片直接新增或编辑部门、岗位、主岗、汇报岗位、日期和投入权重。只有未来生效或跨多记录结构变化才需要显式事件入口。
 - 历史记录：聚合 `EditHistory` 与 `EmployeePeriodRevision`，展示编辑人、编辑时间、实体、版本、修订原因和字段级前后值。
 
-发布任何 Employment / EDP 生命周期迁移前必须执行 `npm run hr:temporal:preflight -- --as-of YYYY-MM-DD`。preflight 在同一 `REPEATABLE READ READ ONLY` 快照内报告 Employment、EDP 和 EmployeeProject 的非法/倒置期间与高日期哨兵，检查 Employment 重叠与 stale flag、EDP 同槽位重叠、投入权重、当前雇佣/任职一致性，以及当前项目成员是否存在当前 Employment；包含式开放结束必须为 `null`。发现问题必须先走受控数据发布批次，不能临时恢复普通 EDP CRUD。新增 migration 合入本地开发分支后必须重启 `npm run dev`，或显式执行 `scripts/runtime/run-with-repo-node.sh npx --no-install prisma migrate deploy --schema=./prisma`，不能只生成 Prisma Client 而让 dev 数据库继续停留在旧 migration 状态。
+发布任何业务生命周期迁移前必须执行 `npm run lifecycle:reconcile -- --as-of YYYY-MM-DD`。第一段 HR preflight 在同一 `REPEATABLE READ READ ONLY` 快照内报告 Employment、EDP 和 EmployeeProject 的非法/倒置期间与高日期哨兵，检查 Employment 重叠与 stale flag、EDP 同槽位重叠、投入权重、当前雇佣/任职一致性，以及当前项目成员是否存在当前 Employment；第二段跨域对账核对组织、合同、Party、客户/供应商角色、员工协议、社保和项目成员的账本序号、当前指针与展示投射。包含式开放结束必须为 `null`。任何非零差异都必须先走受控数据发布批次，不能临时恢复普通整组覆盖 CRUD。`npm run lifecycle:operations:smoke` 在始终回滚的真实事务内验证组织与岗位的归档、幂等重试、恢复和旧版本拒绝。新增 migration 合入本地开发分支后必须重启 `npm run dev`，或显式执行 `scripts/runtime/run-with-repo-node.sh npx --no-install prisma migrate deploy --schema=./prisma`，不能只生成 Prisma Client 而让 dev 数据库继续停留在旧 migration 状态。
 
 `员工信息表` 下每个 Tab 是一个独立的 `*Tab.tsx` 组件：
 
@@ -88,10 +87,10 @@ HR 数据质量 Provider 继续把雇佣、当前任职、组织归属和投入�
 | 员工信息 | GenericTableTab + employeeConfig | 批量维护员工主数据 |
 | 雇佣记录 | GenericTableTab + employmentConfig | 批量查看期间并修正非期间资料 |
 | 员工岗位 | GenericTableTab + edpConfig | 只读查看员工-部门-岗位期间 |
-| 合同信息 | GenericTableTab + contractConfig | 只读迁移清单；写入进入员工详情协议 lifecycle |
+| 合同信息 | GenericTableTab + contractConfig | 只读迁移清单；写入由员工详情合同卡片的 Persistence Adapter 拆成单效果命令 |
 | 项目 | - | 已剥离到 `@workspace/work`，HR 不再维护入口 |
 
-可编辑 Tab 共用 Core `usePageDraft` 与 Toolbar `edit-group` 的页面编辑协议；员工和 Employment 非期间资料使用 `{ changes: [{ id, field, value }] }`。合同 Tab 与 EDP Tab 不形成页面草稿；协议写入和人员结构变化分别由专用 lifecycle command 负责。
+可编辑 Tab 共用 Core `usePageDraft` 与 Toolbar `edit-group` 的页面编辑协议；员工和 Employment 非期间资料使用 `{ changes: [{ id, field, value }] }`。合同 Tab 与 EDP Tab 不形成页面草稿；员工详情卡片分别通过轻量 Persistence Adapter 保存协议与单记录 Employment / EDP 变化，只有真正的未来/追溯或多效果结构变化进入显式 lifecycle command。
 
 ## 核心组件链
 
@@ -126,10 +125,10 @@ HR owner 当前登记 21 个版本化 source：员工、雇佣、部门岗位关
 
 1. `GET /api/modules/hr/roster/employee-profiles/[id]` 聚合读取员工、雇佣、合同、部门岗位和生命周期台账，并按业务日派生当前状态。
 2. 基本信息保存复用 `PUT /api/modules/hr/roster/employees` 的批量 change set。员工编号与关联账号允许在详情页修正，但属于高风险身份字段：前端必须明确确认，服务端同时校验员工编号、账号占用和一人一账号关系，并同步账号上的员工编号；农历生日等派生字段只读。
-3. 雇佣关系保存复用 `PUT /api/modules/hr/roster/employments` 的批量 change set，但只接受非期间资料字段；结构字段由 domain validator 返回 409。
-4. 部门岗位只从员工详情和 `GET /api/modules/hr/roster/edps` 读取，不提供普通 POST / PUT / DELETE 或整组保存入口。
-5. 合同正常读取只查询 `EmploymentAgreement / Term / Revision`，员工合同 UI 不区分新建记录与 baseline 记录。历史 `Employment.contracts` 仅供受控数据发布、迁移核对和审计取证；baseline 发布使用稳定 fingerprint 幂等写入正式表，并输出成功、字段缺失和硬冲突清单。在线 `POST /api/modules/hr/roster/employee-profiles/[id]/agreements` 只接受正式 `agreementUid + expectedVersion`，执行合同资料修订、续签、终止、历史期限修订、设主合同或取消待生效期限，不承担历史数据建档。
-6. 人员生命周期变更走 `PUT /api/modules/hr/roster/employee-profiles/[id]/lifecycle`；既有 Employment / EDP 历史事实纠正走 `POST /api/modules/hr/roster/employee-profiles/[id]/period-revisions`。纠正入口位于对应雇佣/任职记录旁，必须填写原因并永久记录前后值。两者都读取 Business Temporal contract；后者还经过独立 `revise` 权限和 ActionContract direct-execution gate。
+3. 雇佣新增走 `POST /api/modules/hr/roster/employments`；既有 Employment 走记录级 `PATCH .../periods/[periodId]`，由服务端区分普通当前编辑与历史纠错。
+4. 部门岗位新增走员工级 `POST .../assignments`；既有 EDP 复用同一记录级 PATCH，不恢复整组覆盖入口。
+5. 合同读取只查询 `EmploymentAgreement / Term / Revision`。卡片保存通过 Adapter 调用 `POST .../agreements` 的单效果命令，route 派生内部命令标识；历史 JSON 仍只用于迁移核对。
+6. 真正的未来/追溯或多效果人员结构变化保留显式 lifecycle event seam；普通保存不要求 lifecycle metadata，也不经过独立 `revise` UI/权限分支。
 
 ## 考勤绩效工作台
 

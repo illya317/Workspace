@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { createPageBody, BodySurface, type CreateSurfaceToolbarProps, type FormSurfaceItemSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
-import { postJson } from "@workspace/platform/ui/api-client";
+import { postDirectCommandJson } from "@workspace/platform/ui/api-client";
 import { actionRuntimeCreateSubmission } from "@workspace/platform/ui";
 import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 import { useDepartmentDescriptionCreateSections } from "./department-descriptions-panel";
@@ -112,7 +112,7 @@ export function useDepartmentCreateSurface({
     if (!name.trim() || !code.trim() || !actionRuntime) return;
     setSubmitting(true);
     try {
-      await postJson<{ executionMode: "direct" | "workflow" }>(
+      await postDirectCommandJson<{ executionMode: "direct" | "workflow" }>(
         "/api/modules/hr/roster/departments",
         buildPayload(),
         "新建组织失败",

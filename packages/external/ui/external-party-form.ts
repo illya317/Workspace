@@ -27,8 +27,8 @@ export const EXTERNAL_PARTY_RELATED_PARTY_LABELS: Record<ExternalPartyRelatedPar
   unrelated: "非关联方",
   group: "集团内",
   joint_venture_associate: "合营/联营",
-  investor_influence: "重大影响",
-  key_management_related: "管理人员",
+  investor_influence: "控制或重大影响方",
+  key_management_related: "关键管理人员关联方",
   other_related: "其他关联方",
 };
 
@@ -65,10 +65,6 @@ export function emptyExternalPartyDraft(): ExternalPartyDraft {
     creditDays: null,
     taxRate: null,
     remark: null,
-    availabilityFrom: null,
-    availabilityThrough: null,
-    effectiveOn: "",
-    legalFactReason: null,
   };
 }
 
@@ -224,30 +220,7 @@ export function externalPartyFormSections(
           readOnly: subjectReadOnly,
         }),
         ...(!individual ? [textField("legalRepresentative", "法定代表人", draft, onChange, { readOnly: subjectReadOnly })] : []),
-        ...(draft.id ? [{
-          key: "effectiveOn",
-          label: "法定事实生效日",
-          spec: { valueType: "date" as const, control: "temporal" as const, precision: "date" as const },
-          value: draft.effectiveOn || "",
-          disabled: subjectReadOnly,
-          onChange: (value: unknown) => onChange("effectiveOn", String(value || "")),
-        }, textField("legalFactReason", "变更原因", draft, onChange, { readOnly: subjectReadOnly })] : []),
         textField("classification", "业务分类", draft, onChange, { readOnly }),
-        ...(!draft.id ? [{
-          key: "availabilityFrom",
-          label: "角色启用日",
-          spec: { valueType: "date" as const, control: "temporal" as const, precision: "date" as const },
-          value: draft.availabilityFrom || "",
-          disabled: readOnly,
-          onChange: (value: unknown) => onChange("availabilityFrom", String(value || "") || null),
-        }, {
-          key: "availabilityThrough",
-          label: "角色结束日",
-          spec: { valueType: "date" as const, control: "temporal" as const, precision: "date" as const },
-          value: draft.availabilityThrough || "",
-          disabled: readOnly,
-          onChange: (value: unknown) => onChange("availabilityThrough", String(value || "") || null),
-        }] : []),
       ],
     },
     {

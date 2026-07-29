@@ -31,9 +31,9 @@ export const employmentFields: ProfileField[] = [
   { key: "personnelType", label: "人员类型", type: "select" },
   { key: "rank", label: "职级", type: "select" },
   { key: "title", label: "职务", type: "select" },
-  { key: "joinDate", label: "入职日期", type: "date", readOnly: true },
+  { key: "joinDate", label: "入职日期", type: "date" },
   { key: "officeLocation", label: "办公地点", type: "select" },
-  { key: "leaveDate", label: "离职日期", type: "date", readOnly: true },
+  { key: "leaveDate", label: "离职日期", type: "date" },
   { key: "leaveReason", label: "离职原因", type: "select" },
   { key: "leaveNote", label: "补充说明", type: "textarea", span: "wide" },
 ];

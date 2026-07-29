@@ -10,6 +10,7 @@ import type { ContractCreateInput, ContractUpdateInput } from "../schemas";
 
 export interface ContractWriteCommand {
   userId: number;
+  idempotencyKey: string;
   data: Prisma.ContractUncheckedCreateInput | Prisma.ContractUncheckedUpdateInput;
 }
 
@@ -100,7 +101,7 @@ async function validateCategoryId(value: number | undefined) {
   return category ? okCommand(category.id) : failCommand("合同类型不存在或已停用", 400, "categoryId");
 }
 
-function buildContractData(
+export function buildContractData(
   data: ContractCreateInput | ContractUpdateInput,
   references: {
     owningCompanyId?: number | null;
@@ -134,8 +135,16 @@ function buildContractData(
     ...(data.partyAId !== undefined ? { partyAId: references.partyAId } : {}),
     ...(data.partyBId !== undefined ? { partyBId: references.partyBId } : {}),
     ...(data.handlerEmployeeId !== undefined ? { handlerEmployeeId: references.handlerEmployeeId } : {}),
-    ...(data.signedOn !== undefined ? { signedOn: signedOn.data, signedOnPrecision: signedOn.data ? "day" : null } : {}),
-    ...(data.expiresOn !== undefined ? { expiresOn: expiresOn.data, expiresOnPrecision: expiresOn.data ? "day" : null } : {}),
+    ...(data.signedOn !== undefined ? {
+      signedOn: signedOn.data,
+      signedOnPrecision: signedOn.data ? "day" : null,
+      legacySignDateRaw: null,
+    } : {}),
+    ...(data.expiresOn !== undefined ? {
+      expiresOn: expiresOn.data,
+      expiresOnPrecision: expiresOn.data ? "day" : null,
+      legacyEndDateRaw: null,
+    } : {}),
     ...(data.amount !== undefined ? { amount: amount.data } : {}),
     ...(data.executedAmount !== undefined ? { executedAmount: executedAmount.data } : {}),
     ...(data.currencyCode !== undefined ? { currencyCode: data.currencyCode.trim().toUpperCase() } : {}),
@@ -166,13 +175,15 @@ export async function normalizeContractLegalInput(data: ContractCreateInput | Co
 export async function buildContractCreateCommand(
   data: ContractCreateInput,
   userId: number,
+  idempotencyKey: string,
 ): Promise<DomainValidationResult<ContractWriteCommand>> {
   const validUserId = positiveInt(userId, "userId");
   if (!validUserId.ok) return validUserId;
+  if (!idempotencyKey.trim()) return failCommand("内部命令标识不能为空", 400);
   if (!data.name?.trim()) return failCommand("合同名称必填", 400, "name");
   const normalized = await normalizeContractLegalInput(data);
   if (!normalized.ok) return normalized;
-  return okCommand({ userId: validUserId.data, data: normalized.data });
+  return okCommand({ userId: validUserId.data, idempotencyKey: idempotencyKey.trim(), data: normalized.data });
 }
 
 export async function buildContractUpdateCommand(
@@ -180,6 +191,7 @@ export async function buildContractUpdateCommand(
   data: ContractUpdateInput,
   userId: number,
   expectedVersion?: number,
+  idempotencyKey = "",
 ): Promise<DomainValidationResult<ContractTargetCommand & ContractWriteCommand>> {
   const validId = positiveInt(id, "id");
   if (!validId.ok) return validId;
@@ -187,6 +199,7 @@ export async function buildContractUpdateCommand(
   if (!validUserId.ok) return validUserId;
   const validVersion = positiveInt(expectedVersion, "expectedVersion");
   if (!validVersion.ok) return validVersion;
+  if (!idempotencyKey.trim()) return failCommand("内部命令标识不能为空", 400);
   if (Object.keys(data).length === 0) return failCommand("无更新内容", 400);
   if (data.name !== undefined && !data.name.trim()) return failCommand("合同名称必填", 400, "name");
   const normalized = await normalizeContractLegalInput(data);
@@ -195,6 +208,7 @@ export async function buildContractUpdateCommand(
     id: validId.data,
     userId: validUserId.data,
     expectedVersion: validVersion.data,
+    idempotencyKey: idempotencyKey.trim(),
     data: normalized.data,
   });
 }

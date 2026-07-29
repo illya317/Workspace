@@ -8,7 +8,8 @@ import {
   listEmploymentAgreementsForEmployee,
 } from "@workspace/hr/server";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { failCommand } from "@workspace/platform/server/domain-validation";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
+import { directCommandId } from "@workspace/platform/server/direct-command-meta";
 
 export const GET = createCommandRoute({
   paramsSchema: EmploymentAgreementEmployeeParamsSchema,
@@ -24,11 +25,13 @@ export const POST = createCommandRoute({
   paramsError: "员工ID无效",
   bodySchema: EmploymentAgreementCommandSchema,
   bodyError: "协议生命周期命令无效",
-  buildCommand: ({ params, body, user, request }) => {
-    const idempotencyKey = request.headers.get("idempotency-key")?.trim();
-    return idempotencyKey
-      ? buildHrRouteCommand({ employeeId: params.id, command: body, userId: user.userId, idempotencyKey })
-      : failCommand("缺少 Idempotency-Key 请求头");
-  },
+  buildCommand: ({ params, body, user, request }) => buildHrRouteCommand({
+    employeeId: params.id,
+    command: body.kind === "end" && !body.effectiveThrough
+      ? { ...body, effectiveThrough: workspaceBusinessDate(new Date()) }
+      : body,
+    userId: user.userId,
+    idempotencyKey: directCommandId(request),
+  }),
   action: executeEmploymentAgreementCommand,
 });

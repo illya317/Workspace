@@ -12,7 +12,10 @@ import type {
   ContractStateReverseInput,
   ContractStateTransitionInput,
 } from "../schemas";
-import { normalizeContractLegalInput } from "./administration-contract-validation";
+import {
+  normalizeContractLegalInput,
+  validateContractState,
+} from "./administration-contract-validation";
 import { contractStateValueIsValid } from "./contract-lifecycle-policy";
 
 export interface ContractRevisionCreateCommand {
@@ -58,6 +61,38 @@ export function assertInitialContractRevisionInput(input: { id: number; createdA
   if (!Number.isInteger(input.id) || input.id <= 0) throw new Error("合同 ID 无效");
   const effectiveOn = input.signedOn ?? input.createdAt;
   if (!(effectiveOn instanceof Date) || Number.isNaN(effectiveOn.getTime())) throw new Error("合同初始修订生效日无效");
+}
+
+export function assertDirectContractRevisionInput(input: {
+  contractId: number;
+  userId: number;
+  commandId: string;
+  effectiveOn: Date;
+  snapshot: { name: string; categoryId: number; signedOn: string | null; expiresOn: string | null };
+}) {
+  if (!Number.isInteger(input.contractId) || input.contractId <= 0) throw new Error("合同 ID 无效");
+  if (!Number.isInteger(input.userId) || input.userId <= 0) throw new Error("合同操作人无效");
+  if (!input.commandId.trim()) throw new Error("合同内部命令标识不能为空");
+  if (!(input.effectiveOn instanceof Date) || Number.isNaN(input.effectiveOn.getTime())) {
+    throw new Error("合同修订生效日无效");
+  }
+  if (!input.snapshot.name.trim()) throw new Error("合同名称必填");
+  if (!Number.isInteger(input.snapshot.categoryId) || input.snapshot.categoryId <= 0) {
+    throw new Error("合同类型无效");
+  }
+  const signedOn = parseSnapshotDate(input.snapshot.signedOn, "签订日期");
+  const expiresOn = parseSnapshotDate(input.snapshot.expiresOn, "结束日期");
+  const state = validateContractState({ signedOn, expiresOn });
+  if (!state.ok) throw new Error(state.issue.message);
+}
+
+function parseSnapshotDate(value: string | null, label: string) {
+  if (!value) return null;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) {
+    throw new Error(`${label}无效`);
+  }
+  return date;
 }
 
 function positiveInt(value: number | undefined, field: string) {

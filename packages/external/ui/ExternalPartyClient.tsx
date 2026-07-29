@@ -158,17 +158,13 @@ export default function ExternalPartyClient({
   async function deleteSelected() {
     if (!selected) return;
     const confirmed = await feedback.confirmDelete({
-      message: `确定移除“${selected.name}”的${labels.singular}角色吗？若主体还有其他往来角色将继续保留。`,
+      message: `确定从今天起结束“${selected.name}”的${labels.singular}角色吗？主体资料和其他往来角色将继续保留。`,
     });
     if (!confirmed) return;
-    const removedId = selected.id;
     const result = await data.remove(selected);
     if (!result.ok) return feedback.error(result.error);
-    const next = data.items.find((item) => item.id !== removedId) ?? null;
-    setSelected(next);
-    setDetailDraft(next ? { ...next } : null);
     setDirty(false);
-    feedback.success("角色已移除");
+    feedback.success("角色已结束");
   }
 
   const selector: SelectorSurfaceProps<ExternalParty> = {
@@ -264,7 +260,7 @@ export default function ExternalPartyClient({
             { key: "reset", action: "reset" as const, label: "撤销修改", disabled: saving || !dirty, onClick: resetDetail },
             { key: "save", action: "save" as const, label: saving ? "保存中..." : "保存", disabled: saving || !dirty || !detailDraft.code.trim() || !detailDraft.name.trim() || !detailDraft.identityNumber.trim(), onClick: () => void saveDetail() },
           ] : []),
-          ...(canDelete ? [{ key: "delete", action: "delete" as const, label: `移除${labels.singular}角色`, disabled: saving, onClick: () => void deleteSelected() }] : []),
+          ...(canDelete && selected.isActive ? [{ key: "delete", action: "delete" as const, label: `结束${labels.singular}角色`, disabled: saving, onClick: () => void deleteSelected() }] : []),
         ],
         submit: canUpdate ? { onSubmit: () => void saveDetail() } : undefined,
       })

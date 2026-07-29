@@ -71,7 +71,8 @@ export {
 } from "./edps";
 
 export { recordEmployeeLifecycleEvent } from "./employee-lifecycle";
-export { reviseEmployeePeriod } from "./employee-period-revisions";
+export { correctEmployeePeriod } from "./employee-period-corrections";
+export { createEmployeeAssignment, createEmploymentPeriod } from "./employee-period-creates";
 
 export {
   listEmployees,
@@ -124,7 +125,10 @@ export {
   listPositionReportOverrides,
   savePositionReportOverrides,
 } from "./position-report-overrides";
-export { organizationStructureLifecycleMetaFromRequest } from "./organization-structure-route-meta";
+export {
+  organizationArchiveLifecycleMetaFromRequest,
+  organizationStructureLifecycleMetaFromRequest,
+} from "./organization-structure-route-meta";
 
 export {
   createPosition,

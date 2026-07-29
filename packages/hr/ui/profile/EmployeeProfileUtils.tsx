@@ -3,6 +3,16 @@
 import { ProfileFieldInput } from "./ProfileFormControls";
 import type { ContractRow, ProfileField } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
+import { normalizeValue } from "./EmployeeProfilePersistenceValues";
+export {
+  persistableEdpRows,
+  validateCurrentAssignments,
+} from "./EmployeeAssignmentDraftValidation";
+export {
+  normalizeContractRow,
+  normalizeValue,
+  valuesEqual,
+} from "./EmployeeProfilePersistenceValues";
 
 export type EditableRecord = Record<string, unknown> & { id?: number; isNew?: boolean };
 export type RowBase = { id?: number; isNew?: boolean };
@@ -21,15 +31,6 @@ export function toInputDate(value: unknown) {
   return /^\d{4}-\d{2}-\d{2}/.test(text) ? text.slice(0, 10) : text;
 }
 
-export function normalizeValue(value: unknown) {
-  if (value === undefined || value === "") return null;
-  return value;
-}
-
-export function valuesEqual(left: unknown, right: unknown) {
-  return normalizeValue(left) === normalizeValue(right);
-}
-
 export function todayText() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -44,6 +45,30 @@ export function isCurrentByDateRange(startDate: unknown, endDate: unknown) {
   const start = normalizeValue(startDate);
   const end = normalizeValue(endDate);
   return (!start || String(start) <= today) && (!end || String(end) >= today);
+}
+
+export function isBlankNewContract(row: ContractRow) {
+  return Boolean(row.isNew)
+    && !row.company
+    && !row.insuranceStatus
+    && !row.legalRelation
+    && !row.contractType
+    && !row.employmentForm
+    && !row.firstContractStartDate
+    && !row.firstContractEndDate
+    && !row.secondContractStartDate
+    && !row.secondContractEndDate
+    && !row.thirdContractStartDate
+    && !row.thirdContractEndDate
+    && !row.permanentContractDate
+    && !row.confidentialityDate
+    && !row.nonCompeteDate
+    && !row.isPrimary
+    && !row.isInsuredHere;
+}
+
+export function persistableContractRows(rows: ContractRow[]) {
+  return rows.filter((row) => !isBlankNewContract(row));
 }
 
 export function formatAlias(value: string | null) {
@@ -139,12 +164,6 @@ export function contractPeriodEndDate(row: ContractRow) {
     return period.end;
   }
   return null;
-}
-
-export function normalizeContractRow<T extends ContractRow>(row: T): T {
-  const periodEndDates = [row.firstContractEndDate, row.secondContractEndDate, row.thirdContractEndDate].filter(Boolean);
-  if (!row.endDate || (!row.permanentContractDate && !periodEndDates.includes(row.endDate))) return row;
-  return { ...row, endDate: null };
 }
 
 export function updateProfileRow<T extends RowBase>(

@@ -1,9 +1,11 @@
-import { requestJson } from "@workspace/platform/ui/api-client";
+import { requestDirectCommandJson, requestJson } from "@workspace/platform/ui/api-client";
 import {
+  edpFields,
   employeeFields,
   employmentFields,
 } from "@workspace/hr/constants";
 import type {
+  EdpRow,
   EmployeeProfile,
   EmployeeProfileEmployee,
   EmploymentRow,
@@ -12,9 +14,11 @@ import type {
 import { validateChineseIdNumber } from "@workspace/hr/utils/identity";
 import {
   normalizeValue,
+  persistableEdpRows,
   valuesEqual,
   type EditableRecord,
 } from "./EmployeeProfileUtils";
+export { persistEmployeeAgreements as persistContracts } from "./EmployeeAgreementPersistence";
 
 async function updateChangedFields(
   endpoint: string,
@@ -64,14 +68,12 @@ export async function persistBasic(
 }
 
 export async function persistEmployments(profile: EmployeeProfile, rows: EmploymentRow[]) {
-  const changes: Array<{ id: number; field: string; value: unknown }> = [];
   for (const row of rows) {
-    if (!row.id) {
-      await requestJson("/api/modules/hr/roster/employments", {
+    if (row.isNew) {
+      await requestDirectCommandJson("/api/modules/hr/roster/employments", {
         method: "POST",
         body: JSON.stringify({
           employeeId: profile.employee.id,
-          isActive: row.isActive,
           joinDate: row.joinDate,
           leaveDate: row.leaveDate,
           leaveReason: row.leaveReason,
@@ -87,16 +89,53 @@ export async function persistEmployments(profile: EmployeeProfile, rows: Employm
     if (!row.id) continue;
     const original = profile.employments.find((item) => item.id === row.id);
     if (!original) continue;
-    changes.push(...collectChangedFields(
+    const rowChanges = collectChangedFields(
       row.id,
       original as unknown as EditableRecord,
       row as unknown as EditableRecord,
       employmentFields,
-    ));
+    );
+    if (rowChanges.length > 0) {
+      await requestDirectCommandJson(`/api/modules/hr/roster/employee-profiles/${profile.employee.id}/periods/${row.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          entityType: "Employment",
+          expectedVersion: original.version,
+          patch: Object.fromEntries(rowChanges.map((change) => [change.field, change.value])),
+        }),
+      });
+    }
   }
-  if (changes.length === 0) return;
-  await requestJson("/api/modules/hr/roster/employments", {
-    method: "PUT",
-    body: JSON.stringify({ changes }),
-  });
+}
+
+export async function persistEdps(profile: EmployeeProfile, rows: EdpRow[]) {
+  const rowsToPersist = persistableEdpRows(rows);
+  for (const row of rowsToPersist) {
+    if (row.isNew || !row.id) {
+      await requestDirectCommandJson(`/api/modules/hr/roster/employee-profiles/${profile.employee.id}/assignments`, {
+        method: "POST",
+        body: JSON.stringify(Object.fromEntries(
+          edpFields.map((field) => [field.key, normalizeValue(row[field.key as keyof EdpRow])]),
+        )),
+      });
+      continue;
+    }
+    const original = profile.edps.find((item) => item.id === row.id);
+    if (!original) continue;
+    const rowChanges = collectChangedFields(
+      row.id,
+      original as unknown as EditableRecord,
+      row as unknown as EditableRecord,
+      edpFields,
+    );
+    if (rowChanges.length === 0) continue;
+    await requestDirectCommandJson(`/api/modules/hr/roster/employee-profiles/${profile.employee.id}/periods/${row.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        entityType: "EDP",
+        expectedVersion: original.version,
+        patch: Object.fromEntries(rowChanges.map((change) => [change.field, change.value])),
+      }),
+    });
+  }
 }

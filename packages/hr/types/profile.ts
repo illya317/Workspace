@@ -82,6 +82,7 @@ export interface EmployeeProfileSummary {
 
 export interface EmploymentRow {
   id?: number;
+  isNew?: boolean;
   version: number;
   employeeId: number;
   isActive: boolean;
@@ -98,6 +99,7 @@ export interface EmploymentRow {
 }
 
 export interface ContractRow {
+  isNew?: boolean;
   id: string;
   agreementUid: string | null;
   employmentId: number;
@@ -206,6 +208,7 @@ export interface EmploymentAgreementRevisionRow {
 
 export interface EdpRow {
   id?: number;
+  isNew?: boolean;
   version: number;
   employeeId: number;
   reportingCompanyId: number | null;

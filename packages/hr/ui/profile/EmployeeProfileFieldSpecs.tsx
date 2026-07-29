@@ -18,9 +18,8 @@ export function profileFieldSpec(
   onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
   isFieldDisabled?: (field: ProfileField, record: EditableRecord) => boolean,
 ): FormSurfaceItemSpec<string> {
-  const disabledByStatus = record.isActive === true && (field.key === "leaveDate" || field.key === "leaveReason" || field.key === "leaveNote");
   const disabledByRule = isFieldDisabled?.(field, record) ?? false;
-  const fieldDisabled = disabled || field.readOnly || disabledByStatus || disabledByRule;
+  const fieldDisabled = disabled || field.readOnly || disabledByRule;
   const base = {
     key: field.key,
     label: field.label,

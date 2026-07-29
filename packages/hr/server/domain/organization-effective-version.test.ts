@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   liveOrganizationVersions,
+  organizationChangeIsNoOp,
   organizationVersionAt,
   parseOrganizationLifecycleMeta,
   planOrganizationEffectiveChange,
+  resolveSameDayCorrectionMeta,
   type OrganizationEffectiveVersion,
 } from "./organization-effective-version";
 import { positionReportOverrideBatchRequestFingerprint } from "./organization-structure-command";
@@ -109,6 +111,38 @@ test("same-day second schedule must be expressed as correction", () => {
     asOf: "2026-07-27",
     payload: { name: "B" },
   }), /纠错命令/);
+});
+
+test("ordinary same-day save resolves to correction and exact payload is a no-op", () => {
+  const rows = [version(1, "2026-08-01", null, "A")];
+  const meta = resolveSameDayCorrectionMeta(rows, {
+    kind: "schedule",
+    effectiveOn: "2026-08-01",
+    expectedSequence: 1,
+    idempotencyKey: "direct-1",
+    reason: null,
+    targetVersionId: null,
+  }, "岗位资料");
+  assert.equal(meta.kind, "correct");
+  assert.equal(meta.targetVersionId, 1);
+  assert.equal(meta.reason, "同日直接修改岗位资料");
+  assert.equal(organizationChangeIsNoOp(rows, meta, { name: "A" }), true);
+  assert.equal(organizationChangeIsNoOp(rows, meta, { name: "B" }), false);
+});
+
+test("ordinary save against an older live version is an exact no-op", () => {
+  const rows = [version(1, "2026-01-01", null, "A")];
+  const meta = resolveSameDayCorrectionMeta(rows, {
+    kind: "schedule",
+    effectiveOn: "2026-07-29",
+    expectedSequence: 1,
+    idempotencyKey: "direct-older-1",
+    reason: null,
+    targetVersionId: null,
+  }, "岗位资料");
+  assert.equal(meta.kind, "schedule");
+  assert.equal(organizationChangeIsNoOp(rows, meta, { name: "A" }), true);
+  assert.equal(organizationChangeIsNoOp(rows, meta, { name: "B" }), false);
 });
 
 test("end-date keeps the slice before the exclusive boundary and appends cancellation provenance", () => {

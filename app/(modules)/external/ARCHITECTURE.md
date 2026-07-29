@@ -61,7 +61,7 @@ External owner 登记 `external.customers`、`external.suppliers`、`external.re
 
 `ExternalPartyRole` 是稳定角色锚点，`ExternalPartyRolePeriod` 是唯一可用性事实源。期间使用包含式 `validFrom / validThrough`，由 Platform Contract 转换为半开区间计算；当前、待生效和历史状态都按服务端 `asOfDate` 推导。`ExternalPartyRole.isActive` 只保留为当前租户业务日的兼容缓存，不参与 as-of 权威判断。
 
-期间表不可更新、不可删除。登记期间追加 `schedule`，终止当前期间追加 `end-date` 修订，取消未来期间追加 `cancel-future`，历史纠错追加带 `supersedesId` 的 `correct` 修订。所有在线命令在 Serializable 事务中锁定 Party，要求 `If-Match` 和 `Idempotency-Key`，并由同一领域投影检查有效日期和重叠。
+期间表不可更新、不可删除。登记期间追加 `schedule`，终止当前期间追加 `end-date` 修订，取消未来期间追加 `cancel-future`，历史纠错追加带 `supersedesId` 的 `correct` 修订。所有在线命令在 Serializable 事务中锁定 Party并检查 `If-Match`；普通页面由 Platform transport Adapter 自动携带并在网络重试时复用 `Idempotency-Key`，显式期间命令仍要求调用方提供稳定键。
 
 迁移只建立“迁移时现状基线”：启用角色以迁移观察日作为最早已知有效日，更早历史保持未知；停用角色记录 `unknown` 基线但不推断历史结束日。旧 ERP 导入直写已关闭，但新的受治理导入 handler 尚未接入角色期间命令，因此该 registration 暂标记为 `partial`。
 
@@ -98,9 +98,9 @@ dry-run 输出实际数据库名、两份源文件 SHA-256、发货行数和当�
   -> service transaction / Prisma / EditHistory
 ```
 
-新增和更新在 service 中显式检查同角色编码重复。创建时可以通过明确的主体 ID，或唯一且非空的证件号码，给已有主体增加第二角色；名称不作为静默自动合并依据。更新保存前建立聚合历史基线并在成功后写包含全部角色的快照。普通更新不接受 `isActive`；创建会同时建立首个角色期间。DELETE 的语义是从请求业务日起结束角色期间，不能删除角色、`ExternalPartyProfile`、`ExternalPartySourceMapping` 或 Party。Party 的最终生命周期不归 External 页面所有。
+新增和更新在 service 中显式检查同角色编码重复。创建时可以通过明确的主体 ID，或唯一且非空的证件号码，给已有主体增加第二角色；名称不作为静默自动合并依据。普通更新不接受 `isActive`，完全相同的 payload 不写版本或历史；创建会同时建立首个角色期间。DELETE 的语义是由服务端按当前业务日结束角色期间，不能删除角色、`ExternalPartyProfile`、`ExternalPartySourceMapping` 或 Party。Party 的最终生命周期不归 External 页面所有。
 
-涉及公共法定字段的在线保存还必须提供 `Idempotency-Key`、Party `If-Match` 与 `legalFactRevision`。domain validator 先分离角色资料与法定事实，service 在 Serializable 事务内锁定 Party、追加修订、重算基准日投影，并同步刷新 Party/Company 缓存字段；角色字段仍在同一外部主体事务内更新。未来生效日不会覆盖历史修订，重试命中同一幂等键时返回既有修订。
+涉及公共法定字段的普通在线保存只要求业务字段与 Party `If-Match`；transport Adapter 提供幂等键，服务端读取当前 legal-fact revision 并派生当天纠错元数据。domain validator 先分离角色资料与法定事实，service 在 Serializable 事务内锁定 Party、按真实差异追加修订、重算基准日投影，并同步刷新 Party/Company 缓存字段；角色字段仍在同一外部主体事务内更新。显式未来/追溯命令继续携带目标修订和生效日，重试命中同一幂等键时返回既有修订。
 
 ## 权限
 
@@ -118,6 +118,6 @@ dry-run 输出实际数据库名、两份源文件 SHA-256、发货行数和当�
 
 关联方页面使用标准表格，提供关系性质、关键词和基准日筛选；新增区只包含“客户/供应商 FK”和“关系性质”，不提供自由主体录入。列表展示“系统配置 / 人工维护”，只有具备 delete 权限的人工维护项显示“取消关联方”；取消确认会明确客户、供应商和主体资料继续保留。它只承担“谁是关联方”的名录与登记职责；关联交易金额和凭证追溯仍归 Finance。
 
-页面 Toolbar 提供基准日选择器；详情在普通资料表单后分别组合角色 `availability` 和法定事实 `effective-period` 视图，分开展示 temporal state 与 record state。角色生命周期表单提供登记期间、更正和取消待生效；停用动作从当前基准日起追加结束修订。公共法定字段发生变化时可选择生效日并填写原因，页面提交最新 `legalFactRevision` 和新的幂等键。两条时间线互不混成一个状态。
+页面只展示服务端投影的当前状态，不把角色期间或法定事实 lifecycle metadata 放进普通编辑表单。保存由 Adapter 提交业务字段和版本；“从今天起结束角色”追加当天结束事实并保留主体及另一角色。未来生效、追溯纠错和取消未来事实仍保留显式服务端命令，待有明确业务入口时通过独立操作提供，不与普通资料表单混成一个状态。
 
 关系性质按《企业会计准则第 36 号——关联方披露》收敛为：非关联方、集团内、合营/联营、控制或重大影响投资方、关键管理人员关联方、其他关联方。大客户、核心供应商、渠道、地区等经营分组只进入 `classification`，不得据此自动判断关联方。详细持股/控制链仍归资本证券，External 只保存 Finance 分析所需的关系口径。

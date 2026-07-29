@@ -1,8 +1,3 @@
-import {
-  businessDateWindowsOverlap,
-  businessTemporalRetrospectiveChanges,
-  inclusiveBusinessPeriodToWindow,
-} from "@workspace/platform/contracts/business-temporal";
 import { businessTemporalBaselineMissingRequiredFields } from "@workspace/platform/contracts/business-temporal-baseline";
 import { checkHRUpdate } from "@workspace/platform/server/auth";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
@@ -23,9 +18,10 @@ import {
 import { employmentAgreementChangeManifest } from "./domain/employment-agreement-change";
 import { applyEmploymentAgreementBaselineMutation } from "./employment-agreement-baseline-mutation";
 import {
-  parseEmploymentAgreementMissingFields,
-  refreshEmploymentAgreementBaselineMissingFields,
-} from "./employment-agreement-baseline-storage";
+  employmentAgreementTemporalContractError,
+  employmentAgreementTermOverlapError,
+} from "./domain/employment-agreement-temporal-policy";
+import { parseEmploymentAgreementMissingFields, refreshEmploymentAgreementBaselineMissingFields } from "./employment-agreement-baseline-storage";
 import { buildLegacyAgreementRows, inspectLegacyEmploymentAgreements } from "./employment-agreement-legacy";
 import { EMPLOYMENT_AGREEMENT_INCLUDE, normalizedEmploymentAgreementRow } from "./employment-agreement-rows";
 
@@ -51,7 +47,7 @@ export async function executeEmploymentAgreementCommand(input: {
     ? await validateEmploymentAgreementContentReferences(built.data.content)
     : null;
   if (contentError) return serviceError(contentError.message, 400);
-  const temporalContractError = validateAgreementTemporalContract(built.data);
+  const temporalContractError = employmentAgreementTemporalContractError(built.data, workspaceBusinessDate(new Date()));
   if (temporalContractError) return serviceError(temporalContractError, 409);
   const requestFingerprint = businessTemporalRequestFingerprint({
     aggregate: "EmploymentAgreement",
@@ -76,22 +72,30 @@ export async function executeEmploymentAgreementCommand(input: {
       const outcome = built.data.kind === "create"
         ? await createAgreement(tx, input.employeeId, input.userId, built.data)
         : await changeAgreement(tx, input.employeeId, input.userId, built.data);
-      await tx.employmentAgreementChange.create({
-        data: {
-          employeeId: input.employeeId,
-          agreementId: outcome.agreementId,
-          commandKind: built.data.kind,
-          idempotencyKey: input.idempotencyKey,
-          requestFingerprint,
-          expectedVersion: built.data.kind === "create" ? null : built.data.expectedVersion,
-          effectManifestJson: JSON.stringify(employmentAgreementChangeManifest(built.data)),
-          actorUserId: input.userId,
-        },
-      });
-      return { idempotent: false };
+      if (outcome.changed) {
+        await tx.employmentAgreementChange.create({
+          data: {
+            employeeId: input.employeeId,
+            agreementId: outcome.agreementId,
+            commandKind: built.data.kind,
+            idempotencyKey: input.idempotencyKey,
+            requestFingerprint,
+            expectedVersion: built.data.kind === "create" ? null : built.data.expectedVersion,
+            effectManifestJson: JSON.stringify(employmentAgreementChangeManifest(built.data)),
+            actorUserId: input.userId,
+          },
+        });
+      }
+      return { idempotent: false, changed: outcome.changed };
     });
     const rows = await listEmploymentAgreementsForEmployee(input.employeeId);
-    return serviceOk({ success: true as const, commandKind: built.data.kind, idempotent: persisted.idempotent, agreements: rows });
+    return serviceOk({
+      success: true as const,
+      commandKind: built.data.kind,
+      idempotent: persisted.idempotent,
+      changed: "changed" in persisted ? persisted.changed : false,
+      agreements: rows,
+    });
   } catch (error) {
     if (error instanceof EmploymentAgreementCommandError) return serviceError(error.message, error.status);
     if (error instanceof SerializableTransactionConflictError) return serviceError(error.message, 409);
@@ -273,23 +277,18 @@ async function changeAgreement(
   ) {
     return failed("合同期限缺少开始日期，请先通过修正期限补齐后再保存其他变更", 409);
   }
-  const claimed = await tx.employmentAgreement.updateMany({
-    where: { id: agreement.id, version: command.expectedVersion, recordState: "confirmed" },
-    data: {
-      version: { increment: 1 },
-      reason: command.reason,
-      updatedBy: userId,
-    },
-  });
-  if (claimed.count !== 1) return failed("协议已被其他人修改，请刷新后重试", 409);
+  if (agreement.version !== command.expectedVersion) return failed("协议已被其他人修改，请刷新后重试", 409);
 
   if (command.kind === "set-primary") {
+    if (agreement.isPrimary) return succeeded(agreement.id, false);
+    await claimAgreementVersion(tx, agreement.id, command.expectedVersion, userId, command.reason);
     await clearPrimaryAgreements(tx, employeeId, userId, agreement.id);
     await tx.employmentAgreement.update({ where: { id: agreement.id }, data: { isPrimary: true } });
     return succeeded(agreement.id);
   }
 
   if (command.kind === "supplement-missing" || command.kind === "correct-existing") {
+    await claimAgreementVersion(tx, agreement.id, command.expectedVersion, userId, command.reason);
     const mutation = await applyEmploymentAgreementBaselineMutation({
       tx,
       agreement,
@@ -302,10 +301,19 @@ async function changeAgreement(
   }
 
   if (command.kind === "renew") {
-    assertAgreementTermOverlapAllowed(agreement.terms, {
+    const duplicate = agreement.terms.some((term) => (
+      term.recordState === "confirmed"
+      && term.effectiveFrom === command.effectiveFrom
+      && term.effectiveThrough === command.effectiveThrough
+      && term.termKind === command.termKind
+    ));
+    if (duplicate) return succeeded(agreement.id, false);
+    const overlapError = employmentAgreementTermOverlapError(agreement.terms, {
       effectiveFrom: command.effectiveFrom,
       effectiveThrough: command.effectiveThrough,
     });
+    if (overlapError) return failed(overlapError, 409);
+    await claimAgreementVersion(tx, agreement.id, command.expectedVersion, userId, command.reason);
     await tx.employmentAgreementTerm.create({
       data: {
         agreementId: agreement.id,
@@ -337,6 +345,7 @@ async function changeAgreement(
   if (command.kind === "cancel-future") {
     const today = workspaceBusinessDate(new Date());
     if (!term.effectiveFrom || term.effectiveFrom <= today) return failed("只有尚未生效的期限可以取消", 409);
+    await claimAgreementVersion(tx, agreement.id, command.expectedVersion, userId, command.reason);
     await tx.employmentAgreementTerm.update({
       where: { id: term.id },
       data: {
@@ -358,6 +367,8 @@ async function changeAgreement(
     if (term.effectiveThrough && command.effectiveThrough > term.effectiveThrough) {
       return failed("结束日期不能晚于合同到期日期", 409);
     }
+    if (agreement.actualEndDate === command.effectiveThrough) return succeeded(agreement.id, false);
+    await claimAgreementVersion(tx, agreement.id, command.expectedVersion, userId, command.reason);
     await tx.employmentAgreement.update({
       where: { id: agreement.id },
       data: { actualEndDate: command.effectiveThrough },
@@ -376,10 +387,17 @@ async function changeAgreement(
   if (replacement.effectiveThrough && replacement.effectiveFrom > replacement.effectiveThrough) {
     return failed("协议开始日期不能晚于到期日期", 409);
   }
-  assertAgreementTermOverlapAllowed(
+  if (
+    term.effectiveFrom === replacement.effectiveFrom
+    && term.effectiveThrough === replacement.effectiveThrough
+    && term.termKind === replacement.termKind
+  ) return succeeded(agreement.id, false);
+  const overlapError = employmentAgreementTermOverlapError(
     agreement.terms.filter((item) => item.id !== term.id),
     replacement,
   );
+  if (overlapError) return failed(overlapError, 409);
+  await claimAgreementVersion(tx, agreement.id, command.expectedVersion, userId, command.reason);
   await tx.employmentAgreementTerm.update({ where: { id: term.id }, data: { recordState: "superseded" } });
   await tx.employmentAgreementTerm.create({
     data: {
@@ -428,8 +446,22 @@ function nextTermSequence(terms: Array<{ sequence: number }>) {
   return Math.max(0, ...terms.map((term) => term.sequence)) + 1;
 }
 
-function succeeded(agreementId: number) {
-  return { ok: true as const, agreementId };
+async function claimAgreementVersion(
+  tx: Prisma.TransactionClient,
+  agreementId: number,
+  expectedVersion: number,
+  userId: number,
+  reason: string | null,
+) {
+  const claimed = await tx.employmentAgreement.updateMany({
+    where: { id: agreementId, version: expectedVersion, recordState: "confirmed" },
+    data: { version: { increment: 1 }, reason, updatedBy: userId },
+  });
+  if (claimed.count !== 1) return failed("协议已被其他人修改，请刷新后重试", 409);
+}
+
+function succeeded(agreementId: number, changed = true) {
+  return { ok: true as const, agreementId, changed };
 }
 
 function failed(error: string, status: number): never {
@@ -441,37 +473,4 @@ class EmploymentAgreementCommandError extends Error {
     super(message);
     this.name = "EmploymentAgreementCommandError";
   }
-}
-
-function validateAgreementTemporalContract(command: EmploymentAgreementCommand) {
-  if (businessTemporalRetrospectiveChanges(HR_EMPLOYMENT_AGREEMENT_TEMPORAL.policy) === "allow") return null;
-  const effectiveDate = command.kind === "create" || command.kind === "renew" || command.kind === "correct"
-    ? command.effectiveFrom
-    : command.kind === "end"
-      ? command.effectiveThrough
-      : null;
-  return effectiveDate && effectiveDate < workspaceBusinessDate(new Date())
-    ? "该合同期限不允许补录历史日期"
-    : null;
-}
-
-function assertAgreementTermOverlapAllowed(
-  existing: Array<{ recordState: string; effectiveFrom: string | null; effectiveThrough: string | null }>,
-  proposed: { effectiveFrom: string; effectiveThrough: string | null },
-) {
-  if (HR_EMPLOYMENT_AGREEMENT_TEMPORAL.policy.overlaps === "allow") return;
-  const proposedWindow = inclusiveBusinessPeriodToWindow({
-    validFrom: proposed.effectiveFrom,
-    validThrough: proposed.effectiveThrough,
-  });
-  if (!proposedWindow) return failed("合同期限无效", 409);
-  const overlaps = existing.some((term) => {
-    if (term.recordState !== "confirmed" || !term.effectiveFrom) return false;
-    const window = inclusiveBusinessPeriodToWindow({
-      validFrom: term.effectiveFrom,
-      validThrough: term.effectiveThrough,
-    });
-    return !window || businessDateWindowsOverlap(window, proposedWindow);
-  });
-  if (overlaps) return failed("合同期限不能与已有期限重叠", 409);
 }

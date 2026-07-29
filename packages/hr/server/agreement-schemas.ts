@@ -75,7 +75,7 @@ export const EmploymentAgreementCommandSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("end"),
     ...termTarget,
-    effectiveThrough: businessDate,
+    effectiveThrough: businessDate.optional(),
     ...commandMeta("end"),
   }).strict(),
   z.object({

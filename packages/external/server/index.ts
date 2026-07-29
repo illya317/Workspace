@@ -43,6 +43,7 @@ export {
   recordPartyLegalFactInTransaction,
 } from "./legal-fact-service";
 export type { PartyLegalFactSource, RecordPartyLegalFactInput } from "./legal-fact-service";
+export { externalDirectCommandId, externalDirectRoleEndInput } from "./direct-command-meta";
 export * from "./workspace-analysis-sources";
 export * from "./workspace-analysis-source-access";
 export * from "./workspace-analysis-source-executor";

@@ -2,13 +2,16 @@
 import { z } from "zod";
 import { readRequestExpectedVersion } from "@workspace/platform/server/api";
 import { failCommand, okCommand } from "@workspace/platform/server/domain-validation";
+import { directCommandId } from "@workspace/platform/server/direct-command-meta";
 
 import {
   buildHrRouteCommand,
   executePositionDescriptionQuery,
   updatePositionDescription,
 } from "@workspace/hr/server";
-import { createCommandRoute } from "@workspace/platform/server/api-route";const positionDescriptionQuerySchema = z.object({
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const positionDescriptionQuerySchema = z.object({
   code: z.string().optional(),
   id: z.string().optional(),
   positionId: z.string().optional(),
@@ -33,9 +36,8 @@ export const PUT = createCommandRoute({
   bodySchema: updatePositionDescriptionSchema,
   bodyError: "参数错误",
   buildCommand: ({ body, user, request }) => {
-    const revisionUid = request.headers.get("idempotency-key")?.trim();
+    const revisionUid = directCommandId(request);
     const expectedSequence = readRequestExpectedVersion(request);
-    if (!revisionUid) return failCommand("缺少 Idempotency-Key 请求头");
     if (expectedSequence === undefined) return failCommand("缺少 If-Match 当前修订序号", 409);
     return okCommand({ body: { ...body, revisionUid, expectedSequence }, userId: user.userId });
   },
