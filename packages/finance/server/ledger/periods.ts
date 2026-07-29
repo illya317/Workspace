@@ -148,8 +148,8 @@ export async function createFinancePeriod(input: CreateFinancePeriodInput) {
     data: {
       year: command.data.input.year,
       month: command.data.input.month,
-      startDate: command.data.input.startDate || periodDate(command.data.input.year, command.data.input.month, "01"),
-      endDate: command.data.input.endDate || periodDate(command.data.input.year, command.data.input.month, "31"),
+      startDate: command.data.input.startDate || periodDate(command.data.input.year, command.data.input.month, 1),
+      endDate: command.data.input.endDate || periodDate(command.data.input.year, command.data.input.month, 31),
       companyCode,
     },
   });

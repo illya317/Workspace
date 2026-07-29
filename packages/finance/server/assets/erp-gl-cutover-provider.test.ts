@@ -98,7 +98,7 @@ test("rejects exceptional allocation for multiple cards, accumulated controls, o
     );
     const accumulated = input(100);
     accumulated.authoritativeContext.balances[0]!.closingDebit = 150;
-    accumulated.assets[0]!.accumulatedAccountId = 30;
+    accumulated.assets[0]!.accumulatedAccountId = 30 as number | null;
     await assert.rejects(
       createFinanceAssetErpGlCutoverReconciler({ archiveRoot: root, spec: spec(), cutoffDate: "2026-06-30", selector: () => approved })(null, accumulated),
       /纯净额卡片/,
@@ -182,7 +182,7 @@ function input(workbookNetBookValue: number) {
       remainingUsefulLifeMonthsAtCutover: 2,
       cutoverResidualValue: 0,
       assetAccountId: 30,
-      accumulatedAccountId: null,
+      accumulatedAccountId: null as number | null,
       impairmentAllowanceAccountId: null,
     }],
   };

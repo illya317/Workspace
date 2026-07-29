@@ -301,7 +301,7 @@ function segmentItems(input: EditorInput, rule: BusinessCodeTemplateRule): FormS
             onChange: (value) => replace({ ...segment, format: String(value) }),
           },
         );
-      } else {
+      } else if (segment.kind === "sequence") {
         items.push({
           key: `${rule.key}-segment-sequence-length-${index}`,
           label: "流水位数",

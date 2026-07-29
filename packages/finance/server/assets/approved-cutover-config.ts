@@ -66,7 +66,7 @@ export function isExecutionApprovedGovernedReconciler(value: unknown): value is 
   return typeof value === "function" && APPROVED_RECONCILERS.has(value as FinanceAssetErpGlCutoverReconciler);
 }
 
-function parseApprovedConfig(raw: unknown, scope: Scope, configDirectory: string): ApprovedFinanceAssetCutoverConfig {
+function parseApprovedConfig(raw: unknown, scope: Scope, configDirectory: string): ApprovedConfig {
   if (scope.year !== 2026 || scope.month !== 6) throw new Error("当前历史资产迁移仅批准 2026-06-30 切点");
   const root = record(raw, "资产切点审批配置");
   if (root.executionApproved !== true) throw new Error("资产切点审批配置尚未显式批准执行");

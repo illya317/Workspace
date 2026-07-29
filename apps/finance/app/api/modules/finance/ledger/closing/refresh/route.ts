@@ -30,8 +30,8 @@ const executeRefreshFinanceCloseRouteCommand = bindExecuteRefreshFinanceCloseRou
 export const POST = createCommandRoute({
   bodySchema: refreshFinanceCloseSchema,
   bodyError: "刷新关账运行参数无效",
-  access: (userId) => authorize({ user: userId, resourceKey: "finance.ledger", action: "update" }),
+  access: (userId: number) => authorize({ user: userId, resourceKey: "finance.ledger", action: "update" }),
   accessError: "无关账刷新权限",
   buildCommand: ({ body, user }) => buildRefreshFinanceCloseRouteCommand(body, user.userId),
-  action: executeRefreshFinanceCloseRouteCommand,
+  action: (command) => executeRefreshFinanceCloseRouteCommand(command),
 });

@@ -8,7 +8,7 @@ import {
   createPageBody,
   createPageTabBar,
   createStatusSection,
-  type BodySurfaceProps,
+  type BodySurfaceSectionBodyProps,
   type BodySurfaceSectionSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
@@ -257,7 +257,7 @@ function TreasuryWorkspacePage({
   const reconciliationBody = useBankReconciliationView(props);
   const loansBody = useLoansView(props);
   const interestBody = useInterestView(props);
-  const bodies: Record<TreasuryView, BodySurfaceProps> = {
+  const bodies: Record<TreasuryView, BodySurfaceSectionBodyProps> = {
     "bank-accounts": bankAccountsBody,
     "bank-reconciliation": reconciliationBody,
     loans: loansBody,

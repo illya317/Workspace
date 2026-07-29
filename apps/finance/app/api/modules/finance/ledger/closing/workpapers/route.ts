@@ -12,17 +12,17 @@ import { financeCloseWorkpaperQuerySchema, saveFinanceCloseWorkpaperSchema } fro
 export const GET = createCommandRoute({
   querySchema: financeCloseWorkpaperQuerySchema,
   queryError: "关账底稿范围参数无效",
-  access: (userId) => authorize({ user: userId, resourceKey: "finance.ledger", action: "view" }),
+  access: (userId: number) => authorize({ user: userId, resourceKey: "finance.ledger", action: "read" }),
   accessError: "无关账底稿查看权限",
   buildCommand: ({ query }) => buildReadFinanceCloseWorkpapersRouteCommand(query),
-  action: executeReadFinanceCloseWorkpapersRouteCommand,
+  action: (command) => executeReadFinanceCloseWorkpapersRouteCommand(command),
 });
 
 export const PUT = createCommandRoute({
   bodySchema: saveFinanceCloseWorkpaperSchema,
   bodyError: "关账底稿保存参数无效",
-  access: (userId) => authorize({ user: userId, resourceKey: "finance.ledger", action: "update" }),
+  access: (userId: number) => authorize({ user: userId, resourceKey: "finance.ledger", action: "update" }),
   accessError: "无关账底稿编制权限",
   buildCommand: ({ body, user }) => buildSaveFinanceCloseWorkpaperRouteCommand(body, user.userId),
-  action: executeSaveFinanceCloseWorkpaperRouteCommand,
+  action: (command) => executeSaveFinanceCloseWorkpaperRouteCommand(command),
 });

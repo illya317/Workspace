@@ -4,7 +4,7 @@ import {
   createMetricsSection,
   createPageTableSection,
   type BodySurfaceSectionSpec,
-  type DataSurfaceCellSpec,
+  type DataSurfaceDisplaySpec,
   type DataSurfaceColumnSpec,
 } from "@workspace/core/ui";
 
@@ -133,7 +133,7 @@ export function taxReconciliationSections(workspace: TaxWorkspace): BodySurfaceS
       emptyText: "暂无勾稽快照",
     })] : []),
     ...(workspace.evidenceRefs.length > 0
-      ? [createMessageSection("tax-evidence-summary", { content: `当前期间已关联 ${workspace.evidenceRefs.length} 项来源证据`, tone: "info" })]
+      ? [createMessageSection("tax-evidence-summary", { content: `当前期间已关联 ${workspace.evidenceRefs.length} 项来源证据`, tone: "default" })]
       : [createEmptySection("tax-evidence-empty", { content: "当前期间暂无来源证据", presentation: "card" })]),
   ];
 }
@@ -244,17 +244,17 @@ function allocationFilingLabel(allocation: PaymentAllocationRow, workspace: TaxW
   return filing.filingReference || registrationLabel(filing.registrationId, workspace);
 }
 
-function status(value: string): DataSurfaceCellSpec {
+function status(value: string): DataSurfaceDisplaySpec {
   const success = ["active", "prepared", "reconciled", "filed", "accepted", "clear", "complete"].includes(value);
   const danger = ["blocked", "cancelled", "ended"].includes(value);
   return { kind: "badge", label: statusLabel(value), tone: success ? "green" : danger ? "red" : "gray" };
 }
 
-function amount(value: number | null | undefined): DataSurfaceCellSpec {
+function amount(value: number | null | undefined): DataSurfaceDisplaySpec {
   return { kind: "amount", value, currencySymbol: "", showZero: true };
 }
 
-function difference(value: number | null | undefined): DataSurfaceCellSpec {
+function difference(value: number | null | undefined): DataSurfaceDisplaySpec {
   if (value == null) return { kind: "empty", content: "—" };
   return { kind: "text", value: value.toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), tone: Math.abs(value) > 0.01 ? "warning" : "success", font: "mono" };
 }

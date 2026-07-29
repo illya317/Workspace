@@ -114,10 +114,11 @@ export function useBusinessCodeConfigTab({
       ]),
     };
   }
+  const loadedDraft = draft;
 
   async function saveTemplateAssignment(key: BusinessCodeObjectKey, templateKey: string) {
     try {
-      const next = selectBusinessCodeTemplate(draft, key, templateKey);
+      const next = selectBusinessCodeTemplate(loadedDraft, key, templateKey);
       await persistConfig(next);
       showToast("编码对象关联已保存", "success");
       return true;

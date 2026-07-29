@@ -133,7 +133,7 @@ export function useLoansView({ workspace, canCreate, canUpdate, mutate }: Treasu
         kind: "create",
         create: {
           id: "treasury-principal-event-create",
-          trigger: "surface",
+          trigger: "toolbar",
           presentation: "modal",
           title: "记录本金变动",
           open: Boolean(eventDraft),

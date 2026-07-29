@@ -2,7 +2,7 @@ import type { DayCountConvention, TreasuryCreateInput, TreasuryUpdateInput } fro
 
 export type CompanyReference = { id: number; code: string; isActive: boolean };
 export type PeriodReference = { id: number; companyCode: string; year: number; month: number; startDate: string; endDate: string; isClosed: boolean };
-export type AccountReference = { id: number; companyCode: string; year: number; isActive: boolean };
+export type AccountReference = { id: number; companyCode: string; year: number | null; isActive: boolean };
 export type VoucherItemReference = { id: number; companyCode: string; periodId: number };
 export type BankAccountReference = { id: number; companyId: number | null; companyCode: string; version: number };
 export type ReconciliationReference = { id: number; bankAccountId: number; periodId: number; version: number };

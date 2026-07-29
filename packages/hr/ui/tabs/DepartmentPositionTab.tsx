@@ -375,6 +375,7 @@ export default function DepartmentPositionTab({
         selectedPositionId={selectedPosition?.id ?? null}
         positions={positions}
         positionsByDepartment={positionsByDepartment}
+        codeConfig={codeConfig}
         selector={organizationRootSelector({
           loading,
           error,

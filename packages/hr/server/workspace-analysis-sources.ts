@@ -491,6 +491,7 @@ export const HR_COMPANIES_ANALYSIS_SOURCE = defineWorkspaceAnalysisReadModel<Com
     { key: "activeOnly", label: "仅有效公司", description: "是否只读取有效公司。", kind: "boolean", queryKey: "active" },
   ],
   fields: {
+    id: field({ label: "公司 ID", description: "公司主数据内部标识。", valueKind: "integer", sensitivity: "confidential" }),
     code: field({ label: "公司编码", description: "公司业务编码。", valueKind: "text", sensitivity: "internal" }),
     name: field({ label: "公司名称", description: "公司法定主体名称。", valueKind: "text", sensitivity: "internal" }),
     isActive: field({ label: "有效", description: "公司目录记录是否有效。", valueKind: "boolean", sensitivity: "internal" }),

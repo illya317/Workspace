@@ -9,8 +9,8 @@ import { reviewFinanceCloseWorkpaperSchema } from "@workspace/finance/server/clo
 export const POST = createCommandRoute({
   bodySchema: reviewFinanceCloseWorkpaperSchema,
   bodyError: "关账底稿复核参数无效",
-  access: (userId) => authorize({ user: userId, resourceKey: "finance.ledger", action: "approve" }),
+  access: (userId: number) => authorize({ user: userId, resourceKey: "finance.ledger", action: "approve" }),
   accessError: "无关账底稿复核权限",
   buildCommand: ({ body, user }) => buildReviewFinanceCloseWorkpaperRouteCommand(body, user.userId),
-  action: executeReviewFinanceCloseWorkpaperRouteCommand,
+  action: (command) => executeReviewFinanceCloseWorkpaperRouteCommand(command),
 });

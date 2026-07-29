@@ -85,7 +85,6 @@ export const registeredModuleDefinitions = [
   {
     packageName: "@workspace/work",
     layer: "domain",
-    relationRegistrations: INVENTORY_RELATION_REGISTRATIONS,
     moduleDef: {
       key: "work",
       label: "工作管理",
@@ -293,6 +292,7 @@ export const registeredModuleDefinitions = [
   {
     packageName: "@workspace/inventory",
     layer: "domain",
+    relationRegistrations: INVENTORY_RELATION_REGISTRATIONS,
     moduleDef: {
       key: "inventory",
       label: "存货管理",

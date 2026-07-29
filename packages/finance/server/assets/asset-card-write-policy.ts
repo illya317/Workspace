@@ -46,8 +46,8 @@ export function assetCardWriteData(
   };
 }
 
-export function assetAccountingBasisChanged(
-  existing: {
+type AssetAccountingBasis = {
+    assetCode?: string;
     companyCode: string;
     assetKind: string;
     categoryId: number;
@@ -76,8 +76,11 @@ export function assetAccountingBasisChanged(
     cutoverAccumulatedBalanceId: number | null;
     cutoverImpairmentBalanceId: number | null;
     nonAmortizationReason: string | null;
-  },
-  requested: ReturnType<typeof assetCardWriteData>,
+};
+
+export function assetAccountingBasisChanged(
+  existing: AssetAccountingBasis,
+  requested: AssetAccountingBasis,
 ) {
   return existing.companyCode !== requested.companyCode
     || existing.assetKind !== requested.assetKind

@@ -287,7 +287,7 @@ const workpaper: InterestWorkpaperWriteInput = {
 test("validates interest day count against period dates and convention", async () => {
   const deps = {
     findPeriod: async () => period,
-    findLoan: async () => ({ id: 20, companyId: 2, companyCode: "ZX02", startOn: new Date("2026-01-01Z"), endOn: null, version: 1, rateTermConventions: ["actual_365"] }),
+    findLoan: async () => ({ id: 20, companyId: 2, companyCode: "ZX02", startOn: new Date("2026-01-01Z"), endOn: null, version: 1, rateTermConventions: ["actual_365" as const] }),
     findVoucherItems: async () => [],
   };
   const accepted = await buildTreasuryCreateCommand({ kind: "interest_workpaper_create", ...workpaper }, 7, deps);

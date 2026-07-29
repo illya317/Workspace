@@ -27,7 +27,7 @@ export function readOnlyBusinessCodeEditorItems(
         kind: "readonly",
         key: item.key,
         label: item.label,
-        value: selected?.label ?? item.value ?? "—",
+        value: selected?.label ?? String(item.value ?? "—"),
         hint: item.hint,
         error: item.error,
         span: item.span,

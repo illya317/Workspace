@@ -431,8 +431,8 @@ function createHarness(options: {
           version: Number(storedCard.version) + (version?.increment ?? 0),
         };
         storedCard = persisted;
-        capture.persistedAssetCode = String(persisted["assetCode"]);
-        capture.persistedStatus = String(persisted["status"]);
+        capture.persistedAssetCode = String((persisted as Record<string, unknown>).assetCode);
+        capture.persistedStatus = String((persisted as Record<string, unknown>).status);
         return { count: 1 };
       },
       create: async (args: { data: Record<string, unknown> }) => {

@@ -12,7 +12,6 @@ import { date, dateDto, timestampDto, traceData, traceDto } from "./serializatio
 import { principalEventMatchesInput, type TreasuryCreateCommand, type TreasuryUpdateCommand } from "./validation";
 import { validateTreasuryCreatePersistenceCommand, validateTreasuryUpdatePersistenceCommand } from "../domain/treasury-validation";
 import { buildTreasuryBlockers } from "./workspace-blockers";
-
 const voucherItemDisplay = { select: { sortOrder: true, voucher: { select: { voucherNo: true } }, account: { select: { code: true, name: true } } } } as const;
 const principalEventInclude = { voucherItem: voucherItemDisplay } satisfies Prisma.FinanceLoanPrincipalEventInclude;
 const bankAccountInclude = { account: { select: { year: true, code: true, name: true } } } satisfies Prisma.FinanceBankAccountInclude;
@@ -28,14 +27,15 @@ const workpaperInclude = {
   lines: { orderBy: { lineNo: "asc" as const } },
   voucherLinks: { include: { voucherItem: voucherItemDisplay }, orderBy: { id: "asc" as const } },
 } satisfies Prisma.FinanceInterestWorkpaperInclude;
-
 type BankAccountRow = Prisma.FinanceBankAccountGetPayload<{ include: typeof bankAccountInclude }>;
 type ReconciliationRow = Prisma.FinanceBankReconciliationGetPayload<{ include: typeof reconciliationInclude }>;
 type LoanRow = Prisma.FinanceLoanGetPayload<{ include: typeof loanInclude }>;
 type PrincipalEventRow = Prisma.FinanceLoanPrincipalEventGetPayload<{ include: typeof principalEventInclude }>;
 type WorkpaperRow = Prisma.FinanceInterestWorkpaperGetPayload<{ include: typeof workpaperInclude }>;
+
 function bankAccountData(input: BankAccountWriteInput, companyId: number) {
   return {
+    ...traceData(input),
     companyId,
     companyCode: input.companyCode,
     accountId: input.accountId ?? null,
@@ -50,10 +50,8 @@ function bankAccountData(input: BankAccountWriteInput, companyId: number) {
     openedOn: date(input.openedOn),
     closedOn: date(input.closedOn),
     isActive: input.isActive,
-    ...traceData(input),
   };
 }
-
 function reconciliationItemData(input: BankReconciliationItemInput) {
   return {
     voucherItemId: input.voucherItemId ?? null,
@@ -67,7 +65,6 @@ function reconciliationItemData(input: BankReconciliationItemInput) {
     ...traceData(input),
   };
 }
-
 function rateTermData(input: LoanRateTermInput) {
   return {
     effectiveFrom: date(input.effectiveFrom)!,
@@ -80,7 +77,6 @@ function rateTermData(input: LoanRateTermInput) {
     ...traceData(input),
   };
 }
-
 function interestLineData(input: InterestWorkpaperLineInput) {
   return {
     lineNo: input.lineNo,
@@ -94,7 +90,6 @@ function interestLineData(input: InterestWorkpaperLineInput) {
     ...traceData(input),
   };
 }
-
 function voucherLinkData(input: InterestVoucherLinkInput) {
   return {
     voucherItemId: input.voucherItemId,
@@ -104,13 +99,12 @@ function voucherLinkData(input: InterestVoucherLinkInput) {
     ...traceData(input),
   };
 }
-
 function voucherItemName(row: { sortOrder: number; voucher: { voucherNo: string }; account: { code: string; name: string } } | null) {
   return row ? `${row.voucher.voucherNo} · 分录 ${row.sortOrder + 1}` : null;
 }
-
 function toBankAccountDto(row: BankAccountRow): TreasuryBankAccountDto {
   return {
+    ...traceDto(row),
     id: row.id,
     version: row.version,
     companyId: row.companyId,
@@ -130,7 +124,6 @@ function toBankAccountDto(row: BankAccountRow): TreasuryBankAccountDto {
     openedOn: dateDto(row.openedOn),
     closedOn: dateDto(row.closedOn),
     isActive: row.isActive,
-    ...traceDto(row),
     createdAt: timestampDto(row.createdAt),
     updatedAt: timestampDto(row.updatedAt),
   };
@@ -142,7 +135,7 @@ function toReconciliationDto(row: ReconciliationRow): TreasuryBankReconciliation
     version: item.version,
     voucherItemId: item.voucherItemId,
     voucherItemName: voucherItemName(item.voucherItem),
-    itemKind: item.itemKind,
+    itemKind: reconciliationItemKind(item.itemKind),
     occurredOn: dateDto(item.occurredOn),
     referenceNo: item.referenceNo,
     description: item.description,
@@ -303,7 +296,6 @@ async function loadBankAccount(id: number) {
   if (!row) throw new Error("银行账户不存在");
   return toBankAccountDto(row);
 }
-
 async function loadReconciliation(id: number) {
   const row = await prisma.financeBankReconciliation.findUnique({ where: { id }, include: reconciliationInclude });
   if (!row) throw new Error("银行对账单不存在");
@@ -421,10 +413,18 @@ async function casUpdate(
   version: number,
   data: object,
 ) {
-  const result = await tx[delegate].updateMany({ where: { id, version }, data: { ...data, version: { increment: 1 } } });
+  const update = { where: { id, version }, data: { ...data, version: { increment: 1 } } };
+  const result = delegate === "financeBankAccount"
+    ? await tx.financeBankAccount.updateMany(update)
+    : delegate === "financeBankReconciliation"
+      ? await tx.financeBankReconciliation.updateMany(update)
+      : delegate === "financeLoan" ? await tx.financeLoan.updateMany(update) : await tx.financeInterestWorkpaper.updateMany(update);
   if (result.count !== 1) throw new Error("记录已被其他人修改，请刷新后重试");
 }
-
+function reconciliationItemKind(value: string): BankReconciliationItemInput["itemKind"] {
+  if (value === "bank_adjustment" || value === "ledger_adjustment") return value;
+  throw new Error(`未知银行对账未达项类型: ${value}`);
+}
 export async function executeTreasuryUpdate(command: TreasuryUpdateCommand) {
   const checked = await validateTreasuryUpdatePersistenceCommand(command);
   if (!checked.ok) throw new Error(checked.issue.message);

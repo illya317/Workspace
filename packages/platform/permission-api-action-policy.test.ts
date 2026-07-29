@@ -166,7 +166,12 @@ test("Finance asset accounting uses its own write and export permissions", () =>
   assert.deepEqual(deleteAction?.apiRoutes, [{ method: "DELETE", path: "/api/modules/finance/assets/policies" }]);
   assert.equal(deleteContract?.kind, "lifecycle");
   assert.equal(deleteContract?.resource.directPermissionAction, "update");
-  assert.equal(deleteContract?.domain.validatorKey, "packages/finance/server/assets/route-commands.buildDeleteFinanceAssetCategoryPolicyRouteCommand");
+  assert.equal(
+    deleteContract?.domain && "validatorKey" in deleteContract.domain
+      ? deleteContract.domain.validatorKey
+      : undefined,
+    "packages/finance/server/assets/route-commands.buildDeleteFinanceAssetCategoryPolicyRouteCommand",
+  );
 });
 
 test("Finance treasury and tax workspace routes use their own read and write permissions", () => {

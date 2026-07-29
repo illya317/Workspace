@@ -10,5 +10,5 @@ export const GET = createCommandRoute({
   querySchema: taxReferenceOptionsQuerySchema,
   queryError: "税务引用候选项参数无效",
   buildCommand: ({ query }) => okCommand(query),
-  action: executeTaxReferenceOptionsCommand,
+  action: (command) => executeTaxReferenceOptionsCommand(command),
 });

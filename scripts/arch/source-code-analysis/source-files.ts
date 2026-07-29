@@ -72,13 +72,13 @@ export function isGeneratedSource(text: string) {
 
 function countTypeScriptSourceLines(text: string) {
   const scanner = ts.createScanner(ts.ScriptTarget.Latest, true, ts.LanguageVariant.JSX, text);
-  const lineStarts = ts.computeLineStarts(text);
+  const sourceFile = ts.createSourceFile("source.tsx", text, ts.ScriptTarget.Latest, false, ts.ScriptKind.TSX);
   const lines = new Set<number>();
   for (let token = scanner.scan(); token !== ts.SyntaxKind.EndOfFileToken; token = scanner.scan()) {
     const start = scanner.getTokenPos();
     const end = scanner.getTextPos();
-    const startLine = ts.computeLineAndCharacterOfPosition(lineStarts, start).line;
-    const endLine = ts.computeLineAndCharacterOfPosition(lineStarts, Math.max(start, end - 1)).line;
+    const startLine = sourceFile.getLineAndCharacterOfPosition(start).line;
+    const endLine = sourceFile.getLineAndCharacterOfPosition(Math.max(start, end - 1)).line;
     for (let line = startLine; line <= endLine; line += 1) lines.add(line);
   }
   return lines.size;

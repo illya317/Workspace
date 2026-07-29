@@ -244,7 +244,7 @@ export function reconciliationSections(
           onClick: () => update("items", [...draft.items, emptyReconciliationItem()]),
         },
         items: draft.items.map((item, index) => ({
-          key: item.id ?? `new-${index}`,
+          key: String(item.id ?? `new-${index}`),
           title: `未达项 ${index + 1}`,
           subtitle: item.id ? "已保存明细只能更新，不能在本次保存中删除" : undefined,
           actions: readOnly || item.id ? undefined : [{
@@ -318,7 +318,7 @@ export function loanSections(
           onClick: () => update("rateTerms", [...draft.rateTerms, emptyRateTerm(draft.startOn)]),
         },
         items: draft.rateTerms.map((term, index) => ({
-          key: term.id ?? `new-${index}`,
+          key: String(term.id ?? `new-${index}`),
           title: `利率条款 ${index + 1}`,
           subtitle: term.id ? "已保存条款只能更新，不能在本次保存中删除" : undefined,
           actions: readOnly || term.id ? undefined : [{
@@ -429,7 +429,7 @@ export function interestSections(
         layout: { columns: 3, density: "compact" },
         addAction: readOnly ? undefined : { key: "add-line", label: "新增计息行", icon: "add", onClick: () => update("lines", [...draft.lines, emptyInterestLine(draft)]) },
         items: draft.lines.map((line, index) => ({
-          key: line.id ?? `new-${index}`,
+          key: String(line.id ?? `new-${index}`),
           title: `计息行 ${index + 1}`,
           subtitle: line.id ? "已保存明细只能更新，不能在本次保存中删除" : undefined,
           actions: readOnly || line.id ? undefined : [{ key: `remove-line-${index}`, label: "删除", icon: "delete", variant: "danger", onClick: () => update("lines", draft.lines.filter((_, lineIndex) => lineIndex !== index)) }],
@@ -457,7 +457,7 @@ export function interestSections(
         layout: { columns: 3, density: "compact" },
         addAction: readOnly ? undefined : { key: "add-voucher", label: "新增凭证链接", icon: "add", onClick: () => update("voucherLinks", [...draft.voucherLinks, emptyVoucherLink()]) },
         items: draft.voucherLinks.map((link, index) => ({
-          key: link.id ?? `new-${index}`,
+          key: String(link.id ?? `new-${index}`),
           title: `凭证链接 ${index + 1}`,
           subtitle: link.id ? "已保存链接只能更新，不能在本次保存中删除" : undefined,
           actions: readOnly || link.id ? undefined : [{ key: `remove-voucher-${index}`, label: "删除", icon: "delete", variant: "danger", onClick: () => update("voucherLinks", draft.voucherLinks.filter((_, linkIndex) => linkIndex !== index)) }],

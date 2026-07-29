@@ -309,20 +309,23 @@ export async function buildTaxCreateCommand(
     const result = await validateTaxRegistration(input, dependencies);
     if (!result.ok) return result;
     const company = await dependencies.findCompanyByCode(input.companyCode);
-    return company ? okCommand({ input: result.data, userId, companyId: company.id }) : failCommand("公司不存在或未启用", 400, "companyCode");
+    return company ? okCommand({ input, userId, companyId: company.id }) : failCommand("公司不存在或未启用", 400, "companyCode");
   }
   if (input.kind === "workpaper_create") {
     const result = await validateTaxWorkpaper(input, dependencies);
-    return result.ok ? okCommand({ input: result.data, userId, calculation: workpaperCalculation(input) }) : result;
+    return result.ok ? okCommand({ input, userId, calculation: workpaperCalculation(input) }) : result;
   }
   if (input.kind === "filing_create") {
     const result = await validateTaxFiling(input, dependencies);
-    return result.ok ? okCommand({ input: result.data, userId }) : result;
+    return result.ok ? okCommand({ input, userId }) : result;
   }
   const result = await validateTaxPayment(input, dependencies);
   if (!result.ok) return result;
   const company = await dependencies.findCompanyByCode(input.companyCode);
-  return company ? okCommand({ input, userId, companyId: company.id, idempotentRecordId: result.data.idempotentRecordId }) : failCommand("公司不存在或未启用", 400, "companyCode");
+  const idempotentRecordId = "idempotentRecordId" in result.data && typeof result.data.idempotentRecordId === "number"
+    ? result.data.idempotentRecordId
+    : undefined;
+  return company ? okCommand({ input, userId, companyId: company.id, idempotentRecordId }) : failCommand("公司不存在或未启用", 400, "companyCode");
 }
 
 export async function buildTaxUpdateCommand(

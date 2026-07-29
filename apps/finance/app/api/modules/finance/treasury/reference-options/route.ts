@@ -10,5 +10,5 @@ export const GET = createCommandRoute({
   querySchema: treasuryReferenceOptionsQuerySchema,
   queryError: "资金管理引用候选项参数无效",
   buildCommand: ({ query }) => okCommand(query),
-  action: executeTreasuryReferenceOptionsCommand,
+  action: (command) => executeTreasuryReferenceOptionsCommand(command),
 });

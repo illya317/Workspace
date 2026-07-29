@@ -38,7 +38,7 @@ test("ActionContract commit adapter remains directly executable and fails closed
 
   const contract = getActionContractMetadata("finance.ledger.close.refresh");
   assert.equal(
-    contract?.domain?.commitKey,
+    contract?.domain && "commitKey" in contract.domain ? contract.domain.commitKey : undefined,
     "packages/finance/server/close/route-commands.executeRefreshFinanceCloseRouteCommand",
   );
 });

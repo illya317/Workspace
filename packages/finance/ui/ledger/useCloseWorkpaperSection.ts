@@ -152,7 +152,7 @@ export function useCloseWorkpaperSection(input: {
       });
       const data = await response.json().catch(() => null) as FinanceCloseWorkpaperDto | { error?: string } | null;
       if (!response.ok) throw new Error(data && "error" in data ? data.error || "关账底稿保存失败" : `关账底稿保存失败 (${response.status})`);
-      if (!data || "error" in data || !closeWorkpaperMutationMatches(data, requestedTaskKey, requestedVersion)) {
+      if (!isCloseWorkpaperDto(data) || !closeWorkpaperMutationMatches(data, requestedTaskKey, requestedVersion)) {
         throw new Error("关账底稿保存结果与当前任务或版本不一致");
       }
       if (!mutationGate.isCurrent(ticket) || !contextTracker.isCurrent(contextKey)) return;
@@ -185,7 +185,7 @@ export function useCloseWorkpaperSection(input: {
           ? "已完成独立复核；再次保存会显式退回编制状态并清除旧复核。"
           : "提交复核需填写结论，并至少提供一项受控证据或同公司同期间已记账凭证。",
       },
-      content: { items: fields, layout: { flow: "grid", columns: 2, density: "compact", commandPlacement: "below" } },
+      content: { items: fields, layout: { flow: "grid", columns: 2, density: "compact" } },
       actions: [{
         key: "save-workpaper",
         action: "save",
@@ -221,9 +221,13 @@ function isAbortError(value: unknown) {
 
 function textarea(key: string, label: string, value: string, onChange: (value: string) => void, readOnly: boolean): FormSurfaceFieldSpec {
   return {
-    key, label, spec: { valueType: "string", control: "textarea" }, value, readOnly, span: 2,
+    key, label, spec: { valueType: "string", control: "text", multiline: true }, value, readOnly, span: 2,
     onChange: (next) => onChange(String(next ?? "")),
   };
+}
+
+function isCloseWorkpaperDto(value: FinanceCloseWorkpaperDto | { error?: string } | null): value is FinanceCloseWorkpaperDto {
+  return Boolean(value && "id" in value && "version" in value && "taskKey" in value);
 }
 
 function choice(

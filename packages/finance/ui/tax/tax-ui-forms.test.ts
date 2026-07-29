@@ -65,6 +65,8 @@ test("Tax accrual and payment voucher references are remotely scoped to their bu
   });
 
   const payment = createTaxDraft("payment", scope);
+  assert.equal(payment.kind, "payment");
+  if (payment.kind !== "payment") throw new Error("Expected payment draft");
   const allocation = fields(sections(payment)).find((item) => item.label === "缴款凭证明细");
   assert.ok(allocation);
   assert.deepEqual(allocation.spec.options, {
@@ -79,6 +81,7 @@ test("Tax accrual and payment voucher references are remotely scoped to their bu
 
 test("Tax forms keep technical persistence fields out of the business interface", () => {
   const payment = createTaxDraft("payment", scope);
+  if (payment.kind !== "payment") throw new Error("Expected payment draft");
   payment.idempotencyKey = "internal-idempotency-key";
   payment.sourceReleaseId = "internal-release-id";
   payment.sourceKey = "internal-source-key";
@@ -88,6 +91,8 @@ test("Tax forms keep technical persistence fields out of the business interface"
   assert.match(paymentSurface, /税款缴纳回执\.xlsx/);
 
   const workpaper = createTaxDraft("workpaper", scope);
+  assert.equal(workpaper.kind, "workpaper");
+  if (workpaper.kind !== "workpaper") throw new Error("Expected workpaper draft");
   workpaper.id = 41;
   workpaper.version = 3;
   workpaper.accrualLines[0]!.id = 51;

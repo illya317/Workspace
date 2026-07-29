@@ -58,7 +58,6 @@ export async function resolveAgentExecutionContext(
       actorUser: {
         select: {
           canLogin: true,
-          employeeId: true,
           employees: {
             select: {
               id: true,
@@ -98,9 +97,6 @@ export async function resolveAgentExecutionContext(
 
   const employee = profile.actorUser.employees[0];
   const virtualPersonnelType = getTenantProfile().hr.options.virtualEmployeePersonnelType;
-  if (profile.actorUser.employeeId !== employee.employeeId) {
-    throw new AgentExecutionError("Agent 执行账号与员工工号绑定不一致", 409);
-  }
   if (
     employee.employments.length !== 1
     || employee.employments[0].personnelType !== virtualPersonnelType

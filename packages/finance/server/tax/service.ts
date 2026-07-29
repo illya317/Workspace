@@ -35,9 +35,9 @@ function parseDate(value: string | null | undefined) {
   return value ? new Date(`${value}T00:00:00.000Z`) : null;
 }
 
-function registrationData(input: Extract<TaxCreateInput | TaxUpdateInput, { kind: "registration_create" | "registration_update" }>, companyId?: number) {
+function registrationData(input: Extract<TaxCreateInput | TaxUpdateInput, { kind: "registration_create" | "registration_update" }>, companyId: number) {
   return {
-    ...(companyId == null ? {} : { companyId }),
+    companyId,
     taxTypeId: input.taxTypeId,
     authorityPartyId: input.authorityPartyId ?? null,
     registrationNo: input.registrationNo,
