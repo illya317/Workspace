@@ -46,24 +46,25 @@ test("员工档案所有来源字段都有可审计的编辑入口", {
   await expectReadOnlyField(page, "农历生日");
 
   await page.getByRole("tab", { name: "雇佣关系", exact: true }).click();
-  for (const label of ["人员类型", "职级", "职务", "办公地点"]) {
+  for (const label of ["人员类型", "职级", "职务", "入职日期", "办公地点", "离职日期", "离职原因"]) {
     await expectEditableField(page, label);
   }
-  await page.getByRole("button", { name: "纠正这条记录", exact: true }).filter({ visible: true }).first().click();
-  for (const label of ["用工公司", "开始日期", "结束日期", "纠正原因"]) {
-    await expectEditableField(page, label, "纠正雇佣历史");
+  await expectDisabledField(page, "在职");
+  for (const label of [
+    "用工主体",
+    "法律关系",
+    "协议类型",
+    "用工形式",
+    "首签开始",
+    "首签到期",
+    "续签一开始",
+    "续签一到期",
+    "续签二开始",
+    "续签二到期",
+    "无固定期限",
+  ]) {
+    await expectEditableField(page, label);
   }
-
-  await page.getByRole("row").filter({ hasText: "劳动合同" }).first().click();
-  await expect(
-    page
-      .getByText("协议资料待补充：第 3 期到期日期。不影响正常续签或终止。", { exact: true })
-      .filter({ visible: true })
-      .first(),
-  ).toBeVisible();
-  await expectEditableField(page, "第 3 期到期日期");
-  await expectEditableField(page, "补充说明");
-  await expect(page.getByRole("button", { name: "保存补充资料", exact: true }).filter({ visible: true }).first()).toBeDisabled();
 
   await page.getByRole("tab", { name: "社会保险", exact: true }).click();
   await page.getByRole("row").filter({ hasText: "已参保" }).first().click();
@@ -72,10 +73,9 @@ test("员工档案所有来源字段都有可审计的编辑入口", {
     await expectEditableField(page, label);
   }
 
-  await page.getByRole("tab", { name: "任职管理", exact: true }).click();
-  await page.getByRole("button", { name: "纠正这条记录", exact: true }).filter({ visible: true }).first().click();
-  for (const label of ["汇报公司", "部门", "岗位", "主岗", "岗位投入权重", "汇报岗位", "开始日期", "结束日期", "纠正原因"]) {
-    await expectEditableField(page, label, "纠正任职历史");
+  await page.getByRole("tab", { name: "部门岗位", exact: true }).click();
+  for (const label of ["汇报公司", "部门", "岗位", "主岗", "岗位投入权重", "汇报岗位", "开始日期", "结束日期"]) {
+    await expectEditableField(page, label);
   }
 });
 
@@ -95,6 +95,16 @@ async function expectReadOnlyField(page: Page, label: string) {
   const cell = fieldCell(page.locator("body"), label);
   await expect(cell, `${label} field`).toBeVisible();
   await expect(cell.locator("input:not([type=hidden]), textarea, button").filter({ visible: true })).toHaveCount(0);
+}
+
+async function expectDisabledField(page: Page, label: string) {
+  const cell = fieldCell(page.locator("body"), label);
+  await expect(cell, `${label} field`).toBeVisible();
+  const controls = cell.locator("input:not([type=hidden]), textarea, button").filter({ visible: true });
+  expect(await controls.count(), `${label} should expose a disabled control`).toBeGreaterThan(0);
+  for (const control of await controls.all()) {
+    await expect(control, `${label} control`).toBeDisabled();
+  }
 }
 
 function fieldCell(scope: Locator, label: string) {
