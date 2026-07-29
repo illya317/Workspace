@@ -17723,6 +17723,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                       description: "network 分支声明。",
                                                       children: [
                                                         {
+                                                          name: "presentation",
+                                                          description: "可选值：diagram / map。",
+                                                          children: [
+                                                            {
+                                                              name: "diagram",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "map",
+                                                              description: "字面量取值。",
+                                                            },
+                                                          ],
+                                                        },
+                                                        {
                                                           name: "layout",
                                                           description: "类型：VisualizationNetworkLayoutSpec。",
                                                           children: [
@@ -17959,6 +17973,42 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         {
                                                           name: "focusNodeKey",
                                                           description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "onNodeSelect",
+                                                          description: "类型：(nodeKey: string) => void。",
+                                                        },
+                                                        {
+                                                          name: "backNavigation",
+                                                          description: "类型：VisualizationNetworkBackNavigationSpec。",
+                                                          children: [
+                                                            {
+                                                              name: "label",
+                                                              description: "类型：string。",
+                                                            },
+                                                            {
+                                                              name: "onActivate",
+                                                              description: "类型：() => void。",
+                                                            },
+                                                          ],
+                                                        },
+                                                        {
+                                                          name: "edgeDirectionLegend",
+                                                          description: "类型：VisualizationNetworkEdgeDirectionLegendSpec。",
+                                                          children: [
+                                                            {
+                                                              name: "outgoingLabel",
+                                                              description: "类型：string。",
+                                                            },
+                                                            {
+                                                              name: "incomingLabel",
+                                                              description: "类型：string。",
+                                                            },
+                                                            {
+                                                              name: "selfReferenceLabel",
+                                                              description: "类型：string。",
+                                                            },
+                                                          ],
                                                         },
                                                         {
                                                           name: "height",
@@ -27649,6 +27699,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                       description: "network 分支声明。",
                                                       children: [
                                                         {
+                                                          name: "presentation",
+                                                          description: "可选值：diagram / map。",
+                                                          children: [
+                                                            {
+                                                              name: "diagram",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "map",
+                                                              description: "字面量取值。",
+                                                            },
+                                                          ],
+                                                        },
+                                                        {
                                                           name: "layout",
                                                           description: "类型：VisualizationNetworkLayoutSpec。",
                                                           children: [
@@ -27885,6 +27949,42 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         {
                                                           name: "focusNodeKey",
                                                           description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "onNodeSelect",
+                                                          description: "类型：(nodeKey: string) => void。",
+                                                        },
+                                                        {
+                                                          name: "backNavigation",
+                                                          description: "类型：VisualizationNetworkBackNavigationSpec。",
+                                                          children: [
+                                                            {
+                                                              name: "label",
+                                                              description: "类型：string。",
+                                                            },
+                                                            {
+                                                              name: "onActivate",
+                                                              description: "类型：() => void。",
+                                                            },
+                                                          ],
+                                                        },
+                                                        {
+                                                          name: "edgeDirectionLegend",
+                                                          description: "类型：VisualizationNetworkEdgeDirectionLegendSpec。",
+                                                          children: [
+                                                            {
+                                                              name: "outgoingLabel",
+                                                              description: "类型：string。",
+                                                            },
+                                                            {
+                                                              name: "incomingLabel",
+                                                              description: "类型：string。",
+                                                            },
+                                                            {
+                                                              name: "selfReferenceLabel",
+                                                              description: "类型：string。",
+                                                            },
+                                                          ],
                                                         },
                                                         {
                                                           name: "height",
@@ -37733,6 +37833,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "network 分支声明。",
                                                   children: [
                                                     {
+                                                      name: "presentation",
+                                                      description: "可选值：diagram / map。",
+                                                      children: [
+                                                        {
+                                                          name: "diagram",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "map",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
                                                       name: "layout",
                                                       description: "类型：VisualizationNetworkLayoutSpec。",
                                                       children: [
@@ -37969,6 +38083,42 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     {
                                                       name: "focusNodeKey",
                                                       description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "onNodeSelect",
+                                                      description: "类型：(nodeKey: string) => void。",
+                                                    },
+                                                    {
+                                                      name: "backNavigation",
+                                                      description: "类型：VisualizationNetworkBackNavigationSpec。",
+                                                      children: [
+                                                        {
+                                                          name: "label",
+                                                          description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "onActivate",
+                                                          description: "类型：() => void。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      name: "edgeDirectionLegend",
+                                                      description: "类型：VisualizationNetworkEdgeDirectionLegendSpec。",
+                                                      children: [
+                                                        {
+                                                          name: "outgoingLabel",
+                                                          description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "incomingLabel",
+                                                          description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "selfReferenceLabel",
+                                                          description: "类型：string。",
+                                                        },
+                                                      ],
                                                     },
                                                     {
                                                       name: "height",
@@ -39361,6 +39511,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                       description: "network 分支声明。",
                                       children: [
                                         {
+                                          name: "presentation",
+                                          description: "可选值：diagram / map。",
+                                          children: [
+                                            {
+                                              name: "diagram",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "map",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
+                                        },
+                                        {
                                           name: "layout",
                                           description: "类型：VisualizationNetworkLayoutSpec。",
                                           children: [
@@ -39597,6 +39761,42 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         {
                                           name: "focusNodeKey",
                                           description: "类型：string。",
+                                        },
+                                        {
+                                          name: "onNodeSelect",
+                                          description: "类型：(nodeKey: string) => void。",
+                                        },
+                                        {
+                                          name: "backNavigation",
+                                          description: "类型：VisualizationNetworkBackNavigationSpec。",
+                                          children: [
+                                            {
+                                              name: "label",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "onActivate",
+                                              description: "类型：() => void。",
+                                            },
+                                          ],
+                                        },
+                                        {
+                                          name: "edgeDirectionLegend",
+                                          description: "类型：VisualizationNetworkEdgeDirectionLegendSpec。",
+                                          children: [
+                                            {
+                                              name: "outgoingLabel",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "incomingLabel",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "selfReferenceLabel",
+                                              description: "类型：string。",
+                                            },
+                                          ],
                                         },
                                         {
                                           name: "height",
@@ -76817,6 +77017,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                   description: "network 分支声明。",
                                                                   children: [
                                                                     {
+                                                                      name: "presentation",
+                                                                      description: "可选值：diagram / map。",
+                                                                      children: [
+                                                                        {
+                                                                          name: "diagram",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                        {
+                                                                          name: "map",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                      ],
+                                                                    },
+                                                                    {
                                                                       name: "layout",
                                                                       description: "类型：VisualizationNetworkLayoutSpec。",
                                                                       children: [
@@ -77053,6 +77267,42 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     {
                                                                       name: "focusNodeKey",
                                                                       description: "类型：string。",
+                                                                    },
+                                                                    {
+                                                                      name: "onNodeSelect",
+                                                                      description: "类型：(nodeKey: string) => void。",
+                                                                    },
+                                                                    {
+                                                                      name: "backNavigation",
+                                                                      description: "类型：VisualizationNetworkBackNavigationSpec。",
+                                                                      children: [
+                                                                        {
+                                                                          name: "label",
+                                                                          description: "类型：string。",
+                                                                        },
+                                                                        {
+                                                                          name: "onActivate",
+                                                                          description: "类型：() => void。",
+                                                                        },
+                                                                      ],
+                                                                    },
+                                                                    {
+                                                                      name: "edgeDirectionLegend",
+                                                                      description: "类型：VisualizationNetworkEdgeDirectionLegendSpec。",
+                                                                      children: [
+                                                                        {
+                                                                          name: "outgoingLabel",
+                                                                          description: "类型：string。",
+                                                                        },
+                                                                        {
+                                                                          name: "incomingLabel",
+                                                                          description: "类型：string。",
+                                                                        },
+                                                                        {
+                                                                          name: "selfReferenceLabel",
+                                                                          description: "类型：string。",
+                                                                        },
+                                                                      ],
                                                                     },
                                                                     {
                                                                       name: "height",
@@ -86743,6 +86993,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                   description: "network 分支声明。",
                                                                   children: [
                                                                     {
+                                                                      name: "presentation",
+                                                                      description: "可选值：diagram / map。",
+                                                                      children: [
+                                                                        {
+                                                                          name: "diagram",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                        {
+                                                                          name: "map",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                      ],
+                                                                    },
+                                                                    {
                                                                       name: "layout",
                                                                       description: "类型：VisualizationNetworkLayoutSpec。",
                                                                       children: [
@@ -86979,6 +87243,42 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     {
                                                                       name: "focusNodeKey",
                                                                       description: "类型：string。",
+                                                                    },
+                                                                    {
+                                                                      name: "onNodeSelect",
+                                                                      description: "类型：(nodeKey: string) => void。",
+                                                                    },
+                                                                    {
+                                                                      name: "backNavigation",
+                                                                      description: "类型：VisualizationNetworkBackNavigationSpec。",
+                                                                      children: [
+                                                                        {
+                                                                          name: "label",
+                                                                          description: "类型：string。",
+                                                                        },
+                                                                        {
+                                                                          name: "onActivate",
+                                                                          description: "类型：() => void。",
+                                                                        },
+                                                                      ],
+                                                                    },
+                                                                    {
+                                                                      name: "edgeDirectionLegend",
+                                                                      description: "类型：VisualizationNetworkEdgeDirectionLegendSpec。",
+                                                                      children: [
+                                                                        {
+                                                                          name: "outgoingLabel",
+                                                                          description: "类型：string。",
+                                                                        },
+                                                                        {
+                                                                          name: "incomingLabel",
+                                                                          description: "类型：string。",
+                                                                        },
+                                                                        {
+                                                                          name: "selfReferenceLabel",
+                                                                          description: "类型：string。",
+                                                                        },
+                                                                      ],
                                                                     },
                                                                     {
                                                                       name: "height",
@@ -96827,6 +97127,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               description: "network 分支声明。",
                                                               children: [
                                                                 {
+                                                                  name: "presentation",
+                                                                  description: "可选值：diagram / map。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "diagram",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "map",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                  ],
+                                                                },
+                                                                {
                                                                   name: "layout",
                                                                   description: "类型：VisualizationNetworkLayoutSpec。",
                                                                   children: [
@@ -97063,6 +97377,42 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 {
                                                                   name: "focusNodeKey",
                                                                   description: "类型：string。",
+                                                                },
+                                                                {
+                                                                  name: "onNodeSelect",
+                                                                  description: "类型：(nodeKey: string) => void。",
+                                                                },
+                                                                {
+                                                                  name: "backNavigation",
+                                                                  description: "类型：VisualizationNetworkBackNavigationSpec。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "label",
+                                                                      description: "类型：string。",
+                                                                    },
+                                                                    {
+                                                                      name: "onActivate",
+                                                                      description: "类型：() => void。",
+                                                                    },
+                                                                  ],
+                                                                },
+                                                                {
+                                                                  name: "edgeDirectionLegend",
+                                                                  description: "类型：VisualizationNetworkEdgeDirectionLegendSpec。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "outgoingLabel",
+                                                                      description: "类型：string。",
+                                                                    },
+                                                                    {
+                                                                      name: "incomingLabel",
+                                                                      description: "类型：string。",
+                                                                    },
+                                                                    {
+                                                                      name: "selfReferenceLabel",
+                                                                      description: "类型：string。",
+                                                                    },
+                                                                  ],
                                                                 },
                                                                 {
                                                                   name: "height",
@@ -98455,6 +98805,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "network 分支声明。",
                                                   children: [
                                                     {
+                                                      name: "presentation",
+                                                      description: "可选值：diagram / map。",
+                                                      children: [
+                                                        {
+                                                          name: "diagram",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "map",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
                                                       name: "layout",
                                                       description: "类型：VisualizationNetworkLayoutSpec。",
                                                       children: [
@@ -98691,6 +99055,42 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     {
                                                       name: "focusNodeKey",
                                                       description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "onNodeSelect",
+                                                      description: "类型：(nodeKey: string) => void。",
+                                                    },
+                                                    {
+                                                      name: "backNavigation",
+                                                      description: "类型：VisualizationNetworkBackNavigationSpec。",
+                                                      children: [
+                                                        {
+                                                          name: "label",
+                                                          description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "onActivate",
+                                                          description: "类型：() => void。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      name: "edgeDirectionLegend",
+                                                      description: "类型：VisualizationNetworkEdgeDirectionLegendSpec。",
+                                                      children: [
+                                                        {
+                                                          name: "outgoingLabel",
+                                                          description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "incomingLabel",
+                                                          description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "selfReferenceLabel",
+                                                          description: "类型：string。",
+                                                        },
+                                                      ],
                                                     },
                                                     {
                                                       name: "height",
@@ -102773,6 +103173,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                           description: "network 分支声明。",
                           children: [
                             {
+                              name: "presentation",
+                              description: "可选值：diagram / map。",
+                              children: [
+                                {
+                                  name: "diagram",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "map",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "layout",
                               description: "类型：VisualizationNetworkLayoutSpec。",
                               children: [
@@ -103009,6 +103423,42 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             {
                               name: "focusNodeKey",
                               description: "类型：string。",
+                            },
+                            {
+                              name: "onNodeSelect",
+                              description: "类型：(nodeKey: string) => void。",
+                            },
+                            {
+                              name: "backNavigation",
+                              description: "类型：VisualizationNetworkBackNavigationSpec。",
+                              children: [
+                                {
+                                  name: "label",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "onActivate",
+                                  description: "类型：() => void。",
+                                },
+                              ],
+                            },
+                            {
+                              name: "edgeDirectionLegend",
+                              description: "类型：VisualizationNetworkEdgeDirectionLegendSpec。",
+                              children: [
+                                {
+                                  name: "outgoingLabel",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "incomingLabel",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "selfReferenceLabel",
+                                  description: "类型：string。",
+                                },
+                              ],
                             },
                             {
                               name: "height",

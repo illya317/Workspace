@@ -149,6 +149,8 @@ export const page_api_registry_entries = [
           { name: "visual.comparisonBars", description: "实际值与参考值对比。" },
           { name: "visual.tree", description: "树形层级可视化。" },
           { name: "visual.network", description: "自动布局的有向关系图。" },
+          { name: "visual.network.presentation", description: "diagram 用于结构图；map 用于力导向拓扑探索。" },
+          { name: "visual.network.map", description: "大规模关系地图：Core 统一负责拓扑社区、节点碰撞、圆形外环、方向悬停、局部返回和最小缩放，调用方只声明节点、边与交互意图。" },
           { name: "frame", description: "chart 专属面板标题和外框声明。" },
         ],
       },
@@ -176,8 +178,8 @@ export const page_api_registry_entries = [
   },
   {
     name: "VisualizationNetwork",
-    description: "VisualizationSurface 有向关系图 renderer；使用通用节点、边和分组声明，通过 G6 Combo、汇流母线与上下分层算法展示复杂关系。converging 按显式 layoutOrder 排序并将缺省项放在视觉中心；hierarchy 的每层独立居中，密集层统一使用等尺寸竖向节点，子节点块优先对齐到直属父节点，仅多子节点使用局部母线。组件只负责画布交互，数据导出由页面 Toolbar 统一承载。",
-    composes: [],
+    description: "VisualizationSurface 有向关系图 renderer；diagram 通过 G6 Combo、汇流母线与上下分层算法展示结构，map 通过中性圆点、连接度软饱和缩放、Louvain 社区、圆形装箱与单一外围圆环探索大规模拓扑。map 的方向悬停、局部返回和最小缩放均由 Core 控制；数据导出由页面 Toolbar 统一承载。",
+    composes: ["ActionGlyph"],
   },
   {
     name: "VisualizationGantt",

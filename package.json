@@ -202,6 +202,7 @@
     "schema": "./prisma"
   },
   "dependencies": {
+    "@antv/algorithm": "0.1.26",
     "@antv/g6": "^5.1.1",
     "@earendil-works/pi-agent-core": "0.81.1",
     "@earendil-works/pi-ai": "0.81.1",

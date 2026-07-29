@@ -125,6 +125,8 @@ export type {
   VisualizationGroupedBarChartSpec,
   VisualizationGroupedBarGroupSpec,
   VisualizationLegendSpec,
+  VisualizationNetworkBackNavigationSpec,
+  VisualizationNetworkEdgeDirectionLegendSpec,
   VisualizationNetworkEdgeSpec,
   VisualizationNetworkGroupSpec,
   VisualizationNetworkLayoutSpec,
