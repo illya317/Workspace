@@ -3,6 +3,7 @@ model InventoryItem {
   id                       Int                       @id @default(autoincrement())
   productMasterId          Int?
   companyCode              String
+  companyId                Int?
   code                     String
   name                     String
   itemType                 String                    @default("finished_goods")
@@ -27,6 +28,7 @@ model InventoryItem {
   ledgerEntries            InventoryLedgerEntry[]
   stocktakeLines           InventoryStocktakeLine[]
   productMaster            Product?                  @relation(fields: [productMasterId], references: [id], onDelete: Restrict)
+  company                  Company?                  @relation(fields: [companyId], references: [id], onDelete: Restrict)
   productSourceMappings    ProductSourceMapping[]
   inventoryReceiptOutputs  InventoryReceiptOutput[]
   financeCostStructureRows FinanceCostStructureRow[]
@@ -36,6 +38,7 @@ model InventoryItem {
   @@unique([companyCode, sourceKey])
   @@index([productMasterId, status])
   @@index([companyCode, status, itemType])
+  @@index([companyId])
 }
 
 /// 存货单位换算（事实表，记录业务单位到基础单位的固定换算）
@@ -54,6 +57,7 @@ model InventoryUnitConversion {
 model InventoryWarehouse {
   id             Int                      @id @default(autoincrement())
   companyCode    String
+  companyId      Int?
   code           String
   name           String
   status         String                   @default("active")
@@ -64,8 +68,10 @@ model InventoryWarehouse {
   ledgerEntries  InventoryLedgerEntry[]
   stocktakes     InventoryStocktake[]
   stocktakeLines InventoryStocktakeLine[]
+  company        Company?                 @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([companyCode, code])
+  @@index([companyId])
 }
 
 /// 存货批次（事实表，记录生产批号、生产日期与有效期）
@@ -93,11 +99,13 @@ model InventoryBatch {
 model InventoryDocument {
   id           Int                     @id @default(autoincrement())
   companyCode  String
+  companyId Int?
   documentNo   String
   documentType String
   documentDate String
   status       String                  @default("draft")
   counterparty String?
+  counterpartyPartyId Int?
   referenceNo  String?
   note         String?
   sourceFile   String?
@@ -111,10 +119,14 @@ model InventoryDocument {
   createdAt    DateTime                @default(now())
   updatedAt    DateTime                @default(now()) @updatedAt
   lines        InventoryDocumentLine[]
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  counterpartyParty Party? @relation(fields: [counterpartyPartyId], references: [id], onDelete: Restrict)
 
   @@unique([companyCode, documentNo])
   @@unique([companyCode, sourceKey])
   @@index([companyCode, documentDate, documentType, status])
+  @@index([companyId])
+  @@index([counterpartyPartyId])
 }
 
 /// 存货业务单据行（事实表，保留数量、单位、价格和外部业务引用）
@@ -147,6 +159,7 @@ model InventoryLedgerEntry {
   id             Int                   @id @default(autoincrement())
   documentLineId Int                   @unique
   companyCode    String
+  companyId Int?
   itemId         Int
   warehouseId    Int
   batchId        Int?
@@ -158,15 +171,18 @@ model InventoryLedgerEntry {
   item           InventoryItem         @relation(fields: [itemId], references: [id], onDelete: Restrict)
   warehouse      InventoryWarehouse    @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
   batch          InventoryBatch?       @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@index([companyCode, movementDate])
   @@index([itemId, warehouseId, batchId])
+  @@index([companyId])
 }
 
 /// 存货盘点单（事实表，保存盘点时点与生命周期）
 model InventoryStocktake {
   id            Int                      @id @default(autoincrement())
   companyCode   String
+  companyId Int?
   stocktakeNo   String
   warehouseId   Int
   stocktakeDate String
@@ -181,9 +197,11 @@ model InventoryStocktake {
   updatedAt     DateTime                 @default(now()) @updatedAt
   warehouse     InventoryWarehouse       @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
   lines         InventoryStocktakeLine[]
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([companyCode, stocktakeNo])
   @@unique([companyCode, sourceKey])
+  @@index([companyId])
 }
 
 /// 存货盘点明细（事实表，冻结账面数量并记录实盘数量）
@@ -209,6 +227,7 @@ model InventoryStocktakeLine {
 model InventoryPeriodClose {
   id          Int       @id @default(autoincrement())
   companyCode String
+  companyId Int?
   year        Int
   month       Int
   status      String    @default("open")
@@ -220,14 +239,17 @@ model InventoryPeriodClose {
   note        String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now()) @updatedAt
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([companyCode, year, month])
+  @@index([companyId])
 }
 
 /// 存货导入批次（审计事实，一份源表的一次幂等确认导入）
 model InventoryImportBatch {
   id            Int      @id @default(autoincrement())
   companyCode   String
+  companyId Int?
   sourceFile    String
   sourceSheet   String?
   checksum      String
@@ -239,6 +261,8 @@ model InventoryImportBatch {
   importedBy    Int?
   importedAt    DateTime @default(now())
   note          String?
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([companyCode, checksum, sourceSheet])
+  @@index([companyId])
 }

@@ -28,6 +28,7 @@ export type AggregateInventoryPeriodClose = {
 
 export type InventoryPeriodCloseAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
   year: number | null
   month: number | null
   voucherId: number | null
@@ -37,6 +38,7 @@ export type InventoryPeriodCloseAvgAggregateOutputType = {
 
 export type InventoryPeriodCloseSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
   year: number | null
   month: number | null
   voucherId: number | null
@@ -47,6 +49,7 @@ export type InventoryPeriodCloseSumAggregateOutputType = {
 export type InventoryPeriodCloseMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   year: number | null
   month: number | null
   status: string | null
@@ -63,6 +66,7 @@ export type InventoryPeriodCloseMinAggregateOutputType = {
 export type InventoryPeriodCloseMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   year: number | null
   month: number | null
   status: string | null
@@ -79,6 +83,7 @@ export type InventoryPeriodCloseMaxAggregateOutputType = {
 export type InventoryPeriodCloseCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   year: number
   month: number
   status: number
@@ -96,6 +101,7 @@ export type InventoryPeriodCloseCountAggregateOutputType = {
 
 export type InventoryPeriodCloseAvgAggregateInputType = {
   id?: true
+  companyId?: true
   year?: true
   month?: true
   voucherId?: true
@@ -105,6 +111,7 @@ export type InventoryPeriodCloseAvgAggregateInputType = {
 
 export type InventoryPeriodCloseSumAggregateInputType = {
   id?: true
+  companyId?: true
   year?: true
   month?: true
   voucherId?: true
@@ -115,6 +122,7 @@ export type InventoryPeriodCloseSumAggregateInputType = {
 export type InventoryPeriodCloseMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   year?: true
   month?: true
   status?: true
@@ -131,6 +139,7 @@ export type InventoryPeriodCloseMinAggregateInputType = {
 export type InventoryPeriodCloseMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   year?: true
   month?: true
   status?: true
@@ -147,6 +156,7 @@ export type InventoryPeriodCloseMaxAggregateInputType = {
 export type InventoryPeriodCloseCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   year?: true
   month?: true
   status?: true
@@ -250,6 +260,7 @@ export type InventoryPeriodCloseGroupByArgs<ExtArgs extends runtime.Types.Extens
 export type InventoryPeriodCloseGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   year: number
   month: number
   status: string
@@ -289,6 +300,7 @@ export type InventoryPeriodCloseWhereInput = {
   NOT?: Prisma.InventoryPeriodCloseWhereInput | Prisma.InventoryPeriodCloseWhereInput[]
   id?: Prisma.IntFilter<"InventoryPeriodClose"> | number
   companyCode?: Prisma.StringFilter<"InventoryPeriodClose"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryPeriodClose"> | number | null
   year?: Prisma.IntFilter<"InventoryPeriodClose"> | number
   month?: Prisma.IntFilter<"InventoryPeriodClose"> | number
   status?: Prisma.StringFilter<"InventoryPeriodClose"> | string
@@ -300,11 +312,13 @@ export type InventoryPeriodCloseWhereInput = {
   note?: Prisma.StringNullableFilter<"InventoryPeriodClose"> | string | null
   createdAt?: Prisma.DateTimeFilter<"InventoryPeriodClose"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InventoryPeriodClose"> | Date | string
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type InventoryPeriodCloseOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -316,6 +330,7 @@ export type InventoryPeriodCloseOrderByWithRelationInput = {
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type InventoryPeriodCloseWhereUniqueInput = Prisma.AtLeast<{
@@ -325,6 +340,7 @@ export type InventoryPeriodCloseWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.InventoryPeriodCloseWhereInput[]
   NOT?: Prisma.InventoryPeriodCloseWhereInput | Prisma.InventoryPeriodCloseWhereInput[]
   companyCode?: Prisma.StringFilter<"InventoryPeriodClose"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryPeriodClose"> | number | null
   year?: Prisma.IntFilter<"InventoryPeriodClose"> | number
   month?: Prisma.IntFilter<"InventoryPeriodClose"> | number
   status?: Prisma.StringFilter<"InventoryPeriodClose"> | string
@@ -336,11 +352,13 @@ export type InventoryPeriodCloseWhereUniqueInput = Prisma.AtLeast<{
   note?: Prisma.StringNullableFilter<"InventoryPeriodClose"> | string | null
   createdAt?: Prisma.DateTimeFilter<"InventoryPeriodClose"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InventoryPeriodClose"> | Date | string
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "companyCode_year_month">
 
 export type InventoryPeriodCloseOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -365,6 +383,7 @@ export type InventoryPeriodCloseScalarWhereWithAggregatesInput = {
   NOT?: Prisma.InventoryPeriodCloseScalarWhereWithAggregatesInput | Prisma.InventoryPeriodCloseScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"InventoryPeriodClose"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"InventoryPeriodClose"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"InventoryPeriodClose"> | number | null
   year?: Prisma.IntWithAggregatesFilter<"InventoryPeriodClose"> | number
   month?: Prisma.IntWithAggregatesFilter<"InventoryPeriodClose"> | number
   status?: Prisma.StringWithAggregatesFilter<"InventoryPeriodClose"> | string
@@ -391,11 +410,13 @@ export type InventoryPeriodCloseCreateInput = {
   note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryPeriodClosesInput
 }
 
 export type InventoryPeriodCloseUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   year: number
   month: number
   status?: string
@@ -422,11 +443,13 @@ export type InventoryPeriodCloseUpdateInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutInventoryPeriodClosesNestedInput
 }
 
 export type InventoryPeriodCloseUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -443,6 +466,7 @@ export type InventoryPeriodCloseUncheckedUpdateInput = {
 export type InventoryPeriodCloseCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   year: number
   month: number
   status?: string
@@ -474,6 +498,7 @@ export type InventoryPeriodCloseUpdateManyMutationInput = {
 export type InventoryPeriodCloseUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -487,6 +512,16 @@ export type InventoryPeriodCloseUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type InventoryPeriodCloseListRelationFilter = {
+  every?: Prisma.InventoryPeriodCloseWhereInput
+  some?: Prisma.InventoryPeriodCloseWhereInput
+  none?: Prisma.InventoryPeriodCloseWhereInput
+}
+
+export type InventoryPeriodCloseOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type InventoryPeriodCloseCompanyCodeYearMonthCompoundUniqueInput = {
   companyCode: string
   year: number
@@ -496,6 +531,7 @@ export type InventoryPeriodCloseCompanyCodeYearMonthCompoundUniqueInput = {
 export type InventoryPeriodCloseCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -511,6 +547,7 @@ export type InventoryPeriodCloseCountOrderByAggregateInput = {
 
 export type InventoryPeriodCloseAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   voucherId?: Prisma.SortOrder
@@ -521,6 +558,7 @@ export type InventoryPeriodCloseAvgOrderByAggregateInput = {
 export type InventoryPeriodCloseMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -537,6 +575,7 @@ export type InventoryPeriodCloseMaxOrderByAggregateInput = {
 export type InventoryPeriodCloseMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -552,6 +591,7 @@ export type InventoryPeriodCloseMinOrderByAggregateInput = {
 
 export type InventoryPeriodCloseSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   voucherId?: Prisma.SortOrder
@@ -559,11 +599,194 @@ export type InventoryPeriodCloseSumOrderByAggregateInput = {
   unlockedBy?: Prisma.SortOrder
 }
 
+export type InventoryPeriodCloseCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.InventoryPeriodCloseCreateWithoutCompanyInput, Prisma.InventoryPeriodCloseUncheckedCreateWithoutCompanyInput> | Prisma.InventoryPeriodCloseCreateWithoutCompanyInput[] | Prisma.InventoryPeriodCloseUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryPeriodCloseCreateOrConnectWithoutCompanyInput | Prisma.InventoryPeriodCloseCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.InventoryPeriodCloseCreateManyCompanyInputEnvelope
+  connect?: Prisma.InventoryPeriodCloseWhereUniqueInput | Prisma.InventoryPeriodCloseWhereUniqueInput[]
+}
+
+export type InventoryPeriodCloseUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.InventoryPeriodCloseCreateWithoutCompanyInput, Prisma.InventoryPeriodCloseUncheckedCreateWithoutCompanyInput> | Prisma.InventoryPeriodCloseCreateWithoutCompanyInput[] | Prisma.InventoryPeriodCloseUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryPeriodCloseCreateOrConnectWithoutCompanyInput | Prisma.InventoryPeriodCloseCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.InventoryPeriodCloseCreateManyCompanyInputEnvelope
+  connect?: Prisma.InventoryPeriodCloseWhereUniqueInput | Prisma.InventoryPeriodCloseWhereUniqueInput[]
+}
+
+export type InventoryPeriodCloseUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryPeriodCloseCreateWithoutCompanyInput, Prisma.InventoryPeriodCloseUncheckedCreateWithoutCompanyInput> | Prisma.InventoryPeriodCloseCreateWithoutCompanyInput[] | Prisma.InventoryPeriodCloseUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryPeriodCloseCreateOrConnectWithoutCompanyInput | Prisma.InventoryPeriodCloseCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.InventoryPeriodCloseUpsertWithWhereUniqueWithoutCompanyInput | Prisma.InventoryPeriodCloseUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.InventoryPeriodCloseCreateManyCompanyInputEnvelope
+  set?: Prisma.InventoryPeriodCloseWhereUniqueInput | Prisma.InventoryPeriodCloseWhereUniqueInput[]
+  disconnect?: Prisma.InventoryPeriodCloseWhereUniqueInput | Prisma.InventoryPeriodCloseWhereUniqueInput[]
+  delete?: Prisma.InventoryPeriodCloseWhereUniqueInput | Prisma.InventoryPeriodCloseWhereUniqueInput[]
+  connect?: Prisma.InventoryPeriodCloseWhereUniqueInput | Prisma.InventoryPeriodCloseWhereUniqueInput[]
+  update?: Prisma.InventoryPeriodCloseUpdateWithWhereUniqueWithoutCompanyInput | Prisma.InventoryPeriodCloseUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.InventoryPeriodCloseUpdateManyWithWhereWithoutCompanyInput | Prisma.InventoryPeriodCloseUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.InventoryPeriodCloseScalarWhereInput | Prisma.InventoryPeriodCloseScalarWhereInput[]
+}
+
+export type InventoryPeriodCloseUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryPeriodCloseCreateWithoutCompanyInput, Prisma.InventoryPeriodCloseUncheckedCreateWithoutCompanyInput> | Prisma.InventoryPeriodCloseCreateWithoutCompanyInput[] | Prisma.InventoryPeriodCloseUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryPeriodCloseCreateOrConnectWithoutCompanyInput | Prisma.InventoryPeriodCloseCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.InventoryPeriodCloseUpsertWithWhereUniqueWithoutCompanyInput | Prisma.InventoryPeriodCloseUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.InventoryPeriodCloseCreateManyCompanyInputEnvelope
+  set?: Prisma.InventoryPeriodCloseWhereUniqueInput | Prisma.InventoryPeriodCloseWhereUniqueInput[]
+  disconnect?: Prisma.InventoryPeriodCloseWhereUniqueInput | Prisma.InventoryPeriodCloseWhereUniqueInput[]
+  delete?: Prisma.InventoryPeriodCloseWhereUniqueInput | Prisma.InventoryPeriodCloseWhereUniqueInput[]
+  connect?: Prisma.InventoryPeriodCloseWhereUniqueInput | Prisma.InventoryPeriodCloseWhereUniqueInput[]
+  update?: Prisma.InventoryPeriodCloseUpdateWithWhereUniqueWithoutCompanyInput | Prisma.InventoryPeriodCloseUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.InventoryPeriodCloseUpdateManyWithWhereWithoutCompanyInput | Prisma.InventoryPeriodCloseUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.InventoryPeriodCloseScalarWhereInput | Prisma.InventoryPeriodCloseScalarWhereInput[]
+}
+
+export type InventoryPeriodCloseCreateWithoutCompanyInput = {
+  companyCode: string
+  year: number
+  month: number
+  status?: string
+  voucherId?: number | null
+  lockedBy?: number | null
+  lockedAt?: Date | string | null
+  unlockedBy?: number | null
+  unlockedAt?: Date | string | null
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InventoryPeriodCloseUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  year: number
+  month: number
+  status?: string
+  voucherId?: number | null
+  lockedBy?: number | null
+  lockedAt?: Date | string | null
+  unlockedBy?: number | null
+  unlockedAt?: Date | string | null
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InventoryPeriodCloseCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.InventoryPeriodCloseWhereUniqueInput
+  create: Prisma.XOR<Prisma.InventoryPeriodCloseCreateWithoutCompanyInput, Prisma.InventoryPeriodCloseUncheckedCreateWithoutCompanyInput>
+}
+
+export type InventoryPeriodCloseCreateManyCompanyInputEnvelope = {
+  data: Prisma.InventoryPeriodCloseCreateManyCompanyInput | Prisma.InventoryPeriodCloseCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type InventoryPeriodCloseUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.InventoryPeriodCloseWhereUniqueInput
+  update: Prisma.XOR<Prisma.InventoryPeriodCloseUpdateWithoutCompanyInput, Prisma.InventoryPeriodCloseUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.InventoryPeriodCloseCreateWithoutCompanyInput, Prisma.InventoryPeriodCloseUncheckedCreateWithoutCompanyInput>
+}
+
+export type InventoryPeriodCloseUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.InventoryPeriodCloseWhereUniqueInput
+  data: Prisma.XOR<Prisma.InventoryPeriodCloseUpdateWithoutCompanyInput, Prisma.InventoryPeriodCloseUncheckedUpdateWithoutCompanyInput>
+}
+
+export type InventoryPeriodCloseUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.InventoryPeriodCloseScalarWhereInput
+  data: Prisma.XOR<Prisma.InventoryPeriodCloseUpdateManyMutationInput, Prisma.InventoryPeriodCloseUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type InventoryPeriodCloseScalarWhereInput = {
+  AND?: Prisma.InventoryPeriodCloseScalarWhereInput | Prisma.InventoryPeriodCloseScalarWhereInput[]
+  OR?: Prisma.InventoryPeriodCloseScalarWhereInput[]
+  NOT?: Prisma.InventoryPeriodCloseScalarWhereInput | Prisma.InventoryPeriodCloseScalarWhereInput[]
+  id?: Prisma.IntFilter<"InventoryPeriodClose"> | number
+  companyCode?: Prisma.StringFilter<"InventoryPeriodClose"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryPeriodClose"> | number | null
+  year?: Prisma.IntFilter<"InventoryPeriodClose"> | number
+  month?: Prisma.IntFilter<"InventoryPeriodClose"> | number
+  status?: Prisma.StringFilter<"InventoryPeriodClose"> | string
+  voucherId?: Prisma.IntNullableFilter<"InventoryPeriodClose"> | number | null
+  lockedBy?: Prisma.IntNullableFilter<"InventoryPeriodClose"> | number | null
+  lockedAt?: Prisma.DateTimeNullableFilter<"InventoryPeriodClose"> | Date | string | null
+  unlockedBy?: Prisma.IntNullableFilter<"InventoryPeriodClose"> | number | null
+  unlockedAt?: Prisma.DateTimeNullableFilter<"InventoryPeriodClose"> | Date | string | null
+  note?: Prisma.StringNullableFilter<"InventoryPeriodClose"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"InventoryPeriodClose"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InventoryPeriodClose"> | Date | string
+}
+
+export type InventoryPeriodCloseCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  year: number
+  month: number
+  status?: string
+  voucherId?: number | null
+  lockedBy?: number | null
+  lockedAt?: Date | string | null
+  unlockedBy?: number | null
+  unlockedAt?: Date | string | null
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InventoryPeriodCloseUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unlockedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  unlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InventoryPeriodCloseUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unlockedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  unlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InventoryPeriodCloseUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  unlockedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  unlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type InventoryPeriodCloseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   month?: boolean
   status?: boolean
@@ -575,11 +798,13 @@ export type InventoryPeriodCloseSelect<ExtArgs extends runtime.Types.Extensions.
   note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.InventoryPeriodClose$companyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryPeriodClose"]>
 
 export type InventoryPeriodCloseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   month?: boolean
   status?: boolean
@@ -591,11 +816,13 @@ export type InventoryPeriodCloseSelectCreateManyAndReturn<ExtArgs extends runtim
   note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.InventoryPeriodClose$companyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryPeriodClose"]>
 
 export type InventoryPeriodCloseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   month?: boolean
   status?: boolean
@@ -607,11 +834,13 @@ export type InventoryPeriodCloseSelectUpdateManyAndReturn<ExtArgs extends runtim
   note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.InventoryPeriodClose$companyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryPeriodClose"]>
 
 export type InventoryPeriodCloseSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   month?: boolean
   status?: boolean
@@ -625,14 +854,26 @@ export type InventoryPeriodCloseSelectScalar = {
   updatedAt?: boolean
 }
 
-export type InventoryPeriodCloseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "year" | "month" | "status" | "voucherId" | "lockedBy" | "lockedAt" | "unlockedBy" | "unlockedAt" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryPeriodClose"]>
+export type InventoryPeriodCloseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "year" | "month" | "status" | "voucherId" | "lockedBy" | "lockedAt" | "unlockedBy" | "unlockedAt" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryPeriodClose"]>
+export type InventoryPeriodCloseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.InventoryPeriodClose$companyArgs<ExtArgs>
+}
+export type InventoryPeriodCloseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.InventoryPeriodClose$companyArgs<ExtArgs>
+}
+export type InventoryPeriodCloseIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.InventoryPeriodClose$companyArgs<ExtArgs>
+}
 
 export type $InventoryPeriodClosePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "InventoryPeriodClose"
-  objects: {}
+  objects: {
+    company: Prisma.$CompanyPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     year: number
     month: number
     status: string
@@ -1038,6 +1279,7 @@ readonly fields: InventoryPeriodCloseFieldRefs;
  */
 export interface Prisma__InventoryPeriodCloseClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  company<T extends Prisma.InventoryPeriodClose$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryPeriodClose$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1069,6 +1311,7 @@ export interface Prisma__InventoryPeriodCloseClient<T, Null = never, ExtArgs ext
 export interface InventoryPeriodCloseFieldRefs {
   readonly id: Prisma.FieldRef<"InventoryPeriodClose", 'Int'>
   readonly companyCode: Prisma.FieldRef<"InventoryPeriodClose", 'String'>
+  readonly companyId: Prisma.FieldRef<"InventoryPeriodClose", 'Int'>
   readonly year: Prisma.FieldRef<"InventoryPeriodClose", 'Int'>
   readonly month: Prisma.FieldRef<"InventoryPeriodClose", 'Int'>
   readonly status: Prisma.FieldRef<"InventoryPeriodClose", 'String'>
@@ -1097,6 +1340,10 @@ export type InventoryPeriodCloseFindUniqueArgs<ExtArgs extends runtime.Types.Ext
    */
   omit?: Prisma.InventoryPeriodCloseOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryPeriodCloseInclude<ExtArgs> | null
+  /**
    * Filter, which InventoryPeriodClose to fetch.
    */
   where: Prisma.InventoryPeriodCloseWhereUniqueInput
@@ -1115,6 +1362,10 @@ export type InventoryPeriodCloseFindUniqueOrThrowArgs<ExtArgs extends runtime.Ty
    */
   omit?: Prisma.InventoryPeriodCloseOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryPeriodCloseInclude<ExtArgs> | null
+  /**
    * Filter, which InventoryPeriodClose to fetch.
    */
   where: Prisma.InventoryPeriodCloseWhereUniqueInput
@@ -1132,6 +1383,10 @@ export type InventoryPeriodCloseFindFirstArgs<ExtArgs extends runtime.Types.Exte
    * Omit specific fields from the InventoryPeriodClose
    */
   omit?: Prisma.InventoryPeriodCloseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryPeriodCloseInclude<ExtArgs> | null
   /**
    * Filter, which InventoryPeriodClose to fetch.
    */
@@ -1181,6 +1436,10 @@ export type InventoryPeriodCloseFindFirstOrThrowArgs<ExtArgs extends runtime.Typ
    */
   omit?: Prisma.InventoryPeriodCloseOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryPeriodCloseInclude<ExtArgs> | null
+  /**
    * Filter, which InventoryPeriodClose to fetch.
    */
   where?: Prisma.InventoryPeriodCloseWhereInput
@@ -1228,6 +1487,10 @@ export type InventoryPeriodCloseFindManyArgs<ExtArgs extends runtime.Types.Exten
    * Omit specific fields from the InventoryPeriodClose
    */
   omit?: Prisma.InventoryPeriodCloseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryPeriodCloseInclude<ExtArgs> | null
   /**
    * Filter, which InventoryPeriodCloses to fetch.
    */
@@ -1277,6 +1540,10 @@ export type InventoryPeriodCloseCreateArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.InventoryPeriodCloseOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryPeriodCloseInclude<ExtArgs> | null
+  /**
    * The data needed to create a InventoryPeriodClose.
    */
   data: Prisma.XOR<Prisma.InventoryPeriodCloseCreateInput, Prisma.InventoryPeriodCloseUncheckedCreateInput>
@@ -1310,6 +1577,10 @@ export type InventoryPeriodCloseCreateManyAndReturnArgs<ExtArgs extends runtime.
    */
   data: Prisma.InventoryPeriodCloseCreateManyInput | Prisma.InventoryPeriodCloseCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryPeriodCloseIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1324,6 +1595,10 @@ export type InventoryPeriodCloseUpdateArgs<ExtArgs extends runtime.Types.Extensi
    * Omit specific fields from the InventoryPeriodClose
    */
   omit?: Prisma.InventoryPeriodCloseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryPeriodCloseInclude<ExtArgs> | null
   /**
    * The data needed to update a InventoryPeriodClose.
    */
@@ -1376,6 +1651,10 @@ export type InventoryPeriodCloseUpdateManyAndReturnArgs<ExtArgs extends runtime.
    * Limit how many InventoryPeriodCloses to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryPeriodCloseIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1390,6 +1669,10 @@ export type InventoryPeriodCloseUpsertArgs<ExtArgs extends runtime.Types.Extensi
    * Omit specific fields from the InventoryPeriodClose
    */
   omit?: Prisma.InventoryPeriodCloseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryPeriodCloseInclude<ExtArgs> | null
   /**
    * The filter to search for the InventoryPeriodClose to update in case it exists.
    */
@@ -1417,6 +1700,10 @@ export type InventoryPeriodCloseDeleteArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.InventoryPeriodCloseOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryPeriodCloseInclude<ExtArgs> | null
+  /**
    * Filter which InventoryPeriodClose to delete.
    */
   where: Prisma.InventoryPeriodCloseWhereUniqueInput
@@ -1437,6 +1724,25 @@ export type InventoryPeriodCloseDeleteManyArgs<ExtArgs extends runtime.Types.Ext
 }
 
 /**
+ * InventoryPeriodClose.company
+ */
+export type InventoryPeriodClose$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
+}
+
+/**
  * InventoryPeriodClose without action
  */
 export type InventoryPeriodCloseDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1448,4 +1754,8 @@ export type InventoryPeriodCloseDefaultArgs<ExtArgs extends runtime.Types.Extens
    * Omit specific fields from the InventoryPeriodClose
    */
   omit?: Prisma.InventoryPeriodCloseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryPeriodCloseInclude<ExtArgs> | null
 }

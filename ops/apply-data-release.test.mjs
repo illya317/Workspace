@@ -96,6 +96,43 @@ test("finance auxiliary identity releases use the registered repair handler", ()
   assert.equal(command.args.at(-1), "--input-file=/private/sources/finance/auxiliary-identities.json");
 });
 
+test("finance budget releases use private workbooks and a pinned reference map", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "finance-budget-v1",
+    parameters: {
+      companyCode: "C01",
+      year: 2026,
+      versionName: "2026 初始预算",
+      departmentFile: "finance/department-budget.xlsx",
+      researchFile: "finance/research-budget.xlsx",
+      referenceFile: "finance/budget-references.json",
+    },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+    releaseId,
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes(`--release-id=${releaseId}`));
+  assert.ok(command.args.includes("--department-file=/srv/private/sources/finance/department-budget.xlsx"));
+  assert.ok(command.args.includes("--reference-file=/srv/private/sources/finance/budget-references.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "finance-budget-v1",
+    parameters: {
+      companyCode: "C01",
+      year: 2026,
+      versionName: "bad",
+      departmentFile: "../outside.xlsx",
+      researchFile: "finance/research-budget.xlsx",
+      referenceFile: "finance/budget-references.json",
+    },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+    releaseId,
+  }), /escapes/);
+});
+
 test("finance reviewed-origin repairs use a pinned private input file", () => {
   const command = buildDataReleaseHandlerCommand({
     handler: "finance-reviewed-origin-mappings-v1",

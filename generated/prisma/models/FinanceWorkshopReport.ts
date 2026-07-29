@@ -31,6 +31,7 @@ export type FinanceWorkshopReportAvgAggregateOutputType = {
   importId: number | null
   year: number | null
   month: number | null
+  productId: number | null
   workPoint: number | null
   quantity: number | null
   employeeId: number | null
@@ -43,6 +44,7 @@ export type FinanceWorkshopReportSumAggregateOutputType = {
   importId: number | null
   year: number | null
   month: number | null
+  productId: number | null
   workPoint: number | null
   quantity: number | null
   employeeId: number | null
@@ -56,6 +58,7 @@ export type FinanceWorkshopReportMinAggregateOutputType = {
   year: number | null
   month: number | null
   productName: string | null
+  productId: number | null
   batchNo: string | null
   workPoint: number | null
   quantity: number | null
@@ -74,6 +77,7 @@ export type FinanceWorkshopReportMaxAggregateOutputType = {
   year: number | null
   month: number | null
   productName: string | null
+  productId: number | null
   batchNo: string | null
   workPoint: number | null
   quantity: number | null
@@ -92,6 +96,7 @@ export type FinanceWorkshopReportCountAggregateOutputType = {
   year: number
   month: number
   productName: number
+  productId: number
   batchNo: number
   workPoint: number
   quantity: number
@@ -111,6 +116,7 @@ export type FinanceWorkshopReportAvgAggregateInputType = {
   importId?: true
   year?: true
   month?: true
+  productId?: true
   workPoint?: true
   quantity?: true
   employeeId?: true
@@ -123,6 +129,7 @@ export type FinanceWorkshopReportSumAggregateInputType = {
   importId?: true
   year?: true
   month?: true
+  productId?: true
   workPoint?: true
   quantity?: true
   employeeId?: true
@@ -136,6 +143,7 @@ export type FinanceWorkshopReportMinAggregateInputType = {
   year?: true
   month?: true
   productName?: true
+  productId?: true
   batchNo?: true
   workPoint?: true
   quantity?: true
@@ -154,6 +162,7 @@ export type FinanceWorkshopReportMaxAggregateInputType = {
   year?: true
   month?: true
   productName?: true
+  productId?: true
   batchNo?: true
   workPoint?: true
   quantity?: true
@@ -172,6 +181,7 @@ export type FinanceWorkshopReportCountAggregateInputType = {
   year?: true
   month?: true
   productName?: true
+  productId?: true
   batchNo?: true
   workPoint?: true
   quantity?: true
@@ -277,6 +287,7 @@ export type FinanceWorkshopReportGroupByOutputType = {
   year: number
   month: number
   productName: string | null
+  productId: number | null
   batchNo: string | null
   workPoint: number | null
   quantity: number | null
@@ -318,6 +329,7 @@ export type FinanceWorkshopReportWhereInput = {
   year?: Prisma.IntFilter<"FinanceWorkshopReport"> | number
   month?: Prisma.IntFilter<"FinanceWorkshopReport"> | number
   productName?: Prisma.StringNullableFilter<"FinanceWorkshopReport"> | string | null
+  productId?: Prisma.IntNullableFilter<"FinanceWorkshopReport"> | number | null
   batchNo?: Prisma.StringNullableFilter<"FinanceWorkshopReport"> | string | null
   workPoint?: Prisma.FloatNullableFilter<"FinanceWorkshopReport"> | number | null
   quantity?: Prisma.FloatNullableFilter<"FinanceWorkshopReport"> | number | null
@@ -329,6 +341,7 @@ export type FinanceWorkshopReportWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"FinanceWorkshopReport"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceWorkshopReport"> | Date | string
   position?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
+  product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   import?: Prisma.XOR<Prisma.FinanceDataImportScalarRelationFilter, Prisma.FinanceDataImportWhereInput>
 }
@@ -339,6 +352,7 @@ export type FinanceWorkshopReportOrderByWithRelationInput = {
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   productName?: Prisma.SortOrderInput | Prisma.SortOrder
+  productId?: Prisma.SortOrderInput | Prisma.SortOrder
   batchNo?: Prisma.SortOrderInput | Prisma.SortOrder
   workPoint?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -350,6 +364,7 @@ export type FinanceWorkshopReportOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   position?: Prisma.PositionOrderByWithRelationInput
+  product?: Prisma.ProductOrderByWithRelationInput
   employee?: Prisma.EmployeeOrderByWithRelationInput
   import?: Prisma.FinanceDataImportOrderByWithRelationInput
 }
@@ -363,6 +378,7 @@ export type FinanceWorkshopReportWhereUniqueInput = Prisma.AtLeast<{
   year?: Prisma.IntFilter<"FinanceWorkshopReport"> | number
   month?: Prisma.IntFilter<"FinanceWorkshopReport"> | number
   productName?: Prisma.StringNullableFilter<"FinanceWorkshopReport"> | string | null
+  productId?: Prisma.IntNullableFilter<"FinanceWorkshopReport"> | number | null
   batchNo?: Prisma.StringNullableFilter<"FinanceWorkshopReport"> | string | null
   workPoint?: Prisma.FloatNullableFilter<"FinanceWorkshopReport"> | number | null
   quantity?: Prisma.FloatNullableFilter<"FinanceWorkshopReport"> | number | null
@@ -374,6 +390,7 @@ export type FinanceWorkshopReportWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"FinanceWorkshopReport"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceWorkshopReport"> | Date | string
   position?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
+  product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   import?: Prisma.XOR<Prisma.FinanceDataImportScalarRelationFilter, Prisma.FinanceDataImportWhereInput>
 }, "id">
@@ -384,6 +401,7 @@ export type FinanceWorkshopReportOrderByWithAggregationInput = {
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   productName?: Prisma.SortOrderInput | Prisma.SortOrder
+  productId?: Prisma.SortOrderInput | Prisma.SortOrder
   batchNo?: Prisma.SortOrderInput | Prisma.SortOrder
   workPoint?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -410,6 +428,7 @@ export type FinanceWorkshopReportScalarWhereWithAggregatesInput = {
   year?: Prisma.IntWithAggregatesFilter<"FinanceWorkshopReport"> | number
   month?: Prisma.IntWithAggregatesFilter<"FinanceWorkshopReport"> | number
   productName?: Prisma.StringNullableWithAggregatesFilter<"FinanceWorkshopReport"> | string | null
+  productId?: Prisma.IntNullableWithAggregatesFilter<"FinanceWorkshopReport"> | number | null
   batchNo?: Prisma.StringNullableWithAggregatesFilter<"FinanceWorkshopReport"> | string | null
   workPoint?: Prisma.FloatNullableWithAggregatesFilter<"FinanceWorkshopReport"> | number | null
   quantity?: Prisma.FloatNullableWithAggregatesFilter<"FinanceWorkshopReport"> | number | null
@@ -435,6 +454,7 @@ export type FinanceWorkshopReportCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   position?: Prisma.PositionCreateNestedOneWithoutFinanceWorkshopReportsInput
+  product?: Prisma.ProductCreateNestedOneWithoutFinanceWorkshopReportsInput
   employee?: Prisma.EmployeeCreateNestedOneWithoutFinanceWorkshopReportsInput
   import: Prisma.FinanceDataImportCreateNestedOneWithoutWorkshopReportsInput
 }
@@ -445,6 +465,7 @@ export type FinanceWorkshopReportUncheckedCreateInput = {
   year: number
   month: number
   productName?: string | null
+  productId?: number | null
   batchNo?: string | null
   workPoint?: number | null
   quantity?: number | null
@@ -470,6 +491,7 @@ export type FinanceWorkshopReportUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position?: Prisma.PositionUpdateOneWithoutFinanceWorkshopReportsNestedInput
+  product?: Prisma.ProductUpdateOneWithoutFinanceWorkshopReportsNestedInput
   employee?: Prisma.EmployeeUpdateOneWithoutFinanceWorkshopReportsNestedInput
   import?: Prisma.FinanceDataImportUpdateOneRequiredWithoutWorkshopReportsNestedInput
 }
@@ -480,6 +502,7 @@ export type FinanceWorkshopReportUncheckedUpdateInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   productName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPoint?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -498,6 +521,7 @@ export type FinanceWorkshopReportCreateManyInput = {
   year: number
   month: number
   productName?: string | null
+  productId?: number | null
   batchNo?: string | null
   workPoint?: number | null
   quantity?: number | null
@@ -530,6 +554,7 @@ export type FinanceWorkshopReportUncheckedUpdateManyInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   productName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPoint?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -558,6 +583,7 @@ export type FinanceWorkshopReportCountOrderByAggregateInput = {
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   productName?: Prisma.SortOrder
+  productId?: Prisma.SortOrder
   batchNo?: Prisma.SortOrder
   workPoint?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
@@ -575,6 +601,7 @@ export type FinanceWorkshopReportAvgOrderByAggregateInput = {
   importId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
+  productId?: Prisma.SortOrder
   workPoint?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
@@ -588,6 +615,7 @@ export type FinanceWorkshopReportMaxOrderByAggregateInput = {
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   productName?: Prisma.SortOrder
+  productId?: Prisma.SortOrder
   batchNo?: Prisma.SortOrder
   workPoint?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
@@ -606,6 +634,7 @@ export type FinanceWorkshopReportMinOrderByAggregateInput = {
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
   productName?: Prisma.SortOrder
+  productId?: Prisma.SortOrder
   batchNo?: Prisma.SortOrder
   workPoint?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
@@ -623,6 +652,7 @@ export type FinanceWorkshopReportSumOrderByAggregateInput = {
   importId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   month?: Prisma.SortOrder
+  productId?: Prisma.SortOrder
   workPoint?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
@@ -756,6 +786,48 @@ export type FinanceWorkshopReportUncheckedUpdateManyWithoutPositionNestedInput =
   deleteMany?: Prisma.FinanceWorkshopReportScalarWhereInput | Prisma.FinanceWorkshopReportScalarWhereInput[]
 }
 
+export type FinanceWorkshopReportCreateNestedManyWithoutProductInput = {
+  create?: Prisma.XOR<Prisma.FinanceWorkshopReportCreateWithoutProductInput, Prisma.FinanceWorkshopReportUncheckedCreateWithoutProductInput> | Prisma.FinanceWorkshopReportCreateWithoutProductInput[] | Prisma.FinanceWorkshopReportUncheckedCreateWithoutProductInput[]
+  connectOrCreate?: Prisma.FinanceWorkshopReportCreateOrConnectWithoutProductInput | Prisma.FinanceWorkshopReportCreateOrConnectWithoutProductInput[]
+  createMany?: Prisma.FinanceWorkshopReportCreateManyProductInputEnvelope
+  connect?: Prisma.FinanceWorkshopReportWhereUniqueInput | Prisma.FinanceWorkshopReportWhereUniqueInput[]
+}
+
+export type FinanceWorkshopReportUncheckedCreateNestedManyWithoutProductInput = {
+  create?: Prisma.XOR<Prisma.FinanceWorkshopReportCreateWithoutProductInput, Prisma.FinanceWorkshopReportUncheckedCreateWithoutProductInput> | Prisma.FinanceWorkshopReportCreateWithoutProductInput[] | Prisma.FinanceWorkshopReportUncheckedCreateWithoutProductInput[]
+  connectOrCreate?: Prisma.FinanceWorkshopReportCreateOrConnectWithoutProductInput | Prisma.FinanceWorkshopReportCreateOrConnectWithoutProductInput[]
+  createMany?: Prisma.FinanceWorkshopReportCreateManyProductInputEnvelope
+  connect?: Prisma.FinanceWorkshopReportWhereUniqueInput | Prisma.FinanceWorkshopReportWhereUniqueInput[]
+}
+
+export type FinanceWorkshopReportUpdateManyWithoutProductNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceWorkshopReportCreateWithoutProductInput, Prisma.FinanceWorkshopReportUncheckedCreateWithoutProductInput> | Prisma.FinanceWorkshopReportCreateWithoutProductInput[] | Prisma.FinanceWorkshopReportUncheckedCreateWithoutProductInput[]
+  connectOrCreate?: Prisma.FinanceWorkshopReportCreateOrConnectWithoutProductInput | Prisma.FinanceWorkshopReportCreateOrConnectWithoutProductInput[]
+  upsert?: Prisma.FinanceWorkshopReportUpsertWithWhereUniqueWithoutProductInput | Prisma.FinanceWorkshopReportUpsertWithWhereUniqueWithoutProductInput[]
+  createMany?: Prisma.FinanceWorkshopReportCreateManyProductInputEnvelope
+  set?: Prisma.FinanceWorkshopReportWhereUniqueInput | Prisma.FinanceWorkshopReportWhereUniqueInput[]
+  disconnect?: Prisma.FinanceWorkshopReportWhereUniqueInput | Prisma.FinanceWorkshopReportWhereUniqueInput[]
+  delete?: Prisma.FinanceWorkshopReportWhereUniqueInput | Prisma.FinanceWorkshopReportWhereUniqueInput[]
+  connect?: Prisma.FinanceWorkshopReportWhereUniqueInput | Prisma.FinanceWorkshopReportWhereUniqueInput[]
+  update?: Prisma.FinanceWorkshopReportUpdateWithWhereUniqueWithoutProductInput | Prisma.FinanceWorkshopReportUpdateWithWhereUniqueWithoutProductInput[]
+  updateMany?: Prisma.FinanceWorkshopReportUpdateManyWithWhereWithoutProductInput | Prisma.FinanceWorkshopReportUpdateManyWithWhereWithoutProductInput[]
+  deleteMany?: Prisma.FinanceWorkshopReportScalarWhereInput | Prisma.FinanceWorkshopReportScalarWhereInput[]
+}
+
+export type FinanceWorkshopReportUncheckedUpdateManyWithoutProductNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceWorkshopReportCreateWithoutProductInput, Prisma.FinanceWorkshopReportUncheckedCreateWithoutProductInput> | Prisma.FinanceWorkshopReportCreateWithoutProductInput[] | Prisma.FinanceWorkshopReportUncheckedCreateWithoutProductInput[]
+  connectOrCreate?: Prisma.FinanceWorkshopReportCreateOrConnectWithoutProductInput | Prisma.FinanceWorkshopReportCreateOrConnectWithoutProductInput[]
+  upsert?: Prisma.FinanceWorkshopReportUpsertWithWhereUniqueWithoutProductInput | Prisma.FinanceWorkshopReportUpsertWithWhereUniqueWithoutProductInput[]
+  createMany?: Prisma.FinanceWorkshopReportCreateManyProductInputEnvelope
+  set?: Prisma.FinanceWorkshopReportWhereUniqueInput | Prisma.FinanceWorkshopReportWhereUniqueInput[]
+  disconnect?: Prisma.FinanceWorkshopReportWhereUniqueInput | Prisma.FinanceWorkshopReportWhereUniqueInput[]
+  delete?: Prisma.FinanceWorkshopReportWhereUniqueInput | Prisma.FinanceWorkshopReportWhereUniqueInput[]
+  connect?: Prisma.FinanceWorkshopReportWhereUniqueInput | Prisma.FinanceWorkshopReportWhereUniqueInput[]
+  update?: Prisma.FinanceWorkshopReportUpdateWithWhereUniqueWithoutProductInput | Prisma.FinanceWorkshopReportUpdateWithWhereUniqueWithoutProductInput[]
+  updateMany?: Prisma.FinanceWorkshopReportUpdateManyWithWhereWithoutProductInput | Prisma.FinanceWorkshopReportUpdateManyWithWhereWithoutProductInput[]
+  deleteMany?: Prisma.FinanceWorkshopReportScalarWhereInput | Prisma.FinanceWorkshopReportScalarWhereInput[]
+}
+
 export type FinanceWorkshopReportCreateWithoutImportInput = {
   year: number
   month: number
@@ -769,6 +841,7 @@ export type FinanceWorkshopReportCreateWithoutImportInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   position?: Prisma.PositionCreateNestedOneWithoutFinanceWorkshopReportsInput
+  product?: Prisma.ProductCreateNestedOneWithoutFinanceWorkshopReportsInput
   employee?: Prisma.EmployeeCreateNestedOneWithoutFinanceWorkshopReportsInput
 }
 
@@ -777,6 +850,7 @@ export type FinanceWorkshopReportUncheckedCreateWithoutImportInput = {
   year: number
   month: number
   productName?: string | null
+  productId?: number | null
   batchNo?: string | null
   workPoint?: number | null
   quantity?: number | null
@@ -824,6 +898,7 @@ export type FinanceWorkshopReportScalarWhereInput = {
   year?: Prisma.IntFilter<"FinanceWorkshopReport"> | number
   month?: Prisma.IntFilter<"FinanceWorkshopReport"> | number
   productName?: Prisma.StringNullableFilter<"FinanceWorkshopReport"> | string | null
+  productId?: Prisma.IntNullableFilter<"FinanceWorkshopReport"> | number | null
   batchNo?: Prisma.StringNullableFilter<"FinanceWorkshopReport"> | string | null
   workPoint?: Prisma.FloatNullableFilter<"FinanceWorkshopReport"> | number | null
   quantity?: Prisma.FloatNullableFilter<"FinanceWorkshopReport"> | number | null
@@ -849,6 +924,7 @@ export type FinanceWorkshopReportCreateWithoutEmployeeInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   position?: Prisma.PositionCreateNestedOneWithoutFinanceWorkshopReportsInput
+  product?: Prisma.ProductCreateNestedOneWithoutFinanceWorkshopReportsInput
   import: Prisma.FinanceDataImportCreateNestedOneWithoutWorkshopReportsInput
 }
 
@@ -858,6 +934,7 @@ export type FinanceWorkshopReportUncheckedCreateWithoutEmployeeInput = {
   year: number
   month: number
   productName?: string | null
+  productId?: number | null
   batchNo?: string | null
   workPoint?: number | null
   quantity?: number | null
@@ -907,6 +984,7 @@ export type FinanceWorkshopReportCreateWithoutPositionInput = {
   sourceRow?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  product?: Prisma.ProductCreateNestedOneWithoutFinanceWorkshopReportsInput
   employee?: Prisma.EmployeeCreateNestedOneWithoutFinanceWorkshopReportsInput
   import: Prisma.FinanceDataImportCreateNestedOneWithoutWorkshopReportsInput
 }
@@ -917,6 +995,7 @@ export type FinanceWorkshopReportUncheckedCreateWithoutPositionInput = {
   year: number
   month: number
   productName?: string | null
+  productId?: number | null
   batchNo?: string | null
   workPoint?: number | null
   quantity?: number | null
@@ -954,11 +1033,73 @@ export type FinanceWorkshopReportUpdateManyWithWhereWithoutPositionInput = {
   data: Prisma.XOR<Prisma.FinanceWorkshopReportUpdateManyMutationInput, Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutPositionInput>
 }
 
+export type FinanceWorkshopReportCreateWithoutProductInput = {
+  year: number
+  month: number
+  productName?: string | null
+  batchNo?: string | null
+  workPoint?: number | null
+  quantity?: number | null
+  sourceFile: string
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  position?: Prisma.PositionCreateNestedOneWithoutFinanceWorkshopReportsInput
+  employee?: Prisma.EmployeeCreateNestedOneWithoutFinanceWorkshopReportsInput
+  import: Prisma.FinanceDataImportCreateNestedOneWithoutWorkshopReportsInput
+}
+
+export type FinanceWorkshopReportUncheckedCreateWithoutProductInput = {
+  id?: number
+  importId: number
+  year: number
+  month: number
+  productName?: string | null
+  batchNo?: string | null
+  workPoint?: number | null
+  quantity?: number | null
+  employeeId?: number | null
+  positionId?: number | null
+  sourceFile: string
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceWorkshopReportCreateOrConnectWithoutProductInput = {
+  where: Prisma.FinanceWorkshopReportWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceWorkshopReportCreateWithoutProductInput, Prisma.FinanceWorkshopReportUncheckedCreateWithoutProductInput>
+}
+
+export type FinanceWorkshopReportCreateManyProductInputEnvelope = {
+  data: Prisma.FinanceWorkshopReportCreateManyProductInput | Prisma.FinanceWorkshopReportCreateManyProductInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceWorkshopReportUpsertWithWhereUniqueWithoutProductInput = {
+  where: Prisma.FinanceWorkshopReportWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceWorkshopReportUpdateWithoutProductInput, Prisma.FinanceWorkshopReportUncheckedUpdateWithoutProductInput>
+  create: Prisma.XOR<Prisma.FinanceWorkshopReportCreateWithoutProductInput, Prisma.FinanceWorkshopReportUncheckedCreateWithoutProductInput>
+}
+
+export type FinanceWorkshopReportUpdateWithWhereUniqueWithoutProductInput = {
+  where: Prisma.FinanceWorkshopReportWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceWorkshopReportUpdateWithoutProductInput, Prisma.FinanceWorkshopReportUncheckedUpdateWithoutProductInput>
+}
+
+export type FinanceWorkshopReportUpdateManyWithWhereWithoutProductInput = {
+  where: Prisma.FinanceWorkshopReportScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceWorkshopReportUpdateManyMutationInput, Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutProductInput>
+}
+
 export type FinanceWorkshopReportCreateManyImportInput = {
   id?: number
   year: number
   month: number
   productName?: string | null
+  productId?: number | null
   batchNo?: string | null
   workPoint?: number | null
   quantity?: number | null
@@ -984,6 +1125,7 @@ export type FinanceWorkshopReportUpdateWithoutImportInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position?: Prisma.PositionUpdateOneWithoutFinanceWorkshopReportsNestedInput
+  product?: Prisma.ProductUpdateOneWithoutFinanceWorkshopReportsNestedInput
   employee?: Prisma.EmployeeUpdateOneWithoutFinanceWorkshopReportsNestedInput
 }
 
@@ -992,6 +1134,7 @@ export type FinanceWorkshopReportUncheckedUpdateWithoutImportInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   productName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPoint?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1009,6 +1152,7 @@ export type FinanceWorkshopReportUncheckedUpdateManyWithoutImportInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   productName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPoint?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1027,6 +1171,7 @@ export type FinanceWorkshopReportCreateManyEmployeeInput = {
   year: number
   month: number
   productName?: string | null
+  productId?: number | null
   batchNo?: string | null
   workPoint?: number | null
   quantity?: number | null
@@ -1051,6 +1196,7 @@ export type FinanceWorkshopReportUpdateWithoutEmployeeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position?: Prisma.PositionUpdateOneWithoutFinanceWorkshopReportsNestedInput
+  product?: Prisma.ProductUpdateOneWithoutFinanceWorkshopReportsNestedInput
   import?: Prisma.FinanceDataImportUpdateOneRequiredWithoutWorkshopReportsNestedInput
 }
 
@@ -1060,6 +1206,7 @@ export type FinanceWorkshopReportUncheckedUpdateWithoutEmployeeInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   productName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPoint?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1077,6 +1224,7 @@ export type FinanceWorkshopReportUncheckedUpdateManyWithoutEmployeeInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   productName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPoint?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1094,6 +1242,7 @@ export type FinanceWorkshopReportCreateManyPositionInput = {
   year: number
   month: number
   productName?: string | null
+  productId?: number | null
   batchNo?: string | null
   workPoint?: number | null
   quantity?: number | null
@@ -1117,6 +1266,7 @@ export type FinanceWorkshopReportUpdateWithoutPositionInput = {
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product?: Prisma.ProductUpdateOneWithoutFinanceWorkshopReportsNestedInput
   employee?: Prisma.EmployeeUpdateOneWithoutFinanceWorkshopReportsNestedInput
   import?: Prisma.FinanceDataImportUpdateOneRequiredWithoutWorkshopReportsNestedInput
 }
@@ -1127,6 +1277,7 @@ export type FinanceWorkshopReportUncheckedUpdateWithoutPositionInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   productName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPoint?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1144,10 +1295,82 @@ export type FinanceWorkshopReportUncheckedUpdateManyWithoutPositionInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   productName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPoint?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   employeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceWorkshopReportCreateManyProductInput = {
+  id?: number
+  importId: number
+  year: number
+  month: number
+  productName?: string | null
+  batchNo?: string | null
+  workPoint?: number | null
+  quantity?: number | null
+  employeeId?: number | null
+  positionId?: number | null
+  sourceFile: string
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceWorkshopReportUpdateWithoutProductInput = {
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  productName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workPoint?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  position?: Prisma.PositionUpdateOneWithoutFinanceWorkshopReportsNestedInput
+  employee?: Prisma.EmployeeUpdateOneWithoutFinanceWorkshopReportsNestedInput
+  import?: Prisma.FinanceDataImportUpdateOneRequiredWithoutWorkshopReportsNestedInput
+}
+
+export type FinanceWorkshopReportUncheckedUpdateWithoutProductInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  importId?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  productName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workPoint?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  employeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceWorkshopReportUncheckedUpdateManyWithoutProductInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  importId?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  productName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workPoint?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  employeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1163,6 +1386,7 @@ export type FinanceWorkshopReportSelect<ExtArgs extends runtime.Types.Extensions
   year?: boolean
   month?: boolean
   productName?: boolean
+  productId?: boolean
   batchNo?: boolean
   workPoint?: boolean
   quantity?: boolean
@@ -1174,6 +1398,7 @@ export type FinanceWorkshopReportSelect<ExtArgs extends runtime.Types.Extensions
   createdAt?: boolean
   updatedAt?: boolean
   position?: boolean | Prisma.FinanceWorkshopReport$positionArgs<ExtArgs>
+  product?: boolean | Prisma.FinanceWorkshopReport$productArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceWorkshopReport$employeeArgs<ExtArgs>
   import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeWorkshopReport"]>
@@ -1184,6 +1409,7 @@ export type FinanceWorkshopReportSelectCreateManyAndReturn<ExtArgs extends runti
   year?: boolean
   month?: boolean
   productName?: boolean
+  productId?: boolean
   batchNo?: boolean
   workPoint?: boolean
   quantity?: boolean
@@ -1195,6 +1421,7 @@ export type FinanceWorkshopReportSelectCreateManyAndReturn<ExtArgs extends runti
   createdAt?: boolean
   updatedAt?: boolean
   position?: boolean | Prisma.FinanceWorkshopReport$positionArgs<ExtArgs>
+  product?: boolean | Prisma.FinanceWorkshopReport$productArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceWorkshopReport$employeeArgs<ExtArgs>
   import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeWorkshopReport"]>
@@ -1205,6 +1432,7 @@ export type FinanceWorkshopReportSelectUpdateManyAndReturn<ExtArgs extends runti
   year?: boolean
   month?: boolean
   productName?: boolean
+  productId?: boolean
   batchNo?: boolean
   workPoint?: boolean
   quantity?: boolean
@@ -1216,6 +1444,7 @@ export type FinanceWorkshopReportSelectUpdateManyAndReturn<ExtArgs extends runti
   createdAt?: boolean
   updatedAt?: boolean
   position?: boolean | Prisma.FinanceWorkshopReport$positionArgs<ExtArgs>
+  product?: boolean | Prisma.FinanceWorkshopReport$productArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceWorkshopReport$employeeArgs<ExtArgs>
   import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeWorkshopReport"]>
@@ -1226,6 +1455,7 @@ export type FinanceWorkshopReportSelectScalar = {
   year?: boolean
   month?: boolean
   productName?: boolean
+  productId?: boolean
   batchNo?: boolean
   workPoint?: boolean
   quantity?: boolean
@@ -1238,19 +1468,22 @@ export type FinanceWorkshopReportSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceWorkshopReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importId" | "year" | "month" | "productName" | "batchNo" | "workPoint" | "quantity" | "employeeId" | "positionId" | "sourceFile" | "sourceSheet" | "sourceRow" | "createdAt" | "updatedAt", ExtArgs["result"]["financeWorkshopReport"]>
+export type FinanceWorkshopReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importId" | "year" | "month" | "productName" | "productId" | "batchNo" | "workPoint" | "quantity" | "employeeId" | "positionId" | "sourceFile" | "sourceSheet" | "sourceRow" | "createdAt" | "updatedAt", ExtArgs["result"]["financeWorkshopReport"]>
 export type FinanceWorkshopReportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   position?: boolean | Prisma.FinanceWorkshopReport$positionArgs<ExtArgs>
+  product?: boolean | Prisma.FinanceWorkshopReport$productArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceWorkshopReport$employeeArgs<ExtArgs>
   import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }
 export type FinanceWorkshopReportIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   position?: boolean | Prisma.FinanceWorkshopReport$positionArgs<ExtArgs>
+  product?: boolean | Prisma.FinanceWorkshopReport$productArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceWorkshopReport$employeeArgs<ExtArgs>
   import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }
 export type FinanceWorkshopReportIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   position?: boolean | Prisma.FinanceWorkshopReport$positionArgs<ExtArgs>
+  product?: boolean | Prisma.FinanceWorkshopReport$productArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceWorkshopReport$employeeArgs<ExtArgs>
   import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }
@@ -1259,6 +1492,7 @@ export type $FinanceWorkshopReportPayload<ExtArgs extends runtime.Types.Extensio
   name: "FinanceWorkshopReport"
   objects: {
     position: Prisma.$PositionPayload<ExtArgs> | null
+    product: Prisma.$ProductPayload<ExtArgs> | null
     employee: Prisma.$EmployeePayload<ExtArgs> | null
     import: Prisma.$FinanceDataImportPayload<ExtArgs>
   }
@@ -1268,6 +1502,7 @@ export type $FinanceWorkshopReportPayload<ExtArgs extends runtime.Types.Extensio
     year: number
     month: number
     productName: string | null
+    productId: number | null
     batchNo: string | null
     workPoint: number | null
     quantity: number | null
@@ -1673,6 +1908,7 @@ readonly fields: FinanceWorkshopReportFieldRefs;
 export interface Prisma__FinanceWorkshopReportClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   position<T extends Prisma.FinanceWorkshopReport$positionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceWorkshopReport$positionArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  product<T extends Prisma.FinanceWorkshopReport$productArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceWorkshopReport$productArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   employee<T extends Prisma.FinanceWorkshopReport$employeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceWorkshopReport$employeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   import<T extends Prisma.FinanceDataImportDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImportDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceDataImportClient<runtime.Types.Result.GetResult<Prisma.$FinanceDataImportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1709,6 +1945,7 @@ export interface FinanceWorkshopReportFieldRefs {
   readonly year: Prisma.FieldRef<"FinanceWorkshopReport", 'Int'>
   readonly month: Prisma.FieldRef<"FinanceWorkshopReport", 'Int'>
   readonly productName: Prisma.FieldRef<"FinanceWorkshopReport", 'String'>
+  readonly productId: Prisma.FieldRef<"FinanceWorkshopReport", 'Int'>
   readonly batchNo: Prisma.FieldRef<"FinanceWorkshopReport", 'String'>
   readonly workPoint: Prisma.FieldRef<"FinanceWorkshopReport", 'Float'>
   readonly quantity: Prisma.FieldRef<"FinanceWorkshopReport", 'Float'>
@@ -2136,6 +2373,25 @@ export type FinanceWorkshopReport$positionArgs<ExtArgs extends runtime.Types.Ext
    */
   include?: Prisma.PositionInclude<ExtArgs> | null
   where?: Prisma.PositionWhereInput
+}
+
+/**
+ * FinanceWorkshopReport.product
+ */
+export type FinanceWorkshopReport$productArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Product
+   */
+  select?: Prisma.ProductSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Product
+   */
+  omit?: Prisma.ProductOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductInclude<ExtArgs> | null
+  where?: Prisma.ProductWhereInput
 }
 
 /**

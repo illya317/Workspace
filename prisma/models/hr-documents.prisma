@@ -23,6 +23,7 @@ model PositionDescription {
   positions           Position[]
   revisions           PositionDescriptionRevision[] @relation("PositionDescriptionRevisions")
   responsibilityNodes PositionResponsibilityNode[]
+  workResponsibilityReferences WorkResponsibilityReference[] @relation("WorkResponsibilityPositionDescription")
 }
 
 /// 岗位说明书不可变修订；正常变更和纠错都新增 revision，禁止覆盖旧正文。

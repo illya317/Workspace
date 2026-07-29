@@ -335,6 +335,7 @@ export type EDPWhereInput = {
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
   reportToPosition?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionListRelationFilter
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceListRelationFilter
 }
 
 export type EDPOrderByWithRelationInput = {
@@ -360,6 +361,7 @@ export type EDPOrderByWithRelationInput = {
   employee?: Prisma.EmployeeOrderByWithRelationInput
   reportToPosition?: Prisma.PositionOrderByWithRelationInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionOrderByRelationAggregateInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceOrderByRelationAggregateInput
 }
 
 export type EDPWhereUniqueInput = Prisma.AtLeast<{
@@ -388,6 +390,7 @@ export type EDPWhereUniqueInput = Prisma.AtLeast<{
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
   reportToPosition?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionListRelationFilter
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceListRelationFilter
 }, "id">
 
 export type EDPOrderByWithAggregationInput = {
@@ -450,6 +453,7 @@ export type EDPCreateInput = {
   employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
   reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedEdpsInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPUncheckedCreateInput = {
@@ -469,6 +473,7 @@ export type EDPUncheckedCreateInput = {
   editedAt?: Date | string | null
   version?: number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPUpdateInput = {
@@ -487,6 +492,7 @@ export type EDPUpdateInput = {
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
   reportToPosition?: Prisma.PositionUpdateOneWithoutReportedEdpsNestedInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPUncheckedUpdateInput = {
@@ -506,6 +512,7 @@ export type EDPUncheckedUpdateInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPCreateManyInput = {
@@ -664,48 +671,6 @@ export type EDPUpdateOneWithoutErpDueDiligenceSubmissionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EDPUpdateToOneWithWhereWithoutErpDueDiligenceSubmissionsInput, Prisma.EDPUpdateWithoutErpDueDiligenceSubmissionsInput>, Prisma.EDPUncheckedUpdateWithoutErpDueDiligenceSubmissionsInput>
 }
 
-export type EDPCreateNestedManyWithoutEmployeeInput = {
-  create?: Prisma.XOR<Prisma.EDPCreateWithoutEmployeeInput, Prisma.EDPUncheckedCreateWithoutEmployeeInput> | Prisma.EDPCreateWithoutEmployeeInput[] | Prisma.EDPUncheckedCreateWithoutEmployeeInput[]
-  connectOrCreate?: Prisma.EDPCreateOrConnectWithoutEmployeeInput | Prisma.EDPCreateOrConnectWithoutEmployeeInput[]
-  createMany?: Prisma.EDPCreateManyEmployeeInputEnvelope
-  connect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
-}
-
-export type EDPUncheckedCreateNestedManyWithoutEmployeeInput = {
-  create?: Prisma.XOR<Prisma.EDPCreateWithoutEmployeeInput, Prisma.EDPUncheckedCreateWithoutEmployeeInput> | Prisma.EDPCreateWithoutEmployeeInput[] | Prisma.EDPUncheckedCreateWithoutEmployeeInput[]
-  connectOrCreate?: Prisma.EDPCreateOrConnectWithoutEmployeeInput | Prisma.EDPCreateOrConnectWithoutEmployeeInput[]
-  createMany?: Prisma.EDPCreateManyEmployeeInputEnvelope
-  connect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
-}
-
-export type EDPUpdateManyWithoutEmployeeNestedInput = {
-  create?: Prisma.XOR<Prisma.EDPCreateWithoutEmployeeInput, Prisma.EDPUncheckedCreateWithoutEmployeeInput> | Prisma.EDPCreateWithoutEmployeeInput[] | Prisma.EDPUncheckedCreateWithoutEmployeeInput[]
-  connectOrCreate?: Prisma.EDPCreateOrConnectWithoutEmployeeInput | Prisma.EDPCreateOrConnectWithoutEmployeeInput[]
-  upsert?: Prisma.EDPUpsertWithWhereUniqueWithoutEmployeeInput | Prisma.EDPUpsertWithWhereUniqueWithoutEmployeeInput[]
-  createMany?: Prisma.EDPCreateManyEmployeeInputEnvelope
-  set?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
-  disconnect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
-  delete?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
-  connect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
-  update?: Prisma.EDPUpdateWithWhereUniqueWithoutEmployeeInput | Prisma.EDPUpdateWithWhereUniqueWithoutEmployeeInput[]
-  updateMany?: Prisma.EDPUpdateManyWithWhereWithoutEmployeeInput | Prisma.EDPUpdateManyWithWhereWithoutEmployeeInput[]
-  deleteMany?: Prisma.EDPScalarWhereInput | Prisma.EDPScalarWhereInput[]
-}
-
-export type EDPUncheckedUpdateManyWithoutEmployeeNestedInput = {
-  create?: Prisma.XOR<Prisma.EDPCreateWithoutEmployeeInput, Prisma.EDPUncheckedCreateWithoutEmployeeInput> | Prisma.EDPCreateWithoutEmployeeInput[] | Prisma.EDPUncheckedCreateWithoutEmployeeInput[]
-  connectOrCreate?: Prisma.EDPCreateOrConnectWithoutEmployeeInput | Prisma.EDPCreateOrConnectWithoutEmployeeInput[]
-  upsert?: Prisma.EDPUpsertWithWhereUniqueWithoutEmployeeInput | Prisma.EDPUpsertWithWhereUniqueWithoutEmployeeInput[]
-  createMany?: Prisma.EDPCreateManyEmployeeInputEnvelope
-  set?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
-  disconnect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
-  delete?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
-  connect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
-  update?: Prisma.EDPUpdateWithWhereUniqueWithoutEmployeeInput | Prisma.EDPUpdateWithWhereUniqueWithoutEmployeeInput[]
-  updateMany?: Prisma.EDPUpdateManyWithWhereWithoutEmployeeInput | Prisma.EDPUpdateManyWithWhereWithoutEmployeeInput[]
-  deleteMany?: Prisma.EDPScalarWhereInput | Prisma.EDPScalarWhereInput[]
-}
-
 export type EDPCreateNestedManyWithoutReportingCompanyInput = {
   create?: Prisma.XOR<Prisma.EDPCreateWithoutReportingCompanyInput, Prisma.EDPUncheckedCreateWithoutReportingCompanyInput> | Prisma.EDPCreateWithoutReportingCompanyInput[] | Prisma.EDPUncheckedCreateWithoutReportingCompanyInput[]
   connectOrCreate?: Prisma.EDPCreateOrConnectWithoutReportingCompanyInput | Prisma.EDPCreateOrConnectWithoutReportingCompanyInput[]
@@ -745,6 +710,48 @@ export type EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput = {
   connect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
   update?: Prisma.EDPUpdateWithWhereUniqueWithoutReportingCompanyInput | Prisma.EDPUpdateWithWhereUniqueWithoutReportingCompanyInput[]
   updateMany?: Prisma.EDPUpdateManyWithWhereWithoutReportingCompanyInput | Prisma.EDPUpdateManyWithWhereWithoutReportingCompanyInput[]
+  deleteMany?: Prisma.EDPScalarWhereInput | Prisma.EDPScalarWhereInput[]
+}
+
+export type EDPCreateNestedManyWithoutEmployeeInput = {
+  create?: Prisma.XOR<Prisma.EDPCreateWithoutEmployeeInput, Prisma.EDPUncheckedCreateWithoutEmployeeInput> | Prisma.EDPCreateWithoutEmployeeInput[] | Prisma.EDPUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.EDPCreateOrConnectWithoutEmployeeInput | Prisma.EDPCreateOrConnectWithoutEmployeeInput[]
+  createMany?: Prisma.EDPCreateManyEmployeeInputEnvelope
+  connect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
+}
+
+export type EDPUncheckedCreateNestedManyWithoutEmployeeInput = {
+  create?: Prisma.XOR<Prisma.EDPCreateWithoutEmployeeInput, Prisma.EDPUncheckedCreateWithoutEmployeeInput> | Prisma.EDPCreateWithoutEmployeeInput[] | Prisma.EDPUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.EDPCreateOrConnectWithoutEmployeeInput | Prisma.EDPCreateOrConnectWithoutEmployeeInput[]
+  createMany?: Prisma.EDPCreateManyEmployeeInputEnvelope
+  connect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
+}
+
+export type EDPUpdateManyWithoutEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.EDPCreateWithoutEmployeeInput, Prisma.EDPUncheckedCreateWithoutEmployeeInput> | Prisma.EDPCreateWithoutEmployeeInput[] | Prisma.EDPUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.EDPCreateOrConnectWithoutEmployeeInput | Prisma.EDPCreateOrConnectWithoutEmployeeInput[]
+  upsert?: Prisma.EDPUpsertWithWhereUniqueWithoutEmployeeInput | Prisma.EDPUpsertWithWhereUniqueWithoutEmployeeInput[]
+  createMany?: Prisma.EDPCreateManyEmployeeInputEnvelope
+  set?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
+  disconnect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
+  delete?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
+  connect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
+  update?: Prisma.EDPUpdateWithWhereUniqueWithoutEmployeeInput | Prisma.EDPUpdateWithWhereUniqueWithoutEmployeeInput[]
+  updateMany?: Prisma.EDPUpdateManyWithWhereWithoutEmployeeInput | Prisma.EDPUpdateManyWithWhereWithoutEmployeeInput[]
+  deleteMany?: Prisma.EDPScalarWhereInput | Prisma.EDPScalarWhereInput[]
+}
+
+export type EDPUncheckedUpdateManyWithoutEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.EDPCreateWithoutEmployeeInput, Prisma.EDPUncheckedCreateWithoutEmployeeInput> | Prisma.EDPCreateWithoutEmployeeInput[] | Prisma.EDPUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.EDPCreateOrConnectWithoutEmployeeInput | Prisma.EDPCreateOrConnectWithoutEmployeeInput[]
+  upsert?: Prisma.EDPUpsertWithWhereUniqueWithoutEmployeeInput | Prisma.EDPUpsertWithWhereUniqueWithoutEmployeeInput[]
+  createMany?: Prisma.EDPCreateManyEmployeeInputEnvelope
+  set?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
+  disconnect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
+  delete?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
+  connect?: Prisma.EDPWhereUniqueInput | Prisma.EDPWhereUniqueInput[]
+  update?: Prisma.EDPUpdateWithWhereUniqueWithoutEmployeeInput | Prisma.EDPUpdateWithWhereUniqueWithoutEmployeeInput[]
+  updateMany?: Prisma.EDPUpdateManyWithWhereWithoutEmployeeInput | Prisma.EDPUpdateManyWithWhereWithoutEmployeeInput[]
   deleteMany?: Prisma.EDPScalarWhereInput | Prisma.EDPScalarWhereInput[]
 }
 
@@ -916,6 +923,22 @@ export type EDPUncheckedUpdateManyWithoutPositionReportOverrideNestedInput = {
   deleteMany?: Prisma.EDPScalarWhereInput | Prisma.EDPScalarWhereInput[]
 }
 
+export type EDPCreateNestedOneWithoutWorkResponsibilityReferencesInput = {
+  create?: Prisma.XOR<Prisma.EDPCreateWithoutWorkResponsibilityReferencesInput, Prisma.EDPUncheckedCreateWithoutWorkResponsibilityReferencesInput>
+  connectOrCreate?: Prisma.EDPCreateOrConnectWithoutWorkResponsibilityReferencesInput
+  connect?: Prisma.EDPWhereUniqueInput
+}
+
+export type EDPUpdateOneWithoutWorkResponsibilityReferencesNestedInput = {
+  create?: Prisma.XOR<Prisma.EDPCreateWithoutWorkResponsibilityReferencesInput, Prisma.EDPUncheckedCreateWithoutWorkResponsibilityReferencesInput>
+  connectOrCreate?: Prisma.EDPCreateOrConnectWithoutWorkResponsibilityReferencesInput
+  upsert?: Prisma.EDPUpsertWithoutWorkResponsibilityReferencesInput
+  disconnect?: Prisma.EDPWhereInput | boolean
+  delete?: Prisma.EDPWhereInput | boolean
+  connect?: Prisma.EDPWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EDPUpdateToOneWithWhereWithoutWorkResponsibilityReferencesInput, Prisma.EDPUpdateWithoutWorkResponsibilityReferencesInput>, Prisma.EDPUncheckedUpdateWithoutWorkResponsibilityReferencesInput>
+}
+
 export type EDPCreateWithoutErpDueDiligenceSubmissionsInput = {
   isPrimary?: boolean
   startDate?: string | null
@@ -931,6 +954,7 @@ export type EDPCreateWithoutErpDueDiligenceSubmissionsInput = {
   positionReportOverride?: Prisma.PositionReportOverrideCreateNestedOneWithoutEdpsInput
   employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
   reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedEdpsInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPUncheckedCreateWithoutErpDueDiligenceSubmissionsInput = {
@@ -949,6 +973,7 @@ export type EDPUncheckedCreateWithoutErpDueDiligenceSubmissionsInput = {
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPCreateOrConnectWithoutErpDueDiligenceSubmissionsInput = {
@@ -982,6 +1007,7 @@ export type EDPUpdateWithoutErpDueDiligenceSubmissionsInput = {
   positionReportOverride?: Prisma.PositionReportOverrideUpdateOneWithoutEdpsNestedInput
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
   reportToPosition?: Prisma.PositionUpdateOneWithoutReportedEdpsNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPUncheckedUpdateWithoutErpDueDiligenceSubmissionsInput = {
@@ -1000,88 +1026,7 @@ export type EDPUncheckedUpdateWithoutErpDueDiligenceSubmissionsInput = {
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
-}
-
-export type EDPCreateWithoutEmployeeInput = {
-  isPrimary?: boolean
-  startDate?: string | null
-  endDate?: string | null
-  reportTo?: string | null
-  allocationWeight?: string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  position?: Prisma.PositionCreateNestedOneWithoutEdpsInput
-  department?: Prisma.DepartmentCreateNestedOneWithoutEdpsInput
-  reportingCompany?: Prisma.CompanyCreateNestedOneWithoutReportingEdpsInput
-  positionReportOverride?: Prisma.PositionReportOverrideCreateNestedOneWithoutEdpsInput
-  reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedEdpsInput
-  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutPositionAssignmentInput
-}
-
-export type EDPUncheckedCreateWithoutEmployeeInput = {
-  id?: number
-  reportingCompanyId?: number | null
-  departmentId?: number | null
-  positionId?: number | null
-  positionReportOverrideId?: number | null
-  isPrimary?: boolean
-  startDate?: string | null
-  endDate?: string | null
-  reportTo?: string | null
-  reportToPositionId?: number | null
-  allocationWeight?: string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutPositionAssignmentInput
-}
-
-export type EDPCreateOrConnectWithoutEmployeeInput = {
-  where: Prisma.EDPWhereUniqueInput
-  create: Prisma.XOR<Prisma.EDPCreateWithoutEmployeeInput, Prisma.EDPUncheckedCreateWithoutEmployeeInput>
-}
-
-export type EDPCreateManyEmployeeInputEnvelope = {
-  data: Prisma.EDPCreateManyEmployeeInput | Prisma.EDPCreateManyEmployeeInput[]
-  skipDuplicates?: boolean
-}
-
-export type EDPUpsertWithWhereUniqueWithoutEmployeeInput = {
-  where: Prisma.EDPWhereUniqueInput
-  update: Prisma.XOR<Prisma.EDPUpdateWithoutEmployeeInput, Prisma.EDPUncheckedUpdateWithoutEmployeeInput>
-  create: Prisma.XOR<Prisma.EDPCreateWithoutEmployeeInput, Prisma.EDPUncheckedCreateWithoutEmployeeInput>
-}
-
-export type EDPUpdateWithWhereUniqueWithoutEmployeeInput = {
-  where: Prisma.EDPWhereUniqueInput
-  data: Prisma.XOR<Prisma.EDPUpdateWithoutEmployeeInput, Prisma.EDPUncheckedUpdateWithoutEmployeeInput>
-}
-
-export type EDPUpdateManyWithWhereWithoutEmployeeInput = {
-  where: Prisma.EDPScalarWhereInput
-  data: Prisma.XOR<Prisma.EDPUpdateManyMutationInput, Prisma.EDPUncheckedUpdateManyWithoutEmployeeInput>
-}
-
-export type EDPScalarWhereInput = {
-  AND?: Prisma.EDPScalarWhereInput | Prisma.EDPScalarWhereInput[]
-  OR?: Prisma.EDPScalarWhereInput[]
-  NOT?: Prisma.EDPScalarWhereInput | Prisma.EDPScalarWhereInput[]
-  id?: Prisma.IntFilter<"EDP"> | number
-  employeeId?: Prisma.IntFilter<"EDP"> | number
-  reportingCompanyId?: Prisma.IntNullableFilter<"EDP"> | number | null
-  departmentId?: Prisma.IntNullableFilter<"EDP"> | number | null
-  positionId?: Prisma.IntNullableFilter<"EDP"> | number | null
-  positionReportOverrideId?: Prisma.IntNullableFilter<"EDP"> | number | null
-  isPrimary?: Prisma.BoolFilter<"EDP"> | boolean
-  startDate?: Prisma.StringNullableFilter<"EDP"> | string | null
-  endDate?: Prisma.StringNullableFilter<"EDP"> | string | null
-  reportTo?: Prisma.StringNullableFilter<"EDP"> | string | null
-  reportToPositionId?: Prisma.IntNullableFilter<"EDP"> | number | null
-  allocationWeight?: Prisma.StringNullableFilter<"EDP"> | string | null
-  editedBy?: Prisma.IntNullableFilter<"EDP"> | number | null
-  editedAt?: Prisma.DateTimeNullableFilter<"EDP"> | Date | string | null
-  version?: Prisma.IntFilter<"EDP"> | number
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPCreateWithoutReportingCompanyInput = {
@@ -1099,6 +1044,7 @@ export type EDPCreateWithoutReportingCompanyInput = {
   employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
   reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedEdpsInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPUncheckedCreateWithoutReportingCompanyInput = {
@@ -1117,6 +1063,7 @@ export type EDPUncheckedCreateWithoutReportingCompanyInput = {
   editedAt?: Date | string | null
   version?: number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPCreateOrConnectWithoutReportingCompanyInput = {
@@ -1145,6 +1092,90 @@ export type EDPUpdateManyWithWhereWithoutReportingCompanyInput = {
   data: Prisma.XOR<Prisma.EDPUpdateManyMutationInput, Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyInput>
 }
 
+export type EDPScalarWhereInput = {
+  AND?: Prisma.EDPScalarWhereInput | Prisma.EDPScalarWhereInput[]
+  OR?: Prisma.EDPScalarWhereInput[]
+  NOT?: Prisma.EDPScalarWhereInput | Prisma.EDPScalarWhereInput[]
+  id?: Prisma.IntFilter<"EDP"> | number
+  employeeId?: Prisma.IntFilter<"EDP"> | number
+  reportingCompanyId?: Prisma.IntNullableFilter<"EDP"> | number | null
+  departmentId?: Prisma.IntNullableFilter<"EDP"> | number | null
+  positionId?: Prisma.IntNullableFilter<"EDP"> | number | null
+  positionReportOverrideId?: Prisma.IntNullableFilter<"EDP"> | number | null
+  isPrimary?: Prisma.BoolFilter<"EDP"> | boolean
+  startDate?: Prisma.StringNullableFilter<"EDP"> | string | null
+  endDate?: Prisma.StringNullableFilter<"EDP"> | string | null
+  reportTo?: Prisma.StringNullableFilter<"EDP"> | string | null
+  reportToPositionId?: Prisma.IntNullableFilter<"EDP"> | number | null
+  allocationWeight?: Prisma.StringNullableFilter<"EDP"> | string | null
+  editedBy?: Prisma.IntNullableFilter<"EDP"> | number | null
+  editedAt?: Prisma.DateTimeNullableFilter<"EDP"> | Date | string | null
+  version?: Prisma.IntFilter<"EDP"> | number
+}
+
+export type EDPCreateWithoutEmployeeInput = {
+  isPrimary?: boolean
+  startDate?: string | null
+  endDate?: string | null
+  reportTo?: string | null
+  allocationWeight?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  position?: Prisma.PositionCreateNestedOneWithoutEdpsInput
+  department?: Prisma.DepartmentCreateNestedOneWithoutEdpsInput
+  reportingCompany?: Prisma.CompanyCreateNestedOneWithoutReportingEdpsInput
+  positionReportOverride?: Prisma.PositionReportOverrideCreateNestedOneWithoutEdpsInput
+  reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedEdpsInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutLockedEmployeePositionInput
+}
+
+export type EDPUncheckedCreateWithoutEmployeeInput = {
+  id?: number
+  reportingCompanyId?: number | null
+  departmentId?: number | null
+  positionId?: number | null
+  positionReportOverrideId?: number | null
+  isPrimary?: boolean
+  startDate?: string | null
+  endDate?: string | null
+  reportTo?: string | null
+  reportToPositionId?: number | null
+  allocationWeight?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutLockedEmployeePositionInput
+}
+
+export type EDPCreateOrConnectWithoutEmployeeInput = {
+  where: Prisma.EDPWhereUniqueInput
+  create: Prisma.XOR<Prisma.EDPCreateWithoutEmployeeInput, Prisma.EDPUncheckedCreateWithoutEmployeeInput>
+}
+
+export type EDPCreateManyEmployeeInputEnvelope = {
+  data: Prisma.EDPCreateManyEmployeeInput | Prisma.EDPCreateManyEmployeeInput[]
+  skipDuplicates?: boolean
+}
+
+export type EDPUpsertWithWhereUniqueWithoutEmployeeInput = {
+  where: Prisma.EDPWhereUniqueInput
+  update: Prisma.XOR<Prisma.EDPUpdateWithoutEmployeeInput, Prisma.EDPUncheckedUpdateWithoutEmployeeInput>
+  create: Prisma.XOR<Prisma.EDPCreateWithoutEmployeeInput, Prisma.EDPUncheckedCreateWithoutEmployeeInput>
+}
+
+export type EDPUpdateWithWhereUniqueWithoutEmployeeInput = {
+  where: Prisma.EDPWhereUniqueInput
+  data: Prisma.XOR<Prisma.EDPUpdateWithoutEmployeeInput, Prisma.EDPUncheckedUpdateWithoutEmployeeInput>
+}
+
+export type EDPUpdateManyWithWhereWithoutEmployeeInput = {
+  where: Prisma.EDPScalarWhereInput
+  data: Prisma.XOR<Prisma.EDPUpdateManyMutationInput, Prisma.EDPUncheckedUpdateManyWithoutEmployeeInput>
+}
+
 export type EDPCreateWithoutDepartmentInput = {
   isPrimary?: boolean
   startDate?: string | null
@@ -1160,6 +1191,7 @@ export type EDPCreateWithoutDepartmentInput = {
   employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
   reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedEdpsInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPUncheckedCreateWithoutDepartmentInput = {
@@ -1178,6 +1210,7 @@ export type EDPUncheckedCreateWithoutDepartmentInput = {
   editedAt?: Date | string | null
   version?: number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPCreateOrConnectWithoutDepartmentInput = {
@@ -1221,6 +1254,7 @@ export type EDPCreateWithoutPositionInput = {
   employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
   reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedEdpsInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPUncheckedCreateWithoutPositionInput = {
@@ -1239,6 +1273,7 @@ export type EDPUncheckedCreateWithoutPositionInput = {
   editedAt?: Date | string | null
   version?: number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPCreateOrConnectWithoutPositionInput = {
@@ -1266,6 +1301,7 @@ export type EDPCreateWithoutReportToPositionInput = {
   positionReportOverride?: Prisma.PositionReportOverrideCreateNestedOneWithoutEdpsInput
   employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPUncheckedCreateWithoutReportToPositionInput = {
@@ -1284,6 +1320,7 @@ export type EDPUncheckedCreateWithoutReportToPositionInput = {
   editedAt?: Date | string | null
   version?: number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPCreateOrConnectWithoutReportToPositionInput = {
@@ -1343,6 +1380,7 @@ export type EDPCreateWithoutPositionReportOverrideInput = {
   employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
   reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedEdpsInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPUncheckedCreateWithoutPositionReportOverrideInput = {
@@ -1361,6 +1399,7 @@ export type EDPUncheckedCreateWithoutPositionReportOverrideInput = {
   editedAt?: Date | string | null
   version?: number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutPositionAssignmentInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutLockedEmployeePositionInput
 }
 
 export type EDPCreateOrConnectWithoutPositionReportOverrideInput = {
@@ -1389,8 +1428,27 @@ export type EDPUpdateManyWithWhereWithoutPositionReportOverrideInput = {
   data: Prisma.XOR<Prisma.EDPUpdateManyMutationInput, Prisma.EDPUncheckedUpdateManyWithoutPositionReportOverrideInput>
 }
 
-export type EDPCreateManyEmployeeInput = {
+export type EDPCreateWithoutWorkResponsibilityReferencesInput = {
+  isPrimary?: boolean
+  startDate?: string | null
+  endDate?: string | null
+  reportTo?: string | null
+  allocationWeight?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  position?: Prisma.PositionCreateNestedOneWithoutEdpsInput
+  department?: Prisma.DepartmentCreateNestedOneWithoutEdpsInput
+  reportingCompany?: Prisma.CompanyCreateNestedOneWithoutReportingEdpsInput
+  positionReportOverride?: Prisma.PositionReportOverrideCreateNestedOneWithoutEdpsInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
+  reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedEdpsInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutPositionAssignmentInput
+}
+
+export type EDPUncheckedCreateWithoutWorkResponsibilityReferencesInput = {
   id?: number
+  employeeId: number
   reportingCompanyId?: number | null
   departmentId?: number | null
   positionId?: number | null
@@ -1404,9 +1462,26 @@ export type EDPCreateManyEmployeeInput = {
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutPositionAssignmentInput
 }
 
-export type EDPUpdateWithoutEmployeeInput = {
+export type EDPCreateOrConnectWithoutWorkResponsibilityReferencesInput = {
+  where: Prisma.EDPWhereUniqueInput
+  create: Prisma.XOR<Prisma.EDPCreateWithoutWorkResponsibilityReferencesInput, Prisma.EDPUncheckedCreateWithoutWorkResponsibilityReferencesInput>
+}
+
+export type EDPUpsertWithoutWorkResponsibilityReferencesInput = {
+  update: Prisma.XOR<Prisma.EDPUpdateWithoutWorkResponsibilityReferencesInput, Prisma.EDPUncheckedUpdateWithoutWorkResponsibilityReferencesInput>
+  create: Prisma.XOR<Prisma.EDPCreateWithoutWorkResponsibilityReferencesInput, Prisma.EDPUncheckedCreateWithoutWorkResponsibilityReferencesInput>
+  where?: Prisma.EDPWhereInput
+}
+
+export type EDPUpdateToOneWithWhereWithoutWorkResponsibilityReferencesInput = {
+  where?: Prisma.EDPWhereInput
+  data: Prisma.XOR<Prisma.EDPUpdateWithoutWorkResponsibilityReferencesInput, Prisma.EDPUncheckedUpdateWithoutWorkResponsibilityReferencesInput>
+}
+
+export type EDPUpdateWithoutWorkResponsibilityReferencesInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1419,12 +1494,14 @@ export type EDPUpdateWithoutEmployeeInput = {
   department?: Prisma.DepartmentUpdateOneWithoutEdpsNestedInput
   reportingCompany?: Prisma.CompanyUpdateOneWithoutReportingEdpsNestedInput
   positionReportOverride?: Prisma.PositionReportOverrideUpdateOneWithoutEdpsNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
   reportToPosition?: Prisma.PositionUpdateOneWithoutReportedEdpsNestedInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutPositionAssignmentNestedInput
 }
 
-export type EDPUncheckedUpdateWithoutEmployeeInput = {
+export type EDPUncheckedUpdateWithoutWorkResponsibilityReferencesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  employeeId?: Prisma.IntFieldUpdateOperationsInput | number
   reportingCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1439,23 +1516,6 @@ export type EDPUncheckedUpdateWithoutEmployeeInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutPositionAssignmentNestedInput
-}
-
-export type EDPUncheckedUpdateManyWithoutEmployeeInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  reportingCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  positionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  positionReportOverrideId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportToPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  allocationWeight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type EDPCreateManyReportingCompanyInput = {
@@ -1490,6 +1550,7 @@ export type EDPUpdateWithoutReportingCompanyInput = {
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
   reportToPosition?: Prisma.PositionUpdateOneWithoutReportedEdpsNestedInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPUncheckedUpdateWithoutReportingCompanyInput = {
@@ -1508,11 +1569,83 @@ export type EDPUncheckedUpdateWithoutReportingCompanyInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPUncheckedUpdateManyWithoutReportingCompanyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   employeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionReportOverrideId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportToPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  allocationWeight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type EDPCreateManyEmployeeInput = {
+  id?: number
+  reportingCompanyId?: number | null
+  departmentId?: number | null
+  positionId?: number | null
+  positionReportOverrideId?: number | null
+  isPrimary?: boolean
+  startDate?: string | null
+  endDate?: string | null
+  reportTo?: string | null
+  reportToPositionId?: number | null
+  allocationWeight?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+}
+
+export type EDPUpdateWithoutEmployeeInput = {
+  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allocationWeight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  position?: Prisma.PositionUpdateOneWithoutEdpsNestedInput
+  department?: Prisma.DepartmentUpdateOneWithoutEdpsNestedInput
+  reportingCompany?: Prisma.CompanyUpdateOneWithoutReportingEdpsNestedInput
+  positionReportOverride?: Prisma.PositionReportOverrideUpdateOneWithoutEdpsNestedInput
+  reportToPosition?: Prisma.PositionUpdateOneWithoutReportedEdpsNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutLockedEmployeePositionNestedInput
+}
+
+export type EDPUncheckedUpdateWithoutEmployeeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  reportingCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionReportOverrideId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportToPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  allocationWeight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeePositionNestedInput
+}
+
+export type EDPUncheckedUpdateManyWithoutEmployeeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  reportingCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positionReportOverrideId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1559,6 +1692,7 @@ export type EDPUpdateWithoutDepartmentInput = {
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
   reportToPosition?: Prisma.PositionUpdateOneWithoutReportedEdpsNestedInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPUncheckedUpdateWithoutDepartmentInput = {
@@ -1577,6 +1711,7 @@ export type EDPUncheckedUpdateWithoutDepartmentInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPUncheckedUpdateManyWithoutDepartmentInput = {
@@ -1645,6 +1780,7 @@ export type EDPUpdateWithoutPositionInput = {
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
   reportToPosition?: Prisma.PositionUpdateOneWithoutReportedEdpsNestedInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPUncheckedUpdateWithoutPositionInput = {
@@ -1663,6 +1799,7 @@ export type EDPUncheckedUpdateWithoutPositionInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPUncheckedUpdateManyWithoutPositionInput = {
@@ -1697,6 +1834,7 @@ export type EDPUpdateWithoutReportToPositionInput = {
   positionReportOverride?: Prisma.PositionReportOverrideUpdateOneWithoutEdpsNestedInput
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPUncheckedUpdateWithoutReportToPositionInput = {
@@ -1715,6 +1853,7 @@ export type EDPUncheckedUpdateWithoutReportToPositionInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPUncheckedUpdateManyWithoutReportToPositionInput = {
@@ -1766,6 +1905,7 @@ export type EDPUpdateWithoutPositionReportOverrideInput = {
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
   reportToPosition?: Prisma.PositionUpdateOneWithoutReportedEdpsNestedInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPUncheckedUpdateWithoutPositionReportOverrideInput = {
@@ -1784,6 +1924,7 @@ export type EDPUncheckedUpdateWithoutPositionReportOverrideInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutPositionAssignmentNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeePositionNestedInput
 }
 
 export type EDPUncheckedUpdateManyWithoutPositionReportOverrideInput = {
@@ -1810,10 +1951,12 @@ export type EDPUncheckedUpdateManyWithoutPositionReportOverrideInput = {
 
 export type EDPCountOutputType = {
   erpDueDiligenceSubmissions: number
+  workResponsibilityReferences: number
 }
 
 export type EDPCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   erpDueDiligenceSubmissions?: boolean | EDPCountOutputTypeCountErpDueDiligenceSubmissionsArgs
+  workResponsibilityReferences?: boolean | EDPCountOutputTypeCountWorkResponsibilityReferencesArgs
 }
 
 /**
@@ -1831,6 +1974,13 @@ export type EDPCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensio
  */
 export type EDPCountOutputTypeCountErpDueDiligenceSubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ErpDueDiligenceSubmissionWhereInput
+}
+
+/**
+ * EDPCountOutputType without action
+ */
+export type EDPCountOutputTypeCountWorkResponsibilityReferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkResponsibilityReferenceWhereInput
 }
 
 
@@ -1857,6 +2007,7 @@ export type EDPSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   reportToPosition?: boolean | Prisma.EDP$reportToPositionArgs<ExtArgs>
   erpDueDiligenceSubmissions?: boolean | Prisma.EDP$erpDueDiligenceSubmissionsArgs<ExtArgs>
+  workResponsibilityReferences?: boolean | Prisma.EDP$workResponsibilityReferencesArgs<ExtArgs>
   _count?: boolean | Prisma.EDPCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["eDP"]>
 
@@ -1935,6 +2086,7 @@ export type EDPInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   reportToPosition?: boolean | Prisma.EDP$reportToPositionArgs<ExtArgs>
   erpDueDiligenceSubmissions?: boolean | Prisma.EDP$erpDueDiligenceSubmissionsArgs<ExtArgs>
+  workResponsibilityReferences?: boolean | Prisma.EDP$workResponsibilityReferencesArgs<ExtArgs>
   _count?: boolean | Prisma.EDPCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EDPIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1964,6 +2116,7 @@ export type $EDPPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     employee: Prisma.$EmployeePayload<ExtArgs>
     reportToPosition: Prisma.$PositionPayload<ExtArgs> | null
     erpDueDiligenceSubmissions: Prisma.$ErpDueDiligenceSubmissionPayload<ExtArgs>[]
+    workResponsibilityReferences: Prisma.$WorkResponsibilityReferencePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2382,6 +2535,7 @@ export interface Prisma__EDPClient<T, Null = never, ExtArgs extends runtime.Type
   employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   reportToPosition<T extends Prisma.EDP$reportToPositionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EDP$reportToPositionArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   erpDueDiligenceSubmissions<T extends Prisma.EDP$erpDueDiligenceSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EDP$erpDueDiligenceSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ErpDueDiligenceSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  workResponsibilityReferences<T extends Prisma.EDP$workResponsibilityReferencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EDP$workResponsibilityReferencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkResponsibilityReferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2943,6 +3097,30 @@ export type EDP$erpDueDiligenceSubmissionsArgs<ExtArgs extends runtime.Types.Ext
   take?: number
   skip?: number
   distinct?: Prisma.ErpDueDiligenceSubmissionScalarFieldEnum | Prisma.ErpDueDiligenceSubmissionScalarFieldEnum[]
+}
+
+/**
+ * EDP.workResponsibilityReferences
+ */
+export type EDP$workResponsibilityReferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkResponsibilityReference
+   */
+  select?: Prisma.WorkResponsibilityReferenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkResponsibilityReference
+   */
+  omit?: Prisma.WorkResponsibilityReferenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkResponsibilityReferenceInclude<ExtArgs> | null
+  where?: Prisma.WorkResponsibilityReferenceWhereInput
+  orderBy?: Prisma.WorkResponsibilityReferenceOrderByWithRelationInput | Prisma.WorkResponsibilityReferenceOrderByWithRelationInput[]
+  cursor?: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkResponsibilityReferenceScalarFieldEnum | Prisma.WorkResponsibilityReferenceScalarFieldEnum[]
 }
 
 /**

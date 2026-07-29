@@ -798,6 +798,48 @@ export type EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutUpdaterNested
   deleteMany?: Prisma.EmployeeSocialInsurancePeriodScalarWhereInput | Prisma.EmployeeSocialInsurancePeriodScalarWhereInput[]
 }
 
+export type EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput> | Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput[] | Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.EmployeeSocialInsurancePeriodCreateManyCompanyInputEnvelope
+  connect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
+}
+
+export type EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput> | Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput[] | Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.EmployeeSocialInsurancePeriodCreateManyCompanyInputEnvelope
+  connect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
+}
+
+export type EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput> | Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput[] | Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.EmployeeSocialInsurancePeriodUpsertWithWhereUniqueWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.EmployeeSocialInsurancePeriodCreateManyCompanyInputEnvelope
+  set?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
+  delete?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
+  connect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
+  update?: Prisma.EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.EmployeeSocialInsurancePeriodScalarWhereInput | Prisma.EmployeeSocialInsurancePeriodScalarWhereInput[]
+}
+
+export type EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput> | Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput[] | Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.EmployeeSocialInsurancePeriodUpsertWithWhereUniqueWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.EmployeeSocialInsurancePeriodCreateManyCompanyInputEnvelope
+  set?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
+  delete?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
+  connect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
+  update?: Prisma.EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.EmployeeSocialInsurancePeriodScalarWhereInput | Prisma.EmployeeSocialInsurancePeriodScalarWhereInput[]
+}
+
 export type EmployeeSocialInsurancePeriodCreateNestedOneWithoutRevisionsInput = {
   create?: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutRevisionsInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutRevisionsInput>
   connectOrCreate?: Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutRevisionsInput
@@ -851,48 +893,6 @@ export type EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeNeste
   connect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
   update?: Prisma.EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutEmployeeInput | Prisma.EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutEmployeeInput[]
   updateMany?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutEmployeeInput | Prisma.EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutEmployeeInput[]
-  deleteMany?: Prisma.EmployeeSocialInsurancePeriodScalarWhereInput | Prisma.EmployeeSocialInsurancePeriodScalarWhereInput[]
-}
-
-export type EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput = {
-  create?: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput> | Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput[] | Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput[]
-  connectOrCreate?: Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput[]
-  createMany?: Prisma.EmployeeSocialInsurancePeriodCreateManyCompanyInputEnvelope
-  connect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
-}
-
-export type EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput = {
-  create?: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput> | Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput[] | Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput[]
-  connectOrCreate?: Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput[]
-  createMany?: Prisma.EmployeeSocialInsurancePeriodCreateManyCompanyInputEnvelope
-  connect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
-}
-
-export type EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput = {
-  create?: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput> | Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput[] | Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput[]
-  connectOrCreate?: Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput[]
-  upsert?: Prisma.EmployeeSocialInsurancePeriodUpsertWithWhereUniqueWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodUpsertWithWhereUniqueWithoutCompanyInput[]
-  createMany?: Prisma.EmployeeSocialInsurancePeriodCreateManyCompanyInputEnvelope
-  set?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
-  disconnect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
-  delete?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
-  connect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
-  update?: Prisma.EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutCompanyInput[]
-  updateMany?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutCompanyInput[]
-  deleteMany?: Prisma.EmployeeSocialInsurancePeriodScalarWhereInput | Prisma.EmployeeSocialInsurancePeriodScalarWhereInput[]
-}
-
-export type EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput = {
-  create?: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput> | Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput[] | Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput[]
-  connectOrCreate?: Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput[]
-  upsert?: Prisma.EmployeeSocialInsurancePeriodUpsertWithWhereUniqueWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodUpsertWithWhereUniqueWithoutCompanyInput[]
-  createMany?: Prisma.EmployeeSocialInsurancePeriodCreateManyCompanyInputEnvelope
-  set?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
-  disconnect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
-  delete?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
-  connect?: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput | Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput[]
-  update?: Prisma.EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutCompanyInput[]
-  updateMany?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutCompanyInput | Prisma.EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutCompanyInput[]
   deleteMany?: Prisma.EmployeeSocialInsurancePeriodScalarWhereInput | Prisma.EmployeeSocialInsurancePeriodScalarWhereInput[]
 }
 
@@ -1057,6 +1057,75 @@ export type EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutUpdaterInpu
 export type EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutUpdaterInput = {
   where: Prisma.EmployeeSocialInsurancePeriodScalarWhereInput
   data: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodUpdateManyMutationInput, Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutUpdaterInput>
+}
+
+export type EmployeeSocialInsurancePeriodCreateWithoutCompanyInput = {
+  periodUid?: string
+  insuranceStatus?: string
+  companyNameSnapshot?: string | null
+  startMonth?: Date | string | null
+  endMonth?: Date | string | null
+  stopReason?: string | null
+  note?: string | null
+  missingFieldsJson?: string
+  recordState?: string
+  sourceKind?: string
+  sourceRef?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  employee: Prisma.EmployeeCreateNestedOneWithoutSocialInsurancePeriodsInput
+  creator?: Prisma.UserCreateNestedOneWithoutCreatedEmployeeSocialInsurancePeriodsInput
+  updater?: Prisma.UserCreateNestedOneWithoutUpdatedEmployeeSocialInsurancePeriodsInput
+  revisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutPeriodInput
+}
+
+export type EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  periodUid?: string
+  employeeId: number
+  insuranceStatus?: string
+  companyNameSnapshot?: string | null
+  startMonth?: Date | string | null
+  endMonth?: Date | string | null
+  stopReason?: string | null
+  note?: string | null
+  missingFieldsJson?: string
+  recordState?: string
+  sourceKind?: string
+  sourceRef?: string | null
+  createdBy?: number | null
+  updatedBy?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  revisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutPeriodInput
+}
+
+export type EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput>
+}
+
+export type EmployeeSocialInsurancePeriodCreateManyCompanyInputEnvelope = {
+  data: Prisma.EmployeeSocialInsurancePeriodCreateManyCompanyInput | Prisma.EmployeeSocialInsurancePeriodCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type EmployeeSocialInsurancePeriodUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput
+  update: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodUpdateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput>
+}
+
+export type EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput
+  data: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodUpdateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateWithoutCompanyInput>
+}
+
+export type EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.EmployeeSocialInsurancePeriodScalarWhereInput
+  data: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodUpdateManyMutationInput, Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyInput>
 }
 
 export type EmployeeSocialInsurancePeriodCreateWithoutRevisionsInput = {
@@ -1230,75 +1299,6 @@ export type EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutEmployeeInput
   data: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodUpdateManyMutationInput, Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeInput>
 }
 
-export type EmployeeSocialInsurancePeriodCreateWithoutCompanyInput = {
-  periodUid?: string
-  insuranceStatus?: string
-  companyNameSnapshot?: string | null
-  startMonth?: Date | string | null
-  endMonth?: Date | string | null
-  stopReason?: string | null
-  note?: string | null
-  missingFieldsJson?: string
-  recordState?: string
-  sourceKind?: string
-  sourceRef?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  version?: number
-  employee: Prisma.EmployeeCreateNestedOneWithoutSocialInsurancePeriodsInput
-  creator?: Prisma.UserCreateNestedOneWithoutCreatedEmployeeSocialInsurancePeriodsInput
-  updater?: Prisma.UserCreateNestedOneWithoutUpdatedEmployeeSocialInsurancePeriodsInput
-  revisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutPeriodInput
-}
-
-export type EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput = {
-  id?: number
-  periodUid?: string
-  employeeId: number
-  insuranceStatus?: string
-  companyNameSnapshot?: string | null
-  startMonth?: Date | string | null
-  endMonth?: Date | string | null
-  stopReason?: string | null
-  note?: string | null
-  missingFieldsJson?: string
-  recordState?: string
-  sourceKind?: string
-  sourceRef?: string | null
-  createdBy?: number | null
-  updatedBy?: number | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  version?: number
-  revisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutPeriodInput
-}
-
-export type EmployeeSocialInsurancePeriodCreateOrConnectWithoutCompanyInput = {
-  where: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput
-  create: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput>
-}
-
-export type EmployeeSocialInsurancePeriodCreateManyCompanyInputEnvelope = {
-  data: Prisma.EmployeeSocialInsurancePeriodCreateManyCompanyInput | Prisma.EmployeeSocialInsurancePeriodCreateManyCompanyInput[]
-  skipDuplicates?: boolean
-}
-
-export type EmployeeSocialInsurancePeriodUpsertWithWhereUniqueWithoutCompanyInput = {
-  where: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput
-  update: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodUpdateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateWithoutCompanyInput>
-  create: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodCreateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedCreateWithoutCompanyInput>
-}
-
-export type EmployeeSocialInsurancePeriodUpdateWithWhereUniqueWithoutCompanyInput = {
-  where: Prisma.EmployeeSocialInsurancePeriodWhereUniqueInput
-  data: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodUpdateWithoutCompanyInput, Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateWithoutCompanyInput>
-}
-
-export type EmployeeSocialInsurancePeriodUpdateManyWithWhereWithoutCompanyInput = {
-  where: Prisma.EmployeeSocialInsurancePeriodScalarWhereInput
-  data: Prisma.XOR<Prisma.EmployeeSocialInsurancePeriodUpdateManyMutationInput, Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyInput>
-}
-
 export type EmployeeSocialInsurancePeriodCreateManyCreatorInput = {
   id?: number
   periodUid?: string
@@ -1469,91 +1469,6 @@ export type EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutUpdaterInput 
   version?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
-export type EmployeeSocialInsurancePeriodCreateManyEmployeeInput = {
-  id?: number
-  periodUid?: string
-  insuranceStatus?: string
-  companyId?: number | null
-  companyNameSnapshot?: string | null
-  startMonth?: Date | string | null
-  endMonth?: Date | string | null
-  stopReason?: string | null
-  note?: string | null
-  missingFieldsJson?: string
-  recordState?: string
-  sourceKind?: string
-  sourceRef?: string | null
-  createdBy?: number | null
-  updatedBy?: number | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  version?: number
-}
-
-export type EmployeeSocialInsurancePeriodUpdateWithoutEmployeeInput = {
-  periodUid?: Prisma.StringFieldUpdateOperationsInput | string
-  insuranceStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  companyNameSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  startMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stopReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
-  recordState?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  company?: Prisma.CompanyUpdateOneWithoutSocialInsurancePeriodsNestedInput
-  creator?: Prisma.UserUpdateOneWithoutCreatedEmployeeSocialInsurancePeriodsNestedInput
-  updater?: Prisma.UserUpdateOneWithoutUpdatedEmployeeSocialInsurancePeriodsNestedInput
-  revisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutPeriodNestedInput
-}
-
-export type EmployeeSocialInsurancePeriodUncheckedUpdateWithoutEmployeeInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  periodUid?: Prisma.StringFieldUpdateOperationsInput | string
-  insuranceStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  companyNameSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  startMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stopReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
-  recordState?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  updatedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  revisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutPeriodNestedInput
-}
-
-export type EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  periodUid?: Prisma.StringFieldUpdateOperationsInput | string
-  insuranceStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  companyNameSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  startMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stopReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
-  recordState?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  updatedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-}
-
 export type EmployeeSocialInsurancePeriodCreateManyCompanyInput = {
   id?: number
   periodUid?: string
@@ -1623,6 +1538,91 @@ export type EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyInput 
   periodUid?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.IntFieldUpdateOperationsInput | number
   insuranceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  companyNameSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stopReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type EmployeeSocialInsurancePeriodCreateManyEmployeeInput = {
+  id?: number
+  periodUid?: string
+  insuranceStatus?: string
+  companyId?: number | null
+  companyNameSnapshot?: string | null
+  startMonth?: Date | string | null
+  endMonth?: Date | string | null
+  stopReason?: string | null
+  note?: string | null
+  missingFieldsJson?: string
+  recordState?: string
+  sourceKind?: string
+  sourceRef?: string | null
+  createdBy?: number | null
+  updatedBy?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+}
+
+export type EmployeeSocialInsurancePeriodUpdateWithoutEmployeeInput = {
+  periodUid?: Prisma.StringFieldUpdateOperationsInput | string
+  insuranceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  companyNameSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stopReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  company?: Prisma.CompanyUpdateOneWithoutSocialInsurancePeriodsNestedInput
+  creator?: Prisma.UserUpdateOneWithoutCreatedEmployeeSocialInsurancePeriodsNestedInput
+  updater?: Prisma.UserUpdateOneWithoutUpdatedEmployeeSocialInsurancePeriodsNestedInput
+  revisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutPeriodNestedInput
+}
+
+export type EmployeeSocialInsurancePeriodUncheckedUpdateWithoutEmployeeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  periodUid?: Prisma.StringFieldUpdateOperationsInput | string
+  insuranceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyNameSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stopReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missingFieldsJson?: Prisma.StringFieldUpdateOperationsInput | string
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  revisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutPeriodNestedInput
+}
+
+export type EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutEmployeeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  periodUid?: Prisma.StringFieldUpdateOperationsInput | string
+  insuranceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyNameSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endMonth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null

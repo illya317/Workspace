@@ -12,34 +12,42 @@ import {
   buildEmployeeCreateCommand,
   buildEmployeePageDraftCommand,
 } from "./domain/employee-validation";
-import { primaryContractCompany } from "./employments";
+import { employmentCompanyName } from "./employments";
 import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 import { logEmployeeListDiagnostics, startEmployeeListDiagnostics } from "./employee-list-diagnostics";
+import { formatSequentialBusinessCode } from "@workspace/platform/business-code-config";
+import {
+  businessCodeScopeParts,
+  businessCodeSequenceSettings,
+} from "@workspace/platform/business-code-rule";
+import {
+  allocateBusinessCodeSequence,
+  businessCodeScopeKey,
+} from "@workspace/platform/server/business-code-sequence";
+import { getBusinessCodeConfig } from "@workspace/platform/server/system-config";
 
-const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const EMPLOYEE_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education", "positionName", "directDepartmentName"]);
 const EMPLOYEE_DIRECTORY_POSITION_FILTER_FIELDS = new Set(["positionName", "directDepartmentName"]);
 const FAST_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education"]);
 
-async function nextEmployeeId() {
-  const [employees, users] = await Promise.all([
-    prisma.employee.findMany({ select: { employeeId: true } }),
-    prisma.user.findMany({ where: { employeeId: { not: null } }, select: { employeeId: true } }),
-  ]);
-  const usedIds = new Set(
-    employees.filter((employee) => EMPLOYEE_ID_PATTERN.test(employee.employeeId)).map((employee) => employee.employeeId),
-  );
-  for (const user of users) {
-    if (user.employeeId && EMPLOYEE_ID_PATTERN.test(user.employeeId)) usedIds.add(user.employeeId);
+async function nextEmployeeId(tx: Prisma.TransactionClient) {
+  const rule = (await getBusinessCodeConfig(tx)).employee;
+  const createdAt = new Date();
+  const sequenceSettings = businessCodeSequenceSettings(rule);
+  const configuredScope = businessCodeScopeParts(rule, { values: { createdAt }, sequence: sequenceSettings.start });
+  const scopeKey = businessCodeScopeKey(Object.keys(configuredScope).length ? configuredScope : { scope: "global" });
+  while (true) {
+    const sequence = await allocateBusinessCodeSequence(tx, {
+      ruleKey: "hr.employee",
+      scopeKey,
+      sequenceStart: sequenceSettings.start,
+    });
+    if (sequence > sequenceSettings.maximum) throw new Error("员工编号已用尽");
+    const employeeId = formatSequentialBusinessCode(rule, sequence, createdAt);
+    const employee = await tx.employee.findUnique({ where: { employeeId }, select: { id: true } });
+    if (!employee) return employeeId;
   }
-
-  for (let next = 1; next <= 99999; next += 1) {
-    const employeeId = String(next).padStart(5, "0");
-    if (!usedIds.has(employeeId)) return employeeId;
-  }
-
-  throw new Error("员工编号已用尽");
 }
 
 function formatAlias(value: string | null) {
@@ -96,7 +104,7 @@ function buildFastDirectoryWhere(input: {
   return where;
 }
 
-function attachEmployeeDirectoryFields<T extends { employments: Array<{ isActive: boolean; joinDate: string | null; leaveDate: string | null; currentCompany: string | null; contracts: string | null }>; positions: Array<{ position?: { name: string | null; department?: { name: string | null } | null } | null; department?: { name: string | null } | null }> }>(employees: T[]) {
+function attachEmployeeDirectoryFields<T extends { employments: Array<{ isActive: boolean; joinDate: string | null; leaveDate: string | null; currentCompany: string | null; contracts: string | null; company?: { party: { name: string } } | null }>; positions: Array<{ position?: { name: string | null; department?: { name: string | null } | null } | null; department?: { name: string | null } | null }> }>(employees: T[]) {
   const today = workspaceBusinessDate(new Date());
   for (const employee of employees) {
     for (const employment of employee.employments) {
@@ -108,7 +116,7 @@ function attachEmployeeDirectoryFields<T extends { employments: Array<{ isActive
       primaryPosition?.position?.department?.name ?? primaryPosition?.department?.name ?? null;
     const currentEmployment = employee.employments.find((employment) => employment.isActive) ?? employee.employments[0];
     (employee as Record<string, unknown>).currentCompany = currentEmployment
-      ? primaryContractCompany(currentEmployment.contracts, currentEmployment.currentCompany)
+      ? employmentCompanyName(currentEmployment.contracts, currentEmployment.currentCompany, currentEmployment.company?.party.name)
       : null;
   }
 }
@@ -170,7 +178,7 @@ export async function listEmployees(input: {
         where,
         include: {
           employments: {
-            select: { isActive: true, joinDate: true, leaveDate: true, currentCompany: true, contracts: true, personnelType: true },
+            select: { isActive: true, joinDate: true, leaveDate: true, currentCompany: true, contracts: true, personnelType: true, company: { select: { party: { select: { name: true } } } } },
             orderBy: [{ isActive: "desc" }, { id: "desc" }],
           },
           positions: {
@@ -196,7 +204,7 @@ export async function listEmployees(input: {
   let employees = await prisma.employee.findMany({
     include: {
       employments: {
-        select: { isActive: true, joinDate: true, leaveDate: true, currentCompany: true, contracts: true, personnelType: true },
+        select: { isActive: true, joinDate: true, leaveDate: true, currentCompany: true, contracts: true, personnelType: true, company: { select: { party: { select: { name: true } } } } },
         orderBy: [{ isActive: "desc" }, { id: "desc" }],
       },
       positions: {
@@ -228,7 +236,7 @@ export async function listEmployees(input: {
     employees = employees.filter((employee) =>
       employee.employments
         .filter((employment) => isActive === null || employment.isActive === isActive)
-        .some((employment) => primaryContractCompany(employment.contracts, employment.currentCompany) === input.company),
+        .some((employment) => employmentCompanyName(employment.contracts, employment.currentCompany, employment.company?.party.name) === input.company),
     );
     logEmployeeListDiagnostics(diagnostics, "slow:filter-company", { rows: employees.length });
   }
@@ -272,18 +280,19 @@ export async function createEmployeeWithAccount(name: string, editorUserId: numb
   const command = mapValidationToServiceResult(buildEmployeeCreateCommand(name));
   if (!command.ok) return command;
 
-  const employeeId = await nextEmployeeId();
-  const username = await uniqueUsernameFromName(command.data.name, { suffix: employeeId });
-
   try {
     const result = await prisma.$transaction(async (tx) => {
+      const employeeId = await nextEmployeeId(tx);
+      const username = await uniqueUsernameFromName(command.data.name, {
+        suffix: employeeId,
+        client: tx,
+      });
       const linkedUser = await tx.user.create({
         data: {
           username,
-          employeeId,
           canLogin: true,
         },
-        select: { id: true, username: true, employeeId: true },
+        select: { id: true, username: true },
       });
       const employee = await tx.employee.create({
         data: {
@@ -343,29 +352,16 @@ export async function updateEmployeePageDraft(input: {
     .map((row) => changesById.get(row.id)?.userId ?? row.userId)
     .filter((value): value is number => typeof value === "number");
   if (new Set(nextUserIds).size !== nextUserIds.length) return serviceError("同一账号不能关联多名员工", 409);
-  const [users, conflictingUser, usersClaimingEmployeeIds] = await Promise.all([
+  const [users, conflictingUser] = await Promise.all([
     prisma.user.findMany({ where: { id: { in: nextUserIds } }, select: { id: true } }),
     prisma.employee.findFirst({ where: { id: { notIn: ids }, userId: { in: nextUserIds } }, select: { id: true } }),
-    prisma.user.findMany({
-      where: { employeeId: { in: nextEmployeeIds } },
-      select: { id: true, employeeId: true },
-    }),
   ]);
   if (users.length !== new Set(nextUserIds).size) return serviceError("关联账号不存在", 400);
   if (conflictingUser) return serviceError("关联账号已绑定其他员工", 409);
-  const employeeIdOwnerConflict = usersClaimingEmployeeIds.some((user) => rows.some((row) => {
-    const values = changesById.get(row.id) ?? {};
-    const nextEmployeeId = String(values.employeeId ?? row.employeeId);
-    const nextUserId = Object.hasOwn(values, "userId") ? values.userId as number | null : row.userId;
-    return user.employeeId === nextEmployeeId && user.id !== nextUserId && user.id !== row.userId;
-  }));
-  if (employeeIdOwnerConflict) return serviceError("员工编号已被其他账号占用", 409);
   await prisma.$transaction(async (tx) => {
     for (const id of ids) {
       const original = rows.find((row) => row.id === id)!;
       const values = changesById.get(id) ?? {};
-      const nextEmployeeId = String(values.employeeId ?? original.employeeId);
-      const nextUserId = Object.hasOwn(values, "userId") ? values.userId as number | null : original.userId;
       await ensureEditHistoryBaseline("Employee", id, command.data.userId, tx);
       await tx.employee.update({
         where: { id },
@@ -376,15 +372,6 @@ export async function updateEmployeePageDraft(input: {
           version: { increment: 1 },
         },
       });
-      if (original.userId && original.userId !== nextUserId) {
-        await tx.user.updateMany({
-          where: { id: original.userId, employeeId: original.employeeId },
-          data: { employeeId: null },
-        });
-      }
-      if (nextUserId) {
-        await tx.user.update({ where: { id: nextUserId }, data: { employeeId: nextEmployeeId } });
-      }
       await snapshotHistory("Employee", id, command.data.userId, tx);
     }
   });

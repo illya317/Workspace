@@ -12,13 +12,33 @@ export interface CreateVersionInput {
   createdBy?: number;
 }
 
+async function resolveBudgetCompany(companyCode?: string) {
+  const normalized = companyCode?.trim() || null;
+  if (!normalized) return { id: null, code: null };
+  const company = await prisma.company.findUnique({ where: { code: normalized }, select: { id: true, code: true } });
+  if (!company) throw new Error(`公司编码不存在：${normalized}`);
+  return company;
+}
+
+function budgetCompanyWhere(company: { id: number | null; code: string | null }) {
+  if (company.id === null) return { companyId: null, companyCode: company.code };
+  return {
+    OR: [
+      { companyId: company.id },
+      { companyId: null, companyCode: company.code },
+    ],
+  };
+}
+
 export async function createBudgetVersion(input: CreateVersionInput) {
   const command = buildBudgetVersionCreateCommand(input);
   if (!command.ok) throw new Error(command.issue.message);
+  const company = await resolveBudgetCompany(command.data.data.companyCode);
   return prisma.financeBudgetVersion.create({
     data: {
       year: command.data.data.year,
-      companyCode: command.data.data.companyCode ?? null,
+      companyId: company.id,
+      companyCode: company.code,
       name: command.data.data.name,
       status: "draft",
       type: command.data.data.type,
@@ -29,15 +49,24 @@ export async function createBudgetVersion(input: CreateVersionInput) {
 }
 
 export async function listBudgetVersions(year: number, companyCode?: string) {
+  const company = await resolveBudgetCompany(companyCode);
   return prisma.financeBudgetVersion.findMany({
-    where: { year, companyCode: companyCode ?? null },
+    where: {
+      year,
+      ...budgetCompanyWhere(company),
+    },
     orderBy: { createdAt: "desc" },
   });
 }
 
 export async function getActiveVersion(year: number, companyCode?: string) {
+  const company = await resolveBudgetCompany(companyCode);
   return prisma.financeBudgetVersion.findFirst({
-    where: { year, companyCode: companyCode ?? null, status: "active" },
+    where: {
+      year,
+      status: "active",
+      ...budgetCompanyWhere(company),
+    },
   });
 }
 
@@ -50,11 +79,11 @@ export async function activateBudgetVersion(versionId: number) {
   if (!version) throw new Error("版本不存在");
   if (version.status === "active") return version;
 
-  // 同 (year, companyCode) 下其他 active 版本归档
+  // 同 (year, companyId) 下其他 active 版本归档
   await prisma.financeBudgetVersion.updateMany({
     where: {
       year: version.year,
-      companyCode: version.companyCode,
+      ...budgetCompanyWhere({ id: version.companyId, code: version.companyCode }),
       status: "active",
       id: { not: command.data.id },
     },

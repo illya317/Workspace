@@ -596,48 +596,6 @@ export type FinanceBalanceSnapshotRowSumOrderByAggregateInput = {
   sourceRow?: Prisma.SortOrder
 }
 
-export type FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput = {
-  create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput> | Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput[] | Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput[]
-  connectOrCreate?: Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput[]
-  createMany?: Prisma.FinanceBalanceSnapshotRowCreateManyAccountInputEnvelope
-  connect?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
-}
-
-export type FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput = {
-  create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput> | Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput[] | Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput[]
-  connectOrCreate?: Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput[]
-  createMany?: Prisma.FinanceBalanceSnapshotRowCreateManyAccountInputEnvelope
-  connect?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
-}
-
-export type FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput = {
-  create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput> | Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput[] | Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput[]
-  connectOrCreate?: Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput[]
-  upsert?: Prisma.FinanceBalanceSnapshotRowUpsertWithWhereUniqueWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowUpsertWithWhereUniqueWithoutAccountInput[]
-  createMany?: Prisma.FinanceBalanceSnapshotRowCreateManyAccountInputEnvelope
-  set?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
-  disconnect?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
-  delete?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
-  connect?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
-  update?: Prisma.FinanceBalanceSnapshotRowUpdateWithWhereUniqueWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowUpdateWithWhereUniqueWithoutAccountInput[]
-  updateMany?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithWhereWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowUpdateManyWithWhereWithoutAccountInput[]
-  deleteMany?: Prisma.FinanceBalanceSnapshotRowScalarWhereInput | Prisma.FinanceBalanceSnapshotRowScalarWhereInput[]
-}
-
-export type FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput = {
-  create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput> | Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput[] | Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput[]
-  connectOrCreate?: Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput[]
-  upsert?: Prisma.FinanceBalanceSnapshotRowUpsertWithWhereUniqueWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowUpsertWithWhereUniqueWithoutAccountInput[]
-  createMany?: Prisma.FinanceBalanceSnapshotRowCreateManyAccountInputEnvelope
-  set?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
-  disconnect?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
-  delete?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
-  connect?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
-  update?: Prisma.FinanceBalanceSnapshotRowUpdateWithWhereUniqueWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowUpdateWithWhereUniqueWithoutAccountInput[]
-  updateMany?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithWhereWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowUpdateManyWithWhereWithoutAccountInput[]
-  deleteMany?: Prisma.FinanceBalanceSnapshotRowScalarWhereInput | Prisma.FinanceBalanceSnapshotRowScalarWhereInput[]
-}
-
 export type FinanceBalanceSnapshotRowCreateNestedManyWithoutSnapshotInput = {
   create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutSnapshotInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutSnapshotInput> | Prisma.FinanceBalanceSnapshotRowCreateWithoutSnapshotInput[] | Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutSnapshotInput[]
   connectOrCreate?: Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutSnapshotInput | Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutSnapshotInput[]
@@ -680,78 +638,46 @@ export type FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutSnapshotNestedInp
   deleteMany?: Prisma.FinanceBalanceSnapshotRowScalarWhereInput | Prisma.FinanceBalanceSnapshotRowScalarWhereInput[]
 }
 
-export type FinanceBalanceSnapshotRowCreateWithoutAccountInput = {
-  accountCode: string
-  accountName: string
-  openingDebit?: number
-  openingCredit?: number
-  currentDebit?: number
-  currentCredit?: number
-  closingDebit?: number
-  closingCredit?: number
-  sourceSheet?: string | null
-  sourceRow?: number | null
-  snapshot: Prisma.FinanceBalanceSnapshotCreateNestedOneWithoutRowsInput
+export type FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput> | Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput[] | Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput[]
+  connectOrCreate?: Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput[]
+  createMany?: Prisma.FinanceBalanceSnapshotRowCreateManyAccountInputEnvelope
+  connect?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
 }
 
-export type FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput = {
-  id?: number
-  snapshotId: number
-  accountCode: string
-  accountName: string
-  openingDebit?: number
-  openingCredit?: number
-  currentDebit?: number
-  currentCredit?: number
-  closingDebit?: number
-  closingCredit?: number
-  sourceSheet?: string | null
-  sourceRow?: number | null
+export type FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput> | Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput[] | Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput[]
+  connectOrCreate?: Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput[]
+  createMany?: Prisma.FinanceBalanceSnapshotRowCreateManyAccountInputEnvelope
+  connect?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
 }
 
-export type FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput = {
-  where: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput
-  create: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput>
+export type FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput> | Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput[] | Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput[]
+  connectOrCreate?: Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput[]
+  upsert?: Prisma.FinanceBalanceSnapshotRowUpsertWithWhereUniqueWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowUpsertWithWhereUniqueWithoutAccountInput[]
+  createMany?: Prisma.FinanceBalanceSnapshotRowCreateManyAccountInputEnvelope
+  set?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
+  delete?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
+  connect?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
+  update?: Prisma.FinanceBalanceSnapshotRowUpdateWithWhereUniqueWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowUpdateWithWhereUniqueWithoutAccountInput[]
+  updateMany?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithWhereWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowUpdateManyWithWhereWithoutAccountInput[]
+  deleteMany?: Prisma.FinanceBalanceSnapshotRowScalarWhereInput | Prisma.FinanceBalanceSnapshotRowScalarWhereInput[]
 }
 
-export type FinanceBalanceSnapshotRowCreateManyAccountInputEnvelope = {
-  data: Prisma.FinanceBalanceSnapshotRowCreateManyAccountInput | Prisma.FinanceBalanceSnapshotRowCreateManyAccountInput[]
-  skipDuplicates?: boolean
-}
-
-export type FinanceBalanceSnapshotRowUpsertWithWhereUniqueWithoutAccountInput = {
-  where: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput
-  update: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowUpdateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedUpdateWithoutAccountInput>
-  create: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput>
-}
-
-export type FinanceBalanceSnapshotRowUpdateWithWhereUniqueWithoutAccountInput = {
-  where: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput
-  data: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowUpdateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedUpdateWithoutAccountInput>
-}
-
-export type FinanceBalanceSnapshotRowUpdateManyWithWhereWithoutAccountInput = {
-  where: Prisma.FinanceBalanceSnapshotRowScalarWhereInput
-  data: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowUpdateManyMutationInput, Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountInput>
-}
-
-export type FinanceBalanceSnapshotRowScalarWhereInput = {
-  AND?: Prisma.FinanceBalanceSnapshotRowScalarWhereInput | Prisma.FinanceBalanceSnapshotRowScalarWhereInput[]
-  OR?: Prisma.FinanceBalanceSnapshotRowScalarWhereInput[]
-  NOT?: Prisma.FinanceBalanceSnapshotRowScalarWhereInput | Prisma.FinanceBalanceSnapshotRowScalarWhereInput[]
-  id?: Prisma.IntFilter<"FinanceBalanceSnapshotRow"> | number
-  snapshotId?: Prisma.IntFilter<"FinanceBalanceSnapshotRow"> | number
-  accountId?: Prisma.IntFilter<"FinanceBalanceSnapshotRow"> | number
-  accountCode?: Prisma.StringFilter<"FinanceBalanceSnapshotRow"> | string
-  accountName?: Prisma.StringFilter<"FinanceBalanceSnapshotRow"> | string
-  openingDebit?: Prisma.FloatFilter<"FinanceBalanceSnapshotRow"> | number
-  openingCredit?: Prisma.FloatFilter<"FinanceBalanceSnapshotRow"> | number
-  currentDebit?: Prisma.FloatFilter<"FinanceBalanceSnapshotRow"> | number
-  currentCredit?: Prisma.FloatFilter<"FinanceBalanceSnapshotRow"> | number
-  closingDebit?: Prisma.FloatFilter<"FinanceBalanceSnapshotRow"> | number
-  closingCredit?: Prisma.FloatFilter<"FinanceBalanceSnapshotRow"> | number
-  sourceSheet?: Prisma.StringNullableFilter<"FinanceBalanceSnapshotRow"> | string | null
-  sourceRow?: Prisma.IntNullableFilter<"FinanceBalanceSnapshotRow"> | number | null
+export type FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput> | Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput[] | Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput[]
+  connectOrCreate?: Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput[]
+  upsert?: Prisma.FinanceBalanceSnapshotRowUpsertWithWhereUniqueWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowUpsertWithWhereUniqueWithoutAccountInput[]
+  createMany?: Prisma.FinanceBalanceSnapshotRowCreateManyAccountInputEnvelope
+  set?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
+  delete?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
+  connect?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput | Prisma.FinanceBalanceSnapshotRowWhereUniqueInput[]
+  update?: Prisma.FinanceBalanceSnapshotRowUpdateWithWhereUniqueWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowUpdateWithWhereUniqueWithoutAccountInput[]
+  updateMany?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithWhereWithoutAccountInput | Prisma.FinanceBalanceSnapshotRowUpdateManyWithWhereWithoutAccountInput[]
+  deleteMany?: Prisma.FinanceBalanceSnapshotRowScalarWhereInput | Prisma.FinanceBalanceSnapshotRowScalarWhereInput[]
 }
 
 export type FinanceBalanceSnapshotRowCreateWithoutSnapshotInput = {
@@ -809,7 +735,40 @@ export type FinanceBalanceSnapshotRowUpdateManyWithWhereWithoutSnapshotInput = {
   data: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowUpdateManyMutationInput, Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutSnapshotInput>
 }
 
-export type FinanceBalanceSnapshotRowCreateManyAccountInput = {
+export type FinanceBalanceSnapshotRowScalarWhereInput = {
+  AND?: Prisma.FinanceBalanceSnapshotRowScalarWhereInput | Prisma.FinanceBalanceSnapshotRowScalarWhereInput[]
+  OR?: Prisma.FinanceBalanceSnapshotRowScalarWhereInput[]
+  NOT?: Prisma.FinanceBalanceSnapshotRowScalarWhereInput | Prisma.FinanceBalanceSnapshotRowScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceBalanceSnapshotRow"> | number
+  snapshotId?: Prisma.IntFilter<"FinanceBalanceSnapshotRow"> | number
+  accountId?: Prisma.IntFilter<"FinanceBalanceSnapshotRow"> | number
+  accountCode?: Prisma.StringFilter<"FinanceBalanceSnapshotRow"> | string
+  accountName?: Prisma.StringFilter<"FinanceBalanceSnapshotRow"> | string
+  openingDebit?: Prisma.FloatFilter<"FinanceBalanceSnapshotRow"> | number
+  openingCredit?: Prisma.FloatFilter<"FinanceBalanceSnapshotRow"> | number
+  currentDebit?: Prisma.FloatFilter<"FinanceBalanceSnapshotRow"> | number
+  currentCredit?: Prisma.FloatFilter<"FinanceBalanceSnapshotRow"> | number
+  closingDebit?: Prisma.FloatFilter<"FinanceBalanceSnapshotRow"> | number
+  closingCredit?: Prisma.FloatFilter<"FinanceBalanceSnapshotRow"> | number
+  sourceSheet?: Prisma.StringNullableFilter<"FinanceBalanceSnapshotRow"> | string | null
+  sourceRow?: Prisma.IntNullableFilter<"FinanceBalanceSnapshotRow"> | number | null
+}
+
+export type FinanceBalanceSnapshotRowCreateWithoutAccountInput = {
+  accountCode: string
+  accountName: string
+  openingDebit?: number
+  openingCredit?: number
+  currentDebit?: number
+  currentCredit?: number
+  closingDebit?: number
+  closingCredit?: number
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  snapshot: Prisma.FinanceBalanceSnapshotCreateNestedOneWithoutRowsInput
+}
+
+export type FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput = {
   id?: number
   snapshotId: number
   accountCode: string
@@ -824,48 +783,30 @@ export type FinanceBalanceSnapshotRowCreateManyAccountInput = {
   sourceRow?: number | null
 }
 
-export type FinanceBalanceSnapshotRowUpdateWithoutAccountInput = {
-  accountCode?: Prisma.StringFieldUpdateOperationsInput | string
-  accountName?: Prisma.StringFieldUpdateOperationsInput | string
-  openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
-  openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
-  closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
-  closingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
-  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  snapshot?: Prisma.FinanceBalanceSnapshotUpdateOneRequiredWithoutRowsNestedInput
+export type FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput = {
+  where: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput>
 }
 
-export type FinanceBalanceSnapshotRowUncheckedUpdateWithoutAccountInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  snapshotId?: Prisma.IntFieldUpdateOperationsInput | number
-  accountCode?: Prisma.StringFieldUpdateOperationsInput | string
-  accountName?: Prisma.StringFieldUpdateOperationsInput | string
-  openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
-  openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
-  closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
-  closingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
-  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+export type FinanceBalanceSnapshotRowCreateManyAccountInputEnvelope = {
+  data: Prisma.FinanceBalanceSnapshotRowCreateManyAccountInput | Prisma.FinanceBalanceSnapshotRowCreateManyAccountInput[]
+  skipDuplicates?: boolean
 }
 
-export type FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  snapshotId?: Prisma.IntFieldUpdateOperationsInput | number
-  accountCode?: Prisma.StringFieldUpdateOperationsInput | string
-  accountName?: Prisma.StringFieldUpdateOperationsInput | string
-  openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
-  openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
-  closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
-  closingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
-  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+export type FinanceBalanceSnapshotRowUpsertWithWhereUniqueWithoutAccountInput = {
+  where: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowUpdateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedUpdateWithoutAccountInput>
+  create: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowCreateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedCreateWithoutAccountInput>
+}
+
+export type FinanceBalanceSnapshotRowUpdateWithWhereUniqueWithoutAccountInput = {
+  where: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowUpdateWithoutAccountInput, Prisma.FinanceBalanceSnapshotRowUncheckedUpdateWithoutAccountInput>
+}
+
+export type FinanceBalanceSnapshotRowUpdateManyWithWhereWithoutAccountInput = {
+  where: Prisma.FinanceBalanceSnapshotRowScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceBalanceSnapshotRowUpdateManyMutationInput, Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountInput>
 }
 
 export type FinanceBalanceSnapshotRowCreateManySnapshotInput = {
@@ -915,6 +856,65 @@ export type FinanceBalanceSnapshotRowUncheckedUpdateWithoutSnapshotInput = {
 export type FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutSnapshotInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
+  accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountName?: Prisma.StringFieldUpdateOperationsInput | string
+  openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type FinanceBalanceSnapshotRowCreateManyAccountInput = {
+  id?: number
+  snapshotId: number
+  accountCode: string
+  accountName: string
+  openingDebit?: number
+  openingCredit?: number
+  currentDebit?: number
+  currentCredit?: number
+  closingDebit?: number
+  closingCredit?: number
+  sourceSheet?: string | null
+  sourceRow?: number | null
+}
+
+export type FinanceBalanceSnapshotRowUpdateWithoutAccountInput = {
+  accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountName?: Prisma.StringFieldUpdateOperationsInput | string
+  openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  snapshot?: Prisma.FinanceBalanceSnapshotUpdateOneRequiredWithoutRowsNestedInput
+}
+
+export type FinanceBalanceSnapshotRowUncheckedUpdateWithoutAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotId?: Prisma.IntFieldUpdateOperationsInput | number
+  accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountName?: Prisma.StringFieldUpdateOperationsInput | string
+  openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
+  closingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotId?: Prisma.IntFieldUpdateOperationsInput | number
   accountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountName?: Prisma.StringFieldUpdateOperationsInput | string
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number

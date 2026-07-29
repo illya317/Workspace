@@ -28,6 +28,7 @@ export type AggregateFinanceBalanceSnapshot = {
 
 export type FinanceBalanceSnapshotAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
   year: number | null
   rowCount: number | null
   importedBy: number | null
@@ -37,6 +38,7 @@ export type FinanceBalanceSnapshotAvgAggregateOutputType = {
 
 export type FinanceBalanceSnapshotSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
   year: number | null
   rowCount: number | null
   importedBy: number | null
@@ -47,6 +49,7 @@ export type FinanceBalanceSnapshotSumAggregateOutputType = {
 export type FinanceBalanceSnapshotMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   year: number | null
   snapshotType: string | null
   isActive: boolean | null
@@ -67,6 +70,7 @@ export type FinanceBalanceSnapshotMinAggregateOutputType = {
 export type FinanceBalanceSnapshotMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   year: number | null
   snapshotType: string | null
   isActive: boolean | null
@@ -87,6 +91,7 @@ export type FinanceBalanceSnapshotMaxAggregateOutputType = {
 export type FinanceBalanceSnapshotCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   year: number
   snapshotType: number
   isActive: number
@@ -108,6 +113,7 @@ export type FinanceBalanceSnapshotCountAggregateOutputType = {
 
 export type FinanceBalanceSnapshotAvgAggregateInputType = {
   id?: true
+  companyId?: true
   year?: true
   rowCount?: true
   importedBy?: true
@@ -117,6 +123,7 @@ export type FinanceBalanceSnapshotAvgAggregateInputType = {
 
 export type FinanceBalanceSnapshotSumAggregateInputType = {
   id?: true
+  companyId?: true
   year?: true
   rowCount?: true
   importedBy?: true
@@ -127,6 +134,7 @@ export type FinanceBalanceSnapshotSumAggregateInputType = {
 export type FinanceBalanceSnapshotMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   year?: true
   snapshotType?: true
   isActive?: true
@@ -147,6 +155,7 @@ export type FinanceBalanceSnapshotMinAggregateInputType = {
 export type FinanceBalanceSnapshotMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   year?: true
   snapshotType?: true
   isActive?: true
@@ -167,6 +176,7 @@ export type FinanceBalanceSnapshotMaxAggregateInputType = {
 export type FinanceBalanceSnapshotCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   year?: true
   snapshotType?: true
   isActive?: true
@@ -274,6 +284,7 @@ export type FinanceBalanceSnapshotGroupByArgs<ExtArgs extends runtime.Types.Exte
 export type FinanceBalanceSnapshotGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   year: number
   snapshotType: string
   isActive: boolean
@@ -317,6 +328,7 @@ export type FinanceBalanceSnapshotWhereInput = {
   NOT?: Prisma.FinanceBalanceSnapshotWhereInput | Prisma.FinanceBalanceSnapshotWhereInput[]
   id?: Prisma.IntFilter<"FinanceBalanceSnapshot"> | number
   companyCode?: Prisma.StringFilter<"FinanceBalanceSnapshot"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceBalanceSnapshot"> | number | null
   year?: Prisma.IntFilter<"FinanceBalanceSnapshot"> | number
   snapshotType?: Prisma.StringFilter<"FinanceBalanceSnapshot"> | string
   isActive?: Prisma.BoolFilter<"FinanceBalanceSnapshot"> | boolean
@@ -335,11 +347,13 @@ export type FinanceBalanceSnapshotWhereInput = {
   importer?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   rows?: Prisma.FinanceBalanceSnapshotRowListRelationFilter
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceBalanceSnapshotOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   year?: Prisma.SortOrder
   snapshotType?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -358,6 +372,7 @@ export type FinanceBalanceSnapshotOrderByWithRelationInput = {
   importer?: Prisma.UserOrderByWithRelationInput
   rows?: Prisma.FinanceBalanceSnapshotRowOrderByRelationAggregateInput
   editor?: Prisma.UserOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceBalanceSnapshotWhereUniqueInput = Prisma.AtLeast<{
@@ -366,6 +381,7 @@ export type FinanceBalanceSnapshotWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FinanceBalanceSnapshotWhereInput[]
   NOT?: Prisma.FinanceBalanceSnapshotWhereInput | Prisma.FinanceBalanceSnapshotWhereInput[]
   companyCode?: Prisma.StringFilter<"FinanceBalanceSnapshot"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceBalanceSnapshot"> | number | null
   year?: Prisma.IntFilter<"FinanceBalanceSnapshot"> | number
   snapshotType?: Prisma.StringFilter<"FinanceBalanceSnapshot"> | string
   isActive?: Prisma.BoolFilter<"FinanceBalanceSnapshot"> | boolean
@@ -384,11 +400,13 @@ export type FinanceBalanceSnapshotWhereUniqueInput = Prisma.AtLeast<{
   importer?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   rows?: Prisma.FinanceBalanceSnapshotRowListRelationFilter
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id">
 
 export type FinanceBalanceSnapshotOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   year?: Prisma.SortOrder
   snapshotType?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -417,6 +435,7 @@ export type FinanceBalanceSnapshotScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FinanceBalanceSnapshotScalarWhereWithAggregatesInput | Prisma.FinanceBalanceSnapshotScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"FinanceBalanceSnapshot"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceBalanceSnapshot"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceBalanceSnapshot"> | number | null
   year?: Prisma.IntWithAggregatesFilter<"FinanceBalanceSnapshot"> | number
   snapshotType?: Prisma.StringWithAggregatesFilter<"FinanceBalanceSnapshot"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"FinanceBalanceSnapshot"> | boolean
@@ -452,11 +471,13 @@ export type FinanceBalanceSnapshotCreateInput = {
   importer?: Prisma.UserCreateNestedOneWithoutSnapshotImportsInput
   rows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutSnapshotInput
   editor?: Prisma.UserCreateNestedOneWithoutSnapshotEditsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceBalanceSnapshotsInput
 }
 
 export type FinanceBalanceSnapshotUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   year: number
   snapshotType?: string
   isActive?: boolean
@@ -493,11 +514,13 @@ export type FinanceBalanceSnapshotUpdateInput = {
   importer?: Prisma.UserUpdateOneWithoutSnapshotImportsNestedInput
   rows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutSnapshotNestedInput
   editor?: Prisma.UserUpdateOneWithoutSnapshotEditsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceBalanceSnapshotsNestedInput
 }
 
 export type FinanceBalanceSnapshotUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotType?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -519,6 +542,7 @@ export type FinanceBalanceSnapshotUncheckedUpdateInput = {
 export type FinanceBalanceSnapshotCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   year: number
   snapshotType?: string
   isActive?: boolean
@@ -556,6 +580,7 @@ export type FinanceBalanceSnapshotUpdateManyMutationInput = {
 export type FinanceBalanceSnapshotUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotType?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -586,6 +611,7 @@ export type FinanceBalanceSnapshotOrderByRelationAggregateInput = {
 export type FinanceBalanceSnapshotCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   snapshotType?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -605,6 +631,7 @@ export type FinanceBalanceSnapshotCountOrderByAggregateInput = {
 
 export type FinanceBalanceSnapshotAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
   importedBy?: Prisma.SortOrder
@@ -615,6 +642,7 @@ export type FinanceBalanceSnapshotAvgOrderByAggregateInput = {
 export type FinanceBalanceSnapshotMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   snapshotType?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -635,6 +663,7 @@ export type FinanceBalanceSnapshotMaxOrderByAggregateInput = {
 export type FinanceBalanceSnapshotMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   snapshotType?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -654,6 +683,7 @@ export type FinanceBalanceSnapshotMinOrderByAggregateInput = {
 
 export type FinanceBalanceSnapshotSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
   importedBy?: Prisma.SortOrder
@@ -764,6 +794,48 @@ export type FinanceBalanceSnapshotUpdateOneRequiredWithoutRowsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceBalanceSnapshotUpdateToOneWithWhereWithoutRowsInput, Prisma.FinanceBalanceSnapshotUpdateWithoutRowsInput>, Prisma.FinanceBalanceSnapshotUncheckedUpdateWithoutRowsInput>
 }
 
+export type FinanceBalanceSnapshotCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotCreateWithoutCompanyInput, Prisma.FinanceBalanceSnapshotUncheckedCreateWithoutCompanyInput> | Prisma.FinanceBalanceSnapshotCreateWithoutCompanyInput[] | Prisma.FinanceBalanceSnapshotUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceBalanceSnapshotCreateOrConnectWithoutCompanyInput | Prisma.FinanceBalanceSnapshotCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceBalanceSnapshotCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceBalanceSnapshotWhereUniqueInput | Prisma.FinanceBalanceSnapshotWhereUniqueInput[]
+}
+
+export type FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotCreateWithoutCompanyInput, Prisma.FinanceBalanceSnapshotUncheckedCreateWithoutCompanyInput> | Prisma.FinanceBalanceSnapshotCreateWithoutCompanyInput[] | Prisma.FinanceBalanceSnapshotUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceBalanceSnapshotCreateOrConnectWithoutCompanyInput | Prisma.FinanceBalanceSnapshotCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceBalanceSnapshotCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceBalanceSnapshotWhereUniqueInput | Prisma.FinanceBalanceSnapshotWhereUniqueInput[]
+}
+
+export type FinanceBalanceSnapshotUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotCreateWithoutCompanyInput, Prisma.FinanceBalanceSnapshotUncheckedCreateWithoutCompanyInput> | Prisma.FinanceBalanceSnapshotCreateWithoutCompanyInput[] | Prisma.FinanceBalanceSnapshotUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceBalanceSnapshotCreateOrConnectWithoutCompanyInput | Prisma.FinanceBalanceSnapshotCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceBalanceSnapshotUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceBalanceSnapshotUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceBalanceSnapshotCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceBalanceSnapshotWhereUniqueInput | Prisma.FinanceBalanceSnapshotWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBalanceSnapshotWhereUniqueInput | Prisma.FinanceBalanceSnapshotWhereUniqueInput[]
+  delete?: Prisma.FinanceBalanceSnapshotWhereUniqueInput | Prisma.FinanceBalanceSnapshotWhereUniqueInput[]
+  connect?: Prisma.FinanceBalanceSnapshotWhereUniqueInput | Prisma.FinanceBalanceSnapshotWhereUniqueInput[]
+  update?: Prisma.FinanceBalanceSnapshotUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceBalanceSnapshotUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceBalanceSnapshotUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceBalanceSnapshotUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceBalanceSnapshotScalarWhereInput | Prisma.FinanceBalanceSnapshotScalarWhereInput[]
+}
+
+export type FinanceBalanceSnapshotUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceSnapshotCreateWithoutCompanyInput, Prisma.FinanceBalanceSnapshotUncheckedCreateWithoutCompanyInput> | Prisma.FinanceBalanceSnapshotCreateWithoutCompanyInput[] | Prisma.FinanceBalanceSnapshotUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceBalanceSnapshotCreateOrConnectWithoutCompanyInput | Prisma.FinanceBalanceSnapshotCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceBalanceSnapshotUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceBalanceSnapshotUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceBalanceSnapshotCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceBalanceSnapshotWhereUniqueInput | Prisma.FinanceBalanceSnapshotWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBalanceSnapshotWhereUniqueInput | Prisma.FinanceBalanceSnapshotWhereUniqueInput[]
+  delete?: Prisma.FinanceBalanceSnapshotWhereUniqueInput | Prisma.FinanceBalanceSnapshotWhereUniqueInput[]
+  connect?: Prisma.FinanceBalanceSnapshotWhereUniqueInput | Prisma.FinanceBalanceSnapshotWhereUniqueInput[]
+  update?: Prisma.FinanceBalanceSnapshotUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceBalanceSnapshotUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceBalanceSnapshotUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceBalanceSnapshotUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceBalanceSnapshotScalarWhereInput | Prisma.FinanceBalanceSnapshotScalarWhereInput[]
+}
+
 export type FinanceBalanceSnapshotCreateWithoutImporterInput = {
   companyCode: string
   year: number
@@ -781,11 +853,13 @@ export type FinanceBalanceSnapshotCreateWithoutImporterInput = {
   updatedAt?: Date | string
   rows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutSnapshotInput
   editor?: Prisma.UserCreateNestedOneWithoutSnapshotEditsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceBalanceSnapshotsInput
 }
 
 export type FinanceBalanceSnapshotUncheckedCreateWithoutImporterInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   year: number
   snapshotType?: string
   isActive?: boolean
@@ -830,11 +904,13 @@ export type FinanceBalanceSnapshotCreateWithoutEditorInput = {
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutSnapshotImportsInput
   rows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutSnapshotInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceBalanceSnapshotsInput
 }
 
 export type FinanceBalanceSnapshotUncheckedCreateWithoutEditorInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   year: number
   snapshotType?: string
   isActive?: boolean
@@ -884,6 +960,7 @@ export type FinanceBalanceSnapshotScalarWhereInput = {
   NOT?: Prisma.FinanceBalanceSnapshotScalarWhereInput | Prisma.FinanceBalanceSnapshotScalarWhereInput[]
   id?: Prisma.IntFilter<"FinanceBalanceSnapshot"> | number
   companyCode?: Prisma.StringFilter<"FinanceBalanceSnapshot"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceBalanceSnapshot"> | number | null
   year?: Prisma.IntFilter<"FinanceBalanceSnapshot"> | number
   snapshotType?: Prisma.StringFilter<"FinanceBalanceSnapshot"> | string
   isActive?: Prisma.BoolFilter<"FinanceBalanceSnapshot"> | boolean
@@ -934,11 +1011,13 @@ export type FinanceBalanceSnapshotCreateWithoutRowsInput = {
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutSnapshotImportsInput
   editor?: Prisma.UserCreateNestedOneWithoutSnapshotEditsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceBalanceSnapshotsInput
 }
 
 export type FinanceBalanceSnapshotUncheckedCreateWithoutRowsInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   year: number
   snapshotType?: string
   isActive?: boolean
@@ -989,11 +1068,13 @@ export type FinanceBalanceSnapshotUpdateWithoutRowsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutSnapshotImportsNestedInput
   editor?: Prisma.UserUpdateOneWithoutSnapshotEditsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceBalanceSnapshotsNestedInput
 }
 
 export type FinanceBalanceSnapshotUncheckedUpdateWithoutRowsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotType?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1011,9 +1092,77 @@ export type FinanceBalanceSnapshotUncheckedUpdateWithoutRowsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type FinanceBalanceSnapshotCreateWithoutCompanyInput = {
+  companyCode: string
+  year: number
+  snapshotType?: string
+  isActive?: boolean
+  sourceFile?: string | null
+  sourcePath?: string | null
+  checksum?: string | null
+  rowCount?: number
+  importedAt?: Date | string
+  note?: string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  importer?: Prisma.UserCreateNestedOneWithoutSnapshotImportsInput
+  rows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutSnapshotInput
+  editor?: Prisma.UserCreateNestedOneWithoutSnapshotEditsInput
+}
+
+export type FinanceBalanceSnapshotUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  year: number
+  snapshotType?: string
+  isActive?: boolean
+  sourceFile?: string | null
+  sourcePath?: string | null
+  checksum?: string | null
+  rowCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutSnapshotInput
+}
+
+export type FinanceBalanceSnapshotCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceBalanceSnapshotWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceBalanceSnapshotCreateWithoutCompanyInput, Prisma.FinanceBalanceSnapshotUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceBalanceSnapshotCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceBalanceSnapshotCreateManyCompanyInput | Prisma.FinanceBalanceSnapshotCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceBalanceSnapshotUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceBalanceSnapshotWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceBalanceSnapshotUpdateWithoutCompanyInput, Prisma.FinanceBalanceSnapshotUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceBalanceSnapshotCreateWithoutCompanyInput, Prisma.FinanceBalanceSnapshotUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceBalanceSnapshotUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceBalanceSnapshotWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceBalanceSnapshotUpdateWithoutCompanyInput, Prisma.FinanceBalanceSnapshotUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceBalanceSnapshotUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceBalanceSnapshotScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceBalanceSnapshotUpdateManyMutationInput, Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutCompanyInput>
+}
+
 export type FinanceBalanceSnapshotCreateManyImporterInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   year: number
   snapshotType?: string
   isActive?: boolean
@@ -1033,6 +1182,7 @@ export type FinanceBalanceSnapshotCreateManyImporterInput = {
 export type FinanceBalanceSnapshotCreateManyEditorInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   year: number
   snapshotType?: string
   isActive?: boolean
@@ -1066,11 +1216,13 @@ export type FinanceBalanceSnapshotUpdateWithoutImporterInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutSnapshotNestedInput
   editor?: Prisma.UserUpdateOneWithoutSnapshotEditsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceBalanceSnapshotsNestedInput
 }
 
 export type FinanceBalanceSnapshotUncheckedUpdateWithoutImporterInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotType?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1091,6 +1243,7 @@ export type FinanceBalanceSnapshotUncheckedUpdateWithoutImporterInput = {
 export type FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotType?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1124,11 +1277,13 @@ export type FinanceBalanceSnapshotUpdateWithoutEditorInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutSnapshotImportsNestedInput
   rows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutSnapshotNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceBalanceSnapshotsNestedInput
 }
 
 export type FinanceBalanceSnapshotUncheckedUpdateWithoutEditorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotType?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1149,6 +1304,7 @@ export type FinanceBalanceSnapshotUncheckedUpdateWithoutEditorInput = {
 export type FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotType?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1159,6 +1315,87 @@ export type FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorInput = {
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceBalanceSnapshotCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  year: number
+  snapshotType?: string
+  isActive?: boolean
+  sourceFile?: string | null
+  sourcePath?: string | null
+  checksum?: string | null
+  rowCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceBalanceSnapshotUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotType?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  importer?: Prisma.UserUpdateOneWithoutSnapshotImportsNestedInput
+  rows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutSnapshotNestedInput
+  editor?: Prisma.UserUpdateOneWithoutSnapshotEditsNestedInput
+}
+
+export type FinanceBalanceSnapshotUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotType?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutSnapshotNestedInput
+}
+
+export type FinanceBalanceSnapshotUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotType?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1199,6 +1436,7 @@ export type FinanceBalanceSnapshotCountOutputTypeCountRowsArgs<ExtArgs extends r
 export type FinanceBalanceSnapshotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   snapshotType?: boolean
   isActive?: boolean
@@ -1217,12 +1455,14 @@ export type FinanceBalanceSnapshotSelect<ExtArgs extends runtime.Types.Extension
   importer?: boolean | Prisma.FinanceBalanceSnapshot$importerArgs<ExtArgs>
   rows?: boolean | Prisma.FinanceBalanceSnapshot$rowsArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceBalanceSnapshot$editorArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceBalanceSnapshot$companyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceBalanceSnapshotCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeBalanceSnapshot"]>
 
 export type FinanceBalanceSnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   snapshotType?: boolean
   isActive?: boolean
@@ -1240,11 +1480,13 @@ export type FinanceBalanceSnapshotSelectCreateManyAndReturn<ExtArgs extends runt
   updatedAt?: boolean
   importer?: boolean | Prisma.FinanceBalanceSnapshot$importerArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceBalanceSnapshot$editorArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceBalanceSnapshot$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeBalanceSnapshot"]>
 
 export type FinanceBalanceSnapshotSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   snapshotType?: boolean
   isActive?: boolean
@@ -1262,11 +1504,13 @@ export type FinanceBalanceSnapshotSelectUpdateManyAndReturn<ExtArgs extends runt
   updatedAt?: boolean
   importer?: boolean | Prisma.FinanceBalanceSnapshot$importerArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceBalanceSnapshot$editorArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceBalanceSnapshot$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeBalanceSnapshot"]>
 
 export type FinanceBalanceSnapshotSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   snapshotType?: boolean
   isActive?: boolean
@@ -1284,20 +1528,23 @@ export type FinanceBalanceSnapshotSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceBalanceSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "year" | "snapshotType" | "isActive" | "sourceFile" | "sourcePath" | "checksum" | "rowCount" | "importedBy" | "importedAt" | "note" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeBalanceSnapshot"]>
+export type FinanceBalanceSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "year" | "snapshotType" | "isActive" | "sourceFile" | "sourcePath" | "checksum" | "rowCount" | "importedBy" | "importedAt" | "note" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeBalanceSnapshot"]>
 export type FinanceBalanceSnapshotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   importer?: boolean | Prisma.FinanceBalanceSnapshot$importerArgs<ExtArgs>
   rows?: boolean | Prisma.FinanceBalanceSnapshot$rowsArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceBalanceSnapshot$editorArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceBalanceSnapshot$companyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceBalanceSnapshotCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceBalanceSnapshotIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   importer?: boolean | Prisma.FinanceBalanceSnapshot$importerArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceBalanceSnapshot$editorArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceBalanceSnapshot$companyArgs<ExtArgs>
 }
 export type FinanceBalanceSnapshotIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   importer?: boolean | Prisma.FinanceBalanceSnapshot$importerArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceBalanceSnapshot$editorArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceBalanceSnapshot$companyArgs<ExtArgs>
 }
 
 export type $FinanceBalanceSnapshotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1306,10 +1553,12 @@ export type $FinanceBalanceSnapshotPayload<ExtArgs extends runtime.Types.Extensi
     importer: Prisma.$UserPayload<ExtArgs> | null
     rows: Prisma.$FinanceBalanceSnapshotRowPayload<ExtArgs>[]
     editor: Prisma.$UserPayload<ExtArgs> | null
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     year: number
     snapshotType: string
     isActive: boolean
@@ -1722,6 +1971,7 @@ export interface Prisma__FinanceBalanceSnapshotClient<T, Null = never, ExtArgs e
   importer<T extends Prisma.FinanceBalanceSnapshot$importerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBalanceSnapshot$importerArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   rows<T extends Prisma.FinanceBalanceSnapshot$rowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBalanceSnapshot$rowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBalanceSnapshotRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   editor<T extends Prisma.FinanceBalanceSnapshot$editorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBalanceSnapshot$editorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.FinanceBalanceSnapshot$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBalanceSnapshot$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1753,6 +2003,7 @@ export interface Prisma__FinanceBalanceSnapshotClient<T, Null = never, ExtArgs e
 export interface FinanceBalanceSnapshotFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceBalanceSnapshot", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceBalanceSnapshot", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceBalanceSnapshot", 'Int'>
   readonly year: Prisma.FieldRef<"FinanceBalanceSnapshot", 'Int'>
   readonly snapshotType: Prisma.FieldRef<"FinanceBalanceSnapshot", 'String'>
   readonly isActive: Prisma.FieldRef<"FinanceBalanceSnapshot", 'Boolean'>
@@ -2228,6 +2479,25 @@ export type FinanceBalanceSnapshot$editorArgs<ExtArgs extends runtime.Types.Exte
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * FinanceBalanceSnapshot.company
+ */
+export type FinanceBalanceSnapshot$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

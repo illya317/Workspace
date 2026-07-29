@@ -28,6 +28,7 @@ export type AggregateFinanceAssetImportBatch = {
 
 export type FinanceAssetImportBatchAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
   cardCount: number | null
   costLineCount: number | null
   warningCount: number | null
@@ -36,6 +37,7 @@ export type FinanceAssetImportBatchAvgAggregateOutputType = {
 
 export type FinanceAssetImportBatchSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
   cardCount: number | null
   costLineCount: number | null
   warningCount: number | null
@@ -45,6 +47,7 @@ export type FinanceAssetImportBatchSumAggregateOutputType = {
 export type FinanceAssetImportBatchMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   sourceFile: string | null
   checksum: string | null
   status: string | null
@@ -59,6 +62,7 @@ export type FinanceAssetImportBatchMinAggregateOutputType = {
 export type FinanceAssetImportBatchMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   sourceFile: string | null
   checksum: string | null
   status: string | null
@@ -73,6 +77,7 @@ export type FinanceAssetImportBatchMaxAggregateOutputType = {
 export type FinanceAssetImportBatchCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   sourceFile: number
   checksum: number
   status: number
@@ -88,6 +93,7 @@ export type FinanceAssetImportBatchCountAggregateOutputType = {
 
 export type FinanceAssetImportBatchAvgAggregateInputType = {
   id?: true
+  companyId?: true
   cardCount?: true
   costLineCount?: true
   warningCount?: true
@@ -96,6 +102,7 @@ export type FinanceAssetImportBatchAvgAggregateInputType = {
 
 export type FinanceAssetImportBatchSumAggregateInputType = {
   id?: true
+  companyId?: true
   cardCount?: true
   costLineCount?: true
   warningCount?: true
@@ -105,6 +112,7 @@ export type FinanceAssetImportBatchSumAggregateInputType = {
 export type FinanceAssetImportBatchMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceFile?: true
   checksum?: true
   status?: true
@@ -119,6 +127,7 @@ export type FinanceAssetImportBatchMinAggregateInputType = {
 export type FinanceAssetImportBatchMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceFile?: true
   checksum?: true
   status?: true
@@ -133,6 +142,7 @@ export type FinanceAssetImportBatchMaxAggregateInputType = {
 export type FinanceAssetImportBatchCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceFile?: true
   checksum?: true
   status?: true
@@ -234,6 +244,7 @@ export type FinanceAssetImportBatchGroupByArgs<ExtArgs extends runtime.Types.Ext
 export type FinanceAssetImportBatchGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   sourceFile: string
   checksum: string
   status: string
@@ -271,6 +282,7 @@ export type FinanceAssetImportBatchWhereInput = {
   NOT?: Prisma.FinanceAssetImportBatchWhereInput | Prisma.FinanceAssetImportBatchWhereInput[]
   id?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
   companyCode?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
   sourceFile?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
   checksum?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
   status?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
@@ -280,11 +292,14 @@ export type FinanceAssetImportBatchWhereInput = {
   importedBy?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
   importedAt?: Prisma.DateTimeFilter<"FinanceAssetImportBatch"> | Date | string
   note?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceAssetImportBatchOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
   checksum?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -294,6 +309,8 @@ export type FinanceAssetImportBatchOrderByWithRelationInput = {
   importedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   importedAt?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceOrderByRelationAggregateInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceAssetImportBatchWhereUniqueInput = Prisma.AtLeast<{
@@ -303,6 +320,7 @@ export type FinanceAssetImportBatchWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FinanceAssetImportBatchWhereInput[]
   NOT?: Prisma.FinanceAssetImportBatchWhereInput | Prisma.FinanceAssetImportBatchWhereInput[]
   companyCode?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
   sourceFile?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
   checksum?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
   status?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
@@ -312,11 +330,14 @@ export type FinanceAssetImportBatchWhereUniqueInput = Prisma.AtLeast<{
   importedBy?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
   importedAt?: Prisma.DateTimeFilter<"FinanceAssetImportBatch"> | Date | string
   note?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "companyCode_checksum">
 
 export type FinanceAssetImportBatchOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
   checksum?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -339,6 +360,7 @@ export type FinanceAssetImportBatchScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FinanceAssetImportBatchScalarWhereWithAggregatesInput | Prisma.FinanceAssetImportBatchScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"FinanceAssetImportBatch"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceAssetImportBatch"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetImportBatch"> | number | null
   sourceFile?: Prisma.StringWithAggregatesFilter<"FinanceAssetImportBatch"> | string
   checksum?: Prisma.StringWithAggregatesFilter<"FinanceAssetImportBatch"> | string
   status?: Prisma.StringWithAggregatesFilter<"FinanceAssetImportBatch"> | string
@@ -361,11 +383,14 @@ export type FinanceAssetImportBatchCreateInput = {
   importedBy?: number | null
   importedAt?: Date | string
   note?: string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedManyWithoutImportBatchInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetImportBatchesInput
 }
 
 export type FinanceAssetImportBatchUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceFile: string
   checksum: string
   status?: string
@@ -375,6 +400,7 @@ export type FinanceAssetImportBatchUncheckedCreateInput = {
   importedBy?: number | null
   importedAt?: Date | string
   note?: string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedManyWithoutImportBatchInput
 }
 
 export type FinanceAssetImportBatchUpdateInput = {
@@ -388,11 +414,14 @@ export type FinanceAssetImportBatchUpdateInput = {
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateManyWithoutImportBatchNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetImportBatchesNestedInput
 }
 
 export type FinanceAssetImportBatchUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
   checksum?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -402,11 +431,13 @@ export type FinanceAssetImportBatchUncheckedUpdateInput = {
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateManyWithoutImportBatchNestedInput
 }
 
 export type FinanceAssetImportBatchCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceFile: string
   checksum: string
   status?: string
@@ -434,6 +465,7 @@ export type FinanceAssetImportBatchUpdateManyMutationInput = {
 export type FinanceAssetImportBatchUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
   checksum?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -445,6 +477,11 @@ export type FinanceAssetImportBatchUncheckedUpdateManyInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
+export type FinanceAssetImportBatchNullableScalarRelationFilter = {
+  is?: Prisma.FinanceAssetImportBatchWhereInput | null
+  isNot?: Prisma.FinanceAssetImportBatchWhereInput | null
+}
+
 export type FinanceAssetImportBatchCompanyCodeChecksumCompoundUniqueInput = {
   companyCode: string
   checksum: string
@@ -453,6 +490,7 @@ export type FinanceAssetImportBatchCompanyCodeChecksumCompoundUniqueInput = {
 export type FinanceAssetImportBatchCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
   checksum?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -466,6 +504,7 @@ export type FinanceAssetImportBatchCountOrderByAggregateInput = {
 
 export type FinanceAssetImportBatchAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   cardCount?: Prisma.SortOrder
   costLineCount?: Prisma.SortOrder
   warningCount?: Prisma.SortOrder
@@ -475,6 +514,7 @@ export type FinanceAssetImportBatchAvgOrderByAggregateInput = {
 export type FinanceAssetImportBatchMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
   checksum?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -489,6 +529,7 @@ export type FinanceAssetImportBatchMaxOrderByAggregateInput = {
 export type FinanceAssetImportBatchMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
   checksum?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -502,17 +543,320 @@ export type FinanceAssetImportBatchMinOrderByAggregateInput = {
 
 export type FinanceAssetImportBatchSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   cardCount?: Prisma.SortOrder
   costLineCount?: Prisma.SortOrder
   warningCount?: Prisma.SortOrder
   importedBy?: Prisma.SortOrder
 }
 
+export type FinanceAssetImportBatchListRelationFilter = {
+  every?: Prisma.FinanceAssetImportBatchWhereInput
+  some?: Prisma.FinanceAssetImportBatchWhereInput
+  none?: Prisma.FinanceAssetImportBatchWhereInput
+}
+
+export type FinanceAssetImportBatchOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type FinanceAssetImportBatchCreateNestedOneWithoutAcquisitionEvidenceInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutAcquisitionEvidenceInput>
+  connectOrCreate?: Prisma.FinanceAssetImportBatchCreateOrConnectWithoutAcquisitionEvidenceInput
+  connect?: Prisma.FinanceAssetImportBatchWhereUniqueInput
+}
+
+export type FinanceAssetImportBatchUpdateOneWithoutAcquisitionEvidenceNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutAcquisitionEvidenceInput>
+  connectOrCreate?: Prisma.FinanceAssetImportBatchCreateOrConnectWithoutAcquisitionEvidenceInput
+  upsert?: Prisma.FinanceAssetImportBatchUpsertWithoutAcquisitionEvidenceInput
+  disconnect?: Prisma.FinanceAssetImportBatchWhereInput | boolean
+  delete?: Prisma.FinanceAssetImportBatchWhereInput | boolean
+  connect?: Prisma.FinanceAssetImportBatchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAssetImportBatchUpdateToOneWithWhereWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetImportBatchUpdateWithoutAcquisitionEvidenceInput>, Prisma.FinanceAssetImportBatchUncheckedUpdateWithoutAcquisitionEvidenceInput>
+}
+
+export type FinanceAssetImportBatchCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutCompanyInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetImportBatchCreateWithoutCompanyInput[] | Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetImportBatchCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+}
+
+export type FinanceAssetImportBatchUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutCompanyInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetImportBatchCreateWithoutCompanyInput[] | Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetImportBatchCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+}
+
+export type FinanceAssetImportBatchUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutCompanyInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetImportBatchCreateWithoutCompanyInput[] | Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceAssetImportBatchUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetImportBatchUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetImportBatchCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  update?: Prisma.FinanceAssetImportBatchUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetImportBatchUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceAssetImportBatchUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceAssetImportBatchUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceAssetImportBatchScalarWhereInput | Prisma.FinanceAssetImportBatchScalarWhereInput[]
+}
+
+export type FinanceAssetImportBatchUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutCompanyInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetImportBatchCreateWithoutCompanyInput[] | Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetImportBatchCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceAssetImportBatchUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetImportBatchUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetImportBatchCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetImportBatchWhereUniqueInput | Prisma.FinanceAssetImportBatchWhereUniqueInput[]
+  update?: Prisma.FinanceAssetImportBatchUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetImportBatchUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceAssetImportBatchUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceAssetImportBatchUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceAssetImportBatchScalarWhereInput | Prisma.FinanceAssetImportBatchScalarWhereInput[]
+}
+
+export type FinanceAssetImportBatchCreateWithoutAcquisitionEvidenceInput = {
+  companyCode: string
+  sourceFile: string
+  checksum: string
+  status?: string
+  cardCount?: number
+  costLineCount?: number
+  warningCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetImportBatchesInput
+}
+
+export type FinanceAssetImportBatchUncheckedCreateWithoutAcquisitionEvidenceInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  sourceFile: string
+  checksum: string
+  status?: string
+  cardCount?: number
+  costLineCount?: number
+  warningCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+}
+
+export type FinanceAssetImportBatchCreateOrConnectWithoutAcquisitionEvidenceInput = {
+  where: Prisma.FinanceAssetImportBatchWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutAcquisitionEvidenceInput>
+}
+
+export type FinanceAssetImportBatchUpsertWithoutAcquisitionEvidenceInput = {
+  update: Prisma.XOR<Prisma.FinanceAssetImportBatchUpdateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetImportBatchUncheckedUpdateWithoutAcquisitionEvidenceInput>
+  create: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutAcquisitionEvidenceInput>
+  where?: Prisma.FinanceAssetImportBatchWhereInput
+}
+
+export type FinanceAssetImportBatchUpdateToOneWithWhereWithoutAcquisitionEvidenceInput = {
+  where?: Prisma.FinanceAssetImportBatchWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetImportBatchUpdateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetImportBatchUncheckedUpdateWithoutAcquisitionEvidenceInput>
+}
+
+export type FinanceAssetImportBatchUpdateWithoutAcquisitionEvidenceInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  checksum?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cardCount?: Prisma.IntFieldUpdateOperationsInput | number
+  costLineCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warningCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetImportBatchesNestedInput
+}
+
+export type FinanceAssetImportBatchUncheckedUpdateWithoutAcquisitionEvidenceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  checksum?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cardCount?: Prisma.IntFieldUpdateOperationsInput | number
+  costLineCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warningCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type FinanceAssetImportBatchCreateWithoutCompanyInput = {
+  companyCode: string
+  sourceFile: string
+  checksum: string
+  status?: string
+  cardCount?: number
+  costLineCount?: number
+  warningCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedManyWithoutImportBatchInput
+}
+
+export type FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  sourceFile: string
+  checksum: string
+  status?: string
+  cardCount?: number
+  costLineCount?: number
+  warningCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedManyWithoutImportBatchInput
+}
+
+export type FinanceAssetImportBatchCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceAssetImportBatchWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutCompanyInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceAssetImportBatchCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceAssetImportBatchCreateManyCompanyInput | Prisma.FinanceAssetImportBatchCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetImportBatchUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceAssetImportBatchWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetImportBatchUpdateWithoutCompanyInput, Prisma.FinanceAssetImportBatchUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateWithoutCompanyInput, Prisma.FinanceAssetImportBatchUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceAssetImportBatchUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceAssetImportBatchWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetImportBatchUpdateWithoutCompanyInput, Prisma.FinanceAssetImportBatchUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceAssetImportBatchUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceAssetImportBatchScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetImportBatchUpdateManyMutationInput, Prisma.FinanceAssetImportBatchUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type FinanceAssetImportBatchScalarWhereInput = {
+  AND?: Prisma.FinanceAssetImportBatchScalarWhereInput | Prisma.FinanceAssetImportBatchScalarWhereInput[]
+  OR?: Prisma.FinanceAssetImportBatchScalarWhereInput[]
+  NOT?: Prisma.FinanceAssetImportBatchScalarWhereInput | Prisma.FinanceAssetImportBatchScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
+  companyCode?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
+  sourceFile?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
+  checksum?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
+  status?: Prisma.StringFilter<"FinanceAssetImportBatch"> | string
+  cardCount?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
+  costLineCount?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
+  warningCount?: Prisma.IntFilter<"FinanceAssetImportBatch"> | number
+  importedBy?: Prisma.IntNullableFilter<"FinanceAssetImportBatch"> | number | null
+  importedAt?: Prisma.DateTimeFilter<"FinanceAssetImportBatch"> | Date | string
+  note?: Prisma.StringNullableFilter<"FinanceAssetImportBatch"> | string | null
+}
+
+export type FinanceAssetImportBatchCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  sourceFile: string
+  checksum: string
+  status?: string
+  cardCount?: number
+  costLineCount?: number
+  warningCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+}
+
+export type FinanceAssetImportBatchUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  checksum?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cardCount?: Prisma.IntFieldUpdateOperationsInput | number
+  costLineCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warningCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateManyWithoutImportBatchNestedInput
+}
+
+export type FinanceAssetImportBatchUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  checksum?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cardCount?: Prisma.IntFieldUpdateOperationsInput | number
+  costLineCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warningCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateManyWithoutImportBatchNestedInput
+}
+
+export type FinanceAssetImportBatchUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  checksum?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cardCount?: Prisma.IntFieldUpdateOperationsInput | number
+  costLineCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warningCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+
+/**
+ * Count Type FinanceAssetImportBatchCountOutputType
+ */
+
+export type FinanceAssetImportBatchCountOutputType = {
+  acquisitionEvidence: number
+}
+
+export type FinanceAssetImportBatchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  acquisitionEvidence?: boolean | FinanceAssetImportBatchCountOutputTypeCountAcquisitionEvidenceArgs
+}
+
+/**
+ * FinanceAssetImportBatchCountOutputType without action
+ */
+export type FinanceAssetImportBatchCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetImportBatchCountOutputType
+   */
+  select?: Prisma.FinanceAssetImportBatchCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * FinanceAssetImportBatchCountOutputType without action
+ */
+export type FinanceAssetImportBatchCountOutputTypeCountAcquisitionEvidenceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetAcquisitionEvidenceWhereInput
+}
 
 
 export type FinanceAssetImportBatchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceFile?: boolean
   checksum?: boolean
   status?: boolean
@@ -522,11 +866,15 @@ export type FinanceAssetImportBatchSelect<ExtArgs extends runtime.Types.Extensio
   importedBy?: boolean
   importedAt?: boolean
   note?: boolean
+  acquisitionEvidence?: boolean | Prisma.FinanceAssetImportBatch$acquisitionEvidenceArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>
+  _count?: boolean | Prisma.FinanceAssetImportBatchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetImportBatch"]>
 
 export type FinanceAssetImportBatchSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceFile?: boolean
   checksum?: boolean
   status?: boolean
@@ -536,11 +884,13 @@ export type FinanceAssetImportBatchSelectCreateManyAndReturn<ExtArgs extends run
   importedBy?: boolean
   importedAt?: boolean
   note?: boolean
+  company?: boolean | Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetImportBatch"]>
 
 export type FinanceAssetImportBatchSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceFile?: boolean
   checksum?: boolean
   status?: boolean
@@ -550,11 +900,13 @@ export type FinanceAssetImportBatchSelectUpdateManyAndReturn<ExtArgs extends run
   importedBy?: boolean
   importedAt?: boolean
   note?: boolean
+  company?: boolean | Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetImportBatch"]>
 
 export type FinanceAssetImportBatchSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceFile?: boolean
   checksum?: boolean
   status?: boolean
@@ -566,14 +918,29 @@ export type FinanceAssetImportBatchSelectScalar = {
   note?: boolean
 }
 
-export type FinanceAssetImportBatchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "sourceFile" | "checksum" | "status" | "cardCount" | "costLineCount" | "warningCount" | "importedBy" | "importedAt" | "note", ExtArgs["result"]["financeAssetImportBatch"]>
+export type FinanceAssetImportBatchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "sourceFile" | "checksum" | "status" | "cardCount" | "costLineCount" | "warningCount" | "importedBy" | "importedAt" | "note", ExtArgs["result"]["financeAssetImportBatch"]>
+export type FinanceAssetImportBatchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  acquisitionEvidence?: boolean | Prisma.FinanceAssetImportBatch$acquisitionEvidenceArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>
+  _count?: boolean | Prisma.FinanceAssetImportBatchCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type FinanceAssetImportBatchIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>
+}
+export type FinanceAssetImportBatchIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>
+}
 
 export type $FinanceAssetImportBatchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceAssetImportBatch"
-  objects: {}
+  objects: {
+    acquisitionEvidence: Prisma.$FinanceAssetAcquisitionEvidencePayload<ExtArgs>[]
+    company: Prisma.$CompanyPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     sourceFile: string
     checksum: string
     status: string
@@ -977,6 +1344,8 @@ readonly fields: FinanceAssetImportBatchFieldRefs;
  */
 export interface Prisma__FinanceAssetImportBatchClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  acquisitionEvidence<T extends Prisma.FinanceAssetImportBatch$acquisitionEvidenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetImportBatch$acquisitionEvidenceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetAcquisitionEvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  company<T extends Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetImportBatch$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1008,6 +1377,7 @@ export interface Prisma__FinanceAssetImportBatchClient<T, Null = never, ExtArgs 
 export interface FinanceAssetImportBatchFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceAssetImportBatch", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceAssetImportBatch", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceAssetImportBatch", 'Int'>
   readonly sourceFile: Prisma.FieldRef<"FinanceAssetImportBatch", 'String'>
   readonly checksum: Prisma.FieldRef<"FinanceAssetImportBatch", 'String'>
   readonly status: Prisma.FieldRef<"FinanceAssetImportBatch", 'String'>
@@ -1034,6 +1404,10 @@ export type FinanceAssetImportBatchFindUniqueArgs<ExtArgs extends runtime.Types.
    */
   omit?: Prisma.FinanceAssetImportBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImportBatchInclude<ExtArgs> | null
+  /**
    * Filter, which FinanceAssetImportBatch to fetch.
    */
   where: Prisma.FinanceAssetImportBatchWhereUniqueInput
@@ -1052,6 +1426,10 @@ export type FinanceAssetImportBatchFindUniqueOrThrowArgs<ExtArgs extends runtime
    */
   omit?: Prisma.FinanceAssetImportBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImportBatchInclude<ExtArgs> | null
+  /**
    * Filter, which FinanceAssetImportBatch to fetch.
    */
   where: Prisma.FinanceAssetImportBatchWhereUniqueInput
@@ -1069,6 +1447,10 @@ export type FinanceAssetImportBatchFindFirstArgs<ExtArgs extends runtime.Types.E
    * Omit specific fields from the FinanceAssetImportBatch
    */
   omit?: Prisma.FinanceAssetImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImportBatchInclude<ExtArgs> | null
   /**
    * Filter, which FinanceAssetImportBatch to fetch.
    */
@@ -1118,6 +1500,10 @@ export type FinanceAssetImportBatchFindFirstOrThrowArgs<ExtArgs extends runtime.
    */
   omit?: Prisma.FinanceAssetImportBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImportBatchInclude<ExtArgs> | null
+  /**
    * Filter, which FinanceAssetImportBatch to fetch.
    */
   where?: Prisma.FinanceAssetImportBatchWhereInput
@@ -1165,6 +1551,10 @@ export type FinanceAssetImportBatchFindManyArgs<ExtArgs extends runtime.Types.Ex
    * Omit specific fields from the FinanceAssetImportBatch
    */
   omit?: Prisma.FinanceAssetImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImportBatchInclude<ExtArgs> | null
   /**
    * Filter, which FinanceAssetImportBatches to fetch.
    */
@@ -1214,6 +1604,10 @@ export type FinanceAssetImportBatchCreateArgs<ExtArgs extends runtime.Types.Exte
    */
   omit?: Prisma.FinanceAssetImportBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImportBatchInclude<ExtArgs> | null
+  /**
    * The data needed to create a FinanceAssetImportBatch.
    */
   data: Prisma.XOR<Prisma.FinanceAssetImportBatchCreateInput, Prisma.FinanceAssetImportBatchUncheckedCreateInput>
@@ -1247,6 +1641,10 @@ export type FinanceAssetImportBatchCreateManyAndReturnArgs<ExtArgs extends runti
    */
   data: Prisma.FinanceAssetImportBatchCreateManyInput | Prisma.FinanceAssetImportBatchCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImportBatchIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1261,6 +1659,10 @@ export type FinanceAssetImportBatchUpdateArgs<ExtArgs extends runtime.Types.Exte
    * Omit specific fields from the FinanceAssetImportBatch
    */
   omit?: Prisma.FinanceAssetImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImportBatchInclude<ExtArgs> | null
   /**
    * The data needed to update a FinanceAssetImportBatch.
    */
@@ -1313,6 +1715,10 @@ export type FinanceAssetImportBatchUpdateManyAndReturnArgs<ExtArgs extends runti
    * Limit how many FinanceAssetImportBatches to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImportBatchIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1327,6 +1733,10 @@ export type FinanceAssetImportBatchUpsertArgs<ExtArgs extends runtime.Types.Exte
    * Omit specific fields from the FinanceAssetImportBatch
    */
   omit?: Prisma.FinanceAssetImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImportBatchInclude<ExtArgs> | null
   /**
    * The filter to search for the FinanceAssetImportBatch to update in case it exists.
    */
@@ -1354,6 +1764,10 @@ export type FinanceAssetImportBatchDeleteArgs<ExtArgs extends runtime.Types.Exte
    */
   omit?: Prisma.FinanceAssetImportBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImportBatchInclude<ExtArgs> | null
+  /**
    * Filter which FinanceAssetImportBatch to delete.
    */
   where: Prisma.FinanceAssetImportBatchWhereUniqueInput
@@ -1374,6 +1788,49 @@ export type FinanceAssetImportBatchDeleteManyArgs<ExtArgs extends runtime.Types.
 }
 
 /**
+ * FinanceAssetImportBatch.acquisitionEvidence
+ */
+export type FinanceAssetImportBatch$acquisitionEvidenceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetAcquisitionEvidence
+   */
+  select?: Prisma.FinanceAssetAcquisitionEvidenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetAcquisitionEvidence
+   */
+  omit?: Prisma.FinanceAssetAcquisitionEvidenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetAcquisitionEvidenceInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetAcquisitionEvidenceWhereInput
+  orderBy?: Prisma.FinanceAssetAcquisitionEvidenceOrderByWithRelationInput | Prisma.FinanceAssetAcquisitionEvidenceOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetAcquisitionEvidenceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetAcquisitionEvidenceScalarFieldEnum | Prisma.FinanceAssetAcquisitionEvidenceScalarFieldEnum[]
+}
+
+/**
+ * FinanceAssetImportBatch.company
+ */
+export type FinanceAssetImportBatch$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
+}
+
+/**
  * FinanceAssetImportBatch without action
  */
 export type FinanceAssetImportBatchDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1385,4 +1842,8 @@ export type FinanceAssetImportBatchDefaultArgs<ExtArgs extends runtime.Types.Ext
    * Omit specific fields from the FinanceAssetImportBatch
    */
   omit?: Prisma.FinanceAssetImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImportBatchInclude<ExtArgs> | null
 }

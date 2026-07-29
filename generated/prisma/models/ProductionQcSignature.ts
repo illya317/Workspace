@@ -30,6 +30,7 @@ export type ProductionQcSignatureAvgAggregateOutputType = {
   id: number | null
   batchId: number | null
   signerUserId: number | null
+  signerEmployeeRefId: number | null
   signedRecordVersion: number | null
 }
 
@@ -37,6 +38,7 @@ export type ProductionQcSignatureSumAggregateOutputType = {
   id: number | null
   batchId: number | null
   signerUserId: number | null
+  signerEmployeeRefId: number | null
   signedRecordVersion: number | null
 }
 
@@ -52,6 +54,7 @@ export type ProductionQcSignatureMinAggregateOutputType = {
   meaning: string | null
   signerUserId: number | null
   signerEmployeeId: string | null
+  signerEmployeeRefId: number | null
   signerName: string | null
   signedAt: Date | null
   signedRecordVersion: number | null
@@ -71,6 +74,7 @@ export type ProductionQcSignatureMaxAggregateOutputType = {
   meaning: string | null
   signerUserId: number | null
   signerEmployeeId: string | null
+  signerEmployeeRefId: number | null
   signerName: string | null
   signedAt: Date | null
   signedRecordVersion: number | null
@@ -90,6 +94,7 @@ export type ProductionQcSignatureCountAggregateOutputType = {
   meaning: number
   signerUserId: number
   signerEmployeeId: number
+  signerEmployeeRefId: number
   signerName: number
   signedAt: number
   signedRecordVersion: number
@@ -103,6 +108,7 @@ export type ProductionQcSignatureAvgAggregateInputType = {
   id?: true
   batchId?: true
   signerUserId?: true
+  signerEmployeeRefId?: true
   signedRecordVersion?: true
 }
 
@@ -110,6 +116,7 @@ export type ProductionQcSignatureSumAggregateInputType = {
   id?: true
   batchId?: true
   signerUserId?: true
+  signerEmployeeRefId?: true
   signedRecordVersion?: true
 }
 
@@ -125,6 +132,7 @@ export type ProductionQcSignatureMinAggregateInputType = {
   meaning?: true
   signerUserId?: true
   signerEmployeeId?: true
+  signerEmployeeRefId?: true
   signerName?: true
   signedAt?: true
   signedRecordVersion?: true
@@ -144,6 +152,7 @@ export type ProductionQcSignatureMaxAggregateInputType = {
   meaning?: true
   signerUserId?: true
   signerEmployeeId?: true
+  signerEmployeeRefId?: true
   signerName?: true
   signedAt?: true
   signedRecordVersion?: true
@@ -163,6 +172,7 @@ export type ProductionQcSignatureCountAggregateInputType = {
   meaning?: true
   signerUserId?: true
   signerEmployeeId?: true
+  signerEmployeeRefId?: true
   signerName?: true
   signedAt?: true
   signedRecordVersion?: true
@@ -269,6 +279,7 @@ export type ProductionQcSignatureGroupByOutputType = {
   meaning: string
   signerUserId: number | null
   signerEmployeeId: string | null
+  signerEmployeeRefId: number | null
   signerName: string
   signedAt: Date
   signedRecordVersion: number
@@ -311,12 +322,14 @@ export type ProductionQcSignatureWhereInput = {
   meaning?: Prisma.StringFilter<"ProductionQcSignature"> | string
   signerUserId?: Prisma.IntNullableFilter<"ProductionQcSignature"> | number | null
   signerEmployeeId?: Prisma.StringNullableFilter<"ProductionQcSignature"> | string | null
+  signerEmployeeRefId?: Prisma.IntNullableFilter<"ProductionQcSignature"> | number | null
   signerName?: Prisma.StringFilter<"ProductionQcSignature"> | string
   signedAt?: Prisma.DateTimeFilter<"ProductionQcSignature"> | Date | string
   signedRecordVersion?: Prisma.IntFilter<"ProductionQcSignature"> | number
   signedPayloadHash?: Prisma.StringFilter<"ProductionQcSignature"> | string
   authMethod?: Prisma.StringFilter<"ProductionQcSignature"> | string
   batch?: Prisma.XOR<Prisma.ProductionQcBatchScalarRelationFilter, Prisma.ProductionQcBatchWhereInput>
+  signerEmployee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
 }
 
 export type ProductionQcSignatureOrderByWithRelationInput = {
@@ -331,12 +344,14 @@ export type ProductionQcSignatureOrderByWithRelationInput = {
   meaning?: Prisma.SortOrder
   signerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   signerEmployeeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  signerEmployeeRefId?: Prisma.SortOrderInput | Prisma.SortOrder
   signerName?: Prisma.SortOrder
   signedAt?: Prisma.SortOrder
   signedRecordVersion?: Prisma.SortOrder
   signedPayloadHash?: Prisma.SortOrder
   authMethod?: Prisma.SortOrder
   batch?: Prisma.ProductionQcBatchOrderByWithRelationInput
+  signerEmployee?: Prisma.EmployeeOrderByWithRelationInput
 }
 
 export type ProductionQcSignatureWhereUniqueInput = Prisma.AtLeast<{
@@ -354,12 +369,14 @@ export type ProductionQcSignatureWhereUniqueInput = Prisma.AtLeast<{
   meaning?: Prisma.StringFilter<"ProductionQcSignature"> | string
   signerUserId?: Prisma.IntNullableFilter<"ProductionQcSignature"> | number | null
   signerEmployeeId?: Prisma.StringNullableFilter<"ProductionQcSignature"> | string | null
+  signerEmployeeRefId?: Prisma.IntNullableFilter<"ProductionQcSignature"> | number | null
   signerName?: Prisma.StringFilter<"ProductionQcSignature"> | string
   signedAt?: Prisma.DateTimeFilter<"ProductionQcSignature"> | Date | string
   signedRecordVersion?: Prisma.IntFilter<"ProductionQcSignature"> | number
   signedPayloadHash?: Prisma.StringFilter<"ProductionQcSignature"> | string
   authMethod?: Prisma.StringFilter<"ProductionQcSignature"> | string
   batch?: Prisma.XOR<Prisma.ProductionQcBatchScalarRelationFilter, Prisma.ProductionQcBatchWhereInput>
+  signerEmployee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
 }, "id">
 
 export type ProductionQcSignatureOrderByWithAggregationInput = {
@@ -374,6 +391,7 @@ export type ProductionQcSignatureOrderByWithAggregationInput = {
   meaning?: Prisma.SortOrder
   signerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   signerEmployeeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  signerEmployeeRefId?: Prisma.SortOrderInput | Prisma.SortOrder
   signerName?: Prisma.SortOrder
   signedAt?: Prisma.SortOrder
   signedRecordVersion?: Prisma.SortOrder
@@ -401,6 +419,7 @@ export type ProductionQcSignatureScalarWhereWithAggregatesInput = {
   meaning?: Prisma.StringWithAggregatesFilter<"ProductionQcSignature"> | string
   signerUserId?: Prisma.IntNullableWithAggregatesFilter<"ProductionQcSignature"> | number | null
   signerEmployeeId?: Prisma.StringNullableWithAggregatesFilter<"ProductionQcSignature"> | string | null
+  signerEmployeeRefId?: Prisma.IntNullableWithAggregatesFilter<"ProductionQcSignature"> | number | null
   signerName?: Prisma.StringWithAggregatesFilter<"ProductionQcSignature"> | string
   signedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductionQcSignature"> | Date | string
   signedRecordVersion?: Prisma.IntWithAggregatesFilter<"ProductionQcSignature"> | number
@@ -424,6 +443,7 @@ export type ProductionQcSignatureCreateInput = {
   signedPayloadHash: string
   authMethod: string
   batch: Prisma.ProductionQcBatchCreateNestedOneWithoutSignaturesInput
+  signerEmployee?: Prisma.EmployeeCreateNestedOneWithoutProductionQcSignaturesInput
 }
 
 export type ProductionQcSignatureUncheckedCreateInput = {
@@ -438,6 +458,7 @@ export type ProductionQcSignatureUncheckedCreateInput = {
   meaning: string
   signerUserId?: number | null
   signerEmployeeId?: string | null
+  signerEmployeeRefId?: number | null
   signerName: string
   signedAt?: Date | string
   signedRecordVersion: number
@@ -461,6 +482,7 @@ export type ProductionQcSignatureUpdateInput = {
   signedPayloadHash?: Prisma.StringFieldUpdateOperationsInput | string
   authMethod?: Prisma.StringFieldUpdateOperationsInput | string
   batch?: Prisma.ProductionQcBatchUpdateOneRequiredWithoutSignaturesNestedInput
+  signerEmployee?: Prisma.EmployeeUpdateOneWithoutProductionQcSignaturesNestedInput
 }
 
 export type ProductionQcSignatureUncheckedUpdateInput = {
@@ -475,6 +497,7 @@ export type ProductionQcSignatureUncheckedUpdateInput = {
   meaning?: Prisma.StringFieldUpdateOperationsInput | string
   signerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   signerEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signerEmployeeRefId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   signerName?: Prisma.StringFieldUpdateOperationsInput | string
   signedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   signedRecordVersion?: Prisma.IntFieldUpdateOperationsInput | number
@@ -494,6 +517,7 @@ export type ProductionQcSignatureCreateManyInput = {
   meaning: string
   signerUserId?: number | null
   signerEmployeeId?: string | null
+  signerEmployeeRefId?: number | null
   signerName: string
   signedAt?: Date | string
   signedRecordVersion: number
@@ -530,6 +554,7 @@ export type ProductionQcSignatureUncheckedUpdateManyInput = {
   meaning?: Prisma.StringFieldUpdateOperationsInput | string
   signerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   signerEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signerEmployeeRefId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   signerName?: Prisma.StringFieldUpdateOperationsInput | string
   signedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   signedRecordVersion?: Prisma.IntFieldUpdateOperationsInput | number
@@ -559,6 +584,7 @@ export type ProductionQcSignatureCountOrderByAggregateInput = {
   meaning?: Prisma.SortOrder
   signerUserId?: Prisma.SortOrder
   signerEmployeeId?: Prisma.SortOrder
+  signerEmployeeRefId?: Prisma.SortOrder
   signerName?: Prisma.SortOrder
   signedAt?: Prisma.SortOrder
   signedRecordVersion?: Prisma.SortOrder
@@ -570,6 +596,7 @@ export type ProductionQcSignatureAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   batchId?: Prisma.SortOrder
   signerUserId?: Prisma.SortOrder
+  signerEmployeeRefId?: Prisma.SortOrder
   signedRecordVersion?: Prisma.SortOrder
 }
 
@@ -585,6 +612,7 @@ export type ProductionQcSignatureMaxOrderByAggregateInput = {
   meaning?: Prisma.SortOrder
   signerUserId?: Prisma.SortOrder
   signerEmployeeId?: Prisma.SortOrder
+  signerEmployeeRefId?: Prisma.SortOrder
   signerName?: Prisma.SortOrder
   signedAt?: Prisma.SortOrder
   signedRecordVersion?: Prisma.SortOrder
@@ -604,6 +632,7 @@ export type ProductionQcSignatureMinOrderByAggregateInput = {
   meaning?: Prisma.SortOrder
   signerUserId?: Prisma.SortOrder
   signerEmployeeId?: Prisma.SortOrder
+  signerEmployeeRefId?: Prisma.SortOrder
   signerName?: Prisma.SortOrder
   signedAt?: Prisma.SortOrder
   signedRecordVersion?: Prisma.SortOrder
@@ -615,7 +644,50 @@ export type ProductionQcSignatureSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   batchId?: Prisma.SortOrder
   signerUserId?: Prisma.SortOrder
+  signerEmployeeRefId?: Prisma.SortOrder
   signedRecordVersion?: Prisma.SortOrder
+}
+
+export type ProductionQcSignatureCreateNestedManyWithoutSignerEmployeeInput = {
+  create?: Prisma.XOR<Prisma.ProductionQcSignatureCreateWithoutSignerEmployeeInput, Prisma.ProductionQcSignatureUncheckedCreateWithoutSignerEmployeeInput> | Prisma.ProductionQcSignatureCreateWithoutSignerEmployeeInput[] | Prisma.ProductionQcSignatureUncheckedCreateWithoutSignerEmployeeInput[]
+  connectOrCreate?: Prisma.ProductionQcSignatureCreateOrConnectWithoutSignerEmployeeInput | Prisma.ProductionQcSignatureCreateOrConnectWithoutSignerEmployeeInput[]
+  createMany?: Prisma.ProductionQcSignatureCreateManySignerEmployeeInputEnvelope
+  connect?: Prisma.ProductionQcSignatureWhereUniqueInput | Prisma.ProductionQcSignatureWhereUniqueInput[]
+}
+
+export type ProductionQcSignatureUncheckedCreateNestedManyWithoutSignerEmployeeInput = {
+  create?: Prisma.XOR<Prisma.ProductionQcSignatureCreateWithoutSignerEmployeeInput, Prisma.ProductionQcSignatureUncheckedCreateWithoutSignerEmployeeInput> | Prisma.ProductionQcSignatureCreateWithoutSignerEmployeeInput[] | Prisma.ProductionQcSignatureUncheckedCreateWithoutSignerEmployeeInput[]
+  connectOrCreate?: Prisma.ProductionQcSignatureCreateOrConnectWithoutSignerEmployeeInput | Prisma.ProductionQcSignatureCreateOrConnectWithoutSignerEmployeeInput[]
+  createMany?: Prisma.ProductionQcSignatureCreateManySignerEmployeeInputEnvelope
+  connect?: Prisma.ProductionQcSignatureWhereUniqueInput | Prisma.ProductionQcSignatureWhereUniqueInput[]
+}
+
+export type ProductionQcSignatureUpdateManyWithoutSignerEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionQcSignatureCreateWithoutSignerEmployeeInput, Prisma.ProductionQcSignatureUncheckedCreateWithoutSignerEmployeeInput> | Prisma.ProductionQcSignatureCreateWithoutSignerEmployeeInput[] | Prisma.ProductionQcSignatureUncheckedCreateWithoutSignerEmployeeInput[]
+  connectOrCreate?: Prisma.ProductionQcSignatureCreateOrConnectWithoutSignerEmployeeInput | Prisma.ProductionQcSignatureCreateOrConnectWithoutSignerEmployeeInput[]
+  upsert?: Prisma.ProductionQcSignatureUpsertWithWhereUniqueWithoutSignerEmployeeInput | Prisma.ProductionQcSignatureUpsertWithWhereUniqueWithoutSignerEmployeeInput[]
+  createMany?: Prisma.ProductionQcSignatureCreateManySignerEmployeeInputEnvelope
+  set?: Prisma.ProductionQcSignatureWhereUniqueInput | Prisma.ProductionQcSignatureWhereUniqueInput[]
+  disconnect?: Prisma.ProductionQcSignatureWhereUniqueInput | Prisma.ProductionQcSignatureWhereUniqueInput[]
+  delete?: Prisma.ProductionQcSignatureWhereUniqueInput | Prisma.ProductionQcSignatureWhereUniqueInput[]
+  connect?: Prisma.ProductionQcSignatureWhereUniqueInput | Prisma.ProductionQcSignatureWhereUniqueInput[]
+  update?: Prisma.ProductionQcSignatureUpdateWithWhereUniqueWithoutSignerEmployeeInput | Prisma.ProductionQcSignatureUpdateWithWhereUniqueWithoutSignerEmployeeInput[]
+  updateMany?: Prisma.ProductionQcSignatureUpdateManyWithWhereWithoutSignerEmployeeInput | Prisma.ProductionQcSignatureUpdateManyWithWhereWithoutSignerEmployeeInput[]
+  deleteMany?: Prisma.ProductionQcSignatureScalarWhereInput | Prisma.ProductionQcSignatureScalarWhereInput[]
+}
+
+export type ProductionQcSignatureUncheckedUpdateManyWithoutSignerEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionQcSignatureCreateWithoutSignerEmployeeInput, Prisma.ProductionQcSignatureUncheckedCreateWithoutSignerEmployeeInput> | Prisma.ProductionQcSignatureCreateWithoutSignerEmployeeInput[] | Prisma.ProductionQcSignatureUncheckedCreateWithoutSignerEmployeeInput[]
+  connectOrCreate?: Prisma.ProductionQcSignatureCreateOrConnectWithoutSignerEmployeeInput | Prisma.ProductionQcSignatureCreateOrConnectWithoutSignerEmployeeInput[]
+  upsert?: Prisma.ProductionQcSignatureUpsertWithWhereUniqueWithoutSignerEmployeeInput | Prisma.ProductionQcSignatureUpsertWithWhereUniqueWithoutSignerEmployeeInput[]
+  createMany?: Prisma.ProductionQcSignatureCreateManySignerEmployeeInputEnvelope
+  set?: Prisma.ProductionQcSignatureWhereUniqueInput | Prisma.ProductionQcSignatureWhereUniqueInput[]
+  disconnect?: Prisma.ProductionQcSignatureWhereUniqueInput | Prisma.ProductionQcSignatureWhereUniqueInput[]
+  delete?: Prisma.ProductionQcSignatureWhereUniqueInput | Prisma.ProductionQcSignatureWhereUniqueInput[]
+  connect?: Prisma.ProductionQcSignatureWhereUniqueInput | Prisma.ProductionQcSignatureWhereUniqueInput[]
+  update?: Prisma.ProductionQcSignatureUpdateWithWhereUniqueWithoutSignerEmployeeInput | Prisma.ProductionQcSignatureUpdateWithWhereUniqueWithoutSignerEmployeeInput[]
+  updateMany?: Prisma.ProductionQcSignatureUpdateManyWithWhereWithoutSignerEmployeeInput | Prisma.ProductionQcSignatureUpdateManyWithWhereWithoutSignerEmployeeInput[]
+  deleteMany?: Prisma.ProductionQcSignatureScalarWhereInput | Prisma.ProductionQcSignatureScalarWhereInput[]
 }
 
 export type ProductionQcSignatureCreateNestedManyWithoutBatchInput = {
@@ -660,7 +732,27 @@ export type ProductionQcSignatureUncheckedUpdateManyWithoutBatchNestedInput = {
   deleteMany?: Prisma.ProductionQcSignatureScalarWhereInput | Prisma.ProductionQcSignatureScalarWhereInput[]
 }
 
-export type ProductionQcSignatureCreateWithoutBatchInput = {
+export type ProductionQcSignatureCreateWithoutSignerEmployeeInput = {
+  fieldKey: string
+  scopeKey: string
+  scopeKind: string
+  stageKey: string
+  testName?: string | null
+  role: string
+  meaning: string
+  signerUserId?: number | null
+  signerEmployeeId?: string | null
+  signerName: string
+  signedAt?: Date | string
+  signedRecordVersion: number
+  signedPayloadHash: string
+  authMethod: string
+  batch: Prisma.ProductionQcBatchCreateNestedOneWithoutSignaturesInput
+}
+
+export type ProductionQcSignatureUncheckedCreateWithoutSignerEmployeeInput = {
+  id?: number
+  batchId: number
   fieldKey: string
   scopeKey: string
   scopeKind: string
@@ -677,6 +769,73 @@ export type ProductionQcSignatureCreateWithoutBatchInput = {
   authMethod: string
 }
 
+export type ProductionQcSignatureCreateOrConnectWithoutSignerEmployeeInput = {
+  where: Prisma.ProductionQcSignatureWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionQcSignatureCreateWithoutSignerEmployeeInput, Prisma.ProductionQcSignatureUncheckedCreateWithoutSignerEmployeeInput>
+}
+
+export type ProductionQcSignatureCreateManySignerEmployeeInputEnvelope = {
+  data: Prisma.ProductionQcSignatureCreateManySignerEmployeeInput | Prisma.ProductionQcSignatureCreateManySignerEmployeeInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProductionQcSignatureUpsertWithWhereUniqueWithoutSignerEmployeeInput = {
+  where: Prisma.ProductionQcSignatureWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductionQcSignatureUpdateWithoutSignerEmployeeInput, Prisma.ProductionQcSignatureUncheckedUpdateWithoutSignerEmployeeInput>
+  create: Prisma.XOR<Prisma.ProductionQcSignatureCreateWithoutSignerEmployeeInput, Prisma.ProductionQcSignatureUncheckedCreateWithoutSignerEmployeeInput>
+}
+
+export type ProductionQcSignatureUpdateWithWhereUniqueWithoutSignerEmployeeInput = {
+  where: Prisma.ProductionQcSignatureWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductionQcSignatureUpdateWithoutSignerEmployeeInput, Prisma.ProductionQcSignatureUncheckedUpdateWithoutSignerEmployeeInput>
+}
+
+export type ProductionQcSignatureUpdateManyWithWhereWithoutSignerEmployeeInput = {
+  where: Prisma.ProductionQcSignatureScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductionQcSignatureUpdateManyMutationInput, Prisma.ProductionQcSignatureUncheckedUpdateManyWithoutSignerEmployeeInput>
+}
+
+export type ProductionQcSignatureScalarWhereInput = {
+  AND?: Prisma.ProductionQcSignatureScalarWhereInput | Prisma.ProductionQcSignatureScalarWhereInput[]
+  OR?: Prisma.ProductionQcSignatureScalarWhereInput[]
+  NOT?: Prisma.ProductionQcSignatureScalarWhereInput | Prisma.ProductionQcSignatureScalarWhereInput[]
+  id?: Prisma.IntFilter<"ProductionQcSignature"> | number
+  batchId?: Prisma.IntFilter<"ProductionQcSignature"> | number
+  fieldKey?: Prisma.StringFilter<"ProductionQcSignature"> | string
+  scopeKey?: Prisma.StringFilter<"ProductionQcSignature"> | string
+  scopeKind?: Prisma.StringFilter<"ProductionQcSignature"> | string
+  stageKey?: Prisma.StringFilter<"ProductionQcSignature"> | string
+  testName?: Prisma.StringNullableFilter<"ProductionQcSignature"> | string | null
+  role?: Prisma.StringFilter<"ProductionQcSignature"> | string
+  meaning?: Prisma.StringFilter<"ProductionQcSignature"> | string
+  signerUserId?: Prisma.IntNullableFilter<"ProductionQcSignature"> | number | null
+  signerEmployeeId?: Prisma.StringNullableFilter<"ProductionQcSignature"> | string | null
+  signerEmployeeRefId?: Prisma.IntNullableFilter<"ProductionQcSignature"> | number | null
+  signerName?: Prisma.StringFilter<"ProductionQcSignature"> | string
+  signedAt?: Prisma.DateTimeFilter<"ProductionQcSignature"> | Date | string
+  signedRecordVersion?: Prisma.IntFilter<"ProductionQcSignature"> | number
+  signedPayloadHash?: Prisma.StringFilter<"ProductionQcSignature"> | string
+  authMethod?: Prisma.StringFilter<"ProductionQcSignature"> | string
+}
+
+export type ProductionQcSignatureCreateWithoutBatchInput = {
+  fieldKey: string
+  scopeKey: string
+  scopeKind: string
+  stageKey: string
+  testName?: string | null
+  role: string
+  meaning: string
+  signerUserId?: number | null
+  signerEmployeeId?: string | null
+  signerName: string
+  signedAt?: Date | string
+  signedRecordVersion: number
+  signedPayloadHash: string
+  authMethod: string
+  signerEmployee?: Prisma.EmployeeCreateNestedOneWithoutProductionQcSignaturesInput
+}
+
 export type ProductionQcSignatureUncheckedCreateWithoutBatchInput = {
   id?: number
   fieldKey: string
@@ -688,6 +847,7 @@ export type ProductionQcSignatureUncheckedCreateWithoutBatchInput = {
   meaning: string
   signerUserId?: number | null
   signerEmployeeId?: string | null
+  signerEmployeeRefId?: number | null
   signerName: string
   signedAt?: Date | string
   signedRecordVersion: number
@@ -721,26 +881,79 @@ export type ProductionQcSignatureUpdateManyWithWhereWithoutBatchInput = {
   data: Prisma.XOR<Prisma.ProductionQcSignatureUpdateManyMutationInput, Prisma.ProductionQcSignatureUncheckedUpdateManyWithoutBatchInput>
 }
 
-export type ProductionQcSignatureScalarWhereInput = {
-  AND?: Prisma.ProductionQcSignatureScalarWhereInput | Prisma.ProductionQcSignatureScalarWhereInput[]
-  OR?: Prisma.ProductionQcSignatureScalarWhereInput[]
-  NOT?: Prisma.ProductionQcSignatureScalarWhereInput | Prisma.ProductionQcSignatureScalarWhereInput[]
-  id?: Prisma.IntFilter<"ProductionQcSignature"> | number
-  batchId?: Prisma.IntFilter<"ProductionQcSignature"> | number
-  fieldKey?: Prisma.StringFilter<"ProductionQcSignature"> | string
-  scopeKey?: Prisma.StringFilter<"ProductionQcSignature"> | string
-  scopeKind?: Prisma.StringFilter<"ProductionQcSignature"> | string
-  stageKey?: Prisma.StringFilter<"ProductionQcSignature"> | string
-  testName?: Prisma.StringNullableFilter<"ProductionQcSignature"> | string | null
-  role?: Prisma.StringFilter<"ProductionQcSignature"> | string
-  meaning?: Prisma.StringFilter<"ProductionQcSignature"> | string
-  signerUserId?: Prisma.IntNullableFilter<"ProductionQcSignature"> | number | null
-  signerEmployeeId?: Prisma.StringNullableFilter<"ProductionQcSignature"> | string | null
-  signerName?: Prisma.StringFilter<"ProductionQcSignature"> | string
-  signedAt?: Prisma.DateTimeFilter<"ProductionQcSignature"> | Date | string
-  signedRecordVersion?: Prisma.IntFilter<"ProductionQcSignature"> | number
-  signedPayloadHash?: Prisma.StringFilter<"ProductionQcSignature"> | string
-  authMethod?: Prisma.StringFilter<"ProductionQcSignature"> | string
+export type ProductionQcSignatureCreateManySignerEmployeeInput = {
+  id?: number
+  batchId: number
+  fieldKey: string
+  scopeKey: string
+  scopeKind: string
+  stageKey: string
+  testName?: string | null
+  role: string
+  meaning: string
+  signerUserId?: number | null
+  signerEmployeeId?: string | null
+  signerName: string
+  signedAt?: Date | string
+  signedRecordVersion: number
+  signedPayloadHash: string
+  authMethod: string
+}
+
+export type ProductionQcSignatureUpdateWithoutSignerEmployeeInput = {
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  stageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  testName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  meaning?: Prisma.StringFieldUpdateOperationsInput | string
+  signerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signerEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signerName?: Prisma.StringFieldUpdateOperationsInput | string
+  signedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  signedRecordVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  signedPayloadHash?: Prisma.StringFieldUpdateOperationsInput | string
+  authMethod?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.ProductionQcBatchUpdateOneRequiredWithoutSignaturesNestedInput
+}
+
+export type ProductionQcSignatureUncheckedUpdateWithoutSignerEmployeeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  stageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  testName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  meaning?: Prisma.StringFieldUpdateOperationsInput | string
+  signerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signerEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signerName?: Prisma.StringFieldUpdateOperationsInput | string
+  signedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  signedRecordVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  signedPayloadHash?: Prisma.StringFieldUpdateOperationsInput | string
+  authMethod?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type ProductionQcSignatureUncheckedUpdateManyWithoutSignerEmployeeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  stageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  testName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  meaning?: Prisma.StringFieldUpdateOperationsInput | string
+  signerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signerEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signerName?: Prisma.StringFieldUpdateOperationsInput | string
+  signedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  signedRecordVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  signedPayloadHash?: Prisma.StringFieldUpdateOperationsInput | string
+  authMethod?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ProductionQcSignatureCreateManyBatchInput = {
@@ -754,6 +967,7 @@ export type ProductionQcSignatureCreateManyBatchInput = {
   meaning: string
   signerUserId?: number | null
   signerEmployeeId?: string | null
+  signerEmployeeRefId?: number | null
   signerName: string
   signedAt?: Date | string
   signedRecordVersion: number
@@ -776,6 +990,7 @@ export type ProductionQcSignatureUpdateWithoutBatchInput = {
   signedRecordVersion?: Prisma.IntFieldUpdateOperationsInput | number
   signedPayloadHash?: Prisma.StringFieldUpdateOperationsInput | string
   authMethod?: Prisma.StringFieldUpdateOperationsInput | string
+  signerEmployee?: Prisma.EmployeeUpdateOneWithoutProductionQcSignaturesNestedInput
 }
 
 export type ProductionQcSignatureUncheckedUpdateWithoutBatchInput = {
@@ -789,6 +1004,7 @@ export type ProductionQcSignatureUncheckedUpdateWithoutBatchInput = {
   meaning?: Prisma.StringFieldUpdateOperationsInput | string
   signerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   signerEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signerEmployeeRefId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   signerName?: Prisma.StringFieldUpdateOperationsInput | string
   signedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   signedRecordVersion?: Prisma.IntFieldUpdateOperationsInput | number
@@ -807,6 +1023,7 @@ export type ProductionQcSignatureUncheckedUpdateManyWithoutBatchInput = {
   meaning?: Prisma.StringFieldUpdateOperationsInput | string
   signerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   signerEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signerEmployeeRefId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   signerName?: Prisma.StringFieldUpdateOperationsInput | string
   signedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   signedRecordVersion?: Prisma.IntFieldUpdateOperationsInput | number
@@ -828,12 +1045,14 @@ export type ProductionQcSignatureSelect<ExtArgs extends runtime.Types.Extensions
   meaning?: boolean
   signerUserId?: boolean
   signerEmployeeId?: boolean
+  signerEmployeeRefId?: boolean
   signerName?: boolean
   signedAt?: boolean
   signedRecordVersion?: boolean
   signedPayloadHash?: boolean
   authMethod?: boolean
   batch?: boolean | Prisma.ProductionQcBatchDefaultArgs<ExtArgs>
+  signerEmployee?: boolean | Prisma.ProductionQcSignature$signerEmployeeArgs<ExtArgs>
 }, ExtArgs["result"]["productionQcSignature"]>
 
 export type ProductionQcSignatureSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -848,12 +1067,14 @@ export type ProductionQcSignatureSelectCreateManyAndReturn<ExtArgs extends runti
   meaning?: boolean
   signerUserId?: boolean
   signerEmployeeId?: boolean
+  signerEmployeeRefId?: boolean
   signerName?: boolean
   signedAt?: boolean
   signedRecordVersion?: boolean
   signedPayloadHash?: boolean
   authMethod?: boolean
   batch?: boolean | Prisma.ProductionQcBatchDefaultArgs<ExtArgs>
+  signerEmployee?: boolean | Prisma.ProductionQcSignature$signerEmployeeArgs<ExtArgs>
 }, ExtArgs["result"]["productionQcSignature"]>
 
 export type ProductionQcSignatureSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -868,12 +1089,14 @@ export type ProductionQcSignatureSelectUpdateManyAndReturn<ExtArgs extends runti
   meaning?: boolean
   signerUserId?: boolean
   signerEmployeeId?: boolean
+  signerEmployeeRefId?: boolean
   signerName?: boolean
   signedAt?: boolean
   signedRecordVersion?: boolean
   signedPayloadHash?: boolean
   authMethod?: boolean
   batch?: boolean | Prisma.ProductionQcBatchDefaultArgs<ExtArgs>
+  signerEmployee?: boolean | Prisma.ProductionQcSignature$signerEmployeeArgs<ExtArgs>
 }, ExtArgs["result"]["productionQcSignature"]>
 
 export type ProductionQcSignatureSelectScalar = {
@@ -888,6 +1111,7 @@ export type ProductionQcSignatureSelectScalar = {
   meaning?: boolean
   signerUserId?: boolean
   signerEmployeeId?: boolean
+  signerEmployeeRefId?: boolean
   signerName?: boolean
   signedAt?: boolean
   signedRecordVersion?: boolean
@@ -895,21 +1119,25 @@ export type ProductionQcSignatureSelectScalar = {
   authMethod?: boolean
 }
 
-export type ProductionQcSignatureOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "fieldKey" | "scopeKey" | "scopeKind" | "stageKey" | "testName" | "role" | "meaning" | "signerUserId" | "signerEmployeeId" | "signerName" | "signedAt" | "signedRecordVersion" | "signedPayloadHash" | "authMethod", ExtArgs["result"]["productionQcSignature"]>
+export type ProductionQcSignatureOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "fieldKey" | "scopeKey" | "scopeKind" | "stageKey" | "testName" | "role" | "meaning" | "signerUserId" | "signerEmployeeId" | "signerEmployeeRefId" | "signerName" | "signedAt" | "signedRecordVersion" | "signedPayloadHash" | "authMethod", ExtArgs["result"]["productionQcSignature"]>
 export type ProductionQcSignatureInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batch?: boolean | Prisma.ProductionQcBatchDefaultArgs<ExtArgs>
+  signerEmployee?: boolean | Prisma.ProductionQcSignature$signerEmployeeArgs<ExtArgs>
 }
 export type ProductionQcSignatureIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batch?: boolean | Prisma.ProductionQcBatchDefaultArgs<ExtArgs>
+  signerEmployee?: boolean | Prisma.ProductionQcSignature$signerEmployeeArgs<ExtArgs>
 }
 export type ProductionQcSignatureIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batch?: boolean | Prisma.ProductionQcBatchDefaultArgs<ExtArgs>
+  signerEmployee?: boolean | Prisma.ProductionQcSignature$signerEmployeeArgs<ExtArgs>
 }
 
 export type $ProductionQcSignaturePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProductionQcSignature"
   objects: {
     batch: Prisma.$ProductionQcBatchPayload<ExtArgs>
+    signerEmployee: Prisma.$EmployeePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -923,6 +1151,7 @@ export type $ProductionQcSignaturePayload<ExtArgs extends runtime.Types.Extensio
     meaning: string
     signerUserId: number | null
     signerEmployeeId: string | null
+    signerEmployeeRefId: number | null
     signerName: string
     signedAt: Date
     signedRecordVersion: number
@@ -1323,6 +1552,7 @@ readonly fields: ProductionQcSignatureFieldRefs;
 export interface Prisma__ProductionQcSignatureClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   batch<T extends Prisma.ProductionQcBatchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionQcBatchDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductionQcBatchClient<runtime.Types.Result.GetResult<Prisma.$ProductionQcBatchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  signerEmployee<T extends Prisma.ProductionQcSignature$signerEmployeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionQcSignature$signerEmployeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1363,6 +1593,7 @@ export interface ProductionQcSignatureFieldRefs {
   readonly meaning: Prisma.FieldRef<"ProductionQcSignature", 'String'>
   readonly signerUserId: Prisma.FieldRef<"ProductionQcSignature", 'Int'>
   readonly signerEmployeeId: Prisma.FieldRef<"ProductionQcSignature", 'String'>
+  readonly signerEmployeeRefId: Prisma.FieldRef<"ProductionQcSignature", 'Int'>
   readonly signerName: Prisma.FieldRef<"ProductionQcSignature", 'String'>
   readonly signedAt: Prisma.FieldRef<"ProductionQcSignature", 'DateTime'>
   readonly signedRecordVersion: Prisma.FieldRef<"ProductionQcSignature", 'Int'>
@@ -1766,6 +1997,25 @@ export type ProductionQcSignatureDeleteManyArgs<ExtArgs extends runtime.Types.Ex
    * Limit how many ProductionQcSignatures to delete.
    */
   limit?: number
+}
+
+/**
+ * ProductionQcSignature.signerEmployee
+ */
+export type ProductionQcSignature$signerEmployeeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Employee
+   */
+  select?: Prisma.EmployeeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Employee
+   */
+  omit?: Prisma.EmployeeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeInclude<ExtArgs> | null
+  where?: Prisma.EmployeeWhereInput
 }
 
 /**

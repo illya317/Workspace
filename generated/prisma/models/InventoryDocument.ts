@@ -28,6 +28,8 @@ export type AggregateInventoryDocument = {
 
 export type InventoryDocumentAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
+  counterpartyPartyId: number | null
   createdBy: number | null
   postedBy: number | null
   reversedById: number | null
@@ -36,6 +38,8 @@ export type InventoryDocumentAvgAggregateOutputType = {
 
 export type InventoryDocumentSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
+  counterpartyPartyId: number | null
   createdBy: number | null
   postedBy: number | null
   reversedById: number | null
@@ -45,11 +49,13 @@ export type InventoryDocumentSumAggregateOutputType = {
 export type InventoryDocumentMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   documentNo: string | null
   documentType: string | null
   documentDate: string | null
   status: string | null
   counterparty: string | null
+  counterpartyPartyId: number | null
   referenceNo: string | null
   note: string | null
   sourceFile: string | null
@@ -67,11 +73,13 @@ export type InventoryDocumentMinAggregateOutputType = {
 export type InventoryDocumentMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   documentNo: string | null
   documentType: string | null
   documentDate: string | null
   status: string | null
   counterparty: string | null
+  counterpartyPartyId: number | null
   referenceNo: string | null
   note: string | null
   sourceFile: string | null
@@ -89,11 +97,13 @@ export type InventoryDocumentMaxAggregateOutputType = {
 export type InventoryDocumentCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   documentNo: number
   documentType: number
   documentDate: number
   status: number
   counterparty: number
+  counterpartyPartyId: number
   referenceNo: number
   note: number
   sourceFile: number
@@ -112,6 +122,8 @@ export type InventoryDocumentCountAggregateOutputType = {
 
 export type InventoryDocumentAvgAggregateInputType = {
   id?: true
+  companyId?: true
+  counterpartyPartyId?: true
   createdBy?: true
   postedBy?: true
   reversedById?: true
@@ -120,6 +132,8 @@ export type InventoryDocumentAvgAggregateInputType = {
 
 export type InventoryDocumentSumAggregateInputType = {
   id?: true
+  companyId?: true
+  counterpartyPartyId?: true
   createdBy?: true
   postedBy?: true
   reversedById?: true
@@ -129,11 +143,13 @@ export type InventoryDocumentSumAggregateInputType = {
 export type InventoryDocumentMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   documentNo?: true
   documentType?: true
   documentDate?: true
   status?: true
   counterparty?: true
+  counterpartyPartyId?: true
   referenceNo?: true
   note?: true
   sourceFile?: true
@@ -151,11 +167,13 @@ export type InventoryDocumentMinAggregateInputType = {
 export type InventoryDocumentMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   documentNo?: true
   documentType?: true
   documentDate?: true
   status?: true
   counterparty?: true
+  counterpartyPartyId?: true
   referenceNo?: true
   note?: true
   sourceFile?: true
@@ -173,11 +191,13 @@ export type InventoryDocumentMaxAggregateInputType = {
 export type InventoryDocumentCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   documentNo?: true
   documentType?: true
   documentDate?: true
   status?: true
   counterparty?: true
+  counterpartyPartyId?: true
   referenceNo?: true
   note?: true
   sourceFile?: true
@@ -282,11 +302,13 @@ export type InventoryDocumentGroupByArgs<ExtArgs extends runtime.Types.Extension
 export type InventoryDocumentGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   documentNo: string
   documentType: string
   documentDate: string
   status: string
   counterparty: string | null
+  counterpartyPartyId: number | null
   referenceNo: string | null
   note: string | null
   sourceFile: string | null
@@ -327,11 +349,13 @@ export type InventoryDocumentWhereInput = {
   NOT?: Prisma.InventoryDocumentWhereInput | Prisma.InventoryDocumentWhereInput[]
   id?: Prisma.IntFilter<"InventoryDocument"> | number
   companyCode?: Prisma.StringFilter<"InventoryDocument"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryDocument"> | number | null
   documentNo?: Prisma.StringFilter<"InventoryDocument"> | string
   documentType?: Prisma.StringFilter<"InventoryDocument"> | string
   documentDate?: Prisma.StringFilter<"InventoryDocument"> | string
   status?: Prisma.StringFilter<"InventoryDocument"> | string
   counterparty?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
+  counterpartyPartyId?: Prisma.IntNullableFilter<"InventoryDocument"> | number | null
   referenceNo?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
   note?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
   sourceFile?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
@@ -345,16 +369,20 @@ export type InventoryDocumentWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"InventoryDocument"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InventoryDocument"> | Date | string
   lines?: Prisma.InventoryDocumentLineListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  counterpartyParty?: Prisma.XOR<Prisma.PartyNullableScalarRelationFilter, Prisma.PartyWhereInput> | null
 }
 
 export type InventoryDocumentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   documentNo?: Prisma.SortOrder
   documentType?: Prisma.SortOrder
   documentDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
   counterparty?: Prisma.SortOrderInput | Prisma.SortOrder
+  counterpartyPartyId?: Prisma.SortOrderInput | Prisma.SortOrder
   referenceNo?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceFile?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -368,6 +396,8 @@ export type InventoryDocumentOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   lines?: Prisma.InventoryDocumentLineOrderByRelationAggregateInput
+  company?: Prisma.CompanyOrderByWithRelationInput
+  counterpartyParty?: Prisma.PartyOrderByWithRelationInput
 }
 
 export type InventoryDocumentWhereUniqueInput = Prisma.AtLeast<{
@@ -378,11 +408,13 @@ export type InventoryDocumentWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.InventoryDocumentWhereInput[]
   NOT?: Prisma.InventoryDocumentWhereInput | Prisma.InventoryDocumentWhereInput[]
   companyCode?: Prisma.StringFilter<"InventoryDocument"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryDocument"> | number | null
   documentNo?: Prisma.StringFilter<"InventoryDocument"> | string
   documentType?: Prisma.StringFilter<"InventoryDocument"> | string
   documentDate?: Prisma.StringFilter<"InventoryDocument"> | string
   status?: Prisma.StringFilter<"InventoryDocument"> | string
   counterparty?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
+  counterpartyPartyId?: Prisma.IntNullableFilter<"InventoryDocument"> | number | null
   referenceNo?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
   note?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
   sourceFile?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
@@ -396,16 +428,20 @@ export type InventoryDocumentWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"InventoryDocument"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InventoryDocument"> | Date | string
   lines?: Prisma.InventoryDocumentLineListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  counterpartyParty?: Prisma.XOR<Prisma.PartyNullableScalarRelationFilter, Prisma.PartyWhereInput> | null
 }, "id" | "companyCode_documentNo" | "companyCode_sourceKey">
 
 export type InventoryDocumentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   documentNo?: Prisma.SortOrder
   documentType?: Prisma.SortOrder
   documentDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
   counterparty?: Prisma.SortOrderInput | Prisma.SortOrder
+  counterpartyPartyId?: Prisma.SortOrderInput | Prisma.SortOrder
   referenceNo?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceFile?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -431,11 +467,13 @@ export type InventoryDocumentScalarWhereWithAggregatesInput = {
   NOT?: Prisma.InventoryDocumentScalarWhereWithAggregatesInput | Prisma.InventoryDocumentScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"InventoryDocument"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"InventoryDocument"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"InventoryDocument"> | number | null
   documentNo?: Prisma.StringWithAggregatesFilter<"InventoryDocument"> | string
   documentType?: Prisma.StringWithAggregatesFilter<"InventoryDocument"> | string
   documentDate?: Prisma.StringWithAggregatesFilter<"InventoryDocument"> | string
   status?: Prisma.StringWithAggregatesFilter<"InventoryDocument"> | string
   counterparty?: Prisma.StringNullableWithAggregatesFilter<"InventoryDocument"> | string | null
+  counterpartyPartyId?: Prisma.IntNullableWithAggregatesFilter<"InventoryDocument"> | number | null
   referenceNo?: Prisma.StringNullableWithAggregatesFilter<"InventoryDocument"> | string | null
   note?: Prisma.StringNullableWithAggregatesFilter<"InventoryDocument"> | string | null
   sourceFile?: Prisma.StringNullableWithAggregatesFilter<"InventoryDocument"> | string | null
@@ -470,16 +508,20 @@ export type InventoryDocumentCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.InventoryDocumentLineCreateNestedManyWithoutDocumentInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryDocumentsInput
+  counterpartyParty?: Prisma.PartyCreateNestedOneWithoutInventoryDocumentsInput
 }
 
 export type InventoryDocumentUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   documentNo: string
   documentType: string
   documentDate: string
   status?: string
   counterparty?: string | null
+  counterpartyPartyId?: number | null
   referenceNo?: string | null
   note?: string | null
   sourceFile?: string | null
@@ -515,16 +557,20 @@ export type InventoryDocumentUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.InventoryDocumentLineUpdateManyWithoutDocumentNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryDocumentsNestedInput
+  counterpartyParty?: Prisma.PartyUpdateOneWithoutInventoryDocumentsNestedInput
 }
 
 export type InventoryDocumentUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   documentNo?: Prisma.StringFieldUpdateOperationsInput | string
   documentType?: Prisma.StringFieldUpdateOperationsInput | string
   documentDate?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   counterparty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  counterpartyPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   referenceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -543,11 +589,13 @@ export type InventoryDocumentUncheckedUpdateInput = {
 export type InventoryDocumentCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   documentNo: string
   documentType: string
   documentDate: string
   status?: string
   counterparty?: string | null
+  counterpartyPartyId?: number | null
   referenceNo?: string | null
   note?: string | null
   sourceFile?: string | null
@@ -586,11 +634,13 @@ export type InventoryDocumentUpdateManyMutationInput = {
 export type InventoryDocumentUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   documentNo?: Prisma.StringFieldUpdateOperationsInput | string
   documentType?: Prisma.StringFieldUpdateOperationsInput | string
   documentDate?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   counterparty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  counterpartyPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   referenceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -603,6 +653,16 @@ export type InventoryDocumentUncheckedUpdateManyInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InventoryDocumentListRelationFilter = {
+  every?: Prisma.InventoryDocumentWhereInput
+  some?: Prisma.InventoryDocumentWhereInput
+  none?: Prisma.InventoryDocumentWhereInput
+}
+
+export type InventoryDocumentOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type InventoryDocumentCompanyCodeDocumentNoCompoundUniqueInput = {
@@ -618,11 +678,13 @@ export type InventoryDocumentCompanyCodeSourceKeyCompoundUniqueInput = {
 export type InventoryDocumentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   documentNo?: Prisma.SortOrder
   documentType?: Prisma.SortOrder
   documentDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
   counterparty?: Prisma.SortOrder
+  counterpartyPartyId?: Prisma.SortOrder
   referenceNo?: Prisma.SortOrder
   note?: Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
@@ -639,6 +701,8 @@ export type InventoryDocumentCountOrderByAggregateInput = {
 
 export type InventoryDocumentAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
+  counterpartyPartyId?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   postedBy?: Prisma.SortOrder
   reversedById?: Prisma.SortOrder
@@ -648,11 +712,13 @@ export type InventoryDocumentAvgOrderByAggregateInput = {
 export type InventoryDocumentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   documentNo?: Prisma.SortOrder
   documentType?: Prisma.SortOrder
   documentDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
   counterparty?: Prisma.SortOrder
+  counterpartyPartyId?: Prisma.SortOrder
   referenceNo?: Prisma.SortOrder
   note?: Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
@@ -670,11 +736,13 @@ export type InventoryDocumentMaxOrderByAggregateInput = {
 export type InventoryDocumentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   documentNo?: Prisma.SortOrder
   documentType?: Prisma.SortOrder
   documentDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
   counterparty?: Prisma.SortOrder
+  counterpartyPartyId?: Prisma.SortOrder
   referenceNo?: Prisma.SortOrder
   note?: Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
@@ -691,6 +759,8 @@ export type InventoryDocumentMinOrderByAggregateInput = {
 
 export type InventoryDocumentSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
+  counterpartyPartyId?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   postedBy?: Prisma.SortOrder
   reversedById?: Prisma.SortOrder
@@ -700,6 +770,90 @@ export type InventoryDocumentSumOrderByAggregateInput = {
 export type InventoryDocumentScalarRelationFilter = {
   is?: Prisma.InventoryDocumentWhereInput
   isNot?: Prisma.InventoryDocumentWhereInput
+}
+
+export type InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput = {
+  create?: Prisma.XOR<Prisma.InventoryDocumentCreateWithoutCounterpartyPartyInput, Prisma.InventoryDocumentUncheckedCreateWithoutCounterpartyPartyInput> | Prisma.InventoryDocumentCreateWithoutCounterpartyPartyInput[] | Prisma.InventoryDocumentUncheckedCreateWithoutCounterpartyPartyInput[]
+  connectOrCreate?: Prisma.InventoryDocumentCreateOrConnectWithoutCounterpartyPartyInput | Prisma.InventoryDocumentCreateOrConnectWithoutCounterpartyPartyInput[]
+  createMany?: Prisma.InventoryDocumentCreateManyCounterpartyPartyInputEnvelope
+  connect?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+}
+
+export type InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput = {
+  create?: Prisma.XOR<Prisma.InventoryDocumentCreateWithoutCounterpartyPartyInput, Prisma.InventoryDocumentUncheckedCreateWithoutCounterpartyPartyInput> | Prisma.InventoryDocumentCreateWithoutCounterpartyPartyInput[] | Prisma.InventoryDocumentUncheckedCreateWithoutCounterpartyPartyInput[]
+  connectOrCreate?: Prisma.InventoryDocumentCreateOrConnectWithoutCounterpartyPartyInput | Prisma.InventoryDocumentCreateOrConnectWithoutCounterpartyPartyInput[]
+  createMany?: Prisma.InventoryDocumentCreateManyCounterpartyPartyInputEnvelope
+  connect?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+}
+
+export type InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryDocumentCreateWithoutCounterpartyPartyInput, Prisma.InventoryDocumentUncheckedCreateWithoutCounterpartyPartyInput> | Prisma.InventoryDocumentCreateWithoutCounterpartyPartyInput[] | Prisma.InventoryDocumentUncheckedCreateWithoutCounterpartyPartyInput[]
+  connectOrCreate?: Prisma.InventoryDocumentCreateOrConnectWithoutCounterpartyPartyInput | Prisma.InventoryDocumentCreateOrConnectWithoutCounterpartyPartyInput[]
+  upsert?: Prisma.InventoryDocumentUpsertWithWhereUniqueWithoutCounterpartyPartyInput | Prisma.InventoryDocumentUpsertWithWhereUniqueWithoutCounterpartyPartyInput[]
+  createMany?: Prisma.InventoryDocumentCreateManyCounterpartyPartyInputEnvelope
+  set?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  disconnect?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  delete?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  connect?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  update?: Prisma.InventoryDocumentUpdateWithWhereUniqueWithoutCounterpartyPartyInput | Prisma.InventoryDocumentUpdateWithWhereUniqueWithoutCounterpartyPartyInput[]
+  updateMany?: Prisma.InventoryDocumentUpdateManyWithWhereWithoutCounterpartyPartyInput | Prisma.InventoryDocumentUpdateManyWithWhereWithoutCounterpartyPartyInput[]
+  deleteMany?: Prisma.InventoryDocumentScalarWhereInput | Prisma.InventoryDocumentScalarWhereInput[]
+}
+
+export type InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryDocumentCreateWithoutCounterpartyPartyInput, Prisma.InventoryDocumentUncheckedCreateWithoutCounterpartyPartyInput> | Prisma.InventoryDocumentCreateWithoutCounterpartyPartyInput[] | Prisma.InventoryDocumentUncheckedCreateWithoutCounterpartyPartyInput[]
+  connectOrCreate?: Prisma.InventoryDocumentCreateOrConnectWithoutCounterpartyPartyInput | Prisma.InventoryDocumentCreateOrConnectWithoutCounterpartyPartyInput[]
+  upsert?: Prisma.InventoryDocumentUpsertWithWhereUniqueWithoutCounterpartyPartyInput | Prisma.InventoryDocumentUpsertWithWhereUniqueWithoutCounterpartyPartyInput[]
+  createMany?: Prisma.InventoryDocumentCreateManyCounterpartyPartyInputEnvelope
+  set?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  disconnect?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  delete?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  connect?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  update?: Prisma.InventoryDocumentUpdateWithWhereUniqueWithoutCounterpartyPartyInput | Prisma.InventoryDocumentUpdateWithWhereUniqueWithoutCounterpartyPartyInput[]
+  updateMany?: Prisma.InventoryDocumentUpdateManyWithWhereWithoutCounterpartyPartyInput | Prisma.InventoryDocumentUpdateManyWithWhereWithoutCounterpartyPartyInput[]
+  deleteMany?: Prisma.InventoryDocumentScalarWhereInput | Prisma.InventoryDocumentScalarWhereInput[]
+}
+
+export type InventoryDocumentCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.InventoryDocumentCreateWithoutCompanyInput, Prisma.InventoryDocumentUncheckedCreateWithoutCompanyInput> | Prisma.InventoryDocumentCreateWithoutCompanyInput[] | Prisma.InventoryDocumentUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryDocumentCreateOrConnectWithoutCompanyInput | Prisma.InventoryDocumentCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.InventoryDocumentCreateManyCompanyInputEnvelope
+  connect?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+}
+
+export type InventoryDocumentUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.InventoryDocumentCreateWithoutCompanyInput, Prisma.InventoryDocumentUncheckedCreateWithoutCompanyInput> | Prisma.InventoryDocumentCreateWithoutCompanyInput[] | Prisma.InventoryDocumentUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryDocumentCreateOrConnectWithoutCompanyInput | Prisma.InventoryDocumentCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.InventoryDocumentCreateManyCompanyInputEnvelope
+  connect?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+}
+
+export type InventoryDocumentUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryDocumentCreateWithoutCompanyInput, Prisma.InventoryDocumentUncheckedCreateWithoutCompanyInput> | Prisma.InventoryDocumentCreateWithoutCompanyInput[] | Prisma.InventoryDocumentUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryDocumentCreateOrConnectWithoutCompanyInput | Prisma.InventoryDocumentCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.InventoryDocumentUpsertWithWhereUniqueWithoutCompanyInput | Prisma.InventoryDocumentUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.InventoryDocumentCreateManyCompanyInputEnvelope
+  set?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  disconnect?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  delete?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  connect?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  update?: Prisma.InventoryDocumentUpdateWithWhereUniqueWithoutCompanyInput | Prisma.InventoryDocumentUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.InventoryDocumentUpdateManyWithWhereWithoutCompanyInput | Prisma.InventoryDocumentUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.InventoryDocumentScalarWhereInput | Prisma.InventoryDocumentScalarWhereInput[]
+}
+
+export type InventoryDocumentUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryDocumentCreateWithoutCompanyInput, Prisma.InventoryDocumentUncheckedCreateWithoutCompanyInput> | Prisma.InventoryDocumentCreateWithoutCompanyInput[] | Prisma.InventoryDocumentUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryDocumentCreateOrConnectWithoutCompanyInput | Prisma.InventoryDocumentCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.InventoryDocumentUpsertWithWhereUniqueWithoutCompanyInput | Prisma.InventoryDocumentUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.InventoryDocumentCreateManyCompanyInputEnvelope
+  set?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  disconnect?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  delete?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  connect?: Prisma.InventoryDocumentWhereUniqueInput | Prisma.InventoryDocumentWhereUniqueInput[]
+  update?: Prisma.InventoryDocumentUpdateWithWhereUniqueWithoutCompanyInput | Prisma.InventoryDocumentUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.InventoryDocumentUpdateManyWithWhereWithoutCompanyInput | Prisma.InventoryDocumentUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.InventoryDocumentScalarWhereInput | Prisma.InventoryDocumentScalarWhereInput[]
 }
 
 export type InventoryDocumentCreateNestedOneWithoutLinesInput = {
@@ -714,6 +868,179 @@ export type InventoryDocumentUpdateOneRequiredWithoutLinesNestedInput = {
   upsert?: Prisma.InventoryDocumentUpsertWithoutLinesInput
   connect?: Prisma.InventoryDocumentWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.InventoryDocumentUpdateToOneWithWhereWithoutLinesInput, Prisma.InventoryDocumentUpdateWithoutLinesInput>, Prisma.InventoryDocumentUncheckedUpdateWithoutLinesInput>
+}
+
+export type InventoryDocumentCreateWithoutCounterpartyPartyInput = {
+  companyCode: string
+  documentNo: string
+  documentType: string
+  documentDate: string
+  status?: string
+  counterparty?: string | null
+  referenceNo?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  postedBy?: number | null
+  postedAt?: Date | string | null
+  reversedById?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lines?: Prisma.InventoryDocumentLineCreateNestedManyWithoutDocumentInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryDocumentsInput
+}
+
+export type InventoryDocumentUncheckedCreateWithoutCounterpartyPartyInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  documentNo: string
+  documentType: string
+  documentDate: string
+  status?: string
+  counterparty?: string | null
+  referenceNo?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  postedBy?: number | null
+  postedAt?: Date | string | null
+  reversedById?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lines?: Prisma.InventoryDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
+}
+
+export type InventoryDocumentCreateOrConnectWithoutCounterpartyPartyInput = {
+  where: Prisma.InventoryDocumentWhereUniqueInput
+  create: Prisma.XOR<Prisma.InventoryDocumentCreateWithoutCounterpartyPartyInput, Prisma.InventoryDocumentUncheckedCreateWithoutCounterpartyPartyInput>
+}
+
+export type InventoryDocumentCreateManyCounterpartyPartyInputEnvelope = {
+  data: Prisma.InventoryDocumentCreateManyCounterpartyPartyInput | Prisma.InventoryDocumentCreateManyCounterpartyPartyInput[]
+  skipDuplicates?: boolean
+}
+
+export type InventoryDocumentUpsertWithWhereUniqueWithoutCounterpartyPartyInput = {
+  where: Prisma.InventoryDocumentWhereUniqueInput
+  update: Prisma.XOR<Prisma.InventoryDocumentUpdateWithoutCounterpartyPartyInput, Prisma.InventoryDocumentUncheckedUpdateWithoutCounterpartyPartyInput>
+  create: Prisma.XOR<Prisma.InventoryDocumentCreateWithoutCounterpartyPartyInput, Prisma.InventoryDocumentUncheckedCreateWithoutCounterpartyPartyInput>
+}
+
+export type InventoryDocumentUpdateWithWhereUniqueWithoutCounterpartyPartyInput = {
+  where: Prisma.InventoryDocumentWhereUniqueInput
+  data: Prisma.XOR<Prisma.InventoryDocumentUpdateWithoutCounterpartyPartyInput, Prisma.InventoryDocumentUncheckedUpdateWithoutCounterpartyPartyInput>
+}
+
+export type InventoryDocumentUpdateManyWithWhereWithoutCounterpartyPartyInput = {
+  where: Prisma.InventoryDocumentScalarWhereInput
+  data: Prisma.XOR<Prisma.InventoryDocumentUpdateManyMutationInput, Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyInput>
+}
+
+export type InventoryDocumentScalarWhereInput = {
+  AND?: Prisma.InventoryDocumentScalarWhereInput | Prisma.InventoryDocumentScalarWhereInput[]
+  OR?: Prisma.InventoryDocumentScalarWhereInput[]
+  NOT?: Prisma.InventoryDocumentScalarWhereInput | Prisma.InventoryDocumentScalarWhereInput[]
+  id?: Prisma.IntFilter<"InventoryDocument"> | number
+  companyCode?: Prisma.StringFilter<"InventoryDocument"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryDocument"> | number | null
+  documentNo?: Prisma.StringFilter<"InventoryDocument"> | string
+  documentType?: Prisma.StringFilter<"InventoryDocument"> | string
+  documentDate?: Prisma.StringFilter<"InventoryDocument"> | string
+  status?: Prisma.StringFilter<"InventoryDocument"> | string
+  counterparty?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
+  counterpartyPartyId?: Prisma.IntNullableFilter<"InventoryDocument"> | number | null
+  referenceNo?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
+  note?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
+  sourceFile?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
+  sourceSheet?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
+  sourceKey?: Prisma.StringNullableFilter<"InventoryDocument"> | string | null
+  createdBy?: Prisma.IntNullableFilter<"InventoryDocument"> | number | null
+  postedBy?: Prisma.IntNullableFilter<"InventoryDocument"> | number | null
+  postedAt?: Prisma.DateTimeNullableFilter<"InventoryDocument"> | Date | string | null
+  reversedById?: Prisma.IntNullableFilter<"InventoryDocument"> | number | null
+  version?: Prisma.IntFilter<"InventoryDocument"> | number
+  createdAt?: Prisma.DateTimeFilter<"InventoryDocument"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InventoryDocument"> | Date | string
+}
+
+export type InventoryDocumentCreateWithoutCompanyInput = {
+  companyCode: string
+  documentNo: string
+  documentType: string
+  documentDate: string
+  status?: string
+  counterparty?: string | null
+  referenceNo?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  postedBy?: number | null
+  postedAt?: Date | string | null
+  reversedById?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lines?: Prisma.InventoryDocumentLineCreateNestedManyWithoutDocumentInput
+  counterpartyParty?: Prisma.PartyCreateNestedOneWithoutInventoryDocumentsInput
+}
+
+export type InventoryDocumentUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  documentNo: string
+  documentType: string
+  documentDate: string
+  status?: string
+  counterparty?: string | null
+  counterpartyPartyId?: number | null
+  referenceNo?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  postedBy?: number | null
+  postedAt?: Date | string | null
+  reversedById?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lines?: Prisma.InventoryDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
+}
+
+export type InventoryDocumentCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.InventoryDocumentWhereUniqueInput
+  create: Prisma.XOR<Prisma.InventoryDocumentCreateWithoutCompanyInput, Prisma.InventoryDocumentUncheckedCreateWithoutCompanyInput>
+}
+
+export type InventoryDocumentCreateManyCompanyInputEnvelope = {
+  data: Prisma.InventoryDocumentCreateManyCompanyInput | Prisma.InventoryDocumentCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type InventoryDocumentUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.InventoryDocumentWhereUniqueInput
+  update: Prisma.XOR<Prisma.InventoryDocumentUpdateWithoutCompanyInput, Prisma.InventoryDocumentUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.InventoryDocumentCreateWithoutCompanyInput, Prisma.InventoryDocumentUncheckedCreateWithoutCompanyInput>
+}
+
+export type InventoryDocumentUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.InventoryDocumentWhereUniqueInput
+  data: Prisma.XOR<Prisma.InventoryDocumentUpdateWithoutCompanyInput, Prisma.InventoryDocumentUncheckedUpdateWithoutCompanyInput>
+}
+
+export type InventoryDocumentUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.InventoryDocumentScalarWhereInput
+  data: Prisma.XOR<Prisma.InventoryDocumentUpdateManyMutationInput, Prisma.InventoryDocumentUncheckedUpdateManyWithoutCompanyInput>
 }
 
 export type InventoryDocumentCreateWithoutLinesInput = {
@@ -735,16 +1062,20 @@ export type InventoryDocumentCreateWithoutLinesInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryDocumentsInput
+  counterpartyParty?: Prisma.PartyCreateNestedOneWithoutInventoryDocumentsInput
 }
 
 export type InventoryDocumentUncheckedCreateWithoutLinesInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   documentNo: string
   documentType: string
   documentDate: string
   status?: string
   counterparty?: string | null
+  counterpartyPartyId?: number | null
   referenceNo?: string | null
   note?: string | null
   sourceFile?: string | null
@@ -794,9 +1125,174 @@ export type InventoryDocumentUpdateWithoutLinesInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutInventoryDocumentsNestedInput
+  counterpartyParty?: Prisma.PartyUpdateOneWithoutInventoryDocumentsNestedInput
 }
 
 export type InventoryDocumentUncheckedUpdateWithoutLinesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentNo?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  documentDate?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  counterparty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  counterpartyPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  referenceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InventoryDocumentCreateManyCounterpartyPartyInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  documentNo: string
+  documentType: string
+  documentDate: string
+  status?: string
+  counterparty?: string | null
+  referenceNo?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  postedBy?: number | null
+  postedAt?: Date | string | null
+  reversedById?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InventoryDocumentUpdateWithoutCounterpartyPartyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  documentNo?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  documentDate?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  counterparty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referenceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lines?: Prisma.InventoryDocumentLineUpdateManyWithoutDocumentNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryDocumentsNestedInput
+}
+
+export type InventoryDocumentUncheckedUpdateWithoutCounterpartyPartyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentNo?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  documentDate?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  counterparty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referenceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lines?: Prisma.InventoryDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
+}
+
+export type InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentNo?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  documentDate?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  counterparty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referenceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InventoryDocumentCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  documentNo: string
+  documentType: string
+  documentDate: string
+  status?: string
+  counterparty?: string | null
+  counterpartyPartyId?: number | null
+  referenceNo?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  postedBy?: number | null
+  postedAt?: Date | string | null
+  reversedById?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InventoryDocumentUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  documentNo?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  documentDate?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  counterparty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referenceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lines?: Prisma.InventoryDocumentLineUpdateManyWithoutDocumentNestedInput
+  counterpartyParty?: Prisma.PartyUpdateOneWithoutInventoryDocumentsNestedInput
+}
+
+export type InventoryDocumentUncheckedUpdateWithoutCompanyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   documentNo?: Prisma.StringFieldUpdateOperationsInput | string
@@ -804,6 +1300,31 @@ export type InventoryDocumentUncheckedUpdateWithoutLinesInput = {
   documentDate?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   counterparty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  counterpartyPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  referenceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lines?: Prisma.InventoryDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
+}
+
+export type InventoryDocumentUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  documentNo?: Prisma.StringFieldUpdateOperationsInput | string
+  documentType?: Prisma.StringFieldUpdateOperationsInput | string
+  documentDate?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  counterparty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  counterpartyPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   referenceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -852,11 +1373,13 @@ export type InventoryDocumentCountOutputTypeCountLinesArgs<ExtArgs extends runti
 export type InventoryDocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   documentNo?: boolean
   documentType?: boolean
   documentDate?: boolean
   status?: boolean
   counterparty?: boolean
+  counterpartyPartyId?: boolean
   referenceNo?: boolean
   note?: boolean
   sourceFile?: boolean
@@ -870,17 +1393,21 @@ export type InventoryDocumentSelect<ExtArgs extends runtime.Types.Extensions.Int
   createdAt?: boolean
   updatedAt?: boolean
   lines?: boolean | Prisma.InventoryDocument$linesArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryDocument$companyArgs<ExtArgs>
+  counterpartyParty?: boolean | Prisma.InventoryDocument$counterpartyPartyArgs<ExtArgs>
   _count?: boolean | Prisma.InventoryDocumentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryDocument"]>
 
 export type InventoryDocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   documentNo?: boolean
   documentType?: boolean
   documentDate?: boolean
   status?: boolean
   counterparty?: boolean
+  counterpartyPartyId?: boolean
   referenceNo?: boolean
   note?: boolean
   sourceFile?: boolean
@@ -893,16 +1420,20 @@ export type InventoryDocumentSelectCreateManyAndReturn<ExtArgs extends runtime.T
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.InventoryDocument$companyArgs<ExtArgs>
+  counterpartyParty?: boolean | Prisma.InventoryDocument$counterpartyPartyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryDocument"]>
 
 export type InventoryDocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   documentNo?: boolean
   documentType?: boolean
   documentDate?: boolean
   status?: boolean
   counterparty?: boolean
+  counterpartyPartyId?: boolean
   referenceNo?: boolean
   note?: boolean
   sourceFile?: boolean
@@ -915,16 +1446,20 @@ export type InventoryDocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.InventoryDocument$companyArgs<ExtArgs>
+  counterpartyParty?: boolean | Prisma.InventoryDocument$counterpartyPartyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryDocument"]>
 
 export type InventoryDocumentSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   documentNo?: boolean
   documentType?: boolean
   documentDate?: boolean
   status?: boolean
   counterparty?: boolean
+  counterpartyPartyId?: boolean
   referenceNo?: boolean
   note?: boolean
   sourceFile?: boolean
@@ -939,27 +1474,39 @@ export type InventoryDocumentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type InventoryDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "documentNo" | "documentType" | "documentDate" | "status" | "counterparty" | "referenceNo" | "note" | "sourceFile" | "sourceSheet" | "sourceKey" | "createdBy" | "postedBy" | "postedAt" | "reversedById" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryDocument"]>
+export type InventoryDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "documentNo" | "documentType" | "documentDate" | "status" | "counterparty" | "counterpartyPartyId" | "referenceNo" | "note" | "sourceFile" | "sourceSheet" | "sourceKey" | "createdBy" | "postedBy" | "postedAt" | "reversedById" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryDocument"]>
 export type InventoryDocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lines?: boolean | Prisma.InventoryDocument$linesArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryDocument$companyArgs<ExtArgs>
+  counterpartyParty?: boolean | Prisma.InventoryDocument$counterpartyPartyArgs<ExtArgs>
   _count?: boolean | Prisma.InventoryDocumentCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type InventoryDocumentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type InventoryDocumentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type InventoryDocumentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.InventoryDocument$companyArgs<ExtArgs>
+  counterpartyParty?: boolean | Prisma.InventoryDocument$counterpartyPartyArgs<ExtArgs>
+}
+export type InventoryDocumentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.InventoryDocument$companyArgs<ExtArgs>
+  counterpartyParty?: boolean | Prisma.InventoryDocument$counterpartyPartyArgs<ExtArgs>
+}
 
 export type $InventoryDocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "InventoryDocument"
   objects: {
     lines: Prisma.$InventoryDocumentLinePayload<ExtArgs>[]
+    company: Prisma.$CompanyPayload<ExtArgs> | null
+    counterpartyParty: Prisma.$PartyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     documentNo: string
     documentType: string
     documentDate: string
     status: string
     counterparty: string | null
+    counterpartyPartyId: number | null
     referenceNo: string | null
     note: string | null
     sourceFile: string | null
@@ -1367,6 +1914,8 @@ readonly fields: InventoryDocumentFieldRefs;
 export interface Prisma__InventoryDocumentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   lines<T extends Prisma.InventoryDocument$linesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryDocument$linesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryDocumentLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  company<T extends Prisma.InventoryDocument$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryDocument$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  counterpartyParty<T extends Prisma.InventoryDocument$counterpartyPartyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryDocument$counterpartyPartyArgs<ExtArgs>>): Prisma.Prisma__PartyClient<runtime.Types.Result.GetResult<Prisma.$PartyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1398,11 +1947,13 @@ export interface Prisma__InventoryDocumentClient<T, Null = never, ExtArgs extend
 export interface InventoryDocumentFieldRefs {
   readonly id: Prisma.FieldRef<"InventoryDocument", 'Int'>
   readonly companyCode: Prisma.FieldRef<"InventoryDocument", 'String'>
+  readonly companyId: Prisma.FieldRef<"InventoryDocument", 'Int'>
   readonly documentNo: Prisma.FieldRef<"InventoryDocument", 'String'>
   readonly documentType: Prisma.FieldRef<"InventoryDocument", 'String'>
   readonly documentDate: Prisma.FieldRef<"InventoryDocument", 'String'>
   readonly status: Prisma.FieldRef<"InventoryDocument", 'String'>
   readonly counterparty: Prisma.FieldRef<"InventoryDocument", 'String'>
+  readonly counterpartyPartyId: Prisma.FieldRef<"InventoryDocument", 'Int'>
   readonly referenceNo: Prisma.FieldRef<"InventoryDocument", 'String'>
   readonly note: Prisma.FieldRef<"InventoryDocument", 'String'>
   readonly sourceFile: Prisma.FieldRef<"InventoryDocument", 'String'>
@@ -1669,6 +2220,10 @@ export type InventoryDocumentCreateManyAndReturnArgs<ExtArgs extends runtime.Typ
    */
   data: Prisma.InventoryDocumentCreateManyInput | Prisma.InventoryDocumentCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryDocumentIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1739,6 +2294,10 @@ export type InventoryDocumentUpdateManyAndReturnArgs<ExtArgs extends runtime.Typ
    * Limit how many InventoryDocuments to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryDocumentIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1829,6 +2388,44 @@ export type InventoryDocument$linesArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.InventoryDocumentLineScalarFieldEnum | Prisma.InventoryDocumentLineScalarFieldEnum[]
+}
+
+/**
+ * InventoryDocument.company
+ */
+export type InventoryDocument$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
+}
+
+/**
+ * InventoryDocument.counterpartyParty
+ */
+export type InventoryDocument$counterpartyPartyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Party
+   */
+  select?: Prisma.PartySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Party
+   */
+  omit?: Prisma.PartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PartyInclude<ExtArgs> | null
+  where?: Prisma.PartyWhereInput
 }
 
 /**

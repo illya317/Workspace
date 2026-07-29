@@ -300,6 +300,8 @@ export type FinanceConsolidationScopeSelectionWhereInput = {
   selectedBy?: Prisma.IntFilter<"FinanceConsolidationScopeSelection"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceConsolidationScopeSelection"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceConsolidationScopeSelection"> | Date | string
+  parentCompany?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
+  company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
 }
 
 export type FinanceConsolidationScopeSelectionOrderByWithRelationInput = {
@@ -315,6 +317,8 @@ export type FinanceConsolidationScopeSelectionOrderByWithRelationInput = {
   selectedBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  parentCompany?: Prisma.CompanyOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceConsolidationScopeSelectionWhereUniqueInput = Prisma.AtLeast<{
@@ -334,6 +338,8 @@ export type FinanceConsolidationScopeSelectionWhereUniqueInput = Prisma.AtLeast<
   selectedBy?: Prisma.IntFilter<"FinanceConsolidationScopeSelection"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceConsolidationScopeSelection"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceConsolidationScopeSelection"> | Date | string
+  parentCompany?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
+  company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
 }, "id" | "parentCompanyId_year_month_periodKind_companyId">
 
 export type FinanceConsolidationScopeSelectionOrderByWithAggregationInput = {
@@ -375,17 +381,17 @@ export type FinanceConsolidationScopeSelectionScalarWhereWithAggregatesInput = {
 }
 
 export type FinanceConsolidationScopeSelectionCreateInput = {
-  parentCompanyId: number
   year: number
   month: number
   periodKind?: string
-  companyId: number
   relationId: number
   relationVersion: number
   included: boolean
   selectedBy: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  parentCompany: Prisma.CompanyCreateNestedOneWithoutFinanceConsolidationParentScopesInput
+  company: Prisma.CompanyCreateNestedOneWithoutFinanceConsolidationCompanyScopesInput
 }
 
 export type FinanceConsolidationScopeSelectionUncheckedCreateInput = {
@@ -404,17 +410,17 @@ export type FinanceConsolidationScopeSelectionUncheckedCreateInput = {
 }
 
 export type FinanceConsolidationScopeSelectionUpdateInput = {
-  parentCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   periodKind?: Prisma.StringFieldUpdateOperationsInput | string
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
   relationId?: Prisma.IntFieldUpdateOperationsInput | number
   relationVersion?: Prisma.IntFieldUpdateOperationsInput | number
   included?: Prisma.BoolFieldUpdateOperationsInput | boolean
   selectedBy?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parentCompany?: Prisma.CompanyUpdateOneRequiredWithoutFinanceConsolidationParentScopesNestedInput
+  company?: Prisma.CompanyUpdateOneRequiredWithoutFinanceConsolidationCompanyScopesNestedInput
 }
 
 export type FinanceConsolidationScopeSelectionUncheckedUpdateInput = {
@@ -448,11 +454,9 @@ export type FinanceConsolidationScopeSelectionCreateManyInput = {
 }
 
 export type FinanceConsolidationScopeSelectionUpdateManyMutationInput = {
-  parentCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
   year?: Prisma.IntFieldUpdateOperationsInput | number
   month?: Prisma.IntFieldUpdateOperationsInput | number
   periodKind?: Prisma.StringFieldUpdateOperationsInput | string
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
   relationId?: Prisma.IntFieldUpdateOperationsInput | number
   relationVersion?: Prisma.IntFieldUpdateOperationsInput | number
   included?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -551,6 +555,334 @@ export type FinanceConsolidationScopeSelectionSumOrderByAggregateInput = {
   selectedBy?: Prisma.SortOrder
 }
 
+export type FinanceConsolidationScopeSelectionListRelationFilter = {
+  every?: Prisma.FinanceConsolidationScopeSelectionWhereInput
+  some?: Prisma.FinanceConsolidationScopeSelectionWhereInput
+  none?: Prisma.FinanceConsolidationScopeSelectionWhereInput
+}
+
+export type FinanceConsolidationScopeSelectionOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type FinanceConsolidationScopeSelectionCreateNestedManyWithoutParentCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateWithoutParentCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutParentCompanyInput> | Prisma.FinanceConsolidationScopeSelectionCreateWithoutParentCompanyInput[] | Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutParentCompanyInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutParentCompanyInput | Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutParentCompanyInput[]
+  createMany?: Prisma.FinanceConsolidationScopeSelectionCreateManyParentCompanyInputEnvelope
+  connect?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+}
+
+export type FinanceConsolidationScopeSelectionCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateWithoutCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutCompanyInput> | Prisma.FinanceConsolidationScopeSelectionCreateWithoutCompanyInput[] | Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutCompanyInput | Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceConsolidationScopeSelectionCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+}
+
+export type FinanceConsolidationScopeSelectionUncheckedCreateNestedManyWithoutParentCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateWithoutParentCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutParentCompanyInput> | Prisma.FinanceConsolidationScopeSelectionCreateWithoutParentCompanyInput[] | Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutParentCompanyInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutParentCompanyInput | Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutParentCompanyInput[]
+  createMany?: Prisma.FinanceConsolidationScopeSelectionCreateManyParentCompanyInputEnvelope
+  connect?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+}
+
+export type FinanceConsolidationScopeSelectionUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateWithoutCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutCompanyInput> | Prisma.FinanceConsolidationScopeSelectionCreateWithoutCompanyInput[] | Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutCompanyInput | Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceConsolidationScopeSelectionCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+}
+
+export type FinanceConsolidationScopeSelectionUpdateManyWithoutParentCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateWithoutParentCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutParentCompanyInput> | Prisma.FinanceConsolidationScopeSelectionCreateWithoutParentCompanyInput[] | Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutParentCompanyInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutParentCompanyInput | Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutParentCompanyInput[]
+  upsert?: Prisma.FinanceConsolidationScopeSelectionUpsertWithWhereUniqueWithoutParentCompanyInput | Prisma.FinanceConsolidationScopeSelectionUpsertWithWhereUniqueWithoutParentCompanyInput[]
+  createMany?: Prisma.FinanceConsolidationScopeSelectionCreateManyParentCompanyInputEnvelope
+  set?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  disconnect?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  delete?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  connect?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  update?: Prisma.FinanceConsolidationScopeSelectionUpdateWithWhereUniqueWithoutParentCompanyInput | Prisma.FinanceConsolidationScopeSelectionUpdateWithWhereUniqueWithoutParentCompanyInput[]
+  updateMany?: Prisma.FinanceConsolidationScopeSelectionUpdateManyWithWhereWithoutParentCompanyInput | Prisma.FinanceConsolidationScopeSelectionUpdateManyWithWhereWithoutParentCompanyInput[]
+  deleteMany?: Prisma.FinanceConsolidationScopeSelectionScalarWhereInput | Prisma.FinanceConsolidationScopeSelectionScalarWhereInput[]
+}
+
+export type FinanceConsolidationScopeSelectionUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateWithoutCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutCompanyInput> | Prisma.FinanceConsolidationScopeSelectionCreateWithoutCompanyInput[] | Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutCompanyInput | Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceConsolidationScopeSelectionUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceConsolidationScopeSelectionUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceConsolidationScopeSelectionCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  disconnect?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  delete?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  connect?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  update?: Prisma.FinanceConsolidationScopeSelectionUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceConsolidationScopeSelectionUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceConsolidationScopeSelectionUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceConsolidationScopeSelectionUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceConsolidationScopeSelectionScalarWhereInput | Prisma.FinanceConsolidationScopeSelectionScalarWhereInput[]
+}
+
+export type FinanceConsolidationScopeSelectionUncheckedUpdateManyWithoutParentCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateWithoutParentCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutParentCompanyInput> | Prisma.FinanceConsolidationScopeSelectionCreateWithoutParentCompanyInput[] | Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutParentCompanyInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutParentCompanyInput | Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutParentCompanyInput[]
+  upsert?: Prisma.FinanceConsolidationScopeSelectionUpsertWithWhereUniqueWithoutParentCompanyInput | Prisma.FinanceConsolidationScopeSelectionUpsertWithWhereUniqueWithoutParentCompanyInput[]
+  createMany?: Prisma.FinanceConsolidationScopeSelectionCreateManyParentCompanyInputEnvelope
+  set?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  disconnect?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  delete?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  connect?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  update?: Prisma.FinanceConsolidationScopeSelectionUpdateWithWhereUniqueWithoutParentCompanyInput | Prisma.FinanceConsolidationScopeSelectionUpdateWithWhereUniqueWithoutParentCompanyInput[]
+  updateMany?: Prisma.FinanceConsolidationScopeSelectionUpdateManyWithWhereWithoutParentCompanyInput | Prisma.FinanceConsolidationScopeSelectionUpdateManyWithWhereWithoutParentCompanyInput[]
+  deleteMany?: Prisma.FinanceConsolidationScopeSelectionScalarWhereInput | Prisma.FinanceConsolidationScopeSelectionScalarWhereInput[]
+}
+
+export type FinanceConsolidationScopeSelectionUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateWithoutCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutCompanyInput> | Prisma.FinanceConsolidationScopeSelectionCreateWithoutCompanyInput[] | Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutCompanyInput | Prisma.FinanceConsolidationScopeSelectionCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceConsolidationScopeSelectionUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceConsolidationScopeSelectionUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceConsolidationScopeSelectionCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  disconnect?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  delete?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  connect?: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput | Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput[]
+  update?: Prisma.FinanceConsolidationScopeSelectionUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceConsolidationScopeSelectionUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceConsolidationScopeSelectionUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceConsolidationScopeSelectionUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceConsolidationScopeSelectionScalarWhereInput | Prisma.FinanceConsolidationScopeSelectionScalarWhereInput[]
+}
+
+export type FinanceConsolidationScopeSelectionCreateWithoutParentCompanyInput = {
+  year: number
+  month: number
+  periodKind?: string
+  relationId: number
+  relationVersion: number
+  included: boolean
+  selectedBy: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutFinanceConsolidationCompanyScopesInput
+}
+
+export type FinanceConsolidationScopeSelectionUncheckedCreateWithoutParentCompanyInput = {
+  id?: number
+  year: number
+  month: number
+  periodKind?: string
+  companyId: number
+  relationId: number
+  relationVersion: number
+  included: boolean
+  selectedBy: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceConsolidationScopeSelectionCreateOrConnectWithoutParentCompanyInput = {
+  where: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateWithoutParentCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutParentCompanyInput>
+}
+
+export type FinanceConsolidationScopeSelectionCreateManyParentCompanyInputEnvelope = {
+  data: Prisma.FinanceConsolidationScopeSelectionCreateManyParentCompanyInput | Prisma.FinanceConsolidationScopeSelectionCreateManyParentCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceConsolidationScopeSelectionCreateWithoutCompanyInput = {
+  year: number
+  month: number
+  periodKind?: string
+  relationId: number
+  relationVersion: number
+  included: boolean
+  selectedBy: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  parentCompany: Prisma.CompanyCreateNestedOneWithoutFinanceConsolidationParentScopesInput
+}
+
+export type FinanceConsolidationScopeSelectionUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  parentCompanyId: number
+  year: number
+  month: number
+  periodKind?: string
+  relationId: number
+  relationVersion: number
+  included: boolean
+  selectedBy: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceConsolidationScopeSelectionCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateWithoutCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceConsolidationScopeSelectionCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceConsolidationScopeSelectionCreateManyCompanyInput | Prisma.FinanceConsolidationScopeSelectionCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceConsolidationScopeSelectionUpsertWithWhereUniqueWithoutParentCompanyInput = {
+  where: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionUpdateWithoutParentCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedUpdateWithoutParentCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateWithoutParentCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutParentCompanyInput>
+}
+
+export type FinanceConsolidationScopeSelectionUpdateWithWhereUniqueWithoutParentCompanyInput = {
+  where: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionUpdateWithoutParentCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedUpdateWithoutParentCompanyInput>
+}
+
+export type FinanceConsolidationScopeSelectionUpdateManyWithWhereWithoutParentCompanyInput = {
+  where: Prisma.FinanceConsolidationScopeSelectionScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionUpdateManyMutationInput, Prisma.FinanceConsolidationScopeSelectionUncheckedUpdateManyWithoutParentCompanyInput>
+}
+
+export type FinanceConsolidationScopeSelectionScalarWhereInput = {
+  AND?: Prisma.FinanceConsolidationScopeSelectionScalarWhereInput | Prisma.FinanceConsolidationScopeSelectionScalarWhereInput[]
+  OR?: Prisma.FinanceConsolidationScopeSelectionScalarWhereInput[]
+  NOT?: Prisma.FinanceConsolidationScopeSelectionScalarWhereInput | Prisma.FinanceConsolidationScopeSelectionScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceConsolidationScopeSelection"> | number
+  parentCompanyId?: Prisma.IntFilter<"FinanceConsolidationScopeSelection"> | number
+  year?: Prisma.IntFilter<"FinanceConsolidationScopeSelection"> | number
+  month?: Prisma.IntFilter<"FinanceConsolidationScopeSelection"> | number
+  periodKind?: Prisma.StringFilter<"FinanceConsolidationScopeSelection"> | string
+  companyId?: Prisma.IntFilter<"FinanceConsolidationScopeSelection"> | number
+  relationId?: Prisma.IntFilter<"FinanceConsolidationScopeSelection"> | number
+  relationVersion?: Prisma.IntFilter<"FinanceConsolidationScopeSelection"> | number
+  included?: Prisma.BoolFilter<"FinanceConsolidationScopeSelection"> | boolean
+  selectedBy?: Prisma.IntFilter<"FinanceConsolidationScopeSelection"> | number
+  createdAt?: Prisma.DateTimeFilter<"FinanceConsolidationScopeSelection"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FinanceConsolidationScopeSelection"> | Date | string
+}
+
+export type FinanceConsolidationScopeSelectionUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionUpdateWithoutCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateWithoutCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceConsolidationScopeSelectionUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionUpdateWithoutCompanyInput, Prisma.FinanceConsolidationScopeSelectionUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceConsolidationScopeSelectionUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceConsolidationScopeSelectionScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionUpdateManyMutationInput, Prisma.FinanceConsolidationScopeSelectionUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type FinanceConsolidationScopeSelectionCreateManyParentCompanyInput = {
+  id?: number
+  year: number
+  month: number
+  periodKind?: string
+  companyId: number
+  relationId: number
+  relationVersion: number
+  included: boolean
+  selectedBy: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceConsolidationScopeSelectionCreateManyCompanyInput = {
+  id?: number
+  parentCompanyId: number
+  year: number
+  month: number
+  periodKind?: string
+  relationId: number
+  relationVersion: number
+  included: boolean
+  selectedBy: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceConsolidationScopeSelectionUpdateWithoutParentCompanyInput = {
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  periodKind?: Prisma.StringFieldUpdateOperationsInput | string
+  relationId?: Prisma.IntFieldUpdateOperationsInput | number
+  relationVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  included?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  selectedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutFinanceConsolidationCompanyScopesNestedInput
+}
+
+export type FinanceConsolidationScopeSelectionUncheckedUpdateWithoutParentCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  periodKind?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  relationId?: Prisma.IntFieldUpdateOperationsInput | number
+  relationVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  included?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  selectedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceConsolidationScopeSelectionUncheckedUpdateManyWithoutParentCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  periodKind?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  relationId?: Prisma.IntFieldUpdateOperationsInput | number
+  relationVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  included?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  selectedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceConsolidationScopeSelectionUpdateWithoutCompanyInput = {
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  periodKind?: Prisma.StringFieldUpdateOperationsInput | string
+  relationId?: Prisma.IntFieldUpdateOperationsInput | number
+  relationVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  included?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  selectedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parentCompany?: Prisma.CompanyUpdateOneRequiredWithoutFinanceConsolidationParentScopesNestedInput
+}
+
+export type FinanceConsolidationScopeSelectionUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  parentCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  periodKind?: Prisma.StringFieldUpdateOperationsInput | string
+  relationId?: Prisma.IntFieldUpdateOperationsInput | number
+  relationVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  included?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  selectedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceConsolidationScopeSelectionUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  parentCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  periodKind?: Prisma.StringFieldUpdateOperationsInput | string
+  relationId?: Prisma.IntFieldUpdateOperationsInput | number
+  relationVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  included?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  selectedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type FinanceConsolidationScopeSelectionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -566,6 +898,8 @@ export type FinanceConsolidationScopeSelectionSelect<ExtArgs extends runtime.Typ
   selectedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  parentCompany?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationScopeSelection"]>
 
 export type FinanceConsolidationScopeSelectionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -581,6 +915,8 @@ export type FinanceConsolidationScopeSelectionSelectCreateManyAndReturn<ExtArgs 
   selectedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  parentCompany?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationScopeSelection"]>
 
 export type FinanceConsolidationScopeSelectionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -596,6 +932,8 @@ export type FinanceConsolidationScopeSelectionSelectUpdateManyAndReturn<ExtArgs 
   selectedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  parentCompany?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationScopeSelection"]>
 
 export type FinanceConsolidationScopeSelectionSelectScalar = {
@@ -614,10 +952,25 @@ export type FinanceConsolidationScopeSelectionSelectScalar = {
 }
 
 export type FinanceConsolidationScopeSelectionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "parentCompanyId" | "year" | "month" | "periodKind" | "companyId" | "relationId" | "relationVersion" | "included" | "selectedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["financeConsolidationScopeSelection"]>
+export type FinanceConsolidationScopeSelectionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  parentCompany?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+}
+export type FinanceConsolidationScopeSelectionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  parentCompany?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+}
+export type FinanceConsolidationScopeSelectionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  parentCompany?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+}
 
 export type $FinanceConsolidationScopeSelectionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceConsolidationScopeSelection"
-  objects: {}
+  objects: {
+    parentCompany: Prisma.$CompanyPayload<ExtArgs>
+    company: Prisma.$CompanyPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     parentCompanyId: number
@@ -1025,6 +1378,8 @@ readonly fields: FinanceConsolidationScopeSelectionFieldRefs;
  */
 export interface Prisma__FinanceConsolidationScopeSelectionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  parentCompany<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1083,6 +1438,10 @@ export type FinanceConsolidationScopeSelectionFindUniqueArgs<ExtArgs extends run
    */
   omit?: Prisma.FinanceConsolidationScopeSelectionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationScopeSelectionInclude<ExtArgs> | null
+  /**
    * Filter, which FinanceConsolidationScopeSelection to fetch.
    */
   where: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput
@@ -1101,6 +1460,10 @@ export type FinanceConsolidationScopeSelectionFindUniqueOrThrowArgs<ExtArgs exte
    */
   omit?: Prisma.FinanceConsolidationScopeSelectionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationScopeSelectionInclude<ExtArgs> | null
+  /**
    * Filter, which FinanceConsolidationScopeSelection to fetch.
    */
   where: Prisma.FinanceConsolidationScopeSelectionWhereUniqueInput
@@ -1118,6 +1481,10 @@ export type FinanceConsolidationScopeSelectionFindFirstArgs<ExtArgs extends runt
    * Omit specific fields from the FinanceConsolidationScopeSelection
    */
   omit?: Prisma.FinanceConsolidationScopeSelectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationScopeSelectionInclude<ExtArgs> | null
   /**
    * Filter, which FinanceConsolidationScopeSelection to fetch.
    */
@@ -1167,6 +1534,10 @@ export type FinanceConsolidationScopeSelectionFindFirstOrThrowArgs<ExtArgs exten
    */
   omit?: Prisma.FinanceConsolidationScopeSelectionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationScopeSelectionInclude<ExtArgs> | null
+  /**
    * Filter, which FinanceConsolidationScopeSelection to fetch.
    */
   where?: Prisma.FinanceConsolidationScopeSelectionWhereInput
@@ -1214,6 +1585,10 @@ export type FinanceConsolidationScopeSelectionFindManyArgs<ExtArgs extends runti
    * Omit specific fields from the FinanceConsolidationScopeSelection
    */
   omit?: Prisma.FinanceConsolidationScopeSelectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationScopeSelectionInclude<ExtArgs> | null
   /**
    * Filter, which FinanceConsolidationScopeSelections to fetch.
    */
@@ -1263,6 +1638,10 @@ export type FinanceConsolidationScopeSelectionCreateArgs<ExtArgs extends runtime
    */
   omit?: Prisma.FinanceConsolidationScopeSelectionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationScopeSelectionInclude<ExtArgs> | null
+  /**
    * The data needed to create a FinanceConsolidationScopeSelection.
    */
   data: Prisma.XOR<Prisma.FinanceConsolidationScopeSelectionCreateInput, Prisma.FinanceConsolidationScopeSelectionUncheckedCreateInput>
@@ -1296,6 +1675,10 @@ export type FinanceConsolidationScopeSelectionCreateManyAndReturnArgs<ExtArgs ex
    */
   data: Prisma.FinanceConsolidationScopeSelectionCreateManyInput | Prisma.FinanceConsolidationScopeSelectionCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationScopeSelectionIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1310,6 +1693,10 @@ export type FinanceConsolidationScopeSelectionUpdateArgs<ExtArgs extends runtime
    * Omit specific fields from the FinanceConsolidationScopeSelection
    */
   omit?: Prisma.FinanceConsolidationScopeSelectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationScopeSelectionInclude<ExtArgs> | null
   /**
    * The data needed to update a FinanceConsolidationScopeSelection.
    */
@@ -1362,6 +1749,10 @@ export type FinanceConsolidationScopeSelectionUpdateManyAndReturnArgs<ExtArgs ex
    * Limit how many FinanceConsolidationScopeSelections to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationScopeSelectionIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1376,6 +1767,10 @@ export type FinanceConsolidationScopeSelectionUpsertArgs<ExtArgs extends runtime
    * Omit specific fields from the FinanceConsolidationScopeSelection
    */
   omit?: Prisma.FinanceConsolidationScopeSelectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationScopeSelectionInclude<ExtArgs> | null
   /**
    * The filter to search for the FinanceConsolidationScopeSelection to update in case it exists.
    */
@@ -1402,6 +1797,10 @@ export type FinanceConsolidationScopeSelectionDeleteArgs<ExtArgs extends runtime
    * Omit specific fields from the FinanceConsolidationScopeSelection
    */
   omit?: Prisma.FinanceConsolidationScopeSelectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationScopeSelectionInclude<ExtArgs> | null
   /**
    * Filter which FinanceConsolidationScopeSelection to delete.
    */
@@ -1434,4 +1833,8 @@ export type FinanceConsolidationScopeSelectionDefaultArgs<ExtArgs extends runtim
    * Omit specific fields from the FinanceConsolidationScopeSelection
    */
   omit?: Prisma.FinanceConsolidationScopeSelectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationScopeSelectionInclude<ExtArgs> | null
 }

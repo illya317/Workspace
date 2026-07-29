@@ -293,6 +293,7 @@ export type ProductWhereInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchListRelationFilter
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointListRelationFilter
   productionQcBatches?: Prisma.ProductionQcBatchListRelationFilter
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportListRelationFilter
 }
 
 export type ProductOrderByWithRelationInput = {
@@ -314,6 +315,7 @@ export type ProductOrderByWithRelationInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchOrderByRelationAggregateInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointOrderByRelationAggregateInput
   productionQcBatches?: Prisma.ProductionQcBatchOrderByRelationAggregateInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportOrderByRelationAggregateInput
 }
 
 export type ProductWhereUniqueInput = Prisma.AtLeast<{
@@ -338,6 +340,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchListRelationFilter
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointListRelationFilter
   productionQcBatches?: Prisma.ProductionQcBatchListRelationFilter
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportListRelationFilter
 }, "id" | "code" | "identityKey">
 
 export type ProductOrderByWithAggregationInput = {
@@ -398,6 +401,7 @@ export type ProductCreateInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchCreateNestedManyWithoutProductInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointCreateNestedManyWithoutProductInput
   productionQcBatches?: Prisma.ProductionQcBatchCreateNestedManyWithoutProductInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateInput = {
@@ -419,6 +423,7 @@ export type ProductUncheckedCreateInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUncheckedCreateNestedManyWithoutProductInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUncheckedCreateNestedManyWithoutProductInput
   productionQcBatches?: Prisma.ProductionQcBatchUncheckedCreateNestedManyWithoutProductInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductUpdateInput = {
@@ -439,6 +444,7 @@ export type ProductUpdateInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUpdateManyWithoutProductNestedInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUpdateManyWithoutProductNestedInput
   productionQcBatches?: Prisma.ProductionQcBatchUpdateManyWithoutProductNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateInput = {
@@ -460,6 +466,7 @@ export type ProductUncheckedUpdateInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUncheckedUpdateManyWithoutProductNestedInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUncheckedUpdateManyWithoutProductNestedInput
   productionQcBatches?: Prisma.ProductionQcBatchUncheckedUpdateManyWithoutProductNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateManyInput = {
@@ -574,6 +581,22 @@ export type ProductSumOrderByAggregateInput = {
   version?: Prisma.SortOrder
 }
 
+export type ProductCreateNestedOneWithoutFinanceWorkshopReportsInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutFinanceWorkshopReportsInput, Prisma.ProductUncheckedCreateWithoutFinanceWorkshopReportsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutFinanceWorkshopReportsInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneWithoutFinanceWorkshopReportsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutFinanceWorkshopReportsInput, Prisma.ProductUncheckedCreateWithoutFinanceWorkshopReportsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutFinanceWorkshopReportsInput
+  upsert?: Prisma.ProductUpsertWithoutFinanceWorkshopReportsInput
+  disconnect?: Prisma.ProductWhereInput | boolean
+  delete?: Prisma.ProductWhereInput | boolean
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutFinanceWorkshopReportsInput, Prisma.ProductUpdateWithoutFinanceWorkshopReportsInput>, Prisma.ProductUncheckedUpdateWithoutFinanceWorkshopReportsInput>
+}
+
 export type ProductCreateNestedOneWithoutSkusInput = {
   create?: Prisma.XOR<Prisma.ProductCreateWithoutSkusInput, Prisma.ProductUncheckedCreateWithoutSkusInput>
   connectOrCreate?: Prisma.ProductCreateOrConnectWithoutSkusInput
@@ -654,6 +677,104 @@ export type ProductUpdateOneWithoutProductionQcBatchesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutProductionQcBatchesInput, Prisma.ProductUpdateWithoutProductionQcBatchesInput>, Prisma.ProductUncheckedUpdateWithoutProductionQcBatchesInput>
 }
 
+export type ProductCreateWithoutFinanceWorkshopReportsInput = {
+  code: string
+  identityKey: string
+  name: string
+  dosageForm?: string | null
+  strength?: string | null
+  approvalNumber?: string | null
+  status?: string
+  note?: string | null
+  editedByUserId?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  skus?: Prisma.InventoryItemCreateNestedManyWithoutProductMasterInput
+  sourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductInput
+  inventoryReceiptBatches?: Prisma.InventoryReceiptBatchCreateNestedManyWithoutProductInput
+  inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointCreateNestedManyWithoutProductInput
+  productionQcBatches?: Prisma.ProductionQcBatchCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutFinanceWorkshopReportsInput = {
+  id?: number
+  code: string
+  identityKey: string
+  name: string
+  dosageForm?: string | null
+  strength?: string | null
+  approvalNumber?: string | null
+  status?: string
+  note?: string | null
+  editedByUserId?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  skus?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutProductMasterInput
+  sourceMappings?: Prisma.ProductSourceMappingUncheckedCreateNestedManyWithoutProductInput
+  inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUncheckedCreateNestedManyWithoutProductInput
+  inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUncheckedCreateNestedManyWithoutProductInput
+  productionQcBatches?: Prisma.ProductionQcBatchUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutFinanceWorkshopReportsInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutFinanceWorkshopReportsInput, Prisma.ProductUncheckedCreateWithoutFinanceWorkshopReportsInput>
+}
+
+export type ProductUpsertWithoutFinanceWorkshopReportsInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutFinanceWorkshopReportsInput, Prisma.ProductUncheckedUpdateWithoutFinanceWorkshopReportsInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutFinanceWorkshopReportsInput, Prisma.ProductUncheckedCreateWithoutFinanceWorkshopReportsInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutFinanceWorkshopReportsInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutFinanceWorkshopReportsInput, Prisma.ProductUncheckedUpdateWithoutFinanceWorkshopReportsInput>
+}
+
+export type ProductUpdateWithoutFinanceWorkshopReportsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  dosageForm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strength?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  skus?: Prisma.InventoryItemUpdateManyWithoutProductMasterNestedInput
+  sourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductNestedInput
+  inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUpdateManyWithoutProductNestedInput
+  inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUpdateManyWithoutProductNestedInput
+  productionQcBatches?: Prisma.ProductionQcBatchUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutFinanceWorkshopReportsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  dosageForm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strength?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  skus?: Prisma.InventoryItemUncheckedUpdateManyWithoutProductMasterNestedInput
+  sourceMappings?: Prisma.ProductSourceMappingUncheckedUpdateManyWithoutProductNestedInput
+  inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUncheckedUpdateManyWithoutProductNestedInput
+  inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUncheckedUpdateManyWithoutProductNestedInput
+  productionQcBatches?: Prisma.ProductionQcBatchUncheckedUpdateManyWithoutProductNestedInput
+}
+
 export type ProductCreateWithoutSkusInput = {
   code: string
   identityKey: string
@@ -671,6 +792,7 @@ export type ProductCreateWithoutSkusInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchCreateNestedManyWithoutProductInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointCreateNestedManyWithoutProductInput
   productionQcBatches?: Prisma.ProductionQcBatchCreateNestedManyWithoutProductInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutSkusInput = {
@@ -691,6 +813,7 @@ export type ProductUncheckedCreateWithoutSkusInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUncheckedCreateNestedManyWithoutProductInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUncheckedCreateNestedManyWithoutProductInput
   productionQcBatches?: Prisma.ProductionQcBatchUncheckedCreateNestedManyWithoutProductInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutSkusInput = {
@@ -726,6 +849,7 @@ export type ProductUpdateWithoutSkusInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUpdateManyWithoutProductNestedInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUpdateManyWithoutProductNestedInput
   productionQcBatches?: Prisma.ProductionQcBatchUpdateManyWithoutProductNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutSkusInput = {
@@ -746,6 +870,7 @@ export type ProductUncheckedUpdateWithoutSkusInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUncheckedUpdateManyWithoutProductNestedInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUncheckedUpdateManyWithoutProductNestedInput
   productionQcBatches?: Prisma.ProductionQcBatchUncheckedUpdateManyWithoutProductNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutInventoryReceiptWorkPointsInput = {
@@ -765,6 +890,7 @@ export type ProductCreateWithoutInventoryReceiptWorkPointsInput = {
   sourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductInput
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchCreateNestedManyWithoutProductInput
   productionQcBatches?: Prisma.ProductionQcBatchCreateNestedManyWithoutProductInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutInventoryReceiptWorkPointsInput = {
@@ -785,6 +911,7 @@ export type ProductUncheckedCreateWithoutInventoryReceiptWorkPointsInput = {
   sourceMappings?: Prisma.ProductSourceMappingUncheckedCreateNestedManyWithoutProductInput
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUncheckedCreateNestedManyWithoutProductInput
   productionQcBatches?: Prisma.ProductionQcBatchUncheckedCreateNestedManyWithoutProductInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutInventoryReceiptWorkPointsInput = {
@@ -820,6 +947,7 @@ export type ProductUpdateWithoutInventoryReceiptWorkPointsInput = {
   sourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductNestedInput
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUpdateManyWithoutProductNestedInput
   productionQcBatches?: Prisma.ProductionQcBatchUpdateManyWithoutProductNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutInventoryReceiptWorkPointsInput = {
@@ -840,6 +968,7 @@ export type ProductUncheckedUpdateWithoutInventoryReceiptWorkPointsInput = {
   sourceMappings?: Prisma.ProductSourceMappingUncheckedUpdateManyWithoutProductNestedInput
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUncheckedUpdateManyWithoutProductNestedInput
   productionQcBatches?: Prisma.ProductionQcBatchUncheckedUpdateManyWithoutProductNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutInventoryReceiptBatchesInput = {
@@ -859,6 +988,7 @@ export type ProductCreateWithoutInventoryReceiptBatchesInput = {
   sourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointCreateNestedManyWithoutProductInput
   productionQcBatches?: Prisma.ProductionQcBatchCreateNestedManyWithoutProductInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutInventoryReceiptBatchesInput = {
@@ -879,6 +1009,7 @@ export type ProductUncheckedCreateWithoutInventoryReceiptBatchesInput = {
   sourceMappings?: Prisma.ProductSourceMappingUncheckedCreateNestedManyWithoutProductInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUncheckedCreateNestedManyWithoutProductInput
   productionQcBatches?: Prisma.ProductionQcBatchUncheckedCreateNestedManyWithoutProductInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutInventoryReceiptBatchesInput = {
@@ -914,6 +1045,7 @@ export type ProductUpdateWithoutInventoryReceiptBatchesInput = {
   sourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductNestedInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUpdateManyWithoutProductNestedInput
   productionQcBatches?: Prisma.ProductionQcBatchUpdateManyWithoutProductNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutInventoryReceiptBatchesInput = {
@@ -934,6 +1066,7 @@ export type ProductUncheckedUpdateWithoutInventoryReceiptBatchesInput = {
   sourceMappings?: Prisma.ProductSourceMappingUncheckedUpdateManyWithoutProductNestedInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUncheckedUpdateManyWithoutProductNestedInput
   productionQcBatches?: Prisma.ProductionQcBatchUncheckedUpdateManyWithoutProductNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutSourceMappingsInput = {
@@ -953,6 +1086,7 @@ export type ProductCreateWithoutSourceMappingsInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchCreateNestedManyWithoutProductInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointCreateNestedManyWithoutProductInput
   productionQcBatches?: Prisma.ProductionQcBatchCreateNestedManyWithoutProductInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutSourceMappingsInput = {
@@ -973,6 +1107,7 @@ export type ProductUncheckedCreateWithoutSourceMappingsInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUncheckedCreateNestedManyWithoutProductInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUncheckedCreateNestedManyWithoutProductInput
   productionQcBatches?: Prisma.ProductionQcBatchUncheckedCreateNestedManyWithoutProductInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutSourceMappingsInput = {
@@ -1008,6 +1143,7 @@ export type ProductUpdateWithoutSourceMappingsInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUpdateManyWithoutProductNestedInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUpdateManyWithoutProductNestedInput
   productionQcBatches?: Prisma.ProductionQcBatchUpdateManyWithoutProductNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutSourceMappingsInput = {
@@ -1028,6 +1164,7 @@ export type ProductUncheckedUpdateWithoutSourceMappingsInput = {
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUncheckedUpdateManyWithoutProductNestedInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUncheckedUpdateManyWithoutProductNestedInput
   productionQcBatches?: Prisma.ProductionQcBatchUncheckedUpdateManyWithoutProductNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutProductionQcBatchesInput = {
@@ -1047,6 +1184,7 @@ export type ProductCreateWithoutProductionQcBatchesInput = {
   sourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductInput
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchCreateNestedManyWithoutProductInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointCreateNestedManyWithoutProductInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutProductionQcBatchesInput = {
@@ -1067,6 +1205,7 @@ export type ProductUncheckedCreateWithoutProductionQcBatchesInput = {
   sourceMappings?: Prisma.ProductSourceMappingUncheckedCreateNestedManyWithoutProductInput
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUncheckedCreateNestedManyWithoutProductInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUncheckedCreateNestedManyWithoutProductInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutProductionQcBatchesInput = {
@@ -1102,6 +1241,7 @@ export type ProductUpdateWithoutProductionQcBatchesInput = {
   sourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductNestedInput
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUpdateManyWithoutProductNestedInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUpdateManyWithoutProductNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutProductionQcBatchesInput = {
@@ -1122,6 +1262,7 @@ export type ProductUncheckedUpdateWithoutProductionQcBatchesInput = {
   sourceMappings?: Prisma.ProductSourceMappingUncheckedUpdateManyWithoutProductNestedInput
   inventoryReceiptBatches?: Prisma.InventoryReceiptBatchUncheckedUpdateManyWithoutProductNestedInput
   inventoryReceiptWorkPoints?: Prisma.InventoryReceiptProductWorkPointUncheckedUpdateManyWithoutProductNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutProductNestedInput
 }
 
 
@@ -1135,6 +1276,7 @@ export type ProductCountOutputType = {
   inventoryReceiptBatches: number
   inventoryReceiptWorkPoints: number
   productionQcBatches: number
+  financeWorkshopReports: number
 }
 
 export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1143,6 +1285,7 @@ export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   inventoryReceiptBatches?: boolean | ProductCountOutputTypeCountInventoryReceiptBatchesArgs
   inventoryReceiptWorkPoints?: boolean | ProductCountOutputTypeCountInventoryReceiptWorkPointsArgs
   productionQcBatches?: boolean | ProductCountOutputTypeCountProductionQcBatchesArgs
+  financeWorkshopReports?: boolean | ProductCountOutputTypeCountFinanceWorkshopReportsArgs
 }
 
 /**
@@ -1190,6 +1333,13 @@ export type ProductCountOutputTypeCountProductionQcBatchesArgs<ExtArgs extends r
   where?: Prisma.ProductionQcBatchWhereInput
 }
 
+/**
+ * ProductCountOutputType without action
+ */
+export type ProductCountOutputTypeCountFinanceWorkshopReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceWorkshopReportWhereInput
+}
+
 
 export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1210,6 +1360,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   inventoryReceiptBatches?: boolean | Prisma.Product$inventoryReceiptBatchesArgs<ExtArgs>
   inventoryReceiptWorkPoints?: boolean | Prisma.Product$inventoryReceiptWorkPointsArgs<ExtArgs>
   productionQcBatches?: boolean | Prisma.Product$productionQcBatchesArgs<ExtArgs>
+  financeWorkshopReports?: boolean | Prisma.Product$financeWorkshopReportsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
@@ -1268,6 +1419,7 @@ export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   inventoryReceiptBatches?: boolean | Prisma.Product$inventoryReceiptBatchesArgs<ExtArgs>
   inventoryReceiptWorkPoints?: boolean | Prisma.Product$inventoryReceiptWorkPointsArgs<ExtArgs>
   productionQcBatches?: boolean | Prisma.Product$productionQcBatchesArgs<ExtArgs>
+  financeWorkshopReports?: boolean | Prisma.Product$financeWorkshopReportsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1281,6 +1433,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     inventoryReceiptBatches: Prisma.$InventoryReceiptBatchPayload<ExtArgs>[]
     inventoryReceiptWorkPoints: Prisma.$InventoryReceiptProductWorkPointPayload<ExtArgs>[]
     productionQcBatches: Prisma.$ProductionQcBatchPayload<ExtArgs>[]
+    financeWorkshopReports: Prisma.$FinanceWorkshopReportPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1695,6 +1848,7 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   inventoryReceiptBatches<T extends Prisma.Product$inventoryReceiptBatchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$inventoryReceiptBatchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryReceiptBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   inventoryReceiptWorkPoints<T extends Prisma.Product$inventoryReceiptWorkPointsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$inventoryReceiptWorkPointsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryReceiptProductWorkPointPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productionQcBatches<T extends Prisma.Product$productionQcBatchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$productionQcBatchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionQcBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  financeWorkshopReports<T extends Prisma.Product$financeWorkshopReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$financeWorkshopReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceWorkshopReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2247,6 +2401,30 @@ export type Product$productionQcBatchesArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.ProductionQcBatchScalarFieldEnum | Prisma.ProductionQcBatchScalarFieldEnum[]
+}
+
+/**
+ * Product.financeWorkshopReports
+ */
+export type Product$financeWorkshopReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceWorkshopReport
+   */
+  select?: Prisma.FinanceWorkshopReportSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceWorkshopReport
+   */
+  omit?: Prisma.FinanceWorkshopReportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceWorkshopReportInclude<ExtArgs> | null
+  where?: Prisma.FinanceWorkshopReportWhereInput
+  orderBy?: Prisma.FinanceWorkshopReportOrderByWithRelationInput | Prisma.FinanceWorkshopReportOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceWorkshopReportWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceWorkshopReportScalarFieldEnum | Prisma.FinanceWorkshopReportScalarFieldEnum[]
 }
 
 /**

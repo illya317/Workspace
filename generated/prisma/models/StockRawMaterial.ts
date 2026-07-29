@@ -31,6 +31,7 @@ export type StockRawMaterialAvgAggregateOutputType = {
   lastBalance: number | null
   currentPurchase: number | null
   currentConsume: number | null
+  companyId: number | null
   editedBy: number | null
   version: number | null
 }
@@ -40,6 +41,7 @@ export type StockRawMaterialSumAggregateOutputType = {
   lastBalance: number | null
   currentPurchase: number | null
   currentConsume: number | null
+  companyId: number | null
   editedBy: number | null
   version: number | null
 }
@@ -57,6 +59,7 @@ export type StockRawMaterialMinAggregateOutputType = {
   currentConsume: number | null
   remark: string | null
   companyCode: string | null
+  companyId: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -77,6 +80,7 @@ export type StockRawMaterialMaxAggregateOutputType = {
   currentConsume: number | null
   remark: string | null
   companyCode: string | null
+  companyId: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -97,6 +101,7 @@ export type StockRawMaterialCountAggregateOutputType = {
   currentConsume: number
   remark: number
   companyCode: number
+  companyId: number
   editedBy: number
   editedAt: number
   version: number
@@ -111,6 +116,7 @@ export type StockRawMaterialAvgAggregateInputType = {
   lastBalance?: true
   currentPurchase?: true
   currentConsume?: true
+  companyId?: true
   editedBy?: true
   version?: true
 }
@@ -120,6 +126,7 @@ export type StockRawMaterialSumAggregateInputType = {
   lastBalance?: true
   currentPurchase?: true
   currentConsume?: true
+  companyId?: true
   editedBy?: true
   version?: true
 }
@@ -137,6 +144,7 @@ export type StockRawMaterialMinAggregateInputType = {
   currentConsume?: true
   remark?: true
   companyCode?: true
+  companyId?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -157,6 +165,7 @@ export type StockRawMaterialMaxAggregateInputType = {
   currentConsume?: true
   remark?: true
   companyCode?: true
+  companyId?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -177,6 +186,7 @@ export type StockRawMaterialCountAggregateInputType = {
   currentConsume?: true
   remark?: true
   companyCode?: true
+  companyId?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -284,6 +294,7 @@ export type StockRawMaterialGroupByOutputType = {
   currentConsume: number
   remark: string | null
   companyCode: string | null
+  companyId: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number
@@ -327,12 +338,14 @@ export type StockRawMaterialWhereInput = {
   currentConsume?: Prisma.FloatFilter<"StockRawMaterial"> | number
   remark?: Prisma.StringNullableFilter<"StockRawMaterial"> | string | null
   companyCode?: Prisma.StringNullableFilter<"StockRawMaterial"> | string | null
+  companyId?: Prisma.IntNullableFilter<"StockRawMaterial"> | number | null
   editedBy?: Prisma.IntNullableFilter<"StockRawMaterial"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"StockRawMaterial"> | Date | string | null
   version?: Prisma.IntFilter<"StockRawMaterial"> | number
   createdAt?: Prisma.DateTimeFilter<"StockRawMaterial"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockRawMaterial"> | Date | string
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type StockRawMaterialOrderByWithRelationInput = {
@@ -348,12 +361,14 @@ export type StockRawMaterialOrderByWithRelationInput = {
   currentConsume?: Prisma.SortOrder
   remark?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   editor?: Prisma.UserOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type StockRawMaterialWhereUniqueInput = Prisma.AtLeast<{
@@ -372,12 +387,14 @@ export type StockRawMaterialWhereUniqueInput = Prisma.AtLeast<{
   currentConsume?: Prisma.FloatFilter<"StockRawMaterial"> | number
   remark?: Prisma.StringNullableFilter<"StockRawMaterial"> | string | null
   companyCode?: Prisma.StringNullableFilter<"StockRawMaterial"> | string | null
+  companyId?: Prisma.IntNullableFilter<"StockRawMaterial"> | number | null
   editedBy?: Prisma.IntNullableFilter<"StockRawMaterial"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"StockRawMaterial"> | Date | string | null
   version?: Prisma.IntFilter<"StockRawMaterial"> | number
   createdAt?: Prisma.DateTimeFilter<"StockRawMaterial"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockRawMaterial"> | Date | string
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "code">
 
 export type StockRawMaterialOrderByWithAggregationInput = {
@@ -393,6 +410,7 @@ export type StockRawMaterialOrderByWithAggregationInput = {
   currentConsume?: Prisma.SortOrder
   remark?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -421,6 +439,7 @@ export type StockRawMaterialScalarWhereWithAggregatesInput = {
   currentConsume?: Prisma.FloatWithAggregatesFilter<"StockRawMaterial"> | number
   remark?: Prisma.StringNullableWithAggregatesFilter<"StockRawMaterial"> | string | null
   companyCode?: Prisma.StringNullableWithAggregatesFilter<"StockRawMaterial"> | string | null
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"StockRawMaterial"> | number | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"StockRawMaterial"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"StockRawMaterial"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"StockRawMaterial"> | number
@@ -445,6 +464,7 @@ export type StockRawMaterialCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedStockRawMaterialsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutStockRawMaterialsInput
 }
 
 export type StockRawMaterialUncheckedCreateInput = {
@@ -460,6 +480,7 @@ export type StockRawMaterialUncheckedCreateInput = {
   currentConsume?: number
   remark?: string | null
   companyCode?: string | null
+  companyId?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -484,6 +505,7 @@ export type StockRawMaterialUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedStockRawMaterialsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutStockRawMaterialsNestedInput
 }
 
 export type StockRawMaterialUncheckedUpdateInput = {
@@ -499,6 +521,7 @@ export type StockRawMaterialUncheckedUpdateInput = {
   currentConsume?: Prisma.FloatFieldUpdateOperationsInput | number
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -519,6 +542,7 @@ export type StockRawMaterialCreateManyInput = {
   currentConsume?: number
   remark?: string | null
   companyCode?: string | null
+  companyId?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -557,6 +581,7 @@ export type StockRawMaterialUncheckedUpdateManyInput = {
   currentConsume?: Prisma.FloatFieldUpdateOperationsInput | number
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -587,6 +612,7 @@ export type StockRawMaterialCountOrderByAggregateInput = {
   currentConsume?: Prisma.SortOrder
   remark?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -599,6 +625,7 @@ export type StockRawMaterialAvgOrderByAggregateInput = {
   lastBalance?: Prisma.SortOrder
   currentPurchase?: Prisma.SortOrder
   currentConsume?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -616,6 +643,7 @@ export type StockRawMaterialMaxOrderByAggregateInput = {
   currentConsume?: Prisma.SortOrder
   remark?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -636,6 +664,7 @@ export type StockRawMaterialMinOrderByAggregateInput = {
   currentConsume?: Prisma.SortOrder
   remark?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -648,6 +677,7 @@ export type StockRawMaterialSumOrderByAggregateInput = {
   lastBalance?: Prisma.SortOrder
   currentPurchase?: Prisma.SortOrder
   currentConsume?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -694,6 +724,48 @@ export type StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput = {
   deleteMany?: Prisma.StockRawMaterialScalarWhereInput | Prisma.StockRawMaterialScalarWhereInput[]
 }
 
+export type StockRawMaterialCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.StockRawMaterialCreateWithoutCompanyInput, Prisma.StockRawMaterialUncheckedCreateWithoutCompanyInput> | Prisma.StockRawMaterialCreateWithoutCompanyInput[] | Prisma.StockRawMaterialUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.StockRawMaterialCreateOrConnectWithoutCompanyInput | Prisma.StockRawMaterialCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.StockRawMaterialCreateManyCompanyInputEnvelope
+  connect?: Prisma.StockRawMaterialWhereUniqueInput | Prisma.StockRawMaterialWhereUniqueInput[]
+}
+
+export type StockRawMaterialUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.StockRawMaterialCreateWithoutCompanyInput, Prisma.StockRawMaterialUncheckedCreateWithoutCompanyInput> | Prisma.StockRawMaterialCreateWithoutCompanyInput[] | Prisma.StockRawMaterialUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.StockRawMaterialCreateOrConnectWithoutCompanyInput | Prisma.StockRawMaterialCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.StockRawMaterialCreateManyCompanyInputEnvelope
+  connect?: Prisma.StockRawMaterialWhereUniqueInput | Prisma.StockRawMaterialWhereUniqueInput[]
+}
+
+export type StockRawMaterialUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.StockRawMaterialCreateWithoutCompanyInput, Prisma.StockRawMaterialUncheckedCreateWithoutCompanyInput> | Prisma.StockRawMaterialCreateWithoutCompanyInput[] | Prisma.StockRawMaterialUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.StockRawMaterialCreateOrConnectWithoutCompanyInput | Prisma.StockRawMaterialCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.StockRawMaterialUpsertWithWhereUniqueWithoutCompanyInput | Prisma.StockRawMaterialUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.StockRawMaterialCreateManyCompanyInputEnvelope
+  set?: Prisma.StockRawMaterialWhereUniqueInput | Prisma.StockRawMaterialWhereUniqueInput[]
+  disconnect?: Prisma.StockRawMaterialWhereUniqueInput | Prisma.StockRawMaterialWhereUniqueInput[]
+  delete?: Prisma.StockRawMaterialWhereUniqueInput | Prisma.StockRawMaterialWhereUniqueInput[]
+  connect?: Prisma.StockRawMaterialWhereUniqueInput | Prisma.StockRawMaterialWhereUniqueInput[]
+  update?: Prisma.StockRawMaterialUpdateWithWhereUniqueWithoutCompanyInput | Prisma.StockRawMaterialUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.StockRawMaterialUpdateManyWithWhereWithoutCompanyInput | Prisma.StockRawMaterialUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.StockRawMaterialScalarWhereInput | Prisma.StockRawMaterialScalarWhereInput[]
+}
+
+export type StockRawMaterialUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.StockRawMaterialCreateWithoutCompanyInput, Prisma.StockRawMaterialUncheckedCreateWithoutCompanyInput> | Prisma.StockRawMaterialCreateWithoutCompanyInput[] | Prisma.StockRawMaterialUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.StockRawMaterialCreateOrConnectWithoutCompanyInput | Prisma.StockRawMaterialCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.StockRawMaterialUpsertWithWhereUniqueWithoutCompanyInput | Prisma.StockRawMaterialUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.StockRawMaterialCreateManyCompanyInputEnvelope
+  set?: Prisma.StockRawMaterialWhereUniqueInput | Prisma.StockRawMaterialWhereUniqueInput[]
+  disconnect?: Prisma.StockRawMaterialWhereUniqueInput | Prisma.StockRawMaterialWhereUniqueInput[]
+  delete?: Prisma.StockRawMaterialWhereUniqueInput | Prisma.StockRawMaterialWhereUniqueInput[]
+  connect?: Prisma.StockRawMaterialWhereUniqueInput | Prisma.StockRawMaterialWhereUniqueInput[]
+  update?: Prisma.StockRawMaterialUpdateWithWhereUniqueWithoutCompanyInput | Prisma.StockRawMaterialUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.StockRawMaterialUpdateManyWithWhereWithoutCompanyInput | Prisma.StockRawMaterialUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.StockRawMaterialScalarWhereInput | Prisma.StockRawMaterialScalarWhereInput[]
+}
+
 export type StockRawMaterialCreateWithoutEditorInput = {
   code: string
   name: string
@@ -710,6 +782,7 @@ export type StockRawMaterialCreateWithoutEditorInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutStockRawMaterialsInput
 }
 
 export type StockRawMaterialUncheckedCreateWithoutEditorInput = {
@@ -725,6 +798,7 @@ export type StockRawMaterialUncheckedCreateWithoutEditorInput = {
   currentConsume?: number
   remark?: string | null
   companyCode?: string | null
+  companyId?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -773,11 +847,77 @@ export type StockRawMaterialScalarWhereInput = {
   currentConsume?: Prisma.FloatFilter<"StockRawMaterial"> | number
   remark?: Prisma.StringNullableFilter<"StockRawMaterial"> | string | null
   companyCode?: Prisma.StringNullableFilter<"StockRawMaterial"> | string | null
+  companyId?: Prisma.IntNullableFilter<"StockRawMaterial"> | number | null
   editedBy?: Prisma.IntNullableFilter<"StockRawMaterial"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"StockRawMaterial"> | Date | string | null
   version?: Prisma.IntFilter<"StockRawMaterial"> | number
   createdAt?: Prisma.DateTimeFilter<"StockRawMaterial"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockRawMaterial"> | Date | string
+}
+
+export type StockRawMaterialCreateWithoutCompanyInput = {
+  code: string
+  name: string
+  spec?: string | null
+  unit?: string
+  manufacturer?: string | null
+  status?: string
+  lastBalance?: number
+  currentPurchase?: number
+  currentConsume?: number
+  remark?: string | null
+  companyCode?: string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedStockRawMaterialsInput
+}
+
+export type StockRawMaterialUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  code: string
+  name: string
+  spec?: string | null
+  unit?: string
+  manufacturer?: string | null
+  status?: string
+  lastBalance?: number
+  currentPurchase?: number
+  currentConsume?: number
+  remark?: string | null
+  companyCode?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type StockRawMaterialCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.StockRawMaterialWhereUniqueInput
+  create: Prisma.XOR<Prisma.StockRawMaterialCreateWithoutCompanyInput, Prisma.StockRawMaterialUncheckedCreateWithoutCompanyInput>
+}
+
+export type StockRawMaterialCreateManyCompanyInputEnvelope = {
+  data: Prisma.StockRawMaterialCreateManyCompanyInput | Prisma.StockRawMaterialCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type StockRawMaterialUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.StockRawMaterialWhereUniqueInput
+  update: Prisma.XOR<Prisma.StockRawMaterialUpdateWithoutCompanyInput, Prisma.StockRawMaterialUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.StockRawMaterialCreateWithoutCompanyInput, Prisma.StockRawMaterialUncheckedCreateWithoutCompanyInput>
+}
+
+export type StockRawMaterialUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.StockRawMaterialWhereUniqueInput
+  data: Prisma.XOR<Prisma.StockRawMaterialUpdateWithoutCompanyInput, Prisma.StockRawMaterialUncheckedUpdateWithoutCompanyInput>
+}
+
+export type StockRawMaterialUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.StockRawMaterialScalarWhereInput
+  data: Prisma.XOR<Prisma.StockRawMaterialUpdateManyMutationInput, Prisma.StockRawMaterialUncheckedUpdateManyWithoutCompanyInput>
 }
 
 export type StockRawMaterialCreateManyEditorInput = {
@@ -793,6 +933,7 @@ export type StockRawMaterialCreateManyEditorInput = {
   currentConsume?: number
   remark?: string | null
   companyCode?: string | null
+  companyId?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -815,6 +956,7 @@ export type StockRawMaterialUpdateWithoutEditorInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutStockRawMaterialsNestedInput
 }
 
 export type StockRawMaterialUncheckedUpdateWithoutEditorInput = {
@@ -830,6 +972,7 @@ export type StockRawMaterialUncheckedUpdateWithoutEditorInput = {
   currentConsume?: Prisma.FloatFieldUpdateOperationsInput | number
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -849,6 +992,86 @@ export type StockRawMaterialUncheckedUpdateManyWithoutEditorInput = {
   currentConsume?: Prisma.FloatFieldUpdateOperationsInput | number
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StockRawMaterialCreateManyCompanyInput = {
+  id?: number
+  code: string
+  name: string
+  spec?: string | null
+  unit?: string
+  manufacturer?: string | null
+  status?: string
+  lastBalance?: number
+  currentPurchase?: number
+  currentConsume?: number
+  remark?: string | null
+  companyCode?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type StockRawMaterialUpdateWithoutCompanyInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  manufacturer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentPurchase?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentConsume?: Prisma.FloatFieldUpdateOperationsInput | number
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedStockRawMaterialsNestedInput
+}
+
+export type StockRawMaterialUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  manufacturer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentPurchase?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentConsume?: Prisma.FloatFieldUpdateOperationsInput | number
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StockRawMaterialUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  manufacturer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentPurchase?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentConsume?: Prisma.FloatFieldUpdateOperationsInput | number
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -870,12 +1093,14 @@ export type StockRawMaterialSelect<ExtArgs extends runtime.Types.Extensions.Inte
   currentConsume?: boolean
   remark?: boolean
   companyCode?: boolean
+  companyId?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   editor?: boolean | Prisma.StockRawMaterial$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockRawMaterial$companyArgs<ExtArgs>
 }, ExtArgs["result"]["stockRawMaterial"]>
 
 export type StockRawMaterialSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -891,12 +1116,14 @@ export type StockRawMaterialSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   currentConsume?: boolean
   remark?: boolean
   companyCode?: boolean
+  companyId?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   editor?: boolean | Prisma.StockRawMaterial$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockRawMaterial$companyArgs<ExtArgs>
 }, ExtArgs["result"]["stockRawMaterial"]>
 
 export type StockRawMaterialSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -912,12 +1139,14 @@ export type StockRawMaterialSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   currentConsume?: boolean
   remark?: boolean
   companyCode?: boolean
+  companyId?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   editor?: boolean | Prisma.StockRawMaterial$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockRawMaterial$companyArgs<ExtArgs>
 }, ExtArgs["result"]["stockRawMaterial"]>
 
 export type StockRawMaterialSelectScalar = {
@@ -933,6 +1162,7 @@ export type StockRawMaterialSelectScalar = {
   currentConsume?: boolean
   remark?: boolean
   companyCode?: boolean
+  companyId?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -940,21 +1170,25 @@ export type StockRawMaterialSelectScalar = {
   updatedAt?: boolean
 }
 
-export type StockRawMaterialOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "spec" | "unit" | "manufacturer" | "status" | "lastBalance" | "currentPurchase" | "currentConsume" | "remark" | "companyCode" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["stockRawMaterial"]>
+export type StockRawMaterialOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "spec" | "unit" | "manufacturer" | "status" | "lastBalance" | "currentPurchase" | "currentConsume" | "remark" | "companyCode" | "companyId" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["stockRawMaterial"]>
 export type StockRawMaterialInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.StockRawMaterial$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockRawMaterial$companyArgs<ExtArgs>
 }
 export type StockRawMaterialIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.StockRawMaterial$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockRawMaterial$companyArgs<ExtArgs>
 }
 export type StockRawMaterialIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.StockRawMaterial$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockRawMaterial$companyArgs<ExtArgs>
 }
 
 export type $StockRawMaterialPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "StockRawMaterial"
   objects: {
     editor: Prisma.$UserPayload<ExtArgs> | null
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -969,6 +1203,7 @@ export type $StockRawMaterialPayload<ExtArgs extends runtime.Types.Extensions.In
     currentConsume: number
     remark: string | null
     companyCode: string | null
+    companyId: number | null
     editedBy: number | null
     editedAt: Date | null
     version: number
@@ -1369,6 +1604,7 @@ readonly fields: StockRawMaterialFieldRefs;
 export interface Prisma__StockRawMaterialClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   editor<T extends Prisma.StockRawMaterial$editorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockRawMaterial$editorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.StockRawMaterial$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockRawMaterial$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1410,6 +1646,7 @@ export interface StockRawMaterialFieldRefs {
   readonly currentConsume: Prisma.FieldRef<"StockRawMaterial", 'Float'>
   readonly remark: Prisma.FieldRef<"StockRawMaterial", 'String'>
   readonly companyCode: Prisma.FieldRef<"StockRawMaterial", 'String'>
+  readonly companyId: Prisma.FieldRef<"StockRawMaterial", 'Int'>
   readonly editedBy: Prisma.FieldRef<"StockRawMaterial", 'Int'>
   readonly editedAt: Prisma.FieldRef<"StockRawMaterial", 'DateTime'>
   readonly version: Prisma.FieldRef<"StockRawMaterial", 'Int'>
@@ -1832,6 +2069,25 @@ export type StockRawMaterial$editorArgs<ExtArgs extends runtime.Types.Extensions
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * StockRawMaterial.company
+ */
+export type StockRawMaterial$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

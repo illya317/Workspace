@@ -45,6 +45,7 @@ OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy
 - 可执行清单必须使用 `schemaVersion: 2`，并选择源码中显式注册的通用 handler；清单不能提供脚本路径、shell 命令或任意 SQL 写操作。
 - 数据库结果断言可以放在私有清单中，但只允许单条 `SELECT`/CTE，执行器在事务中验证断言后才写生产回执。
 - 新业务类型若没有合适 handler，应先把可复用导入能力作为源码变更开发和评审；业务参数与台账仍只写私有清单。
+- handler 必须在 `ops/data-release-reference-contracts.mjs` 声明导入字段如何解析已有主数据；正式事实使用 FK，来源 code/name 仅允许与 FK 并存。完整规则见 [导入主数据引用治理](../import-reference-governance.md)。
 - 上传成功不等于已应用。只有独立数据变更流程完成备份、handler、结果断言和生产回执后，才算完成数据发布；不得借代码部署顺带执行。
 
 ## Prisma 放置规则

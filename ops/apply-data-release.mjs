@@ -137,6 +137,7 @@ export async function main(argv = process.argv.slice(2)) {
   const commandSpec = buildDataReleaseHandlerCommand(manifest.execution, {
     repositoryRoot,
     sourceRoot: path.join(bundleRoot, "sources"),
+    releaseId: manifest.id,
   });
   process.stdout.write(`==> 数据发布 handler: ${manifest.execution.handler}\n`);
   runHandler(commandSpec, repositoryRoot);

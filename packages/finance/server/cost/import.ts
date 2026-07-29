@@ -168,7 +168,17 @@ export async function createWorkshopReports(
   const command = buildFinanceRowsCommand(importId, rows);
   if (!command.ok) throw new Error(command.issue.message);
   if (rows.length === 0) return { count: 0 };
+  const names = [...new Set(command.data.rows.flatMap((row) => row.productName?.trim() ? [row.productName.trim()] : []))];
+  const products = await prisma.product.findMany({ where: { name: { in: names } }, select: { id: true, name: true } });
+  const productsByName = new Map<string, number[]>();
+  for (const product of products) productsByName.set(product.name, [...(productsByName.get(product.name) ?? []), product.id]);
+  const unresolved = names.filter((name) => productsByName.get(name)?.length !== 1);
+  if (unresolved.length) throw new Error(`车间报表产品必须唯一命中 Product：${unresolved.join("、")}`);
   return prisma.financeWorkshopReport.createMany({
-    data: command.data.rows.map((r) => ({ ...r, importId: command.data.id })),
+    data: command.data.rows.map((r) => ({
+      ...r,
+      importId: command.data.id,
+      productId: r.productName?.trim() ? productsByName.get(r.productName.trim())![0] : r.productId,
+    })),
   });
 }

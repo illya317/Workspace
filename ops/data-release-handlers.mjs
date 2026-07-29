@@ -105,6 +105,54 @@ function financeAuxiliaryIdentityLinksCommand(execution, context) {
   };
 }
 
+function financeBudgetCommand(execution, context) {
+  const parameters = execution.parameters;
+  if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
+    || Object.keys(parameters).sort().join(",") !== "companyCode,departmentFile,referenceFile,researchFile,versionName,year"
+    || !/^[A-Za-z0-9_-]{1,40}$/.test(parameters.companyCode ?? "")
+    || !Number.isInteger(parameters.year) || parameters.year < 2000 || parameters.year > 2099
+    || typeof parameters.versionName !== "string" || !parameters.versionName.trim()) {
+    fail("finance-budget-v1 parameters must contain companyCode, year, versionName, departmentFile, researchFile, and referenceFile");
+  }
+  const departmentFile = relativeSourcePath(parameters.departmentFile, "finance-budget-v1 departmentFile");
+  const researchFile = relativeSourcePath(parameters.researchFile, "finance-budget-v1 researchFile");
+  const referenceFile = relativeSourcePath(parameters.referenceFile, "finance-budget-v1 referenceFile");
+  return {
+    executable: process.execPath,
+    args: [
+      path.join(context.repositoryRoot, "scripts/import/import-finance-budget.mjs"),
+      "--execute",
+      `--release-id=${context.releaseId}`,
+      `--company-code=${parameters.companyCode}`,
+      `--year=${parameters.year}`,
+      `--version-name=${parameters.versionName}`,
+      `--department-file=${path.join(context.sourceRoot, departmentFile)}`,
+      `--research-file=${path.join(context.sourceRoot, researchFile)}`,
+      `--reference-file=${path.join(context.sourceRoot, referenceFile)}`,
+    ],
+  };
+}
+
+function internalCompanyReferenceBackfillCommand(execution, context) {
+  const parameters = execution.parameters;
+  if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
+    || Object.keys(parameters).sort().join(",") !== "referenceFile") {
+    fail("internal-company-reference-backfill-v1 parameters must contain only referenceFile");
+  }
+  const referenceFile = relativeSourcePath(parameters.referenceFile, "internal-company-reference-backfill-v1 referenceFile");
+  return {
+    executable: process.execPath,
+    args: [
+      "--import",
+      "tsx",
+      path.join(context.repositoryRoot, "scripts/repair/backfill-internal-company-references.mjs"),
+      "--execute",
+      `--release-id=${context.releaseId}`,
+      `--reference-file=${path.join(context.sourceRoot, referenceFile)}`,
+    ],
+  };
+}
+
 function hrLifecycleCompatibilityCommand(execution, context) {
   const parameters = execution.parameters;
   if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
@@ -178,6 +226,7 @@ function hrSocialInsuranceBaselineCommand(execution, context) {
 
 const HANDLERS = new Map([
   ["finance-auxiliary-identity-links-v1", financeAuxiliaryIdentityLinksCommand],
+  ["finance-budget-v1", financeBudgetCommand],
   ["finance-reviewed-origin-mappings-v1", financeReviewedOriginMappingsCommand],
   ["finance-consolidation-voucher-v1", financeConsolidationVoucherCommand],
   ["finance-consolidation-entry-migration-v1", financeConsolidationEntryMigrationCommand],
@@ -185,6 +234,7 @@ const HANDLERS = new Map([
   ["hr-organization-baseline-compatibility-v1", hrOrganizationBaselineCompatibilityCommand],
   ["hr-social-insurance-baseline-v1", hrSocialInsuranceBaselineCommand],
   ["hr-lifecycle-compatibility-v1", hrLifecycleCompatibilityCommand],
+  ["internal-company-reference-backfill-v1", internalCompanyReferenceBackfillCommand],
   ["product-master-v1", productMasterCommand],
 ]);
 

@@ -98,21 +98,6 @@ export function buildBudgetVersionCreateCommand<T extends { year: number; name: 
   return okCommand({ data: { ...input, year: year.data, name: name.data } });
 }
 
-export function buildBudgetImportCommand(input: {
-  year: number;
-  companyCode?: string;
-  versionId?: number;
-}): DomainValidationResult<{ year: number; companyCode?: string; versionId?: number }> {
-  const year = validYear(input.year);
-  if (!year.ok) return year;
-  if (input.versionId !== undefined) {
-    const versionId = positiveId(input.versionId, "versionId");
-    if (!versionId.ok) return versionId;
-    return okCommand({ ...input, year: year.data, versionId: versionId.data });
-  }
-  return okCommand({ ...input, year: year.data });
-}
-
 export function buildFinanceDataImportCommand<T extends {
   profile: string;
   sourceFile: string;

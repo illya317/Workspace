@@ -1,0 +1,54 @@
+/// 年度余额快照批次（一次外部会计软件余额表导入 = 一行）
+model FinanceBalanceSnapshot {
+  id           Int                         @id @default(autoincrement())
+  companyCode  String
+  companyId Int?
+  year         Int
+  snapshotType String                      @default("reconcile") // "baseline" | "reconcile"
+  isActive     Boolean                     @default(false) // 同(companyCode,year)只有一个active baseline
+  sourceFile   String?
+  sourcePath   String?
+  checksum     String?
+  rowCount     Int                         @default(0)
+  importedBy   Int?
+  importer     User?                       @relation("SnapshotImporter", fields: [importedBy], references: [id])
+  importedAt   DateTime                    @default(now())
+  note         String?
+  rows         FinanceBalanceSnapshotRow[]
+  editedBy     Int?
+  editor       User?                       @relation("SnapshotEditor", fields: [editedBy], references: [id])
+  editedAt     DateTime?
+  version      Int                         @default(1)
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @default(now()) @updatedAt
+
+  // 不设 unique 约束 —— 同文件可多次上传形成独立批次，便于追溯对比
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  @@index([companyCode, year, isActive])
+  @@index([companyCode, year, snapshotType])
+  @@index([companyCode, year, sourceFile])
+  @@index([companyId])
+}
+
+/// 年度余额快照明细（每个科目一行，保存导入时的编码/名称快照）
+model FinanceBalanceSnapshotRow {
+  id            Int                    @id @default(autoincrement())
+  snapshotId    Int
+  snapshot      FinanceBalanceSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  accountId     Int
+  account       FinanceAccount         @relation(fields: [accountId], references: [id])
+  accountCode   String // 导入时的科目编码快照（审计追溯）
+  accountName   String // 导入时的科目名称快照
+  openingDebit  Float                  @default(0)
+  openingCredit Float                  @default(0)
+  currentDebit  Float                  @default(0)
+  currentCredit Float                  @default(0)
+  closingDebit  Float                  @default(0)
+  closingCredit Float                  @default(0)
+  sourceSheet   String?
+  sourceRow     Int?
+
+  @@unique([snapshotId, accountId])
+  @@index([snapshotId])
+  @@index([accountId])
+}

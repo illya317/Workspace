@@ -23,9 +23,22 @@ async function buildSessionUser(
       wxUserId: true,
       avatar: true,
       apiKeyHash: true,
-      employeeId: true,
       canLogin: true,
       sessionVersion: true,
+      employees: {
+        select: {
+          name: true,
+          employeeId: true,
+          employments: {
+            where: currentEmploymentDateWhere(),
+            select: { id: true },
+            orderBy: { id: "desc" },
+            take: 1,
+          },
+        },
+        orderBy: { id: "asc" },
+        take: 1,
+      },
     },
   });
   if (!userWithPerms) return null;
@@ -34,24 +47,7 @@ async function buildSessionUser(
     return null;
   }
 
-  const employee = await prisma.employee.findFirst({
-    where: {
-      OR: [
-        { userId },
-        ...(userWithPerms.employeeId ? [{ employeeId: userWithPerms.employeeId }] : []),
-      ],
-    },
-    select: {
-      name: true,
-      employeeId: true,
-      employments: {
-        where: currentEmploymentDateWhere(),
-        select: { id: true },
-        orderBy: { id: "desc" },
-        take: 1,
-      },
-    },
-  });
+  const employee = userWithPerms.employees[0] ?? null;
   const isActiveEmployee = Boolean(employee?.employments.length);
 
   const isAdmin = await isRootAdminUser(userId);
@@ -92,7 +88,7 @@ async function buildSessionUser(
     getAdminResourceKeys(userId),
   ]);
 
-  const { apiKeyHash, ...safeUser } = userWithPerms;
+  const { apiKeyHash, employees: _employees, ...safeUser } = userWithPerms;
   return {
     ...safeUser,
     hasApiKey: Boolean(apiKeyHash),
@@ -106,7 +102,7 @@ async function buildSessionUser(
     visibleConfigureResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleConfigure,
     manageableResourceKeys: isAdmin ? [...new Set([...manageableKeys, ...RESOURCE_KEYS])] : [...manageableKeys],
     adminResourceKeys: isAdmin ? [...new Set([...adminKeys, ...RESOURCE_KEYS])] : [...adminKeys],
-    employeeId: employee?.employeeId ?? userWithPerms.employeeId ?? null,
+    employeeId: employee?.employeeId ?? null,
     employeeName: employee?.name ?? (isAdmin ? ROOT_ADMIN_ACTOR_NAME : null),
     isActiveEmployee,
   };

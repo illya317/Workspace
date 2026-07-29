@@ -59,7 +59,10 @@ export async function getEmployeeProfileByKey(key: string) {
     prisma.employment.findMany({
       where: { employeeId },
       orderBy: [{ isActive: "desc" }, { id: "desc" }],
-      include: { employee: { select: { employeeId: true, name: true } } },
+      include: {
+        employee: { select: { employeeId: true, name: true } },
+        company: { select: { id: true, party: { select: { name: true } } } },
+      },
     }),
     prisma.eDP.findMany({
       where: { employeeId },
@@ -95,6 +98,7 @@ export async function getEmployeeProfileByKey(key: string) {
   const employmentState = employmentSummaryState(classifiedEmployments.map((item) => item.temporalState));
   const preferredEmployment = classifiedEmployments[0]?.employment ?? null;
   const currentCompany =
+    preferredEmployment?.company?.party.name ??
     findPrimaryContractCompany(contracts, preferredEmployment?.id) ??
     preferredEmployment?.currentCompany ??
     null;
@@ -158,7 +162,8 @@ export async function getEmployeeProfileByKey(key: string) {
         version: employment.version,
         employeeId: employment.employeeId,
         isActive: temporalState === "current",
-        currentCompany: findPrimaryContractCompany(contracts, employment.id) ?? employment.currentCompany,
+        companyId: employment.companyId,
+        currentCompany: employment.company?.party.name ?? findPrimaryContractCompany(contracts, employment.id) ?? employment.currentCompany,
         joinDate: employment.joinDate,
         leaveDate: employment.leaveDate,
         leaveReason: employment.leaveReason,

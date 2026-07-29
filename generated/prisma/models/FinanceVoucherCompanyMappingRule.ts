@@ -28,12 +28,14 @@ export type AggregateFinanceVoucherCompanyMappingRule = {
 
 export type FinanceVoucherCompanyMappingRuleAvgAggregateOutputType = {
   id: number | null
+  sourceCompanyId: number | null
   linkedCompanyId: number | null
   priority: number | null
 }
 
 export type FinanceVoucherCompanyMappingRuleSumAggregateOutputType = {
   id: number | null
+  sourceCompanyId: number | null
   linkedCompanyId: number | null
   priority: number | null
 }
@@ -42,6 +44,7 @@ export type FinanceVoucherCompanyMappingRuleMinAggregateOutputType = {
   id: number | null
   purpose: string | null
   sourceCompanyCode: string | null
+  sourceCompanyId: number | null
   linkedCompanyId: number | null
   voucherDate: string | null
   voucherNo: string | null
@@ -58,6 +61,7 @@ export type FinanceVoucherCompanyMappingRuleMaxAggregateOutputType = {
   id: number | null
   purpose: string | null
   sourceCompanyCode: string | null
+  sourceCompanyId: number | null
   linkedCompanyId: number | null
   voucherDate: string | null
   voucherNo: string | null
@@ -74,6 +78,7 @@ export type FinanceVoucherCompanyMappingRuleCountAggregateOutputType = {
   id: number
   purpose: number
   sourceCompanyCode: number
+  sourceCompanyId: number
   linkedCompanyId: number
   voucherDate: number
   voucherNo: number
@@ -90,12 +95,14 @@ export type FinanceVoucherCompanyMappingRuleCountAggregateOutputType = {
 
 export type FinanceVoucherCompanyMappingRuleAvgAggregateInputType = {
   id?: true
+  sourceCompanyId?: true
   linkedCompanyId?: true
   priority?: true
 }
 
 export type FinanceVoucherCompanyMappingRuleSumAggregateInputType = {
   id?: true
+  sourceCompanyId?: true
   linkedCompanyId?: true
   priority?: true
 }
@@ -104,6 +111,7 @@ export type FinanceVoucherCompanyMappingRuleMinAggregateInputType = {
   id?: true
   purpose?: true
   sourceCompanyCode?: true
+  sourceCompanyId?: true
   linkedCompanyId?: true
   voucherDate?: true
   voucherNo?: true
@@ -120,6 +128,7 @@ export type FinanceVoucherCompanyMappingRuleMaxAggregateInputType = {
   id?: true
   purpose?: true
   sourceCompanyCode?: true
+  sourceCompanyId?: true
   linkedCompanyId?: true
   voucherDate?: true
   voucherNo?: true
@@ -136,6 +145,7 @@ export type FinanceVoucherCompanyMappingRuleCountAggregateInputType = {
   id?: true
   purpose?: true
   sourceCompanyCode?: true
+  sourceCompanyId?: true
   linkedCompanyId?: true
   voucherDate?: true
   voucherNo?: true
@@ -239,6 +249,7 @@ export type FinanceVoucherCompanyMappingRuleGroupByOutputType = {
   id: number
   purpose: string
   sourceCompanyCode: string
+  sourceCompanyId: number | null
   linkedCompanyId: number
   voucherDate: string | null
   voucherNo: string | null
@@ -278,6 +289,7 @@ export type FinanceVoucherCompanyMappingRuleWhereInput = {
   id?: Prisma.IntFilter<"FinanceVoucherCompanyMappingRule"> | number
   purpose?: Prisma.StringFilter<"FinanceVoucherCompanyMappingRule"> | string
   sourceCompanyCode?: Prisma.StringFilter<"FinanceVoucherCompanyMappingRule"> | string
+  sourceCompanyId?: Prisma.IntNullableFilter<"FinanceVoucherCompanyMappingRule"> | number | null
   linkedCompanyId?: Prisma.IntFilter<"FinanceVoucherCompanyMappingRule"> | number
   voucherDate?: Prisma.StringNullableFilter<"FinanceVoucherCompanyMappingRule"> | string | null
   voucherNo?: Prisma.StringNullableFilter<"FinanceVoucherCompanyMappingRule"> | string | null
@@ -288,6 +300,7 @@ export type FinanceVoucherCompanyMappingRuleWhereInput = {
   isActive?: Prisma.BoolFilter<"FinanceVoucherCompanyMappingRule"> | boolean
   createdAt?: Prisma.DateTimeFilter<"FinanceVoucherCompanyMappingRule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceVoucherCompanyMappingRule"> | Date | string
+  sourceCompany?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   linkedCompany?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
 }
 
@@ -295,6 +308,7 @@ export type FinanceVoucherCompanyMappingRuleOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
   sourceCompanyCode?: Prisma.SortOrder
+  sourceCompanyId?: Prisma.SortOrderInput | Prisma.SortOrder
   linkedCompanyId?: Prisma.SortOrder
   voucherDate?: Prisma.SortOrderInput | Prisma.SortOrder
   voucherNo?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -305,6 +319,7 @@ export type FinanceVoucherCompanyMappingRuleOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  sourceCompany?: Prisma.CompanyOrderByWithRelationInput
   linkedCompany?: Prisma.CompanyOrderByWithRelationInput
 }
 
@@ -315,6 +330,7 @@ export type FinanceVoucherCompanyMappingRuleWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FinanceVoucherCompanyMappingRuleWhereInput | Prisma.FinanceVoucherCompanyMappingRuleWhereInput[]
   purpose?: Prisma.StringFilter<"FinanceVoucherCompanyMappingRule"> | string
   sourceCompanyCode?: Prisma.StringFilter<"FinanceVoucherCompanyMappingRule"> | string
+  sourceCompanyId?: Prisma.IntNullableFilter<"FinanceVoucherCompanyMappingRule"> | number | null
   linkedCompanyId?: Prisma.IntFilter<"FinanceVoucherCompanyMappingRule"> | number
   voucherDate?: Prisma.StringNullableFilter<"FinanceVoucherCompanyMappingRule"> | string | null
   voucherNo?: Prisma.StringNullableFilter<"FinanceVoucherCompanyMappingRule"> | string | null
@@ -325,6 +341,7 @@ export type FinanceVoucherCompanyMappingRuleWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"FinanceVoucherCompanyMappingRule"> | boolean
   createdAt?: Prisma.DateTimeFilter<"FinanceVoucherCompanyMappingRule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceVoucherCompanyMappingRule"> | Date | string
+  sourceCompany?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   linkedCompany?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
 }, "id">
 
@@ -332,6 +349,7 @@ export type FinanceVoucherCompanyMappingRuleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
   sourceCompanyCode?: Prisma.SortOrder
+  sourceCompanyId?: Prisma.SortOrderInput | Prisma.SortOrder
   linkedCompanyId?: Prisma.SortOrder
   voucherDate?: Prisma.SortOrderInput | Prisma.SortOrder
   voucherNo?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -356,6 +374,7 @@ export type FinanceVoucherCompanyMappingRuleScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"FinanceVoucherCompanyMappingRule"> | number
   purpose?: Prisma.StringWithAggregatesFilter<"FinanceVoucherCompanyMappingRule"> | string
   sourceCompanyCode?: Prisma.StringWithAggregatesFilter<"FinanceVoucherCompanyMappingRule"> | string
+  sourceCompanyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceVoucherCompanyMappingRule"> | number | null
   linkedCompanyId?: Prisma.IntWithAggregatesFilter<"FinanceVoucherCompanyMappingRule"> | number
   voucherDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucherCompanyMappingRule"> | string | null
   voucherNo?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucherCompanyMappingRule"> | string | null
@@ -380,6 +399,7 @@ export type FinanceVoucherCompanyMappingRuleCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  sourceCompany?: Prisma.CompanyCreateNestedOneWithoutSourceFinanceVoucherCompanyMappingRulesInput
   linkedCompany: Prisma.CompanyCreateNestedOneWithoutFinanceVoucherCompanyMappingRulesInput
 }
 
@@ -387,6 +407,7 @@ export type FinanceVoucherCompanyMappingRuleUncheckedCreateInput = {
   id?: number
   purpose: string
   sourceCompanyCode: string
+  sourceCompanyId?: number | null
   linkedCompanyId: number
   voucherDate?: string | null
   voucherNo?: string | null
@@ -411,6 +432,7 @@ export type FinanceVoucherCompanyMappingRuleUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceCompany?: Prisma.CompanyUpdateOneWithoutSourceFinanceVoucherCompanyMappingRulesNestedInput
   linkedCompany?: Prisma.CompanyUpdateOneRequiredWithoutFinanceVoucherCompanyMappingRulesNestedInput
 }
 
@@ -418,6 +440,7 @@ export type FinanceVoucherCompanyMappingRuleUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   purpose?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCompanyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   linkedCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
   voucherDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   voucherNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -434,6 +457,7 @@ export type FinanceVoucherCompanyMappingRuleCreateManyInput = {
   id?: number
   purpose: string
   sourceCompanyCode: string
+  sourceCompanyId?: number | null
   linkedCompanyId: number
   voucherDate?: string | null
   voucherNo?: string | null
@@ -464,6 +488,7 @@ export type FinanceVoucherCompanyMappingRuleUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   purpose?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCompanyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   linkedCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
   voucherDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   voucherNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -480,6 +505,7 @@ export type FinanceVoucherCompanyMappingRuleCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
   sourceCompanyCode?: Prisma.SortOrder
+  sourceCompanyId?: Prisma.SortOrder
   linkedCompanyId?: Prisma.SortOrder
   voucherDate?: Prisma.SortOrder
   voucherNo?: Prisma.SortOrder
@@ -494,6 +520,7 @@ export type FinanceVoucherCompanyMappingRuleCountOrderByAggregateInput = {
 
 export type FinanceVoucherCompanyMappingRuleAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sourceCompanyId?: Prisma.SortOrder
   linkedCompanyId?: Prisma.SortOrder
   priority?: Prisma.SortOrder
 }
@@ -502,6 +529,7 @@ export type FinanceVoucherCompanyMappingRuleMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
   sourceCompanyCode?: Prisma.SortOrder
+  sourceCompanyId?: Prisma.SortOrder
   linkedCompanyId?: Prisma.SortOrder
   voucherDate?: Prisma.SortOrder
   voucherNo?: Prisma.SortOrder
@@ -518,6 +546,7 @@ export type FinanceVoucherCompanyMappingRuleMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
   sourceCompanyCode?: Prisma.SortOrder
+  sourceCompanyId?: Prisma.SortOrder
   linkedCompanyId?: Prisma.SortOrder
   voucherDate?: Prisma.SortOrder
   voucherNo?: Prisma.SortOrder
@@ -532,6 +561,7 @@ export type FinanceVoucherCompanyMappingRuleMinOrderByAggregateInput = {
 
 export type FinanceVoucherCompanyMappingRuleSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sourceCompanyId?: Prisma.SortOrder
   linkedCompanyId?: Prisma.SortOrder
   priority?: Prisma.SortOrder
 }
@@ -553,10 +583,24 @@ export type FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutLinkedCompany
   connect?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
 }
 
+export type FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutSourceCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutSourceCompanyInput, Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutSourceCompanyInput> | Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutSourceCompanyInput[] | Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutSourceCompanyInput[]
+  connectOrCreate?: Prisma.FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutSourceCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutSourceCompanyInput[]
+  createMany?: Prisma.FinanceVoucherCompanyMappingRuleCreateManySourceCompanyInputEnvelope
+  connect?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
+}
+
 export type FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutLinkedCompanyInput = {
   create?: Prisma.XOR<Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutLinkedCompanyInput, Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutLinkedCompanyInput> | Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutLinkedCompanyInput[] | Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutLinkedCompanyInput[]
   connectOrCreate?: Prisma.FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutLinkedCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutLinkedCompanyInput[]
   createMany?: Prisma.FinanceVoucherCompanyMappingRuleCreateManyLinkedCompanyInputEnvelope
+  connect?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
+}
+
+export type FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutSourceCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutSourceCompanyInput, Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutSourceCompanyInput> | Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutSourceCompanyInput[] | Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutSourceCompanyInput[]
+  connectOrCreate?: Prisma.FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutSourceCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutSourceCompanyInput[]
+  createMany?: Prisma.FinanceVoucherCompanyMappingRuleCreateManySourceCompanyInputEnvelope
   connect?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
 }
 
@@ -574,6 +618,20 @@ export type FinanceVoucherCompanyMappingRuleUpdateManyWithoutLinkedCompanyNested
   deleteMany?: Prisma.FinanceVoucherCompanyMappingRuleScalarWhereInput | Prisma.FinanceVoucherCompanyMappingRuleScalarWhereInput[]
 }
 
+export type FinanceVoucherCompanyMappingRuleUpdateManyWithoutSourceCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutSourceCompanyInput, Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutSourceCompanyInput> | Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutSourceCompanyInput[] | Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutSourceCompanyInput[]
+  connectOrCreate?: Prisma.FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutSourceCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutSourceCompanyInput[]
+  upsert?: Prisma.FinanceVoucherCompanyMappingRuleUpsertWithWhereUniqueWithoutSourceCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleUpsertWithWhereUniqueWithoutSourceCompanyInput[]
+  createMany?: Prisma.FinanceVoucherCompanyMappingRuleCreateManySourceCompanyInputEnvelope
+  set?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
+  disconnect?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
+  delete?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
+  connect?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
+  update?: Prisma.FinanceVoucherCompanyMappingRuleUpdateWithWhereUniqueWithoutSourceCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleUpdateWithWhereUniqueWithoutSourceCompanyInput[]
+  updateMany?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithWhereWithoutSourceCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithWhereWithoutSourceCompanyInput[]
+  deleteMany?: Prisma.FinanceVoucherCompanyMappingRuleScalarWhereInput | Prisma.FinanceVoucherCompanyMappingRuleScalarWhereInput[]
+}
+
 export type FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutLinkedCompanyNestedInput = {
   create?: Prisma.XOR<Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutLinkedCompanyInput, Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutLinkedCompanyInput> | Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutLinkedCompanyInput[] | Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutLinkedCompanyInput[]
   connectOrCreate?: Prisma.FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutLinkedCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutLinkedCompanyInput[]
@@ -585,6 +643,20 @@ export type FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutLinkedComp
   connect?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
   update?: Prisma.FinanceVoucherCompanyMappingRuleUpdateWithWhereUniqueWithoutLinkedCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleUpdateWithWhereUniqueWithoutLinkedCompanyInput[]
   updateMany?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithWhereWithoutLinkedCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithWhereWithoutLinkedCompanyInput[]
+  deleteMany?: Prisma.FinanceVoucherCompanyMappingRuleScalarWhereInput | Prisma.FinanceVoucherCompanyMappingRuleScalarWhereInput[]
+}
+
+export type FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutSourceCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutSourceCompanyInput, Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutSourceCompanyInput> | Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutSourceCompanyInput[] | Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutSourceCompanyInput[]
+  connectOrCreate?: Prisma.FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutSourceCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutSourceCompanyInput[]
+  upsert?: Prisma.FinanceVoucherCompanyMappingRuleUpsertWithWhereUniqueWithoutSourceCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleUpsertWithWhereUniqueWithoutSourceCompanyInput[]
+  createMany?: Prisma.FinanceVoucherCompanyMappingRuleCreateManySourceCompanyInputEnvelope
+  set?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
+  disconnect?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
+  delete?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
+  connect?: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput | Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput[]
+  update?: Prisma.FinanceVoucherCompanyMappingRuleUpdateWithWhereUniqueWithoutSourceCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleUpdateWithWhereUniqueWithoutSourceCompanyInput[]
+  updateMany?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithWhereWithoutSourceCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithWhereWithoutSourceCompanyInput[]
   deleteMany?: Prisma.FinanceVoucherCompanyMappingRuleScalarWhereInput | Prisma.FinanceVoucherCompanyMappingRuleScalarWhereInput[]
 }
 
@@ -600,12 +672,14 @@ export type FinanceVoucherCompanyMappingRuleCreateWithoutLinkedCompanyInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  sourceCompany?: Prisma.CompanyCreateNestedOneWithoutSourceFinanceVoucherCompanyMappingRulesInput
 }
 
 export type FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutLinkedCompanyInput = {
   id?: number
   purpose: string
   sourceCompanyCode: string
+  sourceCompanyId?: number | null
   voucherDate?: string | null
   voucherNo?: string | null
   matchText?: string | null
@@ -624,6 +698,47 @@ export type FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutLinkedCompanyI
 
 export type FinanceVoucherCompanyMappingRuleCreateManyLinkedCompanyInputEnvelope = {
   data: Prisma.FinanceVoucherCompanyMappingRuleCreateManyLinkedCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleCreateManyLinkedCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceVoucherCompanyMappingRuleCreateWithoutSourceCompanyInput = {
+  purpose: string
+  sourceCompanyCode: string
+  voucherDate?: string | null
+  voucherNo?: string | null
+  matchText?: string | null
+  matchingPolicy?: string
+  priority?: number
+  evidence: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  linkedCompany: Prisma.CompanyCreateNestedOneWithoutFinanceVoucherCompanyMappingRulesInput
+}
+
+export type FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutSourceCompanyInput = {
+  id?: number
+  purpose: string
+  sourceCompanyCode: string
+  linkedCompanyId: number
+  voucherDate?: string | null
+  voucherNo?: string | null
+  matchText?: string | null
+  matchingPolicy?: string
+  priority?: number
+  evidence: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceVoucherCompanyMappingRuleCreateOrConnectWithoutSourceCompanyInput = {
+  where: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutSourceCompanyInput, Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutSourceCompanyInput>
+}
+
+export type FinanceVoucherCompanyMappingRuleCreateManySourceCompanyInputEnvelope = {
+  data: Prisma.FinanceVoucherCompanyMappingRuleCreateManySourceCompanyInput | Prisma.FinanceVoucherCompanyMappingRuleCreateManySourceCompanyInput[]
   skipDuplicates?: boolean
 }
 
@@ -650,6 +765,7 @@ export type FinanceVoucherCompanyMappingRuleScalarWhereInput = {
   id?: Prisma.IntFilter<"FinanceVoucherCompanyMappingRule"> | number
   purpose?: Prisma.StringFilter<"FinanceVoucherCompanyMappingRule"> | string
   sourceCompanyCode?: Prisma.StringFilter<"FinanceVoucherCompanyMappingRule"> | string
+  sourceCompanyId?: Prisma.IntNullableFilter<"FinanceVoucherCompanyMappingRule"> | number | null
   linkedCompanyId?: Prisma.IntFilter<"FinanceVoucherCompanyMappingRule"> | number
   voucherDate?: Prisma.StringNullableFilter<"FinanceVoucherCompanyMappingRule"> | string | null
   voucherNo?: Prisma.StringNullableFilter<"FinanceVoucherCompanyMappingRule"> | string | null
@@ -662,10 +778,43 @@ export type FinanceVoucherCompanyMappingRuleScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FinanceVoucherCompanyMappingRule"> | Date | string
 }
 
+export type FinanceVoucherCompanyMappingRuleUpsertWithWhereUniqueWithoutSourceCompanyInput = {
+  where: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceVoucherCompanyMappingRuleUpdateWithoutSourceCompanyInput, Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateWithoutSourceCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceVoucherCompanyMappingRuleCreateWithoutSourceCompanyInput, Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateWithoutSourceCompanyInput>
+}
+
+export type FinanceVoucherCompanyMappingRuleUpdateWithWhereUniqueWithoutSourceCompanyInput = {
+  where: Prisma.FinanceVoucherCompanyMappingRuleWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceVoucherCompanyMappingRuleUpdateWithoutSourceCompanyInput, Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateWithoutSourceCompanyInput>
+}
+
+export type FinanceVoucherCompanyMappingRuleUpdateManyWithWhereWithoutSourceCompanyInput = {
+  where: Prisma.FinanceVoucherCompanyMappingRuleScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceVoucherCompanyMappingRuleUpdateManyMutationInput, Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutSourceCompanyInput>
+}
+
 export type FinanceVoucherCompanyMappingRuleCreateManyLinkedCompanyInput = {
   id?: number
   purpose: string
   sourceCompanyCode: string
+  sourceCompanyId?: number | null
+  voucherDate?: string | null
+  voucherNo?: string | null
+  matchText?: string | null
+  matchingPolicy?: string
+  priority?: number
+  evidence: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceVoucherCompanyMappingRuleCreateManySourceCompanyInput = {
+  id?: number
+  purpose: string
+  sourceCompanyCode: string
+  linkedCompanyId: number
   voucherDate?: string | null
   voucherNo?: string | null
   matchText?: string | null
@@ -689,12 +838,14 @@ export type FinanceVoucherCompanyMappingRuleUpdateWithoutLinkedCompanyInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceCompany?: Prisma.CompanyUpdateOneWithoutSourceFinanceVoucherCompanyMappingRulesNestedInput
 }
 
 export type FinanceVoucherCompanyMappingRuleUncheckedUpdateWithoutLinkedCompanyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   purpose?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCompanyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   voucherDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   voucherNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matchText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -710,6 +861,54 @@ export type FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutLinkedComp
   id?: Prisma.IntFieldUpdateOperationsInput | number
   purpose?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCompanyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchingPolicy?: Prisma.StringFieldUpdateOperationsInput | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  evidence?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceVoucherCompanyMappingRuleUpdateWithoutSourceCompanyInput = {
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCompanyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchingPolicy?: Prisma.StringFieldUpdateOperationsInput | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  evidence?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  linkedCompany?: Prisma.CompanyUpdateOneRequiredWithoutFinanceVoucherCompanyMappingRulesNestedInput
+}
+
+export type FinanceVoucherCompanyMappingRuleUncheckedUpdateWithoutSourceCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCompanyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  linkedCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchingPolicy?: Prisma.StringFieldUpdateOperationsInput | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  evidence?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutSourceCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCompanyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  linkedCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
   voucherDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   voucherNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matchText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -727,6 +926,7 @@ export type FinanceVoucherCompanyMappingRuleSelect<ExtArgs extends runtime.Types
   id?: boolean
   purpose?: boolean
   sourceCompanyCode?: boolean
+  sourceCompanyId?: boolean
   linkedCompanyId?: boolean
   voucherDate?: boolean
   voucherNo?: boolean
@@ -737,6 +937,7 @@ export type FinanceVoucherCompanyMappingRuleSelect<ExtArgs extends runtime.Types
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  sourceCompany?: boolean | Prisma.FinanceVoucherCompanyMappingRule$sourceCompanyArgs<ExtArgs>
   linkedCompany?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeVoucherCompanyMappingRule"]>
 
@@ -744,6 +945,7 @@ export type FinanceVoucherCompanyMappingRuleSelectCreateManyAndReturn<ExtArgs ex
   id?: boolean
   purpose?: boolean
   sourceCompanyCode?: boolean
+  sourceCompanyId?: boolean
   linkedCompanyId?: boolean
   voucherDate?: boolean
   voucherNo?: boolean
@@ -754,6 +956,7 @@ export type FinanceVoucherCompanyMappingRuleSelectCreateManyAndReturn<ExtArgs ex
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  sourceCompany?: boolean | Prisma.FinanceVoucherCompanyMappingRule$sourceCompanyArgs<ExtArgs>
   linkedCompany?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeVoucherCompanyMappingRule"]>
 
@@ -761,6 +964,7 @@ export type FinanceVoucherCompanyMappingRuleSelectUpdateManyAndReturn<ExtArgs ex
   id?: boolean
   purpose?: boolean
   sourceCompanyCode?: boolean
+  sourceCompanyId?: boolean
   linkedCompanyId?: boolean
   voucherDate?: boolean
   voucherNo?: boolean
@@ -771,6 +975,7 @@ export type FinanceVoucherCompanyMappingRuleSelectUpdateManyAndReturn<ExtArgs ex
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  sourceCompany?: boolean | Prisma.FinanceVoucherCompanyMappingRule$sourceCompanyArgs<ExtArgs>
   linkedCompany?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeVoucherCompanyMappingRule"]>
 
@@ -778,6 +983,7 @@ export type FinanceVoucherCompanyMappingRuleSelectScalar = {
   id?: boolean
   purpose?: boolean
   sourceCompanyCode?: boolean
+  sourceCompanyId?: boolean
   linkedCompanyId?: boolean
   voucherDate?: boolean
   voucherNo?: boolean
@@ -790,26 +996,31 @@ export type FinanceVoucherCompanyMappingRuleSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceVoucherCompanyMappingRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "purpose" | "sourceCompanyCode" | "linkedCompanyId" | "voucherDate" | "voucherNo" | "matchText" | "matchingPolicy" | "priority" | "evidence" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["financeVoucherCompanyMappingRule"]>
+export type FinanceVoucherCompanyMappingRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "purpose" | "sourceCompanyCode" | "sourceCompanyId" | "linkedCompanyId" | "voucherDate" | "voucherNo" | "matchText" | "matchingPolicy" | "priority" | "evidence" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["financeVoucherCompanyMappingRule"]>
 export type FinanceVoucherCompanyMappingRuleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  sourceCompany?: boolean | Prisma.FinanceVoucherCompanyMappingRule$sourceCompanyArgs<ExtArgs>
   linkedCompany?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }
 export type FinanceVoucherCompanyMappingRuleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  sourceCompany?: boolean | Prisma.FinanceVoucherCompanyMappingRule$sourceCompanyArgs<ExtArgs>
   linkedCompany?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }
 export type FinanceVoucherCompanyMappingRuleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  sourceCompany?: boolean | Prisma.FinanceVoucherCompanyMappingRule$sourceCompanyArgs<ExtArgs>
   linkedCompany?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }
 
 export type $FinanceVoucherCompanyMappingRulePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceVoucherCompanyMappingRule"
   objects: {
+    sourceCompany: Prisma.$CompanyPayload<ExtArgs> | null
     linkedCompany: Prisma.$CompanyPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     purpose: string
     sourceCompanyCode: string
+    sourceCompanyId: number | null
     linkedCompanyId: number
     voucherDate: string | null
     voucherNo: string | null
@@ -1214,6 +1425,7 @@ readonly fields: FinanceVoucherCompanyMappingRuleFieldRefs;
  */
 export interface Prisma__FinanceVoucherCompanyMappingRuleClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  sourceCompany<T extends Prisma.FinanceVoucherCompanyMappingRule$sourceCompanyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucherCompanyMappingRule$sourceCompanyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   linkedCompany<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1247,6 +1459,7 @@ export interface FinanceVoucherCompanyMappingRuleFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceVoucherCompanyMappingRule", 'Int'>
   readonly purpose: Prisma.FieldRef<"FinanceVoucherCompanyMappingRule", 'String'>
   readonly sourceCompanyCode: Prisma.FieldRef<"FinanceVoucherCompanyMappingRule", 'String'>
+  readonly sourceCompanyId: Prisma.FieldRef<"FinanceVoucherCompanyMappingRule", 'Int'>
   readonly linkedCompanyId: Prisma.FieldRef<"FinanceVoucherCompanyMappingRule", 'Int'>
   readonly voucherDate: Prisma.FieldRef<"FinanceVoucherCompanyMappingRule", 'String'>
   readonly voucherNo: Prisma.FieldRef<"FinanceVoucherCompanyMappingRule", 'String'>
@@ -1655,6 +1868,25 @@ export type FinanceVoucherCompanyMappingRuleDeleteManyArgs<ExtArgs extends runti
    * Limit how many FinanceVoucherCompanyMappingRules to delete.
    */
   limit?: number
+}
+
+/**
+ * FinanceVoucherCompanyMappingRule.sourceCompany
+ */
+export type FinanceVoucherCompanyMappingRule$sourceCompanyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

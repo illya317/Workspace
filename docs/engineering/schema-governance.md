@@ -6,7 +6,7 @@
 - 所有 model 必须按领域放在 `prisma/models/*.prisma`。
 - 禁止把新 model 直接写回 `prisma/schema.prisma`。
 
-当前领域划分（59 个 model 文件、251 个 model；逐字段关系以 `docs/generated/tables.md` 为准）：
+当前领域划分（64 个 model 文件、280 个 model；逐字段关系以 `docs/generated/tables.md` 为准）：
 
 | 文件 | 领域 | 模型 |
 |------|------|------|
@@ -22,9 +22,10 @@
 | `external.prisma` | 共享主体与外部角色 | Party, PartyNameHistory, ExternalPartyProfile, ExternalPartyRole, ExternalPartySourceMapping |
 | `external-legal-facts.prisma` | 外部主体法定事实修订 | PartyLegalFactRevision |
 | `party-identity-links.prisma` | 员工与个人法定主体的身份确认 | EmployeePartyIdentityLink |
-| `finance-assets.prisma` | 财务资产卡片、期间记录与调整 | FinanceAssetCard, FinanceAssetCostLine, FinanceAssetExpenseAllocation, FinanceAssetImportBatch, FinanceAssetPeriodEntry, FinanceAssetAdjustment |
+| `finance-assets.prisma` | 财务资产分类、资产卡片、期间记录、调整、减值与处置 | FinanceAssetCategory, FinanceAssetCategoryPolicy, FinanceAssetCard, FinanceAssetCostLine, FinanceAssetExpenseAllocation, FinanceAssetImportBatch, FinanceAssetPeriodEntry, FinanceAssetAdjustment, FinanceAssetImpairmentAssessment, FinanceAssetImpairmentAllocation, FinanceAssetDisposal |
 | `finance-budget.prisma` | 预算管理 | FinanceBudgetVersion, FinanceBudgetDept, FinanceBudgetRd |
 | `finance-cashflow.prisma` | 现金流项目、分配与调整 | FinanceCashFlowItem, FinanceCashFlowAllocation, FinanceCashFlowAllocationAdjustment |
+| `finance-close.prisma` | 期间关账运行、任务、证据快照、事件与复核底稿 | FinanceCloseRun, FinanceCloseTask, FinanceCloseEvidenceSnapshot, FinanceCloseEvent, FinanceCloseWorkpaper, FinanceCloseWorkpaperEvent |
 | `finance-consolidation-entry-line.prisma` | 合并抵销分录行 | FinanceConsolidationEntryLine |
 | `finance-consolidation-match.prisma` | 合并匹配组、来源与公司映射规则 | FinanceConsolidationMatchGroup, FinanceConsolidationMatchSource, FinanceVoucherCompanyMappingRule |
 | `finance-consolidation-output.prisma` | 合并输出快照 | FinanceConsolidationOutputSnapshot |
@@ -35,11 +36,15 @@
 | `finance-group-chart.prisma` | 集团科目与共享会计政策版本 | FinanceGroupAccount, FinanceAccountingPolicyVersion, FinanceGroupAccountRevision, FinanceGroupAccountMapping |
 | `finance-import-evidence.prisma` | 财务导入证据、映射与血缘 | FinanceReadableSourcePackage, FinanceReadableImportRun, FinanceSourceLedgerMapping, FinanceAccountAuxiliaryRequirement, FinanceSourcePeriodStatus, FinanceSourceSubsystemStatus, FinanceAccountLineage |
 | `finance-import.prisma` | 财务导入批次与来源余额 | FinanceLedgerImport, FinanceSourceAccountBalance |
-| `finance-ledger.prisma` | 财务总账、凭证、余额与快照 | FinanceAccount, FinancePeriod, FinanceStatementVoucherExclusion, FinanceVoucher, FinanceVoucherItem, FinanceAccountBalance, FinanceBalanceSnapshot, FinanceBalanceSnapshotRow |
+| `finance-ledger.prisma` | 财务总账、凭证、余额与快照 | FinanceAccount, FinancePeriod, FinanceVoucher, FinanceVoucherItem, FinanceAccountBalance, FinanceBalanceSnapshot, FinanceBalanceSnapshotRow |
 | `finance-reclass.prisma` | 重分类规则、调整与结果 | FinanceReclassRule, FinanceReclassItemRule, FinanceBalanceReclassAdjustment, FinanceBalanceReclassAdjustmentHistory, ReclassResult |
+| `finance-statement-scope.prisma` | 单体报表来源范围与例外 | FinanceStatementVoucherExclusion |
 | `finance-statement-source.prisma` | 报表来源包、工作表与行 | FinanceStatementSourcePackage, FinanceStatementSourceSheet, FinanceStatementSourceLine |
 | `finance-statement.prisma` | 财务报表底稿与汇率 | FinanceStatementWorkpaper, FinanceStatementWorkpaperLine, FinanceStatementExchangeRate |
-| `finance-treasury.prisma` | 币种与银行账户 | FinanceCurrency, FinanceBankAccount |
+| `finance-tax-compliance.prisma` | 税务申报、缴款、分配与勾稽快照 | FinanceTaxFiling, FinanceTaxPayment, FinanceTaxPaymentAllocation, FinanceTaxReconciliationSnapshot |
+| `finance-tax.prisma` | 税种、税务登记、计提底稿与分录 | FinanceTaxType, FinanceTaxRegistration, FinanceTaxWorkpaper, FinanceTaxAccrualLine |
+| `finance-treasury-period.prisma` | 银行对账与借款利息期间底稿 | FinanceBankReconciliation, FinanceBankReconciliationItem, FinanceInterestWorkpaper, FinanceInterestWorkpaperLine, FinanceInterestVoucherLink |
+| `finance-treasury.prisma` | 币种、银行账户与借款事实 | FinanceCurrency, FinanceBankAccount, FinanceLoan, FinanceLoanRateTerm, FinanceLoanPrincipalEvent |
 | `hr-documents.prisma` | 部门与岗位说明书 | DepartmentDescription, PositionDescription |
 | `hr-employment-agreements.prisma` | 员工协议、期限、附件与修订 | EmploymentAgreement, EmploymentAgreementAttachment, EmploymentAgreementTerm, EmploymentAgreementRevision, EmploymentAgreementChange |
 | `hr-organization-lifecycle.prisma` | 组织结构生效版本 | OrganizationStructureChange, DepartmentEffectiveVersion, PositionEffectiveVersion, PositionReportOverrideEffectiveVersion |
@@ -128,3 +133,5 @@ model Employee {
 ## 7. 数据发布
 
 开发库不是生产业务数据的发布载体。租户主数据、历史导入和一次性纠错的 manifest 与源文件只存放在私有 `WORKSPACE_CONFIG_DIR/data-release-*`，记录逐文件 SHA-256、受注册 handler、依赖 migration 和结果断言，并通过上传回执与生产数据库回执闭环。Git 中的 Prisma migration 只描述结构；seed 只允许系统级、租户无关且新环境必须可重复建立的初始化事实。具体运维契约见 [数据发布批次与生产回执](./ops/data-releases.md)。
+
+导入字段涉及已有公司、部门、员工、岗位、项目、交易方、产品、存货或财务科目主数据时，正式事实必须保存 FK；来源 code/name 只能作为快照与 FK 并存。字段盘点、data-release 引用契约和 ratchet gate 见 [导入主数据引用治理](./import-reference-governance.md)。

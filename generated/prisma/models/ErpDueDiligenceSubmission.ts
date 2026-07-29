@@ -31,6 +31,7 @@ export type ErpDueDiligenceSubmissionAvgAggregateOutputType = {
   definitionVersion: number | null
   respondentUserId: number | null
   positionAssignmentId: number | null
+  departmentId: number | null
   version: number | null
 }
 
@@ -39,6 +40,7 @@ export type ErpDueDiligenceSubmissionSumAggregateOutputType = {
   definitionVersion: number | null
   respondentUserId: number | null
   positionAssignmentId: number | null
+  departmentId: number | null
   version: number | null
 }
 
@@ -50,6 +52,7 @@ export type ErpDueDiligenceSubmissionMinAggregateOutputType = {
   positionAssignmentId: number | null
   respondentName: string | null
   departmentName: string | null
+  departmentId: number | null
   roleTitle: string | null
   primaryArea: string | null
   status: string | null
@@ -68,6 +71,7 @@ export type ErpDueDiligenceSubmissionMaxAggregateOutputType = {
   positionAssignmentId: number | null
   respondentName: string | null
   departmentName: string | null
+  departmentId: number | null
   roleTitle: string | null
   primaryArea: string | null
   status: string | null
@@ -86,6 +90,7 @@ export type ErpDueDiligenceSubmissionCountAggregateOutputType = {
   positionAssignmentId: number
   respondentName: number
   departmentName: number
+  departmentId: number
   roleTitle: number
   primaryArea: number
   status: number
@@ -106,6 +111,7 @@ export type ErpDueDiligenceSubmissionAvgAggregateInputType = {
   definitionVersion?: true
   respondentUserId?: true
   positionAssignmentId?: true
+  departmentId?: true
   version?: true
 }
 
@@ -114,6 +120,7 @@ export type ErpDueDiligenceSubmissionSumAggregateInputType = {
   definitionVersion?: true
   respondentUserId?: true
   positionAssignmentId?: true
+  departmentId?: true
   version?: true
 }
 
@@ -125,6 +132,7 @@ export type ErpDueDiligenceSubmissionMinAggregateInputType = {
   positionAssignmentId?: true
   respondentName?: true
   departmentName?: true
+  departmentId?: true
   roleTitle?: true
   primaryArea?: true
   status?: true
@@ -143,6 +151,7 @@ export type ErpDueDiligenceSubmissionMaxAggregateInputType = {
   positionAssignmentId?: true
   respondentName?: true
   departmentName?: true
+  departmentId?: true
   roleTitle?: true
   primaryArea?: true
   status?: true
@@ -161,6 +170,7 @@ export type ErpDueDiligenceSubmissionCountAggregateInputType = {
   positionAssignmentId?: true
   respondentName?: true
   departmentName?: true
+  departmentId?: true
   roleTitle?: true
   primaryArea?: true
   status?: true
@@ -269,6 +279,7 @@ export type ErpDueDiligenceSubmissionGroupByOutputType = {
   positionAssignmentId: number | null
   respondentName: string
   departmentName: string
+  departmentId: number | null
   roleTitle: string
   primaryArea: string
   status: string
@@ -313,6 +324,7 @@ export type ErpDueDiligenceSubmissionWhereInput = {
   positionAssignmentId?: Prisma.IntNullableFilter<"ErpDueDiligenceSubmission"> | number | null
   respondentName?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
   departmentName?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
+  departmentId?: Prisma.IntNullableFilter<"ErpDueDiligenceSubmission"> | number | null
   roleTitle?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
   primaryArea?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
   status?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
@@ -325,6 +337,7 @@ export type ErpDueDiligenceSubmissionWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ErpDueDiligenceSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ErpDueDiligenceSubmission"> | Date | string
   respondent?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  department?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
   positionAssignment?: Prisma.XOR<Prisma.EDPNullableScalarRelationFilter, Prisma.EDPWhereInput> | null
   evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentListRelationFilter
 }
@@ -337,6 +350,7 @@ export type ErpDueDiligenceSubmissionOrderByWithRelationInput = {
   positionAssignmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   respondentName?: Prisma.SortOrder
   departmentName?: Prisma.SortOrder
+  departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   roleTitle?: Prisma.SortOrder
   primaryArea?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -349,6 +363,7 @@ export type ErpDueDiligenceSubmissionOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   respondent?: Prisma.UserOrderByWithRelationInput
+  department?: Prisma.DepartmentOrderByWithRelationInput
   positionAssignment?: Prisma.EDPOrderByWithRelationInput
   evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentOrderByRelationAggregateInput
 }
@@ -365,6 +380,7 @@ export type ErpDueDiligenceSubmissionWhereUniqueInput = Prisma.AtLeast<{
   positionAssignmentId?: Prisma.IntNullableFilter<"ErpDueDiligenceSubmission"> | number | null
   respondentName?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
   departmentName?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
+  departmentId?: Prisma.IntNullableFilter<"ErpDueDiligenceSubmission"> | number | null
   roleTitle?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
   primaryArea?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
   status?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
@@ -377,6 +393,7 @@ export type ErpDueDiligenceSubmissionWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"ErpDueDiligenceSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ErpDueDiligenceSubmission"> | Date | string
   respondent?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  department?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
   positionAssignment?: Prisma.XOR<Prisma.EDPNullableScalarRelationFilter, Prisma.EDPWhereInput> | null
   evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentListRelationFilter
 }, "id" | "campaignKey_respondentUserId">
@@ -389,6 +406,7 @@ export type ErpDueDiligenceSubmissionOrderByWithAggregationInput = {
   positionAssignmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   respondentName?: Prisma.SortOrder
   departmentName?: Prisma.SortOrder
+  departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   roleTitle?: Prisma.SortOrder
   primaryArea?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -418,6 +436,7 @@ export type ErpDueDiligenceSubmissionScalarWhereWithAggregatesInput = {
   positionAssignmentId?: Prisma.IntNullableWithAggregatesFilter<"ErpDueDiligenceSubmission"> | number | null
   respondentName?: Prisma.StringWithAggregatesFilter<"ErpDueDiligenceSubmission"> | string
   departmentName?: Prisma.StringWithAggregatesFilter<"ErpDueDiligenceSubmission"> | string
+  departmentId?: Prisma.IntNullableWithAggregatesFilter<"ErpDueDiligenceSubmission"> | number | null
   roleTitle?: Prisma.StringWithAggregatesFilter<"ErpDueDiligenceSubmission"> | string
   primaryArea?: Prisma.StringWithAggregatesFilter<"ErpDueDiligenceSubmission"> | string
   status?: Prisma.StringWithAggregatesFilter<"ErpDueDiligenceSubmission"> | string
@@ -448,6 +467,7 @@ export type ErpDueDiligenceSubmissionCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   respondent: Prisma.UserCreateNestedOneWithoutErpDueDiligenceSubmissionsInput
+  department?: Prisma.DepartmentCreateNestedOneWithoutErpDueDiligenceSubmissionsInput
   positionAssignment?: Prisma.EDPCreateNestedOneWithoutErpDueDiligenceSubmissionsInput
   evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentCreateNestedManyWithoutSubmissionInput
 }
@@ -460,6 +480,7 @@ export type ErpDueDiligenceSubmissionUncheckedCreateInput = {
   positionAssignmentId?: number | null
   respondentName: string
   departmentName: string
+  departmentId?: number | null
   roleTitle: string
   primaryArea: string
   status?: string
@@ -491,6 +512,7 @@ export type ErpDueDiligenceSubmissionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   respondent?: Prisma.UserUpdateOneRequiredWithoutErpDueDiligenceSubmissionsNestedInput
+  department?: Prisma.DepartmentUpdateOneWithoutErpDueDiligenceSubmissionsNestedInput
   positionAssignment?: Prisma.EDPUpdateOneWithoutErpDueDiligenceSubmissionsNestedInput
   evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentUpdateManyWithoutSubmissionNestedInput
 }
@@ -503,6 +525,7 @@ export type ErpDueDiligenceSubmissionUncheckedUpdateInput = {
   positionAssignmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   respondentName?: Prisma.StringFieldUpdateOperationsInput | string
   departmentName?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   roleTitle?: Prisma.StringFieldUpdateOperationsInput | string
   primaryArea?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -525,6 +548,7 @@ export type ErpDueDiligenceSubmissionCreateManyInput = {
   positionAssignmentId?: number | null
   respondentName: string
   departmentName: string
+  departmentId?: number | null
   roleTitle: string
   primaryArea: string
   status?: string
@@ -564,6 +588,7 @@ export type ErpDueDiligenceSubmissionUncheckedUpdateManyInput = {
   positionAssignmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   respondentName?: Prisma.StringFieldUpdateOperationsInput | string
   departmentName?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   roleTitle?: Prisma.StringFieldUpdateOperationsInput | string
   primaryArea?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -590,6 +615,7 @@ export type ErpDueDiligenceSubmissionCountOrderByAggregateInput = {
   positionAssignmentId?: Prisma.SortOrder
   respondentName?: Prisma.SortOrder
   departmentName?: Prisma.SortOrder
+  departmentId?: Prisma.SortOrder
   roleTitle?: Prisma.SortOrder
   primaryArea?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -608,6 +634,7 @@ export type ErpDueDiligenceSubmissionAvgOrderByAggregateInput = {
   definitionVersion?: Prisma.SortOrder
   respondentUserId?: Prisma.SortOrder
   positionAssignmentId?: Prisma.SortOrder
+  departmentId?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
 
@@ -619,6 +646,7 @@ export type ErpDueDiligenceSubmissionMaxOrderByAggregateInput = {
   positionAssignmentId?: Prisma.SortOrder
   respondentName?: Prisma.SortOrder
   departmentName?: Prisma.SortOrder
+  departmentId?: Prisma.SortOrder
   roleTitle?: Prisma.SortOrder
   primaryArea?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -637,6 +665,7 @@ export type ErpDueDiligenceSubmissionMinOrderByAggregateInput = {
   positionAssignmentId?: Prisma.SortOrder
   respondentName?: Prisma.SortOrder
   departmentName?: Prisma.SortOrder
+  departmentId?: Prisma.SortOrder
   roleTitle?: Prisma.SortOrder
   primaryArea?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -652,6 +681,7 @@ export type ErpDueDiligenceSubmissionSumOrderByAggregateInput = {
   definitionVersion?: Prisma.SortOrder
   respondentUserId?: Prisma.SortOrder
   positionAssignmentId?: Prisma.SortOrder
+  departmentId?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
 
@@ -754,6 +784,48 @@ export type ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedI
   deleteMany?: Prisma.ErpDueDiligenceSubmissionScalarWhereInput | Prisma.ErpDueDiligenceSubmissionScalarWhereInput[]
 }
 
+export type ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput = {
+  create?: Prisma.XOR<Prisma.ErpDueDiligenceSubmissionCreateWithoutDepartmentInput, Prisma.ErpDueDiligenceSubmissionUncheckedCreateWithoutDepartmentInput> | Prisma.ErpDueDiligenceSubmissionCreateWithoutDepartmentInput[] | Prisma.ErpDueDiligenceSubmissionUncheckedCreateWithoutDepartmentInput[]
+  connectOrCreate?: Prisma.ErpDueDiligenceSubmissionCreateOrConnectWithoutDepartmentInput | Prisma.ErpDueDiligenceSubmissionCreateOrConnectWithoutDepartmentInput[]
+  createMany?: Prisma.ErpDueDiligenceSubmissionCreateManyDepartmentInputEnvelope
+  connect?: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput | Prisma.ErpDueDiligenceSubmissionWhereUniqueInput[]
+}
+
+export type ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput = {
+  create?: Prisma.XOR<Prisma.ErpDueDiligenceSubmissionCreateWithoutDepartmentInput, Prisma.ErpDueDiligenceSubmissionUncheckedCreateWithoutDepartmentInput> | Prisma.ErpDueDiligenceSubmissionCreateWithoutDepartmentInput[] | Prisma.ErpDueDiligenceSubmissionUncheckedCreateWithoutDepartmentInput[]
+  connectOrCreate?: Prisma.ErpDueDiligenceSubmissionCreateOrConnectWithoutDepartmentInput | Prisma.ErpDueDiligenceSubmissionCreateOrConnectWithoutDepartmentInput[]
+  createMany?: Prisma.ErpDueDiligenceSubmissionCreateManyDepartmentInputEnvelope
+  connect?: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput | Prisma.ErpDueDiligenceSubmissionWhereUniqueInput[]
+}
+
+export type ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput = {
+  create?: Prisma.XOR<Prisma.ErpDueDiligenceSubmissionCreateWithoutDepartmentInput, Prisma.ErpDueDiligenceSubmissionUncheckedCreateWithoutDepartmentInput> | Prisma.ErpDueDiligenceSubmissionCreateWithoutDepartmentInput[] | Prisma.ErpDueDiligenceSubmissionUncheckedCreateWithoutDepartmentInput[]
+  connectOrCreate?: Prisma.ErpDueDiligenceSubmissionCreateOrConnectWithoutDepartmentInput | Prisma.ErpDueDiligenceSubmissionCreateOrConnectWithoutDepartmentInput[]
+  upsert?: Prisma.ErpDueDiligenceSubmissionUpsertWithWhereUniqueWithoutDepartmentInput | Prisma.ErpDueDiligenceSubmissionUpsertWithWhereUniqueWithoutDepartmentInput[]
+  createMany?: Prisma.ErpDueDiligenceSubmissionCreateManyDepartmentInputEnvelope
+  set?: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput | Prisma.ErpDueDiligenceSubmissionWhereUniqueInput[]
+  disconnect?: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput | Prisma.ErpDueDiligenceSubmissionWhereUniqueInput[]
+  delete?: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput | Prisma.ErpDueDiligenceSubmissionWhereUniqueInput[]
+  connect?: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput | Prisma.ErpDueDiligenceSubmissionWhereUniqueInput[]
+  update?: Prisma.ErpDueDiligenceSubmissionUpdateWithWhereUniqueWithoutDepartmentInput | Prisma.ErpDueDiligenceSubmissionUpdateWithWhereUniqueWithoutDepartmentInput[]
+  updateMany?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithWhereWithoutDepartmentInput | Prisma.ErpDueDiligenceSubmissionUpdateManyWithWhereWithoutDepartmentInput[]
+  deleteMany?: Prisma.ErpDueDiligenceSubmissionScalarWhereInput | Prisma.ErpDueDiligenceSubmissionScalarWhereInput[]
+}
+
+export type ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput = {
+  create?: Prisma.XOR<Prisma.ErpDueDiligenceSubmissionCreateWithoutDepartmentInput, Prisma.ErpDueDiligenceSubmissionUncheckedCreateWithoutDepartmentInput> | Prisma.ErpDueDiligenceSubmissionCreateWithoutDepartmentInput[] | Prisma.ErpDueDiligenceSubmissionUncheckedCreateWithoutDepartmentInput[]
+  connectOrCreate?: Prisma.ErpDueDiligenceSubmissionCreateOrConnectWithoutDepartmentInput | Prisma.ErpDueDiligenceSubmissionCreateOrConnectWithoutDepartmentInput[]
+  upsert?: Prisma.ErpDueDiligenceSubmissionUpsertWithWhereUniqueWithoutDepartmentInput | Prisma.ErpDueDiligenceSubmissionUpsertWithWhereUniqueWithoutDepartmentInput[]
+  createMany?: Prisma.ErpDueDiligenceSubmissionCreateManyDepartmentInputEnvelope
+  set?: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput | Prisma.ErpDueDiligenceSubmissionWhereUniqueInput[]
+  disconnect?: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput | Prisma.ErpDueDiligenceSubmissionWhereUniqueInput[]
+  delete?: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput | Prisma.ErpDueDiligenceSubmissionWhereUniqueInput[]
+  connect?: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput | Prisma.ErpDueDiligenceSubmissionWhereUniqueInput[]
+  update?: Prisma.ErpDueDiligenceSubmissionUpdateWithWhereUniqueWithoutDepartmentInput | Prisma.ErpDueDiligenceSubmissionUpdateWithWhereUniqueWithoutDepartmentInput[]
+  updateMany?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithWhereWithoutDepartmentInput | Prisma.ErpDueDiligenceSubmissionUpdateManyWithWhereWithoutDepartmentInput[]
+  deleteMany?: Prisma.ErpDueDiligenceSubmissionScalarWhereInput | Prisma.ErpDueDiligenceSubmissionScalarWhereInput[]
+}
+
 export type ErpDueDiligenceSubmissionCreateNestedManyWithoutPositionAssignmentInput = {
   create?: Prisma.XOR<Prisma.ErpDueDiligenceSubmissionCreateWithoutPositionAssignmentInput, Prisma.ErpDueDiligenceSubmissionUncheckedCreateWithoutPositionAssignmentInput> | Prisma.ErpDueDiligenceSubmissionCreateWithoutPositionAssignmentInput[] | Prisma.ErpDueDiligenceSubmissionUncheckedCreateWithoutPositionAssignmentInput[]
   connectOrCreate?: Prisma.ErpDueDiligenceSubmissionCreateOrConnectWithoutPositionAssignmentInput | Prisma.ErpDueDiligenceSubmissionCreateOrConnectWithoutPositionAssignmentInput[]
@@ -813,6 +885,7 @@ export type ErpDueDiligenceSubmissionCreateWithoutEvidenceAttachmentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   respondent: Prisma.UserCreateNestedOneWithoutErpDueDiligenceSubmissionsInput
+  department?: Prisma.DepartmentCreateNestedOneWithoutErpDueDiligenceSubmissionsInput
   positionAssignment?: Prisma.EDPCreateNestedOneWithoutErpDueDiligenceSubmissionsInput
 }
 
@@ -824,6 +897,7 @@ export type ErpDueDiligenceSubmissionUncheckedCreateWithoutEvidenceAttachmentsIn
   positionAssignmentId?: number | null
   respondentName: string
   departmentName: string
+  departmentId?: number | null
   roleTitle: string
   primaryArea: string
   status?: string
@@ -870,6 +944,7 @@ export type ErpDueDiligenceSubmissionUpdateWithoutEvidenceAttachmentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   respondent?: Prisma.UserUpdateOneRequiredWithoutErpDueDiligenceSubmissionsNestedInput
+  department?: Prisma.DepartmentUpdateOneWithoutErpDueDiligenceSubmissionsNestedInput
   positionAssignment?: Prisma.EDPUpdateOneWithoutErpDueDiligenceSubmissionsNestedInput
 }
 
@@ -881,6 +956,7 @@ export type ErpDueDiligenceSubmissionUncheckedUpdateWithoutEvidenceAttachmentsIn
   positionAssignmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   respondentName?: Prisma.StringFieldUpdateOperationsInput | string
   departmentName?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   roleTitle?: Prisma.StringFieldUpdateOperationsInput | string
   primaryArea?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -910,6 +986,7 @@ export type ErpDueDiligenceSubmissionCreateWithoutRespondentInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  department?: Prisma.DepartmentCreateNestedOneWithoutErpDueDiligenceSubmissionsInput
   positionAssignment?: Prisma.EDPCreateNestedOneWithoutErpDueDiligenceSubmissionsInput
   evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentCreateNestedManyWithoutSubmissionInput
 }
@@ -921,6 +998,7 @@ export type ErpDueDiligenceSubmissionUncheckedCreateWithoutRespondentInput = {
   positionAssignmentId?: number | null
   respondentName: string
   departmentName: string
+  departmentId?: number | null
   roleTitle: string
   primaryArea: string
   status?: string
@@ -972,6 +1050,7 @@ export type ErpDueDiligenceSubmissionScalarWhereInput = {
   positionAssignmentId?: Prisma.IntNullableFilter<"ErpDueDiligenceSubmission"> | number | null
   respondentName?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
   departmentName?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
+  departmentId?: Prisma.IntNullableFilter<"ErpDueDiligenceSubmission"> | number | null
   roleTitle?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
   primaryArea?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
   status?: Prisma.StringFilter<"ErpDueDiligenceSubmission"> | string
@@ -983,6 +1062,75 @@ export type ErpDueDiligenceSubmissionScalarWhereInput = {
   version?: Prisma.IntFilter<"ErpDueDiligenceSubmission"> | number
   createdAt?: Prisma.DateTimeFilter<"ErpDueDiligenceSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ErpDueDiligenceSubmission"> | Date | string
+}
+
+export type ErpDueDiligenceSubmissionCreateWithoutDepartmentInput = {
+  campaignKey?: string
+  definitionVersion?: number
+  respondentName: string
+  departmentName: string
+  roleTitle: string
+  primaryArea: string
+  status?: string
+  answersJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  processStepsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  evidenceItemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  submittedAt?: Date | string | null
+  editedAt?: Date | string
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  respondent: Prisma.UserCreateNestedOneWithoutErpDueDiligenceSubmissionsInput
+  positionAssignment?: Prisma.EDPCreateNestedOneWithoutErpDueDiligenceSubmissionsInput
+  evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentCreateNestedManyWithoutSubmissionInput
+}
+
+export type ErpDueDiligenceSubmissionUncheckedCreateWithoutDepartmentInput = {
+  id?: number
+  campaignKey?: string
+  definitionVersion?: number
+  respondentUserId: number
+  positionAssignmentId?: number | null
+  respondentName: string
+  departmentName: string
+  roleTitle: string
+  primaryArea: string
+  status?: string
+  answersJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  processStepsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  evidenceItemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  submittedAt?: Date | string | null
+  editedAt?: Date | string
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentUncheckedCreateNestedManyWithoutSubmissionInput
+}
+
+export type ErpDueDiligenceSubmissionCreateOrConnectWithoutDepartmentInput = {
+  where: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ErpDueDiligenceSubmissionCreateWithoutDepartmentInput, Prisma.ErpDueDiligenceSubmissionUncheckedCreateWithoutDepartmentInput>
+}
+
+export type ErpDueDiligenceSubmissionCreateManyDepartmentInputEnvelope = {
+  data: Prisma.ErpDueDiligenceSubmissionCreateManyDepartmentInput | Prisma.ErpDueDiligenceSubmissionCreateManyDepartmentInput[]
+  skipDuplicates?: boolean
+}
+
+export type ErpDueDiligenceSubmissionUpsertWithWhereUniqueWithoutDepartmentInput = {
+  where: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput
+  update: Prisma.XOR<Prisma.ErpDueDiligenceSubmissionUpdateWithoutDepartmentInput, Prisma.ErpDueDiligenceSubmissionUncheckedUpdateWithoutDepartmentInput>
+  create: Prisma.XOR<Prisma.ErpDueDiligenceSubmissionCreateWithoutDepartmentInput, Prisma.ErpDueDiligenceSubmissionUncheckedCreateWithoutDepartmentInput>
+}
+
+export type ErpDueDiligenceSubmissionUpdateWithWhereUniqueWithoutDepartmentInput = {
+  where: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput
+  data: Prisma.XOR<Prisma.ErpDueDiligenceSubmissionUpdateWithoutDepartmentInput, Prisma.ErpDueDiligenceSubmissionUncheckedUpdateWithoutDepartmentInput>
+}
+
+export type ErpDueDiligenceSubmissionUpdateManyWithWhereWithoutDepartmentInput = {
+  where: Prisma.ErpDueDiligenceSubmissionScalarWhereInput
+  data: Prisma.XOR<Prisma.ErpDueDiligenceSubmissionUpdateManyMutationInput, Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentInput>
 }
 
 export type ErpDueDiligenceSubmissionCreateWithoutPositionAssignmentInput = {
@@ -1002,6 +1150,7 @@ export type ErpDueDiligenceSubmissionCreateWithoutPositionAssignmentInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   respondent: Prisma.UserCreateNestedOneWithoutErpDueDiligenceSubmissionsInput
+  department?: Prisma.DepartmentCreateNestedOneWithoutErpDueDiligenceSubmissionsInput
   evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentCreateNestedManyWithoutSubmissionInput
 }
 
@@ -1012,6 +1161,7 @@ export type ErpDueDiligenceSubmissionUncheckedCreateWithoutPositionAssignmentInp
   respondentUserId: number
   respondentName: string
   departmentName: string
+  departmentId?: number | null
   roleTitle: string
   primaryArea: string
   status?: string
@@ -1059,6 +1209,7 @@ export type ErpDueDiligenceSubmissionCreateManyRespondentInput = {
   positionAssignmentId?: number | null
   respondentName: string
   departmentName: string
+  departmentId?: number | null
   roleTitle: string
   primaryArea: string
   status?: string
@@ -1088,6 +1239,7 @@ export type ErpDueDiligenceSubmissionUpdateWithoutRespondentInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  department?: Prisma.DepartmentUpdateOneWithoutErpDueDiligenceSubmissionsNestedInput
   positionAssignment?: Prisma.EDPUpdateOneWithoutErpDueDiligenceSubmissionsNestedInput
   evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentUpdateManyWithoutSubmissionNestedInput
 }
@@ -1099,6 +1251,7 @@ export type ErpDueDiligenceSubmissionUncheckedUpdateWithoutRespondentInput = {
   positionAssignmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   respondentName?: Prisma.StringFieldUpdateOperationsInput | string
   departmentName?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   roleTitle?: Prisma.StringFieldUpdateOperationsInput | string
   primaryArea?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1117,6 +1270,92 @@ export type ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentInput =
   id?: Prisma.IntFieldUpdateOperationsInput | number
   campaignKey?: Prisma.StringFieldUpdateOperationsInput | string
   definitionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  positionAssignmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  respondentName?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentName?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  roleTitle?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryArea?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  answersJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  processStepsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  evidenceItemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ErpDueDiligenceSubmissionCreateManyDepartmentInput = {
+  id?: number
+  campaignKey?: string
+  definitionVersion?: number
+  respondentUserId: number
+  positionAssignmentId?: number | null
+  respondentName: string
+  departmentName: string
+  roleTitle: string
+  primaryArea: string
+  status?: string
+  answersJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  processStepsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  evidenceItemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  submittedAt?: Date | string | null
+  editedAt?: Date | string
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ErpDueDiligenceSubmissionUpdateWithoutDepartmentInput = {
+  campaignKey?: Prisma.StringFieldUpdateOperationsInput | string
+  definitionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  respondentName?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentName?: Prisma.StringFieldUpdateOperationsInput | string
+  roleTitle?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryArea?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  answersJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  processStepsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  evidenceItemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  respondent?: Prisma.UserUpdateOneRequiredWithoutErpDueDiligenceSubmissionsNestedInput
+  positionAssignment?: Prisma.EDPUpdateOneWithoutErpDueDiligenceSubmissionsNestedInput
+  evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentUpdateManyWithoutSubmissionNestedInput
+}
+
+export type ErpDueDiligenceSubmissionUncheckedUpdateWithoutDepartmentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  campaignKey?: Prisma.StringFieldUpdateOperationsInput | string
+  definitionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  respondentUserId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionAssignmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  respondentName?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentName?: Prisma.StringFieldUpdateOperationsInput | string
+  roleTitle?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryArea?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  answersJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  processStepsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  evidenceItemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentUncheckedUpdateManyWithoutSubmissionNestedInput
+}
+
+export type ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  campaignKey?: Prisma.StringFieldUpdateOperationsInput | string
+  definitionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  respondentUserId?: Prisma.IntFieldUpdateOperationsInput | number
   positionAssignmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   respondentName?: Prisma.StringFieldUpdateOperationsInput | string
   departmentName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1140,6 +1379,7 @@ export type ErpDueDiligenceSubmissionCreateManyPositionAssignmentInput = {
   respondentUserId: number
   respondentName: string
   departmentName: string
+  departmentId?: number | null
   roleTitle: string
   primaryArea: string
   status?: string
@@ -1170,6 +1410,7 @@ export type ErpDueDiligenceSubmissionUpdateWithoutPositionAssignmentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   respondent?: Prisma.UserUpdateOneRequiredWithoutErpDueDiligenceSubmissionsNestedInput
+  department?: Prisma.DepartmentUpdateOneWithoutErpDueDiligenceSubmissionsNestedInput
   evidenceAttachments?: Prisma.ErpDueDiligenceEvidenceAttachmentUpdateManyWithoutSubmissionNestedInput
 }
 
@@ -1180,6 +1421,7 @@ export type ErpDueDiligenceSubmissionUncheckedUpdateWithoutPositionAssignmentInp
   respondentUserId?: Prisma.IntFieldUpdateOperationsInput | number
   respondentName?: Prisma.StringFieldUpdateOperationsInput | string
   departmentName?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   roleTitle?: Prisma.StringFieldUpdateOperationsInput | string
   primaryArea?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1201,6 +1443,7 @@ export type ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutPositionAssignmen
   respondentUserId?: Prisma.IntFieldUpdateOperationsInput | number
   respondentName?: Prisma.StringFieldUpdateOperationsInput | string
   departmentName?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   roleTitle?: Prisma.StringFieldUpdateOperationsInput | string
   primaryArea?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1253,6 +1496,7 @@ export type ErpDueDiligenceSubmissionSelect<ExtArgs extends runtime.Types.Extens
   positionAssignmentId?: boolean
   respondentName?: boolean
   departmentName?: boolean
+  departmentId?: boolean
   roleTitle?: boolean
   primaryArea?: boolean
   status?: boolean
@@ -1265,6 +1509,7 @@ export type ErpDueDiligenceSubmissionSelect<ExtArgs extends runtime.Types.Extens
   createdAt?: boolean
   updatedAt?: boolean
   respondent?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  department?: boolean | Prisma.ErpDueDiligenceSubmission$departmentArgs<ExtArgs>
   positionAssignment?: boolean | Prisma.ErpDueDiligenceSubmission$positionAssignmentArgs<ExtArgs>
   evidenceAttachments?: boolean | Prisma.ErpDueDiligenceSubmission$evidenceAttachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.ErpDueDiligenceSubmissionCountOutputTypeDefaultArgs<ExtArgs>
@@ -1278,6 +1523,7 @@ export type ErpDueDiligenceSubmissionSelectCreateManyAndReturn<ExtArgs extends r
   positionAssignmentId?: boolean
   respondentName?: boolean
   departmentName?: boolean
+  departmentId?: boolean
   roleTitle?: boolean
   primaryArea?: boolean
   status?: boolean
@@ -1290,6 +1536,7 @@ export type ErpDueDiligenceSubmissionSelectCreateManyAndReturn<ExtArgs extends r
   createdAt?: boolean
   updatedAt?: boolean
   respondent?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  department?: boolean | Prisma.ErpDueDiligenceSubmission$departmentArgs<ExtArgs>
   positionAssignment?: boolean | Prisma.ErpDueDiligenceSubmission$positionAssignmentArgs<ExtArgs>
 }, ExtArgs["result"]["erpDueDiligenceSubmission"]>
 
@@ -1301,6 +1548,7 @@ export type ErpDueDiligenceSubmissionSelectUpdateManyAndReturn<ExtArgs extends r
   positionAssignmentId?: boolean
   respondentName?: boolean
   departmentName?: boolean
+  departmentId?: boolean
   roleTitle?: boolean
   primaryArea?: boolean
   status?: boolean
@@ -1313,6 +1561,7 @@ export type ErpDueDiligenceSubmissionSelectUpdateManyAndReturn<ExtArgs extends r
   createdAt?: boolean
   updatedAt?: boolean
   respondent?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  department?: boolean | Prisma.ErpDueDiligenceSubmission$departmentArgs<ExtArgs>
   positionAssignment?: boolean | Prisma.ErpDueDiligenceSubmission$positionAssignmentArgs<ExtArgs>
 }, ExtArgs["result"]["erpDueDiligenceSubmission"]>
 
@@ -1324,6 +1573,7 @@ export type ErpDueDiligenceSubmissionSelectScalar = {
   positionAssignmentId?: boolean
   respondentName?: boolean
   departmentName?: boolean
+  departmentId?: boolean
   roleTitle?: boolean
   primaryArea?: boolean
   status?: boolean
@@ -1337,19 +1587,22 @@ export type ErpDueDiligenceSubmissionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ErpDueDiligenceSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "campaignKey" | "definitionVersion" | "respondentUserId" | "positionAssignmentId" | "respondentName" | "departmentName" | "roleTitle" | "primaryArea" | "status" | "answersJson" | "processStepsJson" | "evidenceItemsJson" | "submittedAt" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["erpDueDiligenceSubmission"]>
+export type ErpDueDiligenceSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "campaignKey" | "definitionVersion" | "respondentUserId" | "positionAssignmentId" | "respondentName" | "departmentName" | "departmentId" | "roleTitle" | "primaryArea" | "status" | "answersJson" | "processStepsJson" | "evidenceItemsJson" | "submittedAt" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["erpDueDiligenceSubmission"]>
 export type ErpDueDiligenceSubmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   respondent?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  department?: boolean | Prisma.ErpDueDiligenceSubmission$departmentArgs<ExtArgs>
   positionAssignment?: boolean | Prisma.ErpDueDiligenceSubmission$positionAssignmentArgs<ExtArgs>
   evidenceAttachments?: boolean | Prisma.ErpDueDiligenceSubmission$evidenceAttachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.ErpDueDiligenceSubmissionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ErpDueDiligenceSubmissionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   respondent?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  department?: boolean | Prisma.ErpDueDiligenceSubmission$departmentArgs<ExtArgs>
   positionAssignment?: boolean | Prisma.ErpDueDiligenceSubmission$positionAssignmentArgs<ExtArgs>
 }
 export type ErpDueDiligenceSubmissionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   respondent?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  department?: boolean | Prisma.ErpDueDiligenceSubmission$departmentArgs<ExtArgs>
   positionAssignment?: boolean | Prisma.ErpDueDiligenceSubmission$positionAssignmentArgs<ExtArgs>
 }
 
@@ -1357,6 +1610,7 @@ export type $ErpDueDiligenceSubmissionPayload<ExtArgs extends runtime.Types.Exte
   name: "ErpDueDiligenceSubmission"
   objects: {
     respondent: Prisma.$UserPayload<ExtArgs>
+    department: Prisma.$DepartmentPayload<ExtArgs> | null
     positionAssignment: Prisma.$EDPPayload<ExtArgs> | null
     evidenceAttachments: Prisma.$ErpDueDiligenceEvidenceAttachmentPayload<ExtArgs>[]
   }
@@ -1368,6 +1622,7 @@ export type $ErpDueDiligenceSubmissionPayload<ExtArgs extends runtime.Types.Exte
     positionAssignmentId: number | null
     respondentName: string
     departmentName: string
+    departmentId: number | null
     roleTitle: string
     primaryArea: string
     status: string
@@ -1774,6 +2029,7 @@ readonly fields: ErpDueDiligenceSubmissionFieldRefs;
 export interface Prisma__ErpDueDiligenceSubmissionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   respondent<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  department<T extends Prisma.ErpDueDiligenceSubmission$departmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ErpDueDiligenceSubmission$departmentArgs<ExtArgs>>): Prisma.Prisma__DepartmentClient<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   positionAssignment<T extends Prisma.ErpDueDiligenceSubmission$positionAssignmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ErpDueDiligenceSubmission$positionAssignmentArgs<ExtArgs>>): Prisma.Prisma__EDPClient<runtime.Types.Result.GetResult<Prisma.$EDPPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   evidenceAttachments<T extends Prisma.ErpDueDiligenceSubmission$evidenceAttachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ErpDueDiligenceSubmission$evidenceAttachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ErpDueDiligenceEvidenceAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1812,6 +2068,7 @@ export interface ErpDueDiligenceSubmissionFieldRefs {
   readonly positionAssignmentId: Prisma.FieldRef<"ErpDueDiligenceSubmission", 'Int'>
   readonly respondentName: Prisma.FieldRef<"ErpDueDiligenceSubmission", 'String'>
   readonly departmentName: Prisma.FieldRef<"ErpDueDiligenceSubmission", 'String'>
+  readonly departmentId: Prisma.FieldRef<"ErpDueDiligenceSubmission", 'Int'>
   readonly roleTitle: Prisma.FieldRef<"ErpDueDiligenceSubmission", 'String'>
   readonly primaryArea: Prisma.FieldRef<"ErpDueDiligenceSubmission", 'String'>
   readonly status: Prisma.FieldRef<"ErpDueDiligenceSubmission", 'String'>
@@ -2221,6 +2478,25 @@ export type ErpDueDiligenceSubmissionDeleteManyArgs<ExtArgs extends runtime.Type
    * Limit how many ErpDueDiligenceSubmissions to delete.
    */
   limit?: number
+}
+
+/**
+ * ErpDueDiligenceSubmission.department
+ */
+export type ErpDueDiligenceSubmission$departmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Department
+   */
+  select?: Prisma.DepartmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Department
+   */
+  omit?: Prisma.DepartmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DepartmentInclude<ExtArgs> | null
+  where?: Prisma.DepartmentWhereInput
 }
 
 /**

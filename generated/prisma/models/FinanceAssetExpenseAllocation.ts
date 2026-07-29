@@ -29,12 +29,14 @@ export type AggregateFinanceAssetExpenseAllocation = {
 export type FinanceAssetExpenseAllocationAvgAggregateOutputType = {
   id: number | null
   assetId: number | null
+  expenseAccountId: number | null
   allocationRate: runtime.Decimal | null
 }
 
 export type FinanceAssetExpenseAllocationSumAggregateOutputType = {
   id: number | null
   assetId: number | null
+  expenseAccountId: number | null
   allocationRate: runtime.Decimal | null
 }
 
@@ -42,6 +44,7 @@ export type FinanceAssetExpenseAllocationMinAggregateOutputType = {
   id: number | null
   assetId: number | null
   expenseAccountCode: string | null
+  expenseAccountId: number | null
   allocationRate: runtime.Decimal | null
   note: string | null
   createdAt: Date | null
@@ -52,6 +55,7 @@ export type FinanceAssetExpenseAllocationMaxAggregateOutputType = {
   id: number | null
   assetId: number | null
   expenseAccountCode: string | null
+  expenseAccountId: number | null
   allocationRate: runtime.Decimal | null
   note: string | null
   createdAt: Date | null
@@ -62,6 +66,7 @@ export type FinanceAssetExpenseAllocationCountAggregateOutputType = {
   id: number
   assetId: number
   expenseAccountCode: number
+  expenseAccountId: number
   allocationRate: number
   note: number
   createdAt: number
@@ -73,12 +78,14 @@ export type FinanceAssetExpenseAllocationCountAggregateOutputType = {
 export type FinanceAssetExpenseAllocationAvgAggregateInputType = {
   id?: true
   assetId?: true
+  expenseAccountId?: true
   allocationRate?: true
 }
 
 export type FinanceAssetExpenseAllocationSumAggregateInputType = {
   id?: true
   assetId?: true
+  expenseAccountId?: true
   allocationRate?: true
 }
 
@@ -86,6 +93,7 @@ export type FinanceAssetExpenseAllocationMinAggregateInputType = {
   id?: true
   assetId?: true
   expenseAccountCode?: true
+  expenseAccountId?: true
   allocationRate?: true
   note?: true
   createdAt?: true
@@ -96,6 +104,7 @@ export type FinanceAssetExpenseAllocationMaxAggregateInputType = {
   id?: true
   assetId?: true
   expenseAccountCode?: true
+  expenseAccountId?: true
   allocationRate?: true
   note?: true
   createdAt?: true
@@ -106,6 +115,7 @@ export type FinanceAssetExpenseAllocationCountAggregateInputType = {
   id?: true
   assetId?: true
   expenseAccountCode?: true
+  expenseAccountId?: true
   allocationRate?: true
   note?: true
   createdAt?: true
@@ -203,6 +213,7 @@ export type FinanceAssetExpenseAllocationGroupByOutputType = {
   id: number
   assetId: number
   expenseAccountCode: string
+  expenseAccountId: number | null
   allocationRate: runtime.Decimal
   note: string | null
   createdAt: Date
@@ -236,22 +247,26 @@ export type FinanceAssetExpenseAllocationWhereInput = {
   id?: Prisma.IntFilter<"FinanceAssetExpenseAllocation"> | number
   assetId?: Prisma.IntFilter<"FinanceAssetExpenseAllocation"> | number
   expenseAccountCode?: Prisma.StringFilter<"FinanceAssetExpenseAllocation"> | string
+  expenseAccountId?: Prisma.IntNullableFilter<"FinanceAssetExpenseAllocation"> | number | null
   allocationRate?: Prisma.DecimalFilter<"FinanceAssetExpenseAllocation"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: Prisma.StringNullableFilter<"FinanceAssetExpenseAllocation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceAssetExpenseAllocation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAssetExpenseAllocation"> | Date | string
   asset?: Prisma.XOR<Prisma.FinanceAssetCardScalarRelationFilter, Prisma.FinanceAssetCardWhereInput>
+  expenseAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
 }
 
 export type FinanceAssetExpenseAllocationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
   expenseAccountCode?: Prisma.SortOrder
+  expenseAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   allocationRate?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   asset?: Prisma.FinanceAssetCardOrderByWithRelationInput
+  expenseAccount?: Prisma.FinanceAccountOrderByWithRelationInput
 }
 
 export type FinanceAssetExpenseAllocationWhereUniqueInput = Prisma.AtLeast<{
@@ -262,17 +277,20 @@ export type FinanceAssetExpenseAllocationWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FinanceAssetExpenseAllocationWhereInput | Prisma.FinanceAssetExpenseAllocationWhereInput[]
   assetId?: Prisma.IntFilter<"FinanceAssetExpenseAllocation"> | number
   expenseAccountCode?: Prisma.StringFilter<"FinanceAssetExpenseAllocation"> | string
+  expenseAccountId?: Prisma.IntNullableFilter<"FinanceAssetExpenseAllocation"> | number | null
   allocationRate?: Prisma.DecimalFilter<"FinanceAssetExpenseAllocation"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: Prisma.StringNullableFilter<"FinanceAssetExpenseAllocation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceAssetExpenseAllocation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAssetExpenseAllocation"> | Date | string
   asset?: Prisma.XOR<Prisma.FinanceAssetCardScalarRelationFilter, Prisma.FinanceAssetCardWhereInput>
+  expenseAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
 }, "id" | "assetId_expenseAccountCode">
 
 export type FinanceAssetExpenseAllocationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
   expenseAccountCode?: Prisma.SortOrder
+  expenseAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   allocationRate?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -291,6 +309,7 @@ export type FinanceAssetExpenseAllocationScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"FinanceAssetExpenseAllocation"> | number
   assetId?: Prisma.IntWithAggregatesFilter<"FinanceAssetExpenseAllocation"> | number
   expenseAccountCode?: Prisma.StringWithAggregatesFilter<"FinanceAssetExpenseAllocation"> | string
+  expenseAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetExpenseAllocation"> | number | null
   allocationRate?: Prisma.DecimalWithAggregatesFilter<"FinanceAssetExpenseAllocation"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetExpenseAllocation"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceAssetExpenseAllocation"> | Date | string
@@ -304,12 +323,14 @@ export type FinanceAssetExpenseAllocationCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   asset: Prisma.FinanceAssetCardCreateNestedOneWithoutAllocationsInput
+  expenseAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetExpenseAllocationsInput
 }
 
 export type FinanceAssetExpenseAllocationUncheckedCreateInput = {
   id?: number
   assetId: number
   expenseAccountCode: string
+  expenseAccountId?: number | null
   allocationRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: string | null
   createdAt?: Date | string
@@ -323,12 +344,14 @@ export type FinanceAssetExpenseAllocationUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   asset?: Prisma.FinanceAssetCardUpdateOneRequiredWithoutAllocationsNestedInput
+  expenseAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetExpenseAllocationsNestedInput
 }
 
 export type FinanceAssetExpenseAllocationUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   assetId?: Prisma.IntFieldUpdateOperationsInput | number
   expenseAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  expenseAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allocationRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -339,6 +362,7 @@ export type FinanceAssetExpenseAllocationCreateManyInput = {
   id?: number
   assetId: number
   expenseAccountCode: string
+  expenseAccountId?: number | null
   allocationRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: string | null
   createdAt?: Date | string
@@ -357,6 +381,7 @@ export type FinanceAssetExpenseAllocationUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   assetId?: Prisma.IntFieldUpdateOperationsInput | number
   expenseAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  expenseAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allocationRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -382,6 +407,7 @@ export type FinanceAssetExpenseAllocationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
   expenseAccountCode?: Prisma.SortOrder
+  expenseAccountId?: Prisma.SortOrder
   allocationRate?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -391,6 +417,7 @@ export type FinanceAssetExpenseAllocationCountOrderByAggregateInput = {
 export type FinanceAssetExpenseAllocationAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
+  expenseAccountId?: Prisma.SortOrder
   allocationRate?: Prisma.SortOrder
 }
 
@@ -398,6 +425,7 @@ export type FinanceAssetExpenseAllocationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
   expenseAccountCode?: Prisma.SortOrder
+  expenseAccountId?: Prisma.SortOrder
   allocationRate?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -408,6 +436,7 @@ export type FinanceAssetExpenseAllocationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
   expenseAccountCode?: Prisma.SortOrder
+  expenseAccountId?: Prisma.SortOrder
   allocationRate?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -417,6 +446,7 @@ export type FinanceAssetExpenseAllocationMinOrderByAggregateInput = {
 export type FinanceAssetExpenseAllocationSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
+  expenseAccountId?: Prisma.SortOrder
   allocationRate?: Prisma.SortOrder
 }
 
@@ -462,17 +492,61 @@ export type FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedIn
   deleteMany?: Prisma.FinanceAssetExpenseAllocationScalarWhereInput | Prisma.FinanceAssetExpenseAllocationScalarWhereInput[]
 }
 
+export type FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetExpenseAllocationCreateWithoutExpenseAccountInput, Prisma.FinanceAssetExpenseAllocationUncheckedCreateWithoutExpenseAccountInput> | Prisma.FinanceAssetExpenseAllocationCreateWithoutExpenseAccountInput[] | Prisma.FinanceAssetExpenseAllocationUncheckedCreateWithoutExpenseAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetExpenseAllocationCreateOrConnectWithoutExpenseAccountInput | Prisma.FinanceAssetExpenseAllocationCreateOrConnectWithoutExpenseAccountInput[]
+  createMany?: Prisma.FinanceAssetExpenseAllocationCreateManyExpenseAccountInputEnvelope
+  connect?: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput | Prisma.FinanceAssetExpenseAllocationWhereUniqueInput[]
+}
+
+export type FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetExpenseAllocationCreateWithoutExpenseAccountInput, Prisma.FinanceAssetExpenseAllocationUncheckedCreateWithoutExpenseAccountInput> | Prisma.FinanceAssetExpenseAllocationCreateWithoutExpenseAccountInput[] | Prisma.FinanceAssetExpenseAllocationUncheckedCreateWithoutExpenseAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetExpenseAllocationCreateOrConnectWithoutExpenseAccountInput | Prisma.FinanceAssetExpenseAllocationCreateOrConnectWithoutExpenseAccountInput[]
+  createMany?: Prisma.FinanceAssetExpenseAllocationCreateManyExpenseAccountInputEnvelope
+  connect?: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput | Prisma.FinanceAssetExpenseAllocationWhereUniqueInput[]
+}
+
+export type FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetExpenseAllocationCreateWithoutExpenseAccountInput, Prisma.FinanceAssetExpenseAllocationUncheckedCreateWithoutExpenseAccountInput> | Prisma.FinanceAssetExpenseAllocationCreateWithoutExpenseAccountInput[] | Prisma.FinanceAssetExpenseAllocationUncheckedCreateWithoutExpenseAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetExpenseAllocationCreateOrConnectWithoutExpenseAccountInput | Prisma.FinanceAssetExpenseAllocationCreateOrConnectWithoutExpenseAccountInput[]
+  upsert?: Prisma.FinanceAssetExpenseAllocationUpsertWithWhereUniqueWithoutExpenseAccountInput | Prisma.FinanceAssetExpenseAllocationUpsertWithWhereUniqueWithoutExpenseAccountInput[]
+  createMany?: Prisma.FinanceAssetExpenseAllocationCreateManyExpenseAccountInputEnvelope
+  set?: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput | Prisma.FinanceAssetExpenseAllocationWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput | Prisma.FinanceAssetExpenseAllocationWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput | Prisma.FinanceAssetExpenseAllocationWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput | Prisma.FinanceAssetExpenseAllocationWhereUniqueInput[]
+  update?: Prisma.FinanceAssetExpenseAllocationUpdateWithWhereUniqueWithoutExpenseAccountInput | Prisma.FinanceAssetExpenseAllocationUpdateWithWhereUniqueWithoutExpenseAccountInput[]
+  updateMany?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithWhereWithoutExpenseAccountInput | Prisma.FinanceAssetExpenseAllocationUpdateManyWithWhereWithoutExpenseAccountInput[]
+  deleteMany?: Prisma.FinanceAssetExpenseAllocationScalarWhereInput | Prisma.FinanceAssetExpenseAllocationScalarWhereInput[]
+}
+
+export type FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetExpenseAllocationCreateWithoutExpenseAccountInput, Prisma.FinanceAssetExpenseAllocationUncheckedCreateWithoutExpenseAccountInput> | Prisma.FinanceAssetExpenseAllocationCreateWithoutExpenseAccountInput[] | Prisma.FinanceAssetExpenseAllocationUncheckedCreateWithoutExpenseAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetExpenseAllocationCreateOrConnectWithoutExpenseAccountInput | Prisma.FinanceAssetExpenseAllocationCreateOrConnectWithoutExpenseAccountInput[]
+  upsert?: Prisma.FinanceAssetExpenseAllocationUpsertWithWhereUniqueWithoutExpenseAccountInput | Prisma.FinanceAssetExpenseAllocationUpsertWithWhereUniqueWithoutExpenseAccountInput[]
+  createMany?: Prisma.FinanceAssetExpenseAllocationCreateManyExpenseAccountInputEnvelope
+  set?: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput | Prisma.FinanceAssetExpenseAllocationWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput | Prisma.FinanceAssetExpenseAllocationWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput | Prisma.FinanceAssetExpenseAllocationWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput | Prisma.FinanceAssetExpenseAllocationWhereUniqueInput[]
+  update?: Prisma.FinanceAssetExpenseAllocationUpdateWithWhereUniqueWithoutExpenseAccountInput | Prisma.FinanceAssetExpenseAllocationUpdateWithWhereUniqueWithoutExpenseAccountInput[]
+  updateMany?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithWhereWithoutExpenseAccountInput | Prisma.FinanceAssetExpenseAllocationUpdateManyWithWhereWithoutExpenseAccountInput[]
+  deleteMany?: Prisma.FinanceAssetExpenseAllocationScalarWhereInput | Prisma.FinanceAssetExpenseAllocationScalarWhereInput[]
+}
+
 export type FinanceAssetExpenseAllocationCreateWithoutAssetInput = {
   expenseAccountCode: string
   allocationRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  expenseAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetExpenseAllocationsInput
 }
 
 export type FinanceAssetExpenseAllocationUncheckedCreateWithoutAssetInput = {
   id?: number
   expenseAccountCode: string
+  expenseAccountId?: number | null
   allocationRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: string | null
   createdAt?: Date | string
@@ -512,15 +586,62 @@ export type FinanceAssetExpenseAllocationScalarWhereInput = {
   id?: Prisma.IntFilter<"FinanceAssetExpenseAllocation"> | number
   assetId?: Prisma.IntFilter<"FinanceAssetExpenseAllocation"> | number
   expenseAccountCode?: Prisma.StringFilter<"FinanceAssetExpenseAllocation"> | string
+  expenseAccountId?: Prisma.IntNullableFilter<"FinanceAssetExpenseAllocation"> | number | null
   allocationRate?: Prisma.DecimalFilter<"FinanceAssetExpenseAllocation"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: Prisma.StringNullableFilter<"FinanceAssetExpenseAllocation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceAssetExpenseAllocation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAssetExpenseAllocation"> | Date | string
 }
 
+export type FinanceAssetExpenseAllocationCreateWithoutExpenseAccountInput = {
+  expenseAccountCode: string
+  allocationRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  asset: Prisma.FinanceAssetCardCreateNestedOneWithoutAllocationsInput
+}
+
+export type FinanceAssetExpenseAllocationUncheckedCreateWithoutExpenseAccountInput = {
+  id?: number
+  assetId: number
+  expenseAccountCode: string
+  allocationRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetExpenseAllocationCreateOrConnectWithoutExpenseAccountInput = {
+  where: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetExpenseAllocationCreateWithoutExpenseAccountInput, Prisma.FinanceAssetExpenseAllocationUncheckedCreateWithoutExpenseAccountInput>
+}
+
+export type FinanceAssetExpenseAllocationCreateManyExpenseAccountInputEnvelope = {
+  data: Prisma.FinanceAssetExpenseAllocationCreateManyExpenseAccountInput | Prisma.FinanceAssetExpenseAllocationCreateManyExpenseAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetExpenseAllocationUpsertWithWhereUniqueWithoutExpenseAccountInput = {
+  where: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetExpenseAllocationUpdateWithoutExpenseAccountInput, Prisma.FinanceAssetExpenseAllocationUncheckedUpdateWithoutExpenseAccountInput>
+  create: Prisma.XOR<Prisma.FinanceAssetExpenseAllocationCreateWithoutExpenseAccountInput, Prisma.FinanceAssetExpenseAllocationUncheckedCreateWithoutExpenseAccountInput>
+}
+
+export type FinanceAssetExpenseAllocationUpdateWithWhereUniqueWithoutExpenseAccountInput = {
+  where: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetExpenseAllocationUpdateWithoutExpenseAccountInput, Prisma.FinanceAssetExpenseAllocationUncheckedUpdateWithoutExpenseAccountInput>
+}
+
+export type FinanceAssetExpenseAllocationUpdateManyWithWhereWithoutExpenseAccountInput = {
+  where: Prisma.FinanceAssetExpenseAllocationScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetExpenseAllocationUpdateManyMutationInput, Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountInput>
+}
+
 export type FinanceAssetExpenseAllocationCreateManyAssetInput = {
   id?: number
   expenseAccountCode: string
+  expenseAccountId?: number | null
   allocationRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: string | null
   createdAt?: Date | string
@@ -533,11 +654,13 @@ export type FinanceAssetExpenseAllocationUpdateWithoutAssetInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expenseAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetExpenseAllocationsNestedInput
 }
 
 export type FinanceAssetExpenseAllocationUncheckedUpdateWithoutAssetInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   expenseAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  expenseAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allocationRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -546,6 +669,46 @@ export type FinanceAssetExpenseAllocationUncheckedUpdateWithoutAssetInput = {
 
 export type FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  expenseAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  expenseAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  allocationRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetExpenseAllocationCreateManyExpenseAccountInput = {
+  id?: number
+  assetId: number
+  expenseAccountCode: string
+  allocationRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetExpenseAllocationUpdateWithoutExpenseAccountInput = {
+  expenseAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  allocationRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  asset?: Prisma.FinanceAssetCardUpdateOneRequiredWithoutAllocationsNestedInput
+}
+
+export type FinanceAssetExpenseAllocationUncheckedUpdateWithoutExpenseAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  assetId?: Prisma.IntFieldUpdateOperationsInput | number
+  expenseAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  allocationRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  assetId?: Prisma.IntFieldUpdateOperationsInput | number
   expenseAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   allocationRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -559,65 +722,77 @@ export type FinanceAssetExpenseAllocationSelect<ExtArgs extends runtime.Types.Ex
   id?: boolean
   assetId?: boolean
   expenseAccountCode?: boolean
+  expenseAccountId?: boolean
   allocationRate?: boolean
   note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   asset?: boolean | Prisma.FinanceAssetCardDefaultArgs<ExtArgs>
+  expenseAccount?: boolean | Prisma.FinanceAssetExpenseAllocation$expenseAccountArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetExpenseAllocation"]>
 
 export type FinanceAssetExpenseAllocationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   assetId?: boolean
   expenseAccountCode?: boolean
+  expenseAccountId?: boolean
   allocationRate?: boolean
   note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   asset?: boolean | Prisma.FinanceAssetCardDefaultArgs<ExtArgs>
+  expenseAccount?: boolean | Prisma.FinanceAssetExpenseAllocation$expenseAccountArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetExpenseAllocation"]>
 
 export type FinanceAssetExpenseAllocationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   assetId?: boolean
   expenseAccountCode?: boolean
+  expenseAccountId?: boolean
   allocationRate?: boolean
   note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   asset?: boolean | Prisma.FinanceAssetCardDefaultArgs<ExtArgs>
+  expenseAccount?: boolean | Prisma.FinanceAssetExpenseAllocation$expenseAccountArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetExpenseAllocation"]>
 
 export type FinanceAssetExpenseAllocationSelectScalar = {
   id?: boolean
   assetId?: boolean
   expenseAccountCode?: boolean
+  expenseAccountId?: boolean
   allocationRate?: boolean
   note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FinanceAssetExpenseAllocationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "assetId" | "expenseAccountCode" | "allocationRate" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAssetExpenseAllocation"]>
+export type FinanceAssetExpenseAllocationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "assetId" | "expenseAccountCode" | "expenseAccountId" | "allocationRate" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAssetExpenseAllocation"]>
 export type FinanceAssetExpenseAllocationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   asset?: boolean | Prisma.FinanceAssetCardDefaultArgs<ExtArgs>
+  expenseAccount?: boolean | Prisma.FinanceAssetExpenseAllocation$expenseAccountArgs<ExtArgs>
 }
 export type FinanceAssetExpenseAllocationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   asset?: boolean | Prisma.FinanceAssetCardDefaultArgs<ExtArgs>
+  expenseAccount?: boolean | Prisma.FinanceAssetExpenseAllocation$expenseAccountArgs<ExtArgs>
 }
 export type FinanceAssetExpenseAllocationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   asset?: boolean | Prisma.FinanceAssetCardDefaultArgs<ExtArgs>
+  expenseAccount?: boolean | Prisma.FinanceAssetExpenseAllocation$expenseAccountArgs<ExtArgs>
 }
 
 export type $FinanceAssetExpenseAllocationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceAssetExpenseAllocation"
   objects: {
     asset: Prisma.$FinanceAssetCardPayload<ExtArgs>
+    expenseAccount: Prisma.$FinanceAccountPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     assetId: number
     expenseAccountCode: string
+    expenseAccountId: number | null
     allocationRate: runtime.Decimal
     note: string | null
     createdAt: Date
@@ -1017,6 +1192,7 @@ readonly fields: FinanceAssetExpenseAllocationFieldRefs;
 export interface Prisma__FinanceAssetExpenseAllocationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   asset<T extends Prisma.FinanceAssetCardDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCardDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAssetCardClient<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  expenseAccount<T extends Prisma.FinanceAssetExpenseAllocation$expenseAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetExpenseAllocation$expenseAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1049,6 +1225,7 @@ export interface FinanceAssetExpenseAllocationFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceAssetExpenseAllocation", 'Int'>
   readonly assetId: Prisma.FieldRef<"FinanceAssetExpenseAllocation", 'Int'>
   readonly expenseAccountCode: Prisma.FieldRef<"FinanceAssetExpenseAllocation", 'String'>
+  readonly expenseAccountId: Prisma.FieldRef<"FinanceAssetExpenseAllocation", 'Int'>
   readonly allocationRate: Prisma.FieldRef<"FinanceAssetExpenseAllocation", 'Decimal'>
   readonly note: Prisma.FieldRef<"FinanceAssetExpenseAllocation", 'String'>
   readonly createdAt: Prisma.FieldRef<"FinanceAssetExpenseAllocation", 'DateTime'>
@@ -1451,6 +1628,25 @@ export type FinanceAssetExpenseAllocationDeleteManyArgs<ExtArgs extends runtime.
    * Limit how many FinanceAssetExpenseAllocations to delete.
    */
   limit?: number
+}
+
+/**
+ * FinanceAssetExpenseAllocation.expenseAccount
+ */
+export type FinanceAssetExpenseAllocation$expenseAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccount
+   */
+  select?: Prisma.FinanceAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccount
+   */
+  omit?: Prisma.FinanceAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountWhereInput
 }
 
 /**

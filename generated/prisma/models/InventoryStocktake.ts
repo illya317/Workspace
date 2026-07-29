@@ -28,6 +28,7 @@ export type AggregateInventoryStocktake = {
 
 export type InventoryStocktakeAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
   warehouseId: number | null
   createdBy: number | null
   approvedBy: number | null
@@ -35,6 +36,7 @@ export type InventoryStocktakeAvgAggregateOutputType = {
 
 export type InventoryStocktakeSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
   warehouseId: number | null
   createdBy: number | null
   approvedBy: number | null
@@ -43,6 +45,7 @@ export type InventoryStocktakeSumAggregateOutputType = {
 export type InventoryStocktakeMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   stocktakeNo: string | null
   warehouseId: number | null
   stocktakeDate: string | null
@@ -60,6 +63,7 @@ export type InventoryStocktakeMinAggregateOutputType = {
 export type InventoryStocktakeMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   stocktakeNo: string | null
   warehouseId: number | null
   stocktakeDate: string | null
@@ -77,6 +81,7 @@ export type InventoryStocktakeMaxAggregateOutputType = {
 export type InventoryStocktakeCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   stocktakeNo: number
   warehouseId: number
   stocktakeDate: number
@@ -95,6 +100,7 @@ export type InventoryStocktakeCountAggregateOutputType = {
 
 export type InventoryStocktakeAvgAggregateInputType = {
   id?: true
+  companyId?: true
   warehouseId?: true
   createdBy?: true
   approvedBy?: true
@@ -102,6 +108,7 @@ export type InventoryStocktakeAvgAggregateInputType = {
 
 export type InventoryStocktakeSumAggregateInputType = {
   id?: true
+  companyId?: true
   warehouseId?: true
   createdBy?: true
   approvedBy?: true
@@ -110,6 +117,7 @@ export type InventoryStocktakeSumAggregateInputType = {
 export type InventoryStocktakeMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   stocktakeNo?: true
   warehouseId?: true
   stocktakeDate?: true
@@ -127,6 +135,7 @@ export type InventoryStocktakeMinAggregateInputType = {
 export type InventoryStocktakeMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   stocktakeNo?: true
   warehouseId?: true
   stocktakeDate?: true
@@ -144,6 +153,7 @@ export type InventoryStocktakeMaxAggregateInputType = {
 export type InventoryStocktakeCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   stocktakeNo?: true
   warehouseId?: true
   stocktakeDate?: true
@@ -248,6 +258,7 @@ export type InventoryStocktakeGroupByArgs<ExtArgs extends runtime.Types.Extensio
 export type InventoryStocktakeGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   stocktakeNo: string
   warehouseId: number
   stocktakeDate: string
@@ -288,6 +299,7 @@ export type InventoryStocktakeWhereInput = {
   NOT?: Prisma.InventoryStocktakeWhereInput | Prisma.InventoryStocktakeWhereInput[]
   id?: Prisma.IntFilter<"InventoryStocktake"> | number
   companyCode?: Prisma.StringFilter<"InventoryStocktake"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryStocktake"> | number | null
   stocktakeNo?: Prisma.StringFilter<"InventoryStocktake"> | string
   warehouseId?: Prisma.IntFilter<"InventoryStocktake"> | number
   stocktakeDate?: Prisma.StringFilter<"InventoryStocktake"> | string
@@ -302,11 +314,13 @@ export type InventoryStocktakeWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"InventoryStocktake"> | Date | string
   warehouse?: Prisma.XOR<Prisma.InventoryWarehouseScalarRelationFilter, Prisma.InventoryWarehouseWhereInput>
   lines?: Prisma.InventoryStocktakeLineListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type InventoryStocktakeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   stocktakeNo?: Prisma.SortOrder
   warehouseId?: Prisma.SortOrder
   stocktakeDate?: Prisma.SortOrder
@@ -321,6 +335,7 @@ export type InventoryStocktakeOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   warehouse?: Prisma.InventoryWarehouseOrderByWithRelationInput
   lines?: Prisma.InventoryStocktakeLineOrderByRelationAggregateInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type InventoryStocktakeWhereUniqueInput = Prisma.AtLeast<{
@@ -331,6 +346,7 @@ export type InventoryStocktakeWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.InventoryStocktakeWhereInput[]
   NOT?: Prisma.InventoryStocktakeWhereInput | Prisma.InventoryStocktakeWhereInput[]
   companyCode?: Prisma.StringFilter<"InventoryStocktake"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryStocktake"> | number | null
   stocktakeNo?: Prisma.StringFilter<"InventoryStocktake"> | string
   warehouseId?: Prisma.IntFilter<"InventoryStocktake"> | number
   stocktakeDate?: Prisma.StringFilter<"InventoryStocktake"> | string
@@ -345,11 +361,13 @@ export type InventoryStocktakeWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"InventoryStocktake"> | Date | string
   warehouse?: Prisma.XOR<Prisma.InventoryWarehouseScalarRelationFilter, Prisma.InventoryWarehouseWhereInput>
   lines?: Prisma.InventoryStocktakeLineListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "companyCode_stocktakeNo" | "companyCode_sourceKey">
 
 export type InventoryStocktakeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   stocktakeNo?: Prisma.SortOrder
   warehouseId?: Prisma.SortOrder
   stocktakeDate?: Prisma.SortOrder
@@ -375,6 +393,7 @@ export type InventoryStocktakeScalarWhereWithAggregatesInput = {
   NOT?: Prisma.InventoryStocktakeScalarWhereWithAggregatesInput | Prisma.InventoryStocktakeScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"InventoryStocktake"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"InventoryStocktake"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"InventoryStocktake"> | number | null
   stocktakeNo?: Prisma.StringWithAggregatesFilter<"InventoryStocktake"> | string
   warehouseId?: Prisma.IntWithAggregatesFilter<"InventoryStocktake"> | number
   stocktakeDate?: Prisma.StringWithAggregatesFilter<"InventoryStocktake"> | string
@@ -404,11 +423,13 @@ export type InventoryStocktakeCreateInput = {
   updatedAt?: Date | string
   warehouse: Prisma.InventoryWarehouseCreateNestedOneWithoutStocktakesInput
   lines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutStocktakeInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryStocktakesInput
 }
 
 export type InventoryStocktakeUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   stocktakeNo: string
   warehouseId: number
   stocktakeDate: string
@@ -439,11 +460,13 @@ export type InventoryStocktakeUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouse?: Prisma.InventoryWarehouseUpdateOneRequiredWithoutStocktakesNestedInput
   lines?: Prisma.InventoryStocktakeLineUpdateManyWithoutStocktakeNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryStocktakesNestedInput
 }
 
 export type InventoryStocktakeUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   stocktakeNo?: Prisma.StringFieldUpdateOperationsInput | string
   warehouseId?: Prisma.IntFieldUpdateOperationsInput | number
   stocktakeDate?: Prisma.StringFieldUpdateOperationsInput | string
@@ -462,6 +485,7 @@ export type InventoryStocktakeUncheckedUpdateInput = {
 export type InventoryStocktakeCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   stocktakeNo: string
   warehouseId: number
   stocktakeDate: string
@@ -494,6 +518,7 @@ export type InventoryStocktakeUpdateManyMutationInput = {
 export type InventoryStocktakeUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   stocktakeNo?: Prisma.StringFieldUpdateOperationsInput | string
   warehouseId?: Prisma.IntFieldUpdateOperationsInput | number
   stocktakeDate?: Prisma.StringFieldUpdateOperationsInput | string
@@ -531,6 +556,7 @@ export type InventoryStocktakeCompanyCodeSourceKeyCompoundUniqueInput = {
 export type InventoryStocktakeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   stocktakeNo?: Prisma.SortOrder
   warehouseId?: Prisma.SortOrder
   stocktakeDate?: Prisma.SortOrder
@@ -547,6 +573,7 @@ export type InventoryStocktakeCountOrderByAggregateInput = {
 
 export type InventoryStocktakeAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   warehouseId?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   approvedBy?: Prisma.SortOrder
@@ -555,6 +582,7 @@ export type InventoryStocktakeAvgOrderByAggregateInput = {
 export type InventoryStocktakeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   stocktakeNo?: Prisma.SortOrder
   warehouseId?: Prisma.SortOrder
   stocktakeDate?: Prisma.SortOrder
@@ -572,6 +600,7 @@ export type InventoryStocktakeMaxOrderByAggregateInput = {
 export type InventoryStocktakeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   stocktakeNo?: Prisma.SortOrder
   warehouseId?: Prisma.SortOrder
   stocktakeDate?: Prisma.SortOrder
@@ -588,6 +617,7 @@ export type InventoryStocktakeMinOrderByAggregateInput = {
 
 export type InventoryStocktakeSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   warehouseId?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   approvedBy?: Prisma.SortOrder
@@ -596,6 +626,48 @@ export type InventoryStocktakeSumOrderByAggregateInput = {
 export type InventoryStocktakeScalarRelationFilter = {
   is?: Prisma.InventoryStocktakeWhereInput
   isNot?: Prisma.InventoryStocktakeWhereInput
+}
+
+export type InventoryStocktakeCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.InventoryStocktakeCreateWithoutCompanyInput, Prisma.InventoryStocktakeUncheckedCreateWithoutCompanyInput> | Prisma.InventoryStocktakeCreateWithoutCompanyInput[] | Prisma.InventoryStocktakeUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryStocktakeCreateOrConnectWithoutCompanyInput | Prisma.InventoryStocktakeCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.InventoryStocktakeCreateManyCompanyInputEnvelope
+  connect?: Prisma.InventoryStocktakeWhereUniqueInput | Prisma.InventoryStocktakeWhereUniqueInput[]
+}
+
+export type InventoryStocktakeUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.InventoryStocktakeCreateWithoutCompanyInput, Prisma.InventoryStocktakeUncheckedCreateWithoutCompanyInput> | Prisma.InventoryStocktakeCreateWithoutCompanyInput[] | Prisma.InventoryStocktakeUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryStocktakeCreateOrConnectWithoutCompanyInput | Prisma.InventoryStocktakeCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.InventoryStocktakeCreateManyCompanyInputEnvelope
+  connect?: Prisma.InventoryStocktakeWhereUniqueInput | Prisma.InventoryStocktakeWhereUniqueInput[]
+}
+
+export type InventoryStocktakeUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryStocktakeCreateWithoutCompanyInput, Prisma.InventoryStocktakeUncheckedCreateWithoutCompanyInput> | Prisma.InventoryStocktakeCreateWithoutCompanyInput[] | Prisma.InventoryStocktakeUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryStocktakeCreateOrConnectWithoutCompanyInput | Prisma.InventoryStocktakeCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.InventoryStocktakeUpsertWithWhereUniqueWithoutCompanyInput | Prisma.InventoryStocktakeUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.InventoryStocktakeCreateManyCompanyInputEnvelope
+  set?: Prisma.InventoryStocktakeWhereUniqueInput | Prisma.InventoryStocktakeWhereUniqueInput[]
+  disconnect?: Prisma.InventoryStocktakeWhereUniqueInput | Prisma.InventoryStocktakeWhereUniqueInput[]
+  delete?: Prisma.InventoryStocktakeWhereUniqueInput | Prisma.InventoryStocktakeWhereUniqueInput[]
+  connect?: Prisma.InventoryStocktakeWhereUniqueInput | Prisma.InventoryStocktakeWhereUniqueInput[]
+  update?: Prisma.InventoryStocktakeUpdateWithWhereUniqueWithoutCompanyInput | Prisma.InventoryStocktakeUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.InventoryStocktakeUpdateManyWithWhereWithoutCompanyInput | Prisma.InventoryStocktakeUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.InventoryStocktakeScalarWhereInput | Prisma.InventoryStocktakeScalarWhereInput[]
+}
+
+export type InventoryStocktakeUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryStocktakeCreateWithoutCompanyInput, Prisma.InventoryStocktakeUncheckedCreateWithoutCompanyInput> | Prisma.InventoryStocktakeCreateWithoutCompanyInput[] | Prisma.InventoryStocktakeUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryStocktakeCreateOrConnectWithoutCompanyInput | Prisma.InventoryStocktakeCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.InventoryStocktakeUpsertWithWhereUniqueWithoutCompanyInput | Prisma.InventoryStocktakeUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.InventoryStocktakeCreateManyCompanyInputEnvelope
+  set?: Prisma.InventoryStocktakeWhereUniqueInput | Prisma.InventoryStocktakeWhereUniqueInput[]
+  disconnect?: Prisma.InventoryStocktakeWhereUniqueInput | Prisma.InventoryStocktakeWhereUniqueInput[]
+  delete?: Prisma.InventoryStocktakeWhereUniqueInput | Prisma.InventoryStocktakeWhereUniqueInput[]
+  connect?: Prisma.InventoryStocktakeWhereUniqueInput | Prisma.InventoryStocktakeWhereUniqueInput[]
+  update?: Prisma.InventoryStocktakeUpdateWithWhereUniqueWithoutCompanyInput | Prisma.InventoryStocktakeUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.InventoryStocktakeUpdateManyWithWhereWithoutCompanyInput | Prisma.InventoryStocktakeUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.InventoryStocktakeScalarWhereInput | Prisma.InventoryStocktakeScalarWhereInput[]
 }
 
 export type InventoryStocktakeCreateNestedManyWithoutWarehouseInput = {
@@ -654,6 +726,88 @@ export type InventoryStocktakeUpdateOneRequiredWithoutLinesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InventoryStocktakeUpdateToOneWithWhereWithoutLinesInput, Prisma.InventoryStocktakeUpdateWithoutLinesInput>, Prisma.InventoryStocktakeUncheckedUpdateWithoutLinesInput>
 }
 
+export type InventoryStocktakeCreateWithoutCompanyInput = {
+  companyCode: string
+  stocktakeNo: string
+  stocktakeDate: string
+  status?: string
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  approvedBy?: number | null
+  approvedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  warehouse: Prisma.InventoryWarehouseCreateNestedOneWithoutStocktakesInput
+  lines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutStocktakeInput
+}
+
+export type InventoryStocktakeUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  stocktakeNo: string
+  warehouseId: number
+  stocktakeDate: string
+  status?: string
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  approvedBy?: number | null
+  approvedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lines?: Prisma.InventoryStocktakeLineUncheckedCreateNestedManyWithoutStocktakeInput
+}
+
+export type InventoryStocktakeCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.InventoryStocktakeWhereUniqueInput
+  create: Prisma.XOR<Prisma.InventoryStocktakeCreateWithoutCompanyInput, Prisma.InventoryStocktakeUncheckedCreateWithoutCompanyInput>
+}
+
+export type InventoryStocktakeCreateManyCompanyInputEnvelope = {
+  data: Prisma.InventoryStocktakeCreateManyCompanyInput | Prisma.InventoryStocktakeCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type InventoryStocktakeUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.InventoryStocktakeWhereUniqueInput
+  update: Prisma.XOR<Prisma.InventoryStocktakeUpdateWithoutCompanyInput, Prisma.InventoryStocktakeUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.InventoryStocktakeCreateWithoutCompanyInput, Prisma.InventoryStocktakeUncheckedCreateWithoutCompanyInput>
+}
+
+export type InventoryStocktakeUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.InventoryStocktakeWhereUniqueInput
+  data: Prisma.XOR<Prisma.InventoryStocktakeUpdateWithoutCompanyInput, Prisma.InventoryStocktakeUncheckedUpdateWithoutCompanyInput>
+}
+
+export type InventoryStocktakeUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.InventoryStocktakeScalarWhereInput
+  data: Prisma.XOR<Prisma.InventoryStocktakeUpdateManyMutationInput, Prisma.InventoryStocktakeUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type InventoryStocktakeScalarWhereInput = {
+  AND?: Prisma.InventoryStocktakeScalarWhereInput | Prisma.InventoryStocktakeScalarWhereInput[]
+  OR?: Prisma.InventoryStocktakeScalarWhereInput[]
+  NOT?: Prisma.InventoryStocktakeScalarWhereInput | Prisma.InventoryStocktakeScalarWhereInput[]
+  id?: Prisma.IntFilter<"InventoryStocktake"> | number
+  companyCode?: Prisma.StringFilter<"InventoryStocktake"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryStocktake"> | number | null
+  stocktakeNo?: Prisma.StringFilter<"InventoryStocktake"> | string
+  warehouseId?: Prisma.IntFilter<"InventoryStocktake"> | number
+  stocktakeDate?: Prisma.StringFilter<"InventoryStocktake"> | string
+  status?: Prisma.StringFilter<"InventoryStocktake"> | string
+  sourceFile?: Prisma.StringNullableFilter<"InventoryStocktake"> | string | null
+  sourceSheet?: Prisma.StringNullableFilter<"InventoryStocktake"> | string | null
+  sourceKey?: Prisma.StringNullableFilter<"InventoryStocktake"> | string | null
+  createdBy?: Prisma.IntNullableFilter<"InventoryStocktake"> | number | null
+  approvedBy?: Prisma.IntNullableFilter<"InventoryStocktake"> | number | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"InventoryStocktake"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"InventoryStocktake"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InventoryStocktake"> | Date | string
+}
+
 export type InventoryStocktakeCreateWithoutWarehouseInput = {
   companyCode: string
   stocktakeNo: string
@@ -668,11 +822,13 @@ export type InventoryStocktakeCreateWithoutWarehouseInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutStocktakeInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryStocktakesInput
 }
 
 export type InventoryStocktakeUncheckedCreateWithoutWarehouseInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   stocktakeNo: string
   stocktakeDate: string
   status?: string
@@ -713,26 +869,6 @@ export type InventoryStocktakeUpdateManyWithWhereWithoutWarehouseInput = {
   data: Prisma.XOR<Prisma.InventoryStocktakeUpdateManyMutationInput, Prisma.InventoryStocktakeUncheckedUpdateManyWithoutWarehouseInput>
 }
 
-export type InventoryStocktakeScalarWhereInput = {
-  AND?: Prisma.InventoryStocktakeScalarWhereInput | Prisma.InventoryStocktakeScalarWhereInput[]
-  OR?: Prisma.InventoryStocktakeScalarWhereInput[]
-  NOT?: Prisma.InventoryStocktakeScalarWhereInput | Prisma.InventoryStocktakeScalarWhereInput[]
-  id?: Prisma.IntFilter<"InventoryStocktake"> | number
-  companyCode?: Prisma.StringFilter<"InventoryStocktake"> | string
-  stocktakeNo?: Prisma.StringFilter<"InventoryStocktake"> | string
-  warehouseId?: Prisma.IntFilter<"InventoryStocktake"> | number
-  stocktakeDate?: Prisma.StringFilter<"InventoryStocktake"> | string
-  status?: Prisma.StringFilter<"InventoryStocktake"> | string
-  sourceFile?: Prisma.StringNullableFilter<"InventoryStocktake"> | string | null
-  sourceSheet?: Prisma.StringNullableFilter<"InventoryStocktake"> | string | null
-  sourceKey?: Prisma.StringNullableFilter<"InventoryStocktake"> | string | null
-  createdBy?: Prisma.IntNullableFilter<"InventoryStocktake"> | number | null
-  approvedBy?: Prisma.IntNullableFilter<"InventoryStocktake"> | number | null
-  approvedAt?: Prisma.DateTimeNullableFilter<"InventoryStocktake"> | Date | string | null
-  createdAt?: Prisma.DateTimeFilter<"InventoryStocktake"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"InventoryStocktake"> | Date | string
-}
-
 export type InventoryStocktakeCreateWithoutLinesInput = {
   companyCode: string
   stocktakeNo: string
@@ -747,11 +883,13 @@ export type InventoryStocktakeCreateWithoutLinesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   warehouse: Prisma.InventoryWarehouseCreateNestedOneWithoutStocktakesInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryStocktakesInput
 }
 
 export type InventoryStocktakeUncheckedCreateWithoutLinesInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   stocktakeNo: string
   warehouseId: number
   stocktakeDate: string
@@ -796,9 +934,80 @@ export type InventoryStocktakeUpdateWithoutLinesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouse?: Prisma.InventoryWarehouseUpdateOneRequiredWithoutStocktakesNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryStocktakesNestedInput
 }
 
 export type InventoryStocktakeUncheckedUpdateWithoutLinesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stocktakeNo?: Prisma.StringFieldUpdateOperationsInput | string
+  warehouseId?: Prisma.IntFieldUpdateOperationsInput | number
+  stocktakeDate?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InventoryStocktakeCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  stocktakeNo: string
+  warehouseId: number
+  stocktakeDate: string
+  status?: string
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  approvedBy?: number | null
+  approvedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InventoryStocktakeUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  stocktakeNo?: Prisma.StringFieldUpdateOperationsInput | string
+  stocktakeDate?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  warehouse?: Prisma.InventoryWarehouseUpdateOneRequiredWithoutStocktakesNestedInput
+  lines?: Prisma.InventoryStocktakeLineUpdateManyWithoutStocktakeNestedInput
+}
+
+export type InventoryStocktakeUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  stocktakeNo?: Prisma.StringFieldUpdateOperationsInput | string
+  warehouseId?: Prisma.IntFieldUpdateOperationsInput | number
+  stocktakeDate?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lines?: Prisma.InventoryStocktakeLineUncheckedUpdateManyWithoutStocktakeNestedInput
+}
+
+export type InventoryStocktakeUncheckedUpdateManyWithoutCompanyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   stocktakeNo?: Prisma.StringFieldUpdateOperationsInput | string
@@ -818,6 +1027,7 @@ export type InventoryStocktakeUncheckedUpdateWithoutLinesInput = {
 export type InventoryStocktakeCreateManyWarehouseInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   stocktakeNo: string
   stocktakeDate: string
   status?: string
@@ -845,11 +1055,13 @@ export type InventoryStocktakeUpdateWithoutWarehouseInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.InventoryStocktakeLineUpdateManyWithoutStocktakeNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryStocktakesNestedInput
 }
 
 export type InventoryStocktakeUncheckedUpdateWithoutWarehouseInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   stocktakeNo?: Prisma.StringFieldUpdateOperationsInput | string
   stocktakeDate?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -867,6 +1079,7 @@ export type InventoryStocktakeUncheckedUpdateWithoutWarehouseInput = {
 export type InventoryStocktakeUncheckedUpdateManyWithoutWarehouseInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   stocktakeNo?: Prisma.StringFieldUpdateOperationsInput | string
   stocktakeDate?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -914,6 +1127,7 @@ export type InventoryStocktakeCountOutputTypeCountLinesArgs<ExtArgs extends runt
 export type InventoryStocktakeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   stocktakeNo?: boolean
   warehouseId?: boolean
   stocktakeDate?: boolean
@@ -928,12 +1142,14 @@ export type InventoryStocktakeSelect<ExtArgs extends runtime.Types.Extensions.In
   updatedAt?: boolean
   warehouse?: boolean | Prisma.InventoryWarehouseDefaultArgs<ExtArgs>
   lines?: boolean | Prisma.InventoryStocktake$linesArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryStocktake$companyArgs<ExtArgs>
   _count?: boolean | Prisma.InventoryStocktakeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryStocktake"]>
 
 export type InventoryStocktakeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   stocktakeNo?: boolean
   warehouseId?: boolean
   stocktakeDate?: boolean
@@ -947,11 +1163,13 @@ export type InventoryStocktakeSelectCreateManyAndReturn<ExtArgs extends runtime.
   createdAt?: boolean
   updatedAt?: boolean
   warehouse?: boolean | Prisma.InventoryWarehouseDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryStocktake$companyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryStocktake"]>
 
 export type InventoryStocktakeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   stocktakeNo?: boolean
   warehouseId?: boolean
   stocktakeDate?: boolean
@@ -965,11 +1183,13 @@ export type InventoryStocktakeSelectUpdateManyAndReturn<ExtArgs extends runtime.
   createdAt?: boolean
   updatedAt?: boolean
   warehouse?: boolean | Prisma.InventoryWarehouseDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryStocktake$companyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryStocktake"]>
 
 export type InventoryStocktakeSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   stocktakeNo?: boolean
   warehouseId?: boolean
   stocktakeDate?: boolean
@@ -984,17 +1204,20 @@ export type InventoryStocktakeSelectScalar = {
   updatedAt?: boolean
 }
 
-export type InventoryStocktakeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "stocktakeNo" | "warehouseId" | "stocktakeDate" | "status" | "sourceFile" | "sourceSheet" | "sourceKey" | "createdBy" | "approvedBy" | "approvedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryStocktake"]>
+export type InventoryStocktakeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "stocktakeNo" | "warehouseId" | "stocktakeDate" | "status" | "sourceFile" | "sourceSheet" | "sourceKey" | "createdBy" | "approvedBy" | "approvedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryStocktake"]>
 export type InventoryStocktakeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   warehouse?: boolean | Prisma.InventoryWarehouseDefaultArgs<ExtArgs>
   lines?: boolean | Prisma.InventoryStocktake$linesArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryStocktake$companyArgs<ExtArgs>
   _count?: boolean | Prisma.InventoryStocktakeCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type InventoryStocktakeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   warehouse?: boolean | Prisma.InventoryWarehouseDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryStocktake$companyArgs<ExtArgs>
 }
 export type InventoryStocktakeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   warehouse?: boolean | Prisma.InventoryWarehouseDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryStocktake$companyArgs<ExtArgs>
 }
 
 export type $InventoryStocktakePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1002,10 +1225,12 @@ export type $InventoryStocktakePayload<ExtArgs extends runtime.Types.Extensions.
   objects: {
     warehouse: Prisma.$InventoryWarehousePayload<ExtArgs>
     lines: Prisma.$InventoryStocktakeLinePayload<ExtArgs>[]
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     stocktakeNo: string
     warehouseId: number
     stocktakeDate: string
@@ -1414,6 +1639,7 @@ export interface Prisma__InventoryStocktakeClient<T, Null = never, ExtArgs exten
   readonly [Symbol.toStringTag]: "PrismaPromise"
   warehouse<T extends Prisma.InventoryWarehouseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryWarehouseDefaultArgs<ExtArgs>>): Prisma.Prisma__InventoryWarehouseClient<runtime.Types.Result.GetResult<Prisma.$InventoryWarehousePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   lines<T extends Prisma.InventoryStocktake$linesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryStocktake$linesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryStocktakeLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  company<T extends Prisma.InventoryStocktake$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryStocktake$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1445,6 +1671,7 @@ export interface Prisma__InventoryStocktakeClient<T, Null = never, ExtArgs exten
 export interface InventoryStocktakeFieldRefs {
   readonly id: Prisma.FieldRef<"InventoryStocktake", 'Int'>
   readonly companyCode: Prisma.FieldRef<"InventoryStocktake", 'String'>
+  readonly companyId: Prisma.FieldRef<"InventoryStocktake", 'Int'>
   readonly stocktakeNo: Prisma.FieldRef<"InventoryStocktake", 'String'>
   readonly warehouseId: Prisma.FieldRef<"InventoryStocktake", 'Int'>
   readonly stocktakeDate: Prisma.FieldRef<"InventoryStocktake", 'String'>
@@ -1879,6 +2106,25 @@ export type InventoryStocktake$linesArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.InventoryStocktakeLineScalarFieldEnum | Prisma.InventoryStocktakeLineScalarFieldEnum[]
+}
+
+/**
+ * InventoryStocktake.company
+ */
+export type InventoryStocktake$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

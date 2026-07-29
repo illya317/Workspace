@@ -2,6 +2,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { getTenantProfile } from "./tenant-config";
 
 type CompanyDirectoryRow = {
+  id: number;
   code: string;
   name: string;
   managementGroup: string;
@@ -11,6 +12,7 @@ type CompanyDirectoryRow = {
 };
 
 export interface CompanyDirectoryOption {
+  id: number;
   code: string;
   name: string;
   isActive: boolean;
@@ -34,6 +36,7 @@ async function getAll(): Promise<CompanyDirectoryRow[]> {
   const rows = await prisma.company.findMany({
     orderBy: { sortOrder: "asc" },
     select: {
+      id: true,
       code: true,
       party: { select: { name: true } },
       managementGroup: true,
@@ -58,7 +61,7 @@ export async function listCompanyDirectoryOptions(activeOnly = true): Promise<Co
   const all = await getAll();
   return all
     .filter((company) => !activeOnly || company.isActive)
-    .map(({ code, name, isActive }) => ({ code, name, isActive }));
+    .map(({ id, code, name, isActive }) => ({ id, code, name, isActive }));
 }
 
 export async function listCompanyDirectory(input: {

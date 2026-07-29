@@ -41,6 +41,14 @@ export function primaryContractCompany(contractsJson: string | null, fallback: s
   return primaryCompany || firstCompany || fallback || null;
 }
 
+export function employmentCompanyName(
+  contractsJson: string | null,
+  fallback: string | null,
+  linkedCompanyName?: string | null,
+) {
+  return linkedCompanyName || primaryContractCompany(contractsJson, fallback);
+}
+
 type ListEmploymentsInput = {
   keyword: string;
   isActive: string | null;
@@ -90,6 +98,7 @@ async function listEmploymentsWithDepartmentScope(
       prisma.employment.findMany({
         where,
         include: {
+          company: { select: { party: { select: { name: true } } } },
           employee: {
             select: {
               id: true,
@@ -118,7 +127,8 @@ async function listEmploymentsWithDepartmentScope(
         employeeName: item.employee?.name || "",
         positionNames: employmentPositionNames(item.employee?.positions),
         isActive: employmentIsActiveOnDate(item, today),
-        currentCompany: primaryContractCompany(item.contracts, item.currentCompany),
+        companyId: item.companyId,
+        currentCompany: employmentCompanyName(item.contracts, item.currentCompany, item.company?.party.name),
         joinDate: item.joinDate,
         leaveDate: item.leaveDate,
         leaveReason: item.leaveReason,
@@ -136,6 +146,7 @@ async function listEmploymentsWithDepartmentScope(
   const items = await prisma.employment.findMany({
     where,
     include: {
+      company: { select: { party: { select: { name: true } } } },
       employee: {
         select: {
           id: true,
@@ -156,7 +167,8 @@ async function listEmploymentsWithDepartmentScope(
     positionNames: employmentPositionNames(item.employee?.positions),
     employeePositions: item.employee?.positions ?? [],
     isActive: employmentIsActiveOnDate(item, today),
-    currentCompany: primaryContractCompany(item.contracts, item.currentCompany),
+    companyId: item.companyId,
+    currentCompany: employmentCompanyName(item.contracts, item.currentCompany, item.company?.party.name),
     joinDate: item.joinDate,
     leaveDate: item.leaveDate,
     leaveReason: item.leaveReason,

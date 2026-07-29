@@ -12,6 +12,7 @@ export type UserEmployeeIdentity = {
   canLogin: boolean;
   employeeName: string | null;
   employeeId: string | null;
+  employeeRefId: number | null;
   hasEmployeeRecord: boolean;
   isActiveEmployee: boolean;
 };
@@ -39,35 +40,31 @@ export async function getUserEmployeeIdentity(userId: number): Promise<UserEmplo
     select: {
       username: true,
       canLogin: true,
-      employeeId: true,
-    },
-  });
-  if (!user) return null;
-
-  const employee = await prisma.employee.findFirst({
-    where: {
-      OR: [
-        { userId },
-        ...(user.employeeId ? [{ employeeId: user.employeeId }] : []),
-      ],
-    },
-    select: {
-      name: true,
-      employeeId: true,
-      employments: {
-        where: currentEmploymentDateWhere(),
-        select: { id: true },
+      employees: {
+        select: {
+          id: true,
+          name: true,
+          employeeId: true,
+          employments: {
+            where: currentEmploymentDateWhere(),
+            select: { id: true },
+            take: 1,
+          },
+        },
+        orderBy: { id: "asc" },
         take: 1,
       },
     },
-    orderBy: { id: "asc" },
   });
+  if (!user) return null;
+  const employee = user.employees[0] ?? null;
 
   return {
     username: user.username,
     canLogin: user.canLogin,
     employeeName: employee?.name ?? null,
-    employeeId: employee?.employeeId || user.employeeId || null,
+    employeeId: employee?.employeeId ?? null,
+    employeeRefId: employee?.id ?? null,
     hasEmployeeRecord: Boolean(employee),
     isActiveEmployee: Boolean(employee?.employments.length),
   };

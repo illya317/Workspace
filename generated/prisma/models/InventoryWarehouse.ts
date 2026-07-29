@@ -28,15 +28,18 @@ export type AggregateInventoryWarehouse = {
 
 export type InventoryWarehouseAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
 }
 
 export type InventoryWarehouseSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
 }
 
 export type InventoryWarehouseMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   code: string | null
   name: string | null
   status: string | null
@@ -47,6 +50,7 @@ export type InventoryWarehouseMinAggregateOutputType = {
 export type InventoryWarehouseMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   code: string | null
   name: string | null
   status: string | null
@@ -57,6 +61,7 @@ export type InventoryWarehouseMaxAggregateOutputType = {
 export type InventoryWarehouseCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   code: number
   name: number
   status: number
@@ -68,15 +73,18 @@ export type InventoryWarehouseCountAggregateOutputType = {
 
 export type InventoryWarehouseAvgAggregateInputType = {
   id?: true
+  companyId?: true
 }
 
 export type InventoryWarehouseSumAggregateInputType = {
   id?: true
+  companyId?: true
 }
 
 export type InventoryWarehouseMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   code?: true
   name?: true
   status?: true
@@ -87,6 +95,7 @@ export type InventoryWarehouseMinAggregateInputType = {
 export type InventoryWarehouseMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   code?: true
   name?: true
   status?: true
@@ -97,6 +106,7 @@ export type InventoryWarehouseMaxAggregateInputType = {
 export type InventoryWarehouseCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   code?: true
   name?: true
   status?: true
@@ -194,6 +204,7 @@ export type InventoryWarehouseGroupByArgs<ExtArgs extends runtime.Types.Extensio
 export type InventoryWarehouseGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   code: string
   name: string
   status: string
@@ -227,6 +238,7 @@ export type InventoryWarehouseWhereInput = {
   NOT?: Prisma.InventoryWarehouseWhereInput | Prisma.InventoryWarehouseWhereInput[]
   id?: Prisma.IntFilter<"InventoryWarehouse"> | number
   companyCode?: Prisma.StringFilter<"InventoryWarehouse"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryWarehouse"> | number | null
   code?: Prisma.StringFilter<"InventoryWarehouse"> | string
   name?: Prisma.StringFilter<"InventoryWarehouse"> | string
   status?: Prisma.StringFilter<"InventoryWarehouse"> | string
@@ -237,11 +249,13 @@ export type InventoryWarehouseWhereInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryListRelationFilter
   stocktakes?: Prisma.InventoryStocktakeListRelationFilter
   stocktakeLines?: Prisma.InventoryStocktakeLineListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type InventoryWarehouseOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -252,6 +266,7 @@ export type InventoryWarehouseOrderByWithRelationInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryOrderByRelationAggregateInput
   stocktakes?: Prisma.InventoryStocktakeOrderByRelationAggregateInput
   stocktakeLines?: Prisma.InventoryStocktakeLineOrderByRelationAggregateInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type InventoryWarehouseWhereUniqueInput = Prisma.AtLeast<{
@@ -261,6 +276,7 @@ export type InventoryWarehouseWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.InventoryWarehouseWhereInput[]
   NOT?: Prisma.InventoryWarehouseWhereInput | Prisma.InventoryWarehouseWhereInput[]
   companyCode?: Prisma.StringFilter<"InventoryWarehouse"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryWarehouse"> | number | null
   code?: Prisma.StringFilter<"InventoryWarehouse"> | string
   name?: Prisma.StringFilter<"InventoryWarehouse"> | string
   status?: Prisma.StringFilter<"InventoryWarehouse"> | string
@@ -271,11 +287,13 @@ export type InventoryWarehouseWhereUniqueInput = Prisma.AtLeast<{
   ledgerEntries?: Prisma.InventoryLedgerEntryListRelationFilter
   stocktakes?: Prisma.InventoryStocktakeListRelationFilter
   stocktakeLines?: Prisma.InventoryStocktakeLineListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "companyCode_code">
 
 export type InventoryWarehouseOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -294,6 +312,7 @@ export type InventoryWarehouseScalarWhereWithAggregatesInput = {
   NOT?: Prisma.InventoryWarehouseScalarWhereWithAggregatesInput | Prisma.InventoryWarehouseScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"InventoryWarehouse"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"InventoryWarehouse"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"InventoryWarehouse"> | number | null
   code?: Prisma.StringWithAggregatesFilter<"InventoryWarehouse"> | string
   name?: Prisma.StringWithAggregatesFilter<"InventoryWarehouse"> | string
   status?: Prisma.StringWithAggregatesFilter<"InventoryWarehouse"> | string
@@ -313,11 +332,13 @@ export type InventoryWarehouseCreateInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutWarehouseInput
   stocktakes?: Prisma.InventoryStocktakeCreateNestedManyWithoutWarehouseInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutWarehouseInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryWarehousesInput
 }
 
 export type InventoryWarehouseUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   status?: string
@@ -342,11 +363,13 @@ export type InventoryWarehouseUpdateInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutWarehouseNestedInput
   stocktakes?: Prisma.InventoryStocktakeUpdateManyWithoutWarehouseNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutWarehouseNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryWarehousesNestedInput
 }
 
 export type InventoryWarehouseUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -362,6 +385,7 @@ export type InventoryWarehouseUncheckedUpdateInput = {
 export type InventoryWarehouseCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   status?: string
@@ -381,11 +405,22 @@ export type InventoryWarehouseUpdateManyMutationInput = {
 export type InventoryWarehouseUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InventoryWarehouseListRelationFilter = {
+  every?: Prisma.InventoryWarehouseWhereInput
+  some?: Prisma.InventoryWarehouseWhereInput
+  none?: Prisma.InventoryWarehouseWhereInput
+}
+
+export type InventoryWarehouseOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type InventoryWarehouseCompanyCodeCodeCompoundUniqueInput = {
@@ -396,6 +431,7 @@ export type InventoryWarehouseCompanyCodeCodeCompoundUniqueInput = {
 export type InventoryWarehouseCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -405,11 +441,13 @@ export type InventoryWarehouseCountOrderByAggregateInput = {
 
 export type InventoryWarehouseAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
 }
 
 export type InventoryWarehouseMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -420,6 +458,7 @@ export type InventoryWarehouseMaxOrderByAggregateInput = {
 export type InventoryWarehouseMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -429,11 +468,54 @@ export type InventoryWarehouseMinOrderByAggregateInput = {
 
 export type InventoryWarehouseSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
 }
 
 export type InventoryWarehouseScalarRelationFilter = {
   is?: Prisma.InventoryWarehouseWhereInput
   isNot?: Prisma.InventoryWarehouseWhereInput
+}
+
+export type InventoryWarehouseCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.InventoryWarehouseCreateWithoutCompanyInput, Prisma.InventoryWarehouseUncheckedCreateWithoutCompanyInput> | Prisma.InventoryWarehouseCreateWithoutCompanyInput[] | Prisma.InventoryWarehouseUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryWarehouseCreateOrConnectWithoutCompanyInput | Prisma.InventoryWarehouseCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.InventoryWarehouseCreateManyCompanyInputEnvelope
+  connect?: Prisma.InventoryWarehouseWhereUniqueInput | Prisma.InventoryWarehouseWhereUniqueInput[]
+}
+
+export type InventoryWarehouseUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.InventoryWarehouseCreateWithoutCompanyInput, Prisma.InventoryWarehouseUncheckedCreateWithoutCompanyInput> | Prisma.InventoryWarehouseCreateWithoutCompanyInput[] | Prisma.InventoryWarehouseUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryWarehouseCreateOrConnectWithoutCompanyInput | Prisma.InventoryWarehouseCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.InventoryWarehouseCreateManyCompanyInputEnvelope
+  connect?: Prisma.InventoryWarehouseWhereUniqueInput | Prisma.InventoryWarehouseWhereUniqueInput[]
+}
+
+export type InventoryWarehouseUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryWarehouseCreateWithoutCompanyInput, Prisma.InventoryWarehouseUncheckedCreateWithoutCompanyInput> | Prisma.InventoryWarehouseCreateWithoutCompanyInput[] | Prisma.InventoryWarehouseUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryWarehouseCreateOrConnectWithoutCompanyInput | Prisma.InventoryWarehouseCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.InventoryWarehouseUpsertWithWhereUniqueWithoutCompanyInput | Prisma.InventoryWarehouseUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.InventoryWarehouseCreateManyCompanyInputEnvelope
+  set?: Prisma.InventoryWarehouseWhereUniqueInput | Prisma.InventoryWarehouseWhereUniqueInput[]
+  disconnect?: Prisma.InventoryWarehouseWhereUniqueInput | Prisma.InventoryWarehouseWhereUniqueInput[]
+  delete?: Prisma.InventoryWarehouseWhereUniqueInput | Prisma.InventoryWarehouseWhereUniqueInput[]
+  connect?: Prisma.InventoryWarehouseWhereUniqueInput | Prisma.InventoryWarehouseWhereUniqueInput[]
+  update?: Prisma.InventoryWarehouseUpdateWithWhereUniqueWithoutCompanyInput | Prisma.InventoryWarehouseUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.InventoryWarehouseUpdateManyWithWhereWithoutCompanyInput | Prisma.InventoryWarehouseUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.InventoryWarehouseScalarWhereInput | Prisma.InventoryWarehouseScalarWhereInput[]
+}
+
+export type InventoryWarehouseUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryWarehouseCreateWithoutCompanyInput, Prisma.InventoryWarehouseUncheckedCreateWithoutCompanyInput> | Prisma.InventoryWarehouseCreateWithoutCompanyInput[] | Prisma.InventoryWarehouseUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryWarehouseCreateOrConnectWithoutCompanyInput | Prisma.InventoryWarehouseCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.InventoryWarehouseUpsertWithWhereUniqueWithoutCompanyInput | Prisma.InventoryWarehouseUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.InventoryWarehouseCreateManyCompanyInputEnvelope
+  set?: Prisma.InventoryWarehouseWhereUniqueInput | Prisma.InventoryWarehouseWhereUniqueInput[]
+  disconnect?: Prisma.InventoryWarehouseWhereUniqueInput | Prisma.InventoryWarehouseWhereUniqueInput[]
+  delete?: Prisma.InventoryWarehouseWhereUniqueInput | Prisma.InventoryWarehouseWhereUniqueInput[]
+  connect?: Prisma.InventoryWarehouseWhereUniqueInput | Prisma.InventoryWarehouseWhereUniqueInput[]
+  update?: Prisma.InventoryWarehouseUpdateWithWhereUniqueWithoutCompanyInput | Prisma.InventoryWarehouseUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.InventoryWarehouseUpdateManyWithWhereWithoutCompanyInput | Prisma.InventoryWarehouseUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.InventoryWarehouseScalarWhereInput | Prisma.InventoryWarehouseScalarWhereInput[]
 }
 
 export type InventoryWarehouseCreateNestedOneWithoutBatchesInput = {
@@ -506,6 +588,75 @@ export type InventoryWarehouseUpdateOneRequiredWithoutStocktakeLinesNestedInput 
   update?: Prisma.XOR<Prisma.XOR<Prisma.InventoryWarehouseUpdateToOneWithWhereWithoutStocktakeLinesInput, Prisma.InventoryWarehouseUpdateWithoutStocktakeLinesInput>, Prisma.InventoryWarehouseUncheckedUpdateWithoutStocktakeLinesInput>
 }
 
+export type InventoryWarehouseCreateWithoutCompanyInput = {
+  companyCode: string
+  code: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  batches?: Prisma.InventoryBatchCreateNestedManyWithoutWarehouseInput
+  documentLines?: Prisma.InventoryDocumentLineCreateNestedManyWithoutWarehouseInput
+  ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutWarehouseInput
+  stocktakes?: Prisma.InventoryStocktakeCreateNestedManyWithoutWarehouseInput
+  stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutWarehouseInput
+}
+
+export type InventoryWarehouseUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  code: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  batches?: Prisma.InventoryBatchUncheckedCreateNestedManyWithoutWarehouseInput
+  documentLines?: Prisma.InventoryDocumentLineUncheckedCreateNestedManyWithoutWarehouseInput
+  ledgerEntries?: Prisma.InventoryLedgerEntryUncheckedCreateNestedManyWithoutWarehouseInput
+  stocktakes?: Prisma.InventoryStocktakeUncheckedCreateNestedManyWithoutWarehouseInput
+  stocktakeLines?: Prisma.InventoryStocktakeLineUncheckedCreateNestedManyWithoutWarehouseInput
+}
+
+export type InventoryWarehouseCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.InventoryWarehouseWhereUniqueInput
+  create: Prisma.XOR<Prisma.InventoryWarehouseCreateWithoutCompanyInput, Prisma.InventoryWarehouseUncheckedCreateWithoutCompanyInput>
+}
+
+export type InventoryWarehouseCreateManyCompanyInputEnvelope = {
+  data: Prisma.InventoryWarehouseCreateManyCompanyInput | Prisma.InventoryWarehouseCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type InventoryWarehouseUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.InventoryWarehouseWhereUniqueInput
+  update: Prisma.XOR<Prisma.InventoryWarehouseUpdateWithoutCompanyInput, Prisma.InventoryWarehouseUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.InventoryWarehouseCreateWithoutCompanyInput, Prisma.InventoryWarehouseUncheckedCreateWithoutCompanyInput>
+}
+
+export type InventoryWarehouseUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.InventoryWarehouseWhereUniqueInput
+  data: Prisma.XOR<Prisma.InventoryWarehouseUpdateWithoutCompanyInput, Prisma.InventoryWarehouseUncheckedUpdateWithoutCompanyInput>
+}
+
+export type InventoryWarehouseUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.InventoryWarehouseScalarWhereInput
+  data: Prisma.XOR<Prisma.InventoryWarehouseUpdateManyMutationInput, Prisma.InventoryWarehouseUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type InventoryWarehouseScalarWhereInput = {
+  AND?: Prisma.InventoryWarehouseScalarWhereInput | Prisma.InventoryWarehouseScalarWhereInput[]
+  OR?: Prisma.InventoryWarehouseScalarWhereInput[]
+  NOT?: Prisma.InventoryWarehouseScalarWhereInput | Prisma.InventoryWarehouseScalarWhereInput[]
+  id?: Prisma.IntFilter<"InventoryWarehouse"> | number
+  companyCode?: Prisma.StringFilter<"InventoryWarehouse"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryWarehouse"> | number | null
+  code?: Prisma.StringFilter<"InventoryWarehouse"> | string
+  name?: Prisma.StringFilter<"InventoryWarehouse"> | string
+  status?: Prisma.StringFilter<"InventoryWarehouse"> | string
+  createdAt?: Prisma.DateTimeFilter<"InventoryWarehouse"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InventoryWarehouse"> | Date | string
+}
+
 export type InventoryWarehouseCreateWithoutBatchesInput = {
   companyCode: string
   code: string
@@ -517,11 +668,13 @@ export type InventoryWarehouseCreateWithoutBatchesInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutWarehouseInput
   stocktakes?: Prisma.InventoryStocktakeCreateNestedManyWithoutWarehouseInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutWarehouseInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryWarehousesInput
 }
 
 export type InventoryWarehouseUncheckedCreateWithoutBatchesInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   status?: string
@@ -560,11 +713,13 @@ export type InventoryWarehouseUpdateWithoutBatchesInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutWarehouseNestedInput
   stocktakes?: Prisma.InventoryStocktakeUpdateManyWithoutWarehouseNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutWarehouseNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryWarehousesNestedInput
 }
 
 export type InventoryWarehouseUncheckedUpdateWithoutBatchesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -587,11 +742,13 @@ export type InventoryWarehouseCreateWithoutDocumentLinesInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutWarehouseInput
   stocktakes?: Prisma.InventoryStocktakeCreateNestedManyWithoutWarehouseInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutWarehouseInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryWarehousesInput
 }
 
 export type InventoryWarehouseUncheckedCreateWithoutDocumentLinesInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   status?: string
@@ -630,11 +787,13 @@ export type InventoryWarehouseUpdateWithoutDocumentLinesInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutWarehouseNestedInput
   stocktakes?: Prisma.InventoryStocktakeUpdateManyWithoutWarehouseNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutWarehouseNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryWarehousesNestedInput
 }
 
 export type InventoryWarehouseUncheckedUpdateWithoutDocumentLinesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -657,11 +816,13 @@ export type InventoryWarehouseCreateWithoutLedgerEntriesInput = {
   documentLines?: Prisma.InventoryDocumentLineCreateNestedManyWithoutWarehouseInput
   stocktakes?: Prisma.InventoryStocktakeCreateNestedManyWithoutWarehouseInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutWarehouseInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryWarehousesInput
 }
 
 export type InventoryWarehouseUncheckedCreateWithoutLedgerEntriesInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   status?: string
@@ -700,11 +861,13 @@ export type InventoryWarehouseUpdateWithoutLedgerEntriesInput = {
   documentLines?: Prisma.InventoryDocumentLineUpdateManyWithoutWarehouseNestedInput
   stocktakes?: Prisma.InventoryStocktakeUpdateManyWithoutWarehouseNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutWarehouseNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryWarehousesNestedInput
 }
 
 export type InventoryWarehouseUncheckedUpdateWithoutLedgerEntriesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -727,11 +890,13 @@ export type InventoryWarehouseCreateWithoutStocktakesInput = {
   documentLines?: Prisma.InventoryDocumentLineCreateNestedManyWithoutWarehouseInput
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutWarehouseInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutWarehouseInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryWarehousesInput
 }
 
 export type InventoryWarehouseUncheckedCreateWithoutStocktakesInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   status?: string
@@ -770,11 +935,13 @@ export type InventoryWarehouseUpdateWithoutStocktakesInput = {
   documentLines?: Prisma.InventoryDocumentLineUpdateManyWithoutWarehouseNestedInput
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutWarehouseNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutWarehouseNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryWarehousesNestedInput
 }
 
 export type InventoryWarehouseUncheckedUpdateWithoutStocktakesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -797,11 +964,13 @@ export type InventoryWarehouseCreateWithoutStocktakeLinesInput = {
   documentLines?: Prisma.InventoryDocumentLineCreateNestedManyWithoutWarehouseInput
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutWarehouseInput
   stocktakes?: Prisma.InventoryStocktakeCreateNestedManyWithoutWarehouseInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryWarehousesInput
 }
 
 export type InventoryWarehouseUncheckedCreateWithoutStocktakeLinesInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   status?: string
@@ -840,9 +1009,49 @@ export type InventoryWarehouseUpdateWithoutStocktakeLinesInput = {
   documentLines?: Prisma.InventoryDocumentLineUpdateManyWithoutWarehouseNestedInput
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutWarehouseNestedInput
   stocktakes?: Prisma.InventoryStocktakeUpdateManyWithoutWarehouseNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryWarehousesNestedInput
 }
 
 export type InventoryWarehouseUncheckedUpdateWithoutStocktakeLinesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batches?: Prisma.InventoryBatchUncheckedUpdateManyWithoutWarehouseNestedInput
+  documentLines?: Prisma.InventoryDocumentLineUncheckedUpdateManyWithoutWarehouseNestedInput
+  ledgerEntries?: Prisma.InventoryLedgerEntryUncheckedUpdateManyWithoutWarehouseNestedInput
+  stocktakes?: Prisma.InventoryStocktakeUncheckedUpdateManyWithoutWarehouseNestedInput
+}
+
+export type InventoryWarehouseCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  code: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InventoryWarehouseUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batches?: Prisma.InventoryBatchUpdateManyWithoutWarehouseNestedInput
+  documentLines?: Prisma.InventoryDocumentLineUpdateManyWithoutWarehouseNestedInput
+  ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutWarehouseNestedInput
+  stocktakes?: Prisma.InventoryStocktakeUpdateManyWithoutWarehouseNestedInput
+  stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutWarehouseNestedInput
+}
+
+export type InventoryWarehouseUncheckedUpdateWithoutCompanyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -854,6 +1063,17 @@ export type InventoryWarehouseUncheckedUpdateWithoutStocktakeLinesInput = {
   documentLines?: Prisma.InventoryDocumentLineUncheckedUpdateManyWithoutWarehouseNestedInput
   ledgerEntries?: Prisma.InventoryLedgerEntryUncheckedUpdateManyWithoutWarehouseNestedInput
   stocktakes?: Prisma.InventoryStocktakeUncheckedUpdateManyWithoutWarehouseNestedInput
+  stocktakeLines?: Prisma.InventoryStocktakeLineUncheckedUpdateManyWithoutWarehouseNestedInput
+}
+
+export type InventoryWarehouseUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -926,6 +1146,7 @@ export type InventoryWarehouseCountOutputTypeCountStocktakeLinesArgs<ExtArgs ext
 export type InventoryWarehouseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   code?: boolean
   name?: boolean
   status?: boolean
@@ -936,32 +1157,38 @@ export type InventoryWarehouseSelect<ExtArgs extends runtime.Types.Extensions.In
   ledgerEntries?: boolean | Prisma.InventoryWarehouse$ledgerEntriesArgs<ExtArgs>
   stocktakes?: boolean | Prisma.InventoryWarehouse$stocktakesArgs<ExtArgs>
   stocktakeLines?: boolean | Prisma.InventoryWarehouse$stocktakeLinesArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryWarehouse$companyArgs<ExtArgs>
   _count?: boolean | Prisma.InventoryWarehouseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryWarehouse"]>
 
 export type InventoryWarehouseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   code?: boolean
   name?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.InventoryWarehouse$companyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryWarehouse"]>
 
 export type InventoryWarehouseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   code?: boolean
   name?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.InventoryWarehouse$companyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryWarehouse"]>
 
 export type InventoryWarehouseSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   code?: boolean
   name?: boolean
   status?: boolean
@@ -969,17 +1196,22 @@ export type InventoryWarehouseSelectScalar = {
   updatedAt?: boolean
 }
 
-export type InventoryWarehouseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "code" | "name" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryWarehouse"]>
+export type InventoryWarehouseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "code" | "name" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryWarehouse"]>
 export type InventoryWarehouseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batches?: boolean | Prisma.InventoryWarehouse$batchesArgs<ExtArgs>
   documentLines?: boolean | Prisma.InventoryWarehouse$documentLinesArgs<ExtArgs>
   ledgerEntries?: boolean | Prisma.InventoryWarehouse$ledgerEntriesArgs<ExtArgs>
   stocktakes?: boolean | Prisma.InventoryWarehouse$stocktakesArgs<ExtArgs>
   stocktakeLines?: boolean | Prisma.InventoryWarehouse$stocktakeLinesArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryWarehouse$companyArgs<ExtArgs>
   _count?: boolean | Prisma.InventoryWarehouseCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type InventoryWarehouseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type InventoryWarehouseIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type InventoryWarehouseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.InventoryWarehouse$companyArgs<ExtArgs>
+}
+export type InventoryWarehouseIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.InventoryWarehouse$companyArgs<ExtArgs>
+}
 
 export type $InventoryWarehousePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "InventoryWarehouse"
@@ -989,10 +1221,12 @@ export type $InventoryWarehousePayload<ExtArgs extends runtime.Types.Extensions.
     ledgerEntries: Prisma.$InventoryLedgerEntryPayload<ExtArgs>[]
     stocktakes: Prisma.$InventoryStocktakePayload<ExtArgs>[]
     stocktakeLines: Prisma.$InventoryStocktakeLinePayload<ExtArgs>[]
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     code: string
     name: string
     status: string
@@ -1397,6 +1631,7 @@ export interface Prisma__InventoryWarehouseClient<T, Null = never, ExtArgs exten
   ledgerEntries<T extends Prisma.InventoryWarehouse$ledgerEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryWarehouse$ledgerEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryLedgerEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   stocktakes<T extends Prisma.InventoryWarehouse$stocktakesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryWarehouse$stocktakesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryStocktakePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   stocktakeLines<T extends Prisma.InventoryWarehouse$stocktakeLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryWarehouse$stocktakeLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryStocktakeLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  company<T extends Prisma.InventoryWarehouse$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryWarehouse$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1428,6 +1663,7 @@ export interface Prisma__InventoryWarehouseClient<T, Null = never, ExtArgs exten
 export interface InventoryWarehouseFieldRefs {
   readonly id: Prisma.FieldRef<"InventoryWarehouse", 'Int'>
   readonly companyCode: Prisma.FieldRef<"InventoryWarehouse", 'String'>
+  readonly companyId: Prisma.FieldRef<"InventoryWarehouse", 'Int'>
   readonly code: Prisma.FieldRef<"InventoryWarehouse", 'String'>
   readonly name: Prisma.FieldRef<"InventoryWarehouse", 'String'>
   readonly status: Prisma.FieldRef<"InventoryWarehouse", 'String'>
@@ -1687,6 +1923,10 @@ export type InventoryWarehouseCreateManyAndReturnArgs<ExtArgs extends runtime.Ty
    */
   data: Prisma.InventoryWarehouseCreateManyInput | Prisma.InventoryWarehouseCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryWarehouseIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1757,6 +1997,10 @@ export type InventoryWarehouseUpdateManyAndReturnArgs<ExtArgs extends runtime.Ty
    * Limit how many InventoryWarehouses to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryWarehouseIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1943,6 +2187,25 @@ export type InventoryWarehouse$stocktakeLinesArgs<ExtArgs extends runtime.Types.
   take?: number
   skip?: number
   distinct?: Prisma.InventoryStocktakeLineScalarFieldEnum | Prisma.InventoryStocktakeLineScalarFieldEnum[]
+}
+
+/**
+ * InventoryWarehouse.company
+ */
+export type InventoryWarehouse$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

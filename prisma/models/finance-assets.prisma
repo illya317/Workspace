@@ -1,94 +1,3 @@
-/// 可折旧/摊销资产卡片（事实表，来源于手工新建或独立资产底稿导入）
-model FinanceAssetCard {
-  id                       Int                             @id @default(autoincrement())
-  companyCode              String
-  assetCode                String
-  name                     String
-  assetKind                String
-  category                 String?
-  assetAccountCode         String
-  accumulatedAccountCode   String?
-  acquisitionDate          String?
-  depreciationStartDate    String?
-  originalCost             Decimal                         @db.Decimal(20, 2)
-  residualRate             Decimal                         @default(0) @db.Decimal(10, 6)
-  usefulLifeMonths         Int?
-  method                   String                          @default("straight_line")
-  openingAccumulatedAmount Decimal                         @default(0) @db.Decimal(20, 2)
-  openingAsOfDate          String?
-  status                   String                          @default("active")
-  nonAmortizationReason    String?
-  note                     String?
-  sourceFile               String?
-  sourceSheet              String?
-  sourceRow                Int?
-  sourceKey                String?
-  editedBy                 Int?
-  version                  Int                             @default(1)
-  createdAt                DateTime                        @default(now())
-  updatedAt                DateTime                        @default(now()) @updatedAt
-  costLines                FinanceAssetCostLine[]
-  allocations              FinanceAssetExpenseAllocation[]
-  periodEntries            FinanceAssetPeriodEntry[]
-  adjustments              FinanceAssetAdjustment[]
-
-  @@unique([companyCode, assetCode])
-  @@unique([companyCode, sourceKey])
-  @@index([companyCode, status, assetKind])
-}
-
-/// 资产成本组成行（事实表，保留发票、免除和其他纳入/扣减依据）
-model FinanceAssetCostLine {
-  id            Int              @id @default(autoincrement())
-  assetId       Int
-  lineType      String           @default("invoice")
-  treatment     String           @default("included")
-  referenceNo   String?
-  referenceDate String?
-  amount        Decimal          @db.Decimal(20, 2)
-  reason        String?
-  sourceFile    String?
-  sourceSheet   String?
-  sourceRow     Int?
-  sourceKey     String?
-  createdAt     DateTime         @default(now())
-  asset         FinanceAssetCard @relation(fields: [assetId], references: [id], onDelete: Cascade)
-
-  @@unique([assetId, sourceKey])
-  @@index([assetId, treatment])
-}
-
-/// 资产费用分摊规则（事实表，来源于凭证映射或人工配置）
-model FinanceAssetExpenseAllocation {
-  id                 Int              @id @default(autoincrement())
-  assetId            Int
-  expenseAccountCode String
-  allocationRate     Decimal          @db.Decimal(10, 6)
-  note               String?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @default(now()) @updatedAt
-  asset              FinanceAssetCard @relation(fields: [assetId], references: [id], onDelete: Cascade)
-
-  @@unique([assetId, expenseAccountCode])
-}
-
-/// 资产导入批次（审计事实，一份源文件的一次确认导入）
-model FinanceAssetImportBatch {
-  id            Int      @id @default(autoincrement())
-  companyCode   String
-  sourceFile    String
-  checksum      String
-  status        String   @default("confirmed")
-  cardCount     Int      @default(0)
-  costLineCount Int      @default(0)
-  warningCount  Int      @default(0)
-  importedBy    Int?
-  importedAt    DateTime @default(now())
-  note          String?
-
-  @@unique([companyCode, checksum])
-}
-
 /// 月度折旧/摊销确认结果（会计期间快照事实，可由相同规则重新计算校验）
 model FinanceAssetPeriodEntry {
   id                 Int              @id @default(autoincrement())
@@ -116,9 +25,11 @@ model FinanceAssetPeriodEntry {
 model FinanceAssetAdjustment {
   id           Int               @id @default(autoincrement())
   companyCode  String
+  companyId Int?
   periodId     Int
   assetId      Int?
   accountCode  String
+  accountId    Int?
   amount       Decimal           @db.Decimal(20, 2)
   reason       String
   status       String            @default("confirmed")
@@ -131,11 +42,103 @@ model FinanceAssetAdjustment {
   createdBy    Int?
   createdAt    DateTime          @default(now())
   asset        FinanceAssetCard? @relation(fields: [assetId], references: [id], onDelete: SetNull)
+  account      FinanceAccount?   @relation(fields: [accountId], references: [id], onDelete: Restrict)
   period       FinancePeriod     @relation(fields: [periodId], references: [id], onDelete: Cascade)
   voucher      FinanceVoucher?   @relation(fields: [voucherId], references: [id], onDelete: SetNull)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([companyCode, sourceKey])
   @@index([periodId, status])
   @@index([assetId])
+  @@index([accountId])
   @@index([voucherId])
+  @@index([companyId])
+}
+
+/// 公司期间资产减值评估底稿（受控确认事实，保存当次资产范围指纹与会计处理证据）
+model FinanceAssetImpairmentAssessment {
+  id                    Int            @id @default(autoincrement())
+  companyCode           String
+  companyId Int?
+  periodId              Int
+  conclusion            String
+  basis                 String         @db.Text
+  evidenceRef           String
+  impairmentAmount      Decimal        @default(0) @db.Decimal(20, 2)
+  voucherId             Int?
+  assetScopeFingerprint String
+  calculationBasisFingerprint String
+  assetCount            Int
+  status                String         @default("confirmed")
+  assessedBy             Int
+  confirmedAt           DateTime       @default(now())
+  version               Int            @default(1)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @default(now()) @updatedAt
+  period                FinancePeriod  @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  voucher               FinanceVoucher? @relation(fields: [voucherId], references: [id], onDelete: Restrict)
+  assessor              User           @relation("FinanceAssetImpairmentAssessor", fields: [assessedBy], references: [id], onDelete: Restrict)
+  allocations           FinanceAssetImpairmentAllocation[]
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@unique([companyCode, periodId])
+  @@index([periodId, status])
+  @@index([voucherId])
+  @@index([companyId])
+}
+
+/// 资产减值分配明细（把公司期间减值总额落实到具体资产，供后续折旧摊销重放）
+model FinanceAssetImpairmentAllocation {
+  id           Int                              @id @default(autoincrement())
+  assessmentId Int
+  assetId      Int
+  amount       Decimal                          @db.Decimal(20, 2)
+  createdAt    DateTime                         @default(now())
+  assessment   FinanceAssetImpairmentAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  asset        FinanceAssetCard                 @relation(fields: [assetId], references: [id], onDelete: Restrict)
+
+  @@unique([assessmentId, assetId])
+  @@index([assetId])
+}
+
+/// 资产处置确认事实（处置日期、依据及已过账凭证，确认时同步关闭资产卡片）
+model FinanceAssetDisposal {
+  id             Int              @id @default(autoincrement())
+  companyCode    String
+  companyId Int?
+  periodId       Int
+  assetId        Int              @unique
+  disposalDate   String
+  disposalType   String
+  proceedsAmount Decimal          @default(0) @db.Decimal(20, 2)
+  reason         String           @db.Text
+  evidenceRef    String
+  voucherId      Int
+  assetVoucherItemId Int? @unique
+  accumulatedVoucherItemId Int? @unique
+  impairmentAllowanceVoucherItemId Int? @unique
+  proceedsVoucherItemId Int? @unique
+  gainLossVoucherItemId Int? @unique
+  status         String           @default("confirmed")
+  confirmedBy    Int
+  version        Int              @default(1)
+  confirmedAt    DateTime         @default(now())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
+  period         FinancePeriod    @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  asset          FinanceAssetCard @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  voucher        FinanceVoucher   @relation(fields: [voucherId], references: [id], onDelete: Restrict)
+  assetVoucherItem FinanceVoucherItem? @relation("FinanceAssetDisposalAssetItem", fields: [assetVoucherItemId], references: [id], onDelete: Restrict)
+  accumulatedVoucherItem FinanceVoucherItem? @relation("FinanceAssetDisposalAccumulatedItem", fields: [accumulatedVoucherItemId], references: [id], onDelete: Restrict)
+  impairmentAllowanceVoucherItem FinanceVoucherItem? @relation("FinanceAssetDisposalAllowanceItem", fields: [impairmentAllowanceVoucherItemId], references: [id], onDelete: Restrict)
+  proceedsVoucherItem FinanceVoucherItem? @relation("FinanceAssetDisposalProceedsItem", fields: [proceedsVoucherItemId], references: [id], onDelete: Restrict)
+  gainLossVoucherItem FinanceVoucherItem? @relation("FinanceAssetDisposalGainLossItem", fields: [gainLossVoucherItemId], references: [id], onDelete: Restrict)
+  confirmer      User             @relation("FinanceAssetDisposalConfirmer", fields: [confirmedBy], references: [id], onDelete: Restrict)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@unique([companyCode, periodId, assetId])
+  @@index([periodId, status])
+  @@index([voucherId])
+  @@index([confirmedBy])
+  @@index([companyId])
 }

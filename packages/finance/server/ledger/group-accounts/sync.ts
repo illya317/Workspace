@@ -141,7 +141,7 @@ export async function syncFinanceGroupChartInTransaction(
       policyVersionId: policyVersion.id,
       groupAccountId, companyCode: account.companyCode, sourceScopeKey: account.sourceScopeKey,
       sourceSystem: account.sourceSystem, sourceDatabase: account.sourceDatabase, sourceLedger: account.sourceLedger,
-      localAccountCode: account.code, localAccountName: account.name, localCategory: account.category,
+      localAccountCode: account.code, localAccountName: account.name, localAccountId: account.id, localCategory: account.category,
       localBalanceDirection: account.balanceDirection, latestYear: account.year, mappingMethod,
     } });
     mappingByKey.set(accountKey(account), mapping);
@@ -379,6 +379,7 @@ async function updateMappingSnapshot(
     sourceDatabase: string | null;
     sourceLedger: string | null;
     localAccountName: string;
+    localAccountId: number | null;
     localCategory: string;
     localBalanceDirection: string;
     latestYear: number | null;
@@ -393,6 +394,7 @@ async function updateMappingSnapshot(
     && mapping.sourceDatabase === account.sourceDatabase
     && mapping.sourceLedger === account.sourceLedger
     && mapping.localAccountName === account.name
+    && mapping.localAccountId === account.id
     && mapping.localCategory === account.category
     && mapping.localBalanceDirection === account.balanceDirection
     && mapping.latestYear === account.year
@@ -401,7 +403,7 @@ async function updateMappingSnapshot(
   await tx.financeGroupAccountMapping.update({ where: { id: mapping.id }, data: {
     groupAccountId,
     sourceSystem: account.sourceSystem, sourceDatabase: account.sourceDatabase, sourceLedger: account.sourceLedger,
-    localAccountName: account.name, localCategory: account.category,
+    localAccountName: account.name, localAccountId: account.id, localCategory: account.category,
     localBalanceDirection: account.balanceDirection, latestYear: account.year,
     mappingMethod,
   } });
@@ -410,6 +412,7 @@ async function updateMappingSnapshot(
     sourceDatabase: account.sourceDatabase,
     sourceLedger: account.sourceLedger,
     localAccountName: account.name,
+    localAccountId: account.id,
     localCategory: account.category,
     localBalanceDirection: account.balanceDirection,
     latestYear: account.year,

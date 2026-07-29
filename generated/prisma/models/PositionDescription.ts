@@ -215,6 +215,7 @@ export type PositionDescriptionWhereInput = {
   positions?: Prisma.PositionListRelationFilter
   revisions?: Prisma.PositionDescriptionRevisionListRelationFilter
   responsibilityNodes?: Prisma.PositionResponsibilityNodeListRelationFilter
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceListRelationFilter
 }
 
 export type PositionDescriptionOrderByWithRelationInput = {
@@ -225,6 +226,7 @@ export type PositionDescriptionOrderByWithRelationInput = {
   positions?: Prisma.PositionOrderByRelationAggregateInput
   revisions?: Prisma.PositionDescriptionRevisionOrderByRelationAggregateInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeOrderByRelationAggregateInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceOrderByRelationAggregateInput
 }
 
 export type PositionDescriptionWhereUniqueInput = Prisma.AtLeast<{
@@ -238,6 +240,7 @@ export type PositionDescriptionWhereUniqueInput = Prisma.AtLeast<{
   positions?: Prisma.PositionListRelationFilter
   revisions?: Prisma.PositionDescriptionRevisionListRelationFilter
   responsibilityNodes?: Prisma.PositionResponsibilityNodeListRelationFilter
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceListRelationFilter
 }, "id">
 
 export type PositionDescriptionOrderByWithAggregationInput = {
@@ -269,6 +272,7 @@ export type PositionDescriptionCreateInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutPositionDescriptionInput
   revisions?: Prisma.PositionDescriptionRevisionCreateNestedManyWithoutPositionDescriptionInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionUncheckedCreateInput = {
@@ -279,6 +283,7 @@ export type PositionDescriptionUncheckedCreateInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutPositionDescriptionInput
   revisions?: Prisma.PositionDescriptionRevisionUncheckedCreateNestedManyWithoutPositionDescriptionInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionUpdateInput = {
@@ -288,6 +293,7 @@ export type PositionDescriptionUpdateInput = {
   positions?: Prisma.PositionUpdateManyWithoutPositionDescriptionNestedInput
   revisions?: Prisma.PositionDescriptionRevisionUpdateManyWithoutPositionDescriptionNestedInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 export type PositionDescriptionUncheckedUpdateInput = {
@@ -298,6 +304,7 @@ export type PositionDescriptionUncheckedUpdateInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
   revisions?: Prisma.PositionDescriptionRevisionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 export type PositionDescriptionCreateManyInput = {
@@ -405,12 +412,27 @@ export type PositionDescriptionUpdateOneRequiredWithoutResponsibilityNodesNested
   update?: Prisma.XOR<Prisma.XOR<Prisma.PositionDescriptionUpdateToOneWithWhereWithoutResponsibilityNodesInput, Prisma.PositionDescriptionUpdateWithoutResponsibilityNodesInput>, Prisma.PositionDescriptionUncheckedUpdateWithoutResponsibilityNodesInput>
 }
 
+export type PositionDescriptionCreateNestedOneWithoutWorkResponsibilityReferencesInput = {
+  create?: Prisma.XOR<Prisma.PositionDescriptionCreateWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUncheckedCreateWithoutWorkResponsibilityReferencesInput>
+  connectOrCreate?: Prisma.PositionDescriptionCreateOrConnectWithoutWorkResponsibilityReferencesInput
+  connect?: Prisma.PositionDescriptionWhereUniqueInput
+}
+
+export type PositionDescriptionUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionDescriptionCreateWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUncheckedCreateWithoutWorkResponsibilityReferencesInput>
+  connectOrCreate?: Prisma.PositionDescriptionCreateOrConnectWithoutWorkResponsibilityReferencesInput
+  upsert?: Prisma.PositionDescriptionUpsertWithoutWorkResponsibilityReferencesInput
+  connect?: Prisma.PositionDescriptionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PositionDescriptionUpdateToOneWithWhereWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUpdateWithoutWorkResponsibilityReferencesInput>, Prisma.PositionDescriptionUncheckedUpdateWithoutWorkResponsibilityReferencesInput>
+}
+
 export type PositionDescriptionCreateWithoutRevisionsInput = {
   createdBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   positions?: Prisma.PositionCreateNestedManyWithoutPositionDescriptionInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionUncheckedCreateWithoutRevisionsInput = {
@@ -420,6 +442,7 @@ export type PositionDescriptionUncheckedCreateWithoutRevisionsInput = {
   updatedAt?: Date | string
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutPositionDescriptionInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionCreateOrConnectWithoutRevisionsInput = {
@@ -444,6 +467,7 @@ export type PositionDescriptionUpdateWithoutRevisionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.PositionUpdateManyWithoutPositionDescriptionNestedInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 export type PositionDescriptionUncheckedUpdateWithoutRevisionsInput = {
@@ -453,6 +477,7 @@ export type PositionDescriptionUncheckedUpdateWithoutRevisionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.PositionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 export type PositionDescriptionCreateWithoutPositionsInput = {
@@ -461,6 +486,7 @@ export type PositionDescriptionCreateWithoutPositionsInput = {
   updatedAt?: Date | string
   revisions?: Prisma.PositionDescriptionRevisionCreateNestedManyWithoutPositionDescriptionInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionUncheckedCreateWithoutPositionsInput = {
@@ -470,6 +496,7 @@ export type PositionDescriptionUncheckedCreateWithoutPositionsInput = {
   updatedAt?: Date | string
   revisions?: Prisma.PositionDescriptionRevisionUncheckedCreateNestedManyWithoutPositionDescriptionInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionCreateOrConnectWithoutPositionsInput = {
@@ -494,6 +521,7 @@ export type PositionDescriptionUpdateWithoutPositionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revisions?: Prisma.PositionDescriptionRevisionUpdateManyWithoutPositionDescriptionNestedInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 export type PositionDescriptionUncheckedUpdateWithoutPositionsInput = {
@@ -503,6 +531,7 @@ export type PositionDescriptionUncheckedUpdateWithoutPositionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revisions?: Prisma.PositionDescriptionRevisionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 export type PositionDescriptionCreateWithoutResponsibilityNodesInput = {
@@ -511,6 +540,7 @@ export type PositionDescriptionCreateWithoutResponsibilityNodesInput = {
   updatedAt?: Date | string
   positions?: Prisma.PositionCreateNestedManyWithoutPositionDescriptionInput
   revisions?: Prisma.PositionDescriptionRevisionCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionUncheckedCreateWithoutResponsibilityNodesInput = {
@@ -520,6 +550,7 @@ export type PositionDescriptionUncheckedCreateWithoutResponsibilityNodesInput = 
   updatedAt?: Date | string
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutPositionDescriptionInput
   revisions?: Prisma.PositionDescriptionRevisionUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionCreateOrConnectWithoutResponsibilityNodesInput = {
@@ -544,6 +575,7 @@ export type PositionDescriptionUpdateWithoutResponsibilityNodesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.PositionUpdateManyWithoutPositionDescriptionNestedInput
   revisions?: Prisma.PositionDescriptionRevisionUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 export type PositionDescriptionUncheckedUpdateWithoutResponsibilityNodesInput = {
@@ -553,6 +585,61 @@ export type PositionDescriptionUncheckedUpdateWithoutResponsibilityNodesInput = 
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.PositionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
   revisions?: Prisma.PositionDescriptionRevisionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+}
+
+export type PositionDescriptionCreateWithoutWorkResponsibilityReferencesInput = {
+  createdBy?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  positions?: Prisma.PositionCreateNestedManyWithoutPositionDescriptionInput
+  revisions?: Prisma.PositionDescriptionRevisionCreateNestedManyWithoutPositionDescriptionInput
+  responsibilityNodes?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutPositionDescriptionInput
+}
+
+export type PositionDescriptionUncheckedCreateWithoutWorkResponsibilityReferencesInput = {
+  id?: number
+  createdBy?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  revisions?: Prisma.PositionDescriptionRevisionUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedCreateNestedManyWithoutPositionDescriptionInput
+}
+
+export type PositionDescriptionCreateOrConnectWithoutWorkResponsibilityReferencesInput = {
+  where: Prisma.PositionDescriptionWhereUniqueInput
+  create: Prisma.XOR<Prisma.PositionDescriptionCreateWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUncheckedCreateWithoutWorkResponsibilityReferencesInput>
+}
+
+export type PositionDescriptionUpsertWithoutWorkResponsibilityReferencesInput = {
+  update: Prisma.XOR<Prisma.PositionDescriptionUpdateWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUncheckedUpdateWithoutWorkResponsibilityReferencesInput>
+  create: Prisma.XOR<Prisma.PositionDescriptionCreateWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUncheckedCreateWithoutWorkResponsibilityReferencesInput>
+  where?: Prisma.PositionDescriptionWhereInput
+}
+
+export type PositionDescriptionUpdateToOneWithWhereWithoutWorkResponsibilityReferencesInput = {
+  where?: Prisma.PositionDescriptionWhereInput
+  data: Prisma.XOR<Prisma.PositionDescriptionUpdateWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUncheckedUpdateWithoutWorkResponsibilityReferencesInput>
+}
+
+export type PositionDescriptionUpdateWithoutWorkResponsibilityReferencesInput = {
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  positions?: Prisma.PositionUpdateManyWithoutPositionDescriptionNestedInput
+  revisions?: Prisma.PositionDescriptionRevisionUpdateManyWithoutPositionDescriptionNestedInput
+  responsibilityNodes?: Prisma.PositionResponsibilityNodeUpdateManyWithoutPositionDescriptionNestedInput
+}
+
+export type PositionDescriptionUncheckedUpdateWithoutWorkResponsibilityReferencesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  revisions?: Prisma.PositionDescriptionRevisionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 
@@ -564,12 +651,14 @@ export type PositionDescriptionCountOutputType = {
   positions: number
   revisions: number
   responsibilityNodes: number
+  workResponsibilityReferences: number
 }
 
 export type PositionDescriptionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   positions?: boolean | PositionDescriptionCountOutputTypeCountPositionsArgs
   revisions?: boolean | PositionDescriptionCountOutputTypeCountRevisionsArgs
   responsibilityNodes?: boolean | PositionDescriptionCountOutputTypeCountResponsibilityNodesArgs
+  workResponsibilityReferences?: boolean | PositionDescriptionCountOutputTypeCountWorkResponsibilityReferencesArgs
 }
 
 /**
@@ -603,6 +692,13 @@ export type PositionDescriptionCountOutputTypeCountResponsibilityNodesArgs<ExtAr
   where?: Prisma.PositionResponsibilityNodeWhereInput
 }
 
+/**
+ * PositionDescriptionCountOutputType without action
+ */
+export type PositionDescriptionCountOutputTypeCountWorkResponsibilityReferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkResponsibilityReferenceWhereInput
+}
+
 
 export type PositionDescriptionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -612,6 +708,7 @@ export type PositionDescriptionSelect<ExtArgs extends runtime.Types.Extensions.I
   positions?: boolean | Prisma.PositionDescription$positionsArgs<ExtArgs>
   revisions?: boolean | Prisma.PositionDescription$revisionsArgs<ExtArgs>
   responsibilityNodes?: boolean | Prisma.PositionDescription$responsibilityNodesArgs<ExtArgs>
+  workResponsibilityReferences?: boolean | Prisma.PositionDescription$workResponsibilityReferencesArgs<ExtArgs>
   _count?: boolean | Prisma.PositionDescriptionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["positionDescription"]>
 
@@ -641,6 +738,7 @@ export type PositionDescriptionInclude<ExtArgs extends runtime.Types.Extensions.
   positions?: boolean | Prisma.PositionDescription$positionsArgs<ExtArgs>
   revisions?: boolean | Prisma.PositionDescription$revisionsArgs<ExtArgs>
   responsibilityNodes?: boolean | Prisma.PositionDescription$responsibilityNodesArgs<ExtArgs>
+  workResponsibilityReferences?: boolean | Prisma.PositionDescription$workResponsibilityReferencesArgs<ExtArgs>
   _count?: boolean | Prisma.PositionDescriptionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PositionDescriptionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -652,6 +750,7 @@ export type $PositionDescriptionPayload<ExtArgs extends runtime.Types.Extensions
     positions: Prisma.$PositionPayload<ExtArgs>[]
     revisions: Prisma.$PositionDescriptionRevisionPayload<ExtArgs>[]
     responsibilityNodes: Prisma.$PositionResponsibilityNodePayload<ExtArgs>[]
+    workResponsibilityReferences: Prisma.$WorkResponsibilityReferencePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1055,6 +1154,7 @@ export interface Prisma__PositionDescriptionClient<T, Null = never, ExtArgs exte
   positions<T extends Prisma.PositionDescription$positionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDescription$positionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   revisions<T extends Prisma.PositionDescription$revisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDescription$revisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionDescriptionRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   responsibilityNodes<T extends Prisma.PositionDescription$responsibilityNodesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDescription$responsibilityNodesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionResponsibilityNodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  workResponsibilityReferences<T extends Prisma.PositionDescription$workResponsibilityReferencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDescription$workResponsibilityReferencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkResponsibilityReferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1550,6 +1650,30 @@ export type PositionDescription$responsibilityNodesArgs<ExtArgs extends runtime.
   take?: number
   skip?: number
   distinct?: Prisma.PositionResponsibilityNodeScalarFieldEnum | Prisma.PositionResponsibilityNodeScalarFieldEnum[]
+}
+
+/**
+ * PositionDescription.workResponsibilityReferences
+ */
+export type PositionDescription$workResponsibilityReferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkResponsibilityReference
+   */
+  select?: Prisma.WorkResponsibilityReferenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkResponsibilityReference
+   */
+  omit?: Prisma.WorkResponsibilityReferenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkResponsibilityReferenceInclude<ExtArgs> | null
+  where?: Prisma.WorkResponsibilityReferenceWhereInput
+  orderBy?: Prisma.WorkResponsibilityReferenceOrderByWithRelationInput | Prisma.WorkResponsibilityReferenceOrderByWithRelationInput[]
+  cursor?: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkResponsibilityReferenceScalarFieldEnum | Prisma.WorkResponsibilityReferenceScalarFieldEnum[]
 }
 
 /**

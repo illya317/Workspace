@@ -64,7 +64,7 @@ HR 数据质量 Provider 继续把雇佣、当前任职、组织归属和投入�
 
 汇报关系是岗位关系，不是固定人员关系。`Position.reportToPositionId` 和 `PositionReportOverride.reportToPositionId` 是结构默认值；`EDP.reportToPositionId -> Position.id` 是某段任职期间实际采用的汇报岗位快照。人员只在使用时按业务日期从该岗位的有效 `EDP` 占有人派生，因此汇报岗位换人后无需逐个改下属，历史期间也不会被当前组织结构重写。`EDP.reportTo` 仅保留为旧库兼容列，新写入不再使用。Platform 的 `currentEmploymentDateWhere`、`currentOpenEndedDateWhere` 是 HR、权限、审批和 Work 读取当前人员/任职的共享口径，未来任职不得提前获得权限，已到离职生效日的人员不得继续作为处理人或负责人。
 
-新建员工档案默认同步创建一个 Workspace 账号：账号昵称使用员工姓名，用户名使用姓名拼音生成；同名或重名时追加员工编号/序号保持唯一。员工编号分配必须同时避开 `Employee.employeeId` 和历史 `User.employeeId`，管理员手工绑定账号工号时也必须拒绝绑定到已被其他账号或员工档案占用的工号，保证一个员工编号最多只有一个 Workspace 账号。
+新建员工档案默认同步创建一个 Workspace 账号：账号昵称使用员工姓名，用户名使用姓名拼音生成；同名或重名时追加员工编号/序号保持唯一。员工编号只由 `Employee.employeeId` 管理；账号绑定统一保存 `Employee.userId -> User.id`，`User` 不再复制一份无 FK 的员工编号。管理员按工号选择员工时，service 实际更新该员工的 `userId`，并拒绝绑定不存在或已绑定其他账号的员工。
 
 虚拟员工复用同一条 `Employee -> Employment -> User -> EDP` 主数据链，不建立 Agent 私有员工表。其 `Employment.personnelType = 虚拟员工`，关联 Workspace 账号固定 `canLogin = false`；不同虚拟员工可以分别配置部门、岗位以及用户/岗位/部门 RBAC。虚拟身份的创建及 `personnelType` 生命周期只能由 Agent provisioning 管理，普通 HR 员工创建、任职创建和任职编辑不得进入或退出该类型；岗位及其他人事资料仍由 HR 维护。`/agent` 只拥有可执行配置与运行记录，系统管理的智能体页只管理全局 action 上限。多个虚拟员工共用 Platform Agent 运行时；请求人拥有会话、提案和确认责任，选中的虚拟员工作为业务执行与审计 actor，权限始终取请求人、虚拟员工、全局上限和配置工具白名单的交集。生成花名册排除虚拟员工，普通员工目录和 Work 分配候选仍保留这些身份。
 

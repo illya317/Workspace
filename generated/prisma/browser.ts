@@ -255,10 +255,25 @@ export type ExternalPartyRolePeriod = Prisma.ExternalPartyRolePeriodModel
  */
 export type ExternalPartySourceMapping = Prisma.ExternalPartySourceMappingModel
 /**
+ * Model FinanceAssetCategory
+ * 资产分类主数据（系统受控目录，承载资产类型下的分类与默认计算政策）
+ */
+export type FinanceAssetCategory = Prisma.FinanceAssetCategoryModel
+/**
+ * Model FinanceAssetCategoryPolicy
+ * 公司年度资产分类会计政策（分类判断、默认计算参数与真实科目 FK）
+ */
+export type FinanceAssetCategoryPolicy = Prisma.FinanceAssetCategoryPolicyModel
+/**
  * Model FinanceAssetCard
  * 可折旧/摊销资产卡片（事实表，来源于手工新建或独立资产底稿导入）
  */
 export type FinanceAssetCard = Prisma.FinanceAssetCardModel
+/**
+ * Model FinanceAssetAcquisitionEvidence
+ * 资产取得入账证据（显式确认事实，锁定取得期间、专用凭证和入账金额）
+ */
+export type FinanceAssetAcquisitionEvidence = Prisma.FinanceAssetAcquisitionEvidenceModel
 /**
  * Model FinanceAssetCostLine
  * 资产成本组成行（事实表，保留发票、免除和其他纳入/扣减依据）
@@ -285,8 +300,23 @@ export type FinanceAssetPeriodEntry = Prisma.FinanceAssetPeriodEntryModel
  */
 export type FinanceAssetAdjustment = Prisma.FinanceAssetAdjustmentModel
 /**
+ * Model FinanceAssetImpairmentAssessment
+ * 公司期间资产减值评估底稿（受控确认事实，保存当次资产范围指纹与会计处理证据）
+ */
+export type FinanceAssetImpairmentAssessment = Prisma.FinanceAssetImpairmentAssessmentModel
+/**
+ * Model FinanceAssetImpairmentAllocation
+ * 资产减值分配明细（把公司期间减值总额落实到具体资产，供后续折旧摊销重放）
+ */
+export type FinanceAssetImpairmentAllocation = Prisma.FinanceAssetImpairmentAllocationModel
+/**
+ * Model FinanceAssetDisposal
+ * 资产处置确认事实（处置日期、依据及已过账凭证，确认时同步关闭资产卡片）
+ */
+export type FinanceAssetDisposal = Prisma.FinanceAssetDisposalModel
+/**
  * Model FinanceBudgetVersion
- * 预算版本头表。每年可存在多个版本（draft/active/archived），同 (year, companyCode) 下只有一个 active。
+ * 预算版本头表。每年可存在多个版本（draft/active/archived），同 (year, companyId) 下只有一个 active。
  */
 export type FinanceBudgetVersion = Prisma.FinanceBudgetVersionModel
 /**
@@ -315,6 +345,36 @@ export type FinanceCashFlowAllocation = Prisma.FinanceCashFlowAllocationModel
  */
 export type FinanceCashFlowAllocationAdjustment = Prisma.FinanceCashFlowAllocationAdjustmentModel
 /**
+ * Model FinanceCloseRun
+ * 公司期间关账运行头（事实表，来源于 Workspace 显式创建并由各台账贡献状态）
+ */
+export type FinanceCloseRun = Prisma.FinanceCloseRunModel
+/**
+ * Model FinanceCloseTask
+ * 关账贡献项的当前状态投影（事实表，来源于各 owner 台账 contributor 的最近一次检查）
+ */
+export type FinanceCloseTask = Prisma.FinanceCloseTaskModel
+/**
+ * Model FinanceCloseEvidenceSnapshot
+ * 关账贡献项的不可变证据快照（事实表，来源于 contributor 检查结果冻结；数据库触发器拒绝更新和删除）
+ */
+export type FinanceCloseEvidenceSnapshot = Prisma.FinanceCloseEvidenceSnapshotModel
+/**
+ * Model FinanceCloseEvent
+ * 关账状态追加事件（事实表，来源于显式刷新、状态变更或其冲销命令；数据库触发器拒绝更新和删除）
+ */
+export type FinanceCloseEvent = Prisma.FinanceCloseEventModel
+/**
+ * Model FinanceCloseWorkpaper
+ * 关账主观完整性事项的受控期间底稿；每个公司、期间和任务只能存在一份当前底稿。
+ */
+export type FinanceCloseWorkpaper = Prisma.FinanceCloseWorkpaperModel
+/**
+ * Model FinanceCloseWorkpaperEvent
+ * 关账底稿追加式审计事件；保存、提交复核、独立复核均冻结当次输入快照，数据库触发器拒绝更新和删除。
+ */
+export type FinanceCloseWorkpaperEvent = Prisma.FinanceCloseWorkpaperEventModel
+/**
  * Model FinanceConsolidationEntryLine
  * 合并抵销分录借贷行（事实表，主体、对方主体和匹配来源均保存真实外键；同时冻结来源审计摘要）。
  */
@@ -340,6 +400,11 @@ export type FinanceVoucherCompanyMappingRule = Prisma.FinanceVoucherCompanyMappi
  */
 export type FinanceConsolidationOutputSnapshot = Prisma.FinanceConsolidationOutputSnapshotModel
 /**
+ * Model FinanceCompanyCurrencyPolicy
+ * 公司财务本位币政策；用于覆盖已确认错误的 ERP 账套本位币，创建批次时冻结。
+ */
+export type FinanceCompanyCurrencyPolicy = Prisma.FinanceCompanyCurrencyPolicyModel
+/**
  * Model FinanceConsolidationScopeSelection
  * 单次合并报表生成前的主体选择（临时事实，来源于财务人员在合并准备页的期间级选择；创建批次后消费并清除）。
  */
@@ -349,11 +414,6 @@ export type FinanceConsolidationScopeSelection = Prisma.FinanceConsolidationScop
  * 合并报表批次（事实头，来源于人工创建/复核生命周期）。每个版本冻结范围、来源、汇率和抵销事实。
  */
 export type FinanceConsolidationBatch = Prisma.FinanceConsolidationBatchModel
-/**
- * Model FinanceCompanyCurrencyPolicy
- * 公司财务本位币政策；用于覆盖已确认错误的 ERP 账套本位币，创建批次时冻结。
- */
-export type FinanceCompanyCurrencyPolicy = Prisma.FinanceCompanyCurrencyPolicyModel
 /**
  * Model FinanceConsolidationBatchEvent
  * 合并批次追加式事件流。生命周期迁移和物理删除审计只允许新增，不允许覆盖。
@@ -535,6 +595,16 @@ export type FinanceLedgerImport = Prisma.FinanceLedgerImportModel
  */
 export type FinanceSourceAccountBalance = Prisma.FinanceSourceAccountBalanceModel
 /**
+ * Model FinanceBalanceSnapshot
+ * 年度余额快照批次（一次外部会计软件余额表导入 = 一行）
+ */
+export type FinanceBalanceSnapshot = Prisma.FinanceBalanceSnapshotModel
+/**
+ * Model FinanceBalanceSnapshotRow
+ * 年度余额快照明细（每个科目一行，保存导入时的编码/名称快照）
+ */
+export type FinanceBalanceSnapshotRow = Prisma.FinanceBalanceSnapshotRowModel
+/**
  * Model FinanceAccount
  * 财务科目（含层级）
  */
@@ -544,11 +614,6 @@ export type FinanceAccount = Prisma.FinanceAccountModel
  * 会计期间
  */
 export type FinancePeriod = Prisma.FinancePeriodModel
-/**
- * Model FinanceStatementVoucherExclusion
- * 单体报表来源例外：保留原始凭证，只从指定报表口径中排除，避免修改或删除总账事实
- */
-export type FinanceStatementVoucherExclusion = Prisma.FinanceStatementVoucherExclusionModel
 /**
  * Model FinanceVoucher
  * 记账凭证
@@ -564,16 +629,6 @@ export type FinanceVoucherItem = Prisma.FinanceVoucherItemModel
  * 科目余额（事实：期初/本期/期末借贷）
  */
 export type FinanceAccountBalance = Prisma.FinanceAccountBalanceModel
-/**
- * Model FinanceBalanceSnapshot
- * 年度余额快照批次（一次外部会计软件余额表导入 = 一行）
- */
-export type FinanceBalanceSnapshot = Prisma.FinanceBalanceSnapshotModel
-/**
- * Model FinanceBalanceSnapshotRow
- * 年度余额快照明细（每个科目一行，保存导入时的编码/名称快照）
- */
-export type FinanceBalanceSnapshotRow = Prisma.FinanceBalanceSnapshotRowModel
 /**
  * Model FinanceReclassRule
  * 重分类规则 — 绑定共享会计政策版本和稳定集团科目身份，不再按公司或自然年分套
@@ -602,6 +657,11 @@ export type FinanceBalanceReclassAdjustmentHistory = Prisma.FinanceBalanceReclas
  * engine upsert 时幂等，不会重复
  */
 export type ReclassResult = Prisma.ReclassResultModel
+/**
+ * Model FinanceStatementVoucherExclusion
+ * 单体报表来源例外：保留凭证，只从指定报表口径排除
+ */
+export type FinanceStatementVoucherExclusion = Prisma.FinanceStatementVoucherExclusionModel
 /**
  * Model FinanceStatementSourcePackage
  * 个别财务报表来源包（不可变证据事实，来源于人工上传的法定三表 Excel）。
@@ -639,15 +699,100 @@ export type FinanceStatementWorkpaperLine = Prisma.FinanceStatementWorkpaperLine
  */
 export type FinanceStatementExchangeRate = Prisma.FinanceStatementExchangeRateModel
 /**
+ * Model FinanceTaxFiling
+ * 税务申报记录（事实表，来源于官方申报回执手工维护或受治理导入）
+ */
+export type FinanceTaxFiling = Prisma.FinanceTaxFilingModel
+/**
+ * Model FinanceTaxPayment
+ * 税款支付追加记录（事实表，来源于银行回单、税务缴款凭证或其冲销记录）
+ */
+export type FinanceTaxPayment = Prisma.FinanceTaxPaymentModel
+/**
+ * Model FinanceTaxPaymentAllocation
+ * 税款支付与申报及总账分录的分配链接（事实表，来源于人工勾稽或受治理凭证匹配）
+ */
+export type FinanceTaxPaymentAllocation = Prisma.FinanceTaxPaymentAllocationModel
+/**
+ * Model FinanceTaxReconciliationSnapshot
+ * 税表、缴款与总账勾稽的不可变证据快照（事实表，来源于 Finance 服务冻结的期间检查结果）
+ */
+export type FinanceTaxReconciliationSnapshot = Prisma.FinanceTaxReconciliationSnapshotModel
+/**
+ * Model FinanceTaxType
+ * 税种受控目录（主数据，来源于 Workspace 配置或经审核的公共税务目录）
+ */
+export type FinanceTaxType = Prisma.FinanceTaxTypeModel
+/**
+ * Model FinanceTaxRegistration
+ * 公司纳税登记（事实表，来源于税务登记资料手工维护或受治理导入）
+ */
+export type FinanceTaxRegistration = Prisma.FinanceTaxRegistrationModel
+/**
+ * Model FinanceTaxWorkpaper
+ * 期间税费计提工作底稿（事实表，来源于纳税登记、期间和人工确认的计税输入）
+ */
+export type FinanceTaxWorkpaper = Prisma.FinanceTaxWorkpaperModel
+/**
+ * Model FinanceTaxAccrualLine
+ * 税费计提输入明细（事实表，来源于业务计税依据、税率政策或受治理底稿导入）
+ */
+export type FinanceTaxAccrualLine = Prisma.FinanceTaxAccrualLineModel
+/**
+ * Model FinanceBankReconciliation
+ * 期间银行对账工作底稿（事实表，来源于 Workspace 手工维护或受治理银行底稿导入）
+ */
+export type FinanceBankReconciliation = Prisma.FinanceBankReconciliationModel
+/**
+ * Model FinanceBankReconciliationItem
+ * 银行对账未达项目（事实表，来源于银行流水、总账分录或人工识别）
+ */
+export type FinanceBankReconciliationItem = Prisma.FinanceBankReconciliationItemModel
+/**
+ * Model FinanceInterestWorkpaper
+ * 期间利息计提工作底稿（事实表，来源于借款条款、期间和人工确认的计算输入）
+ */
+export type FinanceInterestWorkpaper = Prisma.FinanceInterestWorkpaperModel
+/**
+ * Model FinanceInterestWorkpaperLine
+ * 利息底稿分段计息输入（事实表，来源于本金事件、利率条款或受治理底稿导入）
+ */
+export type FinanceInterestWorkpaperLine = Prisma.FinanceInterestWorkpaperLineModel
+/**
+ * Model FinanceInterestVoucherLink
+ * 利息底稿与总账分录的分配链接（事实表，来源于人工勾稽或受治理凭证匹配）
+ */
+export type FinanceInterestVoucherLink = Prisma.FinanceInterestVoucherLinkModel
+/**
  * Model FinanceCurrency
  * ERP 币种来源主数据
  */
 export type FinanceCurrency = Prisma.FinanceCurrencyModel
 /**
  * Model FinanceBankAccount
- * ERP 银行账户来源主数据
+ * 银行账户主档（事实表，来源于 ERP readable 或受治理的 Workspace 维护）
  */
 export type FinanceBankAccount = Prisma.FinanceBankAccountModel
+/**
+ * Model FinanceLoan
+ * 借款合同主档（事实表，来源于 Workspace 手工维护或受治理底稿导入）
+ */
+export type FinanceLoan = Prisma.FinanceLoanModel
+/**
+ * Model FinanceLoanRateTerm
+ * 借款分段利率条款（事实表，来源于合同条款手工维护或受治理底稿导入）
+ */
+export type FinanceLoanRateTerm = Prisma.FinanceLoanRateTermModel
+/**
+ * Model FinanceLoanPrincipalEvent
+ * 借款本金变动追加事件（事实表，来源于实际放款、还本或其冲销记录）
+ */
+export type FinanceLoanPrincipalEvent = Prisma.FinanceLoanPrincipalEventModel
+/**
+ * Model Company
+ * 内部法律公司角色；法定身份由 Party 统一维护
+ */
+export type Company = Prisma.CompanyModel
 /**
  * Model DepartmentDescription
  * 部门职责说明书（原始 JSON 导入，details 为 JSON blob）
@@ -663,6 +808,11 @@ export type PositionDescription = Prisma.PositionDescriptionModel
  * 岗位说明书不可变修订；正常变更和纠错都新增 revision，禁止覆盖旧正文。
  */
 export type PositionDescriptionRevision = Prisma.PositionDescriptionRevisionModel
+/**
+ * Model EditHistory
+ * 实体编辑历史（版本快照）
+ */
+export type EditHistory = Prisma.EditHistoryModel
 /**
  * Model EmploymentAgreement
  * 雇佣协议稳定身份。期限与内容版本分别由 Term / Revision 承载，missingFieldsJson 与业务有效状态分离，禁止以数组位置充当身份。
@@ -688,6 +838,11 @@ export type EmploymentAgreementRevision = Prisma.EmploymentAgreementRevisionMode
  * 雇佣协议生命周期命令台账。重试只返回既有结果，不重复创建期限或修订。
  */
 export type EmploymentAgreementChange = Prisma.EmploymentAgreementChangeModel
+/**
+ * Model Employment
+ * 员工雇佣信息（在职状态、入职/离职日期等事实字段）
+ */
+export type Employment = Prisma.EmploymentModel
 /**
  * Model EmployeeLifecycleEvent
  * 人员生命周期操作账本（事实表，来源于 HR 人员生命周期表单；记录未来生效的入职、调岗、兼岗、汇报变化和离职）
@@ -739,16 +894,6 @@ export type EmployeeSocialInsurancePeriodRevision = Prisma.EmployeeSocialInsuran
  */
 export type Employee = Prisma.EmployeeModel
 /**
- * Model Employment
- * 员工雇佣信息（在职状态、入职/离职日期等事实字段）
- */
-export type Employment = Prisma.EmploymentModel
-/**
- * Model Company
- * 内部法律公司角色；法定身份由 Party 统一维护
- */
-export type Company = Prisma.CompanyModel
-/**
  * Model Department
  * 组织单元树（兼容名 Department；含 G/M 层级关系与负责人岗位）
  */
@@ -768,11 +913,6 @@ export type EDP = Prisma.EDPModel
  * 岗位在指定公司/组织口径下的特殊汇报规则
  */
 export type PositionReportOverride = Prisma.PositionReportOverrideModel
-/**
- * Model EditHistory
- * 实体编辑历史（版本快照）
- */
-export type EditHistory = Prisma.EditHistoryModel
 /**
  * Model InventoryItem
  * 存货物料主数据（事实表，来源于手工新建或业务底稿导入）
@@ -1072,6 +1212,21 @@ export type ProductionQcAuditEvent = Prisma.ProductionQcAuditEventModel
  * 系统配置键值对
  */
 export type SystemConfig = Prisma.SystemConfigModel
+/**
+ * Model BusinessCodeSequence
+ * 业务编码的服务端原子流水；scopeKey 由各领域按公司、分类、年度等稳定维度组成
+ */
+export type BusinessCodeSequence = Prisma.BusinessCodeSequenceModel
+/**
+ * Model BusinessCodeRule
+ * 当前生效的业务编码规则；修改配置时保留稳定 id 并递增 version
+ */
+export type BusinessCodeRule = Prisma.BusinessCodeRuleModel
+/**
+ * Model BusinessCodeAllocation
+ * 已分配业务编码凭证；保存规则版本、渲染结果和幂等键，既有记录不随规则变化重算
+ */
+export type BusinessCodeAllocation = Prisma.BusinessCodeAllocationModel
 /**
  * Model LoginAttempt
  * 登录尝试审计日志

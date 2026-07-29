@@ -13,7 +13,6 @@ model User {
   portalSlots                       String?
   canLogin                          Boolean                             @default(true)
   apiKeyHash                        String?                             @unique(map: "User_apiKey_key") @map("apiKey")
-  employeeId                        String?
   createdAt                         DateTime                            @default(now())
   sessionVersion                    Int                                 @default(0)
   editedContracts                   Contract[]                          @relation("ContractEditor")
@@ -27,7 +26,7 @@ model User {
   recordedEmployeeSocialInsuranceRevisions EmployeeSocialInsurancePeriodRevision[] @relation("EmployeeSocialInsuranceRevisionRecorder")
   createdContractRecords            ContractRecord[]                    @relation("ContractRecordCreator")
   editHistories                     EditHistory[]                       @relation("EditHistoryEditor")
-  employees                         Employee[]                          @relation("EmployeeUser")
+  employees                          Employee[]                          @relation("EmployeeUser")
   agentProfile                     AgentProfile?                       @relation("AgentProfileActor")
   editedFinanceAccounts             FinanceAccount[]                    @relation("FinanceAccountEditor")
   editedFinanceVouchers             FinanceVoucher[]                    @relation("FinanceVoucherEditor")
@@ -77,6 +76,14 @@ model User {
   recordedEmployeePeriodRevisions EmployeePeriodRevision[]             @relation("EmployeePeriodRevisionRecorder")
   requestedDataQualityRuns         DataQualityRun[]                     @relation("DataQualityRunRequester")
   recordedEmploymentAgreementChanges EmploymentAgreementChange[]       @relation("EmploymentAgreementChangeActor")
+  financeCloseRunsStarted            FinanceCloseRun[]
+  financeCloseEventsActed             FinanceCloseEvent[]
+  financeCloseWorkpapersPrepared      FinanceCloseWorkpaper[]      @relation("FinanceCloseWorkpaperPreparer")
+  financeCloseWorkpapersReviewed      FinanceCloseWorkpaper[]      @relation("FinanceCloseWorkpaperReviewer")
+  financeCloseWorkpaperEventsActed    FinanceCloseWorkpaperEvent[]
+  financeAssetImpairmentAssessments   FinanceAssetImpairmentAssessment[] @relation("FinanceAssetImpairmentAssessor")
+  financeAssetDisposalsConfirmed      FinanceAssetDisposal[] @relation("FinanceAssetDisposalConfirmer")
+  financeAssetAcquisitionsConfirmed   FinanceAssetAcquisitionEvidence[] @relation("FinanceAssetAcquisitionConfirmer")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md

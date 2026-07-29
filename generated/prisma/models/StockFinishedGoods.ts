@@ -32,6 +32,7 @@ export type StockFinishedGoodsAvgAggregateOutputType = {
   currentInbound: number | null
   currentOutbound: number | null
   availableStock: number | null
+  companyId: number | null
   editedBy: number | null
   version: number | null
 }
@@ -42,6 +43,7 @@ export type StockFinishedGoodsSumAggregateOutputType = {
   currentInbound: number | null
   currentOutbound: number | null
   availableStock: number | null
+  companyId: number | null
   editedBy: number | null
   version: number | null
 }
@@ -59,6 +61,7 @@ export type StockFinishedGoodsMinAggregateOutputType = {
   availableStock: number | null
   remark: string | null
   companyCode: string | null
+  companyId: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -79,6 +82,7 @@ export type StockFinishedGoodsMaxAggregateOutputType = {
   availableStock: number | null
   remark: string | null
   companyCode: string | null
+  companyId: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -99,6 +103,7 @@ export type StockFinishedGoodsCountAggregateOutputType = {
   availableStock: number
   remark: number
   companyCode: number
+  companyId: number
   editedBy: number
   editedAt: number
   version: number
@@ -114,6 +119,7 @@ export type StockFinishedGoodsAvgAggregateInputType = {
   currentInbound?: true
   currentOutbound?: true
   availableStock?: true
+  companyId?: true
   editedBy?: true
   version?: true
 }
@@ -124,6 +130,7 @@ export type StockFinishedGoodsSumAggregateInputType = {
   currentInbound?: true
   currentOutbound?: true
   availableStock?: true
+  companyId?: true
   editedBy?: true
   version?: true
 }
@@ -141,6 +148,7 @@ export type StockFinishedGoodsMinAggregateInputType = {
   availableStock?: true
   remark?: true
   companyCode?: true
+  companyId?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -161,6 +169,7 @@ export type StockFinishedGoodsMaxAggregateInputType = {
   availableStock?: true
   remark?: true
   companyCode?: true
+  companyId?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -181,6 +190,7 @@ export type StockFinishedGoodsCountAggregateInputType = {
   availableStock?: true
   remark?: true
   companyCode?: true
+  companyId?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -288,6 +298,7 @@ export type StockFinishedGoodsGroupByOutputType = {
   availableStock: number
   remark: string | null
   companyCode: string | null
+  companyId: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number
@@ -331,12 +342,14 @@ export type StockFinishedGoodsWhereInput = {
   availableStock?: Prisma.FloatFilter<"StockFinishedGoods"> | number
   remark?: Prisma.StringNullableFilter<"StockFinishedGoods"> | string | null
   companyCode?: Prisma.StringNullableFilter<"StockFinishedGoods"> | string | null
+  companyId?: Prisma.IntNullableFilter<"StockFinishedGoods"> | number | null
   editedBy?: Prisma.IntNullableFilter<"StockFinishedGoods"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"StockFinishedGoods"> | Date | string | null
   version?: Prisma.IntFilter<"StockFinishedGoods"> | number
   createdAt?: Prisma.DateTimeFilter<"StockFinishedGoods"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockFinishedGoods"> | Date | string
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type StockFinishedGoodsOrderByWithRelationInput = {
@@ -352,12 +365,14 @@ export type StockFinishedGoodsOrderByWithRelationInput = {
   availableStock?: Prisma.SortOrder
   remark?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   editor?: Prisma.UserOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type StockFinishedGoodsWhereUniqueInput = Prisma.AtLeast<{
@@ -376,12 +391,14 @@ export type StockFinishedGoodsWhereUniqueInput = Prisma.AtLeast<{
   availableStock?: Prisma.FloatFilter<"StockFinishedGoods"> | number
   remark?: Prisma.StringNullableFilter<"StockFinishedGoods"> | string | null
   companyCode?: Prisma.StringNullableFilter<"StockFinishedGoods"> | string | null
+  companyId?: Prisma.IntNullableFilter<"StockFinishedGoods"> | number | null
   editedBy?: Prisma.IntNullableFilter<"StockFinishedGoods"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"StockFinishedGoods"> | Date | string | null
   version?: Prisma.IntFilter<"StockFinishedGoods"> | number
   createdAt?: Prisma.DateTimeFilter<"StockFinishedGoods"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockFinishedGoods"> | Date | string
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "code">
 
 export type StockFinishedGoodsOrderByWithAggregationInput = {
@@ -397,6 +414,7 @@ export type StockFinishedGoodsOrderByWithAggregationInput = {
   availableStock?: Prisma.SortOrder
   remark?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -425,6 +443,7 @@ export type StockFinishedGoodsScalarWhereWithAggregatesInput = {
   availableStock?: Prisma.FloatWithAggregatesFilter<"StockFinishedGoods"> | number
   remark?: Prisma.StringNullableWithAggregatesFilter<"StockFinishedGoods"> | string | null
   companyCode?: Prisma.StringNullableWithAggregatesFilter<"StockFinishedGoods"> | string | null
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"StockFinishedGoods"> | number | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"StockFinishedGoods"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"StockFinishedGoods"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"StockFinishedGoods"> | number
@@ -449,6 +468,7 @@ export type StockFinishedGoodsCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedStockFinishedGoodsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutStockFinishedGoodsInput
 }
 
 export type StockFinishedGoodsUncheckedCreateInput = {
@@ -464,6 +484,7 @@ export type StockFinishedGoodsUncheckedCreateInput = {
   availableStock?: number
   remark?: string | null
   companyCode?: string | null
+  companyId?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -488,6 +509,7 @@ export type StockFinishedGoodsUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedStockFinishedGoodsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutStockFinishedGoodsNestedInput
 }
 
 export type StockFinishedGoodsUncheckedUpdateInput = {
@@ -503,6 +525,7 @@ export type StockFinishedGoodsUncheckedUpdateInput = {
   availableStock?: Prisma.FloatFieldUpdateOperationsInput | number
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -523,6 +546,7 @@ export type StockFinishedGoodsCreateManyInput = {
   availableStock?: number
   remark?: string | null
   companyCode?: string | null
+  companyId?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -561,6 +585,7 @@ export type StockFinishedGoodsUncheckedUpdateManyInput = {
   availableStock?: Prisma.FloatFieldUpdateOperationsInput | number
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -591,6 +616,7 @@ export type StockFinishedGoodsCountOrderByAggregateInput = {
   availableStock?: Prisma.SortOrder
   remark?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -604,6 +630,7 @@ export type StockFinishedGoodsAvgOrderByAggregateInput = {
   currentInbound?: Prisma.SortOrder
   currentOutbound?: Prisma.SortOrder
   availableStock?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -621,6 +648,7 @@ export type StockFinishedGoodsMaxOrderByAggregateInput = {
   availableStock?: Prisma.SortOrder
   remark?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -641,6 +669,7 @@ export type StockFinishedGoodsMinOrderByAggregateInput = {
   availableStock?: Prisma.SortOrder
   remark?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -654,6 +683,7 @@ export type StockFinishedGoodsSumOrderByAggregateInput = {
   currentInbound?: Prisma.SortOrder
   currentOutbound?: Prisma.SortOrder
   availableStock?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -700,6 +730,48 @@ export type StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput = {
   deleteMany?: Prisma.StockFinishedGoodsScalarWhereInput | Prisma.StockFinishedGoodsScalarWhereInput[]
 }
 
+export type StockFinishedGoodsCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.StockFinishedGoodsCreateWithoutCompanyInput, Prisma.StockFinishedGoodsUncheckedCreateWithoutCompanyInput> | Prisma.StockFinishedGoodsCreateWithoutCompanyInput[] | Prisma.StockFinishedGoodsUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.StockFinishedGoodsCreateOrConnectWithoutCompanyInput | Prisma.StockFinishedGoodsCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.StockFinishedGoodsCreateManyCompanyInputEnvelope
+  connect?: Prisma.StockFinishedGoodsWhereUniqueInput | Prisma.StockFinishedGoodsWhereUniqueInput[]
+}
+
+export type StockFinishedGoodsUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.StockFinishedGoodsCreateWithoutCompanyInput, Prisma.StockFinishedGoodsUncheckedCreateWithoutCompanyInput> | Prisma.StockFinishedGoodsCreateWithoutCompanyInput[] | Prisma.StockFinishedGoodsUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.StockFinishedGoodsCreateOrConnectWithoutCompanyInput | Prisma.StockFinishedGoodsCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.StockFinishedGoodsCreateManyCompanyInputEnvelope
+  connect?: Prisma.StockFinishedGoodsWhereUniqueInput | Prisma.StockFinishedGoodsWhereUniqueInput[]
+}
+
+export type StockFinishedGoodsUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.StockFinishedGoodsCreateWithoutCompanyInput, Prisma.StockFinishedGoodsUncheckedCreateWithoutCompanyInput> | Prisma.StockFinishedGoodsCreateWithoutCompanyInput[] | Prisma.StockFinishedGoodsUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.StockFinishedGoodsCreateOrConnectWithoutCompanyInput | Prisma.StockFinishedGoodsCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.StockFinishedGoodsUpsertWithWhereUniqueWithoutCompanyInput | Prisma.StockFinishedGoodsUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.StockFinishedGoodsCreateManyCompanyInputEnvelope
+  set?: Prisma.StockFinishedGoodsWhereUniqueInput | Prisma.StockFinishedGoodsWhereUniqueInput[]
+  disconnect?: Prisma.StockFinishedGoodsWhereUniqueInput | Prisma.StockFinishedGoodsWhereUniqueInput[]
+  delete?: Prisma.StockFinishedGoodsWhereUniqueInput | Prisma.StockFinishedGoodsWhereUniqueInput[]
+  connect?: Prisma.StockFinishedGoodsWhereUniqueInput | Prisma.StockFinishedGoodsWhereUniqueInput[]
+  update?: Prisma.StockFinishedGoodsUpdateWithWhereUniqueWithoutCompanyInput | Prisma.StockFinishedGoodsUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.StockFinishedGoodsUpdateManyWithWhereWithoutCompanyInput | Prisma.StockFinishedGoodsUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.StockFinishedGoodsScalarWhereInput | Prisma.StockFinishedGoodsScalarWhereInput[]
+}
+
+export type StockFinishedGoodsUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.StockFinishedGoodsCreateWithoutCompanyInput, Prisma.StockFinishedGoodsUncheckedCreateWithoutCompanyInput> | Prisma.StockFinishedGoodsCreateWithoutCompanyInput[] | Prisma.StockFinishedGoodsUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.StockFinishedGoodsCreateOrConnectWithoutCompanyInput | Prisma.StockFinishedGoodsCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.StockFinishedGoodsUpsertWithWhereUniqueWithoutCompanyInput | Prisma.StockFinishedGoodsUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.StockFinishedGoodsCreateManyCompanyInputEnvelope
+  set?: Prisma.StockFinishedGoodsWhereUniqueInput | Prisma.StockFinishedGoodsWhereUniqueInput[]
+  disconnect?: Prisma.StockFinishedGoodsWhereUniqueInput | Prisma.StockFinishedGoodsWhereUniqueInput[]
+  delete?: Prisma.StockFinishedGoodsWhereUniqueInput | Prisma.StockFinishedGoodsWhereUniqueInput[]
+  connect?: Prisma.StockFinishedGoodsWhereUniqueInput | Prisma.StockFinishedGoodsWhereUniqueInput[]
+  update?: Prisma.StockFinishedGoodsUpdateWithWhereUniqueWithoutCompanyInput | Prisma.StockFinishedGoodsUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.StockFinishedGoodsUpdateManyWithWhereWithoutCompanyInput | Prisma.StockFinishedGoodsUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.StockFinishedGoodsScalarWhereInput | Prisma.StockFinishedGoodsScalarWhereInput[]
+}
+
 export type StockFinishedGoodsCreateWithoutEditorInput = {
   code: string
   name: string
@@ -716,6 +788,7 @@ export type StockFinishedGoodsCreateWithoutEditorInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutStockFinishedGoodsInput
 }
 
 export type StockFinishedGoodsUncheckedCreateWithoutEditorInput = {
@@ -731,6 +804,7 @@ export type StockFinishedGoodsUncheckedCreateWithoutEditorInput = {
   availableStock?: number
   remark?: string | null
   companyCode?: string | null
+  companyId?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -779,11 +853,77 @@ export type StockFinishedGoodsScalarWhereInput = {
   availableStock?: Prisma.FloatFilter<"StockFinishedGoods"> | number
   remark?: Prisma.StringNullableFilter<"StockFinishedGoods"> | string | null
   companyCode?: Prisma.StringNullableFilter<"StockFinishedGoods"> | string | null
+  companyId?: Prisma.IntNullableFilter<"StockFinishedGoods"> | number | null
   editedBy?: Prisma.IntNullableFilter<"StockFinishedGoods"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"StockFinishedGoods"> | Date | string | null
   version?: Prisma.IntFilter<"StockFinishedGoods"> | number
   createdAt?: Prisma.DateTimeFilter<"StockFinishedGoods"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockFinishedGoods"> | Date | string
+}
+
+export type StockFinishedGoodsCreateWithoutCompanyInput = {
+  code: string
+  name: string
+  packagingSpec?: string | null
+  unit?: string
+  stockType?: string
+  lastBalance?: number
+  currentInbound?: number
+  currentOutbound?: number
+  availableStock?: number
+  remark?: string | null
+  companyCode?: string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedStockFinishedGoodsInput
+}
+
+export type StockFinishedGoodsUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  code: string
+  name: string
+  packagingSpec?: string | null
+  unit?: string
+  stockType?: string
+  lastBalance?: number
+  currentInbound?: number
+  currentOutbound?: number
+  availableStock?: number
+  remark?: string | null
+  companyCode?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type StockFinishedGoodsCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.StockFinishedGoodsWhereUniqueInput
+  create: Prisma.XOR<Prisma.StockFinishedGoodsCreateWithoutCompanyInput, Prisma.StockFinishedGoodsUncheckedCreateWithoutCompanyInput>
+}
+
+export type StockFinishedGoodsCreateManyCompanyInputEnvelope = {
+  data: Prisma.StockFinishedGoodsCreateManyCompanyInput | Prisma.StockFinishedGoodsCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type StockFinishedGoodsUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.StockFinishedGoodsWhereUniqueInput
+  update: Prisma.XOR<Prisma.StockFinishedGoodsUpdateWithoutCompanyInput, Prisma.StockFinishedGoodsUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.StockFinishedGoodsCreateWithoutCompanyInput, Prisma.StockFinishedGoodsUncheckedCreateWithoutCompanyInput>
+}
+
+export type StockFinishedGoodsUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.StockFinishedGoodsWhereUniqueInput
+  data: Prisma.XOR<Prisma.StockFinishedGoodsUpdateWithoutCompanyInput, Prisma.StockFinishedGoodsUncheckedUpdateWithoutCompanyInput>
+}
+
+export type StockFinishedGoodsUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.StockFinishedGoodsScalarWhereInput
+  data: Prisma.XOR<Prisma.StockFinishedGoodsUpdateManyMutationInput, Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutCompanyInput>
 }
 
 export type StockFinishedGoodsCreateManyEditorInput = {
@@ -799,6 +939,7 @@ export type StockFinishedGoodsCreateManyEditorInput = {
   availableStock?: number
   remark?: string | null
   companyCode?: string | null
+  companyId?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -821,6 +962,7 @@ export type StockFinishedGoodsUpdateWithoutEditorInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutStockFinishedGoodsNestedInput
 }
 
 export type StockFinishedGoodsUncheckedUpdateWithoutEditorInput = {
@@ -836,6 +978,7 @@ export type StockFinishedGoodsUncheckedUpdateWithoutEditorInput = {
   availableStock?: Prisma.FloatFieldUpdateOperationsInput | number
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -855,6 +998,86 @@ export type StockFinishedGoodsUncheckedUpdateManyWithoutEditorInput = {
   availableStock?: Prisma.FloatFieldUpdateOperationsInput | number
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StockFinishedGoodsCreateManyCompanyInput = {
+  id?: number
+  code: string
+  name: string
+  packagingSpec?: string | null
+  unit?: string
+  stockType?: string
+  lastBalance?: number
+  currentInbound?: number
+  currentOutbound?: number
+  availableStock?: number
+  remark?: string | null
+  companyCode?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type StockFinishedGoodsUpdateWithoutCompanyInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  packagingSpec?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  stockType?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentInbound?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentOutbound?: Prisma.FloatFieldUpdateOperationsInput | number
+  availableStock?: Prisma.FloatFieldUpdateOperationsInput | number
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedStockFinishedGoodsNestedInput
+}
+
+export type StockFinishedGoodsUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  packagingSpec?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  stockType?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentInbound?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentOutbound?: Prisma.FloatFieldUpdateOperationsInput | number
+  availableStock?: Prisma.FloatFieldUpdateOperationsInput | number
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StockFinishedGoodsUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  packagingSpec?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  stockType?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentInbound?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentOutbound?: Prisma.FloatFieldUpdateOperationsInput | number
+  availableStock?: Prisma.FloatFieldUpdateOperationsInput | number
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -876,12 +1099,14 @@ export type StockFinishedGoodsSelect<ExtArgs extends runtime.Types.Extensions.In
   availableStock?: boolean
   remark?: boolean
   companyCode?: boolean
+  companyId?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   editor?: boolean | Prisma.StockFinishedGoods$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockFinishedGoods$companyArgs<ExtArgs>
 }, ExtArgs["result"]["stockFinishedGoods"]>
 
 export type StockFinishedGoodsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -897,12 +1122,14 @@ export type StockFinishedGoodsSelectCreateManyAndReturn<ExtArgs extends runtime.
   availableStock?: boolean
   remark?: boolean
   companyCode?: boolean
+  companyId?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   editor?: boolean | Prisma.StockFinishedGoods$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockFinishedGoods$companyArgs<ExtArgs>
 }, ExtArgs["result"]["stockFinishedGoods"]>
 
 export type StockFinishedGoodsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -918,12 +1145,14 @@ export type StockFinishedGoodsSelectUpdateManyAndReturn<ExtArgs extends runtime.
   availableStock?: boolean
   remark?: boolean
   companyCode?: boolean
+  companyId?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   editor?: boolean | Prisma.StockFinishedGoods$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockFinishedGoods$companyArgs<ExtArgs>
 }, ExtArgs["result"]["stockFinishedGoods"]>
 
 export type StockFinishedGoodsSelectScalar = {
@@ -939,6 +1168,7 @@ export type StockFinishedGoodsSelectScalar = {
   availableStock?: boolean
   remark?: boolean
   companyCode?: boolean
+  companyId?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -946,21 +1176,25 @@ export type StockFinishedGoodsSelectScalar = {
   updatedAt?: boolean
 }
 
-export type StockFinishedGoodsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "packagingSpec" | "unit" | "stockType" | "lastBalance" | "currentInbound" | "currentOutbound" | "availableStock" | "remark" | "companyCode" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["stockFinishedGoods"]>
+export type StockFinishedGoodsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "packagingSpec" | "unit" | "stockType" | "lastBalance" | "currentInbound" | "currentOutbound" | "availableStock" | "remark" | "companyCode" | "companyId" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["stockFinishedGoods"]>
 export type StockFinishedGoodsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.StockFinishedGoods$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockFinishedGoods$companyArgs<ExtArgs>
 }
 export type StockFinishedGoodsIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.StockFinishedGoods$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockFinishedGoods$companyArgs<ExtArgs>
 }
 export type StockFinishedGoodsIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.StockFinishedGoods$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockFinishedGoods$companyArgs<ExtArgs>
 }
 
 export type $StockFinishedGoodsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "StockFinishedGoods"
   objects: {
     editor: Prisma.$UserPayload<ExtArgs> | null
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -975,6 +1209,7 @@ export type $StockFinishedGoodsPayload<ExtArgs extends runtime.Types.Extensions.
     availableStock: number
     remark: string | null
     companyCode: string | null
+    companyId: number | null
     editedBy: number | null
     editedAt: Date | null
     version: number
@@ -1375,6 +1610,7 @@ readonly fields: StockFinishedGoodsFieldRefs;
 export interface Prisma__StockFinishedGoodsClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   editor<T extends Prisma.StockFinishedGoods$editorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockFinishedGoods$editorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.StockFinishedGoods$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockFinishedGoods$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1416,6 +1652,7 @@ export interface StockFinishedGoodsFieldRefs {
   readonly availableStock: Prisma.FieldRef<"StockFinishedGoods", 'Float'>
   readonly remark: Prisma.FieldRef<"StockFinishedGoods", 'String'>
   readonly companyCode: Prisma.FieldRef<"StockFinishedGoods", 'String'>
+  readonly companyId: Prisma.FieldRef<"StockFinishedGoods", 'Int'>
   readonly editedBy: Prisma.FieldRef<"StockFinishedGoods", 'Int'>
   readonly editedAt: Prisma.FieldRef<"StockFinishedGoods", 'DateTime'>
   readonly version: Prisma.FieldRef<"StockFinishedGoods", 'Int'>
@@ -1838,6 +2075,25 @@ export type StockFinishedGoods$editorArgs<ExtArgs extends runtime.Types.Extensio
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * StockFinishedGoods.company
+ */
+export type StockFinishedGoods$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

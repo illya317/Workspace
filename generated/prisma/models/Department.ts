@@ -325,10 +325,12 @@ export type DepartmentWhereInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideListRelationFilter
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionListRelationFilter
   ownedContracts?: Prisma.ContractListRelationFilter
+  financeBudgetRows?: Prisma.FinanceBudgetDeptListRelationFilter
   effectiveVersions?: Prisma.DepartmentEffectiveVersionListRelationFilter
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionListRelationFilter
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionListRelationFilter
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionListRelationFilter
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionListRelationFilter
 }
 
 export type DepartmentOrderByWithRelationInput = {
@@ -363,10 +365,12 @@ export type DepartmentOrderByWithRelationInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideOrderByRelationAggregateInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionOrderByRelationAggregateInput
   ownedContracts?: Prisma.ContractOrderByRelationAggregateInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptOrderByRelationAggregateInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionOrderByRelationAggregateInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionOrderByRelationAggregateInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionOrderByRelationAggregateInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionOrderByRelationAggregateInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionOrderByRelationAggregateInput
 }
 
 export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
@@ -404,10 +408,12 @@ export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
   positionReportOverrides?: Prisma.PositionReportOverrideListRelationFilter
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionListRelationFilter
   ownedContracts?: Prisma.ContractListRelationFilter
+  financeBudgetRows?: Prisma.FinanceBudgetDeptListRelationFilter
   effectiveVersions?: Prisma.DepartmentEffectiveVersionListRelationFilter
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionListRelationFilter
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionListRelationFilter
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionListRelationFilter
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionListRelationFilter
 }, "id">
 
 export type DepartmentOrderByWithAggregationInput = {
@@ -481,10 +487,12 @@ export type DepartmentCreateInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateInput = {
@@ -517,10 +525,12 @@ export type DepartmentUncheckedCreateInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUpdateInput = {
@@ -552,10 +562,12 @@ export type DepartmentUpdateInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateInput = {
@@ -588,10 +600,12 @@ export type DepartmentUncheckedUpdateInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateManyInput = {
@@ -642,14 +656,14 @@ export type DepartmentUncheckedUpdateManyInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
-export type DepartmentScalarRelationFilter = {
-  is?: Prisma.DepartmentWhereInput
-  isNot?: Prisma.DepartmentWhereInput
-}
-
 export type DepartmentNullableScalarRelationFilter = {
   is?: Prisma.DepartmentWhereInput | null
   isNot?: Prisma.DepartmentWhereInput | null
+}
+
+export type DepartmentScalarRelationFilter = {
+  is?: Prisma.DepartmentWhereInput
+  isNot?: Prisma.DepartmentWhereInput
 }
 
 export type DepartmentListRelationFilter = {
@@ -731,6 +745,22 @@ export type DepartmentSumOrderByAggregateInput = {
   version?: Prisma.SortOrder
 }
 
+export type DepartmentCreateNestedOneWithoutErpDueDiligenceSubmissionsInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutErpDueDiligenceSubmissionsInput, Prisma.DepartmentUncheckedCreateWithoutErpDueDiligenceSubmissionsInput>
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutErpDueDiligenceSubmissionsInput
+  connect?: Prisma.DepartmentWhereUniqueInput
+}
+
+export type DepartmentUpdateOneWithoutErpDueDiligenceSubmissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutErpDueDiligenceSubmissionsInput, Prisma.DepartmentUncheckedCreateWithoutErpDueDiligenceSubmissionsInput>
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutErpDueDiligenceSubmissionsInput
+  upsert?: Prisma.DepartmentUpsertWithoutErpDueDiligenceSubmissionsInput
+  disconnect?: Prisma.DepartmentWhereInput | boolean
+  delete?: Prisma.DepartmentWhereInput | boolean
+  connect?: Prisma.DepartmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutErpDueDiligenceSubmissionsInput, Prisma.DepartmentUpdateWithoutErpDueDiligenceSubmissionsInput>, Prisma.DepartmentUncheckedUpdateWithoutErpDueDiligenceSubmissionsInput>
+}
+
 export type DepartmentCreateNestedOneWithoutResourceActionGrantsInput = {
   create?: Prisma.XOR<Prisma.DepartmentCreateWithoutResourceActionGrantsInput, Prisma.DepartmentUncheckedCreateWithoutResourceActionGrantsInput>
   connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutResourceActionGrantsInput
@@ -759,6 +789,22 @@ export type DepartmentUpdateOneWithoutOwnedContractsNestedInput = {
   delete?: Prisma.DepartmentWhereInput | boolean
   connect?: Prisma.DepartmentWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutOwnedContractsInput, Prisma.DepartmentUpdateWithoutOwnedContractsInput>, Prisma.DepartmentUncheckedUpdateWithoutOwnedContractsInput>
+}
+
+export type DepartmentCreateNestedOneWithoutFinanceBudgetRowsInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutFinanceBudgetRowsInput, Prisma.DepartmentUncheckedCreateWithoutFinanceBudgetRowsInput>
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutFinanceBudgetRowsInput
+  connect?: Prisma.DepartmentWhereUniqueInput
+}
+
+export type DepartmentUpdateOneWithoutFinanceBudgetRowsNestedInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutFinanceBudgetRowsInput, Prisma.DepartmentUncheckedCreateWithoutFinanceBudgetRowsInput>
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutFinanceBudgetRowsInput
+  upsert?: Prisma.DepartmentUpsertWithoutFinanceBudgetRowsInput
+  disconnect?: Prisma.DepartmentWhereInput | boolean
+  delete?: Prisma.DepartmentWhereInput | boolean
+  connect?: Prisma.DepartmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutFinanceBudgetRowsInput, Prisma.DepartmentUpdateWithoutFinanceBudgetRowsInput>, Prisma.DepartmentUncheckedUpdateWithoutFinanceBudgetRowsInput>
 }
 
 export type DepartmentCreateNestedOneWithoutDescriptionsInput = {
@@ -1101,6 +1147,168 @@ export type DepartmentUpdateOneRequiredWithoutWorkAssigneesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutWorkAssigneesInput, Prisma.DepartmentUpdateWithoutWorkAssigneesInput>, Prisma.DepartmentUncheckedUpdateWithoutWorkAssigneesInput>
 }
 
+export type DepartmentCreateWithoutErpDueDiligenceSubmissionsInput = {
+  code: string
+  name: string
+  alias?: string | null
+  hierarchyKind?: string
+  level?: number
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
+  parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
+  children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
+  descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
+  responsibleCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutResponsibleDepartmentInput
+  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutDepartmentInput
+  sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
+  sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
+  leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
+  enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
+  edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
+  positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
+  positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
+  ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
+  effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
+  positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+}
+
+export type DepartmentUncheckedCreateWithoutErpDueDiligenceSubmissionsInput = {
+  id?: number
+  code: string
+  name: string
+  alias?: string | null
+  hierarchyKind?: string
+  level?: number
+  parentId?: number | null
+  managerPositionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
+  descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
+  responsibleCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutResponsibleDepartmentInput
+  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
+  sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
+  sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
+  leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
+  enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
+  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
+  ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
+  effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
+  positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+}
+
+export type DepartmentCreateOrConnectWithoutErpDueDiligenceSubmissionsInput = {
+  where: Prisma.DepartmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutErpDueDiligenceSubmissionsInput, Prisma.DepartmentUncheckedCreateWithoutErpDueDiligenceSubmissionsInput>
+}
+
+export type DepartmentUpsertWithoutErpDueDiligenceSubmissionsInput = {
+  update: Prisma.XOR<Prisma.DepartmentUpdateWithoutErpDueDiligenceSubmissionsInput, Prisma.DepartmentUncheckedUpdateWithoutErpDueDiligenceSubmissionsInput>
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutErpDueDiligenceSubmissionsInput, Prisma.DepartmentUncheckedCreateWithoutErpDueDiligenceSubmissionsInput>
+  where?: Prisma.DepartmentWhereInput
+}
+
+export type DepartmentUpdateToOneWithWhereWithoutErpDueDiligenceSubmissionsInput = {
+  where?: Prisma.DepartmentWhereInput
+  data: Prisma.XOR<Prisma.DepartmentUpdateWithoutErpDueDiligenceSubmissionsInput, Prisma.DepartmentUncheckedUpdateWithoutErpDueDiligenceSubmissionsInput>
+}
+
+export type DepartmentUpdateWithoutErpDueDiligenceSubmissionsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hierarchyKind?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
+  parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
+  descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
+  responsibleCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutResponsibleDepartmentNestedInput
+  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutDepartmentNestedInput
+  sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
+  sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
+  leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
+  enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
+  edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
+  ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
+  effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
+  positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+}
+
+export type DepartmentUncheckedUpdateWithoutErpDueDiligenceSubmissionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hierarchyKind?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
+  descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
+  responsibleCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutResponsibleDepartmentNestedInput
+  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
+  sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
+  sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
+  leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
+  enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
+  edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
+  ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
+  effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
+  positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+}
+
 export type DepartmentCreateWithoutResourceActionGrantsInput = {
   code: string
   name: string
@@ -1129,10 +1337,12 @@ export type DepartmentCreateWithoutResourceActionGrantsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutResourceActionGrantsInput = {
@@ -1164,10 +1374,12 @@ export type DepartmentUncheckedCreateWithoutResourceActionGrantsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutResourceActionGrantsInput = {
@@ -1214,10 +1426,12 @@ export type DepartmentUpdateWithoutResourceActionGrantsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutResourceActionGrantsInput = {
@@ -1249,10 +1463,12 @@ export type DepartmentUncheckedUpdateWithoutResourceActionGrantsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutOwnedContractsInput = {
@@ -1283,10 +1499,12 @@ export type DepartmentCreateWithoutOwnedContractsInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutOwnedContractsInput = {
@@ -1318,10 +1536,12 @@ export type DepartmentUncheckedCreateWithoutOwnedContractsInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutOwnedContractsInput = {
@@ -1368,10 +1588,12 @@ export type DepartmentUpdateWithoutOwnedContractsInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutOwnedContractsInput = {
@@ -1403,10 +1625,174 @@ export type DepartmentUncheckedUpdateWithoutOwnedContractsInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
+}
+
+export type DepartmentCreateWithoutFinanceBudgetRowsInput = {
+  code: string
+  name: string
+  alias?: string | null
+  hierarchyKind?: string
+  level?: number
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
+  parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
+  children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
+  descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
+  responsibleCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutResponsibleDepartmentInput
+  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutDepartmentInput
+  sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
+  sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
+  leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
+  enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
+  edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
+  positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
+  positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
+  ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
+  positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
+}
+
+export type DepartmentUncheckedCreateWithoutFinanceBudgetRowsInput = {
+  id?: number
+  code: string
+  name: string
+  alias?: string | null
+  hierarchyKind?: string
+  level?: number
+  parentId?: number | null
+  managerPositionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
+  descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
+  responsibleCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutResponsibleDepartmentInput
+  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
+  sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
+  sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
+  leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
+  enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
+  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
+  ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
+  positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
+}
+
+export type DepartmentCreateOrConnectWithoutFinanceBudgetRowsInput = {
+  where: Prisma.DepartmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutFinanceBudgetRowsInput, Prisma.DepartmentUncheckedCreateWithoutFinanceBudgetRowsInput>
+}
+
+export type DepartmentUpsertWithoutFinanceBudgetRowsInput = {
+  update: Prisma.XOR<Prisma.DepartmentUpdateWithoutFinanceBudgetRowsInput, Prisma.DepartmentUncheckedUpdateWithoutFinanceBudgetRowsInput>
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutFinanceBudgetRowsInput, Prisma.DepartmentUncheckedCreateWithoutFinanceBudgetRowsInput>
+  where?: Prisma.DepartmentWhereInput
+}
+
+export type DepartmentUpdateToOneWithWhereWithoutFinanceBudgetRowsInput = {
+  where?: Prisma.DepartmentWhereInput
+  data: Prisma.XOR<Prisma.DepartmentUpdateWithoutFinanceBudgetRowsInput, Prisma.DepartmentUncheckedUpdateWithoutFinanceBudgetRowsInput>
+}
+
+export type DepartmentUpdateWithoutFinanceBudgetRowsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hierarchyKind?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
+  parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
+  descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
+  responsibleCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutResponsibleDepartmentNestedInput
+  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutDepartmentNestedInput
+  sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
+  sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
+  leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
+  enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
+  edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
+  ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
+  positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
+}
+
+export type DepartmentUncheckedUpdateWithoutFinanceBudgetRowsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hierarchyKind?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
+  descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
+  responsibleCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutResponsibleDepartmentNestedInput
+  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
+  sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
+  sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
+  leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
+  enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
+  edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
+  ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
+  positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutDescriptionsInput = {
@@ -1437,10 +1823,12 @@ export type DepartmentCreateWithoutDescriptionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutDescriptionsInput = {
@@ -1472,10 +1860,12 @@ export type DepartmentUncheckedCreateWithoutDescriptionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutDescriptionsInput = {
@@ -1522,10 +1912,12 @@ export type DepartmentUpdateWithoutDescriptionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutDescriptionsInput = {
@@ -1557,10 +1949,12 @@ export type DepartmentUncheckedUpdateWithoutDescriptionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutEffectiveVersionsInput = {
@@ -1592,9 +1986,11 @@ export type DepartmentCreateWithoutEffectiveVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutEffectiveVersionsInput = {
@@ -1627,9 +2023,11 @@ export type DepartmentUncheckedCreateWithoutEffectiveVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutEffectiveVersionsInput = {
@@ -1666,9 +2064,11 @@ export type DepartmentCreateWithoutEffectiveChildVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutEffectiveChildVersionsInput = {
@@ -1701,9 +2101,11 @@ export type DepartmentUncheckedCreateWithoutEffectiveChildVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutEffectiveChildVersionsInput = {
@@ -1751,9 +2153,11 @@ export type DepartmentUpdateWithoutEffectiveVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutEffectiveVersionsInput = {
@@ -1786,9 +2190,11 @@ export type DepartmentUncheckedUpdateWithoutEffectiveVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUpsertWithoutEffectiveChildVersionsInput = {
@@ -1831,9 +2237,11 @@ export type DepartmentUpdateWithoutEffectiveChildVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutEffectiveChildVersionsInput = {
@@ -1866,9 +2274,11 @@ export type DepartmentUncheckedUpdateWithoutEffectiveChildVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutPositionEffectiveVersionsInput = {
@@ -1900,9 +2310,11 @@ export type DepartmentCreateWithoutPositionEffectiveVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutPositionEffectiveVersionsInput = {
@@ -1935,9 +2347,11 @@ export type DepartmentUncheckedCreateWithoutPositionEffectiveVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutPositionEffectiveVersionsInput = {
@@ -1985,9 +2399,11 @@ export type DepartmentUpdateWithoutPositionEffectiveVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutPositionEffectiveVersionsInput = {
@@ -2020,9 +2436,11 @@ export type DepartmentUncheckedUpdateWithoutPositionEffectiveVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutOverrideEffectiveVersionsInput = {
@@ -2054,9 +2472,11 @@ export type DepartmentCreateWithoutOverrideEffectiveVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutOverrideEffectiveVersionsInput = {
@@ -2089,9 +2509,11 @@ export type DepartmentUncheckedCreateWithoutOverrideEffectiveVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutOverrideEffectiveVersionsInput = {
@@ -2139,9 +2561,11 @@ export type DepartmentUpdateWithoutOverrideEffectiveVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutOverrideEffectiveVersionsInput = {
@@ -2174,9 +2598,11 @@ export type DepartmentUncheckedUpdateWithoutOverrideEffectiveVersionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutChildrenInput = {
@@ -2207,10 +2633,12 @@ export type DepartmentCreateWithoutChildrenInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutChildrenInput = {
@@ -2242,10 +2670,12 @@ export type DepartmentUncheckedCreateWithoutChildrenInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutChildrenInput = {
@@ -2281,10 +2711,12 @@ export type DepartmentCreateWithoutParentInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutParentInput = {
@@ -2316,10 +2748,12 @@ export type DepartmentUncheckedCreateWithoutParentInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutParentInput = {
@@ -2371,10 +2805,12 @@ export type DepartmentUpdateWithoutChildrenInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutChildrenInput = {
@@ -2406,10 +2842,12 @@ export type DepartmentUncheckedUpdateWithoutChildrenInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUpsertWithWhereUniqueWithoutParentInput = {
@@ -2476,10 +2914,12 @@ export type DepartmentCreateWithoutPositionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutPositionsInput = {
@@ -2511,10 +2951,12 @@ export type DepartmentUncheckedCreateWithoutPositionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutPositionsInput = {
@@ -2550,10 +2992,12 @@ export type DepartmentCreateWithoutManagerPositionInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutManagerPositionInput = {
@@ -2585,10 +3029,12 @@ export type DepartmentUncheckedCreateWithoutManagerPositionInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutManagerPositionInput = {
@@ -2640,10 +3086,12 @@ export type DepartmentUpdateWithoutPositionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutPositionsInput = {
@@ -2675,10 +3123,12 @@ export type DepartmentUncheckedUpdateWithoutPositionsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUpsertWithWhereUniqueWithoutManagerPositionInput = {
@@ -2725,10 +3175,12 @@ export type DepartmentCreateWithoutEdpsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutEdpsInput = {
@@ -2760,10 +3212,12 @@ export type DepartmentUncheckedCreateWithoutEdpsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutEdpsInput = {
@@ -2810,10 +3264,12 @@ export type DepartmentUpdateWithoutEdpsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutEdpsInput = {
@@ -2845,10 +3301,12 @@ export type DepartmentUncheckedUpdateWithoutEdpsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutPositionReportOverridesInput = {
@@ -2879,10 +3337,12 @@ export type DepartmentCreateWithoutPositionReportOverridesInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutPositionReportOverridesInput = {
@@ -2914,10 +3374,12 @@ export type DepartmentUncheckedCreateWithoutPositionReportOverridesInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutPositionReportOverridesInput = {
@@ -2964,10 +3426,12 @@ export type DepartmentUpdateWithoutPositionReportOverridesInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutPositionReportOverridesInput = {
@@ -2999,10 +3463,12 @@ export type DepartmentUncheckedUpdateWithoutPositionReportOverridesInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutResponsibleCollaborationsInput = {
@@ -3033,10 +3499,12 @@ export type DepartmentCreateWithoutResponsibleCollaborationsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutResponsibleCollaborationsInput = {
@@ -3068,10 +3536,12 @@ export type DepartmentUncheckedCreateWithoutResponsibleCollaborationsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutResponsibleCollaborationsInput = {
@@ -3118,10 +3588,12 @@ export type DepartmentUpdateWithoutResponsibleCollaborationsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutResponsibleCollaborationsInput = {
@@ -3153,10 +3625,12 @@ export type DepartmentUncheckedUpdateWithoutResponsibleCollaborationsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutEnabledCollaborationsInput = {
@@ -3187,10 +3661,12 @@ export type DepartmentCreateWithoutEnabledCollaborationsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutEnabledCollaborationsInput = {
@@ -3222,10 +3698,12 @@ export type DepartmentUncheckedCreateWithoutEnabledCollaborationsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutEnabledCollaborationsInput = {
@@ -3272,10 +3750,12 @@ export type DepartmentUpdateWithoutEnabledCollaborationsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutEnabledCollaborationsInput = {
@@ -3307,10 +3787,12 @@ export type DepartmentUncheckedUpdateWithoutEnabledCollaborationsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutOwnedKpiDefinitionsInput = {
@@ -3341,10 +3823,12 @@ export type DepartmentCreateWithoutOwnedKpiDefinitionsInput = {
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutOwnedKpiDefinitionsInput = {
@@ -3376,10 +3860,12 @@ export type DepartmentUncheckedCreateWithoutOwnedKpiDefinitionsInput = {
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutOwnedKpiDefinitionsInput = {
@@ -3426,10 +3912,12 @@ export type DepartmentUpdateWithoutOwnedKpiDefinitionsInput = {
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutOwnedKpiDefinitionsInput = {
@@ -3461,10 +3949,12 @@ export type DepartmentUncheckedUpdateWithoutOwnedKpiDefinitionsInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutLeadingProjectsInput = {
@@ -3495,10 +3985,12 @@ export type DepartmentCreateWithoutLeadingProjectsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutLeadingProjectsInput = {
@@ -3530,10 +4022,12 @@ export type DepartmentUncheckedCreateWithoutLeadingProjectsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutLeadingProjectsInput = {
@@ -3580,10 +4074,12 @@ export type DepartmentUpdateWithoutLeadingProjectsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutLeadingProjectsInput = {
@@ -3615,10 +4111,12 @@ export type DepartmentUncheckedUpdateWithoutLeadingProjectsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutEnabledProjectsInput = {
@@ -3649,10 +4147,12 @@ export type DepartmentCreateWithoutEnabledProjectsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutEnabledProjectsInput = {
@@ -3684,10 +4184,12 @@ export type DepartmentUncheckedCreateWithoutEnabledProjectsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutEnabledProjectsInput = {
@@ -3734,10 +4236,12 @@ export type DepartmentUpdateWithoutEnabledProjectsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutEnabledProjectsInput = {
@@ -3769,10 +4273,12 @@ export type DepartmentUncheckedUpdateWithoutEnabledProjectsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutSourceWorkPlansInput = {
@@ -3803,10 +4309,12 @@ export type DepartmentCreateWithoutSourceWorkPlansInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutSourceWorkPlansInput = {
@@ -3838,10 +4346,12 @@ export type DepartmentUncheckedCreateWithoutSourceWorkPlansInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutSourceWorkPlansInput = {
@@ -3888,10 +4398,12 @@ export type DepartmentUpdateWithoutSourceWorkPlansInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutSourceWorkPlansInput = {
@@ -3923,10 +4435,12 @@ export type DepartmentUncheckedUpdateWithoutSourceWorkPlansInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutSourceWorkItemsInput = {
@@ -3957,10 +4471,12 @@ export type DepartmentCreateWithoutSourceWorkItemsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutSourceWorkItemsInput = {
@@ -3992,10 +4508,12 @@ export type DepartmentUncheckedCreateWithoutSourceWorkItemsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutSourceWorkItemsInput = {
@@ -4042,10 +4560,12 @@ export type DepartmentUpdateWithoutSourceWorkItemsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutSourceWorkItemsInput = {
@@ -4077,10 +4597,12 @@ export type DepartmentUncheckedUpdateWithoutSourceWorkItemsInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutWorkAssigneesInput = {
@@ -4111,10 +4633,12 @@ export type DepartmentCreateWithoutWorkAssigneesInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentUncheckedCreateWithoutWorkAssigneesInput = {
@@ -4146,10 +4670,12 @@ export type DepartmentUncheckedCreateWithoutWorkAssigneesInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutOwnerDepartmentInput
   ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutParentInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutDepartmentInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
 export type DepartmentCreateOrConnectWithoutWorkAssigneesInput = {
@@ -4196,10 +4722,12 @@ export type DepartmentUpdateWithoutWorkAssigneesInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutWorkAssigneesInput = {
@@ -4231,10 +4759,12 @@ export type DepartmentUncheckedUpdateWithoutWorkAssigneesInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateManyParentInput = {
@@ -4281,10 +4811,12 @@ export type DepartmentUpdateWithoutParentInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutParentInput = {
@@ -4316,10 +4848,12 @@ export type DepartmentUncheckedUpdateWithoutParentInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateManyWithoutParentInput = {
@@ -4382,10 +4916,12 @@ export type DepartmentUpdateWithoutManagerPositionInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateWithoutManagerPositionInput = {
@@ -4417,10 +4953,12 @@ export type DepartmentUncheckedUpdateWithoutManagerPositionInput = {
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
   ownedKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
   ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   effectiveChildVersions?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutParentNestedInput
   positionEffectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
   overrideEffectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutDepartmentNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentUncheckedUpdateManyWithoutManagerPositionInput = {
@@ -4460,10 +4998,12 @@ export type DepartmentCountOutputType = {
   positionReportOverrides: number
   ownedKpiDefinitions: number
   ownedContracts: number
+  financeBudgetRows: number
   effectiveVersions: number
   effectiveChildVersions: number
   positionEffectiveVersions: number
   overrideEffectiveVersions: number
+  erpDueDiligenceSubmissions: number
 }
 
 export type DepartmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4482,10 +5022,12 @@ export type DepartmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extens
   positionReportOverrides?: boolean | DepartmentCountOutputTypeCountPositionReportOverridesArgs
   ownedKpiDefinitions?: boolean | DepartmentCountOutputTypeCountOwnedKpiDefinitionsArgs
   ownedContracts?: boolean | DepartmentCountOutputTypeCountOwnedContractsArgs
+  financeBudgetRows?: boolean | DepartmentCountOutputTypeCountFinanceBudgetRowsArgs
   effectiveVersions?: boolean | DepartmentCountOutputTypeCountEffectiveVersionsArgs
   effectiveChildVersions?: boolean | DepartmentCountOutputTypeCountEffectiveChildVersionsArgs
   positionEffectiveVersions?: boolean | DepartmentCountOutputTypeCountPositionEffectiveVersionsArgs
   overrideEffectiveVersions?: boolean | DepartmentCountOutputTypeCountOverrideEffectiveVersionsArgs
+  erpDueDiligenceSubmissions?: boolean | DepartmentCountOutputTypeCountErpDueDiligenceSubmissionsArgs
 }
 
 /**
@@ -4606,6 +5148,13 @@ export type DepartmentCountOutputTypeCountOwnedContractsArgs<ExtArgs extends run
 /**
  * DepartmentCountOutputType without action
  */
+export type DepartmentCountOutputTypeCountFinanceBudgetRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceBudgetDeptWhereInput
+}
+
+/**
+ * DepartmentCountOutputType without action
+ */
 export type DepartmentCountOutputTypeCountEffectiveVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DepartmentEffectiveVersionWhereInput
 }
@@ -4629,6 +5178,13 @@ export type DepartmentCountOutputTypeCountPositionEffectiveVersionsArgs<ExtArgs 
  */
 export type DepartmentCountOutputTypeCountOverrideEffectiveVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PositionReportOverrideEffectiveVersionWhereInput
+}
+
+/**
+ * DepartmentCountOutputType without action
+ */
+export type DepartmentCountOutputTypeCountErpDueDiligenceSubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ErpDueDiligenceSubmissionWhereInput
 }
 
 
@@ -4664,10 +5220,12 @@ export type DepartmentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   positionReportOverrides?: boolean | Prisma.Department$positionReportOverridesArgs<ExtArgs>
   ownedKpiDefinitions?: boolean | Prisma.Department$ownedKpiDefinitionsArgs<ExtArgs>
   ownedContracts?: boolean | Prisma.Department$ownedContractsArgs<ExtArgs>
+  financeBudgetRows?: boolean | Prisma.Department$financeBudgetRowsArgs<ExtArgs>
   effectiveVersions?: boolean | Prisma.Department$effectiveVersionsArgs<ExtArgs>
   effectiveChildVersions?: boolean | Prisma.Department$effectiveChildVersionsArgs<ExtArgs>
   positionEffectiveVersions?: boolean | Prisma.Department$positionEffectiveVersionsArgs<ExtArgs>
   overrideEffectiveVersions?: boolean | Prisma.Department$overrideEffectiveVersionsArgs<ExtArgs>
+  erpDueDiligenceSubmissions?: boolean | Prisma.Department$erpDueDiligenceSubmissionsArgs<ExtArgs>
   _count?: boolean | Prisma.DepartmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["department"]>
 
@@ -4745,10 +5303,12 @@ export type DepartmentInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   positionReportOverrides?: boolean | Prisma.Department$positionReportOverridesArgs<ExtArgs>
   ownedKpiDefinitions?: boolean | Prisma.Department$ownedKpiDefinitionsArgs<ExtArgs>
   ownedContracts?: boolean | Prisma.Department$ownedContractsArgs<ExtArgs>
+  financeBudgetRows?: boolean | Prisma.Department$financeBudgetRowsArgs<ExtArgs>
   effectiveVersions?: boolean | Prisma.Department$effectiveVersionsArgs<ExtArgs>
   effectiveChildVersions?: boolean | Prisma.Department$effectiveChildVersionsArgs<ExtArgs>
   positionEffectiveVersions?: boolean | Prisma.Department$positionEffectiveVersionsArgs<ExtArgs>
   overrideEffectiveVersions?: boolean | Prisma.Department$overrideEffectiveVersionsArgs<ExtArgs>
+  erpDueDiligenceSubmissions?: boolean | Prisma.Department$erpDueDiligenceSubmissionsArgs<ExtArgs>
   _count?: boolean | Prisma.DepartmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DepartmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4780,10 +5340,12 @@ export type $DepartmentPayload<ExtArgs extends runtime.Types.Extensions.Internal
     positionReportOverrides: Prisma.$PositionReportOverridePayload<ExtArgs>[]
     ownedKpiDefinitions: Prisma.$WorkKpiDefinitionPayload<ExtArgs>[]
     ownedContracts: Prisma.$ContractPayload<ExtArgs>[]
+    financeBudgetRows: Prisma.$FinanceBudgetDeptPayload<ExtArgs>[]
     effectiveVersions: Prisma.$DepartmentEffectiveVersionPayload<ExtArgs>[]
     effectiveChildVersions: Prisma.$DepartmentEffectiveVersionPayload<ExtArgs>[]
     positionEffectiveVersions: Prisma.$PositionEffectiveVersionPayload<ExtArgs>[]
     overrideEffectiveVersions: Prisma.$PositionReportOverrideEffectiveVersionPayload<ExtArgs>[]
+    erpDueDiligenceSubmissions: Prisma.$ErpDueDiligenceSubmissionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -5211,10 +5773,12 @@ export interface Prisma__DepartmentClient<T, Null = never, ExtArgs extends runti
   positionReportOverrides<T extends Prisma.Department$positionReportOverridesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$positionReportOverridesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionReportOverridePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ownedKpiDefinitions<T extends Prisma.Department$ownedKpiDefinitionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$ownedKpiDefinitionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkKpiDefinitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ownedContracts<T extends Prisma.Department$ownedContractsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$ownedContractsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  financeBudgetRows<T extends Prisma.Department$financeBudgetRowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$financeBudgetRowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBudgetDeptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   effectiveVersions<T extends Prisma.Department$effectiveVersionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$effectiveVersionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentEffectiveVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   effectiveChildVersions<T extends Prisma.Department$effectiveChildVersionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$effectiveChildVersionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentEffectiveVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   positionEffectiveVersions<T extends Prisma.Department$positionEffectiveVersionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$positionEffectiveVersionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionEffectiveVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   overrideEffectiveVersions<T extends Prisma.Department$overrideEffectiveVersionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$overrideEffectiveVersionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionReportOverrideEffectiveVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  erpDueDiligenceSubmissions<T extends Prisma.Department$erpDueDiligenceSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$erpDueDiligenceSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ErpDueDiligenceSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6057,6 +6621,30 @@ export type Department$ownedContractsArgs<ExtArgs extends runtime.Types.Extensio
 }
 
 /**
+ * Department.financeBudgetRows
+ */
+export type Department$financeBudgetRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceBudgetDept
+   */
+  select?: Prisma.FinanceBudgetDeptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceBudgetDept
+   */
+  omit?: Prisma.FinanceBudgetDeptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBudgetDeptInclude<ExtArgs> | null
+  where?: Prisma.FinanceBudgetDeptWhereInput
+  orderBy?: Prisma.FinanceBudgetDeptOrderByWithRelationInput | Prisma.FinanceBudgetDeptOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceBudgetDeptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceBudgetDeptScalarFieldEnum | Prisma.FinanceBudgetDeptScalarFieldEnum[]
+}
+
+/**
  * Department.effectiveVersions
  */
 export type Department$effectiveVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -6150,6 +6738,30 @@ export type Department$overrideEffectiveVersionsArgs<ExtArgs extends runtime.Typ
   take?: number
   skip?: number
   distinct?: Prisma.PositionReportOverrideEffectiveVersionScalarFieldEnum | Prisma.PositionReportOverrideEffectiveVersionScalarFieldEnum[]
+}
+
+/**
+ * Department.erpDueDiligenceSubmissions
+ */
+export type Department$erpDueDiligenceSubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ErpDueDiligenceSubmission
+   */
+  select?: Prisma.ErpDueDiligenceSubmissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ErpDueDiligenceSubmission
+   */
+  omit?: Prisma.ErpDueDiligenceSubmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ErpDueDiligenceSubmissionInclude<ExtArgs> | null
+  where?: Prisma.ErpDueDiligenceSubmissionWhereInput
+  orderBy?: Prisma.ErpDueDiligenceSubmissionOrderByWithRelationInput | Prisma.ErpDueDiligenceSubmissionOrderByWithRelationInput[]
+  cursor?: Prisma.ErpDueDiligenceSubmissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ErpDueDiligenceSubmissionScalarFieldEnum | Prisma.ErpDueDiligenceSubmissionScalarFieldEnum[]
 }
 
 /**

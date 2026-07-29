@@ -28,6 +28,7 @@ export type AggregateInventoryImportBatch = {
 
 export type InventoryImportBatchAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
   itemCount: number | null
   documentCount: number | null
   rowCount: number | null
@@ -37,6 +38,7 @@ export type InventoryImportBatchAvgAggregateOutputType = {
 
 export type InventoryImportBatchSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
   itemCount: number | null
   documentCount: number | null
   rowCount: number | null
@@ -47,6 +49,7 @@ export type InventoryImportBatchSumAggregateOutputType = {
 export type InventoryImportBatchMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   sourceFile: string | null
   sourceSheet: string | null
   checksum: string | null
@@ -63,6 +66,7 @@ export type InventoryImportBatchMinAggregateOutputType = {
 export type InventoryImportBatchMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   sourceFile: string | null
   sourceSheet: string | null
   checksum: string | null
@@ -79,6 +83,7 @@ export type InventoryImportBatchMaxAggregateOutputType = {
 export type InventoryImportBatchCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   sourceFile: number
   sourceSheet: number
   checksum: number
@@ -96,6 +101,7 @@ export type InventoryImportBatchCountAggregateOutputType = {
 
 export type InventoryImportBatchAvgAggregateInputType = {
   id?: true
+  companyId?: true
   itemCount?: true
   documentCount?: true
   rowCount?: true
@@ -105,6 +111,7 @@ export type InventoryImportBatchAvgAggregateInputType = {
 
 export type InventoryImportBatchSumAggregateInputType = {
   id?: true
+  companyId?: true
   itemCount?: true
   documentCount?: true
   rowCount?: true
@@ -115,6 +122,7 @@ export type InventoryImportBatchSumAggregateInputType = {
 export type InventoryImportBatchMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceFile?: true
   sourceSheet?: true
   checksum?: true
@@ -131,6 +139,7 @@ export type InventoryImportBatchMinAggregateInputType = {
 export type InventoryImportBatchMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceFile?: true
   sourceSheet?: true
   checksum?: true
@@ -147,6 +156,7 @@ export type InventoryImportBatchMaxAggregateInputType = {
 export type InventoryImportBatchCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceFile?: true
   sourceSheet?: true
   checksum?: true
@@ -250,6 +260,7 @@ export type InventoryImportBatchGroupByArgs<ExtArgs extends runtime.Types.Extens
 export type InventoryImportBatchGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   sourceFile: string
   sourceSheet: string | null
   checksum: string
@@ -289,6 +300,7 @@ export type InventoryImportBatchWhereInput = {
   NOT?: Prisma.InventoryImportBatchWhereInput | Prisma.InventoryImportBatchWhereInput[]
   id?: Prisma.IntFilter<"InventoryImportBatch"> | number
   companyCode?: Prisma.StringFilter<"InventoryImportBatch"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryImportBatch"> | number | null
   sourceFile?: Prisma.StringFilter<"InventoryImportBatch"> | string
   sourceSheet?: Prisma.StringNullableFilter<"InventoryImportBatch"> | string | null
   checksum?: Prisma.StringFilter<"InventoryImportBatch"> | string
@@ -300,11 +312,13 @@ export type InventoryImportBatchWhereInput = {
   importedBy?: Prisma.IntNullableFilter<"InventoryImportBatch"> | number | null
   importedAt?: Prisma.DateTimeFilter<"InventoryImportBatch"> | Date | string
   note?: Prisma.StringNullableFilter<"InventoryImportBatch"> | string | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type InventoryImportBatchOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
   sourceSheet?: Prisma.SortOrderInput | Prisma.SortOrder
   checksum?: Prisma.SortOrder
@@ -316,6 +330,7 @@ export type InventoryImportBatchOrderByWithRelationInput = {
   importedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   importedAt?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type InventoryImportBatchWhereUniqueInput = Prisma.AtLeast<{
@@ -325,6 +340,7 @@ export type InventoryImportBatchWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.InventoryImportBatchWhereInput[]
   NOT?: Prisma.InventoryImportBatchWhereInput | Prisma.InventoryImportBatchWhereInput[]
   companyCode?: Prisma.StringFilter<"InventoryImportBatch"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryImportBatch"> | number | null
   sourceFile?: Prisma.StringFilter<"InventoryImportBatch"> | string
   sourceSheet?: Prisma.StringNullableFilter<"InventoryImportBatch"> | string | null
   checksum?: Prisma.StringFilter<"InventoryImportBatch"> | string
@@ -336,11 +352,13 @@ export type InventoryImportBatchWhereUniqueInput = Prisma.AtLeast<{
   importedBy?: Prisma.IntNullableFilter<"InventoryImportBatch"> | number | null
   importedAt?: Prisma.DateTimeFilter<"InventoryImportBatch"> | Date | string
   note?: Prisma.StringNullableFilter<"InventoryImportBatch"> | string | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "companyCode_checksum_sourceSheet">
 
 export type InventoryImportBatchOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
   sourceSheet?: Prisma.SortOrderInput | Prisma.SortOrder
   checksum?: Prisma.SortOrder
@@ -365,6 +383,7 @@ export type InventoryImportBatchScalarWhereWithAggregatesInput = {
   NOT?: Prisma.InventoryImportBatchScalarWhereWithAggregatesInput | Prisma.InventoryImportBatchScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"InventoryImportBatch"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"InventoryImportBatch"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"InventoryImportBatch"> | number | null
   sourceFile?: Prisma.StringWithAggregatesFilter<"InventoryImportBatch"> | string
   sourceSheet?: Prisma.StringNullableWithAggregatesFilter<"InventoryImportBatch"> | string | null
   checksum?: Prisma.StringWithAggregatesFilter<"InventoryImportBatch"> | string
@@ -391,11 +410,13 @@ export type InventoryImportBatchCreateInput = {
   importedBy?: number | null
   importedAt?: Date | string
   note?: string | null
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryImportBatchesInput
 }
 
 export type InventoryImportBatchUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceFile: string
   sourceSheet?: string | null
   checksum: string
@@ -422,11 +443,13 @@ export type InventoryImportBatchUpdateInput = {
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  company?: Prisma.CompanyUpdateOneWithoutInventoryImportBatchesNestedInput
 }
 
 export type InventoryImportBatchUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.StringFieldUpdateOperationsInput | string
@@ -443,6 +466,7 @@ export type InventoryImportBatchUncheckedUpdateInput = {
 export type InventoryImportBatchCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceFile: string
   sourceSheet?: string | null
   checksum: string
@@ -474,6 +498,7 @@ export type InventoryImportBatchUpdateManyMutationInput = {
 export type InventoryImportBatchUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.StringFieldUpdateOperationsInput | string
@@ -487,6 +512,16 @@ export type InventoryImportBatchUncheckedUpdateManyInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
+export type InventoryImportBatchListRelationFilter = {
+  every?: Prisma.InventoryImportBatchWhereInput
+  some?: Prisma.InventoryImportBatchWhereInput
+  none?: Prisma.InventoryImportBatchWhereInput
+}
+
+export type InventoryImportBatchOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type InventoryImportBatchCompanyCodeChecksumSourceSheetCompoundUniqueInput = {
   companyCode: string
   checksum: string
@@ -496,6 +531,7 @@ export type InventoryImportBatchCompanyCodeChecksumSourceSheetCompoundUniqueInpu
 export type InventoryImportBatchCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
   sourceSheet?: Prisma.SortOrder
   checksum?: Prisma.SortOrder
@@ -511,6 +547,7 @@ export type InventoryImportBatchCountOrderByAggregateInput = {
 
 export type InventoryImportBatchAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   itemCount?: Prisma.SortOrder
   documentCount?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
@@ -521,6 +558,7 @@ export type InventoryImportBatchAvgOrderByAggregateInput = {
 export type InventoryImportBatchMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
   sourceSheet?: Prisma.SortOrder
   checksum?: Prisma.SortOrder
@@ -537,6 +575,7 @@ export type InventoryImportBatchMaxOrderByAggregateInput = {
 export type InventoryImportBatchMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceFile?: Prisma.SortOrder
   sourceSheet?: Prisma.SortOrder
   checksum?: Prisma.SortOrder
@@ -552,6 +591,7 @@ export type InventoryImportBatchMinOrderByAggregateInput = {
 
 export type InventoryImportBatchSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   itemCount?: Prisma.SortOrder
   documentCount?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
@@ -559,11 +599,194 @@ export type InventoryImportBatchSumOrderByAggregateInput = {
   importedBy?: Prisma.SortOrder
 }
 
+export type InventoryImportBatchCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.InventoryImportBatchCreateWithoutCompanyInput, Prisma.InventoryImportBatchUncheckedCreateWithoutCompanyInput> | Prisma.InventoryImportBatchCreateWithoutCompanyInput[] | Prisma.InventoryImportBatchUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryImportBatchCreateOrConnectWithoutCompanyInput | Prisma.InventoryImportBatchCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.InventoryImportBatchCreateManyCompanyInputEnvelope
+  connect?: Prisma.InventoryImportBatchWhereUniqueInput | Prisma.InventoryImportBatchWhereUniqueInput[]
+}
+
+export type InventoryImportBatchUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.InventoryImportBatchCreateWithoutCompanyInput, Prisma.InventoryImportBatchUncheckedCreateWithoutCompanyInput> | Prisma.InventoryImportBatchCreateWithoutCompanyInput[] | Prisma.InventoryImportBatchUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryImportBatchCreateOrConnectWithoutCompanyInput | Prisma.InventoryImportBatchCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.InventoryImportBatchCreateManyCompanyInputEnvelope
+  connect?: Prisma.InventoryImportBatchWhereUniqueInput | Prisma.InventoryImportBatchWhereUniqueInput[]
+}
+
+export type InventoryImportBatchUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryImportBatchCreateWithoutCompanyInput, Prisma.InventoryImportBatchUncheckedCreateWithoutCompanyInput> | Prisma.InventoryImportBatchCreateWithoutCompanyInput[] | Prisma.InventoryImportBatchUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryImportBatchCreateOrConnectWithoutCompanyInput | Prisma.InventoryImportBatchCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.InventoryImportBatchUpsertWithWhereUniqueWithoutCompanyInput | Prisma.InventoryImportBatchUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.InventoryImportBatchCreateManyCompanyInputEnvelope
+  set?: Prisma.InventoryImportBatchWhereUniqueInput | Prisma.InventoryImportBatchWhereUniqueInput[]
+  disconnect?: Prisma.InventoryImportBatchWhereUniqueInput | Prisma.InventoryImportBatchWhereUniqueInput[]
+  delete?: Prisma.InventoryImportBatchWhereUniqueInput | Prisma.InventoryImportBatchWhereUniqueInput[]
+  connect?: Prisma.InventoryImportBatchWhereUniqueInput | Prisma.InventoryImportBatchWhereUniqueInput[]
+  update?: Prisma.InventoryImportBatchUpdateWithWhereUniqueWithoutCompanyInput | Prisma.InventoryImportBatchUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.InventoryImportBatchUpdateManyWithWhereWithoutCompanyInput | Prisma.InventoryImportBatchUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.InventoryImportBatchScalarWhereInput | Prisma.InventoryImportBatchScalarWhereInput[]
+}
+
+export type InventoryImportBatchUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryImportBatchCreateWithoutCompanyInput, Prisma.InventoryImportBatchUncheckedCreateWithoutCompanyInput> | Prisma.InventoryImportBatchCreateWithoutCompanyInput[] | Prisma.InventoryImportBatchUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryImportBatchCreateOrConnectWithoutCompanyInput | Prisma.InventoryImportBatchCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.InventoryImportBatchUpsertWithWhereUniqueWithoutCompanyInput | Prisma.InventoryImportBatchUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.InventoryImportBatchCreateManyCompanyInputEnvelope
+  set?: Prisma.InventoryImportBatchWhereUniqueInput | Prisma.InventoryImportBatchWhereUniqueInput[]
+  disconnect?: Prisma.InventoryImportBatchWhereUniqueInput | Prisma.InventoryImportBatchWhereUniqueInput[]
+  delete?: Prisma.InventoryImportBatchWhereUniqueInput | Prisma.InventoryImportBatchWhereUniqueInput[]
+  connect?: Prisma.InventoryImportBatchWhereUniqueInput | Prisma.InventoryImportBatchWhereUniqueInput[]
+  update?: Prisma.InventoryImportBatchUpdateWithWhereUniqueWithoutCompanyInput | Prisma.InventoryImportBatchUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.InventoryImportBatchUpdateManyWithWhereWithoutCompanyInput | Prisma.InventoryImportBatchUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.InventoryImportBatchScalarWhereInput | Prisma.InventoryImportBatchScalarWhereInput[]
+}
+
+export type InventoryImportBatchCreateWithoutCompanyInput = {
+  companyCode: string
+  sourceFile: string
+  sourceSheet?: string | null
+  checksum: string
+  status?: string
+  itemCount?: number
+  documentCount?: number
+  rowCount?: number
+  warningCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+}
+
+export type InventoryImportBatchUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  sourceFile: string
+  sourceSheet?: string | null
+  checksum: string
+  status?: string
+  itemCount?: number
+  documentCount?: number
+  rowCount?: number
+  warningCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+}
+
+export type InventoryImportBatchCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.InventoryImportBatchWhereUniqueInput
+  create: Prisma.XOR<Prisma.InventoryImportBatchCreateWithoutCompanyInput, Prisma.InventoryImportBatchUncheckedCreateWithoutCompanyInput>
+}
+
+export type InventoryImportBatchCreateManyCompanyInputEnvelope = {
+  data: Prisma.InventoryImportBatchCreateManyCompanyInput | Prisma.InventoryImportBatchCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type InventoryImportBatchUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.InventoryImportBatchWhereUniqueInput
+  update: Prisma.XOR<Prisma.InventoryImportBatchUpdateWithoutCompanyInput, Prisma.InventoryImportBatchUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.InventoryImportBatchCreateWithoutCompanyInput, Prisma.InventoryImportBatchUncheckedCreateWithoutCompanyInput>
+}
+
+export type InventoryImportBatchUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.InventoryImportBatchWhereUniqueInput
+  data: Prisma.XOR<Prisma.InventoryImportBatchUpdateWithoutCompanyInput, Prisma.InventoryImportBatchUncheckedUpdateWithoutCompanyInput>
+}
+
+export type InventoryImportBatchUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.InventoryImportBatchScalarWhereInput
+  data: Prisma.XOR<Prisma.InventoryImportBatchUpdateManyMutationInput, Prisma.InventoryImportBatchUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type InventoryImportBatchScalarWhereInput = {
+  AND?: Prisma.InventoryImportBatchScalarWhereInput | Prisma.InventoryImportBatchScalarWhereInput[]
+  OR?: Prisma.InventoryImportBatchScalarWhereInput[]
+  NOT?: Prisma.InventoryImportBatchScalarWhereInput | Prisma.InventoryImportBatchScalarWhereInput[]
+  id?: Prisma.IntFilter<"InventoryImportBatch"> | number
+  companyCode?: Prisma.StringFilter<"InventoryImportBatch"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryImportBatch"> | number | null
+  sourceFile?: Prisma.StringFilter<"InventoryImportBatch"> | string
+  sourceSheet?: Prisma.StringNullableFilter<"InventoryImportBatch"> | string | null
+  checksum?: Prisma.StringFilter<"InventoryImportBatch"> | string
+  status?: Prisma.StringFilter<"InventoryImportBatch"> | string
+  itemCount?: Prisma.IntFilter<"InventoryImportBatch"> | number
+  documentCount?: Prisma.IntFilter<"InventoryImportBatch"> | number
+  rowCount?: Prisma.IntFilter<"InventoryImportBatch"> | number
+  warningCount?: Prisma.IntFilter<"InventoryImportBatch"> | number
+  importedBy?: Prisma.IntNullableFilter<"InventoryImportBatch"> | number | null
+  importedAt?: Prisma.DateTimeFilter<"InventoryImportBatch"> | Date | string
+  note?: Prisma.StringNullableFilter<"InventoryImportBatch"> | string | null
+}
+
+export type InventoryImportBatchCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  sourceFile: string
+  sourceSheet?: string | null
+  checksum: string
+  status?: string
+  itemCount?: number
+  documentCount?: number
+  rowCount?: number
+  warningCount?: number
+  importedBy?: number | null
+  importedAt?: Date | string
+  note?: string | null
+}
+
+export type InventoryImportBatchUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  itemCount?: Prisma.IntFieldUpdateOperationsInput | number
+  documentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warningCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type InventoryImportBatchUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  itemCount?: Prisma.IntFieldUpdateOperationsInput | number
+  documentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warningCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type InventoryImportBatchUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  itemCount?: Prisma.IntFieldUpdateOperationsInput | number
+  documentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warningCount?: Prisma.IntFieldUpdateOperationsInput | number
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
 
 
 export type InventoryImportBatchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceFile?: boolean
   sourceSheet?: boolean
   checksum?: boolean
@@ -575,11 +798,13 @@ export type InventoryImportBatchSelect<ExtArgs extends runtime.Types.Extensions.
   importedBy?: boolean
   importedAt?: boolean
   note?: boolean
+  company?: boolean | Prisma.InventoryImportBatch$companyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryImportBatch"]>
 
 export type InventoryImportBatchSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceFile?: boolean
   sourceSheet?: boolean
   checksum?: boolean
@@ -591,11 +816,13 @@ export type InventoryImportBatchSelectCreateManyAndReturn<ExtArgs extends runtim
   importedBy?: boolean
   importedAt?: boolean
   note?: boolean
+  company?: boolean | Prisma.InventoryImportBatch$companyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryImportBatch"]>
 
 export type InventoryImportBatchSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceFile?: boolean
   sourceSheet?: boolean
   checksum?: boolean
@@ -607,11 +834,13 @@ export type InventoryImportBatchSelectUpdateManyAndReturn<ExtArgs extends runtim
   importedBy?: boolean
   importedAt?: boolean
   note?: boolean
+  company?: boolean | Prisma.InventoryImportBatch$companyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryImportBatch"]>
 
 export type InventoryImportBatchSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceFile?: boolean
   sourceSheet?: boolean
   checksum?: boolean
@@ -625,14 +854,26 @@ export type InventoryImportBatchSelectScalar = {
   note?: boolean
 }
 
-export type InventoryImportBatchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "sourceFile" | "sourceSheet" | "checksum" | "status" | "itemCount" | "documentCount" | "rowCount" | "warningCount" | "importedBy" | "importedAt" | "note", ExtArgs["result"]["inventoryImportBatch"]>
+export type InventoryImportBatchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "sourceFile" | "sourceSheet" | "checksum" | "status" | "itemCount" | "documentCount" | "rowCount" | "warningCount" | "importedBy" | "importedAt" | "note", ExtArgs["result"]["inventoryImportBatch"]>
+export type InventoryImportBatchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.InventoryImportBatch$companyArgs<ExtArgs>
+}
+export type InventoryImportBatchIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.InventoryImportBatch$companyArgs<ExtArgs>
+}
+export type InventoryImportBatchIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.InventoryImportBatch$companyArgs<ExtArgs>
+}
 
 export type $InventoryImportBatchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "InventoryImportBatch"
-  objects: {}
+  objects: {
+    company: Prisma.$CompanyPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     sourceFile: string
     sourceSheet: string | null
     checksum: string
@@ -1038,6 +1279,7 @@ readonly fields: InventoryImportBatchFieldRefs;
  */
 export interface Prisma__InventoryImportBatchClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  company<T extends Prisma.InventoryImportBatch$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryImportBatch$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1069,6 +1311,7 @@ export interface Prisma__InventoryImportBatchClient<T, Null = never, ExtArgs ext
 export interface InventoryImportBatchFieldRefs {
   readonly id: Prisma.FieldRef<"InventoryImportBatch", 'Int'>
   readonly companyCode: Prisma.FieldRef<"InventoryImportBatch", 'String'>
+  readonly companyId: Prisma.FieldRef<"InventoryImportBatch", 'Int'>
   readonly sourceFile: Prisma.FieldRef<"InventoryImportBatch", 'String'>
   readonly sourceSheet: Prisma.FieldRef<"InventoryImportBatch", 'String'>
   readonly checksum: Prisma.FieldRef<"InventoryImportBatch", 'String'>
@@ -1097,6 +1340,10 @@ export type InventoryImportBatchFindUniqueArgs<ExtArgs extends runtime.Types.Ext
    */
   omit?: Prisma.InventoryImportBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryImportBatchInclude<ExtArgs> | null
+  /**
    * Filter, which InventoryImportBatch to fetch.
    */
   where: Prisma.InventoryImportBatchWhereUniqueInput
@@ -1115,6 +1362,10 @@ export type InventoryImportBatchFindUniqueOrThrowArgs<ExtArgs extends runtime.Ty
    */
   omit?: Prisma.InventoryImportBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryImportBatchInclude<ExtArgs> | null
+  /**
    * Filter, which InventoryImportBatch to fetch.
    */
   where: Prisma.InventoryImportBatchWhereUniqueInput
@@ -1132,6 +1383,10 @@ export type InventoryImportBatchFindFirstArgs<ExtArgs extends runtime.Types.Exte
    * Omit specific fields from the InventoryImportBatch
    */
   omit?: Prisma.InventoryImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryImportBatchInclude<ExtArgs> | null
   /**
    * Filter, which InventoryImportBatch to fetch.
    */
@@ -1181,6 +1436,10 @@ export type InventoryImportBatchFindFirstOrThrowArgs<ExtArgs extends runtime.Typ
    */
   omit?: Prisma.InventoryImportBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryImportBatchInclude<ExtArgs> | null
+  /**
    * Filter, which InventoryImportBatch to fetch.
    */
   where?: Prisma.InventoryImportBatchWhereInput
@@ -1228,6 +1487,10 @@ export type InventoryImportBatchFindManyArgs<ExtArgs extends runtime.Types.Exten
    * Omit specific fields from the InventoryImportBatch
    */
   omit?: Prisma.InventoryImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryImportBatchInclude<ExtArgs> | null
   /**
    * Filter, which InventoryImportBatches to fetch.
    */
@@ -1277,6 +1540,10 @@ export type InventoryImportBatchCreateArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.InventoryImportBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryImportBatchInclude<ExtArgs> | null
+  /**
    * The data needed to create a InventoryImportBatch.
    */
   data: Prisma.XOR<Prisma.InventoryImportBatchCreateInput, Prisma.InventoryImportBatchUncheckedCreateInput>
@@ -1310,6 +1577,10 @@ export type InventoryImportBatchCreateManyAndReturnArgs<ExtArgs extends runtime.
    */
   data: Prisma.InventoryImportBatchCreateManyInput | Prisma.InventoryImportBatchCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryImportBatchIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1324,6 +1595,10 @@ export type InventoryImportBatchUpdateArgs<ExtArgs extends runtime.Types.Extensi
    * Omit specific fields from the InventoryImportBatch
    */
   omit?: Prisma.InventoryImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryImportBatchInclude<ExtArgs> | null
   /**
    * The data needed to update a InventoryImportBatch.
    */
@@ -1376,6 +1651,10 @@ export type InventoryImportBatchUpdateManyAndReturnArgs<ExtArgs extends runtime.
    * Limit how many InventoryImportBatches to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryImportBatchIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1390,6 +1669,10 @@ export type InventoryImportBatchUpsertArgs<ExtArgs extends runtime.Types.Extensi
    * Omit specific fields from the InventoryImportBatch
    */
   omit?: Prisma.InventoryImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryImportBatchInclude<ExtArgs> | null
   /**
    * The filter to search for the InventoryImportBatch to update in case it exists.
    */
@@ -1417,6 +1700,10 @@ export type InventoryImportBatchDeleteArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.InventoryImportBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryImportBatchInclude<ExtArgs> | null
+  /**
    * Filter which InventoryImportBatch to delete.
    */
   where: Prisma.InventoryImportBatchWhereUniqueInput
@@ -1437,6 +1724,25 @@ export type InventoryImportBatchDeleteManyArgs<ExtArgs extends runtime.Types.Ext
 }
 
 /**
+ * InventoryImportBatch.company
+ */
+export type InventoryImportBatch$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
+}
+
+/**
  * InventoryImportBatch without action
  */
 export type InventoryImportBatchDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1448,4 +1754,8 @@ export type InventoryImportBatchDefaultArgs<ExtArgs extends runtime.Types.Extens
    * Omit specific fields from the InventoryImportBatch
    */
   omit?: Prisma.InventoryImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryImportBatchInclude<ExtArgs> | null
 }

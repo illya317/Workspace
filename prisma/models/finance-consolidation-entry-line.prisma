@@ -31,6 +31,8 @@ model FinanceConsolidationEntryLine {
   createdAt                    DateTime @default(now())
 
   entry                    FinanceConsolidationEntry           @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  company                  Company                             @relation("FinanceConsolidationEntryLineCompany", fields: [companyId], references: [id], onDelete: Restrict)
+  counterpartyCompany      Company?                            @relation("FinanceConsolidationEntryLineCounterpartyCompany", fields: [counterpartyCompanyId], references: [id], onDelete: Restrict)
   entity                   FinanceConsolidationEntitySnapshot  @relation("ConsolidationEntryLineEntity", fields: [entitySnapshotId], references: [id], onDelete: Restrict)
   counterpartyEntity       FinanceConsolidationEntitySnapshot? @relation("ConsolidationEntryLineCounterparty", fields: [counterpartyEntitySnapshotId], references: [id], onDelete: Restrict)
   sourceSnapshot           FinanceConsolidationSourceSnapshot? @relation(fields: [sourceSnapshotId], references: [id], onDelete: Restrict)
@@ -41,6 +43,8 @@ model FinanceConsolidationEntryLine {
   groupAccount             FinanceGroupAccount?                @relation(fields: [groupAccountId], references: [id], onDelete: Restrict)
 
   @@unique([entryId, lineNo])
+  @@index([companyId])
+  @@index([counterpartyCompanyId])
   @@index([entitySnapshotId, statementType, lineCode])
   @@index([counterpartyEntitySnapshotId])
   @@index([sourceSnapshotId])

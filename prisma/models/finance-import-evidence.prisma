@@ -46,6 +46,7 @@ model FinanceReadableImportRun {
 model FinanceSourceLedgerMapping {
   id                    Int                   @id @default(autoincrement())
   companyCode           String
+  companyId Int?
   sourceSystem          String
   sourceLedger          String
   sourceName            String
@@ -62,9 +63,11 @@ model FinanceSourceLedgerMapping {
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @default(now()) @updatedAt
   imports               FinanceLedgerImport[]
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([companyCode, sourceSystem, sourceLedger, effectiveFromYear])
   @@index([companyCode, effectiveFromYear, effectiveToYear])
+  @@index([companyId])
 }
 
 /// 科目要求的 ERP 辅助核算维度（事实，区分“不适用”与“应有但缺失”）。

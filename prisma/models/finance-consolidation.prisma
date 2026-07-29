@@ -27,6 +27,7 @@ model FinanceConsolidationBatch {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @default(now()) @updatedAt
 
+  parentCompany    Company                               @relation("FinanceConsolidationBatchParentCompany", fields: [parentCompanyId], references: [id], onDelete: Restrict)
   baseBatch        FinanceConsolidationBatch?            @relation("FinanceConsolidationBatchVersionChain", fields: [baseBatchId], references: [id], onDelete: Restrict)
   derivedBatches   FinanceConsolidationBatch[]           @relation("FinanceConsolidationBatchVersionChain")
   entities         FinanceConsolidationEntitySnapshot[]
@@ -41,21 +42,6 @@ model FinanceConsolidationBatch {
   @@unique([parentCompanyId, year, month, periodKind, version], map: "FinanceConsolidationBatch_scope_version_key")
   @@index([parentCompanyId, year, month, periodKind, status], map: "FinanceConsolidationBatch_scope_status_idx")
   @@index([baseBatchId])
-}
-
-/// 公司财务本位币政策；用于覆盖已确认错误的 ERP 账套本位币，创建批次时冻结。
-model FinanceCompanyCurrencyPolicy {
-  id                 Int       @id @default(autoincrement())
-  companyId          Int       @unique
-  functionalCurrency String
-  source             String
-  evidence           String
-  effectiveFrom      DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @default(now()) @updatedAt
-  company            Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
-
-  @@index([functionalCurrency])
 }
 
 /// 合并批次追加式事件流。生命周期迁移和物理删除审计只允许新增，不允许覆盖。
@@ -123,6 +109,8 @@ model FinanceConsolidationEntitySnapshot {
   createdAt             DateTime  @default(now())
 
   batch                    FinanceConsolidationBatch            @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  company                  Company                              @relation("FinanceConsolidationEntityCompany", fields: [companyId], references: [id], onDelete: Restrict)
+  directParentCompany      Company?                             @relation("FinanceConsolidationEntityDirectParentCompany", fields: [directParentCompanyId], references: [id], onDelete: Restrict)
   sources                  FinanceConsolidationSourceSnapshot[]
   taxEffects               FinanceConsolidationTaxEffect[]
   entryLines               FinanceConsolidationEntryLine[]      @relation("ConsolidationEntryLineEntity")
@@ -134,6 +122,8 @@ model FinanceConsolidationEntitySnapshot {
 
   @@unique([batchId, companyId])
   @@index([batchId, role])
+  @@index([companyId])
+  @@index([directParentCompanyId])
 }
 
 /// 个别报表来源冻结快照（事实表，来源于底稿版本或当期系统账；批次提交后不可修改）。

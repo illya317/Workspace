@@ -161,6 +161,7 @@ model FinanceWorkshopReport {
   year        Int
   month       Int
   productName String?
+  productId   Int?
   batchNo     String?
   workPoint   Float?
   quantity    Float?
@@ -172,11 +173,13 @@ model FinanceWorkshopReport {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   position    Position?         @relation(fields: [positionId], references: [id])
+  product     Product?          @relation(fields: [productId], references: [id], onDelete: Restrict)
   employee    Employee?         @relation(fields: [employeeId], references: [id])
   import      FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
 
   @@index([year, month])
   @@index([productName])
+  @@index([productId])
   @@index([batchNo])
   @@index([employeeId])
   @@index([positionId])

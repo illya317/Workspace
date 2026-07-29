@@ -29,12 +29,14 @@ export type AggregateFinanceCashFlowAllocationAdjustment = {
 export type FinanceCashFlowAllocationAdjustmentAvgAggregateOutputType = {
   id: number | null
   allocationId: number | null
+  companyId: number | null
   amount: runtime.Decimal | null
 }
 
 export type FinanceCashFlowAllocationAdjustmentSumAggregateOutputType = {
   id: number | null
   allocationId: number | null
+  companyId: number | null
   amount: runtime.Decimal | null
 }
 
@@ -42,6 +44,7 @@ export type FinanceCashFlowAllocationAdjustmentMinAggregateOutputType = {
   id: number | null
   allocationId: number | null
   companyCode: string | null
+  companyId: number | null
   sourceLineCode: string | null
   targetLineCode: string | null
   amount: runtime.Decimal | null
@@ -56,6 +59,7 @@ export type FinanceCashFlowAllocationAdjustmentMaxAggregateOutputType = {
   id: number | null
   allocationId: number | null
   companyCode: string | null
+  companyId: number | null
   sourceLineCode: string | null
   targetLineCode: string | null
   amount: runtime.Decimal | null
@@ -70,6 +74,7 @@ export type FinanceCashFlowAllocationAdjustmentCountAggregateOutputType = {
   id: number
   allocationId: number
   companyCode: number
+  companyId: number
   sourceLineCode: number
   targetLineCode: number
   amount: number
@@ -85,12 +90,14 @@ export type FinanceCashFlowAllocationAdjustmentCountAggregateOutputType = {
 export type FinanceCashFlowAllocationAdjustmentAvgAggregateInputType = {
   id?: true
   allocationId?: true
+  companyId?: true
   amount?: true
 }
 
 export type FinanceCashFlowAllocationAdjustmentSumAggregateInputType = {
   id?: true
   allocationId?: true
+  companyId?: true
   amount?: true
 }
 
@@ -98,6 +105,7 @@ export type FinanceCashFlowAllocationAdjustmentMinAggregateInputType = {
   id?: true
   allocationId?: true
   companyCode?: true
+  companyId?: true
   sourceLineCode?: true
   targetLineCode?: true
   amount?: true
@@ -112,6 +120,7 @@ export type FinanceCashFlowAllocationAdjustmentMaxAggregateInputType = {
   id?: true
   allocationId?: true
   companyCode?: true
+  companyId?: true
   sourceLineCode?: true
   targetLineCode?: true
   amount?: true
@@ -126,6 +135,7 @@ export type FinanceCashFlowAllocationAdjustmentCountAggregateInputType = {
   id?: true
   allocationId?: true
   companyCode?: true
+  companyId?: true
   sourceLineCode?: true
   targetLineCode?: true
   amount?: true
@@ -227,6 +237,7 @@ export type FinanceCashFlowAllocationAdjustmentGroupByOutputType = {
   id: number
   allocationId: number
   companyCode: string
+  companyId: number | null
   sourceLineCode: string
   targetLineCode: string
   amount: runtime.Decimal
@@ -264,6 +275,7 @@ export type FinanceCashFlowAllocationAdjustmentWhereInput = {
   id?: Prisma.IntFilter<"FinanceCashFlowAllocationAdjustment"> | number
   allocationId?: Prisma.IntFilter<"FinanceCashFlowAllocationAdjustment"> | number
   companyCode?: Prisma.StringFilter<"FinanceCashFlowAllocationAdjustment"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceCashFlowAllocationAdjustment"> | number | null
   sourceLineCode?: Prisma.StringFilter<"FinanceCashFlowAllocationAdjustment"> | string
   targetLineCode?: Prisma.StringFilter<"FinanceCashFlowAllocationAdjustment"> | string
   amount?: Prisma.DecimalFilter<"FinanceCashFlowAllocationAdjustment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -273,12 +285,14 @@ export type FinanceCashFlowAllocationAdjustmentWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"FinanceCashFlowAllocationAdjustment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceCashFlowAllocationAdjustment"> | Date | string
   allocation?: Prisma.XOR<Prisma.FinanceCashFlowAllocationScalarRelationFilter, Prisma.FinanceCashFlowAllocationWhereInput>
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceCashFlowAllocationAdjustmentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   allocationId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceLineCode?: Prisma.SortOrder
   targetLineCode?: Prisma.SortOrder
   amount?: Prisma.SortOrder
@@ -288,6 +302,7 @@ export type FinanceCashFlowAllocationAdjustmentOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   allocation?: Prisma.FinanceCashFlowAllocationOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceCashFlowAllocationAdjustmentWhereUniqueInput = Prisma.AtLeast<{
@@ -297,6 +312,7 @@ export type FinanceCashFlowAllocationAdjustmentWhereUniqueInput = Prisma.AtLeast
   OR?: Prisma.FinanceCashFlowAllocationAdjustmentWhereInput[]
   NOT?: Prisma.FinanceCashFlowAllocationAdjustmentWhereInput | Prisma.FinanceCashFlowAllocationAdjustmentWhereInput[]
   companyCode?: Prisma.StringFilter<"FinanceCashFlowAllocationAdjustment"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceCashFlowAllocationAdjustment"> | number | null
   sourceLineCode?: Prisma.StringFilter<"FinanceCashFlowAllocationAdjustment"> | string
   targetLineCode?: Prisma.StringFilter<"FinanceCashFlowAllocationAdjustment"> | string
   amount?: Prisma.DecimalFilter<"FinanceCashFlowAllocationAdjustment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -306,12 +322,14 @@ export type FinanceCashFlowAllocationAdjustmentWhereUniqueInput = Prisma.AtLeast
   createdAt?: Prisma.DateTimeFilter<"FinanceCashFlowAllocationAdjustment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceCashFlowAllocationAdjustment"> | Date | string
   allocation?: Prisma.XOR<Prisma.FinanceCashFlowAllocationScalarRelationFilter, Prisma.FinanceCashFlowAllocationWhereInput>
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "allocationId">
 
 export type FinanceCashFlowAllocationAdjustmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   allocationId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceLineCode?: Prisma.SortOrder
   targetLineCode?: Prisma.SortOrder
   amount?: Prisma.SortOrder
@@ -334,6 +352,7 @@ export type FinanceCashFlowAllocationAdjustmentScalarWhereWithAggregatesInput = 
   id?: Prisma.IntWithAggregatesFilter<"FinanceCashFlowAllocationAdjustment"> | number
   allocationId?: Prisma.IntWithAggregatesFilter<"FinanceCashFlowAllocationAdjustment"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceCashFlowAllocationAdjustment"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceCashFlowAllocationAdjustment"> | number | null
   sourceLineCode?: Prisma.StringWithAggregatesFilter<"FinanceCashFlowAllocationAdjustment"> | string
   targetLineCode?: Prisma.StringWithAggregatesFilter<"FinanceCashFlowAllocationAdjustment"> | string
   amount?: Prisma.DecimalWithAggregatesFilter<"FinanceCashFlowAllocationAdjustment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -355,12 +374,14 @@ export type FinanceCashFlowAllocationAdjustmentCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   allocation: Prisma.FinanceCashFlowAllocationCreateNestedOneWithoutStatementAdjustmentInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceCashFlowAllocationAdjustmentsInput
 }
 
 export type FinanceCashFlowAllocationAdjustmentUncheckedCreateInput = {
   id?: number
   allocationId: number
   companyCode: string
+  companyId?: number | null
   sourceLineCode: string
   targetLineCode: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -382,12 +403,14 @@ export type FinanceCashFlowAllocationAdjustmentUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   allocation?: Prisma.FinanceCashFlowAllocationUpdateOneRequiredWithoutStatementAdjustmentNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceCashFlowAllocationAdjustmentsNestedInput
 }
 
 export type FinanceCashFlowAllocationAdjustmentUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   allocationId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceLineCode?: Prisma.StringFieldUpdateOperationsInput | string
   targetLineCode?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -402,6 +425,7 @@ export type FinanceCashFlowAllocationAdjustmentCreateManyInput = {
   id?: number
   allocationId: number
   companyCode: string
+  companyId?: number | null
   sourceLineCode: string
   targetLineCode: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -428,6 +452,7 @@ export type FinanceCashFlowAllocationAdjustmentUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   allocationId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceLineCode?: Prisma.StringFieldUpdateOperationsInput | string
   targetLineCode?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -447,6 +472,7 @@ export type FinanceCashFlowAllocationAdjustmentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   allocationId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceLineCode?: Prisma.SortOrder
   targetLineCode?: Prisma.SortOrder
   amount?: Prisma.SortOrder
@@ -460,6 +486,7 @@ export type FinanceCashFlowAllocationAdjustmentCountOrderByAggregateInput = {
 export type FinanceCashFlowAllocationAdjustmentAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   allocationId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
 }
 
@@ -467,6 +494,7 @@ export type FinanceCashFlowAllocationAdjustmentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   allocationId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceLineCode?: Prisma.SortOrder
   targetLineCode?: Prisma.SortOrder
   amount?: Prisma.SortOrder
@@ -481,6 +509,7 @@ export type FinanceCashFlowAllocationAdjustmentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   allocationId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceLineCode?: Prisma.SortOrder
   targetLineCode?: Prisma.SortOrder
   amount?: Prisma.SortOrder
@@ -494,7 +523,18 @@ export type FinanceCashFlowAllocationAdjustmentMinOrderByAggregateInput = {
 export type FinanceCashFlowAllocationAdjustmentSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   allocationId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+}
+
+export type FinanceCashFlowAllocationAdjustmentListRelationFilter = {
+  every?: Prisma.FinanceCashFlowAllocationAdjustmentWhereInput
+  some?: Prisma.FinanceCashFlowAllocationAdjustmentWhereInput
+  none?: Prisma.FinanceCashFlowAllocationAdjustmentWhereInput
+}
+
+export type FinanceCashFlowAllocationAdjustmentOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type FinanceCashFlowAllocationAdjustmentCreateNestedOneWithoutAllocationInput = {
@@ -529,6 +569,48 @@ export type FinanceCashFlowAllocationAdjustmentUncheckedUpdateOneWithoutAllocati
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceCashFlowAllocationAdjustmentUpdateToOneWithWhereWithoutAllocationInput, Prisma.FinanceCashFlowAllocationAdjustmentUpdateWithoutAllocationInput>, Prisma.FinanceCashFlowAllocationAdjustmentUncheckedUpdateWithoutAllocationInput>
 }
 
+export type FinanceCashFlowAllocationAdjustmentCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceCashFlowAllocationAdjustmentCreateWithoutCompanyInput, Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateWithoutCompanyInput> | Prisma.FinanceCashFlowAllocationAdjustmentCreateWithoutCompanyInput[] | Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceCashFlowAllocationAdjustmentCreateOrConnectWithoutCompanyInput | Prisma.FinanceCashFlowAllocationAdjustmentCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceCashFlowAllocationAdjustmentCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput | Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput[]
+}
+
+export type FinanceCashFlowAllocationAdjustmentUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceCashFlowAllocationAdjustmentCreateWithoutCompanyInput, Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateWithoutCompanyInput> | Prisma.FinanceCashFlowAllocationAdjustmentCreateWithoutCompanyInput[] | Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceCashFlowAllocationAdjustmentCreateOrConnectWithoutCompanyInput | Prisma.FinanceCashFlowAllocationAdjustmentCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceCashFlowAllocationAdjustmentCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput | Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput[]
+}
+
+export type FinanceCashFlowAllocationAdjustmentUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceCashFlowAllocationAdjustmentCreateWithoutCompanyInput, Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateWithoutCompanyInput> | Prisma.FinanceCashFlowAllocationAdjustmentCreateWithoutCompanyInput[] | Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceCashFlowAllocationAdjustmentCreateOrConnectWithoutCompanyInput | Prisma.FinanceCashFlowAllocationAdjustmentCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceCashFlowAllocationAdjustmentUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceCashFlowAllocationAdjustmentUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceCashFlowAllocationAdjustmentCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput | Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput[]
+  disconnect?: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput | Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput[]
+  delete?: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput | Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput[]
+  connect?: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput | Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput[]
+  update?: Prisma.FinanceCashFlowAllocationAdjustmentUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceCashFlowAllocationAdjustmentUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceCashFlowAllocationAdjustmentUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceCashFlowAllocationAdjustmentUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceCashFlowAllocationAdjustmentScalarWhereInput | Prisma.FinanceCashFlowAllocationAdjustmentScalarWhereInput[]
+}
+
+export type FinanceCashFlowAllocationAdjustmentUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceCashFlowAllocationAdjustmentCreateWithoutCompanyInput, Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateWithoutCompanyInput> | Prisma.FinanceCashFlowAllocationAdjustmentCreateWithoutCompanyInput[] | Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceCashFlowAllocationAdjustmentCreateOrConnectWithoutCompanyInput | Prisma.FinanceCashFlowAllocationAdjustmentCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceCashFlowAllocationAdjustmentUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceCashFlowAllocationAdjustmentUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceCashFlowAllocationAdjustmentCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput | Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput[]
+  disconnect?: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput | Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput[]
+  delete?: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput | Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput[]
+  connect?: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput | Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput[]
+  update?: Prisma.FinanceCashFlowAllocationAdjustmentUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceCashFlowAllocationAdjustmentUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceCashFlowAllocationAdjustmentUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceCashFlowAllocationAdjustmentUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceCashFlowAllocationAdjustmentScalarWhereInput | Prisma.FinanceCashFlowAllocationAdjustmentScalarWhereInput[]
+}
+
 export type FinanceCashFlowAllocationAdjustmentCreateWithoutAllocationInput = {
   companyCode: string
   sourceLineCode: string
@@ -539,11 +621,13 @@ export type FinanceCashFlowAllocationAdjustmentCreateWithoutAllocationInput = {
   note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceCashFlowAllocationAdjustmentsInput
 }
 
 export type FinanceCashFlowAllocationAdjustmentUncheckedCreateWithoutAllocationInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceLineCode: string
   targetLineCode: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -580,10 +664,138 @@ export type FinanceCashFlowAllocationAdjustmentUpdateWithoutAllocationInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceCashFlowAllocationAdjustmentsNestedInput
 }
 
 export type FinanceCashFlowAllocationAdjustmentUncheckedUpdateWithoutAllocationInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLineCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetLineCode?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceCashFlowAllocationAdjustmentCreateWithoutCompanyInput = {
+  companyCode: string
+  sourceLineCode: string
+  targetLineCode: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  enabled?: boolean
+  sourceType?: string
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  allocation: Prisma.FinanceCashFlowAllocationCreateNestedOneWithoutStatementAdjustmentInput
+}
+
+export type FinanceCashFlowAllocationAdjustmentUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  allocationId: number
+  companyCode: string
+  sourceLineCode: string
+  targetLineCode: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  enabled?: boolean
+  sourceType?: string
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceCashFlowAllocationAdjustmentCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceCashFlowAllocationAdjustmentCreateWithoutCompanyInput, Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceCashFlowAllocationAdjustmentCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceCashFlowAllocationAdjustmentCreateManyCompanyInput | Prisma.FinanceCashFlowAllocationAdjustmentCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceCashFlowAllocationAdjustmentUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceCashFlowAllocationAdjustmentUpdateWithoutCompanyInput, Prisma.FinanceCashFlowAllocationAdjustmentUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceCashFlowAllocationAdjustmentCreateWithoutCompanyInput, Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceCashFlowAllocationAdjustmentUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceCashFlowAllocationAdjustmentWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceCashFlowAllocationAdjustmentUpdateWithoutCompanyInput, Prisma.FinanceCashFlowAllocationAdjustmentUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceCashFlowAllocationAdjustmentUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceCashFlowAllocationAdjustmentScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceCashFlowAllocationAdjustmentUpdateManyMutationInput, Prisma.FinanceCashFlowAllocationAdjustmentUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type FinanceCashFlowAllocationAdjustmentScalarWhereInput = {
+  AND?: Prisma.FinanceCashFlowAllocationAdjustmentScalarWhereInput | Prisma.FinanceCashFlowAllocationAdjustmentScalarWhereInput[]
+  OR?: Prisma.FinanceCashFlowAllocationAdjustmentScalarWhereInput[]
+  NOT?: Prisma.FinanceCashFlowAllocationAdjustmentScalarWhereInput | Prisma.FinanceCashFlowAllocationAdjustmentScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceCashFlowAllocationAdjustment"> | number
+  allocationId?: Prisma.IntFilter<"FinanceCashFlowAllocationAdjustment"> | number
+  companyCode?: Prisma.StringFilter<"FinanceCashFlowAllocationAdjustment"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceCashFlowAllocationAdjustment"> | number | null
+  sourceLineCode?: Prisma.StringFilter<"FinanceCashFlowAllocationAdjustment"> | string
+  targetLineCode?: Prisma.StringFilter<"FinanceCashFlowAllocationAdjustment"> | string
+  amount?: Prisma.DecimalFilter<"FinanceCashFlowAllocationAdjustment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  enabled?: Prisma.BoolFilter<"FinanceCashFlowAllocationAdjustment"> | boolean
+  sourceType?: Prisma.StringFilter<"FinanceCashFlowAllocationAdjustment"> | string
+  note?: Prisma.StringNullableFilter<"FinanceCashFlowAllocationAdjustment"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"FinanceCashFlowAllocationAdjustment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FinanceCashFlowAllocationAdjustment"> | Date | string
+}
+
+export type FinanceCashFlowAllocationAdjustmentCreateManyCompanyInput = {
+  id?: number
+  allocationId: number
+  companyCode: string
+  sourceLineCode: string
+  targetLineCode: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  enabled?: boolean
+  sourceType?: string
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceCashFlowAllocationAdjustmentUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLineCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetLineCode?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  allocation?: Prisma.FinanceCashFlowAllocationUpdateOneRequiredWithoutStatementAdjustmentNestedInput
+}
+
+export type FinanceCashFlowAllocationAdjustmentUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  allocationId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLineCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetLineCode?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceCashFlowAllocationAdjustmentUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  allocationId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLineCode?: Prisma.StringFieldUpdateOperationsInput | string
   targetLineCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -601,6 +813,7 @@ export type FinanceCashFlowAllocationAdjustmentSelect<ExtArgs extends runtime.Ty
   id?: boolean
   allocationId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceLineCode?: boolean
   targetLineCode?: boolean
   amount?: boolean
@@ -610,12 +823,14 @@ export type FinanceCashFlowAllocationAdjustmentSelect<ExtArgs extends runtime.Ty
   createdAt?: boolean
   updatedAt?: boolean
   allocation?: boolean | Prisma.FinanceCashFlowAllocationDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCashFlowAllocationAdjustment$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeCashFlowAllocationAdjustment"]>
 
 export type FinanceCashFlowAllocationAdjustmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   allocationId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceLineCode?: boolean
   targetLineCode?: boolean
   amount?: boolean
@@ -625,12 +840,14 @@ export type FinanceCashFlowAllocationAdjustmentSelectCreateManyAndReturn<ExtArgs
   createdAt?: boolean
   updatedAt?: boolean
   allocation?: boolean | Prisma.FinanceCashFlowAllocationDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCashFlowAllocationAdjustment$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeCashFlowAllocationAdjustment"]>
 
 export type FinanceCashFlowAllocationAdjustmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   allocationId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceLineCode?: boolean
   targetLineCode?: boolean
   amount?: boolean
@@ -640,12 +857,14 @@ export type FinanceCashFlowAllocationAdjustmentSelectUpdateManyAndReturn<ExtArgs
   createdAt?: boolean
   updatedAt?: boolean
   allocation?: boolean | Prisma.FinanceCashFlowAllocationDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCashFlowAllocationAdjustment$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeCashFlowAllocationAdjustment"]>
 
 export type FinanceCashFlowAllocationAdjustmentSelectScalar = {
   id?: boolean
   allocationId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceLineCode?: boolean
   targetLineCode?: boolean
   amount?: boolean
@@ -656,26 +875,31 @@ export type FinanceCashFlowAllocationAdjustmentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceCashFlowAllocationAdjustmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "allocationId" | "companyCode" | "sourceLineCode" | "targetLineCode" | "amount" | "enabled" | "sourceType" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["financeCashFlowAllocationAdjustment"]>
+export type FinanceCashFlowAllocationAdjustmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "allocationId" | "companyCode" | "companyId" | "sourceLineCode" | "targetLineCode" | "amount" | "enabled" | "sourceType" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["financeCashFlowAllocationAdjustment"]>
 export type FinanceCashFlowAllocationAdjustmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   allocation?: boolean | Prisma.FinanceCashFlowAllocationDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCashFlowAllocationAdjustment$companyArgs<ExtArgs>
 }
 export type FinanceCashFlowAllocationAdjustmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   allocation?: boolean | Prisma.FinanceCashFlowAllocationDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCashFlowAllocationAdjustment$companyArgs<ExtArgs>
 }
 export type FinanceCashFlowAllocationAdjustmentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   allocation?: boolean | Prisma.FinanceCashFlowAllocationDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCashFlowAllocationAdjustment$companyArgs<ExtArgs>
 }
 
 export type $FinanceCashFlowAllocationAdjustmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceCashFlowAllocationAdjustment"
   objects: {
     allocation: Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     allocationId: number
     companyCode: string
+    companyId: number | null
     sourceLineCode: string
     targetLineCode: string
     amount: runtime.Decimal
@@ -1079,6 +1303,7 @@ readonly fields: FinanceCashFlowAllocationAdjustmentFieldRefs;
 export interface Prisma__FinanceCashFlowAllocationAdjustmentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   allocation<T extends Prisma.FinanceCashFlowAllocationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCashFlowAllocationDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceCashFlowAllocationClient<runtime.Types.Result.GetResult<Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.FinanceCashFlowAllocationAdjustment$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCashFlowAllocationAdjustment$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1111,6 +1336,7 @@ export interface FinanceCashFlowAllocationAdjustmentFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceCashFlowAllocationAdjustment", 'Int'>
   readonly allocationId: Prisma.FieldRef<"FinanceCashFlowAllocationAdjustment", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceCashFlowAllocationAdjustment", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceCashFlowAllocationAdjustment", 'Int'>
   readonly sourceLineCode: Prisma.FieldRef<"FinanceCashFlowAllocationAdjustment", 'String'>
   readonly targetLineCode: Prisma.FieldRef<"FinanceCashFlowAllocationAdjustment", 'String'>
   readonly amount: Prisma.FieldRef<"FinanceCashFlowAllocationAdjustment", 'Decimal'>
@@ -1517,6 +1743,25 @@ export type FinanceCashFlowAllocationAdjustmentDeleteManyArgs<ExtArgs extends ru
    * Limit how many FinanceCashFlowAllocationAdjustments to delete.
    */
   limit?: number
+}
+
+/**
+ * FinanceCashFlowAllocationAdjustment.company
+ */
+export type FinanceCashFlowAllocationAdjustment$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model FinanceStatementVoucherExclusion
- * 单体报表来源例外：保留原始凭证，只从指定报表口径中排除，避免修改或删除总账事实
+ * 单体报表来源例外：保留凭证，只从指定报表口径排除
  */
 export type FinanceStatementVoucherExclusionModel = runtime.Types.Result.DefaultSelection<Prisma.$FinanceStatementVoucherExclusionPayload>
 
@@ -29,17 +29,20 @@ export type AggregateFinanceStatementVoucherExclusion = {
 export type FinanceStatementVoucherExclusionAvgAggregateOutputType = {
   id: number | null
   voucherId: number | null
+  companyId: number | null
 }
 
 export type FinanceStatementVoucherExclusionSumAggregateOutputType = {
   id: number | null
   voucherId: number | null
+  companyId: number | null
 }
 
 export type FinanceStatementVoucherExclusionMinAggregateOutputType = {
   id: number | null
   voucherId: number | null
   companyCode: string | null
+  companyId: number | null
   statementType: string | null
   enabled: boolean | null
   sourceType: string | null
@@ -52,6 +55,7 @@ export type FinanceStatementVoucherExclusionMaxAggregateOutputType = {
   id: number | null
   voucherId: number | null
   companyCode: string | null
+  companyId: number | null
   statementType: string | null
   enabled: boolean | null
   sourceType: string | null
@@ -64,6 +68,7 @@ export type FinanceStatementVoucherExclusionCountAggregateOutputType = {
   id: number
   voucherId: number
   companyCode: number
+  companyId: number
   statementType: number
   enabled: number
   sourceType: number
@@ -77,17 +82,20 @@ export type FinanceStatementVoucherExclusionCountAggregateOutputType = {
 export type FinanceStatementVoucherExclusionAvgAggregateInputType = {
   id?: true
   voucherId?: true
+  companyId?: true
 }
 
 export type FinanceStatementVoucherExclusionSumAggregateInputType = {
   id?: true
   voucherId?: true
+  companyId?: true
 }
 
 export type FinanceStatementVoucherExclusionMinAggregateInputType = {
   id?: true
   voucherId?: true
   companyCode?: true
+  companyId?: true
   statementType?: true
   enabled?: true
   sourceType?: true
@@ -100,6 +108,7 @@ export type FinanceStatementVoucherExclusionMaxAggregateInputType = {
   id?: true
   voucherId?: true
   companyCode?: true
+  companyId?: true
   statementType?: true
   enabled?: true
   sourceType?: true
@@ -112,6 +121,7 @@ export type FinanceStatementVoucherExclusionCountAggregateInputType = {
   id?: true
   voucherId?: true
   companyCode?: true
+  companyId?: true
   statementType?: true
   enabled?: true
   sourceType?: true
@@ -211,6 +221,7 @@ export type FinanceStatementVoucherExclusionGroupByOutputType = {
   id: number
   voucherId: number
   companyCode: string
+  companyId: number | null
   statementType: string
   enabled: boolean
   sourceType: string
@@ -246,6 +257,7 @@ export type FinanceStatementVoucherExclusionWhereInput = {
   id?: Prisma.IntFilter<"FinanceStatementVoucherExclusion"> | number
   voucherId?: Prisma.IntFilter<"FinanceStatementVoucherExclusion"> | number
   companyCode?: Prisma.StringFilter<"FinanceStatementVoucherExclusion"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceStatementVoucherExclusion"> | number | null
   statementType?: Prisma.StringFilter<"FinanceStatementVoucherExclusion"> | string
   enabled?: Prisma.BoolFilter<"FinanceStatementVoucherExclusion"> | boolean
   sourceType?: Prisma.StringFilter<"FinanceStatementVoucherExclusion"> | string
@@ -253,12 +265,14 @@ export type FinanceStatementVoucherExclusionWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"FinanceStatementVoucherExclusion"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceStatementVoucherExclusion"> | Date | string
   voucher?: Prisma.XOR<Prisma.FinanceVoucherScalarRelationFilter, Prisma.FinanceVoucherWhereInput>
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceStatementVoucherExclusionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   voucherId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   statementType?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   sourceType?: Prisma.SortOrder
@@ -266,6 +280,7 @@ export type FinanceStatementVoucherExclusionOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   voucher?: Prisma.FinanceVoucherOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceStatementVoucherExclusionWhereUniqueInput = Prisma.AtLeast<{
@@ -276,6 +291,7 @@ export type FinanceStatementVoucherExclusionWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FinanceStatementVoucherExclusionWhereInput | Prisma.FinanceStatementVoucherExclusionWhereInput[]
   voucherId?: Prisma.IntFilter<"FinanceStatementVoucherExclusion"> | number
   companyCode?: Prisma.StringFilter<"FinanceStatementVoucherExclusion"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceStatementVoucherExclusion"> | number | null
   statementType?: Prisma.StringFilter<"FinanceStatementVoucherExclusion"> | string
   enabled?: Prisma.BoolFilter<"FinanceStatementVoucherExclusion"> | boolean
   sourceType?: Prisma.StringFilter<"FinanceStatementVoucherExclusion"> | string
@@ -283,12 +299,14 @@ export type FinanceStatementVoucherExclusionWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"FinanceStatementVoucherExclusion"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceStatementVoucherExclusion"> | Date | string
   voucher?: Prisma.XOR<Prisma.FinanceVoucherScalarRelationFilter, Prisma.FinanceVoucherWhereInput>
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "voucherId_statementType">
 
 export type FinanceStatementVoucherExclusionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   voucherId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   statementType?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   sourceType?: Prisma.SortOrder
@@ -309,6 +327,7 @@ export type FinanceStatementVoucherExclusionScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"FinanceStatementVoucherExclusion"> | number
   voucherId?: Prisma.IntWithAggregatesFilter<"FinanceStatementVoucherExclusion"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceStatementVoucherExclusion"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceStatementVoucherExclusion"> | number | null
   statementType?: Prisma.StringWithAggregatesFilter<"FinanceStatementVoucherExclusion"> | string
   enabled?: Prisma.BoolWithAggregatesFilter<"FinanceStatementVoucherExclusion"> | boolean
   sourceType?: Prisma.StringWithAggregatesFilter<"FinanceStatementVoucherExclusion"> | string
@@ -326,12 +345,14 @@ export type FinanceStatementVoucherExclusionCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   voucher: Prisma.FinanceVoucherCreateNestedOneWithoutStatementExclusionsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceStatementVoucherExclusionsInput
 }
 
 export type FinanceStatementVoucherExclusionUncheckedCreateInput = {
   id?: number
   voucherId: number
   companyCode: string
+  companyId?: number | null
   statementType: string
   enabled?: boolean
   sourceType?: string
@@ -349,12 +370,14 @@ export type FinanceStatementVoucherExclusionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutStatementExclusionsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceStatementVoucherExclusionsNestedInput
 }
 
 export type FinanceStatementVoucherExclusionUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   voucherId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -367,6 +390,7 @@ export type FinanceStatementVoucherExclusionCreateManyInput = {
   id?: number
   voucherId: number
   companyCode: string
+  companyId?: number | null
   statementType: string
   enabled?: boolean
   sourceType?: string
@@ -389,12 +413,23 @@ export type FinanceStatementVoucherExclusionUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   voucherId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceType?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceStatementVoucherExclusionListRelationFilter = {
+  every?: Prisma.FinanceStatementVoucherExclusionWhereInput
+  some?: Prisma.FinanceStatementVoucherExclusionWhereInput
+  none?: Prisma.FinanceStatementVoucherExclusionWhereInput
+}
+
+export type FinanceStatementVoucherExclusionOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type FinanceStatementVoucherExclusionVoucherIdStatementTypeCompoundUniqueInput = {
@@ -406,6 +441,7 @@ export type FinanceStatementVoucherExclusionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   voucherId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   statementType?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   sourceType?: Prisma.SortOrder
@@ -417,12 +453,14 @@ export type FinanceStatementVoucherExclusionCountOrderByAggregateInput = {
 export type FinanceStatementVoucherExclusionAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   voucherId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
 }
 
 export type FinanceStatementVoucherExclusionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   voucherId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   statementType?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   sourceType?: Prisma.SortOrder
@@ -435,6 +473,7 @@ export type FinanceStatementVoucherExclusionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   voucherId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   statementType?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   sourceType?: Prisma.SortOrder
@@ -446,16 +485,7 @@ export type FinanceStatementVoucherExclusionMinOrderByAggregateInput = {
 export type FinanceStatementVoucherExclusionSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   voucherId?: Prisma.SortOrder
-}
-
-export type FinanceStatementVoucherExclusionListRelationFilter = {
-  every?: Prisma.FinanceStatementVoucherExclusionWhereInput
-  some?: Prisma.FinanceStatementVoucherExclusionWhereInput
-  none?: Prisma.FinanceStatementVoucherExclusionWhereInput
-}
-
-export type FinanceStatementVoucherExclusionOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
 }
 
 export type FinanceStatementVoucherExclusionCreateNestedManyWithoutVoucherInput = {
@@ -500,6 +530,48 @@ export type FinanceStatementVoucherExclusionUncheckedUpdateManyWithoutVoucherNes
   deleteMany?: Prisma.FinanceStatementVoucherExclusionScalarWhereInput | Prisma.FinanceStatementVoucherExclusionScalarWhereInput[]
 }
 
+export type FinanceStatementVoucherExclusionCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceStatementVoucherExclusionCreateWithoutCompanyInput, Prisma.FinanceStatementVoucherExclusionUncheckedCreateWithoutCompanyInput> | Prisma.FinanceStatementVoucherExclusionCreateWithoutCompanyInput[] | Prisma.FinanceStatementVoucherExclusionUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceStatementVoucherExclusionCreateOrConnectWithoutCompanyInput | Prisma.FinanceStatementVoucherExclusionCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceStatementVoucherExclusionCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput | Prisma.FinanceStatementVoucherExclusionWhereUniqueInput[]
+}
+
+export type FinanceStatementVoucherExclusionUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceStatementVoucherExclusionCreateWithoutCompanyInput, Prisma.FinanceStatementVoucherExclusionUncheckedCreateWithoutCompanyInput> | Prisma.FinanceStatementVoucherExclusionCreateWithoutCompanyInput[] | Prisma.FinanceStatementVoucherExclusionUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceStatementVoucherExclusionCreateOrConnectWithoutCompanyInput | Prisma.FinanceStatementVoucherExclusionCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceStatementVoucherExclusionCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput | Prisma.FinanceStatementVoucherExclusionWhereUniqueInput[]
+}
+
+export type FinanceStatementVoucherExclusionUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceStatementVoucherExclusionCreateWithoutCompanyInput, Prisma.FinanceStatementVoucherExclusionUncheckedCreateWithoutCompanyInput> | Prisma.FinanceStatementVoucherExclusionCreateWithoutCompanyInput[] | Prisma.FinanceStatementVoucherExclusionUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceStatementVoucherExclusionCreateOrConnectWithoutCompanyInput | Prisma.FinanceStatementVoucherExclusionCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceStatementVoucherExclusionUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceStatementVoucherExclusionUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceStatementVoucherExclusionCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput | Prisma.FinanceStatementVoucherExclusionWhereUniqueInput[]
+  disconnect?: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput | Prisma.FinanceStatementVoucherExclusionWhereUniqueInput[]
+  delete?: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput | Prisma.FinanceStatementVoucherExclusionWhereUniqueInput[]
+  connect?: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput | Prisma.FinanceStatementVoucherExclusionWhereUniqueInput[]
+  update?: Prisma.FinanceStatementVoucherExclusionUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceStatementVoucherExclusionUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceStatementVoucherExclusionUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceStatementVoucherExclusionUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceStatementVoucherExclusionScalarWhereInput | Prisma.FinanceStatementVoucherExclusionScalarWhereInput[]
+}
+
+export type FinanceStatementVoucherExclusionUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceStatementVoucherExclusionCreateWithoutCompanyInput, Prisma.FinanceStatementVoucherExclusionUncheckedCreateWithoutCompanyInput> | Prisma.FinanceStatementVoucherExclusionCreateWithoutCompanyInput[] | Prisma.FinanceStatementVoucherExclusionUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceStatementVoucherExclusionCreateOrConnectWithoutCompanyInput | Prisma.FinanceStatementVoucherExclusionCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceStatementVoucherExclusionUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceStatementVoucherExclusionUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceStatementVoucherExclusionCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput | Prisma.FinanceStatementVoucherExclusionWhereUniqueInput[]
+  disconnect?: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput | Prisma.FinanceStatementVoucherExclusionWhereUniqueInput[]
+  delete?: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput | Prisma.FinanceStatementVoucherExclusionWhereUniqueInput[]
+  connect?: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput | Prisma.FinanceStatementVoucherExclusionWhereUniqueInput[]
+  update?: Prisma.FinanceStatementVoucherExclusionUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceStatementVoucherExclusionUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceStatementVoucherExclusionUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceStatementVoucherExclusionUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceStatementVoucherExclusionScalarWhereInput | Prisma.FinanceStatementVoucherExclusionScalarWhereInput[]
+}
+
 export type FinanceStatementVoucherExclusionCreateWithoutVoucherInput = {
   companyCode: string
   statementType: string
@@ -508,11 +580,13 @@ export type FinanceStatementVoucherExclusionCreateWithoutVoucherInput = {
   note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceStatementVoucherExclusionsInput
 }
 
 export type FinanceStatementVoucherExclusionUncheckedCreateWithoutVoucherInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   statementType: string
   enabled?: boolean
   sourceType?: string
@@ -554,6 +628,7 @@ export type FinanceStatementVoucherExclusionScalarWhereInput = {
   id?: Prisma.IntFilter<"FinanceStatementVoucherExclusion"> | number
   voucherId?: Prisma.IntFilter<"FinanceStatementVoucherExclusion"> | number
   companyCode?: Prisma.StringFilter<"FinanceStatementVoucherExclusion"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceStatementVoucherExclusion"> | number | null
   statementType?: Prisma.StringFilter<"FinanceStatementVoucherExclusion"> | string
   enabled?: Prisma.BoolFilter<"FinanceStatementVoucherExclusion"> | boolean
   sourceType?: Prisma.StringFilter<"FinanceStatementVoucherExclusion"> | string
@@ -562,9 +637,59 @@ export type FinanceStatementVoucherExclusionScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FinanceStatementVoucherExclusion"> | Date | string
 }
 
+export type FinanceStatementVoucherExclusionCreateWithoutCompanyInput = {
+  companyCode: string
+  statementType: string
+  enabled?: boolean
+  sourceType?: string
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  voucher: Prisma.FinanceVoucherCreateNestedOneWithoutStatementExclusionsInput
+}
+
+export type FinanceStatementVoucherExclusionUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  voucherId: number
+  companyCode: string
+  statementType: string
+  enabled?: boolean
+  sourceType?: string
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceStatementVoucherExclusionCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceStatementVoucherExclusionCreateWithoutCompanyInput, Prisma.FinanceStatementVoucherExclusionUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceStatementVoucherExclusionCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceStatementVoucherExclusionCreateManyCompanyInput | Prisma.FinanceStatementVoucherExclusionCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceStatementVoucherExclusionUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceStatementVoucherExclusionUpdateWithoutCompanyInput, Prisma.FinanceStatementVoucherExclusionUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceStatementVoucherExclusionCreateWithoutCompanyInput, Prisma.FinanceStatementVoucherExclusionUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceStatementVoucherExclusionUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceStatementVoucherExclusionWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceStatementVoucherExclusionUpdateWithoutCompanyInput, Prisma.FinanceStatementVoucherExclusionUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceStatementVoucherExclusionUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceStatementVoucherExclusionScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceStatementVoucherExclusionUpdateManyMutationInput, Prisma.FinanceStatementVoucherExclusionUncheckedUpdateManyWithoutCompanyInput>
+}
+
 export type FinanceStatementVoucherExclusionCreateManyVoucherInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   statementType: string
   enabled?: boolean
   sourceType?: string
@@ -581,11 +706,13 @@ export type FinanceStatementVoucherExclusionUpdateWithoutVoucherInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceStatementVoucherExclusionsNestedInput
 }
 
 export type FinanceStatementVoucherExclusionUncheckedUpdateWithoutVoucherInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -596,6 +723,54 @@ export type FinanceStatementVoucherExclusionUncheckedUpdateWithoutVoucherInput =
 
 export type FinanceStatementVoucherExclusionUncheckedUpdateManyWithoutVoucherInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statementType?: Prisma.StringFieldUpdateOperationsInput | string
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceStatementVoucherExclusionCreateManyCompanyInput = {
+  id?: number
+  voucherId: number
+  companyCode: string
+  statementType: string
+  enabled?: boolean
+  sourceType?: string
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceStatementVoucherExclusionUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  statementType?: Prisma.StringFieldUpdateOperationsInput | string
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutStatementExclusionsNestedInput
+}
+
+export type FinanceStatementVoucherExclusionUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  statementType?: Prisma.StringFieldUpdateOperationsInput | string
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceStatementVoucherExclusionUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   statementType?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -611,6 +786,7 @@ export type FinanceStatementVoucherExclusionSelect<ExtArgs extends runtime.Types
   id?: boolean
   voucherId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   statementType?: boolean
   enabled?: boolean
   sourceType?: boolean
@@ -618,12 +794,14 @@ export type FinanceStatementVoucherExclusionSelect<ExtArgs extends runtime.Types
   createdAt?: boolean
   updatedAt?: boolean
   voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceStatementVoucherExclusion$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeStatementVoucherExclusion"]>
 
 export type FinanceStatementVoucherExclusionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   voucherId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   statementType?: boolean
   enabled?: boolean
   sourceType?: boolean
@@ -631,12 +809,14 @@ export type FinanceStatementVoucherExclusionSelectCreateManyAndReturn<ExtArgs ex
   createdAt?: boolean
   updatedAt?: boolean
   voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceStatementVoucherExclusion$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeStatementVoucherExclusion"]>
 
 export type FinanceStatementVoucherExclusionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   voucherId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   statementType?: boolean
   enabled?: boolean
   sourceType?: boolean
@@ -644,12 +824,14 @@ export type FinanceStatementVoucherExclusionSelectUpdateManyAndReturn<ExtArgs ex
   createdAt?: boolean
   updatedAt?: boolean
   voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceStatementVoucherExclusion$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeStatementVoucherExclusion"]>
 
 export type FinanceStatementVoucherExclusionSelectScalar = {
   id?: boolean
   voucherId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   statementType?: boolean
   enabled?: boolean
   sourceType?: boolean
@@ -658,26 +840,31 @@ export type FinanceStatementVoucherExclusionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceStatementVoucherExclusionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "voucherId" | "companyCode" | "statementType" | "enabled" | "sourceType" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["financeStatementVoucherExclusion"]>
+export type FinanceStatementVoucherExclusionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "voucherId" | "companyCode" | "companyId" | "statementType" | "enabled" | "sourceType" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["financeStatementVoucherExclusion"]>
 export type FinanceStatementVoucherExclusionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceStatementVoucherExclusion$companyArgs<ExtArgs>
 }
 export type FinanceStatementVoucherExclusionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceStatementVoucherExclusion$companyArgs<ExtArgs>
 }
 export type FinanceStatementVoucherExclusionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceStatementVoucherExclusion$companyArgs<ExtArgs>
 }
 
 export type $FinanceStatementVoucherExclusionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceStatementVoucherExclusion"
   objects: {
     voucher: Prisma.$FinanceVoucherPayload<ExtArgs>
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     voucherId: number
     companyCode: string
+    companyId: number | null
     statementType: string
     enabled: boolean
     sourceType: string
@@ -1079,6 +1266,7 @@ readonly fields: FinanceStatementVoucherExclusionFieldRefs;
 export interface Prisma__FinanceStatementVoucherExclusionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   voucher<T extends Prisma.FinanceVoucherDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucherDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceVoucherClient<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.FinanceStatementVoucherExclusion$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceStatementVoucherExclusion$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1111,6 +1299,7 @@ export interface FinanceStatementVoucherExclusionFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceStatementVoucherExclusion", 'Int'>
   readonly voucherId: Prisma.FieldRef<"FinanceStatementVoucherExclusion", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceStatementVoucherExclusion", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceStatementVoucherExclusion", 'Int'>
   readonly statementType: Prisma.FieldRef<"FinanceStatementVoucherExclusion", 'String'>
   readonly enabled: Prisma.FieldRef<"FinanceStatementVoucherExclusion", 'Boolean'>
   readonly sourceType: Prisma.FieldRef<"FinanceStatementVoucherExclusion", 'String'>
@@ -1515,6 +1704,25 @@ export type FinanceStatementVoucherExclusionDeleteManyArgs<ExtArgs extends runti
    * Limit how many FinanceStatementVoucherExclusions to delete.
    */
   limit?: number
+}
+
+/**
+ * FinanceStatementVoucherExclusion.company
+ */
+export type FinanceStatementVoucherExclusion$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

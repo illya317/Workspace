@@ -28,6 +28,10 @@ export type AggregateFinanceAssetCard = {
 
 export type FinanceAssetCardAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
+  categoryId: number | null
+  assetAccountId: number | null
+  accumulatedAccountId: number | null
   originalCost: runtime.Decimal | null
   residualRate: runtime.Decimal | null
   usefulLifeMonths: number | null
@@ -39,6 +43,10 @@ export type FinanceAssetCardAvgAggregateOutputType = {
 
 export type FinanceAssetCardSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
+  categoryId: number | null
+  assetAccountId: number | null
+  accumulatedAccountId: number | null
   originalCost: runtime.Decimal | null
   residualRate: runtime.Decimal | null
   usefulLifeMonths: number | null
@@ -51,12 +59,16 @@ export type FinanceAssetCardSumAggregateOutputType = {
 export type FinanceAssetCardMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   assetCode: string | null
   name: string | null
   assetKind: string | null
-  category: string | null
+  categoryId: number | null
+  sourceCategory: string | null
   assetAccountCode: string | null
   accumulatedAccountCode: string | null
+  assetAccountId: number | null
+  accumulatedAccountId: number | null
   acquisitionDate: string | null
   depreciationStartDate: string | null
   originalCost: runtime.Decimal | null
@@ -81,12 +93,16 @@ export type FinanceAssetCardMinAggregateOutputType = {
 export type FinanceAssetCardMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   assetCode: string | null
   name: string | null
   assetKind: string | null
-  category: string | null
+  categoryId: number | null
+  sourceCategory: string | null
   assetAccountCode: string | null
   accumulatedAccountCode: string | null
+  assetAccountId: number | null
+  accumulatedAccountId: number | null
   acquisitionDate: string | null
   depreciationStartDate: string | null
   originalCost: runtime.Decimal | null
@@ -111,12 +127,16 @@ export type FinanceAssetCardMaxAggregateOutputType = {
 export type FinanceAssetCardCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   assetCode: number
   name: number
   assetKind: number
-  category: number
+  categoryId: number
+  sourceCategory: number
   assetAccountCode: number
   accumulatedAccountCode: number
+  assetAccountId: number
+  accumulatedAccountId: number
   acquisitionDate: number
   depreciationStartDate: number
   originalCost: number
@@ -142,6 +162,10 @@ export type FinanceAssetCardCountAggregateOutputType = {
 
 export type FinanceAssetCardAvgAggregateInputType = {
   id?: true
+  companyId?: true
+  categoryId?: true
+  assetAccountId?: true
+  accumulatedAccountId?: true
   originalCost?: true
   residualRate?: true
   usefulLifeMonths?: true
@@ -153,6 +177,10 @@ export type FinanceAssetCardAvgAggregateInputType = {
 
 export type FinanceAssetCardSumAggregateInputType = {
   id?: true
+  companyId?: true
+  categoryId?: true
+  assetAccountId?: true
+  accumulatedAccountId?: true
   originalCost?: true
   residualRate?: true
   usefulLifeMonths?: true
@@ -165,12 +193,16 @@ export type FinanceAssetCardSumAggregateInputType = {
 export type FinanceAssetCardMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   assetCode?: true
   name?: true
   assetKind?: true
-  category?: true
+  categoryId?: true
+  sourceCategory?: true
   assetAccountCode?: true
   accumulatedAccountCode?: true
+  assetAccountId?: true
+  accumulatedAccountId?: true
   acquisitionDate?: true
   depreciationStartDate?: true
   originalCost?: true
@@ -195,12 +227,16 @@ export type FinanceAssetCardMinAggregateInputType = {
 export type FinanceAssetCardMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   assetCode?: true
   name?: true
   assetKind?: true
-  category?: true
+  categoryId?: true
+  sourceCategory?: true
   assetAccountCode?: true
   accumulatedAccountCode?: true
+  assetAccountId?: true
+  accumulatedAccountId?: true
   acquisitionDate?: true
   depreciationStartDate?: true
   originalCost?: true
@@ -225,12 +261,16 @@ export type FinanceAssetCardMaxAggregateInputType = {
 export type FinanceAssetCardCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   assetCode?: true
   name?: true
   assetKind?: true
-  category?: true
+  categoryId?: true
+  sourceCategory?: true
   assetAccountCode?: true
   accumulatedAccountCode?: true
+  assetAccountId?: true
+  accumulatedAccountId?: true
   acquisitionDate?: true
   depreciationStartDate?: true
   originalCost?: true
@@ -342,12 +382,16 @@ export type FinanceAssetCardGroupByArgs<ExtArgs extends runtime.Types.Extensions
 export type FinanceAssetCardGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   assetCode: string
   name: string
   assetKind: string
-  category: string | null
+  categoryId: number
+  sourceCategory: string | null
   assetAccountCode: string
   accumulatedAccountCode: string | null
+  assetAccountId: number | null
+  accumulatedAccountId: number | null
   acquisitionDate: string | null
   depreciationStartDate: string | null
   originalCost: runtime.Decimal
@@ -395,12 +439,16 @@ export type FinanceAssetCardWhereInput = {
   NOT?: Prisma.FinanceAssetCardWhereInput | Prisma.FinanceAssetCardWhereInput[]
   id?: Prisma.IntFilter<"FinanceAssetCard"> | number
   companyCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
   assetCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
   name?: Prisma.StringFilter<"FinanceAssetCard"> | string
   assetKind?: Prisma.StringFilter<"FinanceAssetCard"> | string
-  category?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  categoryId?: Prisma.IntFilter<"FinanceAssetCard"> | number
+  sourceCategory?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   assetAccountCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
   accumulatedAccountCode?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  assetAccountId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  accumulatedAccountId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
   acquisitionDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   depreciationStartDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   originalCost?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -420,21 +468,32 @@ export type FinanceAssetCardWhereInput = {
   version?: Prisma.IntFilter<"FinanceAssetCard"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceAssetCard"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAssetCard"> | Date | string
+  category?: Prisma.XOR<Prisma.FinanceAssetCategoryScalarRelationFilter, Prisma.FinanceAssetCategoryWhereInput>
+  assetAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  accumulatedAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
   costLines?: Prisma.FinanceAssetCostLineListRelationFilter
   allocations?: Prisma.FinanceAssetExpenseAllocationListRelationFilter
   periodEntries?: Prisma.FinanceAssetPeriodEntryListRelationFilter
   adjustments?: Prisma.FinanceAssetAdjustmentListRelationFilter
+  disposal?: Prisma.XOR<Prisma.FinanceAssetDisposalNullableScalarRelationFilter, Prisma.FinanceAssetDisposalWhereInput> | null
+  acquisitionEvidence?: Prisma.XOR<Prisma.FinanceAssetAcquisitionEvidenceNullableScalarRelationFilter, Prisma.FinanceAssetAcquisitionEvidenceWhereInput> | null
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceAssetCardOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   assetCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   assetKind?: Prisma.SortOrder
-  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
   assetAccountCode?: Prisma.SortOrder
   accumulatedAccountCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   acquisitionDate?: Prisma.SortOrderInput | Prisma.SortOrder
   depreciationStartDate?: Prisma.SortOrderInput | Prisma.SortOrder
   originalCost?: Prisma.SortOrder
@@ -454,10 +513,17 @@ export type FinanceAssetCardOrderByWithRelationInput = {
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  category?: Prisma.FinanceAssetCategoryOrderByWithRelationInput
+  assetAccount?: Prisma.FinanceAccountOrderByWithRelationInput
+  accumulatedAccount?: Prisma.FinanceAccountOrderByWithRelationInput
   costLines?: Prisma.FinanceAssetCostLineOrderByRelationAggregateInput
   allocations?: Prisma.FinanceAssetExpenseAllocationOrderByRelationAggregateInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryOrderByRelationAggregateInput
   adjustments?: Prisma.FinanceAssetAdjustmentOrderByRelationAggregateInput
+  disposal?: Prisma.FinanceAssetDisposalOrderByWithRelationInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceOrderByWithRelationInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationOrderByRelationAggregateInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceAssetCardWhereUniqueInput = Prisma.AtLeast<{
@@ -468,12 +534,16 @@ export type FinanceAssetCardWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FinanceAssetCardWhereInput[]
   NOT?: Prisma.FinanceAssetCardWhereInput | Prisma.FinanceAssetCardWhereInput[]
   companyCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
   assetCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
   name?: Prisma.StringFilter<"FinanceAssetCard"> | string
   assetKind?: Prisma.StringFilter<"FinanceAssetCard"> | string
-  category?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  categoryId?: Prisma.IntFilter<"FinanceAssetCard"> | number
+  sourceCategory?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   assetAccountCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
   accumulatedAccountCode?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  assetAccountId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  accumulatedAccountId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
   acquisitionDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   depreciationStartDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   originalCost?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -493,21 +563,32 @@ export type FinanceAssetCardWhereUniqueInput = Prisma.AtLeast<{
   version?: Prisma.IntFilter<"FinanceAssetCard"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceAssetCard"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAssetCard"> | Date | string
+  category?: Prisma.XOR<Prisma.FinanceAssetCategoryScalarRelationFilter, Prisma.FinanceAssetCategoryWhereInput>
+  assetAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  accumulatedAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
   costLines?: Prisma.FinanceAssetCostLineListRelationFilter
   allocations?: Prisma.FinanceAssetExpenseAllocationListRelationFilter
   periodEntries?: Prisma.FinanceAssetPeriodEntryListRelationFilter
   adjustments?: Prisma.FinanceAssetAdjustmentListRelationFilter
+  disposal?: Prisma.XOR<Prisma.FinanceAssetDisposalNullableScalarRelationFilter, Prisma.FinanceAssetDisposalWhereInput> | null
+  acquisitionEvidence?: Prisma.XOR<Prisma.FinanceAssetAcquisitionEvidenceNullableScalarRelationFilter, Prisma.FinanceAssetAcquisitionEvidenceWhereInput> | null
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "companyCode_assetCode" | "companyCode_sourceKey">
 
 export type FinanceAssetCardOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   assetCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   assetKind?: Prisma.SortOrder
-  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
   assetAccountCode?: Prisma.SortOrder
   accumulatedAccountCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   acquisitionDate?: Prisma.SortOrderInput | Prisma.SortOrder
   depreciationStartDate?: Prisma.SortOrderInput | Prisma.SortOrder
   originalCost?: Prisma.SortOrder
@@ -540,12 +621,16 @@ export type FinanceAssetCardScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FinanceAssetCardScalarWhereWithAggregatesInput | Prisma.FinanceAssetCardScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"FinanceAssetCard"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetCard"> | number | null
   assetCode?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
   name?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
   assetKind?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
-  category?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
+  categoryId?: Prisma.IntWithAggregatesFilter<"FinanceAssetCard"> | number
+  sourceCategory?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
   assetAccountCode?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
   accumulatedAccountCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
+  assetAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetCard"> | number | null
+  accumulatedAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetCard"> | number | null
   acquisitionDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
   depreciationStartDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
   originalCost?: Prisma.DecimalWithAggregatesFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -572,7 +657,7 @@ export type FinanceAssetCardCreateInput = {
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
   acquisitionDate?: string | null
@@ -594,21 +679,32 @@ export type FinanceAssetCardCreateInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
   costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
   allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
 }
 
 export type FinanceAssetCardUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  categoryId: number
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
   acquisitionDate?: string | null
   depreciationStartDate?: string | null
   originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -632,6 +728,9 @@ export type FinanceAssetCardUncheckedCreateInput = {
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type FinanceAssetCardUpdateInput = {
@@ -639,7 +738,7 @@ export type FinanceAssetCardUpdateInput = {
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -661,21 +760,32 @@ export type FinanceAssetCardUpdateInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
   costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
 }
 
 export type FinanceAssetCardUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -699,17 +809,24 @@ export type FinanceAssetCardUncheckedUpdateInput = {
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 export type FinanceAssetCardCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  categoryId: number
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
   acquisitionDate?: string | null
   depreciationStartDate?: string | null
   originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -736,7 +853,7 @@ export type FinanceAssetCardUpdateManyMutationInput = {
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -763,12 +880,16 @@ export type FinanceAssetCardUpdateManyMutationInput = {
 export type FinanceAssetCardUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -790,6 +911,16 @@ export type FinanceAssetCardUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type FinanceAssetCardListRelationFilter = {
+  every?: Prisma.FinanceAssetCardWhereInput
+  some?: Prisma.FinanceAssetCardWhereInput
+  none?: Prisma.FinanceAssetCardWhereInput
+}
+
+export type FinanceAssetCardOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type FinanceAssetCardCompanyCodeAssetCodeCompoundUniqueInput = {
   companyCode: string
   assetCode: string
@@ -803,12 +934,16 @@ export type FinanceAssetCardCompanyCodeSourceKeyCompoundUniqueInput = {
 export type FinanceAssetCardCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   assetCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   assetKind?: Prisma.SortOrder
-  category?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrder
   assetAccountCode?: Prisma.SortOrder
   accumulatedAccountCode?: Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrder
   acquisitionDate?: Prisma.SortOrder
   depreciationStartDate?: Prisma.SortOrder
   originalCost?: Prisma.SortOrder
@@ -832,6 +967,10 @@ export type FinanceAssetCardCountOrderByAggregateInput = {
 
 export type FinanceAssetCardAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrder
   originalCost?: Prisma.SortOrder
   residualRate?: Prisma.SortOrder
   usefulLifeMonths?: Prisma.SortOrder
@@ -844,12 +983,16 @@ export type FinanceAssetCardAvgOrderByAggregateInput = {
 export type FinanceAssetCardMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   assetCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   assetKind?: Prisma.SortOrder
-  category?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrder
   assetAccountCode?: Prisma.SortOrder
   accumulatedAccountCode?: Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrder
   acquisitionDate?: Prisma.SortOrder
   depreciationStartDate?: Prisma.SortOrder
   originalCost?: Prisma.SortOrder
@@ -874,12 +1017,16 @@ export type FinanceAssetCardMaxOrderByAggregateInput = {
 export type FinanceAssetCardMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   assetCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   assetKind?: Prisma.SortOrder
-  category?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrder
   assetAccountCode?: Prisma.SortOrder
   accumulatedAccountCode?: Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrder
   acquisitionDate?: Prisma.SortOrder
   depreciationStartDate?: Prisma.SortOrder
   originalCost?: Prisma.SortOrder
@@ -903,6 +1050,10 @@ export type FinanceAssetCardMinOrderByAggregateInput = {
 
 export type FinanceAssetCardSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrder
   originalCost?: Prisma.SortOrder
   residualRate?: Prisma.SortOrder
   usefulLifeMonths?: Prisma.SortOrder
@@ -920,6 +1071,62 @@ export type FinanceAssetCardScalarRelationFilter = {
 export type FinanceAssetCardNullableScalarRelationFilter = {
   is?: Prisma.FinanceAssetCardWhereInput | null
   isNot?: Prisma.FinanceAssetCardWhereInput | null
+}
+
+export type FinanceAssetCardCreateNestedManyWithoutCategoryInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput> | Prisma.FinanceAssetCardCreateWithoutCategoryInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCategoryInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUncheckedCreateNestedManyWithoutCategoryInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput> | Prisma.FinanceAssetCardCreateWithoutCategoryInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCategoryInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUpdateManyWithoutCategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput> | Prisma.FinanceAssetCardCreateWithoutCategoryInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCategoryInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCategoryInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCategoryInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCategoryInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCategoryInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCategoryInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCategoryInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput> | Prisma.FinanceAssetCardCreateWithoutCategoryInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCategoryInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCategoryInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCategoryInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCategoryInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCategoryInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCategoryInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCategoryInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardCreateNestedOneWithoutAcquisitionEvidenceInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAcquisitionEvidenceInput>
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAcquisitionEvidenceInput
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput
+}
+
+export type FinanceAssetCardUpdateOneRequiredWithoutAcquisitionEvidenceNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAcquisitionEvidenceInput>
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAcquisitionEvidenceInput
+  upsert?: Prisma.FinanceAssetCardUpsertWithoutAcquisitionEvidenceInput
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAssetCardUpdateToOneWithWhereWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUpdateWithoutAcquisitionEvidenceInput>, Prisma.FinanceAssetCardUncheckedUpdateWithoutAcquisitionEvidenceInput>
 }
 
 export type FinanceAssetCardCreateNestedOneWithoutCostLinesInput = {
@@ -980,12 +1187,166 @@ export type FinanceAssetCardUpdateOneWithoutAdjustmentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAssetCardUpdateToOneWithWhereWithoutAdjustmentsInput, Prisma.FinanceAssetCardUpdateWithoutAdjustmentsInput>, Prisma.FinanceAssetCardUncheckedUpdateWithoutAdjustmentsInput>
 }
 
-export type FinanceAssetCardCreateWithoutCostLinesInput = {
+export type FinanceAssetCardCreateNestedOneWithoutImpairmentAllocationsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUncheckedCreateWithoutImpairmentAllocationsInput>
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutImpairmentAllocationsInput
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput
+}
+
+export type FinanceAssetCardUpdateOneRequiredWithoutImpairmentAllocationsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUncheckedCreateWithoutImpairmentAllocationsInput>
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutImpairmentAllocationsInput
+  upsert?: Prisma.FinanceAssetCardUpsertWithoutImpairmentAllocationsInput
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAssetCardUpdateToOneWithWhereWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUpdateWithoutImpairmentAllocationsInput>, Prisma.FinanceAssetCardUncheckedUpdateWithoutImpairmentAllocationsInput>
+}
+
+export type FinanceAssetCardCreateNestedOneWithoutDisposalInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutDisposalInput, Prisma.FinanceAssetCardUncheckedCreateWithoutDisposalInput>
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutDisposalInput
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput
+}
+
+export type FinanceAssetCardUpdateOneRequiredWithoutDisposalNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutDisposalInput, Prisma.FinanceAssetCardUncheckedCreateWithoutDisposalInput>
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutDisposalInput
+  upsert?: Prisma.FinanceAssetCardUpsertWithoutDisposalInput
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAssetCardUpdateToOneWithWhereWithoutDisposalInput, Prisma.FinanceAssetCardUpdateWithoutDisposalInput>, Prisma.FinanceAssetCardUncheckedUpdateWithoutDisposalInput>
+}
+
+export type FinanceAssetCardCreateNestedManyWithoutAssetAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput> | Prisma.FinanceAssetCardCreateWithoutAssetAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAssetAccountInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput> | Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAccumulatedAccountInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput> | Prisma.FinanceAssetCardCreateWithoutAssetAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAssetAccountInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput> | Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAccumulatedAccountInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput> | Prisma.FinanceAssetCardCreateWithoutAssetAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAssetAccountInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAssetAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAssetAccountInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAssetAccountInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAssetAccountInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAssetAccountInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAssetAccountInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput> | Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAccumulatedAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAccumulatedAccountInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAccumulatedAccountInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAccumulatedAccountInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput> | Prisma.FinanceAssetCardCreateWithoutAssetAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAssetAccountInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAssetAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAssetAccountInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAssetAccountInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAssetAccountInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAssetAccountInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAssetAccountInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput> | Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAccumulatedAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAccumulatedAccountInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAccumulatedAccountInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAccumulatedAccountInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetCardCreateWithoutCompanyInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetCardCreateWithoutCompanyInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetCardCreateWithoutCompanyInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetCardCreateWithoutCompanyInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardCreateWithoutCategoryInput = {
   companyCode: string
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
   acquisitionDate?: string | null
@@ -1007,20 +1368,347 @@ export type FinanceAssetCardCreateWithoutCostLinesInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
   allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutCategoryInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutCategoryInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput>
+}
+
+export type FinanceAssetCardCreateManyCategoryInputEnvelope = {
+  data: Prisma.FinanceAssetCardCreateManyCategoryInput | Prisma.FinanceAssetCardCreateManyCategoryInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetCardUpsertWithWhereUniqueWithoutCategoryInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCategoryInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput>
+}
+
+export type FinanceAssetCardUpdateWithWhereUniqueWithoutCategoryInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCategoryInput>
+}
+
+export type FinanceAssetCardUpdateManyWithWhereWithoutCategoryInput = {
+  where: Prisma.FinanceAssetCardScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateManyMutationInput, Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCategoryInput>
+}
+
+export type FinanceAssetCardScalarWhereInput = {
+  AND?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+  OR?: Prisma.FinanceAssetCardScalarWhereInput[]
+  NOT?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceAssetCard"> | number
+  companyCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  assetCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  name?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  assetKind?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  categoryId?: Prisma.IntFilter<"FinanceAssetCard"> | number
+  sourceCategory?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  assetAccountCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  accumulatedAccountCode?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  assetAccountId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  accumulatedAccountId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  acquisitionDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  depreciationStartDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  originalCost?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  method?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  openingAccumulatedAmount?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  status?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  nonAmortizationReason?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  note?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  sourceFile?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  sourceSheet?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  sourceRow?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  sourceKey?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  editedBy?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  version?: Prisma.IntFilter<"FinanceAssetCard"> | number
+  createdAt?: Prisma.DateTimeFilter<"FinanceAssetCard"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FinanceAssetCard"> | Date | string
+}
+
+export type FinanceAssetCardCreateWithoutAcquisitionEvidenceInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutAcquisitionEvidenceInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutAcquisitionEvidenceInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAcquisitionEvidenceInput>
+}
+
+export type FinanceAssetCardUpsertWithoutAcquisitionEvidenceInput = {
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutAcquisitionEvidenceInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAcquisitionEvidenceInput>
+  where?: Prisma.FinanceAssetCardWhereInput
+}
+
+export type FinanceAssetCardUpdateToOneWithWhereWithoutAcquisitionEvidenceInput = {
+  where?: Prisma.FinanceAssetCardWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutAcquisitionEvidenceInput>
+}
+
+export type FinanceAssetCardUpdateWithoutAcquisitionEvidenceInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutAcquisitionEvidenceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardCreateWithoutCostLinesInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
 }
 
 export type FinanceAssetCardUncheckedCreateWithoutCostLinesInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  categoryId: number
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
   acquisitionDate?: string | null
   depreciationStartDate?: string | null
   originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1043,6 +1731,9 @@ export type FinanceAssetCardUncheckedCreateWithoutCostLinesInput = {
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type FinanceAssetCardCreateOrConnectWithoutCostLinesInput = {
@@ -1066,7 +1757,7 @@ export type FinanceAssetCardUpdateWithoutCostLinesInput = {
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1088,20 +1779,31 @@ export type FinanceAssetCardUpdateWithoutCostLinesInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
 }
 
 export type FinanceAssetCardUncheckedUpdateWithoutCostLinesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1124,6 +1826,9 @@ export type FinanceAssetCardUncheckedUpdateWithoutCostLinesInput = {
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 export type FinanceAssetCardCreateWithoutAllocationsInput = {
@@ -1131,7 +1836,7 @@ export type FinanceAssetCardCreateWithoutAllocationsInput = {
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
   acquisitionDate?: string | null
@@ -1153,20 +1858,31 @@ export type FinanceAssetCardCreateWithoutAllocationsInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
   costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
 }
 
 export type FinanceAssetCardUncheckedCreateWithoutAllocationsInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  categoryId: number
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
   acquisitionDate?: string | null
   depreciationStartDate?: string | null
   originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1189,6 +1905,9 @@ export type FinanceAssetCardUncheckedCreateWithoutAllocationsInput = {
   costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type FinanceAssetCardCreateOrConnectWithoutAllocationsInput = {
@@ -1212,7 +1931,7 @@ export type FinanceAssetCardUpdateWithoutAllocationsInput = {
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1234,20 +1953,31 @@ export type FinanceAssetCardUpdateWithoutAllocationsInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
   costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
 }
 
 export type FinanceAssetCardUncheckedUpdateWithoutAllocationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1270,6 +2000,9 @@ export type FinanceAssetCardUncheckedUpdateWithoutAllocationsInput = {
   costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 export type FinanceAssetCardCreateWithoutPeriodEntriesInput = {
@@ -1277,7 +2010,7 @@ export type FinanceAssetCardCreateWithoutPeriodEntriesInput = {
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
   acquisitionDate?: string | null
@@ -1299,20 +2032,31 @@ export type FinanceAssetCardCreateWithoutPeriodEntriesInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
   costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
   allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
 }
 
 export type FinanceAssetCardUncheckedCreateWithoutPeriodEntriesInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  categoryId: number
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
   acquisitionDate?: string | null
   depreciationStartDate?: string | null
   originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1335,6 +2079,9 @@ export type FinanceAssetCardUncheckedCreateWithoutPeriodEntriesInput = {
   costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type FinanceAssetCardCreateOrConnectWithoutPeriodEntriesInput = {
@@ -1358,7 +2105,7 @@ export type FinanceAssetCardUpdateWithoutPeriodEntriesInput = {
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1380,20 +2127,31 @@ export type FinanceAssetCardUpdateWithoutPeriodEntriesInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
   costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
 }
 
 export type FinanceAssetCardUncheckedUpdateWithoutPeriodEntriesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1416,6 +2174,9 @@ export type FinanceAssetCardUncheckedUpdateWithoutPeriodEntriesInput = {
   costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 export type FinanceAssetCardCreateWithoutAdjustmentsInput = {
@@ -1423,7 +2184,7 @@ export type FinanceAssetCardCreateWithoutAdjustmentsInput = {
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
   acquisitionDate?: string | null
@@ -1445,20 +2206,31 @@ export type FinanceAssetCardCreateWithoutAdjustmentsInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
   costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
   allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
 }
 
 export type FinanceAssetCardUncheckedCreateWithoutAdjustmentsInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  categoryId: number
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
   acquisitionDate?: string | null
   depreciationStartDate?: string | null
   originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1481,6 +2253,9 @@ export type FinanceAssetCardUncheckedCreateWithoutAdjustmentsInput = {
   costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type FinanceAssetCardCreateOrConnectWithoutAdjustmentsInput = {
@@ -1504,7 +2279,7 @@ export type FinanceAssetCardUpdateWithoutAdjustmentsInput = {
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1526,20 +2301,31 @@ export type FinanceAssetCardUpdateWithoutAdjustmentsInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
   costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
 }
 
 export type FinanceAssetCardUncheckedUpdateWithoutAdjustmentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1562,6 +2348,1252 @@ export type FinanceAssetCardUncheckedUpdateWithoutAdjustmentsInput = {
   costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardCreateWithoutImpairmentAllocationsInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutImpairmentAllocationsInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutImpairmentAllocationsInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUncheckedCreateWithoutImpairmentAllocationsInput>
+}
+
+export type FinanceAssetCardUpsertWithoutImpairmentAllocationsInput = {
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutImpairmentAllocationsInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUncheckedCreateWithoutImpairmentAllocationsInput>
+  where?: Prisma.FinanceAssetCardWhereInput
+}
+
+export type FinanceAssetCardUpdateToOneWithWhereWithoutImpairmentAllocationsInput = {
+  where?: Prisma.FinanceAssetCardWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutImpairmentAllocationsInput>
+}
+
+export type FinanceAssetCardUpdateWithoutImpairmentAllocationsInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutImpairmentAllocationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardCreateWithoutDisposalInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutDisposalInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutDisposalInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutDisposalInput, Prisma.FinanceAssetCardUncheckedCreateWithoutDisposalInput>
+}
+
+export type FinanceAssetCardUpsertWithoutDisposalInput = {
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutDisposalInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutDisposalInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutDisposalInput, Prisma.FinanceAssetCardUncheckedCreateWithoutDisposalInput>
+  where?: Prisma.FinanceAssetCardWhereInput
+}
+
+export type FinanceAssetCardUpdateToOneWithWhereWithoutDisposalInput = {
+  where?: Prisma.FinanceAssetCardWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutDisposalInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutDisposalInput>
+}
+
+export type FinanceAssetCardUpdateWithoutDisposalInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutDisposalInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardCreateWithoutAssetAccountInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutAssetAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutAssetAccountInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput>
+}
+
+export type FinanceAssetCardCreateManyAssetAccountInputEnvelope = {
+  data: Prisma.FinanceAssetCardCreateManyAssetAccountInput | Prisma.FinanceAssetCardCreateManyAssetAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetCardCreateWithoutAccumulatedAccountInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput>
+}
+
+export type FinanceAssetCardCreateManyAccumulatedAccountInputEnvelope = {
+  data: Prisma.FinanceAssetCardCreateManyAccumulatedAccountInput | Prisma.FinanceAssetCardCreateManyAccumulatedAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetCardUpsertWithWhereUniqueWithoutAssetAccountInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutAssetAccountInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput>
+}
+
+export type FinanceAssetCardUpdateWithWhereUniqueWithoutAssetAccountInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutAssetAccountInput>
+}
+
+export type FinanceAssetCardUpdateManyWithWhereWithoutAssetAccountInput = {
+  where: Prisma.FinanceAssetCardScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateManyMutationInput, Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountInput>
+}
+
+export type FinanceAssetCardUpsertWithWhereUniqueWithoutAccumulatedAccountInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutAccumulatedAccountInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput>
+}
+
+export type FinanceAssetCardUpdateWithWhereUniqueWithoutAccumulatedAccountInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutAccumulatedAccountInput>
+}
+
+export type FinanceAssetCardUpdateManyWithWhereWithoutAccumulatedAccountInput = {
+  where: Prisma.FinanceAssetCardScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateManyMutationInput, Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountInput>
+}
+
+export type FinanceAssetCardCreateWithoutCompanyInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceAssetCardCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceAssetCardCreateManyCompanyInput | Prisma.FinanceAssetCardCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetCardUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceAssetCardUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceAssetCardUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceAssetCardScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateManyMutationInput, Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type FinanceAssetCardCreateManyCategoryInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetCardUpdateWithoutCategoryInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutCategoryInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCategoryInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetCardCreateManyAssetAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetCardCreateManyAccumulatedAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetCardUpdateWithoutAssetAccountInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutAssetAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetCardUpdateWithoutAccumulatedAccountInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutAccumulatedAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetCardCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetCardUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1574,6 +3606,7 @@ export type FinanceAssetCardCountOutputType = {
   allocations: number
   periodEntries: number
   adjustments: number
+  impairmentAllocations: number
 }
 
 export type FinanceAssetCardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1581,6 +3614,7 @@ export type FinanceAssetCardCountOutputTypeSelect<ExtArgs extends runtime.Types.
   allocations?: boolean | FinanceAssetCardCountOutputTypeCountAllocationsArgs
   periodEntries?: boolean | FinanceAssetCardCountOutputTypeCountPeriodEntriesArgs
   adjustments?: boolean | FinanceAssetCardCountOutputTypeCountAdjustmentsArgs
+  impairmentAllocations?: boolean | FinanceAssetCardCountOutputTypeCountImpairmentAllocationsArgs
 }
 
 /**
@@ -1621,16 +3655,27 @@ export type FinanceAssetCardCountOutputTypeCountAdjustmentsArgs<ExtArgs extends 
   where?: Prisma.FinanceAssetAdjustmentWhereInput
 }
 
+/**
+ * FinanceAssetCardCountOutputType without action
+ */
+export type FinanceAssetCardCountOutputTypeCountImpairmentAllocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetImpairmentAllocationWhereInput
+}
+
 
 export type FinanceAssetCardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   assetCode?: boolean
   name?: boolean
   assetKind?: boolean
-  category?: boolean
+  categoryId?: boolean
+  sourceCategory?: boolean
   assetAccountCode?: boolean
   accumulatedAccountCode?: boolean
+  assetAccountId?: boolean
+  accumulatedAccountId?: boolean
   acquisitionDate?: boolean
   depreciationStartDate?: boolean
   originalCost?: boolean
@@ -1650,22 +3695,33 @@ export type FinanceAssetCardSelect<ExtArgs extends runtime.Types.Extensions.Inte
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  category?: boolean | Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>
+  assetAccount?: boolean | Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>
+  accumulatedAccount?: boolean | Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>
   costLines?: boolean | Prisma.FinanceAssetCard$costLinesArgs<ExtArgs>
   allocations?: boolean | Prisma.FinanceAssetCard$allocationsArgs<ExtArgs>
   periodEntries?: boolean | Prisma.FinanceAssetCard$periodEntriesArgs<ExtArgs>
   adjustments?: boolean | Prisma.FinanceAssetCard$adjustmentsArgs<ExtArgs>
+  disposal?: boolean | Prisma.FinanceAssetCard$disposalArgs<ExtArgs>
+  acquisitionEvidence?: boolean | Prisma.FinanceAssetCard$acquisitionEvidenceArgs<ExtArgs>
+  impairmentAllocations?: boolean | Prisma.FinanceAssetCard$impairmentAllocationsArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetCard$companyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAssetCardCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetCard"]>
 
 export type FinanceAssetCardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   assetCode?: boolean
   name?: boolean
   assetKind?: boolean
-  category?: boolean
+  categoryId?: boolean
+  sourceCategory?: boolean
   assetAccountCode?: boolean
   accumulatedAccountCode?: boolean
+  assetAccountId?: boolean
+  accumulatedAccountId?: boolean
   acquisitionDate?: boolean
   depreciationStartDate?: boolean
   originalCost?: boolean
@@ -1685,17 +3741,25 @@ export type FinanceAssetCardSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  category?: boolean | Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>
+  assetAccount?: boolean | Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>
+  accumulatedAccount?: boolean | Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetCard$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetCard"]>
 
 export type FinanceAssetCardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   assetCode?: boolean
   name?: boolean
   assetKind?: boolean
-  category?: boolean
+  categoryId?: boolean
+  sourceCategory?: boolean
   assetAccountCode?: boolean
   accumulatedAccountCode?: boolean
+  assetAccountId?: boolean
+  accumulatedAccountId?: boolean
   acquisitionDate?: boolean
   depreciationStartDate?: boolean
   originalCost?: boolean
@@ -1715,17 +3779,25 @@ export type FinanceAssetCardSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  category?: boolean | Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>
+  assetAccount?: boolean | Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>
+  accumulatedAccount?: boolean | Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetCard$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetCard"]>
 
 export type FinanceAssetCardSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   assetCode?: boolean
   name?: boolean
   assetKind?: boolean
-  category?: boolean
+  categoryId?: boolean
+  sourceCategory?: boolean
   assetAccountCode?: boolean
   accumulatedAccountCode?: boolean
+  assetAccountId?: boolean
+  accumulatedAccountId?: boolean
   acquisitionDate?: boolean
   depreciationStartDate?: boolean
   originalCost?: boolean
@@ -1747,34 +3819,62 @@ export type FinanceAssetCardSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceAssetCardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "assetCode" | "name" | "assetKind" | "category" | "assetAccountCode" | "accumulatedAccountCode" | "acquisitionDate" | "depreciationStartDate" | "originalCost" | "residualRate" | "usefulLifeMonths" | "method" | "openingAccumulatedAmount" | "openingAsOfDate" | "status" | "nonAmortizationReason" | "note" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceKey" | "editedBy" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAssetCard"]>
+export type FinanceAssetCardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "assetCode" | "name" | "assetKind" | "categoryId" | "sourceCategory" | "assetAccountCode" | "accumulatedAccountCode" | "assetAccountId" | "accumulatedAccountId" | "acquisitionDate" | "depreciationStartDate" | "originalCost" | "residualRate" | "usefulLifeMonths" | "method" | "openingAccumulatedAmount" | "openingAsOfDate" | "status" | "nonAmortizationReason" | "note" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceKey" | "editedBy" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAssetCard"]>
 export type FinanceAssetCardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  category?: boolean | Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>
+  assetAccount?: boolean | Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>
+  accumulatedAccount?: boolean | Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>
   costLines?: boolean | Prisma.FinanceAssetCard$costLinesArgs<ExtArgs>
   allocations?: boolean | Prisma.FinanceAssetCard$allocationsArgs<ExtArgs>
   periodEntries?: boolean | Prisma.FinanceAssetCard$periodEntriesArgs<ExtArgs>
   adjustments?: boolean | Prisma.FinanceAssetCard$adjustmentsArgs<ExtArgs>
+  disposal?: boolean | Prisma.FinanceAssetCard$disposalArgs<ExtArgs>
+  acquisitionEvidence?: boolean | Prisma.FinanceAssetCard$acquisitionEvidenceArgs<ExtArgs>
+  impairmentAllocations?: boolean | Prisma.FinanceAssetCard$impairmentAllocationsArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetCard$companyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAssetCardCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type FinanceAssetCardIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type FinanceAssetCardIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type FinanceAssetCardIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  category?: boolean | Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>
+  assetAccount?: boolean | Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>
+  accumulatedAccount?: boolean | Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetCard$companyArgs<ExtArgs>
+}
+export type FinanceAssetCardIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  category?: boolean | Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>
+  assetAccount?: boolean | Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>
+  accumulatedAccount?: boolean | Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetCard$companyArgs<ExtArgs>
+}
 
 export type $FinanceAssetCardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceAssetCard"
   objects: {
+    category: Prisma.$FinanceAssetCategoryPayload<ExtArgs>
+    assetAccount: Prisma.$FinanceAccountPayload<ExtArgs> | null
+    accumulatedAccount: Prisma.$FinanceAccountPayload<ExtArgs> | null
     costLines: Prisma.$FinanceAssetCostLinePayload<ExtArgs>[]
     allocations: Prisma.$FinanceAssetExpenseAllocationPayload<ExtArgs>[]
     periodEntries: Prisma.$FinanceAssetPeriodEntryPayload<ExtArgs>[]
     adjustments: Prisma.$FinanceAssetAdjustmentPayload<ExtArgs>[]
+    disposal: Prisma.$FinanceAssetDisposalPayload<ExtArgs> | null
+    acquisitionEvidence: Prisma.$FinanceAssetAcquisitionEvidencePayload<ExtArgs> | null
+    impairmentAllocations: Prisma.$FinanceAssetImpairmentAllocationPayload<ExtArgs>[]
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     assetCode: string
     name: string
     assetKind: string
-    category: string | null
+    categoryId: number
+    sourceCategory: string | null
     assetAccountCode: string
     accumulatedAccountCode: string | null
+    assetAccountId: number | null
+    accumulatedAccountId: number | null
     acquisitionDate: string | null
     depreciationStartDate: string | null
     originalCost: runtime.Decimal
@@ -2188,10 +4288,17 @@ readonly fields: FinanceAssetCardFieldRefs;
  */
 export interface Prisma__FinanceAssetCardClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  category<T extends Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAssetCategoryClient<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  assetAccount<T extends Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  accumulatedAccount<T extends Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   costLines<T extends Prisma.FinanceAssetCard$costLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$costLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCostLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   allocations<T extends Prisma.FinanceAssetCard$allocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$allocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetExpenseAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   periodEntries<T extends Prisma.FinanceAssetCard$periodEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$periodEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetPeriodEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   adjustments<T extends Prisma.FinanceAssetCard$adjustmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$adjustmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  disposal<T extends Prisma.FinanceAssetCard$disposalArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$disposalArgs<ExtArgs>>): Prisma.Prisma__FinanceAssetDisposalClient<runtime.Types.Result.GetResult<Prisma.$FinanceAssetDisposalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  acquisitionEvidence<T extends Prisma.FinanceAssetCard$acquisitionEvidenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$acquisitionEvidenceArgs<ExtArgs>>): Prisma.Prisma__FinanceAssetAcquisitionEvidenceClient<runtime.Types.Result.GetResult<Prisma.$FinanceAssetAcquisitionEvidencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  impairmentAllocations<T extends Prisma.FinanceAssetCard$impairmentAllocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$impairmentAllocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetImpairmentAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  company<T extends Prisma.FinanceAssetCard$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2223,12 +4330,16 @@ export interface Prisma__FinanceAssetCardClient<T, Null = never, ExtArgs extends
 export interface FinanceAssetCardFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceAssetCard", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
   readonly assetCode: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly name: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly assetKind: Prisma.FieldRef<"FinanceAssetCard", 'String'>
-  readonly category: Prisma.FieldRef<"FinanceAssetCard", 'String'>
+  readonly categoryId: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
+  readonly sourceCategory: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly assetAccountCode: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly accumulatedAccountCode: Prisma.FieldRef<"FinanceAssetCard", 'String'>
+  readonly assetAccountId: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
+  readonly accumulatedAccountId: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
   readonly acquisitionDate: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly depreciationStartDate: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly originalCost: Prisma.FieldRef<"FinanceAssetCard", 'Decimal'>
@@ -2502,6 +4613,10 @@ export type FinanceAssetCardCreateManyAndReturnArgs<ExtArgs extends runtime.Type
    */
   data: Prisma.FinanceAssetCardCreateManyInput | Prisma.FinanceAssetCardCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCardIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2572,6 +4687,10 @@ export type FinanceAssetCardUpdateManyAndReturnArgs<ExtArgs extends runtime.Type
    * Limit how many FinanceAssetCards to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCardIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2638,6 +4757,44 @@ export type FinanceAssetCardDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many FinanceAssetCards to delete.
    */
   limit?: number
+}
+
+/**
+ * FinanceAssetCard.assetAccount
+ */
+export type FinanceAssetCard$assetAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccount
+   */
+  select?: Prisma.FinanceAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccount
+   */
+  omit?: Prisma.FinanceAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+/**
+ * FinanceAssetCard.accumulatedAccount
+ */
+export type FinanceAssetCard$accumulatedAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccount
+   */
+  select?: Prisma.FinanceAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccount
+   */
+  omit?: Prisma.FinanceAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountWhereInput
 }
 
 /**
@@ -2734,6 +4891,87 @@ export type FinanceAssetCard$adjustmentsArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.FinanceAssetAdjustmentScalarFieldEnum | Prisma.FinanceAssetAdjustmentScalarFieldEnum[]
+}
+
+/**
+ * FinanceAssetCard.disposal
+ */
+export type FinanceAssetCard$disposalArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetDisposal
+   */
+  select?: Prisma.FinanceAssetDisposalSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetDisposal
+   */
+  omit?: Prisma.FinanceAssetDisposalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetDisposalInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetDisposalWhereInput
+}
+
+/**
+ * FinanceAssetCard.acquisitionEvidence
+ */
+export type FinanceAssetCard$acquisitionEvidenceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetAcquisitionEvidence
+   */
+  select?: Prisma.FinanceAssetAcquisitionEvidenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetAcquisitionEvidence
+   */
+  omit?: Prisma.FinanceAssetAcquisitionEvidenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetAcquisitionEvidenceInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetAcquisitionEvidenceWhereInput
+}
+
+/**
+ * FinanceAssetCard.impairmentAllocations
+ */
+export type FinanceAssetCard$impairmentAllocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetImpairmentAllocation
+   */
+  select?: Prisma.FinanceAssetImpairmentAllocationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetImpairmentAllocation
+   */
+  omit?: Prisma.FinanceAssetImpairmentAllocationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImpairmentAllocationInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetImpairmentAllocationWhereInput
+  orderBy?: Prisma.FinanceAssetImpairmentAllocationOrderByWithRelationInput | Prisma.FinanceAssetImpairmentAllocationOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetImpairmentAllocationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetImpairmentAllocationScalarFieldEnum | Prisma.FinanceAssetImpairmentAllocationScalarFieldEnum[]
+}
+
+/**
+ * FinanceAssetCard.company
+ */
+export type FinanceAssetCard$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**
