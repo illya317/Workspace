@@ -9,7 +9,7 @@ import {
 import { prisma } from "@workspace/platform/server/prisma";
 
 import { cnyPerForeignUnit } from "./consolidation-frozen-rates";
-import { resolveFinanceAccountingPolicyVersionAt } from "../ledger/group-accounts/policy-versions";
+import { resolveFinanceAccountingPolicyVersionAt } from "../ledger/group-accounts/policy-version-service";
 
 type PeriodBasis = "current" | "comparative";
 type StatementType = "balanceSheet" | "incomeStatement";

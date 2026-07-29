@@ -12,7 +12,6 @@ CREATE TABLE "FinanceAssetImpairmentAssessment" (
     "impairmentAmount" DECIMAL(20,2) NOT NULL DEFAULT 0,
     "voucherId" INTEGER,
     "assetScopeFingerprint" TEXT NOT NULL,
-    "calculationBasisFingerprint" TEXT NOT NULL,
     "assetCount" INTEGER NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'confirmed',
     "assessedBy" INTEGER NOT NULL,

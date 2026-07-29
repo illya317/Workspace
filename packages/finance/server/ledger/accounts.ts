@@ -9,7 +9,7 @@ import {
   validYear,
 } from "../domain/finance-validation";
 import { diagnoseGroupAccountMapping, type GroupMappingReviewCandidate } from "./group-accounts/mapping-review";
-import { resolveFinanceAccountingPolicyVersionAt } from "./group-accounts/policy-versions";
+import { resolveFinanceAccountingPolicyVersionAt } from "./group-accounts/policy-version-service";
 import { financeAccountSourceScopeKey, financeGroupMappingKey } from "./group-accounts/source-accounts";
 import type { FinanceGroupAccountReviewStatus } from "../../types/group-account";
 

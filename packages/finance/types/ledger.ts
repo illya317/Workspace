@@ -165,10 +165,7 @@ export type FinanceLedgerExportView =
   | "groupAccounts"
   | "vouchers"
   | "balances"
-  | "counterparty"
-  | "assets";
-
-export type FinanceAssetExportView = "cards" | "period" | "adjustments" | "reconciliation";
+  | "counterparty";
 
 export interface FinanceCounterpartyBalanceRow {
   id: string;

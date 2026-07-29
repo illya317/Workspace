@@ -2,7 +2,7 @@
 
 # 全项目权限 Action 授权手册
 
-当前共 20 个 permission action、102 个资源策略、199 个已注册 BusinessAction。
+当前共 20 个 permission action、105 个资源策略、213 个已注册 BusinessAction。
 
 事实来源：`action-registry.ts`、`permission-resource-policy.ts`、`module-registry.ts` 与 `business-action-registry.ts`。业务写入的状态、校验和持久化细节继续以 `action-contracts.md` 为准。
 
@@ -60,7 +60,7 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 |---|---|---|---|---|
 | `docs.editor.approve` | 模板编辑器 | 流程处理资格：可作为“创建文档模板草稿”所发起流程的处理人（`docs.editor.template.draft.create`；具体处理接口和对象范围仍由 workflow/service 决定）<br>流程处理资格：可作为“保存文档模板草稿”所发起流程的处理人（`docs.editor.template.draft.save`；具体处理接口和对象范围仍由 workflow/service 决定）<br>流程处理资格：可作为“发布文档模板”所发起流程的处理人（`docs.editor.template.publish`；具体处理接口和对象范围仍由 workflow/service 决定） | 对应组织空间内的模板审批或发布责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
 | `finance.budget.approve` | 预算管理 | 直接执行：启用预算版本（`finance.budget.version.activate`；POST /api/modules/finance/budget/versions/:id/activate） | 有权启用预算版本的预算负责人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
-| `finance.ledger.approve` | 总账会计 | 直接执行：复核集团科目（`finance.ledger.groupAccount.review`；POST /api/modules/finance/ledger/group-accounts/:id/review） | 集团科目或总账治理的复核责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
+| `finance.ledger.approve` | 总账会计 | 直接执行：复核集团科目（`finance.ledger.groupAccount.review`；POST /api/modules/finance/ledger/group-accounts/:id/review）<br>直接执行：复核关账底稿（`finance.ledger.close.workpaper.review`；POST /api/modules/finance/ledger/closing/workpapers/review） | 集团科目或总账治理的复核责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
 | `finance.statements.approve` | 财务报表 | 直接执行：通过合并抵销分录（`finance.statements.consolidationEntry.approve`；POST /api/modules/finance/statements/consolidation/batches/:batchId/entries/:entryId/approve）<br>直接执行：独立复核合并批次（`finance.statements.consolidationBatch.review`；POST /api/modules/finance/statements/consolidation/batches/:batchId/review）<br>直接执行：发布合并报表（`finance.statements.consolidationBatch.publish`；POST /api/modules/finance/statements/consolidation/batches/:batchId/publish） | 合并抵销、合并批次复核与报表发布责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
 | `hr.performance.approve` | 绩效管理 | 流程处理资格：可作为“发起绩效评审”所发起流程的处理人（`hr.performance.review.evaluate`；具体处理接口和对象范围仍由 workflow/service 决定） | 绩效流程的正式审批责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
 | `hr.roster.approve` | 人事基础资料 | 流程处理资格：可作为“创建部门”所发起流程的处理人（`hr.roster.department.create`；具体处理接口和对象范围仍由 workflow/service 决定）<br>流程处理资格：可作为“更新部门”所发起流程的处理人（`hr.roster.department.update`；具体处理接口和对象范围仍由 workflow/service 决定） | 组织、人事资料审批责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
@@ -654,6 +654,22 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `finance.analysis.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
 | `finance.analysis.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
+#### 资产会计（`finance.assets`）
+
+类型：业务资源 · 页面：`/finance/assets` · scope：全局
+
+资源说明：Asset accounting owns asset cards, period depreciation and amortization, impairment and disposal evidence, read-only historical adjustments, and its workbook export independently from the general ledger; source reconciliation is limited to the initial import gate.
+
+| Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
+|---|---|---|---|---|
+| `finance.assets.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
+| `finance.assets.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
+| `finance.assets.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：创建资产卡片（`finance.assets.asset.create`；POST /api/modules/finance/assets） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `finance.assets.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新资产卡片（`finance.assets.asset.update`；PUT /api/modules/finance/assets）<br>直接执行：更新资产会计政策（`finance.assets.categoryPolicy.update`；PUT /api/modules/finance/assets/policies）<br>直接执行：删除资产会计政策覆盖（`finance.assets.categoryPolicy.delete`；DELETE /api/modules/finance/assets/policies） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `finance.assets.revise`<br>修订 | 对已生效、已提交或有历史版本的对象进行受控修订、重开或更正。 | 直接执行：重算折旧摊销期间（`finance.assets.assetPeriod.recalculate`；POST /api/modules/finance/assets/periods/recalculate）<br>直接执行：关联折旧摊销凭证（`finance.assets.assetPeriod.linkVoucher`；PUT /api/modules/finance/assets/periods/voucher-link）<br>直接执行：确认资产取得证据（`finance.assets.acquisitionEvidence.confirm`；POST /api/modules/finance/assets/acquisition-evidence）<br>直接执行：确认资产减值评估（`finance.assets.impairmentAssessment.confirm`；PUT /api/modules/finance/assets/impairment-assessment）<br>直接执行：确认资产处置（`finance.assets.disposal.confirm`；POST /api/modules/finance/assets/disposals） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `finance.assets.export`<br>导出 | 导出、下载、打印或对外发送该资源数据。 | 直接执行：下载资产会计 Excel（`finance.assets.workspace.export`；GET /api/modules/finance/assets/export） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `finance.assets.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+
 #### 预算管理（`finance.budget`）
 
 类型：业务资源 · 页面：`/finance/budget` · scope：全局
@@ -690,11 +706,11 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 |---|---|---|---|---|
 | `finance.ledger.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
 | `finance.ledger.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
-| `finance.ledger.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：创建会计科目（`finance.ledger.account.create`；POST /api/modules/finance/ledger/accounts）<br>直接执行：创建凭证（`finance.ledger.voucher.create`；POST /api/modules/finance/ledger/vouchers）<br>直接执行：创建会计期间（`finance.ledger.period.create`；POST /api/modules/finance/ledger/periods）<br>直接执行：初始化默认账套（`finance.ledger.defaultBook.create`；POST /api/modules/finance/ledger/init）<br>直接执行：创建资产卡片（`finance.ledger.asset.create`；POST /api/modules/finance/ledger/assets） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
-| `finance.ledger.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新会计科目（`finance.ledger.account.update`；PUT /api/modules/finance/ledger/accounts/:id）<br>直接执行：更新凭证（`finance.ledger.voucher.update`；PUT /api/modules/finance/ledger/vouchers/:id）<br>直接执行：更新会计期间（`finance.ledger.period.update`；PUT /api/modules/finance/ledger/periods/:id）<br>直接执行：更新资产卡片（`finance.ledger.asset.update`；PUT /api/modules/finance/ledger/assets） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `finance.ledger.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：创建会计科目（`finance.ledger.account.create`；POST /api/modules/finance/ledger/accounts）<br>直接执行：创建凭证（`finance.ledger.voucher.create`；POST /api/modules/finance/ledger/vouchers）<br>直接执行：创建会计期间（`finance.ledger.period.create`；POST /api/modules/finance/ledger/periods）<br>直接执行：初始化默认账套（`finance.ledger.defaultBook.create`；POST /api/modules/finance/ledger/init）<br>直接执行：开启关账工作台（`finance.ledger.close.open`；POST /api/modules/finance/ledger/closing） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `finance.ledger.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新会计科目（`finance.ledger.account.update`；PUT /api/modules/finance/ledger/accounts/:id）<br>直接执行：更新凭证（`finance.ledger.voucher.update`；PUT /api/modules/finance/ledger/vouchers/:id）<br>直接执行：更新会计期间（`finance.ledger.period.update`；PUT /api/modules/finance/ledger/periods/:id）<br>直接执行：刷新关账工作台（`finance.ledger.close.refresh`；POST /api/modules/finance/ledger/closing/refresh）<br>直接执行：保存关账底稿（`finance.ledger.close.workpaper.save`；PUT /api/modules/finance/ledger/closing/workpapers） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `finance.ledger.delete`<br>删除 | 删除记录；可能是硬删除，也可能由具体业务动作定义为受控删除，不能理解成编辑权限。 | 直接执行：删除会计科目（`finance.ledger.account.delete`；DELETE /api/modules/finance/ledger/accounts/:id）<br>直接执行：删除凭证（`finance.ledger.voucher.delete`；DELETE /api/modules/finance/ledger/vouchers/:id）<br>直接执行：删除会计期间（`finance.ledger.period.delete`；DELETE /api/modules/finance/ledger/periods/:id）<br>直接执行：删除集团科目（`finance.ledger.groupAccount.delete`；DELETE /api/modules/finance/ledger/group-accounts/:id） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
-| `finance.ledger.revise`<br>修订 | 对已生效、已提交或有历史版本的对象进行受控修订、重开或更正。 | 直接执行：重算科目余额（`finance.ledger.balance.revise`；POST /api/modules/finance/ledger/balances）<br>直接执行：新增集团科目（`finance.ledger.groupAccount.create`；POST /api/modules/finance/ledger/group-accounts）<br>直接执行：编辑集团科目（`finance.ledger.groupAccount.update`；PUT /api/modules/finance/ledger/group-accounts/:id）<br>直接执行：保存集团科目映射（`finance.ledger.groupAccountMapping.save`；PUT /api/modules/finance/ledger/group-accounts）<br>直接执行：保存重分类规则（`finance.ledger.reclassRule.save`；PUT /api/modules/finance/ledger/reclass-rules）<br>直接执行：保存重分类调整（`finance.ledger.reclassAdjustment.save`；PUT /api/modules/finance/ledger/reclass-adjustments）<br>直接执行：生成重分类结果（`finance.ledger.reclassResult.generate`；POST /api/modules/finance/ledger/reclass-results）<br>直接执行：调整重分类结果（`finance.ledger.reclassResult.adjust`；PATCH /api/modules/finance/ledger/reclass-results/:id）<br>直接执行：补录折旧摊销调整（`finance.ledger.assetAdjustment.create`；POST /api/modules/finance/ledger/asset-adjustments）<br>直接执行：重算折旧摊销期间（`finance.ledger.assetPeriod.recalculate`；POST /api/modules/finance/ledger/asset-periods/recalculate） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
-| `finance.ledger.approve`<br>审批通过 | 对该资源执行通过、复核、启用、发布或关闭等生效决策；必须结合完整 resource.action 和下方业务绑定理解。 | 直接执行：复核集团科目（`finance.ledger.groupAccount.review`；POST /api/modules/finance/ledger/group-accounts/:id/review） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `finance.ledger.revise`<br>修订 | 对已生效、已提交或有历史版本的对象进行受控修订、重开或更正。 | 直接执行：重算科目余额（`finance.ledger.balance.revise`；POST /api/modules/finance/ledger/balances）<br>直接执行：新增集团科目（`finance.ledger.groupAccount.create`；POST /api/modules/finance/ledger/group-accounts）<br>直接执行：编辑集团科目（`finance.ledger.groupAccount.update`；PUT /api/modules/finance/ledger/group-accounts/:id）<br>直接执行：保存集团科目映射（`finance.ledger.groupAccountMapping.save`；PUT /api/modules/finance/ledger/group-accounts）<br>直接执行：保存重分类规则（`finance.ledger.reclassRule.save`；PUT /api/modules/finance/ledger/reclass-rules）<br>直接执行：保存重分类调整（`finance.ledger.reclassAdjustment.save`；PUT /api/modules/finance/ledger/reclass-adjustments）<br>直接执行：生成重分类结果（`finance.ledger.reclassResult.generate`；POST /api/modules/finance/ledger/reclass-results）<br>直接执行：调整重分类结果（`finance.ledger.reclassResult.adjust`；PATCH /api/modules/finance/ledger/reclass-results/:id） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `finance.ledger.approve`<br>审批通过 | 对该资源执行通过、复核、启用、发布或关闭等生效决策；必须结合完整 resource.action 和下方业务绑定理解。 | 直接执行：复核集团科目（`finance.ledger.groupAccount.review`；POST /api/modules/finance/ledger/group-accounts/:id/review）<br>直接执行：复核关账底稿（`finance.ledger.close.workpaper.review`；POST /api/modules/finance/ledger/closing/workpapers/review） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `finance.ledger.export`<br>导出 | 导出、下载、打印或对外发送该资源数据。 | 直接执行：下载总账 Excel（`finance.ledger.workspace.export`；GET /api/modules/finance/ledger/export） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `finance.ledger.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
@@ -733,6 +749,36 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `finance.statements.reject`<br>审批驳回 | 驳回流程或业务申请；approve 不会自动包含 reject。 | 直接执行：退回合并抵销分录（`finance.statements.consolidationEntry.return`；POST /api/modules/finance/statements/consolidation/batches/:batchId/entries/:entryId/return）<br>直接执行：退回合并批次（`finance.statements.consolidationBatch.return`；POST /api/modules/finance/statements/consolidation/batches/:batchId/return） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `finance.statements.export`<br>导出 | 导出、下载、打印或对外发送该资源数据。 | 直接执行：下载财务三表（`finance.statements.report.export`；GET /api/modules/finance/statements/reports/export、GET /api/modules/finance/statements/consolidation/batches/:batchId/report/export） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `finance.statements.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+
+#### 税务管理（`finance.tax`）
+
+类型：业务资源 · 页面：`/finance/tax` · scope：全局
+
+资源说明：Tax owns tax-accrual workpapers, filings, payable-versus-paid reconciliation, and tax evidence. Related vouchers and balances remain in finance.ledger; consolidation tax effects remain in finance.statements; period close only consumes Tax status and evidence references.
+
+| Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
+|---|---|---|---|---|
+| `finance.tax.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
+| `finance.tax.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
+| `finance.tax.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：创建税务管理记录（`finance.tax.workspace.create`；POST /api/modules/finance/tax） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `finance.tax.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新税务管理记录（`finance.tax.workspace.update`；PUT /api/modules/finance/tax） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `finance.tax.export`<br>导出 | 导出、下载、打印或对外发送该资源数据。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `finance.tax.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+
+#### 资金管理（`finance.treasury`）
+
+类型：业务资源 · 页面：`/finance/treasury` · scope：全局
+
+资源说明：Treasury owns bank-account masters, bank-reconciliation evidence, loan schedules, and interest workpapers. Related vouchers and balances remain in finance.ledger; period close only consumes Treasury status and evidence references.
+
+| Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
+|---|---|---|---|---|
+| `finance.treasury.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
+| `finance.treasury.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
+| `finance.treasury.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：创建资金管理记录（`finance.treasury.workspace.create`；POST /api/modules/finance/treasury） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `finance.treasury.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新资金管理记录（`finance.treasury.workspace.update`；PUT /api/modules/finance/treasury） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `finance.treasury.export`<br>导出 | 导出、下载、打印或对外发送该资源数据。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `finance.treasury.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
 ### 资料库（`library`）
 

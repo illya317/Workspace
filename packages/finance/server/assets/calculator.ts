@@ -3,6 +3,7 @@ export type StraightLinePeriodInput = {
   residualRate: number;
   usefulLifeMonths: number;
   accumulatedBefore: number;
+  impairmentBefore?: number;
   depreciationStartDate: string;
   year: number;
   month: number;
@@ -31,11 +32,17 @@ export function calculateStraightLinePeriod(input: StraightLinePeriodInput): Str
     throw new Error("残值率必须在 0（含）到 1（不含）之间");
   }
   if (!Number.isInteger(input.usefulLifeMonths) || input.usefulLifeMonths <= 0) throw new Error("使用期限月数必须为正整数");
-  const depreciableAmount = cents(input.originalCost * (1 - input.residualRate));
+  const impairmentBefore = Math.max(0, cents(input.impairmentBefore ?? 0));
+  const depreciableAmount = Math.max(0, cents(input.originalCost * (1 - input.residualRate) - impairmentBefore));
   const accumulatedBefore = Math.max(0, cents(input.accumulatedBefore));
-  const monthlyAmount = cents(depreciableAmount / input.usefulLifeMonths);
   const targetMonth = input.year * 12 + input.month - 1;
-  const active = targetMonth >= monthIndex(input.depreciationStartDate) && accumulatedBefore < depreciableAmount;
+  const startMonth = monthIndex(input.depreciationStartDate);
+  const elapsedBefore = Math.max(0, targetMonth - startMonth);
+  const remainingLifeMonths = Math.max(1, input.usefulLifeMonths - elapsedBefore);
+  const monthlyAmount = impairmentBefore > 0
+    ? cents(Math.max(0, depreciableAmount - accumulatedBefore) / remainingLifeMonths)
+    : cents(depreciableAmount / input.usefulLifeMonths);
+  const active = targetMonth >= startMonth && accumulatedBefore < depreciableAmount;
   const periodAmount = active ? cents(Math.min(monthlyAmount, depreciableAmount - accumulatedBefore)) : 0;
   const accumulatedAfter = cents(Math.min(depreciableAmount, accumulatedBefore + periodAmount));
   return {
@@ -43,7 +50,24 @@ export function calculateStraightLinePeriod(input: StraightLinePeriodInput): Str
     periodAmount,
     depreciableAmount,
     accumulatedAfter,
-    netBookValue: cents(input.originalCost - accumulatedAfter),
+    netBookValue: cents(input.originalCost - impairmentBefore - accumulatedAfter),
     active,
   };
+}
+
+export function calculateFinanceAssetPeriod(input: StraightLinePeriodInput & {
+  assetKind: "fixed_asset" | "intangible" | "prepaid" | "long_term_deferred";
+  disposalDate?: string | null;
+}) {
+  const normal = calculateStraightLinePeriod(input);
+  if (!input.disposalDate) return { ...normal, lifecycleBlocker: null as string | null };
+  const targetMonth = input.year * 12 + input.month - 1;
+  const disposalMonth = monthIndex(input.disposalDate);
+  if (disposalMonth < targetMonth) return { ...normal, periodAmount: 0, active: false, lifecycleBlocker: null as string | null };
+  if (disposalMonth > targetMonth || input.assetKind === "fixed_asset") return { ...normal, lifecycleBlocker: null as string | null };
+  if (input.assetKind === "intangible") {
+    const accumulatedAfter = cents(Math.min(normal.depreciableAmount, input.accumulatedBefore));
+    return { ...normal, periodAmount: 0, accumulatedAfter, netBookValue: cents(input.originalCost - (input.impairmentBefore ?? 0) - accumulatedAfter), active: false, lifecycleBlocker: null as string | null };
+  }
+  return { ...normal, lifecycleBlocker: "asset_termination_policy_missing" };
 }

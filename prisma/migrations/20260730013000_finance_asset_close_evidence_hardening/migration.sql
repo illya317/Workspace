@@ -60,7 +60,7 @@ FOREIGN KEY ("importBatchId") REFERENCES "FinanceAssetImportBatch"("id") ON DELE
 ALTER TABLE "FinanceAssetAcquisitionEvidence" ADD CONSTRAINT "FinanceAssetAcquisitionEvidence_confirmedBy_fkey"
 FOREIGN KEY ("confirmedBy") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "FinanceAssetAcquisitionEvidence" ADD CONSTRAINT "FinanceAssetAcquisitionEvidence_companyId_fkey"
-  FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE "FinanceAssetDisposal"
 ADD COLUMN "assetVoucherItemId" INTEGER,
@@ -69,11 +69,11 @@ ADD COLUMN "impairmentAllowanceVoucherItemId" INTEGER,
 ADD COLUMN "proceedsVoucherItemId" INTEGER,
 ADD COLUMN "gainLossVoucherItemId" INTEGER;
 
-CREATE UNIQUE INDEX "FinanceAssetDisposal_assetVoucherItemId_key" ON "FinanceAssetDisposal"("assetVoucherItemId");
-CREATE UNIQUE INDEX "FinanceAssetDisposal_accumulatedVoucherItemId_key" ON "FinanceAssetDisposal"("accumulatedVoucherItemId");
-CREATE UNIQUE INDEX "FinanceAssetDisposal_impairmentAllowanceVoucherItemId_key" ON "FinanceAssetDisposal"("impairmentAllowanceVoucherItemId");
-CREATE UNIQUE INDEX "FinanceAssetDisposal_proceedsVoucherItemId_key" ON "FinanceAssetDisposal"("proceedsVoucherItemId");
-CREATE UNIQUE INDEX "FinanceAssetDisposal_gainLossVoucherItemId_key" ON "FinanceAssetDisposal"("gainLossVoucherItemId");
+CREATE INDEX "FinanceAssetDisposal_assetVoucherItemId_idx" ON "FinanceAssetDisposal"("assetVoucherItemId");
+CREATE INDEX "FinanceAssetDisposal_accumulatedVoucherItemId_idx" ON "FinanceAssetDisposal"("accumulatedVoucherItemId");
+CREATE INDEX "FinanceAssetDisposal_impairmentAllowanceVoucherItemId_idx" ON "FinanceAssetDisposal"("impairmentAllowanceVoucherItemId");
+CREATE INDEX "FinanceAssetDisposal_proceedsVoucherItemId_idx" ON "FinanceAssetDisposal"("proceedsVoucherItemId");
+CREATE INDEX "FinanceAssetDisposal_gainLossVoucherItemId_idx" ON "FinanceAssetDisposal"("gainLossVoucherItemId");
 
 ALTER TABLE "FinanceAssetDisposal" ADD CONSTRAINT "FinanceAssetDisposal_assetVoucherItemId_fkey" FOREIGN KEY ("assetVoucherItemId") REFERENCES "FinanceVoucherItem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "FinanceAssetDisposal" ADD CONSTRAINT "FinanceAssetDisposal_accumulatedVoucherItemId_fkey" FOREIGN KEY ("accumulatedVoucherItemId") REFERENCES "FinanceVoucherItem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

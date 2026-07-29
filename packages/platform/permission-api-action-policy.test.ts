@@ -140,6 +140,66 @@ test("Finance ledger workbook downloads require export rather than ordinary read
   assert.equal(policy.runtimeEnforcement, "gateway");
 });
 
+test("Finance asset accounting uses its own write and export permissions", () => {
+  for (const [method, apiPath, requiredAction] of [
+    ["POST", "/api/modules/finance/assets", "create"],
+    ["PUT", "/api/modules/finance/assets", "update"],
+    ["PUT", "/api/modules/finance/assets/policies", "update"],
+    ["DELETE", "/api/modules/finance/assets/policies", "update"],
+    ["POST", "/api/modules/finance/assets/periods/recalculate", "revise"],
+    ["PUT", "/api/modules/finance/assets/periods/voucher-link", "revise"],
+    ["POST", "/api/modules/finance/assets/acquisition-evidence", "revise"],
+    ["PUT", "/api/modules/finance/assets/impairment-assessment", "revise"],
+    ["POST", "/api/modules/finance/assets/disposals", "revise"],
+    ["GET", "/api/modules/finance/assets/export", "export"],
+  ] as const) {
+    const policy = resolvePermissionApiActionPolicy({ method, apiPath, resourceKey: "finance.assets" });
+    assert.equal(policy.resourceKey, "finance.assets");
+    assert.deepEqual(policy.requiredActions, [requiredAction]);
+    assert.equal(policy.runtimeEnforcement, "gateway");
+  }
+
+  const deleteAction = getBusinessActionRegistration("finance.assets.categoryPolicy.delete");
+  const deleteContract = getActionContractMetadata("finance.assets.categoryPolicy.delete");
+  assert.equal(deleteAction?.writeKind, "delete");
+  assert.equal(deleteAction?.directPermissionAction, "update");
+  assert.deepEqual(deleteAction?.apiRoutes, [{ method: "DELETE", path: "/api/modules/finance/assets/policies" }]);
+  assert.equal(deleteContract?.kind, "lifecycle");
+  assert.equal(deleteContract?.resource.directPermissionAction, "update");
+  assert.equal(deleteContract?.domain.validatorKey, "packages/finance/server/assets/route-commands.buildDeleteFinanceAssetCategoryPolicyRouteCommand");
+});
+
+test("Finance treasury and tax workspace routes use their own read and write permissions", () => {
+  for (const [resourceKey, apiPath] of [
+    ["finance.treasury", "/api/modules/finance/treasury"],
+    ["finance.tax", "/api/modules/finance/tax"],
+  ] as const) {
+    for (const [method, requiredAction] of [
+      ["GET", "read"],
+      ["POST", "create"],
+      ["PUT", "update"],
+    ] as const) {
+      const policy = resolvePermissionApiActionPolicy({ method, apiPath, resourceKey });
+      assert.equal(policy.resourceKey, resourceKey);
+      assert.deepEqual(policy.requiredActions, [requiredAction]);
+      assert.equal(policy.runtimeEnforcement, "gateway");
+    }
+  }
+});
+
+test("Finance close workspace separates read, open, and refresh permissions", () => {
+  for (const [method, apiPath, requiredAction] of [
+    ["GET", "/api/modules/finance/ledger/closing", "read"],
+    ["POST", "/api/modules/finance/ledger/closing", "create"],
+    ["POST", "/api/modules/finance/ledger/closing/refresh", "update"],
+  ] as const) {
+    const policy = resolvePermissionApiActionPolicy({ method, apiPath, resourceKey: "finance.ledger" });
+    assert.equal(policy.resourceKey, "finance.ledger");
+    assert.deepEqual(policy.requiredActions, [requiredAction]);
+    assert.equal(policy.runtimeEnforcement, "gateway");
+  }
+});
+
 test("Operational analysis lifecycle separates published reads from configure-only preview and state changes", () => {
   const base = "/api/modules/finance/cost/operational-analytics/spaces/department/12/templates/31";
   for (const [method, suffix] of [["GET", "lifecycle"], ["POST", "preview"], ["POST", "lifecycle"]] as const) {

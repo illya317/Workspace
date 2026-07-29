@@ -199,15 +199,31 @@ export async function listCounterpartyBalances(
     .filter((row) => matchesCounterpartyRelationScope(row, relationScope))
     .filter((row) => objectType === "all" || row.counterpartyObjectKind === objectType)
     .filter((row) => matchesRow(row, keyword));
-  const start = (input.page - 1) * input.pageSize;
+  return paginateCounterpartyBalanceRows(filtered, input.page, input.pageSize);
+}
+
+export function paginateCounterpartyBalanceRows(
+  rows: FinanceCounterpartyBalanceRow[],
+  page: number,
+  pageSize: number,
+): FinanceCounterpartyBalanceResponse {
+  const ordered = [...rows].sort(counterpartyBalanceRowOrder);
+  const start = (page - 1) * pageSize;
   return {
-    data: filtered.slice(start, start + input.pageSize),
-    total: filtered.length,
-    page: input.page,
-    pageSize: input.pageSize,
-    totalPages: Math.max(1, Math.ceil(filtered.length / input.pageSize)),
-    totals: totalCounterpartyBalances(filtered),
+    data: ordered.slice(start, start + pageSize),
+    total: ordered.length,
+    page,
+    pageSize,
+    totalPages: Math.max(1, Math.ceil(ordered.length / pageSize)),
+    totals: totalCounterpartyBalances(ordered),
   };
+}
+
+function counterpartyBalanceRowOrder(left: FinanceCounterpartyBalanceRow, right: FinanceCounterpartyBalanceRow) {
+  return left.accountCode.localeCompare(right.accountCode, "zh-CN")
+    || left.counterpartyName.localeCompare(right.counterpartyName, "zh-CN")
+    || left.counterpartyCode.localeCompare(right.counterpartyCode, "zh-CN")
+    || left.id.localeCompare(right.id);
 }
 
 function toMemberFacts(

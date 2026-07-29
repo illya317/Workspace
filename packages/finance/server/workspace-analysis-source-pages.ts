@@ -288,15 +288,14 @@ export async function loadFinanceGeneralWorkspaceAnalysisSourcePage(input: {
     });
     return inMemoryPage(result.rows, page, pageSize);
   }
-  if (sourceKey.startsWith("finance.ledger.asset-")) {
+  if (sourceKey.startsWith("finance.assets.")) {
     const companyCode = requiredText(parameters.companyCode, "companyCode", sourceKey);
     const year = requiredInteger(parameters.year, "year", sourceKey);
     const month = requiredInteger(parameters.month, "month", sourceKey);
     const result = await listFinanceAssetWorkspace({ companyCode, year, month });
-    if (sourceKey === "finance.ledger.asset-cards") return inMemoryPage(result.cards, page, pageSize);
-    if (sourceKey === "finance.ledger.asset-periods") return inMemoryPage(result.periodRows, page, pageSize);
-    if (sourceKey === "finance.ledger.asset-adjustments") return inMemoryPage(result.adjustments, page, pageSize);
-    if (sourceKey === "finance.ledger.asset-reconciliation") return inMemoryPage(result.reconciliation, page, pageSize);
+    if (sourceKey === "finance.assets.cards") return inMemoryPage(result.cards, page, pageSize);
+    if (sourceKey === "finance.assets.periods") return inMemoryPage(result.periodRows, page, pageSize);
+    if (sourceKey === "finance.assets.adjustments") return inMemoryPage(result.adjustments, page, pageSize);
     const metric: FinanceAssetMetricRow = {
       ...result.scope,
       ...result.metrics,

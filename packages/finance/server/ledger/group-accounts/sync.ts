@@ -7,7 +7,7 @@ import {
 } from "../../domain/group-chart-validation";
 
 import { decideGroupAccountMapping } from "./mapping-policy";
-import { ensureCurrentFinanceAccountingPolicyVersion } from "./policy-versions";
+import { ensureCurrentFinanceAccountingPolicyVersion } from "./policy-version-service";
 import {
   financeGroupMappingKey,
   loadLatestGroupSourceAccounts,

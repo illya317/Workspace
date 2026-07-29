@@ -1,6 +1,6 @@
 import { prisma, type Prisma } from "@workspace/platform/server/prisma";
 
-import { resolveFinanceAccountingPolicyVersionAtInTransaction } from "./policy-versions";
+import { resolveFinanceAccountingPolicyVersionAtInTransaction } from "./policy-version-service";
 import {
   financeAccountSourceScopeKey,
   financeGroupMappingKey,

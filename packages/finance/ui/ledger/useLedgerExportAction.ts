@@ -3,7 +3,6 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useFeedback, type SurfaceToolbarItems } from "@workspace/core/ui";
 import type {
-  FinanceAssetExportView,
   FinanceCounterpartyBalanceCategory,
   FinanceCounterpartyObjectType,
   FinanceCounterpartyRelationScope,
@@ -38,7 +37,6 @@ interface LedgerExportActionInput {
   accountCategory?: string;
   accountUsage?: string;
   reviewStatus?: string;
-  assetView?: FinanceAssetExportView;
   disabled?: boolean;
   fallbackFilename: string;
 }
@@ -70,7 +68,6 @@ export function useLedgerExportAction(input: LedgerExportActionInput): SurfaceTo
       setQuery(query, "accountCategory", input.accountCategory);
       setQuery(query, "accountUsage", input.accountUsage);
       setQuery(query, "reviewStatus", input.reviewStatus);
-      setQuery(query, "assetView", input.assetView);
       await downloadFinanceWorkbook(
         workspacePath(`/api/modules/finance/ledger/export?${query.toString()}`),
         input.fallbackFilename,

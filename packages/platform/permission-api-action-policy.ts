@@ -104,10 +104,19 @@ function projectSpaceResourceKey(rootResourceKey: string, scopeId: string | null
 }
 
 export const PERMISSION_API_ACTION_POLICIES = [
-  { method: "POST", pathPrefix: "/api/modules/finance/ledger/assets", requiredActions: ["create"], pathPattern: /^\/api\/modules\/finance\/ledger\/assets$/ },
-  { method: "PUT", pathPrefix: "/api/modules/finance/ledger/assets", requiredActions: ["update"], pathPattern: /^\/api\/modules\/finance\/ledger\/assets$/ },
-  { method: "POST", pathPrefix: "/api/modules/finance/ledger/asset-adjustments", requiredActions: ["revise"] },
-  { method: "POST", pathPrefix: "/api/modules/finance/ledger/asset-periods/recalculate", requiredActions: ["revise"] },
+  { method: "POST", pathPrefix: "/api/modules/finance/ledger/closing/refresh", requiredActions: ["update"], pathPattern: /^\/api\/modules\/finance\/ledger\/closing\/refresh$/ },
+  { method: "PUT", pathPrefix: "/api/modules/finance/ledger/closing/workpapers", requiredActions: ["update"], pathPattern: /^\/api\/modules\/finance\/ledger\/closing\/workpapers$/ },
+  { method: "POST", pathPrefix: "/api/modules/finance/ledger/closing/workpapers/review", requiredActions: ["approve"], pathPattern: /^\/api\/modules\/finance\/ledger\/closing\/workpapers\/review$/ },
+  { method: "POST", pathPrefix: "/api/modules/finance/assets", requiredActions: ["create"], pathPattern: /^\/api\/modules\/finance\/assets$/ },
+  { method: "PUT", pathPrefix: "/api/modules/finance/assets", requiredActions: ["update"], pathPattern: /^\/api\/modules\/finance\/assets$/ },
+  { method: "PUT", pathPrefix: "/api/modules/finance/assets/policies", requiredActions: ["update"] },
+  { method: "DELETE", pathPrefix: "/api/modules/finance/assets/policies", requiredActions: ["update"] },
+  { method: "POST", pathPrefix: "/api/modules/finance/assets/periods/recalculate", requiredActions: ["revise"] },
+  { method: "PUT", pathPrefix: "/api/modules/finance/assets/periods/voucher-link", requiredActions: ["revise"] },
+  { method: "POST", pathPrefix: "/api/modules/finance/assets/acquisition-evidence", requiredActions: ["revise"] },
+  { method: "PUT", pathPrefix: "/api/modules/finance/assets/impairment-assessment", requiredActions: ["revise"] },
+  { method: "POST", pathPrefix: "/api/modules/finance/assets/disposals", requiredActions: ["revise"] },
+  { method: "GET", pathPrefix: "/api/modules/finance/assets/export", requiredActions: ["export"], pathPattern: /^\/api\/modules\/finance\/assets\/export$/ },
   { method: "POST", pathPrefix: "/api/modules/inventory/operations/documents", requiredActions: ["update"], pathPattern: /^\/api\/modules\/inventory\/operations\/documents\/[^/]+\/post$/ },
   { method: "POST", pathPrefix: "/api/modules/inventory/operations/documents", requiredActions: ["reverse"], pathPattern: /^\/api\/modules\/inventory\/operations\/documents\/[^/]+\/reverse$/ },
   { method: "POST", pathPrefix: "/api/modules/inventory/operations/closing/link-voucher", requiredActions: ["lock"] },

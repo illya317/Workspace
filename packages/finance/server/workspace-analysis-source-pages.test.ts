@@ -12,9 +12,9 @@ mock.module("./assets/service", { namedExports: {
   listFinanceAssetWorkspace: async (input: unknown) => {
     calls.push({ service: "assets", input });
     return {
-      scope: { companyCode: "ZX01", year: 2026, month: 6, periodId: 12, isClosed: false },
-      cards: [], periodRows: [], adjustments: [], reconciliation: [],
-      metrics: { normalAmount: 10, adjustmentAmount: 2, periodAmount: 12, voucherAmount: 11, ledgerAmount: 11, difference: 1 },
+      scope: { companyId: 1, companyCode: "ZX01", companyName: "测试公司", year: 2026, month: 6, periodId: 12, isClosed: false },
+      cards: [], periodRows: [], adjustments: [],
+      metrics: { normalAmount: 10, adjustmentAmount: 2, periodAmount: 12 },
     };
   },
 } } as never);
@@ -102,13 +102,13 @@ test("normalizes department budget arrays into complete monthly facts before pag
 
 test("returns asset metrics as one honest company-period row", async () => {
   const page = await loadFinanceGeneralWorkspaceAnalysisSourcePage({
-    sourceKey: "finance.ledger.asset-metrics",
+    sourceKey: "finance.assets.metrics",
     parameters: { companyCode: "ZX01", year: 2026, month: 6 },
     page: 1,
     pageSize: 10,
   });
   assert.deepEqual(page, {
-    rows: [{ companyCode: "ZX01", year: 2026, month: 6, periodId: 12, isClosed: false, normalAmount: 10, adjustmentAmount: 2, periodAmount: 12, voucherAmount: 11, ledgerAmount: 11, difference: 1 }],
+    rows: [{ companyId: 1, companyCode: "ZX01", companyName: "测试公司", year: 2026, month: 6, periodId: 12, isClosed: false, normalAmount: 10, adjustmentAmount: 2, periodAmount: 12 }],
     totalRows: 1,
   });
 });

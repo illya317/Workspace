@@ -24,29 +24,6 @@ test("detail export is restricted to group vouchers", () => {
   if (!result.ok) assert.equal(result.issue.field, "exportMode");
 });
 
-test("asset tab exports require the selected company, period, and child tab", () => {
-  const missingScope = buildLedgerExportCommand({ view: "assets", assetView: "cards" });
-  assert.equal(missingScope.ok, false);
-  if (!missingScope.ok) assert.equal(missingScope.issue.field, "companyCode");
-
-  const missingView = buildLedgerExportCommand({
-    view: "assets",
-    companyCode: "FH",
-    year: 2026,
-    month: 6,
-  });
-  assert.equal(missingView.ok, false);
-  if (!missingView.ok) assert.equal(missingView.issue.field, "assetView");
-
-  assert.equal(buildLedgerExportCommand({
-    view: "assets",
-    companyCode: "FH",
-    year: 2026,
-    month: 6,
-    assetView: "reconciliation",
-  }).ok, true);
-});
-
 test("counterparty exports validate annual and quarterly period ends", () => {
   assert.equal(buildLedgerExportCommand({
     view: "counterparty",

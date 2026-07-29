@@ -1,4 +1,4 @@
-# Finance 财务总账模块架构
+# Finance 财务模块架构
 
 ## 路由入口
 
@@ -6,6 +6,7 @@
 |------|------|------|
 | 财务首页 | `/finance` | `page.tsx` → Platform `ModuleHome` |
 | 总账会计 | `/finance/ledger` | `ledger/page.tsx` → `@workspace/finance/ui` 的 `LedgerClient` |
+| 资产会计 | `/finance/assets` | `assets/page.tsx` → `@workspace/finance/ui` 的 `AssetsClient` |
 | 财务报表 | `/finance/statements` | `statements/page.tsx` → `@workspace/finance/ui` 的 `StatementsClient` |
 | 管理会计 | `/finance/analysis` | `analysis/page.tsx` → `@workspace/finance/ui` 的 `FinanceAnalysisClient` |
 | 预算管理 | `/finance/budget` | `budget/page.tsx` → `@workspace/finance/ui` 的 `BudgetTab` |
@@ -22,6 +23,7 @@
 | 模块 | 说明 |
 |------|------|
 | 总账会计 | 科目、凭证、期间、余额、结账、重分类 |
+| 资产会计 | 资产卡片、公司年度核算政策、期间折旧摊销、减值与处置 |
 | 财务报表 | 资产负债表、利润表、现金流量表、取数明细 |
 | 管理会计 | 经营分析、部门利润、产品客户维度、预算执行分析 |
 | 预算管理 | 预算版本、部门预算、研发预算、调整、执行 |
@@ -38,20 +40,26 @@
 | Tab | 组件 | 说明 |
 |-----|------|------|
 | 科目设置 | AccountTab / GroupAccountTab | “公司科目”展示单公司本地科目，“集团科目”展示版本化集团科目主表 |
-| 凭证明细 | VoucherTab / ReclassTab | “公司明细 / 重分类明细 / 合并明细”分别展示单体凭证、期末重分类调整和集团凭证；三个子页统一使用年、季度、月期间筛选，合并明细的凭证类别、生成方式、当期/截至所选期末的历史汇总范围与导出内容收进低频筛选面板 |
-| 科目余额 | LedgerTab | 科目余额查询、年度余额基准滚动计算 |
-| 资产折旧 | — | 资产折旧表（开发中） |
-
+| 凭证明细 | VoucherTab | “公司明细 / 合并明细”分别展示单体凭证和集团凭证；两个子页统一使用年、季度、月期间筛选，合并明细的凭证类别、生成方式、当期/截至所选期末的历史汇总范围与导出内容收进低频筛选面板 |
+| 科目余额 | LedgerTab / ReclassTab | “账面余额 / 重分类”分别展示总账余额和只影响报表列示的期末余额重分类结果 |
 权限动作拆分：
 
 - `finance.ledger.create` — 新增科目、凭证、期间和初始化默认账套。
 - `finance.ledger.update` — 编辑已有科目、凭证和期间。
 - `finance.ledger.revise` — 重算余额、配置重分类规则、生成/调整重分类结果。
-当前总账前端暴露 `revise`、`export` 和集团科目复核入口：集团科目中的重分类规则使用 `finance.ledger.revise`，重分类明细导出使用 `finance.ledger.export`，集团科目复核使用 `finance.ledger.approve`。年度余额资料统一由受控导入流程处理，不再提供独立的财务导入 L2。公司凭证、重分类明细和合并明细都是只读查询与追溯页，不读取或传递业务写入权限，不提供新增、编辑、复核或删除入口。重分类规则和合并规则都只在集团科目详情维护；重分类与合并的运行结果统一进入“凭证明细”的“重分类明细 / 合并明细”，对应确认与锁定只在期间工作底稿流程完成。
+当前总账前端暴露 `revise`、`export` 和集团科目复核入口：集团科目中的重分类规则使用 `finance.ledger.revise`，重分类导出使用 `finance.ledger.export`，集团科目复核使用 `finance.ledger.approve`。年度余额资料统一由受控导入流程处理，不再提供独立的财务导入 L2。公司凭证、重分类和合并明细都是只读查询与追溯页，不读取或传递业务写入权限，不提供新增、编辑、复核或删除入口。重分类规则和合并规则都只在集团科目详情维护；重分类结果进入“科目余额 / 重分类”，合并结果进入“凭证明细 / 合并明细”，对应确认与锁定只在期间工作底稿流程完成。
 
 科目设置下分“公司科目 / 集团科目”两个子 Tab。公司科目、凭证明细、科目余额和重分类共用同一默认账套范围：默认公司由 `SystemConfig` 的 `finance.ledger.defaultCompanyCode` 配置，默认年月优先取该公司最近一次成功总账导入的截止月份；没有可用导入批次时，依次回退到最近有凭证的期间和最近已建期间。凭证明细通过“录入来源”区分 T6、T+ 与 `Workspace 合并`；集团层历史调整必须进入其生效期间的 `FinanceConsolidationEntry`，不得伪装成 ERP 导入事实或继续存入 `FinanceVoucher`。公司科目只使用其中的公司与年度，不再用层级或 `groupSubjectCode` 是否为空伪装业务类型。列表按公司本地科目逐行展示，并通过版本化映射解析“集团科目”列的集团编码和名称；人工调整映射时，候选集团科目必须与公司科目的类别和余额方向同时一致。公司科目与集团科目底层保留 `已确认 / 已复核 / 待复核 / 待删除` 四态：参考公司种子为已确认，全部系统自动对应（包括编码、名称和属性完全一致）均为待复核，人工接受或改选后为已复核，停用公司科目或待清理集团科目为待删除；Toolbar 不单列待删除筛选，“待复核”同时覆盖普通待复核与删除复核中的科目。集团科目按版本服务端分页，Toolbar 可按资产、负债、共同、权益、成本、收入、费用、科目用途以及已确认、已复核、待复核筛选；科目用途分为全部科目、合并科目和重分类科目，合并科目由集团科目自身的合并属性确定，重分类科目由当前版本实际生效且结论为重分类的规则确定（包括上级规则覆盖的下级科目）。集团科目详情只展示已确认或已复核的公司科目映射。企业会计科目来源中的“共同/共同类”统一保存为 `common`；不得用 `other` 兜底或误归入权益。
 
-重分类规则在集团科目详情维护：右侧展示单个科目的处理方式和计算口径，保存提交仅含该科目的 change set；继承上级规则的科目只读，并提示到来源科目维护。历史版本只读。服务端在一个事务中完成 upsert，并只物化本次变更科目及其规则继承子树在该版本覆盖期间的结果；同一政策版本的集团映射按批次加载，不因期间数量重复查询。不再维护第二份规则汇总页；期间运行结果在“凭证明细 / 重分类明细”只读查询与追溯。
+重分类规则在集团科目详情维护：右侧展示单个科目的处理方式和计算口径，保存提交仅含该科目的 change set；继承上级规则的科目只读，并提示到来源科目维护。历史版本只读。服务端在一个事务中完成 upsert，并只物化本次变更科目及其规则继承子树在该版本覆盖期间的结果；同一政策版本的集团映射按批次加载，不因期间数量重复查询。不再维护第二份规则汇总页；期间运行结果在“科目余额 / 重分类”只读查询与追溯。
+
+### 资产会计 (`/finance/assets`)
+
+`AssetsClient` 位于 `packages/finance/ui/assets`，按正常操作顺序提供“核算政策 / 资产卡片 / 本期折旧摊销 / 减值与处置”四个视图；核算政策再分“集团 / 公司”，默认进入集团。页面和 API 使用 `finance.assets` 资源；创建、更新、重算与导出分别要求该资源的 `create`、`update`、`revise` 和 `export` 权限，不再复用总账权限。
+
+“资产卡片”和“会计政策”都采用主从分栏：左侧选择卡片或资产分类，右侧查看或编辑详情；工具栏新增入口直接在右侧打开新建表单，不使用弹窗。资产分类不是自由文本，而是按资产类型过滤的必选 `FinanceAssetCategory` FK。分类主数据只保存系统目录；可执行政策由 `FinanceAssetCategoryPolicy` 按公司、年度和分类保存分类判断、默认期限、残值率、期限边界、折旧方法及资产、累计、费用、减值损失、减值准备和处置损益科目。集团页以有效股权链的最上层母公司政策作为全集团默认，公司页只在偏离集团时形成公司特例；无特例时实时继承集团，不批量复制公司政策行，公司特例可显式删除并恢复集团默认，既有资产卡片科目快照不随之改写。集团政策科目先通过当期 `FinanceGroupAccountMapping` 定位稳定集团科目，再只读解析为目标公司的唯一有效 `FinanceAccount`；不得按相同编码猜测，不得因政策继承修改、重算或补写任何既有科目映射，缺失或多解时失败关闭并要求单独设置公司政策。六类科目字段都绑定真实 `FinanceAccount` FK，并在保存时重新校验公司、年度、科目类型和启用状态。这个“有效母公司 + 版本化集团科目映射 + 公司特例”的 seam 位于 Finance server，可供后续税务、资金等公司政策复用，不下沉到 Platform，也不改变总账科目映射的事实所有权。资产编号由统一业务编码模块按 `companyCode + category.code + fiscalYear + 5 位流水` 生成；新建页只显示不占号的候选预览，正式保存时在创建卡片的同一事务内原子占号，生成后永久只读。手工创建使用 `manual:<UUID>`，导入使用 `import:<companyCode>:<sourceKey>` 作为全局幂等键，避免手工、导入及不同公司共享相同键域；规则变化不重算既有编号。历史底稿原分类只保存在 `sourceCategory` 作为来源证据；缺失、无法唯一映射及历史“其他”统一落入不可新选的待复核分类，不伪装成已标准化数据。
+
+资产卡片只允许人工选择资产类型和资产分类；资产科目、累计折旧/摊销科目由当前公司和年度已保存的分类政策自动带出并只读。系统按中国企业会计常用口径和本期底稿证据提供待确认草稿：固定资产 `1601/1602`、无形资产 `1701/1702`、车位预付款 `1123`、房租/网络等一年内待摊项目 `1463`、长期待摊 `1801`；各公司最新可用科目年度会把真实科目 FK 齐备的草稿初始化为可编辑年度政策，已有人工政策不覆盖，缺少对应科目的组合继续保持未生效。分类候选不因政策未保存而隐藏，但草稿未保存前仍不参与卡片或本期 Excel 导入，禁止按资产类型用单一硬编码候选静默兜底。无形资产未设置确定期限时必须保留不摊销依据；预付分类的受益期不超过十二个月，长期待摊的受益期超过十二个月；房租、车位、土地使用权、牌照许可和租入资产改良等分类默认要求录入前复核，但具体判断文字和估计参数允许公司年度政策编辑。政策变更只影响之后新建或重新分类的卡片，既有卡片继续保留当次解析的科目编码和计算估计快照，不自动追溯改写。残值率按 `0–99` 的整数百分比录入，服务端统一换算为小数后存储并参与折旧计算。首次导入通过来源总计、期初、当期和累计金额控制 fail-closed 地发现漏提、错提；导入完成后不再提供持续总账勾稽视图。开放期间错误应重算并通过总账凭证更正，已关账期间按前期差错政策处理；既有独立调整记录仅作为历史审计事实保留。期间折旧摊销和历史调整继续使用全宽列表。
 
 ### 财务报表 (`/finance/statements`)
 
@@ -120,8 +128,11 @@ ledger/page.tsx
             ├─ packages/finance/ui/ledger/GroupAccountTab.tsx（集团科目）
             ├─ packages/finance/ui/ledger/VoucherTab.tsx
             ├─ packages/finance/ui/ledger/LedgerTab.tsx
-            ├─ packages/finance/ui/ledger/ReclassTab.tsx
-            └─ (折旧表, 占位)
+            └─ packages/finance/ui/ledger/ReclassTab.tsx
+
+assets/page.tsx
+  └─ FinanceShell
+       └─ @workspace/finance/ui AssetsClient
 
 statements/page.tsx
   └─ FinanceShell
@@ -171,7 +182,7 @@ budget/page.tsx
 - 往来款项四个子视图共用始终展开的 `全部 / 关联方 / 其他` micro 筛选；“其他”包含已匹配的非关联方和未匹配辅助对象，详细对象类型继续在表格中展示，不再增加第二个前端筛选。关联性质只从辅助成员已确认的 `Company / Employee / Party` FK 及其权威公司、核心人员、股权和 External 关联方事实派生，不按名称猜测，也不在 Finance 维护第二份关联方名单。页面与 XLSX 导出必须携带相同的关联范围，并展示对象类型、关系性质和对应科目。
 - 科目设置、凭证明细、科目余额及应收/应付四类视图共用 `/api/modules/finance/ledger/export` 下载 XLSX。导出必须复用页面当前公司、期间、关键词和分类筛选，并遍历全部服务端分页；凭证明细按分录逐行导出，其余工作表列与页面固定展示口径一致。下载要求显式 `finance.ledger.export` 权限，不得回退为普通 read。
 - 财务 XLSX 统一遵守 `packages/finance/server/workbook-formula-contract.ts`：只有前置输入已在同一工作簿中可见，且按工作表显示精度复算与后台缓存值完全一致时，才输出 Excel 公式并保存后台缓存值。公式禁止写入业务金额、固定汇率、尾差或其他数字补差；`ROUND(...,2)` 的精度、`MAX(...,0)` 的零界限和 `*2`、`/3` 这类受限结构整数不属于业务硬编码。缺少可见前置事实的结果保持后台冻结值；已经声明为公式但无法精确复算时导出失败，不得降级为带魔法数字的公式。`gate:domain` 同时阻断绕过该 contract 直接写 XLSX 公式的实现。
-- 当前公式 baseline：科目余额及往来余额的期末借贷由同一行期初和本期发生额滚算；本期折旧摊销由正常计算与调整相加；折旧摊销勾稽差异由工作表已展示金额相减；单体/合并三表只对可见组成行完整且精确勾稽的小计、合计和派生行使用公式；合并工作底稿的主体派生合计、个别报表合计及合并数遵守同一规则。原币利润表和现金流月度来源必须先逐行精确到分勾稽，任何原币 `0.01` 差异都按真实来源差异阻断；只有“月度原币发生额 × 当月平均汇率”按规定舍入后产生的人民币尾差才属于折算舍入，并通过重算人民币小计、净额及现金汇率变动影响保持展示链闭合。科目映射、凭证事实、集团匹配、审计来源、外币折算输入和重分类结果仍作为事实值展示。
+- 当前公式 baseline：科目余额及往来余额的期末借贷由同一行期初和本期发生额滚算；本期折旧摊销由正常计算与历史调整相加；首次资产导入的来源控制差异由清洗工作簿已展示金额相减并 fail-closed；单体/合并三表只对可见组成行完整且精确勾稽的小计、合计和派生行使用公式；合并工作底稿的主体派生合计、个别报表合计及合并数遵守同一规则。原币利润表和现金流月度来源必须先逐行精确到分勾稽，任何原币 `0.01` 差异都按真实来源差异阻断；只有“月度原币发生额 × 当月平均汇率”按规定舍入后产生的人民币尾差才属于折算舍入，并通过重算人民币小计、净额及现金汇率变动影响保持展示链闭合。科目映射、凭证事实、集团匹配、审计来源、外币折算输入和重分类结果仍作为事实值展示。
 - `scripts/check/check-finance-readable-import.ts` 核对批次控制数、借贷平衡、月度连续性、法定资产负债表和当期三表。ERP 未提供或自身不勾稽的历史现金流分配作为 diagnostics 暴露，不自动制造抵销数。
 - readable 快照不包含固定资产卡片或折旧明细；资产折旧表必须等待独立来源，不能由总账余额反推卡片。
 
@@ -182,6 +193,12 @@ budget/page.tsx
 | 层 | 表 | 来源 | 用途 |
 |---|---|---|---|
 | 年度余额批次 | `FinanceBalanceSnapshot` | 一次本地资料导入 = 一行 | 追溯哪次导入、哪个文件、谁导入 |
+### 期间关账工作区
+
+- `/finance/ledger?tab=closing` 固定汇总 27 项关账任务；每项使用独立 `contributorKey`，不得让多个任务共享同一总账或报表状态。客观事项直接消费期间、已记账凭证、余额、确认身份后的辅助余额、单体三表及锁定合并输出；关联方只认已确认的 `Company / Employee / Party` FK 与权威关系事实，不按名称猜测。
+- 无法由系统事实证明完整性的事项使用 `FinanceCloseWorkpaper`。底稿按公司、会计期间、任务唯一，状态为 `draft / prepared / reviewed / blocked`；提交复核必须有结论以及受治理证据或同公司同期间的 `posted` 凭证，复核人与编制人必须分离。每次保存和复核使用版本 CAS、幂等键及 `FinanceCloseWorkpaperEvent` 追加快照；已复核底稿再次编辑会显式退回编制状态并清空旧复核人。
+- contributor 只读取稳定 owner inspection，刷新后冻结不可变证据快照。最终“关账流程复核”先检查其独立复核底稿，再在同次 refresh plan 的第二阶段合并前 26 项状态；不得递归调用自身，也不得读取上次运行投影冒充本次结论。
+
 | 年度余额明细 | `FinanceBalanceSnapshotRow` | 导入时每个科目的原始行 | 保存 `accountCode`/`accountName` 快照，审计可追溯到 Excel 原始行 |
 | 月度余额结果 | `FinanceAccountBalance` | 系统计算 | 按月展示、报表取数 |
 
@@ -284,7 +301,7 @@ budget/page.tsx
 └──────────────────────────────────────────────────────────┘
                     ↓
 ┌─ 明细维护 ──────────────────────────────────────────────┐
-│ /finance/ledger → 凭证明细 → 重分类明细                    │
+│ /finance/ledger → 科目余额 → 重分类                        │
 │   schedules/reclassify 汇总期末反向余额、现有规则、余额调整 │
 │   当前状态 → 自动分类 / 人工分类 / 无需处理 / 未配置        │
 │   历史记录 → 当前结果被替换前的自动、人工、无需处理快照     │
@@ -317,7 +334,7 @@ budget/page.tsx
 - 任一当前结果被替换或删除前必须写入 `FinanceBalanceReclassAdjustmentHistory`。工作台“历史记录”只查询所选期间，保留自动、人工和无需处理的全部旧结论；旧 `ReclassResult` 继续作为只读历史兼容记录。
 - 工作台把持久化的报表应用金额与当前反向余额分列；源余额归零、转为正常方向或金额变化时仍保留调整，并标记为待复核，不能让报表仍消费但 UI 静默消失。
 - 毛额口径行的“当前反向余额”为当前逐户毛额；无辅助余额事实的毛额行不显示金额（标记“无辅助余额事实”），编辑动作只允许“无需处理”，保存 reclassify 会被服务端 409 拒绝。
-- 报表页不触发生成、不编辑规则、不审核结果；规则维护统一归集团科目详情，期间结果统一归“凭证明细 / 重分类明细”只读追溯
+- 报表页不触发生成、不编辑规则、不审核结果；规则维护统一归集团科目详情，期间结果统一归“科目余额 / 重分类”只读追溯
 - 重分类规则唯一存放于 `FinanceReclassRule`；旧科目字段已迁移并删除，科目 API 不再接受规则写入。
 
 ### 固定科目→报表项目映射
@@ -353,7 +370,7 @@ budget/page.tsx
 - 自动科目规则按“有效规则边界”计算净额：父子科目解析到同一处理结论和目标科目时，使用最高层规则科目的期末净余额；只有处理结论或目标不同的子树才单独切开。禁止把同一税种下的进项、销项等借贷叶子分别按毛额重分类。
 - 常用往来配对覆盖：1122↔2203、1123↔2202、1221↔2241；更具体的 122101/122102 与 224101/224102 优先于父级规则。
 - 应交税费 2221 出现借方余额时，默认重分类到 1463 其他流动资产。
-- 默认规则沿版本内集团科目父子层级继承，企业本地自设明细先映射到稳定集团科目身份，无需逐个配置；“凭证明细 / 重分类明细”仅展示按期间物化的规则结果与历史人工调整。
+- 默认规则沿版本内集团科目父子层级继承，企业本地自设明细先映射到稳定集团科目身份，无需逐个配置；“科目余额 / 重分类”仅展示按期间物化的规则结果与历史人工调整。
 - 集团科目详情是重分类规则的唯一维护入口，直接展示处理方式、目标科目、计算口径及继承来源；子科目命中父级规则时只读展示继承来源，并要求回到来源科目修改。
 
 ### 利润表与现金流量表数据源
@@ -429,9 +446,19 @@ npm run budget:sync-accounts
 | `GET/PUT /api/modules/finance/ledger/reclass-rules` | 重分类规则读取与 change-set 保存 |
 | `PUT /api/modules/finance/ledger/reclass-adjustments` | 期间重分类调整 change-set 保存 |
 | `GET/POST/PATCH /api/modules/finance/ledger/reclass-results` | 重分类结果列表/生成/审核 |
-| `GET/POST/PUT /api/modules/finance/ledger/assets` | 资产卡片和月度折旧摊销工作台；更新使用卡片版本防止覆盖并发修改 |
-| `POST /api/modules/finance/ledger/asset-adjustments` | 独立调整，不改写正常计算政策 |
-| `POST /api/modules/finance/ledger/asset-periods/recalculate` | 按资产卡片重算开放期间 |
+| `GET/PUT /api/modules/finance/ledger/closing/workpapers` | 读取或保存当前公司、期间、任务的受控关账底稿 |
+| `POST /api/modules/finance/ledger/closing/workpapers/review` | 独立复核已提交的关账底稿 |
+| `GET/POST/PUT /api/modules/finance/assets` | 资产卡片和月度折旧摊销工作台；更新使用卡片版本防止覆盖并发修改 |
+| `GET /api/modules/finance/assets/code-preview` | 按公司、建卡年度和资产分类返回不占号的资产编号候选；最终编号以保存事务分配结果为准 |
+| `PUT /api/modules/finance/assets/policies` | 按公司、年度和资产分类保存会计政策；使用政策版本防止覆盖并发修改 |
+| `DELETE /api/modules/finance/assets/policies` | 按公司、年度、资产分类和政策版本删除公司级会计政策覆盖；继续使用 `finance.assets.update` 权限，不复用更新业务动作契约 |
+| `POST /api/modules/finance/assets/periods/recalculate` | 按资产卡片重算开放期间 |
+| `PUT /api/modules/finance/assets/periods/voucher-link` | 以 CAS 指纹关联本期折旧摊销整张专用已过账凭证 |
+| `POST /api/modules/finance/assets/acquisition-evidence` | 以公司年度分类政策科目和整张已过账专用凭证确认资产取得证据 |
+| `PUT /api/modules/finance/assets/impairment-assessment` | 确认期间减值评估、逐项分配及减值专用凭证证据 |
+| `POST /api/modules/finance/assets/disposals` | 确认资产处置、累计金额重放及处置专用凭证证据 |
+| `GET /api/modules/finance/assets/reference-options` | 资产分类与费用科目 FK 候选 |
+| `GET /api/modules/finance/assets/export` | 按当前资产会计视图导出 XLSX |
 | `GET/POST/DELETE /api/modules/finance/cost/*` | 成本管理子模块 |
 
 ## 工作空间轻代码读取模型
@@ -439,7 +466,7 @@ npm run budget:sync-accounts
 Finance 通过 `packages/finance/server/workspace-analysis-source-registrations.ts` 与
 `cost/workspace-analysis-sources.ts` 登记稳定经营事实，并由
 `cost/workspace-analysis-source-executor.ts` 的同一个 owner executor 执行。当前 Finance owner
-共登记 60 个版本化 source：通用财务读取模型 54 个，成本/发货读取模型 6 个。
+共登记 59 个版本化 source：通用财务读取模型 53 个，成本/发货读取模型 6 个。
 
 每个 source 继承对应受保护 GET contract 的
 `resourceKey + requiredActions + projection + enforcement`，执行时仍由 Finance owner 重新检查
@@ -451,7 +478,7 @@ Finance 通过 `packages/finance/server/workspace-analysis-source-registrations.
 
 - 总账：公司科目及集团映射、科目余额、往来余额、会计期间、凭证头与分录、现金流分配、来源元数据、
   重分类结果/规则/工作行、集团科目目录及其年度、实际父级、父级建议和公司科目映射明细。公司科目映射子源同时保留原接口公开的实际集团科目 ID、编码和名称；实际父级与诊断建议是两个不同事实，不互相替代。
-- 资产：资产卡片、期间折旧、资产调整、逐科目勾稽、期间汇总。
+- 资产：资产卡片、期间折旧、历史资产调整、期间汇总。
 - 预算与成本导入：预算版本、按月份规范化的部门预算、研发预算、成本导入批次。
 - 管理分析：资金活动、来源/用途、总账渠道、余额信号、逐公司资金汇总，以及经营绩效、费用结构、
   营运资金、现金情景、预算偏差、KPI、风险、覆盖度和业务排行。
@@ -478,7 +505,8 @@ Capital Securities、External、HR、Inventory、Library、Production、Work。�
 | 资源 | 键 | 说明 |
 |------|-----|------|
 | 财务根 | `finance` | 任一财务子权限的汇总标识 |
-| 总账会计 | `finance.ledger` | 科目、凭证、余额、期间、重分类、折旧 |
+| 总账会计 | `finance.ledger` | 科目、凭证、余额、期间、重分类 |
+| 资产会计 | `finance.assets` | 资产政策、卡片、折旧摊销、减值与处置 |
 | 财务报表 | `finance.statements` | 资产负债表、利润表、现金流量表 |
 | 管理会计 | `finance.analysis` | 经营分析、部门利润、预算执行分析 |
 | 预算管理 | `finance.budget` | 部门预算、研发预算、调整、执行 |

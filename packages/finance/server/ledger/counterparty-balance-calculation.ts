@@ -249,7 +249,8 @@ function normalizeClosing(row: MutableBalanceRow) {
 function sortRows(rows: FinanceCounterpartyBalanceRow[]) {
   return rows.sort((left, right) => left.accountCode.localeCompare(right.accountCode, "zh-CN")
     || left.counterpartyName.localeCompare(right.counterpartyName, "zh-CN")
-    || left.counterpartyCode.localeCompare(right.counterpartyCode, "zh-CN"));
+    || left.counterpartyCode.localeCompare(right.counterpartyCode, "zh-CN")
+    || left.id.localeCompare(right.id));
 }
 
 function hasBalanceActivity(row: FinanceCounterpartyBalanceRow) {
