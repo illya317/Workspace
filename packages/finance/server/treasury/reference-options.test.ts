@@ -19,7 +19,10 @@ test("Treasury reference queries require the scope belonging to each canonical F
 
 test("Treasury lender reference returns only standard reference item fields", async () => {
   const result = await executeTreasuryReferenceOptionsCommand({ fkKey: "finance.treasury.lenderParty", keyword: "银行" }, {
-    searchParties: async () => [{ id: 7, name: "示例银行", subtitle: "机构 · ***1234", lifecycleStatus: "active" as const, secret: "must-not-leak" }],
+    searchOptions: async (input) => {
+      assert.equal(input.fkKey, "finance.treasury.lenderParty");
+      return [{ id: 7, name: "示例银行", subtitle: "机构 · ***1234", lifecycleStatus: "active" as const, secret: "must-not-leak" }];
+    },
   });
   assert.deepEqual(result, { items: [{ id: 7, name: "示例银行", subtitle: "机构 · ***1234", lifecycleStatus: "active" }] });
 });
@@ -29,14 +32,14 @@ test("Treasury account and voucher searches receive the explicit company and per
   let voucherScope = "";
   const account = await executeTreasuryReferenceOptionsCommand({
     fkKey: "finance.treasury.bankAccount.financeAccount", keyword: "银行", companyCode: "C1", year: 2026,
-  }, { searchFinanceAccounts: async (input) => {
-    accountScope = `${input.companyCode}:${input.year}`;
+  }, { searchOptions: async (input) => {
+    accountScope = `${input.params.companyCode}:${input.params.year}`;
     return [{ id: 10, name: "银行存款", subtitle: "1002", lifecycleStatus: "active" }];
   } });
   const voucher = await executeTreasuryReferenceOptionsCommand({
     fkKey: "finance.treasury.voucherItem", keyword: "计提", companyCode: "C1", periodId: 8,
-  }, { searchVoucherItems: async (input) => {
-    voucherScope = `${input.companyCode}:${input.periodId}`;
+  }, { searchOptions: async (input) => {
+    voucherScope = `${input.params.companyCode}:${input.params.periodId}`;
     return [{ id: 20, name: "记-001 · 分录 1", lifecycleStatus: "active" }];
   } });
   assert.equal(accountScope, "C1:2026");

@@ -1,6 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
-import type { TreasuryValidationDeps } from "./treasury-validation";
+import type { TreasuryValidationDeps } from "./treasury-validation-dependencies";
 
 export const treasuryValidationDeps: TreasuryValidationDeps = {
   company: (id) => prisma.company.findUnique({ where: { id }, select: { id: true, code: true, isActive: true } }),

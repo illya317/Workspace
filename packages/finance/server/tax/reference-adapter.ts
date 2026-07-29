@@ -1,6 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
-import type { TaxPaymentFact, TaxValidationDependencies } from "./validation";
+import type { TaxPaymentFact, TaxValidationDependencies } from "./validation-dependencies";
 
 function dateOnly(value: Date) {
   return value.toISOString().slice(0, 10);

@@ -2,20 +2,9 @@ import { failCommand, okCommand } from "@workspace/platform/server/domain-valida
 import type { FinanceCloseScope, OpenFinanceCloseInput, RefreshFinanceCloseInput } from "../../types/close";
 import { sha256CanonicalJson } from "./canonical-json";
 import { closeValidationDependencies } from "./reference-adapter";
+import type { CloseValidationDependencies } from "./validation-dependencies";
 
-type CompanyRef = { id: number; code: string; isActive: boolean };
-type PeriodRef = { id: number; companyCode: string; year: number; month: number; isClosed: boolean };
-type UserRef = { id: number; canLogin: boolean };
-type RunRef = { id: number; companyId: number; periodId: number; status: string; version: number; company: CompanyRef; period: PeriodRef };
-type EventRef = { eventKind: string; requestFingerprint: string | null; run: RunRef };
-
-export type CloseValidationDependencies = {
-  findCompanyByCode(code: string): Promise<CompanyRef | null>;
-  findPeriod(scope: FinanceCloseScope): Promise<PeriodRef | null>;
-  findUser(userId: number): Promise<UserRef | null>;
-  findRun(runId: number): Promise<RunRef | null>;
-  findEvent(idempotencyKey: string): Promise<EventRef | null>;
-};
+export type { CloseValidationDependencies } from "./validation-dependencies";
 
 export type ResolvedFinanceCloseScope = FinanceCloseScope & {
   companyId: number;

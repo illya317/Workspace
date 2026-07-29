@@ -1,8 +1,12 @@
 import { z } from "zod";
 import { serviceError } from "@workspace/platform/server/api";
-import { searchFkParties } from "@workspace/platform/server/fk-search";
-import { prisma } from "@workspace/platform/server/prisma";
-import { matchSearchFields } from "@workspace/platform/search";
+import {
+  normalizeLifecycleScope,
+  searchFkOptions,
+  type FkOption,
+  type FkSearchParams,
+} from "@workspace/platform/server/relation-registry";
+import { FINANCE_FK_REGISTRY } from "../assets/fk-registry";
 
 export const TAX_AUTHORITY_PARTY_FK_KEY = "finance.tax.authorityParty";
 export const TAX_ACCRUAL_VOUCHER_FK_KEY = "finance.tax.accrualVoucherItem";
@@ -17,44 +21,52 @@ export const taxReferenceOptionsQuerySchema = z.object({
   year: z.coerce.number().int().min(2000).max(2099).optional(),
   month: z.coerce.number().int().min(1).max(12).optional(),
 }).strict().superRefine((value, context) => {
-  if (value.fkKey === TAX_ACCRUAL_VOUCHER_FK_KEY && (!value.companyCode || !value.periodId)) {
-    context.addIssue({ code: "custom", message: "计税凭证候选缺少公司或会计期间" });
-  }
-  if (value.fkKey === TAX_PAYMENT_VOUCHER_FK_KEY && (!value.companyCode || !value.year || !value.month)) {
-    context.addIssue({ code: "custom", message: "缴款凭证候选缺少公司或支付期间" });
+  const scopeRequirement = {
+    [TAX_AUTHORITY_PARTY_FK_KEY]: { fields: [] as const, message: "" },
+    [TAX_ACCRUAL_VOUCHER_FK_KEY]: {
+      fields: ["companyCode", "periodId"] as const,
+      message: "计税凭证候选缺少公司或会计期间",
+    },
+    [TAX_PAYMENT_VOUCHER_FK_KEY]: {
+      fields: ["companyCode", "year", "month"] as const,
+      message: "缴款凭证候选缺少公司或支付期间",
+    },
+  }[value.fkKey];
+  if (scopeRequirement.fields.some((field) => !value[field])) {
+    context.addIssue({ code: "custom", message: scopeRequirement.message });
   }
 });
 
 export type TaxReferenceOptionsQuery = z.infer<typeof taxReferenceOptionsQuerySchema>;
 
 type ReferenceDependencies = {
-  searchParties(keyword: string): ReturnType<typeof searchFkParties>;
-  searchVoucherItems(input: {
+  searchOptions(input: {
+    fkKey: string;
     keyword: string;
-    companyCode: string;
-    periodId?: number;
-    year?: number;
-    month?: number;
-  }): Promise<Array<{ id: number; name: string; subtitle?: string }>>;
+    lifecycleScope?: "active" | "all" | "archived";
+    params: FkSearchParams;
+  }): Promise<FkOption[]>;
 };
 
 export async function executeTaxReferenceOptionsCommand(
   command: TaxReferenceOptionsQuery,
   dependencies: ReferenceDependencies = {
-    searchParties: searchFkParties,
-    searchVoucherItems: searchTaxVoucherItemOptions,
+    searchOptions: (input) => searchFkOptions(FINANCE_FK_REGISTRY, input),
   },
 ) {
   try {
-    const matches = command.fkKey === TAX_AUTHORITY_PARTY_FK_KEY
-      ? await dependencies.searchParties(command.keyword)
-      : await dependencies.searchVoucherItems({
-        keyword: command.keyword,
-        companyCode: command.companyCode!,
-        ...(command.fkKey === TAX_ACCRUAL_VOUCHER_FK_KEY
-          ? { periodId: command.periodId! }
-          : { year: command.year!, month: command.month! }),
-      });
+    const definition = FINANCE_FK_REGISTRY.require(command.fkKey);
+    if (definition.scope !== "finance" || !definition.key.startsWith("finance.tax.")) {
+      return serviceError("无权限", 403);
+    }
+    const matches = await dependencies.searchOptions({
+      fkKey: command.fkKey,
+      keyword: command.keyword,
+      lifecycleScope: command.lifecycleScope
+        ? normalizeLifecycleScope(command.lifecycleScope)
+        : undefined,
+      params: referenceSearchParams(command),
+    });
     return {
       items: matches.map(({ id, name, subtitle }) => ({ id, name, ...(subtitle ? { subtitle } : {}) })),
     };
@@ -63,42 +75,16 @@ export async function executeTaxReferenceOptionsCommand(
   }
 }
 
-async function searchTaxVoucherItemOptions(input: {
-  keyword: string;
-  companyCode: string;
-  periodId?: number;
-  year?: number;
-  month?: number;
-}) {
-  const rows = await prisma.financeVoucherItem.findMany({
-    where: {
-      voucher: {
-        companyCode: input.companyCode,
-        ...(input.periodId
-          ? { periodId: input.periodId }
-          : { period: { year: input.year!, month: input.month! } }),
-      },
-    },
-    select: {
-      id: true,
-      debit: true,
-      credit: true,
-      description: true,
-      account: { select: { code: true, name: true } },
-      voucher: { select: { voucherNo: true, date: true } },
-    },
-    orderBy: [{ voucher: { date: "desc" } }, { voucherId: "desc" }, { sortOrder: "asc" }],
-    take: 200,
-  });
-  return rows.filter((row) => matchSearchFields({
-    voucherNo: row.voucher.voucherNo,
-    date: row.voucher.date,
-    accountCode: row.account.code,
-    accountName: row.account.name,
-    description: row.description,
-  }, input.keyword)).slice(0, 50).map((row) => ({
-    id: row.id,
-    name: `${row.voucher.voucherNo} · ${row.account.name}`,
-    subtitle: `${row.voucher.date} · ${row.account.code} · 借 ${row.debit.toLocaleString("zh-CN")} / 贷 ${row.credit.toLocaleString("zh-CN")}`,
-  }));
+function referenceSearchParams(command: TaxReferenceOptionsQuery): FkSearchParams {
+  const {
+    fkKey: _fkKey,
+    keyword: _keyword,
+    lifecycleScope: _lifecycleScope,
+    ...rawParams
+  } = command;
+  return Object.fromEntries(
+    Object.entries(rawParams)
+      .filter(([, value]) => value != null)
+      .map(([key, value]) => [key, String(value)]),
+  );
 }

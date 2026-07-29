@@ -651,12 +651,12 @@ assert.equal(departmentManagerSpaceRecord.actionStates.grant.has, false, "depart
 const systemPriorityRecord = buildPermissionRecords({
   subjects: [{ id: 1, name: "Test", extra: { positionIds: [10] } }],
   subjectType: "user",
-  selectedResource: "finance.budget",
+  selectedResource: "finance.cost",
   ancestorResourceKeys: [],
   directActionGrants: [],
-  positionActionGrants: [{ subjectId: 10, resourceKey: "finance.budget", actionKey: "export", resourceId: 1, scopeId: null }],
+  positionActionGrants: [{ subjectId: 10, resourceKey: "finance.cost", actionKey: "export", resourceId: 1, scopeId: null }],
   departmentActionGrants: [],
-  implicitActionGrants: [{ subjectId: 1, resourceKey: "finance.budget", actionKey: "import", resourceId: 0, scopeId: null, source: "system" }],
+  implicitActionGrants: [{ subjectId: 1, resourceKey: "finance.cost", actionKey: "import", resourceId: 0, scopeId: null, source: "system" }],
 })[1];
 assert.equal(systemPriorityRecord.exchangeSummary?.source, "system", "summary source priority should be direct > system > organization > ancestor > entry");
 assert.equal(permissionSourceTone(systemPriorityRecord.exchangeSummary?.source ?? null), "orange", "system source should be orange");

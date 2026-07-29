@@ -44,10 +44,12 @@ export type RelationTargetKind =
   | "company"
   | "department"
   | "employee"
+  | "employeePosition"
   | "employeeProject"
   | "financeAccount"
   | "financeAssetCategory"
   | "financeGroupAccount"
+  | "financeVoucherItem"
   | "financeConsolidationEntrySource"
   | "meeting"
   | "meetingActionCandidate"
@@ -55,6 +57,7 @@ export type RelationTargetKind =
   | "party"
   | "position"
   | "positionDescription"
+  | "positionDescriptionRevision"
   | "positionResponsibilityNode"
   | "project"
   | "projectMembershipChange"
@@ -84,6 +87,11 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
     search: ({ keyword, lifecycleScope }) => searchFkEmployees(keyword, lifecycleScope),
     resolve: resolveFkEmployee,
   },
+  employeePosition: {
+    target: { entity: "EDP", label: "员工岗位任职" },
+    search: async () => [],
+    resolve: async () => null,
+  },
   employeeProject: {
     target: { entity: "EmployeeProject", label: "项目成员版本" },
     search: async () => [],
@@ -103,6 +111,11 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
     target: { entity: "FinanceGroupAccount", label: "集团科目" },
     search: ({ keyword }) => searchFkFinanceGroupAccounts(keyword),
     resolve: resolveFkFinanceGroupAccount,
+  },
+  financeVoucherItem: {
+    target: { entity: "FinanceVoucherItem", label: "凭证明细" },
+    search: async () => [],
+    resolve: async () => null,
   },
   financeConsolidationEntrySource: {
     target: { entity: "FinanceConsolidationEntrySource", label: "抵销业务来源" },
@@ -138,6 +151,11 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
     target: { entity: "PositionDescription", label: "岗位说明书" },
     search: ({ keyword }) => searchFkPositionDescriptions(keyword),
     resolve: resolveFkPositionDescription,
+  },
+  positionDescriptionRevision: {
+    target: { entity: "PositionDescriptionRevision", label: "岗位说明书版本" },
+    search: async () => [],
+    resolve: async () => null,
   },
   positionResponsibilityNode: {
     target: { entity: "PositionResponsibilityNode", label: "岗位职责" },

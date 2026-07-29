@@ -2,7 +2,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import type { FinanceCloseProvider, FinanceCloseProviderInspection, FinanceCloseScope } from "../../types/close";
 import { resolveFinanceAssetCategoryPolicy } from "./account-policy-resolver";
 import { financeClosePeriodBounds } from "./period-scope";
-import type { AssetCloseCard, AssetDepreciationCloseFacts, AssetImpairmentCloseFacts, AssetMovementCloseFacts, AssetPolicyFact } from "./close-provider";
+import type { AssetCloseCard, AssetDepreciationCloseFacts, AssetImpairmentCloseFacts, AssetMovementCloseFacts, AssetPolicyFact } from "./close-provider-evidence";
 
 const money = (value: unknown) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 type Inspect<T> = (scope: FinanceCloseScope, facts: T) => FinanceCloseProviderInspection;

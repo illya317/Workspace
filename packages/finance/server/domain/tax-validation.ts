@@ -2,6 +2,7 @@ import { failCommand, okCommand, type DomainValidationResult } from "@workspace/
 import type { TaxCreateInput, TaxUpdateInput } from "../../types/tax";
 import { calculateTaxPaymentAllocation, calculateTaxWorkpaper } from "../tax/calculations";
 import { taxValidationDeps } from "./tax-reference-adapter";
+import type { TaxValidationDeps } from "./tax-validation-dependencies";
 import {
   buildTaxCreateCommand as buildCanonicalTaxCreateCommand,
   buildTaxUpdateCommand as buildCanonicalTaxUpdateCommand,
@@ -9,21 +10,7 @@ import {
   type TaxUpdateCommand as CanonicalTaxUpdateCommand,
 } from "../tax/validation";
 
-export type OwnedFact = { id: number; companyCode: string; version?: number; status?: string; currencyCode?: string; amount?: unknown; paymentKind?: string; reversesPaymentId?: number | null };
-export interface TaxValidationDeps {
-  company(id: number): Promise<{ id: number; code: string; isActive: boolean } | null>;
-  period(id: number): Promise<{ id: number; companyCode: string; year: number; month: number; isClosed: boolean } | null>;
-  taxType(id: number): Promise<{ id: number; isActive: boolean; jurisdiction: string } | null>;
-  partyExists(id: number): Promise<boolean>;
-  registration(id: number): Promise<OwnedFact | null>;
-  workpaper(id: number): Promise<OwnedFact | null>;
-  filing(id: number): Promise<OwnedFact | null>;
-  filings(ids: number[]): Promise<OwnedFact[]>;
-  voucherItems(ids: number[]): Promise<Array<{ id: number; companyCode: string }>>;
-  paymentByKey(key: string): Promise<OwnedFact | null>;
-  payment(id: number): Promise<OwnedFact | null>;
-  paymentWasReversed(id: number): Promise<boolean>;
-}
+export type { TaxOwnedFact as OwnedFact, TaxValidationDeps } from "./tax-validation-dependencies";
 type TaxCreateCommand = { input: TaxCreateInput; userId: number; idempotentRecordId?: number };
 type TaxUpdateCommand = { input: TaxUpdateInput; userId: number };
 function dateOrder(from: string, through?: string | null) { return !through || from <= through; }

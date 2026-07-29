@@ -1,6 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
-import type { TaxValidationDeps } from "./tax-validation";
+import type { TaxValidationDeps } from "./tax-validation-dependencies";
 
 export const taxValidationDeps: TaxValidationDeps = {
   company: (id) => prisma.company.findUnique({ where: { id }, select: { id: true, code: true, isActive: true } }),

@@ -31,8 +31,10 @@ test("Tax reference service projects only standard remote reference fields", asy
     fkKey: "finance.tax.authorityParty",
     keyword: "税务局",
   }, {
-    searchParties: async () => [{ id: 7, name: "税务局", subtitle: "机构", lifecycleStatus: "active", secret: "no" }],
-    searchVoucherItems: async () => [],
+    searchOptions: async (input) => {
+      assert.equal(input.fkKey, "finance.tax.authorityParty");
+      return [{ id: 7, name: "税务局", subtitle: "机构", lifecycleStatus: "active", secret: "no" }];
+    },
   });
   assert.deepEqual(party, { items: [{ id: 7, name: "税务局", subtitle: "机构" }] });
 
@@ -42,9 +44,13 @@ test("Tax reference service projects only standard remote reference fields", asy
     companyCode: "C02",
     periodId: 6,
   }, {
-    searchParties: async () => [],
-    searchVoucherItems: async (scope) => {
-      assert.deepEqual(scope, { keyword: "2221", companyCode: "C02", periodId: 6 });
+    searchOptions: async (scope) => {
+      assert.deepEqual(scope, {
+        fkKey: "finance.tax.accrualVoucherItem",
+        keyword: "2221",
+        lifecycleScope: undefined,
+        params: { companyCode: "C02", periodId: "6" },
+      });
       return [{ id: 101, name: "记-1 · 应交税费", subtitle: "2026-06-30 · 2221" }];
     },
   });

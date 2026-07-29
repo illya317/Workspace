@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 import { isSuperAdmin, requireAdminApiAccess } from "@workspace/platform/server/auth";
-import { listDatabaseSchemaCatalog } from "@workspace/settings/server/database-schema";
+import { listDatabaseSchemaCatalog } from "@workspace/settings/server/database-catalog";
 
 export async function GET(request: Request) {
   const auth = await requireAdminApiAccess(request);

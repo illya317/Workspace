@@ -2,14 +2,16 @@ import { prisma } from "@workspace/platform/server/prisma";
 
 import type { FinanceAssetKind } from "../../types/assets";
 import type {
-  FinanceAssetAccountReference,
-  FinanceAssetCategoryReference,
   FinanceAssetImpairmentContext,
   FinanceAssetImpairmentVoucherReference,
   FinanceAssetAcquisitionContext,
   FinanceAssetDisposalContext,
+} from "./close-validation-types";
+import type {
+  FinanceAssetAccountReference,
+  FinanceAssetCategoryReference,
   FinanceAssetPeriodVoucherLinkContext,
-} from "./validation";
+} from "./reference-types";
 import type { ConfirmFinanceAssetAcquisitionEvidenceInput, ConfirmFinanceAssetDisposalInput, LinkFinanceAssetPeriodVoucherInput } from "../../types/assets";
 import { resolveFinanceAssetCategoryPolicy } from "./account-policy-resolver";
 import { financeClosePeriodBounds } from "./period-scope";

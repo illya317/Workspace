@@ -1,6 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
-import type { CloseValidationDependencies } from "./validation";
+import type { CloseValidationDependencies } from "./validation-dependencies";
 
 export const closeValidationDependencies: CloseValidationDependencies = {
   findCompanyByCode: (code) => prisma.company.findUnique({ where: { code }, select: { id: true, code: true, isActive: true } }),
