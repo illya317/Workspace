@@ -152,6 +152,8 @@ test("map nodes stay as unlabeled circles until hover regardless of degree", () 
   assert.equal(MAP_NODE_STATES.selected.labelOpacity, 0);
   assert.equal(MAP_NODE_STATES.hovered.labelOpacity, 1);
   assert.equal(MAP_NODE_STATES.outgoing.labelOpacity, 1);
+  assert.equal(MAP_NODE_STATES.outgoing.fill, "#c77a32");
+  assert.equal(MAP_NODE_STATES.incoming.fill, "#5f82ad");
 });
 
 test("self references use an orange node border instead of a visual loop", () => {
@@ -263,6 +265,22 @@ test("map labels and halos do not expand the node hit area", () => {
   assert.equal(style.labelPointerEvents, "none");
   assert.equal(style.labelBackgroundPointerEvents, "none");
   assert.equal(style.haloPointerEvents, "none");
+});
+
+test("map labels stay compact and clear the highlighted node", () => {
+  const datum = nodeData({
+    kind: "network",
+    presentation: "map",
+    nodes: [{ key: "node", label: "DepartmentCollaboration" }],
+    edges: [],
+  }, "node");
+  const style = mapNodeStyle({ data: datum } as unknown as NodeData);
+
+  assert.equal(style.labelText, "Department\nCollaboration");
+  assert.equal(style.labelFontSize, 9);
+  assert.equal(style.labelMaxLines, 2);
+  assert.equal(style.labelOffsetY, datum.diameter / 2 + 8);
+  assert.equal(style.labelBackgroundFillOpacity, 0.96);
 });
 
 test("map edges remain readable before hover without becoming visually heavy", () => {

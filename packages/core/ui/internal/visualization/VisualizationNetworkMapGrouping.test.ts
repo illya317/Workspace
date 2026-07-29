@@ -33,7 +33,7 @@ test("community packing preserves each cluster shape and separates overlapping c
   assert.ok(Math.hypot(centerA.x - centerB.x, centerA.y - centerB.y) >= 32 + MAP_COMMUNITY_GAP);
 });
 
-test("isolated nodes form one circular outer ring around related communities", () => {
+test("isolated nodes form a compact satellite disk beside related communities", () => {
   const nodes: MapCommunityNode[] = [
     { id: "a1", communityKey: "community:a", x: -20, y: 0, diameter: 10 },
     { id: "a2", communityKey: "community:a", x: 20, y: 0, diameter: 10 },
@@ -49,18 +49,39 @@ test("isolated nodes form one circular outer ring around related communities", (
   const relatedExtent = Math.max(...resolved
     .filter((node) => node.communityKey === "community:a")
     .map((node) => Math.hypot(node.x, node.y) + node.diameter / 2));
-  const isolatedRadii = resolved
-    .filter((node) => node.communityKey.startsWith("isolated:"))
-    .map((node) => Math.hypot(node.x, node.y));
-  assert.ok(isolatedRadii.every((radius) => radius > relatedExtent));
-  assert.ok(Math.max(...isolatedRadii) - Math.min(...isolatedRadii) < 0.001);
   const isolated = resolved.filter((node) => node.communityKey.startsWith("isolated:"));
-  for (let index = 0; index < isolated.length; index += 1) {
-    const current = isolated[index];
-    const next = isolated[(index + 1) % isolated.length];
-    assert.ok(
-      Math.hypot(current.x - next.x, current.y - next.y)
-        >= current.diameter / 2 + next.diameter / 2 + MAP_ISOLATE_GAP - 0.001,
-    );
+  assert.ok(isolated.every((node) => node.x - node.diameter / 2 >= relatedExtent + MAP_ISOLATE_GAP));
+  const centerX = isolated.reduce((sum, node) => sum + node.x, 0) / isolated.length;
+  const centerY = isolated.reduce((sum, node) => sum + node.y, 0) / isolated.length;
+  const radii = isolated.map((node) => Math.hypot(node.x - centerX, node.y - centerY));
+  assert.ok(new Set(radii.map((radius) => Math.round(radius))).size > 1);
+  for (let left = 0; left < isolated.length; left += 1) {
+    for (let right = left + 1; right < isolated.length; right += 1) {
+      const current = isolated[left];
+      const next = isolated[right];
+      assert.ok(
+        Math.hypot(current.x - next.x, current.y - next.y)
+          >= current.diameter / 2 + next.diameter / 2 + MAP_ISOLATE_GAP - 0.001,
+      );
+    }
   }
+});
+
+test("isolated-node layout grows by area instead of one ever-larger perimeter", () => {
+  const nodes = Array.from({ length: 100 }, (_, index): MapCommunityNode => ({
+    id: `i${index}`,
+    communityKey: `isolated:i${index}`,
+    x: 0,
+    y: 0,
+    diameter: 8,
+  }));
+
+  const resolved = separateMapCommunities(nodes);
+  const centerX = resolved.reduce((sum, node) => sum + node.x, 0) / resolved.length;
+  const centerY = resolved.reduce((sum, node) => sum + node.y, 0) / resolved.length;
+  const radius = Math.max(...resolved.map((node) => (
+    Math.hypot(node.x - centerX, node.y - centerY) + node.diameter / 2
+  )));
+
+  assert.ok(radius < 11 * (8 + MAP_ISOLATE_GAP));
 });

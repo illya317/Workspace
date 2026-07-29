@@ -35,8 +35,11 @@ export function bindMapNetworkInteractions(
       const outgoing = edge.source === nodeKey;
       const direction = showEdgeDirection ? outgoing ? "outgoing" : "incoming" : undefined;
       transientStates.set(edge.id, direction ? ["active", direction] : ["active"]);
-      if (showEdgeDirection && outgoing && edge.target !== nodeKey) {
-        transientStates.set(edge.target, ["active", "outgoing"]);
+      if (showEdgeDirection) {
+        const relatedNodeKey = outgoing ? edge.target : edge.source;
+        if (relatedNodeKey !== nodeKey) {
+          transientStates.set(relatedNodeKey, ["active", outgoing ? "outgoing" : "incoming"]);
+        }
       }
     }
 

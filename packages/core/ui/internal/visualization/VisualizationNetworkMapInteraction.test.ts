@@ -89,7 +89,7 @@ test("controlled map hover owns one directed neighborhood and clears it uncondit
   graph.emit("node:pointerenter", pointerEvent("center", "key"));
   assert.deepEqual(graph.getElementState("center"), ["selected", "active", "hovered"]);
   assert.deepEqual(graph.getElementState("neighbor"), ["active", "outgoing"]);
-  assert.deepEqual(graph.getElementState("incoming"), ["active"]);
+  assert.deepEqual(graph.getElementState("incoming"), ["active", "incoming"]);
   assert.deepEqual(graph.getElementState("center-neighbor"), ["active", "outgoing"]);
   assert.deepEqual(graph.getElementState("incoming-center"), ["active", "incoming"]);
   assert.deepEqual(graph.getElementState("unrelated"), ["inactive"]);

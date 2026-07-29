@@ -122,26 +122,35 @@ function placeIsolatedCommunities(
   gap: number,
 ) {
   if (communities.length === 0) return [];
-  if (communities.length === 1 && relatedExtent === 0) {
-    return [{ ...communities[0], targetX: 0, targetY: 0 }];
-  }
 
   const maxRadius = Math.max(...communities.map((community) => community.radius));
   const spacing = maxRadius * 2 + gap;
-  const minimumRadius = relatedExtent > 0
-    ? relatedExtent + gap * 2 + maxRadius
-    : spacing;
-  const capacityRadius = communities.length > 1
-    ? spacing / (2 * Math.sin(Math.PI / communities.length))
-    : spacing;
-  const ringRadius = Math.max(minimumRadius, capacityRadius);
-
-  return communities.map((community, index) => {
-    const angle = -Math.PI / 2 + index * 2 * Math.PI / communities.length;
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+  const rawOffsets = communities.map((community, index) => {
+    if (index === 0) return { community, x: 0, y: 0 };
+    const radius = spacing * Math.sqrt(index);
+    const angle = -Math.PI / 2 + index * goldenAngle;
     return {
-      ...community,
-      targetX: Math.cos(angle) * ringRadius,
-      targetY: Math.sin(angle) * ringRadius,
+      community,
+      x: Math.cos(angle) * radius,
+      y: Math.sin(angle) * radius,
     };
   });
+  const offsetCenterX = rawOffsets.reduce((sum, offset) => sum + offset.x, 0) / rawOffsets.length;
+  const offsetCenterY = rawOffsets.reduce((sum, offset) => sum + offset.y, 0) / rawOffsets.length;
+  const offsets = rawOffsets.map((offset) => ({
+    ...offset,
+    x: offset.x - offsetCenterX,
+    y: offset.y - offsetCenterY,
+  }));
+  const clusterRadius = Math.max(...offsets.map(({ community, x, y }) => (
+    Math.hypot(x, y) + community.radius
+  )));
+  const clusterCenterX = relatedExtent > 0 ? relatedExtent + gap * 2 + clusterRadius : 0;
+
+  return offsets.map(({ community, x, y }) => ({
+    ...community,
+    targetX: clusterCenterX + x,
+    targetY: y,
+  }));
 }
