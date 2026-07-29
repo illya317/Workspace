@@ -47,6 +47,7 @@ mockModule("./contract-records", {
 });
 mockModule("./employments", {
   namedExports: {
+    employmentCompanyName: () => null,
     primaryContractCompany: () => null,
   },
 });

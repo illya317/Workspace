@@ -13,6 +13,7 @@ const {
 
 const runnerSource = path.join(__dirname, "with-check-lock.js");
 const snapshotSource = path.join(__dirname, "workspace-snapshot.js");
+const memoryPolicySource = path.join(__dirname, "check-memory-policy.js");
 
 function run(cwd, command, args, options = {}) {
   const result = spawnSync(command, args, {
@@ -45,6 +46,7 @@ function createRepository(t, { runner = false } = {}) {
     fs.mkdirSync(checkDirectory, { recursive: true });
     fs.copyFileSync(runnerSource, path.join(checkDirectory, "with-check-lock.js"));
     fs.copyFileSync(snapshotSource, path.join(checkDirectory, "workspace-snapshot.js"));
+    fs.copyFileSync(memoryPolicySource, path.join(checkDirectory, "check-memory-policy.js"));
   }
   git(cwd, ["add", "."]);
   git(cwd, ["commit", "--quiet", "-m", "fixture"]);
@@ -237,6 +239,7 @@ test("nested wrappers accept a validated inherited key without reading Git", (t)
   fs.mkdirSync(checkDirectory, { recursive: true });
   fs.copyFileSync(runnerSource, path.join(checkDirectory, "with-check-lock.js"));
   fs.copyFileSync(snapshotSource, path.join(checkDirectory, "workspace-snapshot.js"));
+  fs.copyFileSync(memoryPolicySource, path.join(checkDirectory, "check-memory-policy.js"));
   const inheritedKey = "d".repeat(64);
 
   const resolved = resolveWorkspaceSnapshot({

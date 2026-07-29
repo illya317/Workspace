@@ -16,7 +16,7 @@ mock.module("@workspace/platform/server/system-config", {
     }),
   },
 } as never);
-mock.module("../rbac/action-grants", {
+mock.module("@workspace/platform/server/rbac/action-grants", {
   namedExports: {
     evaluatePermissionAction: async (userId: number, resourceKey: string, action: string) => {
       permissionCalls.push(`${userId}:${resourceKey}:${action}`);
@@ -24,7 +24,7 @@ mock.module("../rbac/action-grants", {
     },
   },
 } as never);
-mock.module("../rbac/resource-entry", {
+mock.module("@workspace/platform/server/rbac/resource-entry", {
   namedExports: {
     canEnterResource: async (userId: number, resourceKey: string) => {
       permissionCalls.push(`${userId}:${resourceKey}:entry`);

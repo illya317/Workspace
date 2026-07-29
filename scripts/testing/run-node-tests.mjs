@@ -31,6 +31,15 @@ const actionContractTests = new Set([
   "scripts/check/business-action-registry-validation.test.ts",
 ]);
 
+const clientReactTests = new Set([
+  "packages/core/ui/internal/data/DataSurface.display.test.tsx",
+  "packages/core/ui/internal/data/DataTable.disclosure.test.tsx",
+  "packages/core/ui/internal/form/FormStyles.test.ts",
+  "packages/finance/ui/assets/asset-location.test.ts",
+  "packages/finance/ui/tax/tax-ui-sections.test.ts",
+  "packages/settings/ui/admin/tabs/SourceCodeAnalysisSection.test.ts",
+]);
+
 function walk(repositoryRoot, relativeDir) {
   const absoluteDir = path.join(repositoryRoot, relativeDir);
   if (!fs.existsSync(absoluteDir)) return [];
@@ -102,23 +111,31 @@ export function main(
       || path.join(repositoryRoot, "scripts/check/fixtures/tenant-workspace"),
   };
 
-  const result = spawn(process.execPath, [
-    "--experimental-test-module-mocks",
-    "--conditions=react-server",
-    "--import",
-    "tsx",
-    "--test",
-    "--test-concurrency",
-    process.env.TEST_CONCURRENCY ?? "1",
-    ...tests,
-  ], {
-    cwd: repositoryRoot,
-    env: testEnvironment,
-    stdio: "inherit",
-  });
-
-  if (result.error) stderr.write(`${result.error.message}\n`);
-  return result.status ?? 1;
+  const serverTests = tests.filter((file) => !clientReactTests.has(file));
+  const browserReactTests = tests.filter((file) => clientReactTests.has(file));
+  for (const [selectedTests, conditions] of [
+    [serverTests, ["--conditions=react-server"]],
+    [browserReactTests, []],
+  ]) {
+    if (selectedTests.length === 0) continue;
+    const result = spawn(process.execPath, [
+      "--experimental-test-module-mocks",
+      ...conditions,
+      "--import",
+      "tsx",
+      "--test",
+      "--test-concurrency",
+      process.env.TEST_CONCURRENCY ?? "1",
+      ...selectedTests,
+    ], {
+      cwd: repositoryRoot,
+      env: testEnvironment,
+      stdio: "inherit",
+    });
+    if (result.error) stderr.write(`${result.error.message}\n`);
+    if (result.status !== 0) return result.status ?? 1;
+  }
+  return 0;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
