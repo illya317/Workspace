@@ -45,7 +45,7 @@ export const page_api_registry_entries = [
   },
   {
     name: "FieldGrid",
-    description: "字段网格信息表",
+    description: "字段网格信息表；桌面标签列按内容收紧并封顶，值区占据剩余宽度",
     composes: [
       "getFieldGridCellClassName",
       "getFieldGridMainRowClassName",

@@ -221,15 +221,15 @@ export function getFieldGridCellClassName(className = "") {
 export function getFieldGridMainRowClassName(className = "", mode?: "view" | "edit" | "mixed" | "detail" | "control") {
   return [
     mode === "detail"
-      ? "grid min-h-11 grid-cols-1 items-start gap-1 sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-center sm:gap-2"
-      : "grid min-h-11 grid-cols-1 items-start gap-1 sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-center sm:gap-2",
+      ? "grid min-h-11 grid-cols-1 items-start gap-1 sm:grid-cols-[minmax(5rem,max-content)_minmax(0,1fr)] sm:items-center sm:gap-2"
+      : "grid min-h-11 grid-cols-1 items-start gap-1 sm:grid-cols-[minmax(5rem,max-content)_minmax(0,1fr)] sm:items-center sm:gap-2",
     className,
   ].filter(Boolean).join(" ");
 }
 
 export function getFieldGridLabelClassName(className = "") {
   return [
-    `min-w-0 break-words sm:whitespace-normal sm:leading-snug ${FIELD_LABEL_TEXT_CLASS}`,
+    `min-w-0 break-words sm:max-w-32 sm:whitespace-normal sm:leading-snug ${FIELD_LABEL_TEXT_CLASS}`,
     className,
   ].filter(Boolean).join(" ");
 }
@@ -246,7 +246,7 @@ export function getFieldGridValueClassName(className = "", mode?: "view" | "edit
 
 export function getFieldGridHelperRowClassName(className = "", mode?: "view" | "edit" | "mixed" | "detail" | "control") {
   return [
-    "grid grid-cols-1 items-start gap-1 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-2",
+    "min-w-0 sm:col-start-2",
     mode === "detail" ? "" : "",
     className,
   ].filter(Boolean).join(" ");

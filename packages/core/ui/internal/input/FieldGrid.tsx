@@ -43,6 +43,7 @@ function FieldGridRoot({
 //
 // 视觉契约：
 // - Cell 由固定高度的 main row（label + value）和可选的 helper row 组成。
+// - 桌面端 label 列按内容收紧并封顶，value 列占据剩余宽度，避免短标签占用固定大块空间。
 // - helper row 不参与 main row 行高，因此即使某个 cell 带有长说明，也不会让同行其它 cell 的 label/value 基线错位。
 // - 需要跨列的独立整行说明，使用 FieldGrid.Note，而不是把长文本塞进单个 cell 的 hint。
 
@@ -106,13 +107,12 @@ export function FieldGridCell({
         <div className={getFieldGridValueClassName(valueClassName, mode)}>
           {children}
         </div>
+        {hint && (
+          <div className={getFieldGridHelperRowClassName("", mode)}>
+            <div className={getFieldHelperClassName()}>{hint}</div>
+          </div>
+        )}
       </div>
-      {hint && (
-        <div className={getFieldGridHelperRowClassName("", mode)}>
-          <div />
-          <div className={getFieldHelperClassName()}>{hint}</div>
-        </div>
-      )}
     </div>
   );
 }
