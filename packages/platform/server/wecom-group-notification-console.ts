@@ -19,7 +19,7 @@ type GroupRow = {
   status: string;
   ownerUserId: number | null;
   ownerUsername: string | null;
-  ownerAlias: string | null;
+  ownerEmployeeName: string | null;
   ownerPositionId: number | null;
   ownerPositionName: string | null;
   verificationStatus: string;
@@ -105,8 +105,16 @@ async function listGroupReferenceOptions(userId: number) {
   const [users, positions, projects] = await Promise.all([
     prisma.user.findMany({
       where: canReadHr ? { canLogin: true } : { id: userId, canLogin: true },
-      select: { id: true, username: true, alias: true },
-      orderBy: [{ alias: "asc" }, { username: "asc" }],
+      select: {
+        id: true,
+        username: true,
+        employees: {
+          select: { name: true, employeeId: true },
+          orderBy: { id: "asc" },
+          take: 1,
+        },
+      },
+      orderBy: [{ username: "asc" }],
     }),
     canReadHr ? prisma.position.findMany({
       where: { isArchived: false },
@@ -119,11 +127,17 @@ async function listGroupReferenceOptions(userId: number) {
       orderBy: [{ code: "asc" }, { id: "asc" }],
     }) : Promise.resolve([]),
   ]);
-  const userOptions = users.map((user) => ({
-    id: user.id,
-    label: user.alias?.trim() || user.username,
-    description: user.alias?.trim() ? user.username : undefined,
-  }));
+  const userOptions = users.map((user) => {
+    const employee = user.employees[0];
+    const employeeName = employee?.name.trim();
+    return {
+      id: user.id,
+      label: employeeName || user.username,
+      description: employeeName
+        ? [employee?.employeeId, user.username].filter(Boolean).join(" · ")
+        : undefined,
+    };
+  }).sort((left, right) => left.label.localeCompare(right.label, "zh-CN"));
   return {
     ownerUserOptions: userOptions,
     ownerPositionOptions: positions.map((position) => ({
@@ -158,12 +172,19 @@ async function listManagedGroups() {
     SELECT
       group_row."id", group_row."groupKey", group_row."displayName", group_row."status",
       group_row."ownerUserId", owner_user."username" AS "ownerUsername",
-      owner_user."alias" AS "ownerAlias", group_row."ownerPositionId",
+      owner_employee."name" AS "ownerEmployeeName", group_row."ownerPositionId",
       owner_position."name" AS "ownerPositionName", group_row."verificationStatus",
       group_row."discoveredAt", group_row."lastSeenAt", group_row."lastVerifiedAt",
       group_row."version"
     FROM "NotificationManagedGroup" AS group_row
     LEFT JOIN "User" AS owner_user ON owner_user."id" = group_row."ownerUserId"
+    LEFT JOIN LATERAL (
+      SELECT employee."name"
+      FROM "Employee" AS employee
+      WHERE employee."userId" = owner_user."id"
+      ORDER BY employee."id" ASC
+      LIMIT 1
+    ) AS owner_employee ON TRUE
     LEFT JOIN "Position" AS owner_position ON owner_position."id" = group_row."ownerPositionId"
     ORDER BY group_row."discoveredAt" DESC, group_row."id" DESC
   `);
@@ -175,7 +196,7 @@ async function listManagedGroups() {
     ownerUser: row.ownerUserId ? {
       id: row.ownerUserId,
       username: row.ownerUsername,
-      displayName: row.ownerAlias ?? row.ownerUsername,
+      displayName: row.ownerEmployeeName?.trim() || row.ownerUsername,
     } : null,
     ownerPosition: row.ownerPositionId ? {
       id: row.ownerPositionId,
