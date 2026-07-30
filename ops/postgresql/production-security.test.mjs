@@ -93,6 +93,8 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
   assert.match(security, /verify_runtime_systemd_pm2_processes/);
   assert.match(security, /systemctl show workspace-runtime-pm2\.service -p MainPID --value/);
   assert.match(security, /systemctl show workspace-runtime-pm2\.service -p ControlGroup --value/);
+  assert.match(security, /pm2_pid="\$\(< \/var\/lib\/workspace-runtime\/\.pm2\/pm2\.pid\)"/);
+  assert.doesNotMatch(security, /IFS= read -r pm2_pid/);
   assert.match(security, /\/proc\/\$pid\/cgroup/);
   assert.match(security, /systemctl disable --now workspace-runtime-pm2\.service/);
   assert.ok(

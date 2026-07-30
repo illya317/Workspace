@@ -373,7 +373,7 @@ verify_runtime_systemd_pm2_daemon() {
   main_pid="$(systemctl show workspace-runtime-pm2.service -p MainPID --value)"
   control_group="$(systemctl show workspace-runtime-pm2.service -p ControlGroup --value)"
   [ -r /var/lib/workspace-runtime/.pm2/pm2.pid ] || { echo "[错误] PM2 PID 文件不可读" >&2; return 1; }
-  IFS= read -r pm2_pid < /var/lib/workspace-runtime/.pm2/pm2.pid
+  pm2_pid="$(< /var/lib/workspace-runtime/.pm2/pm2.pid)"
   [[ "$main_pid" =~ ^[1-9][0-9]*$ ]] && [[ "$pm2_pid" =~ ^[1-9][0-9]*$ ]] || {
     echo "[错误] systemd/PM2 daemon PID 无效" >&2
     return 1
