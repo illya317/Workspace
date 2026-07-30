@@ -11,8 +11,9 @@ import {
 } from "@workspace/core/ui";
 import { useDatabaseRelationsTab } from "../admin/tabs/DatabaseRelationsTab";
 import { useModuleManagementSection } from "../admin/tabs/ModuleManagementTab";
+import { useSqlSettingsTab } from "./SqlSettingsTab";
 
-type GovernanceTab = "ui" | "dataRelations" | "modules" | "operations";
+type GovernanceTab = "ui" | "dataRelations" | "sqlSettings" | "modules" | "operations";
 
 export default function PlatformGovernanceClient({ isSuperAdmin }: { isSuperAdmin: boolean }) {
   const [activeTab, setActiveTab] = useState<GovernanceTab>("ui");
@@ -22,6 +23,7 @@ export default function PlatformGovernanceClient({ isSuperAdmin }: { isSuperAdmi
     { key: "ui", label: "UI" },
     ...(isSuperAdmin ? [
       { key: "dataRelations", label: "数据关系" },
+      { key: "sqlSettings", label: "SQL 设置" },
       { key: "modules", label: "模块管理" },
     ] : []),
     { key: "operations", label: "运维记录" },
@@ -30,7 +32,7 @@ export default function PlatformGovernanceClient({ isSuperAdmin }: { isSuperAdmi
     items: tabs,
     active: activeTab,
     onChange: (key) => {
-      if (key === "ui" || key === "operations" || (isSuperAdmin && (key === "dataRelations" || key === "modules"))) {
+      if (key === "ui" || key === "operations" || (isSuperAdmin && (key === "dataRelations" || key === "sqlSettings" || key === "modules"))) {
         setActiveTab(key);
       }
     },
@@ -43,6 +45,10 @@ export default function PlatformGovernanceClient({ isSuperAdmin }: { isSuperAdmi
   const modulesSection = useModuleManagementSection({
     showToast,
     enabled: activeTab === "modules" && isSuperAdmin,
+  });
+  const sqlSettingsBody = useSqlSettingsTab({
+    enabled: activeTab === "sqlSettings" && isSuperAdmin,
+    showToast,
   });
 
   if (activeTab === "ui") return <UiComponentsShowcase tabbar={tabbar} />;
@@ -61,6 +67,8 @@ export default function PlatformGovernanceClient({ isSuperAdmin }: { isSuperAdmi
       toolbar={activeTab === "dataRelations" ? { items: databaseRelationsTab.toolbarItems } : undefined}
       body={activeTab === "dataRelations"
         ? databaseRelationsTab.body
+        : activeTab === "sqlSettings"
+          ? sqlSettingsBody
         : activeTab === "modules"
           ? createPageBody([modulesSection])
           : operationsBody}

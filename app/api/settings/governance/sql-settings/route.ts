@@ -1,0 +1,18 @@
+import { NextResponse } from "next/server";
+
+import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { isSuperAdmin, requireApiAccess } from "@workspace/platform/server/auth";
+import { listSqlSettingsCatalog } from "@workspace/settings/server/sql-settings";
+
+export async function GET(request: Request) {
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  if (!(await isSuperAdmin(auth.user.userId))) return jsonErrorResponse("无权限", 403);
+
+  try {
+    return NextResponse.json(await listSqlSettingsCatalog());
+  } catch (error) {
+    console.error("SQL settings catalog load failed", error);
+    return jsonErrorResponse("加载 SQL 设置失败", 500);
+  }
+}
