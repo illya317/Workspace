@@ -6,6 +6,16 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const prismaCliPath = path.join(repositoryRoot, "node_modules/prisma/build/index.js");
+const migratorRole = "workspace_dev_migrator";
+const ownerRoleOption = "-c role=workspace_dev_owner";
+const caPath = "/run/secrets/postgres_ca";
+const expectedParameters = new Map([
+  ["schema", "public"],
+  ["sslmode", "verify-full"],
+  ["sslrootcert", caPath],
+  ["application_name", "workspace-dev-migrator"],
+  ["options", ownerRoleOption],
+]);
 
 function parsePostgresqlUrl(value, name) {
   const configured = value?.trim() ?? "";
@@ -28,6 +38,34 @@ function databaseTarget(url) {
   return `${url.hostname.toLowerCase()}:${url.port || "5432"}${url.pathname}`;
 }
 
+function assertMigratorUrl(url, name, database) {
+  if (url.protocol !== "postgresql:") {
+    throw new Error(`${name} 必须使用 postgresql://。`);
+  }
+  if (url.username !== migratorRole) {
+    throw new Error(`${name} 必须使用 ${migratorRole}。`);
+  }
+  if (!url.password) {
+    throw new Error(`${name} 必须包含 migrator 密码。`);
+  }
+  if (url.pathname !== `/${database}`) {
+    throw new Error(`${name} 必须选择 ${database} database。`);
+  }
+  const actualKeys = [...new Set(url.searchParams.keys())];
+  if (
+    actualKeys.length !== expectedParameters.size
+    || actualKeys.some((key) => !expectedParameters.has(key))
+  ) {
+    throw new Error(`${name} 只能包含受控的迁移连接参数。`);
+  }
+  for (const [key, expected] of expectedParameters) {
+    const values = url.searchParams.getAll(key);
+    if (values.length !== 1 || values[0] !== expected) {
+      throw new Error(`${name} 的 ${key} 必须精确为 ${expected}。`);
+    }
+  }
+}
+
 export function assertMigrationArguments(args) {
   if (args.length > 0) {
     throw new Error("Workspace 开发迁移入口不接受额外参数，只允许一次性 prisma migrate deploy。");
@@ -37,6 +75,8 @@ export function assertMigrationArguments(args) {
 export function migrationDatabaseEnvironment(env = process.env) {
   const directUrl = parsePostgresqlUrl(env.DIRECT_URL, "DIRECT_URL");
   const shadowUrl = parsePostgresqlUrl(env.SHADOW_DATABASE_URL, "SHADOW_DATABASE_URL");
+  assertMigratorUrl(directUrl, "DIRECT_URL", "workspace_dev");
+  assertMigratorUrl(shadowUrl, "SHADOW_DATABASE_URL", "workspace_dev_shadow");
   if (
     directUrl.hostname.toLowerCase() !== shadowUrl.hostname.toLowerCase()
     || (directUrl.port || "5432") !== (shadowUrl.port || "5432")
@@ -55,8 +95,10 @@ export function migrationDatabaseEnvironment(env = process.env) {
     }
   }
 
+  const migrationEnvironment = { ...env };
+  delete migrationEnvironment.PGOPTIONS;
   return {
-    ...env,
+    ...migrationEnvironment,
     DATABASE_URL: directUrl.toString(),
     DIRECT_URL: directUrl.toString(),
     SHADOW_DATABASE_URL: shadowUrl.toString(),

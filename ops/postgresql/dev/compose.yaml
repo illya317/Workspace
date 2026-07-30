@@ -156,7 +156,6 @@ services:
     environment:
       PGSSLMODE: verify-full
       PGSSLROOTCERT: /run/secrets/postgres_ca
-      PGOPTIONS: -c role=workspace_dev_owner
     depends_on:
       db:
         condition: service_healthy

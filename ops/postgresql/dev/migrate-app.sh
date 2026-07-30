@@ -2,7 +2,7 @@
 set -euo pipefail
 
 cleanup() {
-  unset DATABASE_URL DIRECT_URL SHADOW_DATABASE_URL PGPASSWORD
+  unset DATABASE_URL DIRECT_URL SHADOW_DATABASE_URL PGPASSWORD PGOPTIONS
 }
 trap cleanup EXIT
 
@@ -15,7 +15,8 @@ DIRECT_URL="$(
     workspace_dev_migrator \
     workspace_dev \
     /run/secrets/workspace_dev_migrator_password \
-    workspace-dev-migrator
+    workspace-dev-migrator \
+    workspace_dev_owner
 )"
 export DATABASE_URL="${DIRECT_URL}"
 export SHADOW_DATABASE_URL
@@ -24,13 +25,13 @@ SHADOW_DATABASE_URL="$(
     workspace_dev_migrator \
     workspace_dev_shadow \
     /run/secrets/workspace_dev_migrator_password \
-    workspace-dev-migrator
+    workspace-dev-migrator \
+    workspace_dev_owner
 )"
 export PGSSLMODE=verify-full
 export PGSSLROOTCERT=/run/secrets/postgres_ca
-export PGOPTIONS="-c role=workspace_dev_owner"
+unset PGOPTIONS
 
 npm run db:migrate:dev
 node node_modules/prisma/build/index.js db execute \
-  --schema=./prisma \
   --file=/workspace-dev/post-migrate-grants.sql
