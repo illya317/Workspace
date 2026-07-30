@@ -229,44 +229,95 @@ test("secure PostgreSQL dev roles, limits, verification, backup, and installer a
   assert.match(verification, /legacy_no_public_relation_ownership/);
   assert.match(verification, /legacy_no_public_routine_ownership/);
   assert.match(verification, /legacy_no_public_type_ownership/);
-  assert.match(backup, /pg_dump --format=custom --no-owner --no-privileges/);
+  assert.match(backup, /pg_dump --format=custom --file=/);
+  assert.doesNotMatch(backup, /--no-owner|--no-privileges/);
   assert.match(backup, /pg_restore --list/);
+  assert.match(backup, /security-inventory\.sql/);
+  assert.match(backup, /final_inventory/);
   assert.match(backup, /sha256sum --check/);
   assert.match(rotation, /retention_days < 7/);
   assert.match(rotation, /-mtime "\+\$\{retention_days\}"/);
+  assert.match(rotation, /dump\.security-inventory/);
   assert.match(backupService, /\/usr\/bin\/docker compose --project-name workspace-dev-secure/);
   assert.match(backupService, /\/home\/ubuntu\/workspace-dev\/postgresql-security\/compose\.yaml/);
   assert.match(backupTimer, /Persistent=true/);
   assert.match(backupTimer, /OnCalendar=/);
   assert.match(installer, /Refusing to overwrite non-empty target/);
+  assert.match(installer, /realpath -m/);
+  assert.match(installer, /workspace-dev\/source\/\*/);
+  assert.match(installer, /repository_root/);
   assert.match(installer, /verify-shadow\.sql/);
+  assert.match(installer, /restore-drill\.sh/);
   assert.match(readme, /\/test\/api\/auth\/dev-login-bypass.*404/);
   assert.doesNotMatch(executableTemplateSources, /dev-login-bypass|CREATE POLICY|ENABLE ROW LEVEL SECURITY/);
 });
 
-test("watchdog switch is explicit, app-only, and rejects migration credentials on rollback", () => {
+test("backup artifacts remain operator-owned and the isolated restore drill verifies security state", () => {
+  const compose = read("ops/postgresql/dev/compose.yaml");
+  const backupService = compose.match(/\n  backup:\n([\s\S]*?)\nsecrets:/)?.[1] ?? "";
+  const backup = read("ops/postgresql/dev/backup-hook.sh");
+  const inventory = read("ops/postgresql/dev/security-inventory.sql");
+  const bootstrap = read("ops/postgresql/dev/restore-drill-bootstrap.sql");
+  const verification = read("ops/postgresql/dev/restore-drill-verify.sql");
+  const drill = read("ops/postgresql/dev/restore-drill.sh");
+  const readme = read("ops/postgresql/dev/README.md");
+
+  assert.match(backupService, /user: "1000:1001"/);
+  assert.match(backupService, /security-inventory\.sql/);
+  assert.match(backup, /umask 077/);
+  assert.match(backup, /chmod 0600 "\$\{temporary_dump\}" "\$\{temporary_inventory\}" "\$\{temporary_manifest\}"/);
+  assert.match(backup, /inventory_checksum/);
+  assert.match(inventory, /role\|%s\|login=/);
+  assert.match(inventory, /database\|%s\|owner=/);
+  assert.match(inventory, /schema\|%s\|owner=/);
+  assert.match(inventory, /relation\|kind=/);
+  assert.match(inventory, /routine\|name=/);
+  assert.match(inventory, /default_acl\|owner=/);
+  assert.match(bootstrap, /CREATE DATABASE workspace_dev_restore OWNER workspace_dev_owner/);
+  assert.match(verification, /restore_runtime_no_migration_write/);
+  assert.match(verification, /restore_runtime_no_schema_create/);
+  assert.match(drill, /id -u[\s\S]*1000/);
+  assert.match(drill, /--network none/);
+  assert.doesNotMatch(drill, /--publish|-p [0-9]/);
+  assert.match(drill, /HostConfig\.PortBindings/);
+  assert.match(drill, /pg_restore -U postgres --exit-on-error/);
+  assert.match(drill, /cmp -s "\$\{inventory_path\}" "\$\{restored_inventory\}"/);
+  assert.match(drill, /stat -c '%u:%g:%a'/);
+  assert.match(drill, /restore-receipts/);
+  assert.match(drill, /security_inventory_match=passed/);
+  assert.match(drill, /resources-removed/);
+  assert.match(drill, /postgres_image_id=/);
+  assert.match(readme, /uid\/gid `1000:1001`/);
+  assert.match(readme, /--network none/);
+  assert.match(readme, /role\/owner\/ACL inventory byte-for-byte/);
+});
+
+test("watchdog recovery is secure-only, fail-closed, and app-only", () => {
   const watchdog = read("ops/postgresql/dev/workspace-dev-watchdog-compose.sh");
   const switcher = read("ops/postgresql/dev/switch-watchdog.sh");
   const dropin = read("ops/postgresql/dev/systemd/workspace-dev-watchdog-secure.conf");
   const readme = read("ops/postgresql/dev/README.md");
 
-  assert.match(watchdog, /WORKSPACE_DEV_WATCHDOG_STACK_MODE/);
   assert.match(watchdog, /SECURE_RUNTIME_ROOT=.*postgresql-security[\s\S]*workspace-dev-secure[\s\S]*SECURE_RUNTIME_ROOT.*compose\.yaml/);
   assert.match(watchdog, /compose_app stop app/);
   assert.match(watchdog, /compose_app up -d --no-deps app/);
   assert.doesNotMatch(watchdog, /compose_app up -d (?!\-\-no-deps)/);
-  assert.match(switcher, /<apply\|rollback\|status>/);
-  assert.match(switcher, /validate_legacy_rollback/);
+  assert.doesNotMatch(watchdog, /STACK_MODE|legacy/);
+  assert.match(switcher, /<apply\|status>/);
+  assert.doesNotMatch(switcher, /rollback|legacy|workspace-dev\/compose\.yaml/);
   assert.match(switcher, /DIRECT_URL\|SHADOW_DATABASE_URL\|PGPASSWORD\|PGOPTIONS/);
+  assert.match(switcher, /Secure watchdog drop-in is missing or differs/);
   assert.match(dropin, /ExecStart=\nExecStart=\/home\/ubuntu\/workspace-dev\/postgresql-security\/workspace-dev-watchdog-compose\.sh/);
-  assert.match(readme, /supported runtime rollback keeps the new source entrypoint/i);
-  assert.match(readme, /removes `DIRECT_URL`, `SHADOW_DATABASE_URL`, `PGPASSWORD`, and `PGOPTIONS`/);
+  assert.doesNotMatch(dropin, /EnvironmentFile/);
+  assert.match(readme, /watchdog is deliberately secure-only/i);
+  assert.match(readme, /There is no `switch-watchdog\.sh rollback` action/);
+  assert.match(readme, /mutually compatible old source tree, app env, PostgreSQL HBA\/TLS configuration/);
 });
 
 test("secure PostgreSQL dev shell and Node templates pass syntax checks", () => {
   const scripts = [
     "backup-hook.sh", "generate-secrets.sh", "generate-tls.sh", "install-node-deps.sh",
-    "install.sh", "migrate-app.sh", "rotate-backups.sh", "start-app.sh", "start-db.sh",
+    "install.sh", "migrate-app.sh", "restore-drill.sh", "rotate-backups.sh", "start-app.sh", "start-db.sh",
     "switch-watchdog.sh", "verify.sh", "workspace-dev-watchdog-compose.sh",
   ];
   for (const script of scripts) {

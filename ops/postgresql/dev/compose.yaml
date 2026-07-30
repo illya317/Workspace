@@ -199,6 +199,7 @@ services:
     image: postgres:15-bookworm
     profiles: ["backup"]
     restart: "no"
+    user: "1000:1001"
     entrypoint: ["/bin/bash", "/workspace-dev/backup-hook.sh"]
     depends_on:
       db:
@@ -210,6 +211,7 @@ services:
       - ${WORKSPACE_DEV_BACKUP_DIR:?set WORKSPACE_DEV_BACKUP_DIR}:/backups
       - ./backup-hook.sh:/workspace-dev/backup-hook.sh:ro
       - ./rotate-backups.sh:/workspace-dev/rotate-backups.sh:ro
+      - ./security-inventory.sql:/workspace-dev/security-inventory.sql:ro
     networks:
       - workspace-dev-db-internal
 

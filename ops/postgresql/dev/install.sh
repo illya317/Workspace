@@ -15,14 +15,26 @@ case "${target_dir}" in
   /*) ;;
   *) echo "Target must be absolute" >&2; exit 2 ;;
 esac
+
+source_dir="$(cd "$(dirname "$0")" && pwd)"
+target_dir="$(realpath -m -- "${target_dir}")"
+repository_root="$(git -C "${source_dir}" rev-parse --show-toplevel 2>/dev/null || true)"
+
 case "${target_dir}" in
-  /|/home|/home/ubuntu|/home/ubuntu/workspace-dev/source|/home/ubuntu/workspace-dev/worktrees/*)
+  /|/home|/home/ubuntu|/home/ubuntu/workspace-dev/source|/home/ubuntu/workspace-dev/source/*|/home/ubuntu/workspace-dev/worktrees|/home/ubuntu/workspace-dev/worktrees/*)
     echo "Refusing unsafe or source-controlled target: ${target_dir}" >&2
     exit 2
     ;;
 esac
-
-source_dir="$(cd "$(dirname "$0")" && pwd)"
+if [[ -n "${repository_root}" ]]; then
+  repository_root="$(realpath -m -- "${repository_root}")"
+  case "${target_dir}" in
+    "${repository_root}"|"${repository_root}"/*)
+      echo "Refusing repository target: ${target_dir}" >&2
+      exit 2
+      ;;
+  esac
+fi
 if [[ -e "${target_dir}" ]] && find "${target_dir}" -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
   echo "Refusing to overwrite non-empty target: ${target_dir}" >&2
   exit 1
@@ -38,6 +50,9 @@ for template_file in \
   pg_ident.conf \
   roles-and-grants.sql \
   post-migrate-grants.sql \
+  restore-drill-bootstrap.sql \
+  restore-drill-verify.sql \
+  security-inventory.sql \
   verify.sql \
   verify-shadow.sql \
   README.md \
@@ -54,6 +69,7 @@ for executable_file in \
   install-node-deps.sh \
   migrate-app.sh \
   render-database-url.mjs \
+  restore-drill.sh \
   rotate-backups.sh \
   start-app.sh \
   start-db.sh \

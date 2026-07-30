@@ -14,5 +14,7 @@ if [[ ! "${retention_days}" =~ ^[0-9]+$ ]] || (( retention_days < 7 )); then
 fi
 
 find "${backup_dir}" -maxdepth 1 -type f \
-  \( -name 'workspace-dev-*.dump' -o -name 'workspace-dev-*.dump.sha256' \) \
+  \( -name 'workspace-dev-*.dump' \
+     -o -name 'workspace-dev-*.dump.sha256' \
+     -o -name 'workspace-dev-*.dump.security-inventory' \) \
   -mtime "+${retention_days}" -print -delete

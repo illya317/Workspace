@@ -17,7 +17,6 @@ readonly REQUIRED_HIGH_SAMPLES="${WORKSPACE_DEV_REQUIRED_HIGH_SAMPLES:-2}"
 readonly STARTUP_GRACE_SECONDS="${WORKSPACE_DEV_STARTUP_GRACE_SECONDS:-180}"
 readonly RESTART_COOLDOWN_SECONDS="${WORKSPACE_DEV_RESTART_COOLDOWN_SECONDS:-900}"
 readonly MAX_RESTARTS_PER_HOUR="${WORKSPACE_DEV_MAX_RESTARTS_PER_HOUR:-2}"
-readonly STACK_MODE="${WORKSPACE_DEV_WATCHDOG_STACK_MODE:-secure}"
 
 mkdir -p "${STATE_DIR}"
 
@@ -27,53 +26,21 @@ log() {
 }
 
 compose_app() {
-  case "${STACK_MODE}" in
-    secure)
-      docker compose \
-        --project-name workspace-dev-secure \
-        --env-file "${SECURE_RUNTIME_ROOT}/.env" \
-        --file "${SECURE_RUNTIME_ROOT}/compose.yaml" \
-        "$@"
-      ;;
-    legacy)
-      docker compose \
-        --project-name workspace-dev \
-        --file "${STACK_ROOT}/compose.yaml" \
-        "$@"
-      ;;
-    *)
-      log "unsupported watchdog stack mode: ${STACK_MODE}"
-      return 2
-      ;;
-  esac
+  docker compose \
+    --project-name workspace-dev-secure \
+    --env-file "${SECURE_RUNTIME_ROOT}/.env" \
+    --file "${SECURE_RUNTIME_ROOT}/compose.yaml" \
+    "$@"
 }
 
 validate_runtime_environment() {
-  local env_file
-  if [[ "${STACK_MODE}" == "secure" ]]; then
-    env_file="${SECURE_RUNTIME_ROOT}/app.env"
-    if [[ ! -r "${env_file}" ]]; then
-      log "secure app.env is missing or unreadable"
-      return 1
-    fi
-    if grep -Eq '^[[:space:]]*(export[[:space:]]+)?(DATABASE_URL|DIRECT_URL|SHADOW_DATABASE_URL|PGPASSWORD|PGOPTIONS)[[:space:]]*=' "${env_file}"; then
-      log "secure app.env contains forbidden database or migration variables"
-      return 1
-    fi
-    return 0
-  fi
-
-  env_file="${STACK_ROOT}/runtime/.workspace/.env"
+  local env_file="${SECURE_RUNTIME_ROOT}/app.env"
   if [[ ! -r "${env_file}" ]]; then
-    log "legacy rollback env is missing or unreadable"
+    log "secure app.env is missing or unreadable"
     return 1
   fi
-  if ! grep -Eq '^[[:space:]]*(export[[:space:]]+)?DATABASE_URL[[:space:]]*=[[:space:]]*[^[:space:]]' "${env_file}"; then
-    log "legacy rollback env is missing DATABASE_URL"
-    return 1
-  fi
-  if grep -Eq '^[[:space:]]*(export[[:space:]]+)?(DIRECT_URL|SHADOW_DATABASE_URL|PGPASSWORD|PGOPTIONS)[[:space:]]*=' "${env_file}"; then
-    log "legacy rollback env contains forbidden migration variables"
+  if grep -Eq '^[[:space:]]*(export[[:space:]]+)?(DATABASE_URL|DIRECT_URL|SHADOW_DATABASE_URL|PGPASSWORD|PGOPTIONS)[[:space:]]*=' "${env_file}"; then
+    log "secure app.env contains forbidden database or migration variables"
     return 1
   fi
 }
