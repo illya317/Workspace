@@ -34,6 +34,8 @@ Install `postgresql-security.conf` as `/etc/postgresql/16/main/conf.d/30-workspa
 
 The security profile records connections, disconnections, and lock waits with database, role, application, client, and process metadata. It deliberately disables statement, duration, sampling, parameter, and error-statement text logging. `ddl-audit.sql` emits DDL object metadata through event-trigger log messages without recording raw SQL or bind values.
 
+`ddl-audit-rollback.sql` removes only the two managed event triggers and the private `workspace_security` schema. Preserve it with the cutover receipt so audit installation remains independently reversible without restoring application data.
+
 Install the logrotate profile as the PostgreSQL log policy only after backing up the existing distro file; duplicate logrotate entries for the same logfile are invalid.
 
 ## PITR gate

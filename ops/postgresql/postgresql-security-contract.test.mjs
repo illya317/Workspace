@@ -61,11 +61,15 @@ test("security logging avoids SQL and parameter literals", () => {
 
 test("DDL audit logs metadata without raw SQL", () => {
   const source = read("./ddl-audit.sql");
+  const rollback = read("./ddl-audit-rollback.sql");
   assert.match(source, /pg_event_trigger_ddl_commands/);
   assert.match(source, /pg_event_trigger_dropped_objects/);
   assert.match(source, /object_identity/);
   assert.doesNotMatch(source, /current_query|pg_stat_activity|query_text/i);
   assert.doesNotMatch(source, /CREATE POLICY|ENABLE ROW LEVEL SECURITY/i);
+  assert.match(rollback, /DROP EVENT TRIGGER IF EXISTS workspace_ddl_command_audit/);
+  assert.match(rollback, /DROP EVENT TRIGGER IF EXISTS workspace_sql_drop_audit/);
+  assert.match(rollback, /DROP SCHEMA IF EXISTS workspace_security CASCADE/);
 });
 
 test("PITR remains fail-closed until an approved repository passes", () => {
