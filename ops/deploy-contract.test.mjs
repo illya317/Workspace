@@ -74,11 +74,14 @@ test("hardened production runtime keeps PM2 and database credentials behind an e
   assert.match(sshShim, /PORT HOSTNAME BUILD_VERSION NEXT_PUBLIC_BUILD_VERSION PG_POOL_MAX PG_APPLICATION_NAME/);
   assert.match(sshShim, /else\n\s+command pm2/);
   assert.match(sshShim, /workspace_assert_managed_runtime_environment/);
-  assert.match(sshShim, /\['DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL'/);
+  assert.match(sshShim, /'DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL'/);
+  assert.match(sshShim, /'PGPASSWORD', 'PGPASSFILE', 'PGSERVICE', 'PGSERVICEFILE', 'PGOPTIONS'/);
   assert.match(sshShim, /workspace_source_env_file '\$REMOTE_RUNTIME_ENV_FILE'/);
   assert.match(sshShim, /workspace_source_env_file '\$REMOTE_CONTROL_ENV_FILE'/);
   assert.match(sshShim, /runtime_database_url=\\\$DATABASE_URL[\s\S]*?DATABASE_URL=\\\$runtime_database_url/);
   assert.match(sshShim, /WORKSPACE_BACKUP_DATABASE_URL/);
+  assert.match(sshShim, /control-plane env must not be accessible by group or other users/);
+  assert.match(sshShim, /runtime env must not be group-writable\/executable or accessible by other users/);
   assertOrdered(deploy.slice(deploy.indexOf('echo "==> 验证服务器连接..."')), [
     "start_ssh_master",
     "verify_remote_runtime_pm2",

@@ -279,7 +279,10 @@ const managed = new Set(process.env.MANAGED_NAMES.split(','));
 for (const process of processes) {
   if (!process || typeof process !== 'object' || !managed.has(process.name)) continue;
   const environment = process.pm2_env || {};
-  for (const key of ['DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL', 'WORKSPACE_MONITOR_DATABASE_URL']) {
+for (const key of [
+  'DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL', 'WORKSPACE_MONITOR_DATABASE_URL',
+  'PGPASSWORD', 'PGPASSFILE', 'PGSERVICE', 'PGSERVICEFILE', 'PGOPTIONS', 'PGUSER', 'PGHOST', 'PGDATABASE',
+]) {
     if (Object.prototype.hasOwnProperty.call(environment, key)) {
       throw new Error('managed runtime process ' + process.name + ' contains forbidden ' + key);
     }
@@ -379,6 +382,13 @@ for path, label in ((runner, 'runtime PM2 runner'), (control, 'control-plane env
         raise SystemExit(f'{label} must be root-owned')
     if path.stat().st_mode & (stat.S_IWGRP | stat.S_IWOTH):
         raise SystemExit(f'{label} must not be group/world-writable')
+if stat.S_IMODE(control.stat().st_mode) & 0o077:
+    raise SystemExit('control-plane env must not be accessible by group or other users')
+runtime_mode = stat.S_IMODE(runtime.stat().st_mode)
+if not runtime_mode & stat.S_IRUSR or not runtime_mode & stat.S_IRGRP:
+    raise SystemExit('runtime env must be readable only by root and its dedicated runtime group')
+if runtime_mode & 0o027:
+    raise SystemExit('runtime env must not be group-writable/executable or accessible by other users')
 if control.resolve() == runtime.resolve():
     raise SystemExit('runtime and control-plane env must resolve to different files')
 runtime_keys = {
@@ -388,7 +398,10 @@ runtime_keys = {
 }
 if 'DATABASE_URL' not in runtime_keys:
     raise SystemExit('runtime env is missing DATABASE_URL')
-for forbidden in ('DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL', 'WORKSPACE_MONITOR_DATABASE_URL'):
+for forbidden in (
+    'DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL', 'WORKSPACE_MONITOR_DATABASE_URL',
+    'PGPASSWORD', 'PGPASSFILE', 'PGSERVICE', 'PGSERVICEFILE', 'PGOPTIONS', 'PGUSER', 'PGHOST', 'PGDATABASE',
+):
     if forbidden in runtime_keys:
         raise SystemExit(f'runtime env contains forbidden {forbidden}')
 control_keys = {
