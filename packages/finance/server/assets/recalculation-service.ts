@@ -1,5 +1,5 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
-import { buildRecalculateFinanceAssetPeriodCommand } from "../domain/asset-validation";
+import { buildRecalculateFinanceAssetPeriodCommand } from "./validation";
 import { calculateFinanceAssetPeriod } from "./calculator";
 import { replayAssetAccumulatedAmounts } from "./accumulated-replay";
 import { listFinanceAssetWorkspace } from "./service";

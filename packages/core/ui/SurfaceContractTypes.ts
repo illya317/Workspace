@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+export type { SurfaceNavigationTabSpec } from "../surface-navigation-contract";
 import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 
 export type SurfaceLifecycleScope = "active" | "all" | "archived";
@@ -80,13 +81,6 @@ export interface SurfaceFilterFieldSpec extends SurfaceSelectOptionSpec {
   referenceEndpoint?: string;
   lifecycleScope?: SurfaceLifecycleScope;
   placeholder?: string;
-}
-
-export interface SurfaceNavigationTabSpec {
-  key: string;
-  label: string;
-  compactLabel?: string;
-  children?: SurfaceNavigationTabSpec[];
 }
 
 export interface SurfacePaginationSpec {

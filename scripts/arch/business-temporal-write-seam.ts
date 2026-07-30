@@ -157,13 +157,50 @@ export function findBusinessTemporalWriteViolations(
   return violations.sort((left, right) => left.file.localeCompare(right.file) || left.line - right.line);
 }
 
-function repositorySources(repositoryRoot: string) {
-  const names = execFileSync("rg", ["--files", "packages", "app", "scripts", "-g", "*.ts", "-g", "*.tsx"], {
+type SourceFileLister = (repositoryRoot: string) => string[];
+
+function rgSourceFileNames(repositoryRoot: string) {
+  return execFileSync("rg", ["--files", "packages", "app", "scripts", "-g", "*.ts", "-g", "*.tsx"], {
     cwd: repositoryRoot,
     encoding: "utf8",
   }).trim().split("\n").filter(Boolean);
+}
+
+function gitSourceFileNames(repositoryRoot: string) {
+  const names = execFileSync("git", [
+    "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "packages", "app", "scripts",
+  ], {
+    cwd: repositoryRoot,
+    encoding: "utf8",
+  }).split("\0").filter((name) => /^(?:packages|app|scripts)\/.+\.tsx?$/.test(name));
+  return names.filter((name) => {
+    try {
+      return fs.statSync(path.join(repositoryRoot, name)).isFile();
+    } catch (error) {
+      if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") return false;
+      throw error;
+    }
+  });
+}
+
+function isMissingExecutableError(error: unknown) {
+  return Boolean(error && typeof error === "object" && "code" in error && error.code === "ENOENT");
+}
+
+export function repositorySources(
+  repositoryRoot: string,
+  preferredLister: SourceFileLister = rgSourceFileNames,
+  fallbackLister: SourceFileLister = gitSourceFileNames,
+) {
+  let names: string[];
+  try {
+    names = preferredLister(repositoryRoot);
+  } catch (error) {
+    if (!isMissingExecutableError(error)) throw error;
+    names = fallbackLister(repositoryRoot);
+  }
   const files = new Map<string, string>();
-  for (const name of names) {
+  for (const name of [...new Set(names)].sort()) {
     if (name.endsWith(".test.ts") || name.endsWith(".test.tsx")) continue;
     files.set(name, fs.readFileSync(path.join(repositoryRoot, name), "utf8"));
   }

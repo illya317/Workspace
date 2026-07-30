@@ -10,7 +10,6 @@ import {
   employmentAgreementFieldLabel,
   type EmploymentAgreementCommandKind,
 } from "@workspace/hr/employment-agreement-field-contract";
-import { isValidCompanyName, validateContractOption } from "../field-validation";
 
 export { EMPLOYMENT_AGREEMENT_COMMAND_KINDS };
 export type { EmploymentAgreementCommandKind };
@@ -188,14 +187,6 @@ export function buildEmploymentAgreementCommand(
     ...target.data,
     ...meta.data,
   });
-}
-
-export async function validateEmploymentAgreementContentReferences(content: EmploymentAgreementContent) {
-  if (!(await isValidCompanyName(content.company))) return { message: "公司不存在" };
-  for (const field of ["insuranceStatus", "legalRelation", "contractType", "employmentForm"] as const) {
-    if (!validateContractOption(field, content[field])) return { message: `${field} 不在允许范围内` };
-  }
-  return null;
 }
 
 export function employmentAgreementContentPatchFields(

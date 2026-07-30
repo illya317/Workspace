@@ -1,5 +1,5 @@
 import type { EditorBlock, EditorSlotInline } from "@workspace/platform/document-editor";
-import type { WorkflowStatus } from "@workspace/platform/ui";
+import type { WorkflowStatus } from "@workspace/platform/workflow-status";
 import type { QcBatchSummary } from "../types";
 
 export type QcBatchStatusLabel = "异常" | "已验收" | "检验中" | "待复核";

@@ -192,11 +192,11 @@ function domainPackages(): DomainPackage[] {
 }
 
 function hasDomainValidatorImport(source: string) {
-  return /from\s+["'][^"']*\/domain\/[^"']*-validation["']/.test(source);
+  return /from\s+["'][^"']*(?:\/domain\/[^"']*-validation|\/validation)["']/.test(source);
 }
 
 function reexportsDomainValidator(source: string) {
-  return /export\s+(?:\*|\{[^}]*\})\s+from\s+["']\.\/domain\/[^"']*-validation["']/.test(source);
+  return /export\s+(?:\*|\{[^}]*\})\s+from\s+["'][^"']*(?:\/domain\/[^"']*-validation|\/validation)["']/.test(source);
 }
 
 function workspaceServerImports(source: string, packageName: string): WorkspaceServerImports {
@@ -245,8 +245,8 @@ function namespaceForbiddenUsages(source: string, namespace: string, forbiddenNa
 
 function exportedDomainValidatorNames(pkg: DomainPackage) {
   const names = new Set<string>();
-  for (const file of collectTsFiles(`${pkg.serverDir}/domain`)) {
-    if (!file.endsWith("-validation.ts")) continue;
+  for (const file of collectTsFiles(pkg.serverDir)) {
+    if (!/(?:\/domain\/[^/]+-validation|\/validation)\.ts$/.test(file)) continue;
     const source = readFile(file);
     for (const match of source.matchAll(/export\s+(?:async\s+)?(?:function|const|class)\s+([A-Za-z_$][\w$]*)/g)) {
       names.add(match[1]);
@@ -280,9 +280,11 @@ function hasCrudWriteSignal(source: string) {
 
 function hasExportedWriteFunction(source: string) {
   const prefix = WRITE_FUNCTION_PREFIXES.join("|");
-  return new RegExp(
-    `export\\s+(?:(?:async\\s+)?function\\s+|const\\s+)(?:${prefix})[A-Z\\w]*\\s*(?:\\(|=)`,
-  ).test(source);
+  const matches = source.matchAll(new RegExp(
+    `export\\s+(?:(?:async\\s+)?function\\s+|const\\s+)((?:${prefix})[A-Z\\w]*)\\s*(?:\\(|=)`,
+    "g",
+  ));
+  return [...matches].some((match) => !/^create[A-Z\w]*Route$/.test(match[1] ?? ""));
 }
 
 function isWriteService(file: string, source: string) {
@@ -351,7 +353,7 @@ function domainValidatorImportLocals(file: string, source: string) {
   for (const statement of sourceFile.statements) {
     if (!ts.isImportDeclaration(statement)) continue;
     if (!ts.isStringLiteral(statement.moduleSpecifier)) continue;
-    if (!/\/domain\/[^"']*-validation$/.test(statement.moduleSpecifier.text)) continue;
+    if (!/(?:\/domain\/[^"']*-validation|\/validation)$/.test(statement.moduleSpecifier.text)) continue;
     const importClause = statement.importClause;
     if (!importClause || importClause.isTypeOnly) continue;
     if (importClause.name) names.push(importClause.name.text);

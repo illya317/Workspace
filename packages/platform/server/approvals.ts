@@ -17,9 +17,9 @@ import {
   assertApprovalVersion,
   getApprovalRequestDto,
   loadApprovalRecord,
-  transitionApprovalWithNotification,
   updateApprovalPayload,
 } from "./approvals/store";
+import { transitionApprovalWithNotification } from "./approvals/transition";
 export type {
   ApprovalAccessAction,
   ApprovalAdapter,

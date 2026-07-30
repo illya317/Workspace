@@ -11,6 +11,7 @@ import {
   createPageTableSection,
   PageSurface,
   useFeedback,
+  type BodySurfaceSectionSpec,
   type PageSurfaceCreateSpec,
   type PageSurfaceTabBarSpec,
   type SelectorSurfaceProps,
@@ -135,7 +136,6 @@ export default function CompanyGovernanceClient({
       ]);
     }
     return createPageBody([
-      createSection,
       companyInformationPanel(companyDraft),
     ]);
   }

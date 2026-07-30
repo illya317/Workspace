@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   buildGetHrPerformanceContributionDetailRouteCommand,
   executeGetHrPerformanceContributionDetailRouteCommand,
-} from "@workspace/hr/server";
+} from "@workspace/hr/server/performance/contribution-detail";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 export const GET = createCommandRoute({

@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import type { TenantPermissionReviewPolicy } from "../permission-review-policy";
-import { PERMISSION_ACTION_KEYS } from "../permission-actions";
+import { PERMISSION_ACTION_REGISTRY_KEYS as PERMISSION_ACTION_KEYS } from "../action-registry";
 import type {
   TenantAgentWorkforceConfig,
   TenantCompanySeed,

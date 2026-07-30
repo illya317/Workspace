@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { serviceError, serviceResponse } from "../../packages/platform/server/api";
-import { toServiceErrorResponse } from "../../packages/platform/server/domain-validation";
+import { toServiceErrorResponse } from "../../packages/platform/server/api";
 
 const impactDetails = {
   code: "MUTATION_IMPACT_REQUIRED",

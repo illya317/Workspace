@@ -35,3 +35,15 @@ test("development governance owns the remaining scripts, e2e, and engineering co
   assert.deepEqual(declaredModuleKeys("next.config.ts"), ["tooling"]);
   assert.deepEqual(declaredModuleKeys("playwright.config.ts"), ["tooling"]);
 });
+
+test("dependency policy configuration belongs to development governance", () => {
+  assert.deepEqual(declaredModuleKeys("dependency-cruiser.config.cjs"), ["tooling"]);
+});
+
+test("root runtime instrumentation belongs to the application shell", () => {
+  assert.deepEqual(declaredModuleKeys("instrumentation.ts"), ["application-shell"]);
+});
+
+test("public module APIs remain owned by their business module", () => {
+  assert.deepEqual(declaredModuleKeys("app/api/open/v1/hr/generated/roster/route.ts"), ["hr"]);
+});

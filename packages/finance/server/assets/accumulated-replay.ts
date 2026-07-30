@@ -1,27 +1,8 @@
 import { createHash } from "node:crypto";
 import { moneyEquals, moneyIsNegative, moneyIsNonZero, voucherItemsMatchHeaderExact } from "./money-cents";
+import type { AssetAccumulatedReplayInput, AssetReplayVoucherFact } from "./close-calculation-contract";
 
-export type AssetAccumulatedReplayInput = {
-  assetId: number;
-  companyCode: string;
-  openingAccumulatedAmount: unknown;
-  openingImpairmentAmount?: unknown;
-  openingIncludesImpairment?: boolean;
-  openingAsOfDate: string | null;
-  priorEntries: Array<{ assetId: number; normalAmount: unknown; status: string; periodId: number; periodEndDate: string; voucher: AssetReplayVoucherFact | null }>;
-  priorAdjustments: Array<{ assetId: number | null; amount: unknown; status: string; periodId: number; periodEndDate: string; voucher: AssetReplayVoucherFact | null }>;
-  priorImpairments: Array<{ assetId: number; amount: unknown; periodId: number; periodEndDate: string; status: string; voucher: AssetReplayVoucherFact | null }>;
-};
-
-export type AssetReplayVoucherFact = {
-  id: number;
-  status: string;
-  companyCode: string;
-  periodId: number;
-  totalDebit: unknown;
-  totalCredit: unknown;
-  items: Array<{ accountCode: string; debit: unknown; credit: unknown }>;
-};
+export type { AssetAccumulatedReplayInput, AssetReplayVoucherFact } from "./close-calculation-contract";
 
 export type AssetAccumulatedReplayResult = {
   accumulatedBefore: number;

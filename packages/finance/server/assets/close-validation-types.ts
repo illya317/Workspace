@@ -3,8 +3,7 @@ import type {
   ConfirmFinanceAssetDisposalInput,
   ConfirmFinanceAssetImpairmentAssessmentInput,
 } from "../../types/assets";
-import type { AssetAccumulatedReplayInput } from "./accumulated-replay";
-import type { AssetScopeCard } from "./period-scope";
+import type { AssetAccumulatedReplayInput, AssetScopeCard } from "./close-calculation-contract";
 
 export type FinanceAssetImpairmentContext = {
   period: { id: number; isClosed: boolean };

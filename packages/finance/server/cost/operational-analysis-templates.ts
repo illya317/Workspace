@@ -180,7 +180,7 @@ export async function saveOperationalAnalysisTemplate(
 ) {
   const parsed = workspaceSourcesOperationalAnalysisTemplateInputSchema.safeParse(stored.input);
   if (!parsed.success) return serviceError(parsed.error.issues[0]?.message ?? "经营分析模板参数无效", 400);
-  const validated = validateOperationalAnalysisTemplate(parsed.data);
+  const validated = validateOperationalAnalysisTemplate(parsed.data, validateWorkspaceAnalysisSourcePath);
   if (!validated.ok) return serviceError(validated.error, 400);
   const prepared = await prepareOperationalAnalysisTemplateSave(userId, validated.data, options);
   if (!prepared.ok) return prepared;
@@ -452,3 +452,4 @@ function resolveWorkspaceApiQueryValue(value: WorkspaceApiQueryValue, scope: Ana
   if (typeof value !== "object") return String(value);
   return value.binding === "scopeId" ? String(scope.scopeId) : scope.scopeType;
 }
+import { validateWorkspaceAnalysisSourcePath } from "@workspace/platform/workspace-analysis-source-policy";

@@ -31,7 +31,7 @@ test("accepts a declarative cost template and serializes its workspace code", ()
     },
   });
 
-  const result = validateOperationalAnalysisTemplate(parsed);
+  const result = validateOperationalAnalysisTemplate(parsed, validateWorkspaceAnalysisSourcePath);
   assert.equal(result.ok, true);
   if (!result.ok) return;
   assert.match(result.data.code, /"finance\.costStructure"/);
@@ -84,7 +84,7 @@ test("project workspace cannot claim an unavailable sales attribution", () => {
     },
   });
 
-  const result = validateOperationalAnalysisTemplate(parsed);
+  const result = validateOperationalAnalysisTemplate(parsed, validateWorkspaceAnalysisSourcePath);
   assert.deepEqual(result, { ok: false, error: "项目尚未建立销售归集关系，不能创建项目销售模板" });
 });
 
@@ -96,7 +96,7 @@ test("accepts a registered protected GET API as a generic analysis source", () =
     definition: WORKSPACE_ANALYSIS_HR_JOIN_DEFINITION_EXAMPLE,
   });
 
-  const result = validateOperationalAnalysisTemplate(parsed);
+  const result = validateOperationalAnalysisTemplate(parsed, validateWorkspaceAnalysisSourcePath);
   assert.equal(result.ok, true);
   if (result.ok) assert.match(result.data.code, /"workspace\.api"/);
 });

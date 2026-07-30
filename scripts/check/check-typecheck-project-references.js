@@ -2,21 +2,22 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
+const {
+  PACKAGE_NAMES,
+  packageDefinition,
+  packageNamesForTier,
+} = require("../arch/package-dependency-policy.cjs");
 
 const repoRoot = path.resolve(__dirname, "../..");
 const packagesRoot = path.join(repoRoot, "packages");
-const packageNames = fs.readdirSync(packagesRoot, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(packagesRoot, entry.name, "package.json")))
-  .map((entry) => entry.name)
-  .sort();
-const domainPackageNames = packageNames.filter((name) => !["core", "platform"].includes(name));
-const packageProjectReferences = ["core", "platform", ...domainPackageNames]
-  .map((name) => `./packages/${name}`);
+const packageNames = [...PACKAGE_NAMES];
+const productPackageNames = packageNamesForTier("product");
+const packageProjectReferences = packageNames.map((name) => `./packages/${name}`);
 const rootProjectReferences = [
   "./packages/core",
   "./tsconfig.prisma-client.json",
   "./packages/platform",
-  ...domainPackageNames.map((name) => `./packages/${name}`),
+  ...productPackageNames.map((name) => `./packages/${name}`),
   "./tsconfig.app.json",
   "./tsconfig.tooling.json",
 ];
@@ -189,16 +190,13 @@ function validate() {
     exclude: ["node_modules"],
     references: [],
   }, violations);
-  validateCompositeProject("packages/core/tsconfig.json", packageProject("core", []), violations);
-  validateCompositeProject(
-    "packages/platform/tsconfig.json",
-    packageProject("platform", ["../core", "../../tsconfig.prisma-client.json"]),
-    violations,
-  );
-  for (const packageName of domainPackageNames) {
+  for (const packageName of packageNames) {
+    const dependencyReferences = packageDefinition(packageName).allowedDependencies
+      .map((dependency) => `../${dependency}`);
+    if (packageName === "platform") dependencyReferences.push("../../tsconfig.prisma-client.json");
     validateCompositeProject(
       `packages/${packageName}/tsconfig.json`,
-      packageProject(packageName, ["../core", "../platform"]),
+      packageProject(packageName, dependencyReferences),
       violations,
     );
   }

@@ -1,4 +1,4 @@
-import type { ResourceRegistration } from "@workspace/core";
+import type { ResourceRegistration } from "@workspace/core/module-contract";
 
 export interface ModuleRuntimeOverride {
   enabled?: boolean;

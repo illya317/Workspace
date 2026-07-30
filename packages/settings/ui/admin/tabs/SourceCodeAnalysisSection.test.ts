@@ -12,6 +12,8 @@ import {
 } from "@workspace/platform/source-code-analysis-contract";
 import {
   analysisTableRows,
+  capabilityAnalysisTableRows,
+  createSourceCodeAnalysisSection,
   createSourceCodeAnalysisColumns,
 } from "./SourceCodeAnalysisSection";
 import { SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS } from "./source-code-analysis-display";
@@ -57,8 +59,33 @@ function analysisSnapshot(): SourceCodeAnalysisSnapshot {
       missingInterfaceCount: 0,
       dependencyCycleCount: 0,
       mixedResponsibilityFileCount: 0,
+      reciprocalRoleDependencyCount: 0,
+      runtimeReciprocalRoleDependencyCount: 0,
+      typeAssistedReciprocalRoleDependencyCount: 0,
+      dependencyFileCycleCount: 0,
+      runtimeDependencyFileCycleCount: 0,
+      typeAssistedDependencyFileCycleCount: 0,
+      invalidDependencyDirectionCount: 0,
+      capabilityGovernedFileCount: 1,
+      capabilityDeclaredFileCount: 1,
+      capabilityCoveragePercent: 100,
+      legacyUnclassifiedCapabilityFileCount: 0,
+      newUnclassifiedCapabilityFileCount: 0,
+      ambiguousCapabilityFileCount: 0,
     },
     modules,
+    capabilities: [{
+      moduleKey: "work",
+      key: "meetings",
+      label: "会议",
+      fileCount: 1,
+      lines: 5_000,
+      roles: roleCounts("ui", 5_000),
+      dependencies: [{ moduleKey: "core", capabilityKey: null }],
+      dependencyCount: 1,
+      crossCapabilityImportCount: 1,
+      mixedResponsibilityFileCount: 0,
+    }],
     dependencyEdges: [
       {
         sourceModuleKey: "work",
@@ -75,13 +102,32 @@ function analysisSnapshot(): SourceCodeAnalysisSnapshot {
         importCount: 1,
       },
     ],
+    capabilityDependencyEdges: [{
+      sourceModuleKey: "work",
+      sourceCapabilityKey: "meetings",
+      sourceRole: "ui",
+      targetModuleKey: "core",
+      targetCapabilityKey: null,
+      targetRole: "domain",
+      importCount: 1,
+      valueImportCount: 1,
+      typeOnlyImportCount: 0,
+      dynamicImportCount: 0,
+      reExportCount: 0,
+      typeOnlyReExportCount: 0,
+    }],
+    reciprocalRoleDependencies: [],
     dependencyFileCycles: [],
+    invalidDependencyDirections: [],
     dependencyCycles: [],
     diagnostics: {
       unclassifiedFiles: [],
       ambiguousFiles: [],
       missingInterfaces: [],
       mixedResponsibilityFiles: [],
+      legacyUnclassifiedCapabilityFiles: [],
+      newUnclassifiedCapabilityFiles: [],
+      ambiguousCapabilityFiles: [],
     },
   };
 }
@@ -95,8 +141,9 @@ test("source analysis columns stay compact until an aggregate column is expanded
     "module",
     "total",
     "entry",
-    "business",
+    "application",
     "adapter",
+    "domain",
     "contract",
     "assurance",
   ]);
@@ -110,15 +157,18 @@ test("source analysis columns stay compact until an aggregate column is expanded
     "total",
     "entry",
     "entry:composition",
+    "entry:assembly",
     "entry:ui",
     "entry:input",
-    "business",
+    "application",
     "adapter",
+    "domain",
     "contract",
     "assurance",
   ]);
-  assert.deepEqual(expanded.slice(3, 6).map((column) => column.label), [
+  assert.deepEqual(expanded.slice(3, 7).map((column) => column.label), [
     "组合壳",
+    "公共出口",
     "UI",
     "输入",
   ]);
@@ -162,21 +212,21 @@ test("selected raw role distinguishes directions, aggregate reciprocity, real cy
   const core = rows.find((row) => row.key === "core");
   const operations = rows.find((row) => row.key === "operations");
   const entry = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "entry");
-  const business = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "business");
+  const domain = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "domain");
   const assurance = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "assurance");
   assert.ok(work);
   assert.ok(settings);
   assert.ok(core);
   assert.ok(operations);
   assert.ok(entry);
-  assert.ok(business);
+  assert.ok(domain);
   assert.ok(assurance);
 
   const selectedCell = { moduleKey: "work", groupKey: "entry" as const, role: "ui" as const };
   assert.equal(sourceCodeAnalysisRelationCellState(work, entry, "ui", snapshot.dependencyEdges, [], selectedCell), "normal");
   assert.equal(sourceCodeAnalysisRelationCellState(work, entry, null, snapshot.dependencyEdges, [], selectedCell), "normal");
   assert.equal(sourceCodeAnalysisCellSelected(work, entry, "ui", selectedCell), true);
-  assert.equal(sourceCodeAnalysisRelationCellState(core, business, "domain", snapshot.dependencyEdges, [], selectedCell), "warning");
+  assert.equal(sourceCodeAnalysisRelationCellState(core, domain, "domain", snapshot.dependencyEdges, [], selectedCell), "warning");
   assert.equal(sourceCodeAnalysisRelationCellState(operations, assurance, "tooling", snapshot.dependencyEdges, [], selectedCell), "info");
   assert.equal(sourceCodeAnalysisRelationCellState(settings, entry, "ui", snapshot.dependencyEdges, [], selectedCell), "muted");
 
@@ -191,8 +241,8 @@ test("selected raw role distinguishes directions, aggregate reciprocity, real cy
     classification: "runtime" as const,
     paths: ["packages/work/ui.ts", "packages/settings/ui.ts"],
     cells: [
-      { moduleKey: "work", role: "ui" as const },
-      { moduleKey: "settings", role: "ui" as const },
+      { moduleKey: "work", capabilityKey: "meetings", role: "ui" as const },
+      { moduleKey: "settings", capabilityKey: null, role: "ui" as const },
     ],
     evidence: [],
   }];
@@ -274,4 +324,39 @@ test("total-code cells use a relative meter while small role values stay muted",
     tone: "muted",
     font: "mono",
   });
+});
+
+test("summary shows the backend-computed invalid direction count independently of disclosure", () => {
+  const snapshot = analysisSnapshot();
+  snapshot.summary.invalidDependencyDirectionCount = 3;
+  const section = createSourceCodeAnalysisSection(snapshot, {
+    expandedGroupKey: "entry",
+    onToggleGroup: () => undefined,
+  });
+  assert.equal(section.body.kind, "section");
+  if (section.body.kind !== "section" || section.body.layout === "split") return;
+  const summary = section.body.sections?.find((candidate) => candidate.key === "source-code-analysis-summary");
+  assert.equal(summary?.body.kind, "data");
+  if (summary?.body.kind !== "data" || summary.body.data.kind !== "summary") return;
+  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "invalid-directions")?.value, {
+    kind: "text",
+    value: "3",
+    tone: "danger",
+    font: "mono",
+  });
+});
+
+test("L2 capability rows and section use backend ownership and dependency counts", () => {
+  const snapshot = analysisSnapshot();
+  assert.deepEqual(capabilityAnalysisTableRows(snapshot).map((row) => ({
+    module: row.moduleLabel,
+    capability: row.label,
+    files: row.fileCount,
+    imports: row.crossCapabilityImportCount,
+  })), [{ module: "工作管理", capability: "会议", files: 1, imports: 1 }]);
+
+  const section = createSourceCodeAnalysisSection(snapshot);
+  assert.equal(section.body.kind, "section");
+  if (section.body.kind !== "section" || section.body.layout === "split") return;
+  assert.ok(section.body.sections?.some((candidate) => candidate.key === "source-code-analysis-capability-table"));
 });

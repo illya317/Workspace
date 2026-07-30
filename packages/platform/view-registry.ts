@@ -1,4 +1,4 @@
-import type { SurfaceNavigationTabSpec } from "@workspace/core/ui";
+import type { SurfaceNavigationTabSpec } from "@workspace/core/surface-navigation-contract";
 import type { PageStyleRouteModule, PageViewDefinition, PageViewNode } from "@workspace/core/page-style-preview";
 import { effectiveModuleDefinitions } from "./effective-module-registry";
 import { applyRouteRuntimeLabel, getRouteRuntimeMeta, type RouteRuntimeMeta } from "./route-runtime-labels";

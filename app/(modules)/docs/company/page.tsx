@@ -1,5 +1,5 @@
 import { requireRouteAccess } from "@workspace/platform/server/auth";
-import { listCompanyDocuments } from "@workspace/platform/server/company-documents";
+import { listCompanyDocuments } from "@workspace/docs/server/company-documents";
 import { DocsCompanyPage as CompanyDocumentsPage } from "@workspace/docs/ui";
 
 export default async function DocsCompanyPage() {

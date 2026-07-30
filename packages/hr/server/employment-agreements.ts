@@ -12,9 +12,9 @@ import { employmentForAgreementDate } from "@workspace/hr/utils/employment-selec
 import { HR_EMPLOYMENT_AGREEMENT_TEMPORAL } from "../business-temporal";
 import {
   buildEmploymentAgreementCommand,
-  validateEmploymentAgreementContentReferences,
   type EmploymentAgreementCommand,
 } from "./domain/employment-agreement-validation";
+import { validateEmploymentAgreementContentReferences } from "./employment-agreement-reference-validation";
 import { employmentAgreementChangeManifest } from "./domain/employment-agreement-change";
 import { applyEmploymentAgreementBaselineMutation } from "./employment-agreement-baseline-mutation";
 import {

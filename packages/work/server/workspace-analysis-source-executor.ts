@@ -11,7 +11,7 @@ import {
 import { executeListDepartmentCollaborationsCommand } from "./department-collaboration-route-command";
 import { listProjectMembers } from "./project-members";
 import { listProjectGantt, listProjects } from "./projects";
-import { getMeetingDetail, listMeetings } from "./meetings";
+import { getMeetingDetail, listMeetings } from "./meetings/application";
 import {
   buildWorkWorkspaceAnalysisSourceCatalog,
   canDiscoverWorkWorkspaceAnalysisSource,
@@ -51,7 +51,7 @@ import {
   iterateWorkMeetingProposalRows,
   iterateWorkMeetingProposalVoteRows,
   type WorkMeetingDetail,
-} from "./workspace-analysis-meeting-detail-sources";
+} from "./meetings/analysis-sources";
 import { loadWorkParameterizedDetailSource } from "./workspace-analysis-parameter-detail-executor";
 
 type LoadedRows = { readonly rows: readonly unknown[]; readonly totalRows: number };

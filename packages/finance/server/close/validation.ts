@@ -3,30 +3,19 @@ import type { FinanceCloseScope, OpenFinanceCloseInput, RefreshFinanceCloseInput
 import { sha256CanonicalJson } from "./canonical-json";
 import { closeValidationDependencies } from "./reference-adapter";
 import type { CloseValidationDependencies } from "./validation-dependencies";
+import type {
+  OpenFinanceCloseCommand,
+  RefreshFinanceCloseCommand,
+  ResolvedFinanceCloseScope,
+} from "./command-types";
 
 export type { CloseValidationDependencies } from "./validation-dependencies";
 
-export type ResolvedFinanceCloseScope = FinanceCloseScope & {
-  companyId: number;
-  periodId: number;
-  isPeriodClosed: boolean;
-};
-
-export type OpenFinanceCloseCommand = ResolvedFinanceCloseScope & {
-  actorUserId: number;
-  idempotencyKey: string;
-  requestFingerprint: string;
-  idempotentRunId: number | null;
-};
-
-export type RefreshFinanceCloseCommand = ResolvedFinanceCloseScope & {
-  runId: number;
-  expectedVersion: number;
-  actorUserId: number;
-  idempotencyKey: string;
-  requestFingerprint: string;
-  idempotentRunId: number | null;
-};
+export type {
+  OpenFinanceCloseCommand,
+  RefreshFinanceCloseCommand,
+  ResolvedFinanceCloseScope,
+} from "./command-types";
 
 async function validateUser(userId: number, deps: CloseValidationDependencies) {
   const user = await deps.findUser(userId);

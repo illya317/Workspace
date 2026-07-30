@@ -15,7 +15,7 @@ import {
   type FinanceAssetCardCreateCommand,
   type FinanceAssetCardUpdateCommand,
   type FinanceAssetCodePreviewCommand,
-} from "../domain/asset-validation";
+} from "./validation";
 import { assetPeriodVoucherLinkFingerprint } from "./period-scope";
 import { resolveFinanceCompanyAccountsFromGroupPolicyAt } from "../ledger/group-accounts/company-account-resolver";
 import { resolveFinanceGroupPolicyCompany } from "../group-policy-scope";

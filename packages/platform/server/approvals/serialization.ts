@@ -9,7 +9,7 @@ import type {
   ApprovalStatus,
 } from "./types";
 import { isApprovalRequestStatus } from "../../workflow-request-contract";
-import { parseWorkflowNodes } from "../workflows";
+import { parseWorkflowNodes } from "../workflow-policy-nodes";
 
 export type ApprovalRequestRow = {
   id: number;

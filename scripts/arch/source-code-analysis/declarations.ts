@@ -12,7 +12,7 @@ export interface SourceModuleDeclaration {
 
 const BUSINESS_MODULES = [
   { key: "work", label: "工作管理", packageName: "work", appSegment: "work", ownerResourceKey: "work" },
-  { key: "hr", label: "人事管理", packageName: "hr", appSegment: "hr", ownerResourceKey: "hr" },
+  { key: "hr", label: "人事管理", packageName: "hr", appSegment: "hr", openApiSegment: "hr", ownerResourceKey: "hr" },
   { key: "administration", label: "行政管理", packageName: "administration", appSegment: "administration", ownerResourceKey: "administration" },
   { key: "finance", label: "财务管理", packageName: "finance", appSegment: "finance", ownerResourceKey: "finance" },
   { key: "production", label: "生产管理", packageName: "production", appSegment: "production", ownerResourceKey: "production" },
@@ -36,6 +36,7 @@ const businessDeclarations: SourceModuleDeclaration[] = BUSINESS_MODULES.map((mo
     `app/(modules)/${module.appSegment}/`,
     `app/api/modules/${module.appSegment}/`,
     ...("legacyApiSegment" in module ? [`app/api/modules/${module.legacyApiSegment}/`] : []),
+    ...("openApiSegment" in module ? [`app/api/open/v1/${module.openApiSegment}/`] : []),
   ],
 }));
 
@@ -58,6 +59,7 @@ const applicationShellPrefixes = [
   "app/globals.css",
   "app/layout.tsx",
   "app/page.tsx",
+  "instrumentation.ts",
 ];
 
 /**
@@ -87,7 +89,7 @@ export const PRODUCTION_RUNTIME_SCRIPT_REGISTRATIONS = [
 ] as const;
 const productionRuntimePaths = ["ops/", ...PRODUCTION_RUNTIME_SCRIPT_REGISTRATIONS];
 const developmentGovernancePrefixes = ["scripts/", "e2e/"];
-const developmentGovernanceRootFiles = ["next.config.ts", "playwright.config.ts"];
+const developmentGovernanceRootFiles = ["dependency-cruiser.config.cjs", "next.config.ts", "playwright.config.ts"];
 
 const businessOwnedPrefixes = businessDeclarations.flatMap((module) => module.include);
 
@@ -211,4 +213,10 @@ export function sourceModuleDeclarationsForPath(relativePath: string) {
 }
 
 export const SOURCE_CODE_ROOTS = ["app", "packages", "prisma", "scripts", "ops", "e2e"] as const;
-export const ROOT_SOURCE_FILES = ["next.config.ts", "prisma.config.ts", "playwright.config.ts"] as const;
+export const ROOT_SOURCE_FILES = [
+  "dependency-cruiser.config.cjs",
+  "instrumentation.ts",
+  "next.config.ts",
+  "prisma.config.ts",
+  "playwright.config.ts",
+] as const;

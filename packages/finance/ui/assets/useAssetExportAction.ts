@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useFeedback, type SurfaceToolbarItems } from "@workspace/core/ui";
 import type { FinanceAssetExportView } from "../../types/assets";
 import { useCallback, useState } from "react";
-import { downloadFinanceWorkbook } from "../components/downloadFinanceWorkbook";
+import { downloadFinanceWorkbook } from "../workbook-download";
 
 export function useAssetExportAction(input: {
   canExport: boolean;

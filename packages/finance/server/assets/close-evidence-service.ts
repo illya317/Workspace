@@ -5,7 +5,7 @@ import type {
   FinanceAssetDisposalConfirmCommand,
   FinanceAssetImpairmentAssessmentConfirmCommand,
   FinanceAssetPeriodVoucherLinkCommand,
-} from "../domain/asset-validation";
+} from "./validation";
 import {
   buildConfirmFinanceAssetAcquisitionEvidenceCommand,
   buildConfirmFinanceAssetDisposalCommand,
@@ -13,7 +13,7 @@ import {
   buildLinkFinanceAssetPeriodVoucherCommand,
   assetImpairmentPolicySnapshotsMatch,
   impairmentVoucherLinesMatch,
-} from "../domain/asset-validation";
+} from "./validation";
 import { resolveFinanceAssetCategoryPolicy } from "./account-policy-resolver";
 import { assetImpairmentCalculationBasisFingerprint, assetScopeFingerprint, financeClosePeriodBounds } from "./period-scope";
 import { replayAssetAccumulatedAmounts } from "./accumulated-replay";

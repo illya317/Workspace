@@ -246,13 +246,12 @@ export {
   createInternalApiRoute,
 } from "./server/api-route";
 export {
-  domainIssueToResponse,
   failCommand,
   isDomainServiceResult,
   mapValidationToServiceResult,
   okCommand,
-  toServiceErrorResponse,
 } from "./server/domain-validation";
+export { domainIssueToResponse, toServiceErrorResponse } from "./server/api";
 export type {
   DomainAction,
   DomainCommandBuilder,

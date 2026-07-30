@@ -1,5 +1,4 @@
 import type { OperationalAnalysisDefinition } from "@workspace/finance/types";
-import { validateWorkspaceAnalysisSourcePath } from "@workspace/platform/workspace-analysis-source-policy";
 
 import type { OperationalAnalysisTemplateInput } from "../operational-analysis-template-schema";
 
@@ -9,6 +8,7 @@ export type OperationalAnalysisTemplateValidationResult<TInput extends Operation
 
 export function validateOperationalAnalysisTemplate<TInput extends OperationalAnalysisTemplateInput>(
   input: TInput,
+  validateSourcePath: (path: string) => string | null,
 ): OperationalAnalysisTemplateValidationResult<TInput> {
   if (input.scopeType === "project" && input.definition.dataset === "sales.shipments") {
     return { ok: false, error: "项目尚未建立销售归集关系，不能创建项目销售模板" };
@@ -18,7 +18,7 @@ export function validateOperationalAnalysisTemplate<TInput extends OperationalAn
   }
   if (input.definition.dataset === "workspace.api") {
     for (const source of input.definition.sources) {
-      const error = validateWorkspaceAnalysisSourcePath(source.path);
+      const error = validateSourcePath(source.path);
       if (error) return { ok: false, error: `数据源 ${source.key}：${error}` };
     }
   }

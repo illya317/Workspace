@@ -7,7 +7,7 @@ import {
 } from "@workspace/platform/server/workspace-analysis-read-model";
 import type { WorkspaceAnalysisNestedValueRow } from "@workspace/platform/server/workspace-analysis-nested-values";
 
-import type { toMeetingSummaryDto } from "./meeting-dto";
+import type { toMeetingSummaryDto } from "./meetings/dto";
 import type { listProjectMembers } from "./project-members";
 import type { listProjects } from "./projects";
 import type { listWorkPlans } from "./work-plans";
@@ -29,7 +29,7 @@ import {
 } from "./workspace-analysis-report-sources";
 import { WORK_PERIOD_COLLECTION_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-period-collection-sources";
 import { WORK_PROJECT_GANTT_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-project-gantt-sources";
-import { WORK_MEETING_DETAIL_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-meeting-detail-sources";
+import { WORK_MEETING_DETAIL_ANALYSIS_SOURCE_REGISTRATIONS } from "./meetings/analysis-sources";
 import { WORK_PROJECT_PLAN_DETAIL_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-project-plan-detail-sources";
 import { WORK_KPI_SCORECARD_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-kpi-scorecard-sources";
 import { WORK_KPI_RESULT_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-kpi-result-sources";

@@ -1,7 +1,7 @@
 import { prisma, type Prisma } from "@workspace/platform/server/prisma";
 
 import { policyEffectiveDate } from "./policy-version-rules";
-import { financeAccountSourceScopeKey, financeGroupMappingKey } from "./source-accounts";
+import { financeAccountSourceScopeKey, financeGroupMappingKey } from "./source-account-keys";
 
 type GroupPolicyAccountClient = Pick<Prisma.TransactionClient,
   "financeAccountingPolicyVersion" | "financeAccount" | "financeGroupAccountMapping" | "financeGroupAccountRevision"

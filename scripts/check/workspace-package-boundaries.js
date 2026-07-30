@@ -2,22 +2,60 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".mts", ".cts", ".json"];
+const WORKSPACE_EXPORT_SOURCE_ROOTS = Object.freeze([
+  "app",
+  "apps",
+  "e2e",
+  "lib",
+  "server",
+  "scripts",
+  "packages",
+]);
 
-function escapeRegex(text) {
-  return text.replace(/[|\\{}()[\]^$+?.]/g, "\\$&");
+function compareExportPatterns(left, right) {
+  const leftPatternIndex = left.indexOf("*");
+  const rightPatternIndex = right.indexOf("*");
+  const leftBaseLength = leftPatternIndex === -1 ? left.length : leftPatternIndex + 1;
+  const rightBaseLength = rightPatternIndex === -1 ? right.length : rightPatternIndex + 1;
+
+  if (leftBaseLength > rightBaseLength) return -1;
+  if (rightBaseLength > leftBaseLength) return 1;
+  if (leftPatternIndex === -1) return 1;
+  if (rightPatternIndex === -1) return -1;
+  if (left.length > right.length) return -1;
+  if (right.length > left.length) return 1;
+  return 0;
+}
+
+function matchExportPattern(pattern, exportKey) {
+  const patternIndex = pattern.indexOf("*");
+  if (patternIndex === -1 || patternIndex !== pattern.lastIndexOf("*")) return null;
+  const prefix = pattern.slice(0, patternIndex);
+  const suffix = pattern.slice(patternIndex + 1);
+  if (!exportKey.startsWith(prefix) || !exportKey.endsWith(suffix)) return null;
+  const substitution = exportKey.slice(prefix.length, exportKey.length - suffix.length);
+  return substitution.length > 0 ? substitution : null;
 }
 
 function resolveExportTarget(exportsMap, exportKey) {
-  const exact = exportsMap[exportKey];
-  if (typeof exact === "string") return exact;
-
-  for (const [pattern, target] of Object.entries(exportsMap)) {
-    if (!pattern.includes("*") || typeof target !== "string") continue;
-    const regex = new RegExp(`^${pattern.split("*").map(escapeRegex).join("(.+)")}$`);
-    const match = exportKey.match(regex);
-    if (match) return target.replace("*", match[1]);
+  if (!exportsMap || typeof exportsMap !== "object") return null;
+  if (Object.prototype.hasOwnProperty.call(exportsMap, exportKey)) {
+    const exact = exportsMap[exportKey];
+    return typeof exact === "string" ? exact : null;
   }
-  return null;
+
+  const matches = Object.entries(exportsMap)
+    .filter(([pattern]) => pattern.includes("*"))
+    .map(([pattern, target]) => ({
+      pattern,
+      substitution: matchExportPattern(pattern, exportKey),
+      target,
+    }))
+    .filter(({ substitution }) => substitution !== null)
+    .sort((left, right) => compareExportPatterns(left.pattern, right.pattern));
+  const selected = matches[0];
+  if (!selected || typeof selected.target !== "string") return null;
+  return selected.target.split("*").join(selected.substitution);
 }
 
 function isFile(candidate) {
@@ -72,6 +110,7 @@ function shouldEnforceRelativePackageBoundary(boundary, importerFile, repository
 }
 
 module.exports = {
+  WORKSPACE_EXPORT_SOURCE_ROOTS,
   isWorkspacePackageRootAlias,
   packageNameForSource,
   resolveExportTarget,

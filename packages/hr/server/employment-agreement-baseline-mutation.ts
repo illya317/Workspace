@@ -2,9 +2,9 @@ import { validateBusinessTemporalBaselineMutation } from "@workspace/platform/co
 import { type Prisma } from "@workspace/platform/server/prisma";
 import {
   employmentAgreementContentPatchFields,
-  validateEmploymentAgreementContentReferences,
   type EmploymentAgreementCommand,
 } from "./domain/employment-agreement-validation";
+import { validateEmploymentAgreementContentReferences } from "./employment-agreement-reference-validation";
 import {
   normalizedEmploymentAgreementContent,
   parseEmploymentAgreementContent,

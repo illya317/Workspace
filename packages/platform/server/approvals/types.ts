@@ -1,13 +1,13 @@
-import type { ServiceResult } from "../api";
-import type { ApprovalCommitAuthorization } from "@workspace/platform/server/approval-commit-authorization";
+import type { ServiceResult } from "../../service-result";
+import type { ApprovalCommitAuthorization } from "../approval-commit-authorization-contract";
 import type {
   WorkflowFlowType,
   WorkflowHandlerSource,
-  WorkflowPolicyNodeDefinition,
-  WorkflowPolicyDefaults,
   WorkflowPolicyMode,
   WorkflowSeparationPolicy,
-} from "../workflows";
+} from "../workflow-types";
+import type { WorkflowPolicyNodeDefinition } from "../workflow-policy-node-contract";
+import type { WorkflowPolicyDefaults } from "../workflow-policy-defaults";
 import type {
   ApprovalRequestDescription,
   ApprovalRequestEventType,

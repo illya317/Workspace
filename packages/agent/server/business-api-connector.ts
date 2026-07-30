@@ -161,6 +161,7 @@ function searchApiCatalog(query: string) {
     version: catalog.version,
     authentication: catalog.authentication,
     rules: catalog.rules,
+    documentation: catalog.documentation,
     contracts: catalog.contracts.filter(matches).slice(0, 30),
     mutations: catalog.mutations.filter(matches).slice(0, 30),
   };
@@ -169,7 +170,7 @@ function searchApiCatalog(query: string) {
 const discoverBusinessApisTool: AgentTool = {
   key: AGENT_BUSINESS_API_TOOL_KEYS[0],
   label: "发现 Workspace 业务 API",
-  description: "按业务词检索受保护的标准 API、workflow 和写动作。只返回 API contract，不读取源码、文件系统、Prisma 或内部 RPC。",
+  description: "按业务词检索受保护的标准 API、workflow 和写动作；不确定时按返回的 documentation 先查生产 Docs。只返回 API contract，不读取源码、文件系统、Prisma 或内部 RPC。",
   parameters: {
     type: "object",
     properties: { query: { type: "string", description: "业务名称、资源、动作或 API path 关键词；* 表示浏览目录" } },
@@ -188,7 +189,7 @@ const discoverBusinessApisTool: AgentTool = {
       type: data.contracts.length || data.mutations.length ? "data" : "empty",
       message: data.contracts.length || data.mutations.length
         ? "已返回匹配的标准业务 API。"
-        : "没有匹配的标准业务 API。",
+        : "没有匹配的标准业务 API。请先读取返回的 documentation.catalogPath，并按目录查询相关文档章节后再判断。",
       data,
       modelContext: data,
     };

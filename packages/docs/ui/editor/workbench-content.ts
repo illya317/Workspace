@@ -77,7 +77,10 @@ export function docsEditorBody(input: {
   setDocumentDraft: Dispatch<SetStateAction<EditorDocument>>;
   onCreateTitleChange: (title: string) => void;
   onCreateOpenChange: (open: boolean) => void;
-}) {
+}): {
+  body: ReturnType<typeof createPageBody>;
+  create: PageSurfaceCreateSpec | undefined;
+} {
   const create: PageSurfaceCreateSpec | undefined = input.createSubmission ? {
     id: "docs-editor-create-template",
     presentation: "inline",

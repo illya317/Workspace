@@ -29,9 +29,6 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const RATE_CONVENTIONS = new Set<DayCountConvention>(["actual_365", "actual_360", "30_360"]);
 
 async function dependencies(overrides: TreasuryValidationDependencies): Promise<Required<TreasuryValidationDependencies>> {
-  if (Object.keys(overrides).length === 0) {
-    return (await import("./reference-adapter")).defaultTreasuryValidationDependencies;
-  }
   const unavailable = async () => { throw new Error("测试未注入所需 Treasury reference dependency"); };
   return new Proxy({ ...overrides }, {
     get(target, property) {
@@ -434,7 +431,7 @@ async function validateInterestWorkpaper(
 export async function buildTreasuryCreateCommand(
   input: TreasuryCreateInput,
   userId: number,
-  overrides: TreasuryValidationDependencies = {},
+  overrides: TreasuryValidationDependencies,
 ): Promise<DomainValidationResult<TreasuryCreateCommand>> {
   const deps = await dependencies(overrides);
   if (!validId(userId)) return failCommand("操作用户无效", 400, "userId");
@@ -464,7 +461,7 @@ export async function buildTreasuryCreateCommand(
 export async function buildTreasuryUpdateCommand(
   input: TreasuryUpdateInput,
   userId: number,
-  overrides: TreasuryValidationDependencies = {},
+  overrides: TreasuryValidationDependencies,
 ): Promise<DomainValidationResult<TreasuryUpdateCommand>> {
   const deps = await dependencies(overrides);
   if (!validId(userId)) return failCommand("操作用户无效", 400, "userId");

@@ -1,4 +1,4 @@
-import type { WorkspacePackageRegistration } from "@workspace/core";
+import type { WorkspacePackageRegistration } from "@workspace/core/module-contract";
 
 export const WORK_RUNTIME_REGISTRY_FRAGMENT = {
   apiRoutes: [

@@ -240,11 +240,11 @@ async function resolveFinanceAssetHandlerUserIds(
   handlerSource: ApprovalHandlerSource,
   request: ApprovalRequestRecord<FinanceAssetCardApprovalPayload>,
   excludeUserId: number | null = request.submitterUserId,
-) {
+): Promise<number[]> {
   if (request.activeWorkflowNodeKey) {
     return resolveWorkflowNodeHandlerUserIds(request, {
       excludeUserId,
-      resolveRelationship: (source) => resolveFinanceAssetHandlerUserIds(source, { ...request, activeWorkflowNodeKey: null }, excludeUserId),
+      resolveRelationship: (source): Promise<number[]> => resolveFinanceAssetHandlerUserIds(source, { ...request, activeWorkflowNodeKey: null }, excludeUserId),
       resolvePermission: () => listFinanceAssetApproverUserIds(excludeUserId),
     });
   }

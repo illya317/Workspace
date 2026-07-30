@@ -1,4 +1,4 @@
-import type { ActionGlyphKind } from "@workspace/core/ui";
+import type { ActionGlyphKind } from "@workspace/core/action-glyph-contract";
 
 export const ACTION_REGISTRY_GROUP_KEYS = [
   "basic",

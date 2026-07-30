@@ -1,4 +1,4 @@
-import type { PermissionActionKey } from "./permission-actions";
+import type { PermissionRegistryActionKey as PermissionActionKey } from "./action-registry";
 
 export const PERMISSION_REVIEW_POLICY_VERSION = 1 as const;
 

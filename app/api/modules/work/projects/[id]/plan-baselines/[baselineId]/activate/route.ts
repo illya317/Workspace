@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { activateProjectPlanBaseline } from "@workspace/work/server";
+import { activateProjectPlanBaseline } from "@workspace/work/server/projects/plan";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 

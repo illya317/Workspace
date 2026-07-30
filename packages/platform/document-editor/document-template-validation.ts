@@ -15,10 +15,11 @@ type ReferenceCandidate = { alias: string; fieldKey: string; context: string };
 export function normalizeDocumentTemplatePayload(
   document: unknown,
   fieldModel: unknown,
+  dryingWeightMultipliers: Readonly<Record<string, number>>,
 ): DomainValidationResult<{ document: unknown; fieldModel: unknown }> {
   const slots = normalizeDocumentSlotPayload(document, fieldModel);
   if (slots.ok === false) return failFrom(slots);
-  const formulas = normalizeDocumentFormulaRules(slots.data.document, slots.data.fieldModel);
+  const formulas = normalizeDocumentFormulaRules(slots.data.document, slots.data.fieldModel, dryingWeightMultipliers);
   if (formulas.ok === false) return failFrom(formulas);
   const normalizedDocument = normalizeDocumentReferences(formulas.data.document, formulas.data.fieldModel);
   if (normalizedDocument.ok === false) return failFrom(normalizedDocument);

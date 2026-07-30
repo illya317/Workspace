@@ -6,9 +6,10 @@ import {
   type TaxCreateCommand,
   type TaxUpdateCommand,
 } from "./validation";
+import { taxValidationDependencies } from "./reference-adapter";
 
 export function buildCreateTaxRouteCommand(input: TaxCreateInput, userId: number) {
-  return buildTaxCreateCommand(input, userId);
+  return buildTaxCreateCommand(input, userId, taxValidationDependencies);
 }
 
 export function executeCreateTaxRouteCommand(command: TaxCreateCommand) {
@@ -16,7 +17,7 @@ export function executeCreateTaxRouteCommand(command: TaxCreateCommand) {
 }
 
 export function buildUpdateTaxRouteCommand(input: TaxUpdateInput, userId: number) {
-  return buildTaxUpdateCommand(input, userId);
+  return buildTaxUpdateCommand(input, userId, taxValidationDependencies);
 }
 
 export function executeUpdateTaxRouteCommand(command: TaxUpdateCommand) {

@@ -1,4 +1,4 @@
-import type { ApiGuardRegistration } from "@workspace/core";
+import type { ApiGuardRegistration } from "@workspace/core/module-contract";
 import {
   isPermissionRegistryActionKey,
   type PermissionRegistryActionKey,

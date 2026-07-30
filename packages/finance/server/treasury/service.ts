@@ -12,6 +12,7 @@ import { date, dateDto, timestampDto, traceData, traceDto } from "./serializatio
 import { principalEventMatchesInput, type TreasuryCreateCommand, type TreasuryUpdateCommand } from "./validation";
 import { validateTreasuryCreatePersistenceCommand, validateTreasuryUpdatePersistenceCommand } from "../domain/treasury-validation";
 import { buildTreasuryBlockers } from "./workspace-blockers";
+import { defaultTreasuryValidationDependencies } from "./reference-adapter";
 const voucherItemDisplay = { select: { sortOrder: true, voucher: { select: { voucherNo: true } }, account: { select: { code: true, name: true } } } } as const;
 const principalEventInclude = { voucherItem: voucherItemDisplay } satisfies Prisma.FinanceLoanPrincipalEventInclude;
 const bankAccountInclude = { account: { select: { year: true, code: true, name: true } } } satisfies Prisma.FinanceBankAccountInclude;
@@ -32,7 +33,6 @@ type ReconciliationRow = Prisma.FinanceBankReconciliationGetPayload<{ include: t
 type LoanRow = Prisma.FinanceLoanGetPayload<{ include: typeof loanInclude }>;
 type PrincipalEventRow = Prisma.FinanceLoanPrincipalEventGetPayload<{ include: typeof principalEventInclude }>;
 type WorkpaperRow = Prisma.FinanceInterestWorkpaperGetPayload<{ include: typeof workpaperInclude }>;
-
 function bankAccountData(input: BankAccountWriteInput, companyId: number) {
   return {
     ...traceData(input),
@@ -315,7 +315,7 @@ async function loadWorkpaper(id: number) {
 }
 
 export async function executeTreasuryCreate(command: TreasuryCreateCommand) {
-  const checked = await validateTreasuryCreatePersistenceCommand(command);
+  const checked = await validateTreasuryCreatePersistenceCommand(command, defaultTreasuryValidationDependencies);
   if (!checked.ok) throw new Error(checked.issue.message);
   command = checked.data;
   const input = command.input;
@@ -426,7 +426,7 @@ function reconciliationItemKind(value: string): BankReconciliationItemInput["ite
   throw new Error(`未知银行对账未达项类型: ${value}`);
 }
 export async function executeTreasuryUpdate(command: TreasuryUpdateCommand) {
-  const checked = await validateTreasuryUpdatePersistenceCommand(command);
+  const checked = await validateTreasuryUpdatePersistenceCommand(command, defaultTreasuryValidationDependencies);
   if (!checked.ok) throw new Error(checked.issue.message);
   command = checked.data;
   const input = command.input;

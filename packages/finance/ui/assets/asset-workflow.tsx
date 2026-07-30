@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormSurfaceReadOnlyFieldSpec } from "@workspace/core/ui";
-import type { ApprovalRequestViewDto } from "@workspace/platform";
+import type { ApprovalRequestViewDto } from "@workspace/platform/workflow-request-contract";
 import { getWorkflowStatusLabel, useWorkflowRequestsSection } from "@workspace/platform/ui/workflow";
 import type { CreateFinanceAssetCardInput, FinanceAssetCategoryDto } from "../../types/assets";
 import { KIND_LABELS } from "./assetScheduleUi";

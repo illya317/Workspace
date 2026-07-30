@@ -26,7 +26,7 @@ import {
 } from "./consolidation-workpaper-model";
 import type { ConsolidationTabProps } from "./statement-ui-types";
 import { useConsolidatedReport } from "./useConsolidatedReport";
-import { downloadStatementWorkbook } from "./statement-download";
+import { downloadFinanceWorkbook } from "../workbook-download";
 import { useConsolidationDecisionWorkspace } from "./useConsolidationDecisionWorkspace";
 
 const ENTRY_EFFECT_COLUMNS: DataSurfaceColumnSpec<ConsolidationWorkpaperEntryEffect>[] = [
@@ -100,7 +100,7 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
     if (!canExport || !batch || !data) return;
     setDownloading(true);
     try {
-      await downloadStatementWorkbook(
+      await downloadFinanceWorkbook(
         workspacePath(`/api/modules/finance/statements/consolidation/batches/${batch.id}/report/export?artifact=workpaper`),
         `${parentName}-${data.scope.year}.${String(data.scope.month).padStart(2, "0")}-合并工作底稿.xlsx`,
       );

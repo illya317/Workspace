@@ -8,7 +8,7 @@ import { archivedBooleanFilter, currentEmploymentDateWhere, currentOpenEndedDate
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { buildVisibleProjectWhere } from "./access";
-import { buildVisibleMeetingWhere } from "./meeting-access";
+import { buildVisibleMeetingWhere } from "./meetings/access";
 import { listWorkTaskSpaces } from "./task-spaces";
 import { listWorkOkrCycleOptions, resolveWorkOkrCycleOption } from "./work-okr-cycles";
 import { listWorkSourceDepartmentsForScope, listWorkSourceDepartmentOptions } from "./work-source-departments";

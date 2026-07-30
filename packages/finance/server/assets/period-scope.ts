@@ -1,30 +1,7 @@
 import { createHash } from "node:crypto";
+import type { AssetScopeCard } from "./close-calculation-contract";
 
-export type AssetScopeCard = {
-  id: number;
-  version: number;
-  status: string;
-  categoryId: number;
-  acquisitionDate: string | null;
-  depreciationStartDate: string | null;
-  originalCost: unknown;
-  residualRate: unknown;
-  usefulLifeMonths: number | null;
-  method: string;
-  assetAccountCode: string;
-  assetAccountId: number | null;
-  accumulatedAccountCode: string | null;
-  accumulatedAccountId: number | null;
-  openingAsOfDate: string | null;
-  initializationMode?: string;
-  openingImpairmentAmount?: unknown;
-  openingNetBookValue?: unknown;
-  cutoverDate?: string | null;
-  remainingUsefulLifeMonthsAtCutover?: number | null;
-  cutoverResidualValue?: unknown;
-  cutoverAllocationStatus?: string | null;
-  cutoverReconciliationFingerprint?: string | null;
-};
+export type { AssetScopeCard } from "./close-calculation-contract";
 
 export function assetScopeFingerprint(cards: AssetScopeCard[]) {
   const payload = cards

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test, { mock } from "node:test";
+import test, { after, mock } from "node:test";
 
 import type { AgentExecutionContext } from "./execution";
 
@@ -23,6 +23,19 @@ mock.module("@workspace/platform/server/internal-unit-rpc", {
     readBoundedJsonResponse: (response: Response) => response.json(),
   },
 } as never);
+
+const { registerPersonalApiDocumentationReference } = await import(
+  "@workspace/platform/server/personal-api-catalog"
+);
+const unregisterPersonalApiDocumentationReference = registerPersonalApiDocumentationReference({
+  uiPath: "/docs/company",
+  catalogPath: "/api/modules/docs/company/documents",
+  sectionPathTemplate: "/api/modules/docs/company/documents/:documentKey?section=:sectionKey",
+  searchPathTemplate: "/api/modules/docs/company/documents/:documentKey?q=:query",
+  permissionQueryPath: "/api/modules/docs/company/permission-actions",
+  guidance: "Fetch the document catalog first.",
+});
+after(unregisterPersonalApiDocumentationReference);
 
 const {
   AGENT_BUSINESS_API_TOOL_KEYS,
@@ -54,6 +67,16 @@ test("API discovery returns standard contracts and never Agent endpoints", async
   const serialized = JSON.stringify(result.data);
   assert.match(serialized, /\/api\/modules\/finance\/cost\/operational-analytics/);
   assert.doesNotMatch(serialized, /\/api\/agent/);
+});
+
+test("API discovery always points uncertain callers to structured production Docs", async () => {
+  const result = await tool("workspace.api.discover").execute({ query: "没有登记的陌生概念" }, execution);
+  assert.equal(result.type, "empty");
+  assert.match(result.message, /documentation\.catalogPath/);
+  assert.equal(
+    (result.data as { documentation?: { catalogPath?: string } }).documentation?.catalogPath,
+    "/api/modules/docs/company/documents",
+  );
 });
 
 test("read connector rejects arbitrary origins, source paths and internal Agent RPC", async (t) => {

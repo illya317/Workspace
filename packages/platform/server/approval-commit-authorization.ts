@@ -1,10 +1,7 @@
 import { serviceError, serviceOk } from "./api";
+import type { ApprovalCommitAuthorization } from "./approval-commit-authorization-contract";
 
-declare const approvalCommitAuthorizationBrand: unique symbol;
-
-export type ApprovalCommitAuthorization = Readonly<{
-  [approvalCommitAuthorizationBrand]: true;
-}>;
+export type { ApprovalCommitAuthorization } from "./approval-commit-authorization-contract";
 
 type ApprovalCommitBinding = {
   requestId: number;

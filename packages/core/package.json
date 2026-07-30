@@ -18,6 +18,8 @@
     "./showcase": "./showcase/index.ts",
     "./showcase/*": "./showcase/*.tsx",
     "./ui-registry": "./ui-registry.ts",
-    "./ui": "./ui/index.ts"
+    "./ui": "./ui/index.ts",
+    "./action-glyph-contract": "./action-glyph-contract.ts",
+    "./surface-navigation-contract": "./surface-navigation-contract.ts"
   }
 }

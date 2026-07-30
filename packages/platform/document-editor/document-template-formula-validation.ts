@@ -11,7 +11,6 @@ import {
   type DomainValidationIssue,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
-import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 
 type FormulaCandidate = {
   alias: string;
@@ -27,8 +26,9 @@ type FormulaCandidate = {
 export function normalizeDocumentFormulaRules(
   document: unknown,
   fieldModel: unknown,
+  dryingWeightMultipliers: Readonly<Record<string, number>>,
 ): DomainValidationResult<{ document: unknown; fieldModel: unknown }> {
-  const candidates = collectFormulaCandidates(document, fieldModel);
+  const candidates = collectFormulaCandidates(document, fieldModel, dryingWeightMultipliers);
   const context = buildFormulaContext(candidates);
   const documentResult = normalizeDocumentFormulaNodes(document, context);
   if (documentResult.ok === false) return documentResult;
@@ -156,7 +156,11 @@ function canonicalFormulaText(
   return normalizeFormulaText(normalizeFormulaDisplayText(replaceFormulaLabels(formulaText, labelMap), formulaMap));
 }
 
-function collectFormulaCandidates(document: unknown, fieldModel: unknown) {
+function collectFormulaCandidates(
+  document: unknown,
+  fieldModel: unknown,
+  dryingWeightMultipliers: Readonly<Record<string, number>>,
+) {
   const fieldLabels = collectFieldLabels(fieldModel);
   const candidates: FormulaCandidate[] = [];
   walkJson(document, (node) => {
@@ -173,16 +177,16 @@ function collectFormulaCandidates(document: unknown, fieldModel: unknown) {
       valueType: stringField(node.valueType),
     });
   });
-  collectFieldModelCandidates(fieldModel).forEach((candidate) => candidates.push(candidate));
+  collectFieldModelCandidates(fieldModel, dryingWeightMultipliers).forEach((candidate) => candidates.push(candidate));
   return candidates;
 }
 
-function collectFieldModelCandidates(fieldModel: unknown) {
+function collectFieldModelCandidates(fieldModel: unknown, dryingWeightMultipliers: Readonly<Record<string, number>>) {
   if (!isRecord(fieldModel) || !isRecord(fieldModel.fields)) return [];
   return Object.entries(fieldModel.fields).flatMap(([fieldKey, field]): FormulaCandidate[] => {
     if (!isRecord(field)) return [];
     const key = stringField(field.fieldKey) || fieldKey;
-    const replacement = constantFieldReplacement(field);
+    const replacement = constantFieldReplacement(field, dryingWeightMultipliers);
     if (!replacement) return [];
     return [{
       alias: key,
@@ -196,17 +200,17 @@ function collectFieldModelCandidates(fieldModel: unknown) {
   });
 }
 
-function constantFieldReplacement(field: Record<string, unknown>) {
+function constantFieldReplacement(field: Record<string, unknown>, dryingWeightMultipliers: Readonly<Record<string, number>>) {
   const numeric = numericText(field.defaultValue) ?? numericText(field.recommendedValue);
   if (numeric) return numeric;
-  const configured = configuredSpecReplacement(field);
+  const configured = configuredSpecReplacement(field, dryingWeightMultipliers);
   if (configured) return configured;
   return null;
 }
 
-function configuredSpecReplacement(field: Record<string, unknown>) {
+function configuredSpecReplacement(field: Record<string, unknown>, dryingWeightMultipliers: Readonly<Record<string, number>>) {
   const source = isRecord(field.source) ? field.source : {};
-  const multiplier = getTenantProfile().docs.formulaRules.dryingWeightMultipliers[stringField(source.productKey)];
+  const multiplier = dryingWeightMultipliers[stringField(source.productKey)];
   return multiplier && stringField(field.name) === "规格" && stringField(field.unit) === "mg"
     ? String(multiplier)
     : null;

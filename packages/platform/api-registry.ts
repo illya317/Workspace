@@ -2,7 +2,7 @@ import type {
   ApiRouteAccessMode,
   ApiRouteRegistration,
   WorkspacePackageRegistration,
-} from "@workspace/core";
+} from "@workspace/core/module-contract";
 
 import { effectiveModuleDefinitions, isApiGuardEnabled } from "./effective-module-registry";
 import { resolvePermissionApiActionPolicy, assertPermissionApiActionPolicySupported } from "./permission-api-action-policy";

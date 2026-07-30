@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import { useFeedback, type FormSurfaceActionSpec } from "@workspace/core/ui";
-import type { ActionRuntimeAction } from "@workspace/platform";
+import type { ActionRuntimeAction } from "@workspace/platform/workflow-action-runtime";
 import { actionRuntimeCommands, workflowActionSurfaceActions } from "@workspace/platform/ui";
 import {
   performanceReviewPayload,

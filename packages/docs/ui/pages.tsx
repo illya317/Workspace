@@ -1,8 +1,8 @@
 import type { SessionUser } from "@workspace/platform/types";
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
+import type { CompanyDocumentItem } from "../company-documents";
 import DocsEditorWorkbench from "./editor/DocsEditorWorkbench";
 import CompanyDocumentsClient from "./CompanyDocumentsClient";
-import type { CompanyDocumentItem } from "@workspace/platform/company-documents";
 
 export function DocsCompanyPage({ user, documents }: { user: SessionUser; documents: CompanyDocumentItem[] }) {
   return <CompanyDocumentsClient user={user} documents={documents} />;

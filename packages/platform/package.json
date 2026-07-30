@@ -22,7 +22,6 @@
     "./completion-date-policy": "./completion-date-policy.ts",
     "./data-quality-contract": "./data-quality-contract.ts",
     "./data-quality-provider-registry": "./data-quality-provider-registry.ts",
-    "./company-documents": "./company-documents.ts",
     "./contracts/*": "./contracts/*.ts",
     "./calendar": "./calendar/index.ts",
     "./hooks": "./hooks/index.ts",
@@ -184,7 +183,7 @@
     "./server/workspace-analysis-v2-upgrader": "./server/workspace-analysis-v2-upgrader.ts",
     "./server/workspace-analysis-v2-registration-resolver": "./server/workspace-analysis-v2-registration-resolver.ts",
     "./server/workspace-analysis-execution-plan": "./server/workspace-analysis-execution-plan.ts",
-    "./server/workspace-analysis-runtime": "./server/workspace-analysis-runtime.ts",
+    "./server/workspace-analysis-runtime": "./server/workspace-analysis-runtime/index.ts",
     "./server/workspace-analysis-source-executor": "./server/workspace-analysis-source-executor.ts",
     "./server/workspace-analysis-source-directory": "./server/workspace-analysis-source-directory.ts",
     "./server/workspace-analysis-source-rpc": "./server/workspace-analysis-source-rpc.ts",
@@ -203,6 +202,14 @@
     "./ui/space-workbench": "./ui/space-workbench.ts",
     "./ui/tenant-config": "./ui/tenant-config.tsx",
     "./ui": "./ui/index.ts",
-    "./ui/*": "./ui/*.tsx"
+    "./ui/*": "./ui/*.tsx",
+    "./workflow-request-contract": "./workflow-request-contract.ts",
+    "./workflow-status": "./workflow-status.ts",
+    "./server/business-document-intelligence-client": "./server/business-document-intelligence-client.ts",
+    "./server/business-document-intelligence-contract": "./server/business-document-intelligence-contract.ts",
+    "./business-code-config-contract": "./business-code-config-contract.ts",
+    "./relation-registration-contract": "./relation-registration-contract.ts",
+    "./service-result": "./service-result.ts",
+    "./server/party-name-rules": "./server/party-name-rules.ts"
   }
 }

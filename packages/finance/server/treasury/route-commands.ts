@@ -6,9 +6,10 @@ import {
   type TreasuryCreateCommand,
   type TreasuryUpdateCommand,
 } from "./validation";
+import { defaultTreasuryValidationDependencies } from "./reference-adapter";
 
 export function buildTreasuryCreateRouteCommand(input: TreasuryCreateInput, userId: number) {
-  return buildTreasuryCreateCommand(input, userId);
+  return buildTreasuryCreateCommand(input, userId, defaultTreasuryValidationDependencies);
 }
 
 export function executeTreasuryCreateRouteCommand(command: TreasuryCreateCommand) {
@@ -16,7 +17,7 @@ export function executeTreasuryCreateRouteCommand(command: TreasuryCreateCommand
 }
 
 export function buildTreasuryUpdateRouteCommand(input: TreasuryUpdateInput, userId: number) {
-  return buildTreasuryUpdateCommand(input, userId);
+  return buildTreasuryUpdateCommand(input, userId, defaultTreasuryValidationDependencies);
 }
 
 export function executeTreasuryUpdateRouteCommand(command: TreasuryUpdateCommand) {

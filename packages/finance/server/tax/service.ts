@@ -15,6 +15,7 @@ import {
   validateTaxUpdatePersistenceCommand,
 } from "../domain/tax-validation";
 import { taxRegistrationPeriodScope } from "./registration-period-scope";
+import { taxValidationDependencies } from "./reference-adapter";
 
 const sourceKeys = [
   "sourceKind",
@@ -157,7 +158,7 @@ async function appendPayment(input: Extract<TaxCreateInput, { kind: "payment_app
 }
 
 export async function executeTaxCreate(command: TaxCreateCommand) {
-  const checked = await validateTaxCreatePersistenceCommand(command);
+  const checked = await validateTaxCreatePersistenceCommand(command, taxValidationDependencies);
   if (!checked.ok) throw new Error(checked.issue.message);
   command = checked.data;
   if (command.idempotentRecordId) {
@@ -223,7 +224,7 @@ async function updateFiling(input: Extract<TaxUpdateInput, { kind: "filing_updat
 }
 
 export async function executeTaxUpdate(command: TaxUpdateCommand) {
-  const checked = await validateTaxUpdatePersistenceCommand(command);
+  const checked = await validateTaxUpdatePersistenceCommand(command, taxValidationDependencies);
   if (!checked.ok) throw new Error(checked.issue.message);
   command = checked.data;
   const record = command.input.kind === "registration_update"

@@ -5,7 +5,7 @@ import type {
   PageRouteRegistration,
   ResourceRegistration,
   WorkspacePackageRegistration,
-} from "@workspace/core";
+} from "@workspace/core/module-contract";
 import { deriveSpaceResourceDefsFromRegistrations } from "./space-resource-model";
 
 export function apiResourceGuards(

@@ -1,4 +1,4 @@
-import type { RelationRegistration } from "./server/relation-targets";
+import type { RelationRegistrationContract as RelationRegistration } from "./relation-registration-contract";
 
 export const HR_RELATION_REGISTRATIONS = [
   { key: "hr.department", scope: "hr", source: { entity: "Any", field: "departmentId" }, target: "department", nullable: true, permission: { resourceKey: "hr.roster", action: "read" } },

@@ -11,7 +11,7 @@ import { analyzeSourceCode } from "./analyzer";
 export const DEFAULT_SOURCE_CODE_ANALYSIS_SNAPSHOT = ".cache/source-code-analysis/snapshot.json";
 type BlockingDiagnosticsSummary = Pick<
   SourceCodeAnalysisSnapshot["summary"],
-  "unclassifiedFileCount" | "ambiguousFileCount" | "missingInterfaceCount" | "dependencyCycleCount" | "dependencyFileCycleCount" | "mixedResponsibilityFileCount"
+  "unclassifiedFileCount" | "ambiguousFileCount" | "missingInterfaceCount" | "dependencyCycleCount" | "dependencyFileCycleCount" | "invalidDependencyDirectionCount" | "mixedResponsibilityFileCount" | "newUnclassifiedCapabilityFileCount" | "ambiguousCapabilityFileCount"
 >;
 
 export function hasBlockingSourceCodeAnalysisDiagnostics(snapshot: { summary: BlockingDiagnosticsSummary }) {
@@ -20,7 +20,10 @@ export function hasBlockingSourceCodeAnalysisDiagnostics(snapshot: { summary: Bl
     || snapshot.summary.missingInterfaceCount > 0
     || snapshot.summary.dependencyCycleCount > 0
     || (snapshot.summary.dependencyFileCycleCount ?? 0) > 0
-    || snapshot.summary.mixedResponsibilityFileCount > 0;
+    || snapshot.summary.invalidDependencyDirectionCount > 0
+    || snapshot.summary.mixedResponsibilityFileCount > 0
+    || snapshot.summary.newUnclassifiedCapabilityFileCount > 0
+    || snapshot.summary.ambiguousCapabilityFileCount > 0;
 }
 
 function printDiagnostics(snapshot: Awaited<ReturnType<typeof analyzeSourceCode>>) {
@@ -37,8 +40,21 @@ function printDiagnostics(snapshot: Awaited<ReturnType<typeof analyzeSourceCode>
   for (const cycle of snapshot.dependencyFileCycles) {
     console.error(`[source-code-analysis] ${cycle.classification === "runtime" ? "运行时" : "类型"}文件依赖循环: ${cycle.paths.join(" -> ")}`);
   }
+  for (const item of snapshot.invalidDependencyDirections) {
+    console.error(
+      `[source-code-analysis] 非法依赖方向(${item.reason}): ${item.sourcePath} [${item.sourceModuleKey}/${item.sourceRole}] -> ${item.targetPath} [${item.targetModuleKey}/${item.targetRole}] (${item.kind})`,
+    );
+  }
   for (const item of snapshot.diagnostics.mixedResponsibilityFiles) {
     console.error(`[source-code-analysis] 未解耦混合职责: ${item.path} -> ${item.roles.join(" + ")}`);
+  }
+  for (const item of snapshot.diagnostics.newUnclassifiedCapabilityFiles) {
+    console.error(`[source-code-analysis] 新增未声明 L2 能力归属: ${item.path} [${item.moduleKey}]`);
+  }
+  for (const item of snapshot.diagnostics.ambiguousCapabilityFiles) {
+    console.error(
+      `[source-code-analysis] L2 能力多重归属: ${item.path} [${item.moduleKey}] -> ${item.capabilityKeys.join(", ")}`,
+    );
   }
 }
 
@@ -94,7 +110,7 @@ export async function runSourceCodeAnalysis(args = process.argv.slice(2), reposi
   }
   if (!json) {
     console.log(
-      `source code analysis: ${snapshot.summary.fileCount} files, ${snapshot.summary.lines} lines, ${snapshot.summary.coveragePercent}% declared, ${snapshot.summary.dependencyCycleCount} module cycles, ${snapshot.summary.dependencyFileCycleCount} file cycles`,
+      `source code analysis: ${snapshot.summary.fileCount} files, ${snapshot.summary.lines} lines, ${snapshot.summary.coveragePercent}% L1 declared, ${snapshot.summary.capabilityCoveragePercent}% L2 declared, ${snapshot.summary.dependencyCycleCount} module cycles, ${snapshot.summary.dependencyFileCycleCount} file cycles, ${snapshot.summary.invalidDependencyDirectionCount} invalid directions`,
     );
   }
   return 0;

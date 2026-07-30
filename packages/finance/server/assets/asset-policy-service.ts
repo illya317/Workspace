@@ -7,7 +7,7 @@ import {
   residualRatePercentToDecimal,
   type FinanceAssetCategoryPolicyDeleteCommand,
   type FinanceAssetCategoryPolicyUpdateCommand,
-} from "../domain/asset-validation";
+} from "./validation";
 
 export async function updateFinanceAssetCategoryPolicy(command: FinanceAssetCategoryPolicyUpdateCommand) {
   const validated = await buildUpdateFinanceAssetCategoryPolicyCommand(command.input, command.userId);

@@ -56,18 +56,6 @@ export {
 } from "./workspace-analysis-kpi-result-sources";
 
 export {
-  WORK_MEETING_ACTION_CANDIDATES_ANALYSIS_SOURCE,
-  WORK_MEETING_AGENDA_ITEMS_ANALYSIS_SOURCE,
-  WORK_MEETING_DECISIONS_ANALYSIS_SOURCE,
-  WORK_MEETING_DETAIL_ANALYSIS_SOURCE_REGISTRATIONS,
-  WORK_MEETING_DETAIL_PARTICIPANTS_ANALYSIS_SOURCE,
-  WORK_MEETING_DETAILS_ANALYSIS_SOURCE,
-  WORK_MEETING_MINUTE_ENTRIES_ANALYSIS_SOURCE,
-  WORK_MEETING_PROPOSALS_ANALYSIS_SOURCE,
-  WORK_MEETING_PROPOSAL_VOTES_ANALYSIS_SOURCE,
-} from "./workspace-analysis-meeting-detail-sources";
-
-export {
   registerWorkDepartmentCollaborationNotificationActionProvider,
 } from "./department-collaboration-notification-actions";
 
@@ -90,26 +78,6 @@ export {
 } from "./department-home";
 
 export {
-  buildMeetingActionCandidateCommand,
-  executeMeetingActionCandidateCommand,
-} from "./meeting-action-candidate-command";
-
-export {
-  castMeetingVote,
-  closeMeetingProposal,
-  createMeeting,
-  createMeetingAgendaItem,
-  createMeetingDecision,
-  createMeetingMinuteEntry,
-  createMeetingProposal,
-  deleteMeeting,
-  getMeetingDetail,
-  listMeetings,
-  updateMeeting,
-  upsertMeetingParticipant,
-} from "./meetings";
-
-export {
   registerWorkProjectMemberNotificationActionProvider,
 } from "./project-member-notification-actions";
 
@@ -119,22 +87,6 @@ export {
   listProjectMembers,
   updateProjectMemberFieldAction,
 } from "./project-members";
-
-export {
-  createProjectPlanPhase,
-  deleteProjectPlanPhase,
-  listProjectPlanGantt,
-  listProjectPlanPhases,
-  saveProjectPlanGantt,
-  syncProjectPlanDependencies,
-  updateProjectPlanPhase,
-} from "./project-plan";
-
-export {
-  activateProjectPlanBaseline,
-  createProjectPlanBaseline,
-  listProjectPlanBaselines,
-} from "./project-plan-baselines";
 
 export {
   getUserPreferredProjectSettings,
@@ -218,6 +170,7 @@ export {
 } from "./work-plan-route-command";
 
 export { workImpactCommandBodySchema } from "./work-mutation-impact-schema";
+
 
 export { executeSaveWorkReportRouteCommand } from "./work-report-mutation-executor";
 

@@ -1,8 +1,8 @@
 import {
-  PERMISSION_ACTION_KEYS,
-  isPermissionActionKey,
-  type PermissionActionKey,
-} from "./permission-actions";
+  PERMISSION_ACTION_REGISTRY_KEYS as PERMISSION_ACTION_KEYS,
+  isPermissionRegistryActionKey as isPermissionActionKey,
+  type PermissionRegistryActionKey as PermissionActionKey,
+} from "./action-registry";
 
 /**
  * Agent action ceiling. This is intentionally an allowlist so newly registered

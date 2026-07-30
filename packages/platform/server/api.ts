@@ -1,53 +1,35 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import type { ServiceResult } from "../service-result";
+import type { DomainValidationIssue } from "./domain-validation";
 import { workspaceInternalOrigin } from "./internal-unit-rpc";
+
+export {
+  isPlatformServiceResult,
+  isServiceResult,
+  serviceError,
+  serviceOk,
+  type ServiceErrorDetails,
+  type ServiceResult,
+} from "../service-result";
+
+export function domainIssueToResponse(issue: DomainValidationIssue) {
+  return jsonErrorResponse(issue.message, issue.status ?? 400, issue.field ? { field: issue.field } : undefined);
+}
+
+export function toServiceErrorResponse(result: { error: string; status?: number; details?: Record<string, unknown> }) {
+  return serviceResponse({
+    ok: false,
+    error: result.error,
+    status: result.status,
+    details: result.details,
+  });
+}
 
 export type ParsedJson<T> =
   | { ok: true; data: T }
   | { ok: false; error: string };
-
-export type ServiceErrorDetails = Record<string, unknown>;
-
-export type ServiceResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string; status?: number; details?: ServiceErrorDetails };
-
-const SERVICE_RESULT_BRAND = Symbol.for("@workspace/platform/service-result");
-
-type BrandedServiceResult<T> = ServiceResult<T> & { [SERVICE_RESULT_BRAND]: true };
-
-function brandServiceResult<T>(result: ServiceResult<T>): BrandedServiceResult<T> {
-  Object.defineProperty(result, SERVICE_RESULT_BRAND, {
-    value: true,
-    enumerable: false,
-  });
-  return result as BrandedServiceResult<T>;
-}
-
-export function serviceOk<T>(data: T): ServiceResult<T> {
-  return brandServiceResult({ ok: true, data });
-}
-
-export function serviceError(
-  error: string,
-  status = 400,
-  details?: ServiceErrorDetails,
-): ServiceResult<never> {
-  return brandServiceResult({ ok: false, error, status, ...(details ? { details } : {}) });
-}
-
-export function isServiceResult<T = unknown>(value: unknown): value is ServiceResult<T> {
-  if (!value || typeof value !== "object" || !("ok" in value)) return false;
-  const result = value as Record<string, unknown>;
-  if (result.ok === true) return "data" in result;
-  if (result.ok === false) return typeof result.error === "string";
-  return false;
-}
-
-export function isPlatformServiceResult<T = unknown>(value: unknown): value is ServiceResult<T> {
-  return Boolean(value && typeof value === "object" && (value as Record<PropertyKey, unknown>)[SERVICE_RESULT_BRAND] === true);
-}
 
 export async function parseJson<T>(
   request: Request,

@@ -2,13 +2,13 @@
  * Agent tool contracts.
  * Platform owns orchestration; domain packages own concrete tool adapters.
  */
-import type { PermissionActionKey } from "@workspace/platform/permission-actions";
+import type { PermissionRegistryActionKey } from "@workspace/platform/action-registry";
 
-import type { AgentExecutionContext } from "./execution";
+import type { AgentExecutionContext } from "./execution-contract";
 
 export interface AgentToolPermissionRequirement {
   resourceKey: string;
-  action: PermissionActionKey;
+  action: PermissionRegistryActionKey;
 }
 
 export interface AgentToolResult {
@@ -54,7 +54,7 @@ export interface AgentTool {
    * Use this when the live business permission is scoped and therefore cannot
    * be evaluated from a static root resource requirement.
    */
-  policyActions?: readonly PermissionActionKey[];
+  policyActions?: readonly PermissionRegistryActionKey[];
   /** Explicit opt-in: the adapter is safe when requester and virtual actor differ. */
   delegatedExecution?: boolean;
   /** Explicit opt-in: this tool is unavailable to the profile-less personal assistant. */

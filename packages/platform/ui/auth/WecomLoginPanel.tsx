@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { FormSurfaceItemSpec } from "@workspace/core/ui";
-import { mountWecomLoginPanel } from "./wecom-login-panel-adapter";
+import { mountWecomLoginPanel } from "../../integrations/wecom-login-panel";
 
 type WecomLoginPanelOptions = {
   key: string;

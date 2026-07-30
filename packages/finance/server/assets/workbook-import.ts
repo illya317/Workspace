@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
-import { buildAssetWorkbookImportCommand } from "../domain/asset-validation";
+import { buildAssetWorkbookImportCommand } from "./validation";
 import { resolveFinanceAssetCategoryPolicy } from "./account-policy-resolver";
 import { allocateFinanceAssetCode } from "./asset-code-allocation";
 import { parseAssetWorkbook } from "./current-period-workbook";

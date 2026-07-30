@@ -1,7 +1,7 @@
 import type {
-  BusinessCodeConfig,
+  DepartmentCodeRule,
   SequentialBusinessCodeRule,
-} from "@workspace/platform/business-code-config";
+} from "@workspace/platform/business-code-config-contract";
 
 interface DepartmentNode {
   id: number;
@@ -41,7 +41,7 @@ function deriveChildCode(
   parentCode: string,
   childLevel: number,
   childOldCode: string,
-  departmentRule: BusinessCodeConfig["department"],
+  departmentRule: DepartmentCodeRule,
 ): string {
   const identifierLength = departmentRule.identifierLength;
   const prefix = parentCode.slice(0, identifierLength);
@@ -73,7 +73,7 @@ export function deriveDepartmentCodeCascade(params: {
   newCode: string;
   departments: DepartmentNode[];
   positions: PositionNode[];
-  departmentRule: BusinessCodeConfig["department"];
+  departmentRule: DepartmentCodeRule;
   positionRule: SequentialBusinessCodeRule;
 }): {
   departments: Array<{ id: number; code: string }>;

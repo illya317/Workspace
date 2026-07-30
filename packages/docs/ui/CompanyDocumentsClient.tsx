@@ -12,9 +12,9 @@ import {
   type SelectorSurfaceProps,
 } from "@workspace/core/ui";
 import { createDocumentWorkspaceSection } from "@workspace/platform/document-editor";
-import type { CompanyDocumentItem } from "@workspace/platform/company-documents";
 import type { SessionUser } from "@workspace/platform/types";
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
+import type { CompanyDocumentItem } from "../company-documents";
 import { companyDocumentFromMarkdown } from "./company-document-markdown";
 
 function fileSize(bytes: number) {

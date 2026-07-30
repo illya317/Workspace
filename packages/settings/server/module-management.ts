@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { ModuleRegistration, SubModuleRegistration } from "@workspace/core";
+import type { ModuleRegistration, SubModuleRegistration } from "@workspace/core/module-contract";
 import {
   getResourceRuntimeState,
 } from "@workspace/platform/effective-module-registry";

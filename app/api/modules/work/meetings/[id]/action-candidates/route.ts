@@ -4,7 +4,7 @@ import { createCommandRoute } from "@workspace/platform/server/api-route";
 import {
   buildMeetingActionCandidateCommand,
   executeMeetingActionCandidateCommand,
-} from "@workspace/work/server";
+} from "@workspace/work/server/meetings";
 
 const actionCandidateSchema = z.object({
   action: z.enum(["ignore", "linkWorkPlan", "createWorkPlan", "linkWorkItem", "createWorkItem"]).optional(),

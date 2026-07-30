@@ -6,7 +6,7 @@ import { CAPITAL_SECURITIES_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../.
 import { EXTERNAL_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/external/server/workspace-analysis-sources";
 import { FINANCE_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/finance/server/cost/workspace-analysis-sources";
 import { FINANCE_GENERAL_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/finance/server/workspace-analysis-source-registrations";
-import { HR_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/hr/server/workspace-analysis-sources";
+import { HR_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "@workspace/hr/server/analysis";
 import { INVENTORY_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/inventory/server/workspace-analysis-sources";
 import { LIBRARY_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/library/server/workspace-analysis-sources";
 import { PRODUCTION_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/production/server/workspace-analysis-sources";
@@ -61,6 +61,16 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     disposition: "excluded",
     reason: "lookupFragment",
     description: "该接口只返回当前用户可登记的客户或供应商 Party 候选；完整关联方名录由已登记的数据源提供。",
+  },
+  "/api/modules/docs/company/documents": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "租户配置的公司文档目录用于知识导航和按需检索；文件元数据不是经营事实数据集。",
+  },
+  "/api/modules/docs/company/documents/[key]": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "单份租户配置 paper 文档的章节目录、检索摘要和章节正文属于知识内容读取；不是稳定可分页的经营事实读模型。",
   },
   "/api/modules/finance/analysis/budget": {
     disposition: "derived",

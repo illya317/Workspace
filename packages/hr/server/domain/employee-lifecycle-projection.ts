@@ -2,7 +2,7 @@ import { shiftBusinessDate } from "@workspace/platform/contracts/business-tempor
 import type {
   EmployeeLifecycleEventType,
   LifecycleAssignmentPeriod,
-} from "./employee-lifecycle-validation";
+} from "@workspace/hr/employee-lifecycle-contract";
 import { assignmentTemporalPosition } from "./employee-business-temporal";
 
 export type AssignmentProjectionCommand = {

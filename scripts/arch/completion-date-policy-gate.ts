@@ -29,7 +29,7 @@ const SERVER_POLICY_EVIDENCE = [
   { file: "packages/work/server/work-plans.ts", required: ["validateCompletionSchedule({"] },
   { file: "packages/work/server/work-period-schedule.ts", required: ["validateCompletionSchedule({"] },
   { file: "packages/work/server/domain/project-validation.ts", required: ["validateCompletionSchedule("] },
-  { file: "packages/work/server/project-plan.ts", required: ["validateCompletionSchedule({"] },
+  { file: "packages/work/server/projects/plan/application.ts", required: ["validateCompletionSchedule({"] },
 ] as const;
 
 const PUBLIC_ALIAS_RULES = [
@@ -37,7 +37,7 @@ const PUBLIC_ALIAS_RULES = [
   { files: ["app/api/modules/work/tasks/plans/route.ts", "app/api/modules/work/tasks/plans/[id]/route.ts"], forbidden: ["periodStart", "periodEnd"] },
   { files: ["packages/work/ui/works/types.ts", "packages/work/server/work-item-dto.ts"], forbidden: ["dueDate"] },
   { files: ["packages/work/ui/tabs/project/model.ts", "packages/work/server/projects.ts", "packages/work/server/domain/project-validation.ts"], forbidden: ["baselineStartDate", "baselineEndDate"] },
-  { files: ["packages/work/server/task-reports.ts", "packages/hr/server/performance-contribution-detail.ts"], forbidden: ["plannedStartDateSnapshot", "plannedEndDateSnapshot", "actualEndDateSnapshot", "completedAtSnapshot"] },
+  { files: ["packages/work/server/task-reports.ts", "packages/hr/server/performance/contribution-detail.ts"], forbidden: ["plannedStartDateSnapshot", "plannedEndDateSnapshot", "actualEndDateSnapshot", "completedAtSnapshot"] },
 ] as const;
 
 export function createCompletionDatePolicyIssues(): CompletionDatePolicyIssue[] {

@@ -5,7 +5,6 @@ import path from "node:path";
 import { readFile, stat } from "node:fs/promises";
 
 import { onlyOfficeDocumentKey, onlyOfficeDocumentType } from "../office-preview";
-import type { CompanyDocumentItem } from "../company-documents";
 import type { TenantCompanyDocumentConfig } from "../tenant-config";
 import {
   onlyOfficeSourceUrl,
@@ -47,19 +46,48 @@ async function loadedDocument(documentKey: string) {
   };
 }
 
-export async function listCompanyDocuments(): Promise<CompanyDocumentItem[]> {
+export type TenantCompanyDocumentMetadata = {
+  key: string;
+  title: string;
+  description: string;
+  format: "office" | "paper";
+  fileName: string;
+  fileSizeBytes: number;
+  updatedAt: string;
+};
+
+export type TenantCompanyDocumentSource = TenantCompanyDocumentMetadata & {
+  content: Uint8Array;
+};
+
+function tenantCompanyDocumentMetadata(
+  document: TenantCompanyDocumentConfig,
+  absolutePath: string,
+  fileStat: { size: number; mtime: Date },
+): TenantCompanyDocumentMetadata {
+  return {
+    key: document.key,
+    title: document.title,
+    description: document.description,
+    format: document.format,
+    fileName: path.basename(absolutePath),
+    fileSizeBytes: fileStat.size,
+    updatedAt: fileStat.mtime.toISOString(),
+  };
+}
+
+export async function readTenantCompanyDocumentSource(documentKey: string): Promise<TenantCompanyDocumentSource> {
+  const loaded = await loadedDocument(documentKey);
+  return {
+    ...tenantCompanyDocumentMetadata(loaded.document, loaded.absolutePath, loaded.fileStat),
+    content: loaded.buffer,
+  };
+}
+
+export async function listTenantCompanyDocumentMetadata(): Promise<TenantCompanyDocumentMetadata[]> {
   return Promise.all(getTenantProfile().docs.companyDocuments.map(async (document) => {
-    const loaded = await loadedDocument(document.key);
-    return {
-      key: document.key,
-      title: document.title,
-      description: document.description,
-      format: document.format,
-      fileName: loaded.fileName,
-      fileSizeBytes: loaded.fileStat.size,
-      updatedAt: loaded.fileStat.mtime.toISOString(),
-      markdown: document.format === "paper" ? loaded.buffer.toString("utf8") : null,
-    };
+    const absolutePath = resolveTenantConfigPath(document.file);
+    return tenantCompanyDocumentMetadata(document, absolutePath, await stat(absolutePath));
   }));
 }
 

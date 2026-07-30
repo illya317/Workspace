@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createProjectPlanBaseline, listProjectPlanBaselines } from "@workspace/work/server";
+import { createProjectPlanBaseline, listProjectPlanBaselines } from "@workspace/work/server/projects/plan";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";

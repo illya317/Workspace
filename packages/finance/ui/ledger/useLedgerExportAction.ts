@@ -13,7 +13,7 @@ import type {
 } from "../../types/ledger";
 import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 import { useCallback, useState } from "react";
-import { downloadFinanceWorkbook } from "../components/downloadFinanceWorkbook";
+import { downloadFinanceWorkbook } from "../workbook-download";
 
 interface LedgerExportActionInput {
   canExport: boolean;

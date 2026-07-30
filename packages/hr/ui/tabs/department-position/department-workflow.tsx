@@ -9,7 +9,7 @@ import {
   createPanelSection,
 } from "@workspace/core/ui";
 import { postJson, putJson, requestJson } from "@workspace/platform/ui/api-client";
-import type { ApprovalRequestViewDto } from "@workspace/platform";
+import type { ApprovalRequestViewDto } from "@workspace/platform/workflow-request-contract";
 import { createDepartmentDescriptionDetailsSections } from "@workspace/platform/ui/organization-units";
 import {
   formatWorkflowDateTime,

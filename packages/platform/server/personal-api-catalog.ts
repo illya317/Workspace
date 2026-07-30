@@ -3,6 +3,50 @@ import "server-only";
 import { getApiContracts } from "../api-registry";
 import { listBusinessActionRegistrations } from "../business-action-registry";
 
+export type PersonalApiDocumentationReference = {
+  readonly uiPath: string;
+  readonly catalogPath: string;
+  readonly sectionPathTemplate: string;
+  readonly searchPathTemplate: string;
+  readonly permissionQueryPath: string;
+  readonly guidance: string;
+};
+
+let personalApiDocumentationReference: PersonalApiDocumentationReference | null = null;
+let personalApiDocumentationLeaseCount = 0;
+
+function sameDocumentationReference(
+  left: PersonalApiDocumentationReference,
+  right: PersonalApiDocumentationReference,
+) {
+  return left.uiPath === right.uiPath
+    && left.catalogPath === right.catalogPath
+    && left.sectionPathTemplate === right.sectionPathTemplate
+    && left.searchPathTemplate === right.searchPathTemplate
+    && left.permissionQueryPath === right.permissionQueryPath
+    && left.guidance === right.guidance;
+}
+
+export function registerPersonalApiDocumentationReference(reference: PersonalApiDocumentationReference) {
+  if (
+    personalApiDocumentationReference
+    && !sameDocumentationReference(personalApiDocumentationReference, reference)
+  ) {
+    throw new Error("Personal API documentation reference is already registered");
+  }
+  personalApiDocumentationReference ??= reference;
+  personalApiDocumentationLeaseCount += 1;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    personalApiDocumentationLeaseCount -= 1;
+    if (personalApiDocumentationLeaseCount > 0) return;
+    personalApiDocumentationLeaseCount = 0;
+    personalApiDocumentationReference = null;
+  };
+}
+
 export function buildPersonalApiCatalog() {
   const contracts = getApiContracts()
     .filter((contract) => (
@@ -55,7 +99,9 @@ export function buildPersonalApiCatalog() {
       "serviceDelegated endpoints perform the final object or space check inside their owning business service.",
       "Resolve concrete IDs, query values and request bodies from API responses and contracts; never guess them.",
       "Mutation endpoints execute when dispatched. The client or embedded runtime owns conversational confirmation and should read current versions before CAS-protected writes.",
+      "When a contract, permission, business term or write sequence is unclear, query the structured documentation catalog before guessing or claiming that no API exists.",
     ],
+    documentation: personalApiDocumentationReference,
     contracts,
     mutations,
   };

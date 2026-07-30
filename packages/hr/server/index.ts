@@ -103,11 +103,6 @@ export {
 } from "./performance";
 
 export {
-  buildGetHrPerformanceContributionDetailRouteCommand,
-  executeGetHrPerformanceContributionDetailRouteCommand,
-} from "./performance-contribution-detail";
-
-export {
   deletePositionCode,
   getPositionCodes,
   upsertPositionCode,

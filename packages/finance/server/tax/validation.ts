@@ -301,9 +301,8 @@ async function validateUpdateTarget(input: TaxUpdateInput, dependencies: TaxVali
 export async function buildTaxCreateCommand(
   input: TaxCreateInput,
   userId: number,
-  dependencies?: TaxValidationDependencies,
+  dependencies: TaxValidationDependencies,
 ): Promise<DomainValidationResult<TaxCreateCommand>> {
-  dependencies ??= (await import("./reference-adapter")).taxValidationDependencies;
   if (!Number.isInteger(userId) || userId <= 0) return failCommand("用户身份无效", 400, "userId");
   if (input.kind === "registration_create") {
     const result = await validateTaxRegistration(input, dependencies);
@@ -331,9 +330,8 @@ export async function buildTaxCreateCommand(
 export async function buildTaxUpdateCommand(
   input: TaxUpdateInput,
   userId: number,
-  dependencies?: TaxValidationDependencies,
+  dependencies: TaxValidationDependencies,
 ): Promise<DomainValidationResult<TaxUpdateCommand>> {
-  dependencies ??= (await import("./reference-adapter")).taxValidationDependencies;
   if (!Number.isInteger(userId) || userId <= 0) return failCommand("用户身份无效", 400, "userId");
   const target = await validateUpdateTarget(input, dependencies);
   if (!target.ok) return target;

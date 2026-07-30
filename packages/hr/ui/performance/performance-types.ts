@@ -1,4 +1,4 @@
-import type { ActionRuntime } from "@workspace/platform";
+import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 import type { WorkReportCollectionStatus } from "@workspace/platform/work-reporting-policy";
 
 export type PerfTab = "attendance" | "works" | "performance";

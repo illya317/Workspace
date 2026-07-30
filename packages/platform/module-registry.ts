@@ -1,4 +1,4 @@
-import type { WorkspacePackageRegistration } from "@workspace/core";
+import type { WorkspacePackageRegistration } from "@workspace/core/module-contract";
 import type { RelationRegistration } from "./server/relation-targets";
 import { FINANCE_MODULE_REGISTRY_FRAGMENT } from "./module-registry-finance-operational-analytics";
 import { HR_RUNTIME_REGISTRY_FRAGMENT } from "./module-registry-hr-runtime";

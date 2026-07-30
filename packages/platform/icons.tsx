@@ -1,4 +1,4 @@
-import type { ModuleIconKey } from "@workspace/core";
+import type { ModuleIconKey } from "@workspace/core/module-contract";
 import { ActionGlyph } from "@workspace/core/ui";
 import type { ReactNode } from "react";
 

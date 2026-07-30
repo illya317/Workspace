@@ -20,6 +20,7 @@ app/api/modules/docs/editor/
   spaces/[spaceId]/permissions     # 空间授权表
 
 packages/docs/server/
+  company-documents.ts             # 公司文档页面模型、paper 目录/章节查询与 Docs 路径语义
   service.ts                       # 模板读写服务
   permissions.ts                   # 模板空间权限和自然角色
   approvals.ts                     # 模板流程 adapter
@@ -32,11 +33,12 @@ packages/docs/ui/
   editor/*                         # 模板编辑器 UI
 
 packages/platform/server/
-  company-documents.ts             # 租户公司文档目录、文件读取与 ONLYOFFICE 短时源文件授权
+  company-documents.ts             # 租户文档元数据列表、按 key 内容读取与 ONLYOFFICE 短时源文件 adapter
   onlyoffice-viewer.ts             # 公司文档与资料库共同使用的 ONLYOFFICE 只读宿主
 
 app/api/modules/docs/company/
   documents/[key]/office-viewer/   # 登录态、docs.company.read 保护的 Office 阅读宿主页
+  documents/                       # 登录态、docs.company.read 保护的文档目录与 paper 按章节查询 API
   permission-actions/              # 登录态、docs.company.read 保护的结构化权限知识查询 API
 
 app/api/integrations/onlyoffice/

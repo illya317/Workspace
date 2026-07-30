@@ -3,7 +3,7 @@ import type {
   ModuleRegistration,
   ResourceRegistration,
   SubModuleRegistration,
-} from "@workspace/core";
+} from "@workspace/core/module-contract";
 import {
   registeredModuleDefinitions,
   type RelationAwareWorkspacePackageRegistration,

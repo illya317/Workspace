@@ -105,8 +105,8 @@ test("dependency analysis keeps responsibility edges within and across modules",
   ]);
   assert.deepEqual(result.reciprocalRoleDependencies, [
     {
-      left: { moduleKey: "work", role: "domain" },
-      right: { moduleKey: "work", role: "ui" },
+      left: { moduleKey: "work", capabilityKey: null, role: "domain" },
+      right: { moduleKey: "work", capabilityKey: null, role: "ui" },
       classification: "runtime",
       leftToRight: {
         importCount: 1,
@@ -144,8 +144,8 @@ test("dependency analysis keeps responsibility edges within and across modules",
     classification: "runtime",
     paths: ["packages/work/domain.ts", "packages/work/ui.ts"],
     cells: [
-      { moduleKey: "work", role: "domain" },
-      { moduleKey: "work", role: "ui" },
+      { moduleKey: "work", capabilityKey: null, role: "domain" },
+      { moduleKey: "work", capabilityKey: null, role: "ui" },
     ],
   }]);
 });
@@ -188,8 +188,8 @@ test("reciprocal role diagnostics stay separate from exact file cycles and edge 
     rightToLeftKinds: dependency.rightToLeft.evidence.map((item) => item.kind),
   })), [
     {
-      left: { moduleKey: "example", role: "domain" },
-      right: { moduleKey: "example", role: "input" },
+      left: { moduleKey: "example", capabilityKey: null, role: "domain" },
+      right: { moduleKey: "example", capabilityKey: null, role: "input" },
       classification: "runtime",
       leftToRightKinds: ["typeOnlyImport", "valueImport"],
       rightToLeftKinds: ["typeOnlyImport", "reExport"],
@@ -208,16 +208,16 @@ test("reciprocal role diagnostics stay separate from exact file cycles and edge 
       classification: "type-assisted",
       paths: ["packages/example/domain.ts", "packages/example/helper.ts", "packages/example/input.ts"],
       cells: [
-        { moduleKey: "example", role: "domain" },
-        { moduleKey: "example", role: "input" },
+        { moduleKey: "example", capabilityKey: null, role: "domain" },
+        { moduleKey: "example", capabilityKey: null, role: "input" },
       ],
     },
     {
       classification: "runtime",
       paths: ["packages/example/helper.ts", "packages/example/input.ts"],
       cells: [
-        { moduleKey: "example", role: "domain" },
-        { moduleKey: "example", role: "input" },
+        { moduleKey: "example", capabilityKey: null, role: "domain" },
+        { moduleKey: "example", capabilityKey: null, role: "input" },
       ],
     },
   ]);
@@ -250,4 +250,105 @@ test("production tooling, re-exports, type-only re-exports, and self-loops parti
     { classification: "type-assisted", paths: ["ops/type-a.ts", "ops/type-b.ts"] },
     { classification: "runtime", paths: ["scripts/check/equals-a.ts", "scripts/check/equals-b.ts"] },
   ]);
+});
+
+test("import type nodes and static template dynamic imports participate in dependency analysis", () => {
+  const files: DependencySourceFile[] = [
+    {
+      path: "packages/work/application.ts",
+      text: 'type Contract = import("./contract").Contract;\nvoid import(`./runtime`, { with: { type: "json" } });\nrequire(`./runtime`);',
+      moduleKey: "work",
+      role: "application",
+    },
+    { path: "packages/work/contract.ts", text: "export type Contract = string;", moduleKey: "work", role: "contract" },
+    { path: "packages/work/runtime.ts", text: "export const runtime = true;", moduleKey: "work", role: "application" },
+  ];
+
+  const result = analyzeSourceDependencies(files, ["work"]);
+  const applicationToContract = result.dependencyEdges.find((edge) => edge.targetRole === "contract");
+  const applicationToApplication = result.dependencyEdges.find((edge) => edge.targetRole === "application");
+  assert.equal(applicationToContract?.typeOnlyImportCount, 1);
+  assert.equal(applicationToApplication?.dynamicImportCount, 1);
+  assert.equal(applicationToApplication?.valueImportCount, 1);
+});
+
+test("capability dependency edges preserve every L1 import while carrying nullable ownership", () => {
+  const files: DependencySourceFile[] = [
+    {
+      path: "packages/work/server/meetings/application.ts",
+      text: 'import "../projects";\nimport "../../../core/contract";',
+      moduleKey: "work",
+      capabilityKey: "meetings",
+      role: "application",
+    },
+    {
+      path: "packages/work/server/projects.ts",
+      text: "export const projects = true;",
+      moduleKey: "work",
+      capabilityKey: "projects",
+      role: "application",
+    },
+    {
+      path: "packages/core/contract.ts",
+      text: "export const contract = true;",
+      moduleKey: "core",
+      capabilityKey: null,
+      role: "contract",
+    },
+  ];
+
+  const result = analyzeSourceDependencies(files, ["work", "core"]);
+  assert.equal(
+    result.capabilityDependencyEdges.reduce((sum, edge) => sum + edge.importCount, 0),
+    result.dependencyEdges.reduce((sum, edge) => sum + edge.importCount, 0),
+  );
+  assert.deepEqual(result.capabilityDependencyEdges.map((edge) => ({
+    source: `${edge.sourceModuleKey}/${edge.sourceCapabilityKey}`,
+    target: `${edge.targetModuleKey}/${edge.targetCapabilityKey}`,
+  })), [
+    { source: "work/meetings", target: "core/null" },
+    { source: "work/meetings", target: "work/projects" },
+  ]);
+});
+
+test("unresolved internal source imports fail closed while assets and known generated targets stay external", () => {
+  assert.throws(
+    () => analyzeSourceDependencies([{
+      path: "packages/work/application.ts",
+      text: 'import "./missing";\nimport "@workspace/finance/missing";\nimport "@/missing";',
+      moduleKey: "work",
+      role: "application",
+    }], ["work"]),
+    (error: unknown) => {
+      assert.ok(error instanceof Error);
+      assert.match(error.message, /packages\/work\/application\.ts -> \.\/missing/);
+      assert.match(error.message, /@workspace\/finance\/missing/);
+      assert.match(error.message, /@\/missing/);
+      return true;
+    },
+  );
+
+  const generatedTargets = new Set(["generated/prisma/client.ts"]);
+  const result = analyzeSourceDependencies([{
+    path: "packages/platform/server/prisma.ts",
+    text: 'import icon from "./icon.svg";\nimport data from "./fixture.json";\nimport React from "react";\nimport { PrismaClient } from "../../../generated/prisma/client";',
+    moduleKey: "platform",
+    role: "persistence",
+  }], ["platform"], generatedTargets);
+  assert.deepEqual(result.dependencyEdges, []);
+
+  assert.throws(
+    () => analyzeSourceDependencies([{
+      path: "packages/platform/server/prisma.ts",
+      text: 'import { PrismaClient } from "../../../generated/prisma/clinet";',
+      moduleKey: "platform",
+      role: "persistence",
+    }], ["platform"], generatedTargets),
+    (error: unknown) => {
+      assert.ok(error instanceof Error);
+      assert.match(error.message, /generated\/prisma\/clinet/);
+      assert.match(error.message, /npm run db:generate/);
+      return true;
+    },
+  );
 });

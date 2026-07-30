@@ -17,35 +17,21 @@ import {
   businessCodeTemplateSettingsFromLegacy,
   upgradeBusinessCodeTemplateSettings,
 } from "./business-code-template";
+import {
+  DEPARTMENT_IDENTIFIER_FORMATS,
+  type DepartmentCodeRule,
+  type DepartmentIdentifierFormat,
+  type SequentialBusinessCodeRule,
+} from "./business-code-config-contract";
+
+export {
+  DEPARTMENT_IDENTIFIER_FORMATS,
+  type DepartmentCodeRule,
+  type DepartmentIdentifierFormat,
+  type SequentialBusinessCodeRule,
+} from "./business-code-config-contract";
 
 export const BUSINESS_CODE_CONFIG_KEY = "businessCodeConfig";
-
-export type SequentialBusinessCodeRule = {
-  prefix: string;
-  separator: string;
-  sequenceLength: number;
-  sequenceStart: number;
-};
-
-export const DEPARTMENT_IDENTIFIER_FORMATS = [
-  "uppercaseLetters",
-  "uppercaseAlphanumeric",
-  "freeText",
-] as const;
-
-export type DepartmentIdentifierFormat = (typeof DEPARTMENT_IDENTIFIER_FORMATS)[number];
-
-export type DepartmentCodeRule = {
-  identifierFormat: DepartmentIdentifierFormat;
-  identifierLength: number;
-  /** Business-owned marker used by existing HR functional-placement behavior. */
-  functionalPrefix: string;
-  separator: string;
-  managementRootSuffix: string;
-  level2Suffix: string;
-  level2SequenceLength: number;
-  level3SequenceLength: number;
-};
 
 export type BusinessCodeConfig = {
   management: BusinessCodeManagementConfig;

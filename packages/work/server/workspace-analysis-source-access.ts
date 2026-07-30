@@ -9,7 +9,7 @@ import {
   canViewProject,
   canViewWorkTaskTarget,
 } from "./access";
-import { canUseMeetings } from "./meeting-access";
+import { canUseMeetings } from "./meetings/access";
 import { WORK_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-sources";
 
 export function buildWorkWorkspaceAnalysisSourceCatalog() {

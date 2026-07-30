@@ -1,6 +1,5 @@
-import { serviceError, serviceOk, type ServiceResult } from "../api";
+import { serviceError, serviceOk, type ServiceResult } from "../../service-result";
 import { prisma, Prisma } from "../prisma";
-import { notifyApproval } from "./notifications";
 import {
   normalizeComment,
   parsePayload,
@@ -40,44 +39,6 @@ export async function loadApprovalRecord<TPayload>(
   });
   if (!row) return serviceError("审批单不存在", 404);
   return serviceOk(toRecord(row, parsePayload<TPayload>(row.latestPayloadJson)));
-}
-
-export async function transitionApprovalWithNotification<TPayload>(
-  adapter: ApprovalAdapter<TPayload>,
-  input: {
-    requestId: number;
-    actorUserId: number;
-    expectedVersion?: number | null;
-    eventType: ApprovalEventType;
-    allowedFrom: ApprovalStatus[];
-    toStatus: ApprovalStatus;
-    comment?: string | null;
-    updateData?: Prisma.ApprovalRequestUncheckedUpdateInput;
-    authorize: (
-      request: ApprovalRequestRecord<TPayload>,
-    ) => Promise<ServiceResult<{ ok: true }>> | ServiceResult<{ ok: true }>;
-  },
-) {
-  const request = await loadApprovalRecord(adapter, input.requestId);
-  if (!request.ok) return request;
-  if (!input.allowedFrom.includes(request.data.status)) {
-    return serviceError("当前状态不能执行该操作", 409);
-  }
-  const version = assertApprovalVersion(request.data, input.expectedVersion);
-  if (!version.ok) return version;
-  const access = await input.authorize(request.data);
-  if (!access.ok) return access;
-  const updated = await applyApprovalTransition(adapter, {
-    request: request.data,
-    actorUserId: input.actorUserId,
-    eventType: input.eventType,
-    toStatus: input.toStatus,
-    comment: input.comment,
-    updateData: input.updateData,
-  });
-  if (!updated.ok) return updated;
-  await notifyApproval(adapter, input.eventType, updated.data.record, input.actorUserId);
-  return serviceOk({ request: updated.data.dto });
 }
 
 export async function applyApprovalTransition<TPayload>(

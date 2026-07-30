@@ -9,6 +9,7 @@ import {
   type DataSurfaceDisplaySpec,
 } from "@workspace/core/ui";
 import type {
+  SourceCodeAnalysisCapabilityRow,
   SourceCodeAnalysisModuleCategory,
   SourceCodeAnalysisDependencyEdge,
   SourceCodeAnalysisDependencyFileCycle,
@@ -43,6 +44,10 @@ interface AnalysisTableRow extends SourceCodeAnalysisModuleRow {
   rowKind: "module" | "section" | "total";
 }
 
+interface CapabilityAnalysisTableRow extends SourceCodeAnalysisCapabilityRow {
+  moduleLabel: string;
+}
+
 const ANALYSIS_ROW_GROUPS: ReadonlyArray<{
   key: string;
   label: string;
@@ -56,6 +61,46 @@ const ANALYSIS_ROW_GROUPS: ReadonlyArray<{
 export interface SourceCodeAnalysisColumnDisclosure {
   expandedGroupKey: string | null;
   onToggleGroup: (groupKey: string) => void;
+}
+
+export function capabilityAnalysisTableRows(snapshot: SourceCodeAnalysisSnapshot): CapabilityAnalysisTableRow[] {
+  const moduleLabels = new Map(snapshot.modules.map((module) => [module.key, module.label]));
+  return snapshot.capabilities
+    .filter((capability) => capability.fileCount > 0)
+    .map((capability) => ({
+      ...capability,
+      moduleLabel: moduleLabels.get(capability.moduleKey) ?? capability.moduleKey,
+    }))
+    .sort((left, right) =>
+      [left.moduleLabel, left.label].join("\0").localeCompare([right.moduleLabel, right.label].join("\0"), "zh-CN"));
+}
+
+function createCapabilityAnalysisColumns(): DataSurfaceColumnSpec<CapabilityAnalysisTableRow>[] {
+  return [
+    { key: "module", label: "L1 模块", cell: (row) => row.moduleLabel },
+    { key: "capability", label: "L2 能力", cell: (row) => row.label },
+    {
+      key: "total",
+      label: "代码（万行）",
+      align: "right",
+      numeric: true,
+      cell: (row) => formatCodeVolumeInTenThousands(row.lines),
+    },
+    {
+      key: "files",
+      label: "文件",
+      align: "right",
+      numeric: true,
+      cell: (row) => row.fileCount.toLocaleString("zh-CN"),
+    },
+    {
+      key: "dependencies",
+      label: "跨能力引用",
+      align: "right",
+      numeric: true,
+      cell: (row) => row.crossCapabilityImportCount.toLocaleString("zh-CN"),
+    },
+  ];
 }
 
 interface SourceCodeAnalysisCellRelations {
@@ -297,6 +342,8 @@ export function createSourceCodeAnalysisSection(
   relationSelection?: SourceCodeAnalysisRelationSelection,
 ): BodySurfaceSectionSpec {
   const rows = snapshot ? analysisTableRows(snapshot) : [];
+  const capabilityRows = snapshot ? capabilityAnalysisTableRows(snapshot) : [];
+  const capabilityColumns = createCapabilityAnalysisColumns();
   const selectedGroup = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) =>
     group.key === relationSelection?.selectedCell?.groupKey);
   const selectedCell = relationSelection?.selectedCell && selectedGroup
@@ -322,9 +369,29 @@ export function createSourceCodeAnalysisSection(
     createMetricsSection("source-code-analysis-summary", {
       metrics: [
         { key: "lines", label: "总代码", value: `${formatCodeVolumeInTenThousands(snapshot.summary.lines)} 万行` },
-        { key: "files", label: "源码文件", value: snapshot.summary.fileCount.toLocaleString("zh-CN") },
+        {
+          key: "invalid-directions",
+          label: "非法方向引用",
+          value: {
+            kind: "text",
+            value: snapshot.summary.invalidDependencyDirectionCount.toLocaleString("zh-CN"),
+            tone: snapshot.summary.invalidDependencyDirectionCount > 0 ? "danger" : "success",
+            font: "mono",
+          },
+        },
         { key: "mixed", label: "未解耦混合职责", value: snapshot.summary.mixedResponsibilityFileCount },
         { key: "cycles", label: "真实依赖循环", value: snapshot.summary.dependencyFileCycleCount ?? 0 },
+        { key: "capability-coverage", label: "L2 归属覆盖", value: `${snapshot.summary.capabilityCoveragePercent}%` },
+        {
+          key: "new-capability-unknown",
+          label: "新增未归属 L2",
+          value: {
+            kind: "text",
+            value: snapshot.summary.newUnclassifiedCapabilityFileCount.toLocaleString("zh-CN"),
+            tone: snapshot.summary.newUnclassifiedCapabilityFileCount > 0 ? "danger" : "success",
+            font: "mono",
+          },
+        },
       ],
     }),
     {
@@ -352,6 +419,28 @@ export function createSourceCodeAnalysisSection(
             { key: "outgoing", label: "被选中格引用", tone: "warning" as const },
             { key: "bidirectional", label: "真实循环", tone: "success" as const },
           ] : []),
+        ],
+      },
+    },
+    {
+      ...createPageTableSection("source-code-analysis-capability-table", {
+        rows: capabilityRows,
+        columns: capabilityColumns,
+        visibleColumns: capabilityColumns.map((column) => column.key),
+        rowKey: (row) => `${row.moduleKey}:${row.key}`,
+        presentation: { density: "compact", cellWrap: "nowrap" },
+        format: { kind: "matrix", rowHeaderWidth: 132 },
+        scroll: { x: true },
+        emptyText: "暂无二级能力分析",
+      }),
+      header: {
+        title: "二级能力分布",
+        badges: [
+          {
+            key: "legacy-unclassified",
+            label: `历史未归属：${snapshot.summary.legacyUnclassifiedCapabilityFileCount.toLocaleString("zh-CN")}`,
+            tone: snapshot.summary.legacyUnclassifiedCapabilityFileCount > 0 ? "warning" : "muted",
+          },
         ],
       },
     },

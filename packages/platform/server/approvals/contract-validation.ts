@@ -1,5 +1,5 @@
 import { getActionContractMetadata } from "../../action-contract-registry";
-import { serviceError, serviceOk } from "../api";
+import { serviceError, serviceOk } from "../../service-result";
 import type {
   ApprovalAdapter,
   ApprovalOperation,

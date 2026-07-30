@@ -1,5 +1,5 @@
 import { matchText } from "@workspace/core/search";
-import type { PermissionActionKey } from "@workspace/platform/permission-actions";
+import type { PermissionRegistryActionKey } from "@workspace/platform/action-registry";
 import {
   currentEmploymentPeriodWhere,
   currentInclusiveBusinessPeriodWhere,
@@ -108,7 +108,7 @@ export interface SelectorRelationDefinition extends RelationDefinition {
   defaultLifecycleScope?: LifecycleScope;
   permission: {
     resourceKey: string;
-    action: PermissionActionKey;
+    action: PermissionRegistryActionKey;
   };
   search: (input: FkSearchInput) => Promise<FkOption[]>;
   resolve: (id: number) => Promise<FkTargetRecord | null>;

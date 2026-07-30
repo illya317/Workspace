@@ -88,10 +88,11 @@ async function loadProjectPlanRows(input: {
 }) {
   const projectId = integerParameter(input.parameters.planProjectId);
   if (!projectId) throw invalidParameter(input.sourceKey, "项目计划详情来源缺少项目 ID");
-  const [{ listProjectPlanBaselines }, { listProjectPlanGantt, listProjectPlanPhases }] = await Promise.all([
-    import("./project-plan-baselines"),
-    import("./project-plan"),
-  ]);
+  const {
+    listProjectPlanBaselines,
+    listProjectPlanGantt,
+    listProjectPlanPhases,
+  } = await import("./projects/plan");
 
   if (input.sourceKey === "work.project-plan-phases") {
     const result = await listProjectPlanPhases({ userId: input.requesterId, projectId });

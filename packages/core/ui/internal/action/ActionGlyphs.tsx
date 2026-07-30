@@ -1,63 +1,10 @@
-/**
- * 工具栏、行内动作、图标按钮的统一图标集合。
- * 这是封闭集合：新增图标必须经整体 UI 评审，禁止业务侧自行引入其他图标。
- */
-export const ACTION_GLYPH_KINDS = [
-  "add",
-  "send",
-  "stop",
-  "edit",
-  "revise",
-  "withdraw",
-  "check",
-  "double-check",
-  "approve",
-  "reject",
-  "verified",
-  "cancel",
-  "x",
-  "copy",
-  "save",
-  "delete",
-  "delete-bin",
-  "delete-minus",
-  "view",
-  "eye-off",
-  "back",
-  "search",
-  "filter",
-  "refresh",
-  "reset",
-  "restore",
-  "link",
-  "unlink",
-  "share",
-  "settings",
-  "reclass",
-  "generate",
-  "print",
-  "lock",
-  "unlock",
-  "permission-organization",
-  "permission-derived",
-  "sort",
-  "move-up",
-  "move-down",
-  "more",
-  "download",
-  "upload",
-  "archive",
-  "list",
-  "history",
-  "assistant",
-  "tree-expand",
-  "tree-collapse",
-  "panel-open",
-  "panel-close",
-] as const;
+import {
+  type ActionGlyphIconAlias,
+  type ActionGlyphKind,
+} from "../../../action-glyph-contract";
 
-export type ActionGlyphKind = (typeof ACTION_GLYPH_KINDS)[number];
-export type ActionGlyphIconAlias = "back" | "create" | "open";
+export { ACTION_GLYPH_KINDS } from "../../../action-glyph-contract";
+export type { ActionGlyphIconAlias, ActionGlyphKind } from "../../../action-glyph-contract";
 
 export interface ActionGlyphProps {
   kind: ActionGlyphKind;

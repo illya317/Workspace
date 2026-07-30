@@ -9,12 +9,13 @@ export interface SourceCodeAnalysisDisplayGroup {
   roles: readonly SourceCodeAnalysisRole[];
 }
 
-export type SourceCodeAnalysisDisplayGroupKey = "entry" | "business" | "adapter" | "contract" | "assurance";
+export type SourceCodeAnalysisDisplayGroupKey = "entry" | "application" | "adapter" | "domain" | "contract" | "assurance";
 
 export const SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS: readonly SourceCodeAnalysisDisplayGroup[] = [
-  { key: "entry", label: "入口", roles: ["composition", "ui", "input"] },
-  { key: "business", label: "业务", roles: ["domain", "domainValidation"] },
+  { key: "entry", label: "入口", roles: ["composition", "assembly", "ui", "input"] },
+  { key: "application", label: "应用", roles: ["application"] },
   { key: "adapter", label: "适配", roles: ["persistence", "integration"] },
+  { key: "domain", label: "领域", roles: ["domainValidation", "domain"] },
   { key: "contract", label: "契约", roles: ["contract"] },
   { key: "assurance", label: "保障", roles: ["test", "tooling"] },
 ];

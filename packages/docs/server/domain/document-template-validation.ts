@@ -4,6 +4,7 @@ import {
   type DomainValidationIssue,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
+import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 import {
   normalizeDocumentTemplatePayload as normalizePlatformDocumentTemplatePayload,
 } from "@workspace/platform/document-editor/document-template-validation";
@@ -159,7 +160,11 @@ export function normalizeDocumentTemplatePayload(
   document: unknown,
   fieldModel: unknown,
 ): DomainValidationResult<{ document: unknown; fieldModel: unknown }> {
-  return normalizePlatformDocumentTemplatePayload(document, fieldModel);
+  return normalizePlatformDocumentTemplatePayload(
+    document,
+    fieldModel,
+    getTenantProfile().docs.formulaRules.dryingWeightMultipliers,
+  );
 }
 
 export function buildListTemplatesCommand(input: ListTemplatesInput): DomainValidationResult<ListTemplatesCommand> {

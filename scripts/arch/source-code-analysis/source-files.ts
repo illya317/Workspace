@@ -5,6 +5,24 @@ import ts from "typescript";
 
 import { ROOT_SOURCE_FILES, SOURCE_CODE_ROOTS } from "./declarations";
 
+export interface GeneratedSourceRegistration {
+  path: string;
+  marker: string;
+  verificationCommand: string;
+}
+
+export interface GeneratedSourceRootRegistration {
+  prefix: string;
+  verificationCommand: string;
+}
+
+export const GENERATED_SOURCE_REGISTRATIONS: readonly GeneratedSourceRegistration[] = [];
+
+export const GENERATED_SOURCE_ROOT_REGISTRATIONS: readonly GeneratedSourceRootRegistration[] = [{
+  prefix: "generated/prisma/",
+  verificationCommand: "npm run db:generate",
+}];
+
 const TYPESCRIPT_SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs"]);
 const SOURCE_EXTENSIONS = new Set([
   ...TYPESCRIPT_SOURCE_EXTENSIONS,
@@ -31,7 +49,7 @@ async function walkSourceFiles(repositoryRoot: string, absoluteDirectory: string
   for (const entry of entries) {
     const absolutePath = path.join(absoluteDirectory, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name === "node_modules" || entry.name === ".next" || entry.name === "generated") continue;
+      if (entry.name === "node_modules" || entry.name === ".next") continue;
       result.push(...await walkSourceFiles(repositoryRoot, absolutePath));
       continue;
     }
@@ -58,16 +76,128 @@ export async function collectSourceFiles(repositoryRoot: string) {
   return [...nested.flat(), ...rootFiles].sort();
 }
 
-export function isGeneratedSource(text: string) {
-  const firstLine = text.split(/\r?\n/, 1)[0]?.trim().toLowerCase() ?? "";
-  return firstLine.startsWith("// auto-generated")
-    || firstLine.startsWith("/* auto-generated")
-    || firstLine.startsWith("// generated file")
-    || firstLine.startsWith("/* generated file")
-    || firstLine.startsWith("# auto-generated")
-    || firstLine.startsWith("# generated file")
-    || firstLine.startsWith("-- auto-generated")
-    || firstLine.startsWith("-- generated file");
+function missingGeneratedSourceTarget(pathname: string, verificationCommand: string) {
+  return new Error(
+    `[source-code-analysis] registered generated source target is missing: ${pathname}; run ${verificationCommand}`,
+  );
+}
+
+async function collectGeneratedRootTargets(
+  repositoryRoot: string,
+  registration: GeneratedSourceRootRegistration,
+  absoluteDirectory: string,
+  targets: Set<string>,
+): Promise<void> {
+  let entries: Dirent[];
+  try {
+    entries = await fs.readdir(absoluteDirectory, { withFileTypes: true });
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+      throw missingGeneratedSourceTarget(registration.prefix, registration.verificationCommand);
+    }
+    throw error;
+  }
+  for (const entry of entries) {
+    const absolutePath = path.join(absoluteDirectory, entry.name);
+    if (entry.isDirectory()) {
+      await collectGeneratedRootTargets(repositoryRoot, registration, absolutePath, targets);
+    } else if (entry.isFile() && TYPESCRIPT_SOURCE_EXTENSIONS.has(path.extname(entry.name))) {
+      targets.add(path.relative(repositoryRoot, absolutePath).split(path.sep).join("/"));
+    }
+  }
+}
+
+export async function collectRegisteredGeneratedSourceTargets(
+  repositoryRoot: string,
+  sourceRegistrations: readonly GeneratedSourceRegistration[] = GENERATED_SOURCE_REGISTRATIONS,
+  rootRegistrations: readonly GeneratedSourceRootRegistration[] = GENERATED_SOURCE_ROOT_REGISTRATIONS,
+) {
+  const targets = new Set<string>();
+  for (const registration of sourceRegistrations) {
+    const absolutePath = path.join(repositoryRoot, registration.path);
+    try {
+      const stat = await fs.stat(absolutePath);
+      if (!stat.isFile()) throw missingGeneratedSourceTarget(registration.path, registration.verificationCommand);
+      const text = await fs.readFile(absolutePath, "utf8");
+      isGeneratedSource(registration.path, text, [registration]);
+      targets.add(registration.path);
+    } catch (error) {
+      if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+        throw missingGeneratedSourceTarget(registration.path, registration.verificationCommand);
+      }
+      throw error;
+    }
+  }
+  for (const registration of rootRegistrations) {
+    await collectGeneratedRootTargets(
+      repositoryRoot,
+      registration,
+      path.join(repositoryRoot, registration.prefix),
+      targets,
+    );
+  }
+  return targets;
+}
+
+function hasGeneratedSourceMarker(firstLine: string) {
+  const normalized = firstLine.toLowerCase();
+  return normalized.startsWith("// auto-generated")
+    || normalized.startsWith("/* auto-generated")
+    || normalized.startsWith("// generated file")
+    || normalized.startsWith("/* generated file")
+    || normalized.startsWith("# auto-generated")
+    || normalized.startsWith("# generated file")
+    || normalized.startsWith("-- auto-generated")
+    || normalized.startsWith("-- generated file");
+}
+
+export function generatedSourceVerificationCommandForPath(
+  relativePath: string,
+  sourceRegistrations: readonly GeneratedSourceRegistration[] = GENERATED_SOURCE_REGISTRATIONS,
+  rootRegistrations: readonly GeneratedSourceRootRegistration[] = GENERATED_SOURCE_ROOT_REGISTRATIONS,
+) {
+  const normalized = relativePath.replaceAll("\\", "/");
+  const registeredFile = sourceRegistrations.find((registration) => {
+    if (registration.path === normalized) return true;
+    const extension = path.posix.extname(registration.path);
+    if (!extension) return false;
+    return registration.path.slice(0, -extension.length) === normalized
+      || registration.path === `${normalized}/index${extension}`;
+  });
+  if (registeredFile) return registeredFile.verificationCommand;
+  return rootRegistrations.find((registration) =>
+    normalized === registration.prefix.slice(0, -1) || normalized.startsWith(registration.prefix))
+    ?.verificationCommand ?? null;
+}
+
+export function isRegisteredGeneratedSourcePath(
+  relativePath: string,
+  sourceRegistrations: readonly GeneratedSourceRegistration[] = GENERATED_SOURCE_REGISTRATIONS,
+  rootRegistrations: readonly GeneratedSourceRootRegistration[] = GENERATED_SOURCE_ROOT_REGISTRATIONS,
+) {
+  return generatedSourceVerificationCommandForPath(relativePath, sourceRegistrations, rootRegistrations) !== null;
+}
+
+export function isGeneratedSource(
+  relativePath: string,
+  text: string,
+  registrations: readonly GeneratedSourceRegistration[] = GENERATED_SOURCE_REGISTRATIONS,
+) {
+  const normalizedPath = relativePath.replaceAll("\\", "/");
+  const firstLine = text.split(/\r?\n/, 1)[0]?.trim() ?? "";
+  const registration = registrations.find((candidate) => candidate.path === normalizedPath);
+  if (registration) {
+    if (firstLine !== registration.marker) {
+      throw new Error(
+        `[source-code-analysis] registered generated source marker mismatch: ${normalizedPath}; verify with ${registration.verificationCommand}`,
+      );
+    }
+    return true;
+  }
+  if (hasGeneratedSourceMarker(firstLine)) {
+    throw new Error(`[source-code-analysis] generated source is not registered: ${normalizedPath}`);
+  }
+  return false;
 }
 
 function countTypeScriptSourceLines(text: string) {

@@ -4,7 +4,7 @@ import {
   financeCloseWorkpaperReviewIdempotencyKey,
 } from "../../types/close";
 import { sha256CanonicalJson } from "../close/canonical-json";
-import type { OpenFinanceCloseCommand, RefreshFinanceCloseCommand } from "../close/validation";
+import type { OpenFinanceCloseCommand, RefreshFinanceCloseCommand } from "../close/command-types";
 import type {
   ReviewFinanceCloseWorkpaperCommand,
   SaveFinanceCloseWorkpaperCommand,

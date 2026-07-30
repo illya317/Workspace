@@ -161,7 +161,11 @@ export async function generateQcEditorTemplates(options: GenerateQcEditorTemplat
     const conversion = convertQcTemplateToEditorDocument(detail, {
       dryingWeightMultipliers: getTenantProfile().docs.formulaRules.dryingWeightMultipliers,
     });
-    const normalized = normalizeDocumentTemplatePayload(conversion.document, conversion.fieldModel);
+    const normalized = normalizeDocumentTemplatePayload(
+      conversion.document,
+      conversion.fieldModel,
+      getTenantProfile().docs.formulaRules.dryingWeightMultipliers,
+    );
     if (normalized.ok === false) {
       throw new Error(`QC 编辑器模板数据无效：${detail.id} ${normalized.issue.message}`);
     }

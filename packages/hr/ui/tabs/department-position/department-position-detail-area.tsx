@@ -25,7 +25,7 @@ export function useDepartmentPositionDetailSections({
   onCancel: () => void;
   onCreated: () => void | Promise<void>;
   detailSections: BodySurfaceSectionSpec[];
-}): { sections: BodySurfaceSectionSpec[]; create: PageSurfaceCreateSpec } {
+}): { sections: BodySurfaceSectionSpec[]; create: PageSurfaceCreateSpec & { presentation: "block" } } {
   const createDepartmentSurface = useDepartmentCreateSurface({
     departments,
     codeConfig,

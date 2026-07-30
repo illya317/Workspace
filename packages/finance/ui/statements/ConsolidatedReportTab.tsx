@@ -17,7 +17,7 @@ import {
 import type { ConsolidationTabProps } from "./statement-ui-types";
 import { useConsolidatedReport } from "./useConsolidatedReport";
 import { buildConsolidatedStatementAssistantContext } from "./statement-assistant-context";
-import { downloadStatementWorkbook } from "./statement-download";
+import { downloadFinanceWorkbook } from "../workbook-download";
 
 export function ConsolidatedReportTab(props: ConsolidationTabProps) {
   const { data, error: overviewError, loading: overviewLoading, navigation } = props;
@@ -44,7 +44,7 @@ export function ConsolidatedReportTab(props: ConsolidationTabProps) {
     if (!canExport || !batchId || !scopeYear || !scopeMonth) return;
     setDownloading(true);
     try {
-      await downloadStatementWorkbook(
+      await downloadFinanceWorkbook(
         workspacePath(`/api/modules/finance/statements/consolidation/batches/${batchId}/report/export`),
         `${parentName}-${scopeYear}.${String(scopeMonth).padStart(2, "0")}-合并报表.xlsx`,
       );
