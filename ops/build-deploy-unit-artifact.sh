@@ -184,6 +184,8 @@ if [ "$UNIT_ID" = "assistant" ]; then
   node ops/assistant-runtime.mjs bundle \
     --repository-root "$PROJECT_ROOT" \
     --standalone-root "$STANDALONE_ROOT"
+  node -e 'const sharp=require(process.argv[1]); if (!sharp.versions?.sharp) throw new Error("Assistant sharp runtime is incomplete")' \
+    "$STANDALONE_ROOT/node_modules/sharp"
   node ops/assistant-runtime.mjs assert --release-root "$STANDALONE_ROOT"
 fi
 find "$STANDALONE_ROOT" \( -name '.DS_Store' -o -name '._*' \) -delete

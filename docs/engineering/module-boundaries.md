@@ -60,7 +60,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。根 `app/*` 与
 - `packages/platform/server/resolve-fk.ts` 已接收 FK 显示名解析契约；审计日志和业务包需要展示 FK 快照时依赖 `@workspace/platform/server/resolve-fk`。
 - `packages/hr/server/crud.ts` 已接收 HR 字段级 CRUD wrapper，统一注入 `hr.roster` 读写删除权限；HR server service 使用这个 wrapper 而不是 app-root `@/lib/crud`。
 - `packages/platform/ui` 承载登录后的 Portal、AppShell、跨页 NavLink、用户菜单和审计等共享平台 UI；Settings、Docs、Agent 的页面实现分别归自己的 L1 包。普通 L1 必须挂 `ModuleHomePage`、提供明确的专用首页，或只做鉴权后 redirect 到已注册的默认 L2 页面。
-- Agent 是带 `/agent` 首页的普通 L1。页面、工具栏和 `/api/agent/**` 由 `agent.assistant` capability 保护，其 owner 是 `settings.account`，`runtimeParentKey=agent` 只负责启停耦合。模型侧固定只暴露业务 API 发现、只读调用和写入提案三个通用 connector；源码、文件系统、数据库、内部 RPC、任意网络和部署能力都不进入 Workspace Agent。代码开发、检查和部署仍由本地 Codex、CI、服务器运行时承担。
+- Agent 是带 `/agent` 首页的普通 L1。页面、工具栏和 `/api/agent/**` 直接由同一个 `agent` 资源保护，不再维护重复的助手 capability。模型侧固定只暴露业务 API 发现、只读调用和写入提案三个通用 connector；源码、文件系统、数据库、内部 RPC、任意网络和部署能力都不进入 Workspace Agent。代码开发、检查和部署仍由本地 Codex、CI、服务器运行时承担。
 - `packages/administration` 已接收合同台账的 module、UI、server、types，`app/(modules)/administration/contracts/page.tsx` 和 `app/api/modules/administration/contracts/*` 只保留 Next 壳。
 - `packages/library` 已接收资料库 module、UI、server、types，`app/(modules)/library/page.tsx` 和 `app/api/modules/library/basic-info/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。
 - 每个业务包的 `module.ts` 只导出 `moduleDefinition`。`moduleDefinition` 必须来自 `packages/platform/module-registry.ts` 的 `getRegisteredModuleDefinition("@workspace/<domain>")`；`npm run arch:gate` 会校验业务包导出、registry 注册和重复 module key。

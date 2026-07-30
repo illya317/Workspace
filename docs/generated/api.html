@@ -292,37 +292,37 @@
 <div class="endpoint">
   <span class="method" style="background:#059669">POST</span>
   <span class="path">/api/agent</span>
-  <span class="auth">登录 + agent.assistant.submit</span>
+  <span class="auth">登录 + agent.submit</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/agent/capabilities</span>
-  <span class="auth">登录 + agent.assistant.read</span>
+  <span class="auth">登录 + agent.read</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/agent/profiles</span>
-  <span class="auth">登录 + agent.assistant.read</span>
+  <span class="auth">登录 + agent.read</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/agent/proposals/:id</span>
-  <span class="auth">登录 + agent.assistant.read</span>
+  <span class="auth">登录 + agent.read</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#059669">POST</span>
   <span class="path">/api/agent/proposals/:id/cancel</span>
-  <span class="auth">登录 + agent.assistant.submit</span>
+  <span class="auth">登录 + agent.submit</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#059669">POST</span>
   <span class="path">/api/agent/proposals/:id/confirm</span>
-  <span class="auth">登录 + agent.assistant.submit</span>
+  <span class="auth">登录 + agent.submit</span>
   <span class="desc"></span>
 </div>
 </div>
@@ -904,7 +904,7 @@
 <div class="endpoint">
   <span class="method" style="background:#dc2626">DELETE</span>
   <span class="path">/api/modules/finance/assets/policies</span>
-  <span class="auth">登录</span>
+  <span class="auth">登录 + finance.assets.update</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
@@ -1504,49 +1504,49 @@
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/finance/tax</span>
-  <span class="auth">登录</span>
+  <span class="auth">登录 + finance.tax.read</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#059669">POST</span>
   <span class="path">/api/modules/finance/tax</span>
-  <span class="auth">登录</span>
+  <span class="auth">登录 + finance.tax.create</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#d97706">PUT</span>
   <span class="path">/api/modules/finance/tax</span>
-  <span class="auth">登录</span>
+  <span class="auth">登录 + finance.tax.update</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/finance/tax/reference-options</span>
-  <span class="auth">登录</span>
+  <span class="auth">登录 + finance.tax.read</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/finance/treasury</span>
-  <span class="auth">登录</span>
+  <span class="auth">登录 + finance.treasury.read</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#059669">POST</span>
   <span class="path">/api/modules/finance/treasury</span>
-  <span class="auth">登录</span>
+  <span class="auth">登录 + finance.treasury.create</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#d97706">PUT</span>
   <span class="path">/api/modules/finance/treasury</span>
-  <span class="auth">登录</span>
+  <span class="auth">登录 + finance.treasury.update</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/finance/treasury/reference-options</span>
-  <span class="auth">登录</span>
+  <span class="auth">登录 + finance.treasury.read</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">

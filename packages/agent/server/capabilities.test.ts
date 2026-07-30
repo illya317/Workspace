@@ -21,7 +21,7 @@ function tool(
     key,
     label: key,
     description: key,
-    requiredPermissions: [{ resourceKey: "agent.assistant", action }],
+    requiredPermissions: [{ resourceKey: "agent", action }],
     policyActions,
     delegatedExecution,
     requiresAgentProfile,
@@ -71,7 +71,7 @@ test("delegated tools require profile allowlist, explicit adapter opt-in and bot
   );
 
   assert.deepEqual(result.tools.map((item) => item.key), [allowed.key]);
-  assert.deepEqual(calls.sort(), ["11:agent.assistant:read", "22:agent.assistant:read"]);
+  assert.deepEqual(calls.sort(), ["11:agent:read", "22:agent:read"]);
 });
 
 test("profile-only tools stay unavailable to the personal assistant even with a live capability grant", async () => {
@@ -102,7 +102,7 @@ test("configuration preview can discover a profile-only tool from the virtual ac
   });
 
   assert.deepEqual(result.tools.map((item) => item.key), [candidate.key]);
-  assert.deepEqual(calls, ["22:agent.assistant:read"]);
+  assert.deepEqual(calls, ["22:agent:read"]);
 });
 
 test("requester super-admin status cannot bypass a denied virtual actor", async () => {

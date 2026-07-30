@@ -22,6 +22,7 @@ test("unit builder uses governed typecheck and one exact Linux standalone artifa
   assert.match(build, /tar -C "\$STANDALONE_ROOT" -czf "\$ARTIFACT_FILE"/);
   assert.match(build, /control-plane-requirements\.mjs write/);
   assert.match(build, /assistant-runtime\.mjs bundle/);
+  assert.match(build, /Assistant sharp runtime is incomplete/);
   assert.match(build, /assistant-runtime\.mjs assert/);
   assert.match(build, /artifact-assert/);
   assert.doesNotMatch(build, /\btsc\b/);

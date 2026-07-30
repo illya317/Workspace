@@ -1,4 +1,4 @@
-import sharp, { type Metadata } from "sharp";
+import type { Metadata } from "sharp";
 
 export const AGENT_MODEL_IMAGE_MAX_EDGE_PX = 2_000;
 export const AGENT_MODEL_IMAGE_TOTAL_BYTE_BUDGET = 1024 * 1024;
@@ -97,6 +97,7 @@ export async function createAgentModelImage(
 
 async function readSafeMetadata(buffer: Buffer) {
   try {
+    const sharp = await loadSharp();
     const metadata = await sharp(buffer, {
       failOn: "warning",
       limitInputPixels: AGENT_MODEL_IMAGE_MAX_INPUT_PIXELS,
@@ -138,7 +139,8 @@ function candidateEdges(longestEdge: number, maxEdge: number) {
   return [...new Set([first, ...FALLBACK_EDGES_PX.filter((edge) => edge < first)])];
 }
 
-function imagePipeline(buffer: Buffer, edge: number) {
+async function imagePipeline(buffer: Buffer, edge: number) {
+  const sharp = await loadSharp();
   return sharp(buffer, {
     failOn: "warning",
     limitInputPixels: AGENT_MODEL_IMAGE_MAX_INPUT_PIXELS,
@@ -156,7 +158,8 @@ function imagePipeline(buffer: Buffer, edge: number) {
 }
 
 async function encodePng(buffer: Buffer, edge: number) {
-  const encoded = await imagePipeline(buffer, edge)
+  const pipeline = await imagePipeline(buffer, edge);
+  const encoded = await pipeline
     .png({ compressionLevel: 9, adaptiveFiltering: true })
     .toBuffer({ resolveWithObject: true });
   return {
@@ -167,7 +170,8 @@ async function encodePng(buffer: Buffer, edge: number) {
 }
 
 async function encodeJpeg(buffer: Buffer, edge: number, quality: number, textLike: boolean) {
-  const encoded = await imagePipeline(buffer, edge)
+  const pipeline = await imagePipeline(buffer, edge);
+  const encoded = await pipeline
     .flatten({ background: "#ffffff" })
     .jpeg({
       quality,
@@ -180,6 +184,10 @@ async function encodeJpeg(buffer: Buffer, edge: number, quality: number, textLik
     width: encoded.info.width,
     height: encoded.info.height,
   };
+}
+
+async function loadSharp() {
+  return (await import("sharp")).default;
 }
 
 function derivative(

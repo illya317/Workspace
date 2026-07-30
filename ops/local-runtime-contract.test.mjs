@@ -68,6 +68,8 @@ test("standalone artifact carries the governed external-party importer", () => {
   const packager = read("ops/build-standalone-artifact.sh");
   assert.match(packager, /copy_runtime_package_tree[^\n]*\bxlsx\b/);
   assert.match(packager, /copy_runtime_package_tree[^\n]*\btsx\b/);
+  assert.match(packager, /copy_runtime_package_tree[^\n]*\bsharp\b/);
+  assert.match(packager, /standalone sharp runtime is incomplete/);
   assert.match(packager, /scripts\/import\/import-external-party-master\.mjs/);
   assert.match(packager, /scripts\/import\/external-party-master-source\.mjs/);
   assert.match(packager, /scripts\/lib\/database-url\.js/);

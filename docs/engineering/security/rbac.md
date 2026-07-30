@@ -141,10 +141,10 @@ space.company
 
 ## Agent 与虚拟员工
 
-`agent` 是有 `/agent` 页面、但没有 L2 的普通 L1。`agent.assistant` 是 `/agent` 会话、普通员工工具栏和 `/api/agent/**` 共用的 capability。它以 `settings.account` 为 `capabilityOwnerKey`；`runtimeParentKey=agent` 只让 Agent 模块停用时同步停止运行态，不产生 RBAC 继承：
+`agent` 是有 `/agent` 页面、但没有 L2 的普通 L1。`/agent` 会话、普通员工工具栏和 `/api/agent/**` 直接共用这个 L1 资源，不再维护语义重复的助手 capability：
 
-- `agent.assistant.read`：发现可用 profile，并读取能力清单或本人安全视图。
-- `agent.assistant.submit`：显示工具栏助手、提交消息，以及确认/取消自己创建的 proposal；`submit` 按 action registry 同时隐含 `entry/read`。
+- `agent.read`：发现可用 profile，并读取能力清单或本人安全视图。
+- `agent.submit`：显示工具栏助手、提交消息，以及确认/取消自己创建的 proposal；`submit` 按 action registry 同时隐含 `entry/read`。
 - 模型侧工具集固定为 `workspace.api.discover`、`workspace.api.read`、`workspace.api.proposeMutation`；工具只能命中 Registry 中受保护的 `/api/modules/**` 业务 contract。模型不能提供 origin、认证头或内部路由，也不能访问源码、文件系统、Prisma/数据库、内部 RPC、任意网络、凭据或部署能力。
 - 本人助手按请求人执行；选择虚拟员工后，Platform 在发现、调用和 proposal 确认时都重验请求人与虚拟员工 actor 的权限交集。短期委托令牌固定请求人、actor、profile、run、method、规范化 path/query 和 body hash，且不向模型暴露。
 - 标记为 `serviceDelegated` 的 API 在选择虚拟员工时失败关闭，因为领域 service 当前只接受一个对象身份；只有 gateway 能完整检查双主体的 contract 才允许委托调用。本人助手仍按普通请求人的完整 gateway + service 授权链执行。

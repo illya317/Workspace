@@ -37,7 +37,7 @@ export function AgentConversationSurface({
   emptyTitle = "开始和页面助手对话",
   emptyDescription = "它会结合当前页面和栏目理解你的问题。",
   starters = [],
-  disabledMessage = "当前账号没有 Agent 助手调用权限。",
+  disabledMessage = "当前账号没有 Agent 权限。",
   showAgentProfileSelector = true,
 }: {
   open: boolean;

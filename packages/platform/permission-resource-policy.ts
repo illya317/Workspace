@@ -109,8 +109,7 @@ const BASE_PERMISSION_RESOURCE_ACTION_POLICIES = [
   { resourceKey: "settings.ui", status: "docs", supportedActions: ["entry", "read"], ancestorInheritedActions: ["entry", "read"], explicitOnlyActions: [] },
   { resourceKey: "settings.account.apiAccess", status: "capability", supportedActions: ["entry", "read", "revise"], ancestorInheritedActions: [], explicitOnlyActions: ["entry", "read", "revise"] },
   { resourceKey: "settings.api.manage", status: "capability", supportedActions: ["entry", "read", "create", "update", "revise"], ancestorInheritedActions: [], explicitOnlyActions: ["entry", "read", "create", "update", "revise"] },
-  { resourceKey: "agent", status: "headless", supportedActions: ["entry", "read", "submit"], ancestorInheritedActions: [], explicitOnlyActions: ["submit"] },
-  { resourceKey: "agent.assistant", status: "capability", supportedActions: ["entry", "read", "submit"], ancestorInheritedActions: [], explicitOnlyActions: ["entry", "read", "submit"], notes: "Headless toolbar and /api/agent capability; the runtime can only discover and call registered protected /api/modules business APIs." },
+  { resourceKey: "agent", status: "business", supportedActions: ["entry", "read", "submit"], ancestorInheritedActions: [], explicitOnlyActions: ["submit"], notes: "The Agent L1, toolbar and /api/agent share one permission resource; the runtime can only discover and call registered protected /api/modules business APIs." },
 ] as const satisfies readonly PermissionResourceActionPolicy[];
 
 const WORKFLOW_MANAGEMENT_RESOURCE_ACTION_POLICIES: readonly PermissionResourceActionPolicy[] =

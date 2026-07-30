@@ -30,7 +30,7 @@ const REQUEST_TIMEOUT_MS = 30_000;
 export const AGENT_BUSINESS_API_MUTATION_ACTION = "agent.businessApi.mutation.execute";
 export const AGENT_BUSINESS_API_TOOL_KEYS = WORKSPACE_AGENT_CAPABILITY_KEYS;
 
-const CONNECTOR_PERMISSION = [{ resourceKey: "agent.assistant", action: "entry" }] as const;
+const CONNECTOR_PERMISSION = [{ resourceKey: "agent", action: "entry" }] as const;
 type PreparedBusinessApiRequest = {
   method: ApiMethod;
   path: string;

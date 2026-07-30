@@ -22,6 +22,9 @@ function fixture() {
   const packages = {
     "@wecom/aibot-node-sdk": { dependencies: { axios: "1" } },
     axios: { optionalDependencies: { ws: "1" } },
+    sharp: { optionalDependencies: { "@img/sharp-linux-x64": "1", "@img/sharp-libvips-linux-x64": "1" } },
+    "@img/sharp-linux-x64": {},
+    "@img/sharp-libvips-linux-x64": {},
     ws: {},
   };
   for (const [packageName, packageJson] of Object.entries(packages)) {
@@ -35,7 +38,14 @@ function fixture() {
 test("Assistant runtime bundle carries the exact sidecar and transitive dependency closure", () => {
   const files = fixture();
   const result = bundleAssistantRuntime({ repositoryRoot: files.root, standaloneRoot: files.output });
-  assert.deepEqual(result.packageNames, ["@wecom/aibot-node-sdk", "axios", "ws"]);
+  assert.deepEqual(result.packageNames, [
+    "@img/sharp-libvips-linux-x64",
+    "@img/sharp-linux-x64",
+    "@wecom/aibot-node-sdk",
+    "axios",
+    "sharp",
+    "ws",
+  ]);
   assert.equal(fs.existsSync(path.join(files.output, "scripts/runtime/wecom-agent-bot.mjs")), true);
   assert.equal(fs.existsSync(path.join(files.output, "node_modules/axios/package.json")), true);
   assert.equal(readAssistantRuntimeDescriptor(files.output).sidecars[0].activation, "active-slot-only");

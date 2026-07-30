@@ -35,7 +35,7 @@ Contract facts come from `packages/platform/action-contract-registry.ts` and its
 
 | Action | Kind / target | Resource | Routes | Domain binding | Persistence / semantics | Workflow |
 |---|---|---|---|---|---|---|
-| `agent.businessApi.mutation.execute`<br>确认执行 Agent 业务 API 写入 | remote_effect<br>WorkspaceBusinessApi | `agent.assistant`<br>direct=submit | command: POST /api/agent/proposals/:id/confirm<br>direct: POST /api/agent/proposals/:id/confirm | validate=packages/agent/server/business-api-connector.validateAgentBusinessApiMutationProposalPayload<br>commit=packages/agent/server/business-api-connector.executeAgentBusinessApiMutationProposal | none (authoritative state is remote)<br>---<br>provider=Workspace protected business API<br>operation=execute_registered_mutation<br>localAudit=AgentProposal<br>dispatchFailure=unknown<br>retry=reconcile_before_retry | not_applicable<br>当前注册为 permission_only；如需接入流程，必须迁移为共享 typed command adapter 后再修改该声明。 |
+| `agent.businessApi.mutation.execute`<br>确认执行 Agent 业务 API 写入 | remote_effect<br>WorkspaceBusinessApi | `agent`<br>direct=submit | command: POST /api/agent/proposals/:id/confirm<br>direct: POST /api/agent/proposals/:id/confirm | validate=packages/agent/server/business-api-connector.validateAgentBusinessApiMutationProposalPayload<br>commit=packages/agent/server/business-api-connector.executeAgentBusinessApiMutationProposal | none (authoritative state is remote)<br>---<br>provider=Workspace protected business API<br>operation=execute_registered_mutation<br>localAudit=AgentProposal<br>dispatchFailure=unknown<br>retry=reconcile_before_retry | not_applicable<br>当前注册为 permission_only；如需接入流程，必须迁移为共享 typed command adapter 后再修改该声明。 |
 
 ## capitalSecurities
 

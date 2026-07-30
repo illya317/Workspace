@@ -2,9 +2,9 @@ import type { ApiMethod } from "./api-contract-types";
 
 const PERMISSION_ONLY = { eligibility: "permission_only" } as const;
 
-const AGENT_ASSISTANT = {
+const AGENT_RESOURCE = {
   moduleKey: "agent",
-  resourceKey: "agent.assistant",
+  resourceKey: "agent",
 } as const;
 
 function route(method: ApiMethod, path: string, notes?: string) {
@@ -13,7 +13,7 @@ function route(method: ApiMethod, path: string, notes?: string) {
 
 export const AGENT_BUSINESS_ACTION_REGISTRATIONS = [
   {
-    ...AGENT_ASSISTANT,
+    ...AGENT_RESOURCE,
     ...PERMISSION_ONLY,
     key: "agent.businessApi.mutation.execute",
     label: "确认执行 Agent 业务 API 写入",

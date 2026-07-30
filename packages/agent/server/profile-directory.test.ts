@@ -18,7 +18,7 @@ const businessApiTool: AgentTool = {
   key: "workspace.api.read",
   label: "读取 Workspace 业务 API",
   description: "test",
-  requiredPermissions: [{ resourceKey: "agent.assistant", action: "read" }],
+  requiredPermissions: [{ resourceKey: "agent", action: "read" }],
   delegatedExecution: true,
   mutates: false,
   execute: async () => ({ type: "data", message: "ok" }),
@@ -86,7 +86,7 @@ test("profile discovery exposes the synthetic profile when requester and actor c
     roleName: "AI查询与变更提案助理",
   }]);
   assert.deepEqual(permissionChecks.sort(), [
-    "11:agent.assistant:read",
-    "22:agent.assistant:read",
+    "11:agent:read",
+    "22:agent:read",
   ]);
 });

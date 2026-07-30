@@ -24,7 +24,7 @@ const RUNTIME_FILES = [
   "scripts/runtime/wecom-agent-input.mjs",
   "scripts/runtime/wecom-agent-stream.mjs",
 ];
-const RUNTIME_PACKAGES = ["@wecom/aibot-node-sdk"];
+const RUNTIME_PACKAGES = ["@wecom/aibot-node-sdk", "sharp"];
 
 function requireDirectory(directory, label) {
   const resolved = path.resolve(directory);

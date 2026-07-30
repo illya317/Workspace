@@ -194,7 +194,7 @@ API 一级目录只表达系统能力类型：
 - `/api/settings/account/*`：当前登录用户自己的账号、安全密码、头像、目标、routine、week-info；普通自助接口是 `session` API，个人 API key 另挂 `settings.account.apiAccess` capability。
 - `/api/settings/admin/*`：系统管理，包含用户、权限、资源和系统配置。
 - `/api/settings/api/*`：Open API 接入管理，包含 Client、Scope 授权和调用日志。
-- `/api/agent/*`：Agent L1 与工具栏助手共用的对话、能力清单和变更提案 API，由 `agent.assistant` capability 保护。
+- `/api/agent/*`：Agent L1 与工具栏助手共用的对话、能力清单和变更提案 API，直接由 `agent` 资源保护。
 - `/api/modules/<module>/*`：业务模块数据入口，例如 HR、Finance、Work、Production、Library、Administration。
 - `/api/open/v1/*`：外部开放 API，必须由 Open API registry 注册 endpoint 和 scope。
 - `/api/integrations/*`：飞书、企业微信、外部 webhook 等系统集成。
@@ -246,7 +246,7 @@ app/* route shell
 - `apps/*` 是部署图生成的独立 Next App 镜像，不是新的 route/package 事实源。业务页面和 API 先修改根 `app/*`、module registry 与对应 package，再通过生成器刷新目标 App；不得只在 `apps/<unit>` 修业务逻辑或保留分叉实现。`npm run deploy:apps:check` 负责逐字一致性，部署单元所有权和跨单元运行时协议见 `docs/engineering/ops/deploy-units.md`。
 - L2 以下 capability 属于业务能力，不自动进入全局页面 L2。capability 必须声明 `capabilityOwnerKey`，直接指向已注册 L2，或通过无环 capability owner 链最终落到已注册 L2；它不能用 `parentKey` 继承 owner 权限，但可以用 `runtimeParentKey` 跟随 owner 的模块启停。Settings 下的 account/admin/api 也是标准 L2，页面 URL、resource、RBAC 和 API contract 必须统一。
 - 资源注册中的 `parentKey` 只表达权限树继承；模块启停级联使用 `runtimeParentKey`。不要用 `parentKey` 同时表达权限继承和运行态归属；只有真实存在独立授权语义的能力才声明 capability，并用 `runtimeParentKey` 跟随 owner 模块启停。
-- Headless module 必须声明 `presentation: "headless"` 和 `noPageReason`；其 capability 必须声明独立 resource 与 `capabilityOwnerKey`，不能借 capability 权限生成管理页面。Agent 已是普通 L1；`agent.assistant` 仍以 `settings.account` 为 owner，保护 `/agent` 会话、工具栏与 `/api/agent/**`，`runtimeParentKey=agent` 只提供模块启停耦合。Agent 模型面固定为三个受保护业务 API connector，不得为源码、领域 adapter、内部 RPC 或部署能力再建 capability；本地开发、直接提交和部署属于外部运行时。
+- Headless module 必须声明 `presentation: "headless"` 和 `noPageReason`；其 capability 必须声明独立 resource 与 `capabilityOwnerKey`，不能借 capability 权限生成管理页面。Agent 已是普通 L1，`/agent` 会话、工具栏与 `/api/agent/**` 直接复用 `agent`，不能再为同一调用能力建立重复 capability。Agent 模型面固定为三个受保护业务 API connector，不得为源码、领域 adapter、内部 RPC 或部署能力再建 capability；本地开发、直接提交和部署属于外部运行时。
 - Settings 下的 account/admin/api 是标准 L2。默认权限、隐式继承和 Open API 边界只在 `docs/engineering/security/rbac.md` 维护，不在 registry 或页面层写特判。
 
 这些规则由 `npm run arch:gate` 中的 module registry、app route hierarchy、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。

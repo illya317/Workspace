@@ -11,15 +11,18 @@ import {
   isProvisionerCreatedGrantLedgerEvent,
 } from "./agent-workforce-specs.mjs";
 
-test("Workspace assistant grants stay outside the Agent management resource", () => {
-  assert.equal(AGENT_RESOURCE_KEY, "agent.assistant");
+test("Workspace assistant grants use the canonical Agent resource", () => {
+  assert.equal(AGENT_RESOURCE_KEY, "agent");
   assert.ok(WORKFORCE.length > 0);
   for (const grant of MANAGED_WORKSPACE_RESOURCE_GRANTS) {
-    assert.notEqual(grant.resourceKey, "agent.management");
+    assert.notEqual(grant.resourceKey, "agent.assistant");
   }
   for (const member of WORKFORCE) {
     assert.ok(member.runtimeBindings.length > 0);
     assert.ok(Array.isArray(member.workspaceResourceGrants));
+    for (const grant of member.workspaceResourceGrants) {
+      assert.notEqual(grant.resourceKey, "agent.assistant");
+    }
   }
 });
 

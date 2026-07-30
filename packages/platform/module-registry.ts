@@ -520,10 +520,8 @@ export const registeredModuleDefinitions = [
       color: "purple",
       resourceKey: "agent",
       resourceSortOrder: 90,
+      apiPrefixes: ["/api/agent"],
     },
-    resourceDefs: [
-      { key: "agent.assistant", name: "Agent 助手调用", kind: "capability", capabilityOwnerKey: "settings.account", runtimeParentKey: "agent", apiPrefixes: ["/api/agent"], sortOrder: 0 },
-    ],
     apiRoutes: assistantIntegrationApiRoutes(),
   },
   {

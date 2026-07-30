@@ -24,7 +24,7 @@
 
 `work.tasks.cycleFlow.configure` 是全局周期、目标流程与汇报规则配置能力，同时控制工作台入口可见、API 读取和服务写入；它在权限设置中作为 `work.tasks` 的 capability 子项授权，空间 scoped grant 不会放大为全局配置权。IT/信息负责人作为全局授权管理员可以在权限设置中分配该能力，但业务页面不再按部门或角色硬编码放行。`work.projects.initiate.submit` 是全局项目发起能力；`work.projects` 仍是标准空间 root，直接授权只允许 `entry`，不能用 root non-entry grant 绕过空间红线。`work.meetings.viewAll.read` 只放宽会议列表对象范围，不提供编辑、管理或审批能力。这些 capability 都要求对应 owner resource 可进入，且自身动作必须显式授权。
 
-`agent` 是无页面的运行态模块。普通员工工具栏与 `/api/agent/**` 只认 `agent.assistant`；其 owner 是 `settings.account`，`runtimeParentKey=agent` 仅控制模块停用。模型只获得业务 API 发现、只读调用和写入提案三个固定 connector，不存在源码 capability 或领域工具白名单。本人助手沿用请求人的业务 API 权限；虚拟员工模式还要求请求人与 actor 的 gateway contract 权限交集，无法双主体复核的 `serviceDelegated` API 失败关闭。本地代码开发、直接提交和部署仍在外部运行时完成。
+`agent` 是有 `/agent` 页面的普通 L1。页面、普通员工工具栏与 `/api/agent/**` 共用同一个 `agent` 资源，不再拆出重复的助手 capability。模型只获得业务 API 发现、只读调用和写入提案三个固定 connector，不存在源码 capability 或领域工具白名单。本人助手沿用请求人的业务 API 权限；虚拟员工模式还要求请求人与 actor 的 gateway contract 权限交集，无法双主体复核的 `serviceDelegated` API 失败关闭。本地代码开发、直接提交和部署仍在外部运行时完成。
 
 ## 空间派生资源
 
