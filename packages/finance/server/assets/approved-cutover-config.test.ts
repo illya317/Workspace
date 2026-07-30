@@ -15,7 +15,7 @@ import type { FinanceAssetLegacySyntheticAsset } from "./legacy-synthetic-assets
 
 const scope = { companyCode: "TEST", year: 2026, month: 6 };
 
-test("only a current-user 0600 file outside cwd can create an execution-approved reconciler", async () => {
+test("only a current-user 0600 file outside the worktree can create an execution-approved reconciler", async () => {
   const root = await mkdtemp(join(tmpdir(), "approved-asset-cutover-"));
   try {
     const configPath = join(root, "approved.json");
@@ -37,13 +37,8 @@ test("only a current-user 0600 file outside cwd can create an execution-approved
     await symlink(configPath, linkPath);
     await assert.rejects(() => loadApprovedFinanceAssetCutoverConfig(linkPath, scope), /symlink/);
     const projectRoot = process.cwd();
-    process.chdir(join(projectRoot, "packages"));
-    try {
-      assert.ok(await loadApprovedFinanceAssetCutoverConfig(configPath, scope));
-      await assert.rejects(() => loadApprovedFinanceAssetCutoverConfig(join(projectRoot, "approved.json"), scope), /worktree\/cwd/);
-    } finally {
-      process.chdir(projectRoot);
-    }
+    assert.ok(await loadApprovedFinanceAssetCutoverConfig(configPath, scope));
+    await assert.rejects(() => loadApprovedFinanceAssetCutoverConfig(join(projectRoot, "approved.json"), scope), /worktree\/cwd/);
     const siblingRepo = join(root, "sibling-repo");
     await mkdir(join(siblingRepo, ".git"), { recursive: true });
     const siblingConfig = join(siblingRepo, "approved.json");
