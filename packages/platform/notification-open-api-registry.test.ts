@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { findApiContract } from "./api-registry";
 import { registeredModuleDefinitions } from "./module-registry";
 import { findOpenApiEndpoint, getOpenApiRegistrations, getOpenApiScope } from "./open-api-registry";
 import { resolvePermissionApiActionPolicy } from "./permission-api-action-policy";
@@ -43,6 +44,18 @@ test("notification publishing registries keep ingress permissions explicit", () 
     resourceKey: "settings.notifications",
   });
   assert.deepEqual(management.requiredActions, ["configure"]);
+
+  for (const [method, path] of [
+    ["POST", "/api/settings/api/open/managed-groups/group-key/claim"],
+    ["POST", "/api/settings/api/open/managed-groups/group-key/verify"],
+    ["PATCH", "/api/settings/api/open/managed-groups/group-key"],
+    ["POST", "/api/settings/api/open/group-policies"],
+    ["PATCH", "/api/settings/api/open/group-policies/policy-id"],
+  ] as const) {
+    const contract = findApiContract(method, path);
+    assert.equal(contract?.resourceKey, "settings.notifications");
+    assert.deepEqual(contract?.requiredActions, ["configure"]);
+  }
 
   const resource = getPermissionResourceActionPolicy("settings.notifications");
   for (const action of ["read", "configure", "create", "apiUse", "audit"] as const) {

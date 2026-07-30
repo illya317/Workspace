@@ -442,7 +442,13 @@ export const registeredModuleDefinitions = [
       { key: "party.identity", name: "法定主体治理", kind: "capability", capabilityOwnerKey: "settings.admin", runtimeParentKey: "settings.admin", sortOrder: 0 },
       { key: "settings.account.apiAccess", name: "个人 API 使用", kind: "capability", capabilityOwnerKey: "settings.account", runtimeParentKey: "settings.account", apiPrefixes: ["/api/settings/account/api-key"], sortOrder: 0 },
       { key: "settings.api.manage", name: "Open API Client 管理", kind: "capability", capabilityOwnerKey: "settings.api", runtimeParentKey: "settings.api", apiPrefixes: ["/api/settings/api/open/clients"], sortOrder: 0 },
-      { key: "settings.notifications", name: "通知开放", kind: "capability", capabilityOwnerKey: "settings.api", runtimeParentKey: "settings.api", apiPrefixes: ["/api/modules/settings/notifications", "/api/settings/api/open/notification-definitions"], sortOrder: 1 },
+      { key: "settings.notifications", name: "通知开放", kind: "capability", capabilityOwnerKey: "settings.api", runtimeParentKey: "settings.api", apiPrefixes: [
+        "/api/modules/settings/notifications",
+        "/api/settings/api/open/notification-definitions",
+        "/api/settings/api/open/group-notifications",
+        "/api/settings/api/open/managed-groups",
+        "/api/settings/api/open/group-policies",
+      ], sortOrder: 1 },
       ...listWorkflowManagementResourceRegistrations(),
     ],
     apiRoutes: [
@@ -460,6 +466,15 @@ export const registeredModuleDefinitions = [
       ...apiResourceGuards("/api/modules/settings/notifications", ["GET", "POST"]),
       ...apiResourceGuards("/api/settings/api/open/notification-definitions", ["GET", "POST"], {
         migrationNote: "Settings notification-definition management remains a console URL; programmatic publication uses /api/modules/settings/notifications.",
+      }),
+      ...apiResourceGuards("/api/settings/api/open/group-notifications", ["GET"], {
+        migrationNote: "Settings managed-group console data remains under the legacy settings URL.",
+      }),
+      ...apiResourceGuards("/api/settings/api/open/managed-groups", ["POST", "PATCH"], {
+        migrationNote: "Settings managed-group lifecycle commands remain under the legacy settings URL.",
+      }),
+      ...apiResourceGuards("/api/settings/api/open/group-policies", ["POST", "PATCH"], {
+        migrationNote: "Settings managed-group policy commands remain under the legacy settings URL.",
       }),
       ...apiResourceGuards("/api/settings/admin", ["GET", "POST", "PUT", "PATCH", "DELETE"], {
         migrationNote: "Legacy settings URL; migrate to /api/modules/settings/admin.",
