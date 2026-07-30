@@ -20,6 +20,12 @@ BEGIN
  IF NOT pg_has_role('workspace_migrator','workspace_owner','MEMBER') THEN RAISE EXCEPTION 'migrator cannot SET ROLE owner'; END IF;
  IF EXISTS(SELECT 1 FROM pg_stat_activity WHERE usename='workspace_app') THEN RAISE EXCEPTION 'legacy database session remains'; END IF;
  IF EXISTS(
+   SELECT 1 FROM pg_shdepend
+   WHERE dbid=(SELECT oid FROM pg_database WHERE datname='workspace')
+     AND refobjid=(SELECT oid FROM pg_roles WHERE rolname='workspace_app')
+     AND deptype IN('o','a')
+ ) THEN RAISE EXCEPTION 'legacy owner or ACL dependency remains in workspace database'; END IF;
+ IF EXISTS(
    SELECT 1 FROM pg_database d JOIN pg_shdepend sd ON sd.dbid=d.oid JOIN pg_roles r ON r.oid=sd.refobjid
    WHERE d.datname~'^workspace_rollback_[a-zA-Z0-9_]+$' AND r.rolname='workspace_app' AND sd.deptype='o'
  ) THEN RAISE EXCEPTION 'legacy owner remains in rollback database'; END IF;
@@ -30,6 +36,7 @@ END $verify_cluster$;
 DO $verify_workspace$
 DECLARE legacy_oid oid := (SELECT oid FROM pg_roles WHERE rolname='workspace_app');
 BEGIN
+ IF EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relrowsecurity) OR EXISTS(SELECT 1 FROM pg_policies WHERE schemaname='public') THEN RAISE EXCEPTION 'RLS baseline changed; RLS is outside this cutover'; END IF;
  IF has_schema_privilege('workspace_runtime','public','CREATE') THEN RAISE EXCEPTION 'runtime may create'; END IF;
  IF has_table_privilege('workspace_runtime','public."_prisma_migrations"','SELECT') OR has_table_privilege('workspace_runtime','public."_prisma_migrations"','INSERT') OR has_table_privilege('workspace_runtime','public."_prisma_migrations"','UPDATE') OR has_table_privilege('workspace_runtime','public."_prisma_migrations"','DELETE') THEN RAISE EXCEPTION 'runtime may access migration ledger'; END IF;
  IF EXISTS(SELECT 1 FROM pg_namespace WHERE nspname='public' AND nspowner=legacy_oid) THEN RAISE EXCEPTION 'legacy schema owner remains'; END IF;

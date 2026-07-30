@@ -45,8 +45,10 @@ test("role SQL is split, monitor-limited, legacy-clean, and contains no RLS poli
   assert.match(verify, /legacy routine owner remains/);
   assert.match(verify, /legacy type owner remains/);
   assert.match(verify, /legacy database session remains/);
+  assert.match(verify, /legacy owner or ACL dependency remains in workspace database/);
   assert.match(verify, /monitor may select a non-allowlisted relation/);
   assert.match(verify, /pg_shdepend/);
+  assert.match(verify, /RLS baseline changed; RLS is outside this cutover/);
   assert.doesNotMatch(roles + verify, /CREATE POLICY|ENABLE ROW LEVEL SECURITY|FORCE ROW LEVEL SECURITY/i);
 });
 
