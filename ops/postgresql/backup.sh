@@ -35,19 +35,69 @@ fi
 backup_connection_url=""
 backup_password=""
 if [ -n "$backup_url" ]; then
-  mapfile -d '' -t connection_parts < <(WORKSPACE_BACKUP_URL_VALUE="$backup_url" python3 - <<'PY'
+  mapfile -d '' -t connection_parts < <(WORKSPACE_BACKUP_URL_VALUE="$backup_url" WORKSPACE_BACKUP_DATABASE_NAME="$database_name" python3 - <<'PY'
 import os
+import re
 import sys
-from urllib.parse import quote, unquote, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, quote, unquote, urlencode, urlsplit, urlunsplit
 
-value = urlsplit(os.environ["WORKSPACE_BACKUP_URL_VALUE"])
-if value.scheme not in {"postgres", "postgresql"} or value.username is None or value.password is None or value.hostname is None:
-    raise SystemExit("backup URL must include PostgreSQL scheme, username, password, and host")
-host = f"[{value.hostname}]" if ":" in value.hostname else value.hostname
-port = f":{value.port}" if value.port is not None else ""
-netloc = f"{quote(unquote(value.username), safe='')}@{host}{port}"
-sanitized = urlunsplit((value.scheme, netloc, value.path, value.query, value.fragment))
-sys.stdout.buffer.write(sanitized.encode() + b"\0" + unquote(value.password).encode() + b"\0")
+def reject(message):
+    raise SystemExit(message)
+
+try:
+    raw_url = os.environ["WORKSPACE_BACKUP_URL_VALUE"]
+    if re.search(r"%(?![0-9A-Fa-f]{2})", raw_url):
+        reject("backup URL is invalid")
+    value = urlsplit(raw_url)
+    username = unquote(value.username or "", errors="strict")
+    password = unquote(value.password or "", errors="strict")
+    hostname = value.hostname
+    port_number = value.port
+    query = parse_qsl(value.query, keep_blank_values=True, strict_parsing=True, errors="strict")
+except (UnicodeError, ValueError):
+    reject("backup URL is invalid")
+
+if (
+    value.scheme not in {"postgres", "postgresql"}
+    or username != "workspace_backup"
+    or not password
+    or hostname not in {"127.0.0.1", "localhost", "::1"}
+    or port_number not in {None, 5432}
+    or value.path != f"/{os.environ['WORKSPACE_BACKUP_DATABASE_NAME']}"
+    or value.fragment
+    or any(ord(character) < 32 or ord(character) == 127 for character in password)
+):
+    reject("backup URL contract is invalid")
+
+allowed = {"application_name", "connect_timeout", "schema", "sslmode", "sslrootcert"}
+seen = {}
+for key, item in query:
+    if (
+        key not in allowed
+        or key in seen
+        or not key
+        or any(ord(character) < 32 or ord(character) == 127 for character in key + item)
+    ):
+        reject("backup URL query contract is invalid")
+    seen[key] = item
+
+if seen.get("schema") not in {None, "public"}:
+    reject("backup URL schema contract is invalid")
+if seen.get("sslmode") != "verify-full" or seen.get("sslrootcert") != "/etc/workspace/postgresql/ca.pem":
+    reject("backup URL TLS contract is invalid")
+if not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", seen.get("application_name", "")):
+    reject("backup URL application name contract is invalid")
+if "connect_timeout" in seen:
+    timeout = seen["connect_timeout"]
+    if not timeout.isascii() or not timeout.isdecimal() or not 2 <= int(timeout) <= 60:
+        reject("backup URL timeout contract is invalid")
+
+filtered_query = [(key, item) for key, item in query if key != "schema"]
+host = f"[{hostname}]" if ":" in hostname else hostname
+port = f":{port_number}" if port_number is not None else ""
+netloc = f"{quote(username, safe='')}@{host}{port}"
+sanitized = urlunsplit((value.scheme, netloc, value.path, urlencode(filtered_query, safe="/"), ""))
+sys.stdout.buffer.write(sanitized.encode() + b"\0" + password.encode() + b"\0")
 PY
   )
   [ "${#connection_parts[@]}" -eq 2 ] || fail "could not parse WORKSPACE_POSTGRESQL_BACKUP_URL"
