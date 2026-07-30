@@ -48,6 +48,22 @@ function runNode(program, env = {}) {
   });
 }
 
+function hardenedDatabaseUrl(role, { options, host = "127.0.0.1", port = "5432", database = "workspace" } = {}) {
+  const url = new URL(
+    "postgresql://" + role + ":contract-secret@" + host + ":" + port + "/" + database,
+  );
+  url.searchParams.set("sslmode", "verify-full");
+  url.searchParams.set("sslrootcert", "/etc/workspace/postgresql/ca.pem");
+  if (options !== undefined) url.searchParams.set("options", options);
+  return url.toString();
+}
+
+const runtimeDatabaseUrl = hardenedDatabaseUrl("workspace_runtime");
+const directDatabaseUrl = hardenedDatabaseUrl(
+  "workspace_migrator",
+  { options: "-c role=workspace_owner" },
+);
+
 test("deploy delegates all receipt reads and writes to one versioned helper", () => {
   assert.match(deploy, /REMOTE_RELEASE_RECEIPT_TOOL=.*release-receipt\.mjs/);
   assert.match(deploy, /release-receipt\.mjs[\s\S]*?node --check/);
@@ -82,6 +98,11 @@ test("hardened production runtime keeps PM2 and database credentials behind an e
   assert.match(sshShim, /WORKSPACE_BACKUP_DATABASE_URL/);
   assert.match(sshShim, /control-plane env must not be accessible by group or other users/);
   assert.match(sshShim, /runtime env must not be group-writable\/executable or accessible by other users/);
+  assert.match(sshShim, /workspace_assert_hardened_database_url/);
+  assert.match(sshShim, /workspace_runtime 0 DATABASE_URL/);
+  assert.match(sshShim, /workspace_migrator 1 DIRECT_URL/);
+  assert.match(sshShim, /workspace_backup 0 WORKSPACE_BACKUP_DATABASE_URL/);
+  assert.match(sshShim, /workspace_monitor 0 WORKSPACE_MONITOR_DATABASE_URL/);
   assertOrdered(deploy.slice(deploy.indexOf('echo "==> 验证服务器连接..."')), [
     "start_ssh_master",
     "verify_remote_runtime_pm2",
@@ -104,6 +125,173 @@ test("hardened production runtime keeps PM2 and database credentials behind an e
     "PORT=3101 HOSTNAME=127.0.0.1 pm2 start",
   ]);
   assert.match(remoteDeploy, /bind_runtime_env_to_release[\s\S]*?pm2 start \\"\\\$old_release/);
+});
+
+test("legacy PM2 deployments remain outside the hardened credential contract", () => {
+  const verifier = deploy.slice(
+    deploy.indexOf("verify_remote_runtime_pm2()"),
+    deploy.indexOf("start_ssh_master()"),
+  );
+  assertOrdered(verifier, [
+    'if [ "$WORKSPACE_RUNTIME_PM2_MODE" != "hardened" ]',
+    "使用 legacy PM2 兼容模式",
+    "return 0",
+    "workspace_assert_hardened_database_url",
+  ]);
+
+  const sshShim = deploy.slice(deploy.indexOf("ssh_cmd()"), deploy.indexOf("verify_remote_runtime_pm2()"));
+  assert.match(sshShim, /if \[ '\$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' \][\s\S]*?else\n\s+command pm2/);
+  assert.match(
+    sshShim,
+    /if \[ '\$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' \]; then\n\s+test -n \\"\\\${WORKSPACE_BACKUP_DATABASE_URL:-}\\"/,
+  );
+});
+
+test("hardened deploy URL contract pins every database credential to its exact role, endpoint, and TLS CA", () => {
+  const programs = embeddedPrograms("node", "NODE");
+  const matches = programs.filter(
+    (program) => program.includes("EXPECTED_DATABASE_ROLE")
+      && program.includes("forbiddenConnectionOverrides"),
+  );
+  assert.equal(matches.length, 1);
+  const validator = matches[0];
+  const validate = (databaseUrl, role, requireOwnerRole = false) =>
+    runNode(validator, {
+      DATABASE_URL_VALUE: databaseUrl,
+      EXPECTED_DATABASE_ROLE: role,
+      REQUIRE_OWNER_ROLE: requireOwnerRole ? "1" : "0",
+      DATABASE_URL_LABEL: "test database URL",
+    });
+
+  for (const [role, databaseUrl, requireOwnerRole] of [
+    ["workspace_runtime", runtimeDatabaseUrl, false],
+    ["workspace_migrator", directDatabaseUrl, true],
+    ["workspace_backup", hardenedDatabaseUrl("workspace_backup"), false],
+    ["workspace_monitor", hardenedDatabaseUrl("workspace_monitor"), false],
+  ]) {
+    const result = validate(databaseUrl, role, requireOwnerRole);
+    assert.equal(result.status, 0, result.stderr);
+  }
+
+  const invalidContracts = [
+    {
+      label: "wrong role",
+      value: hardenedDatabaseUrl("workspace_backup"),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "localhost alias",
+      value: hardenedDatabaseUrl("workspace_runtime", { host: "localhost" }),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "missing explicit port",
+      value: runtimeDatabaseUrl.replace(":5432/", "/"),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "wrong database",
+      value: hardenedDatabaseUrl("workspace_runtime", { database: "postgres" }),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "TLS downgrade",
+      value: runtimeDatabaseUrl.replace("sslmode=verify-full", "sslmode=require"),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "wrong CA",
+      value: runtimeDatabaseUrl.replace(
+        encodeURIComponent("/etc/workspace/postgresql/ca.pem"),
+        encodeURIComponent("/tmp/ca.pem"),
+      ),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "connection query override",
+      value: runtimeDatabaseUrl + "&host=localhost",
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "duplicate TLS mode",
+      value: runtimeDatabaseUrl + "&sslmode=require",
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "runtime owner role option",
+      value: hardenedDatabaseUrl("workspace_runtime", { options: "-c role=workspace_owner" }),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "missing migrator owner role",
+      value: hardenedDatabaseUrl("workspace_migrator"),
+      role: "workspace_migrator",
+      owner: true,
+    },
+    {
+      label: "migrator owner role plus extra option",
+      value: hardenedDatabaseUrl(
+        "workspace_migrator",
+        { options: "-c role=workspace_owner -c search_path=public" },
+      ),
+      role: "workspace_migrator",
+      owner: true,
+    },
+  ];
+  for (const contract of invalidContracts) {
+    const result = validate(contract.value, contract.role, contract.owner);
+    assert.notEqual(result.status, 0, contract.label);
+    assert.doesNotMatch(result.stderr, /contract-secret/, contract.label);
+  }
+});
+
+test("hardened deploy verifies the DATABASE_URL actually retained by managed PM2 processes", () => {
+  const programs = embeddedPrograms("node", "NODE");
+  const matches = programs.filter(
+    (program) => program.includes("MANAGED_PROCESSES")
+      && program.includes("runtimeDatabaseUrls"),
+  );
+  assert.equal(matches.length, 1);
+  const validator = matches[0];
+  const verify = (pm2Environment) => runNode(validator, {
+    MANAGED_NAMES: "workspace-candidate,workspace,workspace-wecom-agent",
+    MANAGED_PROCESSES: JSON.stringify([{ name: "workspace", pm2_env: pm2Environment }]),
+  });
+
+  assert.equal(verify({ DATABASE_URL: runtimeDatabaseUrl }).status, 0);
+  assert.equal(verify({ env: { DATABASE_URL: runtimeDatabaseUrl } }).status, 0);
+  assert.equal(
+    verify({ DATABASE_URL: runtimeDatabaseUrl, env: { DATABASE_URL: runtimeDatabaseUrl } }).status,
+    0,
+  );
+
+  for (const [label, environment] of [
+    ["wrong role", { DATABASE_URL: hardenedDatabaseUrl("workspace_backup") }],
+    ["TLS downgrade", { DATABASE_URL: runtimeDatabaseUrl.replace("verify-full", "require") }],
+    ["wrong CA", { DATABASE_URL: runtimeDatabaseUrl.replace("ca.pem", "other-ca.pem") }],
+    ["query override", { DATABASE_URL: runtimeDatabaseUrl + "&host=localhost" }],
+    ["nested control credential", {
+      DATABASE_URL: runtimeDatabaseUrl,
+      env: { DATABASE_URL: runtimeDatabaseUrl, DIRECT_URL: directDatabaseUrl },
+    }],
+    ["ambiguous PM2 snapshots", {
+      DATABASE_URL: runtimeDatabaseUrl,
+      env: { DATABASE_URL: hardenedDatabaseUrl("workspace_backup") },
+    }],
+  ]) {
+    const result = verify(environment);
+    assert.notEqual(result.status, 0, label);
+    assert.doesNotMatch(result.stderr, /contract-secret/, label);
+  }
 });
 
 test("legacy local receipt repair revalidates the frozen production identity under the deploy lock", () => {

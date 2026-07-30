@@ -268,6 +268,67 @@ ssh_cmd() {
   fi
   local remote_command="$1"
   ssh "${SSH_OPTIONS[@]}" "$SERVER" "
+workspace_assert_hardened_database_url() {
+  local database_url_value=\$1
+  local expected_database_role=\$2
+  local require_owner_role=\$3
+  local database_url_label=\$4
+  DATABASE_URL_VALUE=\"\$database_url_value\" \\
+  EXPECTED_DATABASE_ROLE=\"\$expected_database_role\" \\
+  REQUIRE_OWNER_ROLE=\"\$require_owner_role\" \\
+  DATABASE_URL_LABEL=\"\$database_url_label\" \\
+  node - <<'NODE'
+const label = process.env.DATABASE_URL_LABEL || 'database URL';
+const fail = () => {
+  throw new Error(label + ' violates hardened PostgreSQL URL contract');
+};
+let url;
+try {
+  url = new URL(process.env.DATABASE_URL_VALUE || '');
+} catch {
+  fail();
+}
+let username;
+let password;
+try {
+  username = decodeURIComponent(url.username);
+  password = decodeURIComponent(url.password);
+} catch {
+  fail();
+}
+const forbiddenConnectionOverrides = [
+  'user', 'password', 'host', 'hostaddr', 'port', 'dbname', 'database',
+  'service', 'servicefile', 'ssl', 'sslcert', 'sslkey',
+];
+if (forbiddenConnectionOverrides.some((key) => url.searchParams.has(key))) fail();
+const singleQueryValue = (key) => {
+  const values = url.searchParams.getAll(key);
+  if (values.length !== 1) fail();
+  return values[0];
+};
+if (!['postgres:', 'postgresql:'].includes(url.protocol)
+    || username !== process.env.EXPECTED_DATABASE_ROLE
+    || !password
+    || Array.from(password).some((character) => {
+      const codePoint = character.codePointAt(0);
+      return codePoint < 32 || codePoint === 127;
+    })
+    || url.hostname !== '127.0.0.1'
+    || url.port !== '5432'
+    || url.pathname !== '/workspace'
+    || url.hash
+    || singleQueryValue('sslmode') !== 'verify-full'
+    || singleQueryValue('sslrootcert') !== '/etc/workspace/postgresql/ca.pem') {
+  fail();
+}
+const options = url.searchParams.getAll('options');
+if (process.env.REQUIRE_OWNER_ROLE === '1') {
+  if (options.length !== 1 || options[0] !== '-c role=workspace_owner') fail();
+} else if (options.length !== 0) {
+  fail();
+}
+NODE
+}
 workspace_assert_managed_runtime_environment() {
   [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ] || return 0
   local managed_processes
@@ -276,17 +337,75 @@ workspace_assert_managed_runtime_environment() {
 const processes = JSON.parse(process.env.MANAGED_PROCESSES || 'null');
 if (!Array.isArray(processes)) throw new Error('runtime PM2 runner jlist did not return an array');
 const managed = new Set(process.env.MANAGED_NAMES.split(','));
+const failDatabaseUrl = (label) => {
+  throw new Error(label + ' violates hardened PostgreSQL URL contract');
+};
+const assertHardenedDatabaseUrl = (raw, label) => {
+  let url;
+  try {
+    url = new URL(String(raw || ''));
+  } catch {
+    failDatabaseUrl(label);
+  }
+  let username;
+  let password;
+  try {
+    username = decodeURIComponent(url.username);
+    password = decodeURIComponent(url.password);
+  } catch {
+    failDatabaseUrl(label);
+  }
+  const forbiddenConnectionOverrides = [
+    'user', 'password', 'host', 'hostaddr', 'port', 'dbname', 'database',
+    'service', 'servicefile', 'ssl', 'sslcert', 'sslkey',
+  ];
+  if (forbiddenConnectionOverrides.some((key) => url.searchParams.has(key))) failDatabaseUrl(label);
+  const singleQueryValue = (key) => {
+    const values = url.searchParams.getAll(key);
+    if (values.length !== 1) failDatabaseUrl(label);
+    return values[0];
+  };
+  if (!['postgres:', 'postgresql:'].includes(url.protocol)
+      || username !== 'workspace_runtime'
+      || !password
+      || Array.from(password).some((character) => {
+        const codePoint = character.codePointAt(0);
+        return codePoint < 32 || codePoint === 127;
+      })
+      || url.hostname !== '127.0.0.1'
+      || url.port !== '5432'
+      || url.pathname !== '/workspace'
+      || url.hash
+      || singleQueryValue('sslmode') !== 'verify-full'
+      || singleQueryValue('sslrootcert') !== '/etc/workspace/postgresql/ca.pem'
+      || url.searchParams.has('options')) {
+    failDatabaseUrl(label);
+  }
+};
 for (const process of processes) {
   if (!process || typeof process !== 'object' || !managed.has(process.name)) continue;
   const environment = process.pm2_env || {};
-for (const key of [
-  'DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL', 'WORKSPACE_MONITOR_DATABASE_URL',
-  'PGPASSWORD', 'PGPASSFILE', 'PGSERVICE', 'PGSERVICEFILE', 'PGOPTIONS', 'PGUSER', 'PGHOST', 'PGDATABASE',
-]) {
-    if (Object.prototype.hasOwnProperty.call(environment, key)) {
+  const nestedEnvironment = environment.env && typeof environment.env === 'object' ? environment.env : {};
+  const environmentSources = [nestedEnvironment, environment];
+  for (const key of [
+    'DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL', 'WORKSPACE_MONITOR_DATABASE_URL',
+    'PGPASSWORD', 'PGPASSFILE', 'PGSERVICE', 'PGSERVICEFILE', 'PGOPTIONS', 'PGUSER', 'PGHOST', 'PGDATABASE',
+  ]) {
+    if (environmentSources.some((source) => Object.prototype.hasOwnProperty.call(source, key))) {
       throw new Error('managed runtime process ' + process.name + ' contains forbidden ' + key);
     }
   }
+  const runtimeDatabaseUrls = environmentSources
+    .filter((source) => Object.prototype.hasOwnProperty.call(source, 'DATABASE_URL'))
+    .map((source) => source.DATABASE_URL);
+  if (runtimeDatabaseUrls.length === 0
+      || runtimeDatabaseUrls.some((value) => value !== runtimeDatabaseUrls[0])) {
+    failDatabaseUrl('managed runtime process ' + process.name + ' DATABASE_URL');
+  }
+  assertHardenedDatabaseUrl(
+    runtimeDatabaseUrls[0],
+    'managed runtime process ' + process.name + ' DATABASE_URL',
+  );
 }
 NODE
 }
@@ -336,7 +455,7 @@ load_runtime_environment() {
 }
 load_control_environment() {
   local runtime_database_url
-  unset DATABASE_URL DIRECT_URL SHADOW_DATABASE_URL
+  unset DATABASE_URL DIRECT_URL SHADOW_DATABASE_URL WORKSPACE_BACKUP_DATABASE_URL WORKSPACE_MONITOR_DATABASE_URL
   set -a
   workspace_source_env_file '$REMOTE_RUNTIME_ENV_FILE'
   runtime_database_url=\$DATABASE_URL
@@ -413,6 +532,13 @@ for required in ('DIRECT_URL', 'WORKSPACE_BACKUP_DATABASE_URL'):
     if required not in control_keys:
         raise SystemExit(f'control-plane env is missing {required}')
 PY
+    load_control_environment
+    workspace_assert_hardened_database_url \"\$DATABASE_URL\" workspace_runtime 0 DATABASE_URL
+    workspace_assert_hardened_database_url \"\$DIRECT_URL\" workspace_migrator 1 DIRECT_URL
+    workspace_assert_hardened_database_url \"\$WORKSPACE_BACKUP_DATABASE_URL\" workspace_backup 0 WORKSPACE_BACKUP_DATABASE_URL
+    if [ \"\${WORKSPACE_MONITOR_DATABASE_URL+x}\" = 'x' ]; then
+      workspace_assert_hardened_database_url \"\$WORKSPACE_MONITOR_DATABASE_URL\" workspace_monitor 0 WORKSPACE_MONITOR_DATABASE_URL
+    fi
     sudo -n -- '$WORKSPACE_RUNTIME_PM2_RUNNER' --version >/dev/null
     workspace_assert_managed_runtime_environment
   "
