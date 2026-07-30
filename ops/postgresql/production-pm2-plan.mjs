@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 const [command, ...argv] = process.argv.slice(2);
 const valueAfter = (flag) => { const index = argv.indexOf(flag); return index >= 0 ? argv[index + 1] : ""; };
 const fail = (message) => { console.error("[错误] " + message); process.exit(1); };
-const readJson = (file) => JSON.parse(readFileSync(file, "utf8"));
+const readJson = (file) => JSON.parse(readFileSync(file === "-" ? 0 : file, "utf8"));
 const writePrivateJson = (file, value) => {
   const temporary = file + ".tmp-" + process.pid;
   writeFileSync(temporary, JSON.stringify(value, null, 2) + "\n", { mode: 0o600 });
@@ -76,28 +76,35 @@ if (command === "create") {
     });
     if (result.status !== 0) fail(command + " " + processSpec.name + " 失败");
   }
-} else if (command === "verify") {
+} else if (command === "verify" || command === "pids") {
   const plan = readJson(valueAfter("--plan"));
   const runner = valueAfter("--runner");
+  if (plan?.kind !== "workspace-production-pm2-migration" || !Array.isArray(plan.processes) || !runner) fail("plan/runner 无效");
   const result = spawnSync(runner, ["jlist"], { encoding: "utf8", env: { PATH: process.env.PATH ?? "/usr/bin" } });
   if (result.status !== 0) fail("无法读取隔离 PM2 状态");
   const actual = JSON.parse(result.stdout || "[]");
   const unexpected = actual.map((entry) => String(entry?.name ?? ""))
     .filter((name) => name.startsWith("workspace") && !managedName(name));
   if (unexpected.length) fail("隔离 PM2 存在额外 Workspace 进程: " + unexpected.sort().join(", "));
+  const pids = [];
   for (const expected of plan.processes) {
     const matches = actual.filter((entry) => entry?.name === expected.name);
     if (matches.length !== 1) fail(expected.name + " 进程数不等于 1");
     const match = matches[0];
     if (match?.pm2_env?.status !== "online") fail(expected.name + " 未 online");
+    const pid = Number(match?.pid);
+    if (!Number.isSafeInteger(pid) || pid <= 0) fail(expected.name + " 无有效 PID");
     const processEnv = { ...(match.pm2_env.env ?? {}), ...match.pm2_env };
     const leaked = FORBIDDEN_DATABASE_ENV.filter((key) => Object.hasOwn(processEnv, key));
     if (leaked.length) fail(expected.name + " 泄露 control-plane PostgreSQL 环境: " + leaked.join(", "));
     let user = "";
     try { user = decodeURIComponent(new URL(String(processEnv.DATABASE_URL || "")).username); } catch {}
     if (user !== "workspace_runtime") fail(expected.name + " 未使用 workspace_runtime");
+    pids.push(`${expected.name}|${pid}`);
   }
-  process.stdout.write("verified " + plan.processes.length + " Workspace process(es)\n");
+  process.stdout.write(command === "pids"
+    ? pids.join("\n") + "\n"
+    : "verified " + plan.processes.length + " Workspace process(es)\n");
 } else {
-  fail("用法: production-pm2-plan.mjs create|apply|delete|verify ...");
+  fail("用法: production-pm2-plan.mjs create|apply|delete|verify|pids ...");
 }

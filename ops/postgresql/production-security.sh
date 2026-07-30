@@ -325,6 +325,58 @@ process.stdin.on("data",chunk=>input+=chunk).on("end",()=>{
   if(names.length){console.error("[错误] legacy PM2 仍有 Workspace 进程: "+names.sort().join(", "));process.exit(1);}
 });'
 }
+pid_in_systemd_control_group() {
+  local pid=$1 control_group=$2
+  [ -r "/proc/$pid/cgroup" ] || return 1
+  awk -F: -v expected="$control_group" '
+    $3 == expected || index($3, expected "/") == 1 { found=1 }
+    END { exit(found ? 0 : 1) }
+  ' "/proc/$pid/cgroup"
+}
+verify_runtime_systemd_pm2_daemon() {
+  local main_pid pm2_pid control_group
+  systemctl is-active --quiet workspace-runtime-pm2.service || {
+    echo "[错误] workspace-runtime-pm2.service 未 active" >&2
+    return 1
+  }
+  main_pid="$(systemctl show workspace-runtime-pm2.service -p MainPID --value)"
+  control_group="$(systemctl show workspace-runtime-pm2.service -p ControlGroup --value)"
+  [ -r /var/lib/workspace-runtime/.pm2/pm2.pid ] || { echo "[错误] PM2 PID 文件不可读" >&2; return 1; }
+  IFS= read -r pm2_pid < /var/lib/workspace-runtime/.pm2/pm2.pid
+  [[ "$main_pid" =~ ^[1-9][0-9]*$ ]] && [[ "$pm2_pid" =~ ^[1-9][0-9]*$ ]] || {
+    echo "[错误] systemd/PM2 daemon PID 无效" >&2
+    return 1
+  }
+  [ "$main_pid" = "$pm2_pid" ] || {
+    echo "[错误] systemd MainPID 与 PM2 pid 文件不一致" >&2
+    return 1
+  }
+  [ -n "$control_group" ] && [ "$control_group" != / ] || {
+    echo "[错误] systemd ControlGroup 无效" >&2
+    return 1
+  }
+  pid_in_systemd_control_group "$main_pid" "$control_group" || {
+    echo "[错误] PM2 daemon 不在 workspace-runtime-pm2.service cgroup" >&2
+    return 1
+  }
+}
+verify_runtime_systemd_pm2_processes() {
+  local plan=$1 control_group name pid count=0
+  verify_runtime_systemd_pm2_daemon
+  control_group="$(systemctl show workspace-runtime-pm2.service -p ControlGroup --value)"
+  while IFS='|' read -r name pid; do
+    [ -n "$name" ] && [[ "$pid" =~ ^[1-9][0-9]*$ ]] || {
+      echo "[错误] PM2 受管进程 PID 输出无效" >&2
+      return 1
+    }
+    pid_in_systemd_control_group "$pid" "$control_group" || {
+      echo "[错误] PM2 受管进程不在 workspace-runtime-pm2.service cgroup: $name" >&2
+      return 1
+    }
+    count=$((count + 1))
+  done < <(node "$SCRIPT_DIR/production-pm2-plan.mjs" pids --plan "$plan" --runner "$RUNTIME_RUNNER")
+  [ "$count" -gt 0 ] || { echo "[错误] 未验证任何 PM2 受管进程 cgroup" >&2; return 1; }
+}
 runtime_rw_targets() {
   local relative target
   for relative in library data/docs-editor/templates data/qc-batches.json \
@@ -518,8 +570,7 @@ if [ "$COMMAND" = prepare ]; then
   runuser -u postgres -- pg_dump --format=custom --no-owner --no-privileges workspace > "$backup_dir/workspace.dump"
   pg_restore --list "$backup_dir/workspace.dump" >/dev/null
   runuser -u postgres -- pg_dumpall --globals-only --no-role-passwords > "$backup_dir/globals.sql"
-  legacy_pm2 jlist > "$backup_dir/pm2-before.json"
-  node "$SCRIPT_DIR/production-pm2-plan.mjs" create --input "$backup_dir/pm2-before.json" --output "$backup_dir/pm2-plan.json" --remote-root "$REMOTE_ROOT"
+  legacy_pm2 jlist | node "$SCRIPT_DIR/production-pm2-plan.mjs" create --input - --output "$backup_dir/pm2-plan.json" --remote-root "$REMOTE_ROOT"
   snapshot_runtime_env_links "$backup_dir/pm2-plan.json" "$backup_dir/runtime-env-links.before"
   backup_runtime_acls "$backup_dir/workspace-acl.before"
   backup_optional_file "$CONFIG_ROOT/.env" legacy.env.before "$backup_dir"
@@ -576,6 +627,8 @@ if [ "$COMMAND" = apply ]; then
   install -o root -g root -m 0644 "$SCRIPT_DIR/production-workspace-runtime.service" "$RUNTIME_SERVICE"
   systemctl daemon-reload
   systemctl enable workspace-runtime-pm2.service >/dev/null
+  systemctl start workspace-runtime-pm2.service
+  verify_runtime_systemd_pm2_daemon
   runuser -u postgres -- env WORKSPACE_RUNTIME_DATABASE_PASSWORD="$WORKSPACE_RUNTIME_DATABASE_PASSWORD" \
     WORKSPACE_MIGRATOR_DATABASE_PASSWORD="$WORKSPACE_MIGRATOR_DATABASE_PASSWORD" \
     WORKSPACE_BACKUP_DATABASE_PASSWORD="$WORKSPACE_BACKUP_DATABASE_PASSWORD" \
@@ -585,8 +638,8 @@ if [ "$COMMAND" = apply ]; then
   finance_bot_contract apply
   node "$SCRIPT_DIR/production-pm2-plan.mjs" apply --plan "$backup_dir/pm2-plan.json" --runner "$RUNTIME_RUNNER"
   "$RUNTIME_RUNNER" save >/dev/null
-  systemctl start workspace-runtime-pm2.service
   node "$SCRIPT_DIR/production-pm2-plan.mjs" verify --plan "$backup_dir/pm2-plan.json" --runner "$RUNTIME_RUNNER"
+  verify_runtime_systemd_pm2_processes "$backup_dir/pm2-plan.json"
   verify_legacy_pm2_empty
   verify_runtime_env_links "$backup_dir/runtime-env-links.before"
   verify_runtime_permissions
@@ -605,6 +658,7 @@ elif [ "$COMMAND" = verify ]; then
   verify_natsu_http 3
   runuser -u postgres -- psql -X -d postgres -f "$SCRIPT_DIR/production-verify.sql" >/dev/null
   node "$SCRIPT_DIR/production-pm2-plan.mjs" verify --plan "$backup_dir/pm2-plan.json" --runner "$RUNTIME_RUNNER"
+  verify_runtime_systemd_pm2_processes "$backup_dir/pm2-plan.json"
   verify_legacy_pm2_empty
   verify_runtime_env_links "$backup_dir/runtime-env-links.before"
   verify_runtime_permissions

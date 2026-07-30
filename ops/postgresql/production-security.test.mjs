@@ -72,6 +72,20 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
   assert.match(security, /restore_runtime_env_links "\$backup_dir\/runtime-env-links\.before"/);
   assert.match(security, /runtimeEnvLinksSha256/);
   assert.match(security, /mv -Tf -- "\$temporary" "\$link"/);
+  assert.match(security, /legacy_pm2 jlist \| node "\$SCRIPT_DIR\/production-pm2-plan\.mjs" create --input -/);
+  assert.doesNotMatch(security, /pm2-before\.json/);
+  assert.match(security, /systemctl start workspace-runtime-pm2\.service/);
+  assert.match(security, /verify_runtime_systemd_pm2_daemon/);
+  assert.match(security, /verify_runtime_systemd_pm2_processes/);
+  assert.match(security, /systemctl show workspace-runtime-pm2\.service -p MainPID --value/);
+  assert.match(security, /systemctl show workspace-runtime-pm2\.service -p ControlGroup --value/);
+  assert.match(security, /\/proc\/\$pid\/cgroup/);
+  assert.match(security, /systemctl disable --now workspace-runtime-pm2\.service/);
+  assert.ok(
+    security.indexOf("systemctl start workspace-runtime-pm2.service")
+      < security.indexOf('production-pm2-plan.mjs" apply'),
+    "systemd must own the PM2 daemon before applying the process plan",
+  );
   assert.match(security, /install -d -o root -g root -m 0755 \/etc\/workspace/);
   assert.match(security, /url\.searchParams\.get\("sslmode"\) !== "verify-full"/);
   assert.match(security, /url\.searchParams\.get\("sslrootcert"\) !== "\/etc\/workspace\/postgresql\/ca\.pem"/);
@@ -82,6 +96,10 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
   assert.doesNotMatch(service, /ReadWritePaths=.*\.workspace\/data(?:\s|$)/);
   assert.match(service, /ReadWritePaths=-\/home\/ubuntu\/workspace\/\.workspace\/cache\/production\/qc/);
   assert.match(service, /ProtectHome=read-only/);
+  assert.match(service, /ExecStart=.*pm2 ping/);
+  assert.match(service, /if \[ -s \/var\/lib\/workspace-runtime\/\.pm2\/dump\.pm2 \]/);
+  assert.match(service, /ExecStartPost=.*pm2\.pid/);
+  assert.match(service, /ExecStop=\/usr\/bin\/pm2 kill/);
 });
 
 test("finance bot keeps trusted OS user while taking only the monitor URL", () => {
@@ -123,6 +141,41 @@ test("PM2 plan migrates exactly two processes and drops secret environment", () 
     assert.deepEqual(plan.processes.map((entry) => entry.name), ["workspace", "workspace-wecom-agent"]);
     assert.doesNotMatch(planText, /DATABASE_URL|DIRECT_URL|must-not-survive/);
     assert.equal(statSync(output).mode & 0o777, 0o600);
+
+    const stdinOutput = path.join(temporary, "plan-from-stdin.json");
+    execFileSync(process.execPath, [
+      path.join(directory, "production-pm2-plan.mjs"),
+      "create",
+      "--input", "-",
+      "--output", stdinOutput,
+      "--remote-root", runtimeRoot,
+    ], { input: JSON.stringify(fixture) });
+    assert.deepEqual(
+      JSON.parse(readFileSync(stdinOutput, "utf8")).processes.map((entry) => entry.name),
+      ["workspace", "workspace-wecom-agent"],
+    );
+
+    const runner = path.join(temporary, "runtime-runner.mjs");
+    const actual = plan.processes.map((entry, index) => ({
+      name: entry.name,
+      pid: 4100 + index,
+      pm2_env: {
+        status: "online",
+        DATABASE_URL: "postgresql://workspace_runtime:redacted@127.0.0.1/workspace",
+      },
+    }));
+    writeFileSync(
+      runner,
+      `#!/usr/bin/env node\nprocess.stdout.write(${JSON.stringify(JSON.stringify(actual))});\n`,
+      { mode: 0o755 },
+    );
+    const pidRows = execFileSync(process.execPath, [
+      path.join(directory, "production-pm2-plan.mjs"),
+      "pids",
+      "--plan", output,
+      "--runner", runner,
+    ], { encoding: "utf8" }).trim().split("\n");
+    assert.deepEqual(pidRows, ["workspace|4100", "workspace-wecom-agent|4101"]);
 
     writeFileSync(input, JSON.stringify([...fixture, base("workspace-candidate")]));
     const extra = spawnSync(process.execPath, [path.join(directory, "production-pm2-plan.mjs"), "create", "--input", input, "--output", output, "--remote-root", runtimeRoot]);
