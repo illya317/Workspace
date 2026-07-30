@@ -5,7 +5,10 @@ import { useCallback, useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import {
   createListSection,
+  createMasterDetailBody,
+  createMessageSection,
   createPageBody,
+  createPanelSection,
   PageSurface,
   type BodySurfaceSectionSpec,
   type PageSurfaceTabBarSpec,
@@ -16,7 +19,7 @@ type NotificationCatalogItem = {
   type: string;
   label: string;
   description: string;
-  groupKey: "work" | "workflow" | "business" | "security";
+  groupKey: string;
   groupLabel: string;
   triggerDescription: string;
   recipientDescription: string;
@@ -42,7 +45,7 @@ type NotificationCatalogItem = {
 
 type CatalogResponse = { items: NotificationCatalogItem[] };
 
-const GROUP_ORDER = ["work", "workflow", "business", "security"] as const;
+const GROUP_ORDER: string[] = ["work", "workflow", "business", "security"];
 
 function subscriptionPriority(item: NotificationCatalogItem) {
   if (item.subscriptionMode === "optional" && item.canConfigure && !item.selectedEnabled) return 0;
@@ -86,6 +89,8 @@ export default function AccountNotificationSubscriptionsPanel({
   const [items, setItems] = useState<NotificationCatalogItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyEventKey, setBusyEventKey] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [mobileDetailActive, setMobileDetailActive] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -93,7 +98,11 @@ export default function AccountNotificationSubscriptionsPanel({
       const response = await fetch(workspacePath("/api/modules/settings/account/notification-subscriptions"));
       const result = await response.json().catch(() => ({})) as CatalogResponse & { error?: string };
       if (!response.ok) throw new Error(result.error || "加载通知订阅失败");
-      setItems(result.items ?? []);
+      const nextItems = result.items ?? [];
+      setItems(nextItems);
+      setSelectedType((current) => nextItems.some((item) => item.type === current)
+        ? current
+        : nextItems[0]?.type ?? null);
     } catch (error) {
       feedback.error(error instanceof Error ? error.message : "加载通知订阅失败");
     } finally {
@@ -124,55 +133,120 @@ export default function AccountNotificationSubscriptionsPanel({
     }
   }
 
-  const subscriptionCard = (item: NotificationCatalogItem) => ({
-    key: item.type,
-    title: item.label,
-    badges: [
-      { key: "status", label: item.statusLabel, tone: statusTone(item) },
-      { key: "producer", label: producerLabel(item), tone: item.producerAvailable ? "default" as const : "warning" as const },
-      { key: "delivery", label: deliveryLabel(item), tone: "default" as const },
-    ],
-    tone: item.effectiveEnabled ? "success" as const : item.eligible ? "default" as const : "muted" as const,
-    actions: [{
-      key: `subscription-${item.type}`,
-      label: item.subscriptionMode === "required"
-        ? item.statusLabel
-        : item.selectedEnabled ? "取消订阅" : "订阅",
-      icon: item.subscriptionMode === "required" ? "check" as const : item.selectedEnabled ? "cancel" as const : "add" as const,
-      disabled: item.subscriptionMode === "required" || !item.canConfigure || busyEventKey !== null,
-      variant: item.subscriptionMode === "optional" && !item.selectedEnabled ? "primary" as const : "secondary" as const,
-      onClick: () => void setSubscription(item),
-    }],
-  });
   const subscribableItems = sortBySubscriptionPriority(items.filter((item) => subscriptionPriority(item) === 0));
   const remainingItems = items.filter((item) => subscriptionPriority(item) !== 0);
-  const sections: BodySurfaceSectionSpec[] = [
+  const customGroupKeys = [...new Set(remainingItems.map((item) => item.groupKey))]
+    .filter((groupKey) => !GROUP_ORDER.includes(groupKey));
+  const orderedGroupKeys = [...GROUP_ORDER, ...customGroupKeys];
+  const groups = [
     ...(subscribableItems.length > 0 ? [{
-      ...createListSection("notification-subscription-available", {
-        presentation: "cards",
-        density: "compact",
-        items: subscribableItems.map((item) => subscriptionCard(item)),
-      }),
-      header: { title: "可订阅" },
+      key: "available",
+      label: "可订阅",
+      items: subscribableItems,
     }] : []),
-    ...GROUP_ORDER.flatMap((groupKey) => {
-      const groupItems = sortBySubscriptionPriority(remainingItems.filter((item) => item.groupKey === groupKey));
+    ...orderedGroupKeys.flatMap((groupKey) => {
+      const groupItems = sortBySubscriptionPriority(
+        remainingItems.filter((item) => item.groupKey === groupKey),
+      );
       if (groupItems.length === 0) return [];
-      const section = createListSection(`notification-subscription-${groupKey}`, {
-        presentation: "cards",
-        density: "compact",
-        items: groupItems.map((item) => subscriptionCard(item)),
-      });
-      return [{ ...section, header: { title: groupItems[0]!.groupLabel } }];
+      return [{ key: groupKey, label: groupItems[0]!.groupLabel, items: groupItems }];
     }),
   ];
+  const selectedItem = items.find((item) => item.type === selectedType) ?? groups[0]?.items[0] ?? null;
+  const sections: BodySurfaceSectionSpec[] = groups.length > 0
+    ? groups.map((group) => ({
+      ...createListSection(`notification-subscription-${group.key}`, {
+        presentation: "cards",
+        density: "compact",
+        items: group.items.map((item) => ({
+          key: item.type,
+          title: item.label,
+          description: [item.description, deliveryLabel(item)].filter(Boolean).join(" · "),
+          badges: [{ key: "status", label: item.statusLabel, tone: statusTone(item) }],
+          tone: selectedItem?.type === item.type
+            ? "success" as const
+            : item.eligible ? "default" as const : "muted" as const,
+          onClick: () => {
+            setSelectedType(item.type);
+            setMobileDetailActive(true);
+          },
+        })),
+      }),
+      header: { title: group.label },
+    }))
+    : [createListSection("notification-subscription-empty", {
+      presentation: "cards",
+      density: "compact",
+      empty: { content: loading ? "正在加载通知订阅…" : "暂无可用通知订阅", compact: true },
+      items: [],
+    })];
+  const detail = selectedItem
+    ? createPanelSection("notification-subscription-detail", {
+        title: selectedItem.label,
+        actions: [{
+          key: `subscription-${selectedItem.type}`,
+          label: selectedItem.subscriptionMode === "required"
+            ? selectedItem.statusLabel
+            : selectedItem.selectedEnabled ? "取消订阅" : "订阅",
+          icon: selectedItem.subscriptionMode === "required"
+            ? "check"
+            : selectedItem.selectedEnabled ? "cancel" : "add",
+          disabled: selectedItem.subscriptionMode === "required" || !selectedItem.canConfigure || busyEventKey !== null,
+          variant: selectedItem.subscriptionMode === "optional" && !selectedItem.selectedEnabled ? "primary" : "secondary",
+          onClick: () => void setSubscription(selectedItem),
+        }],
+        sections: [
+          createMessageSection("notification-subscription-status", {
+            content: `${selectedItem.statusLabel} · ${producerLabel(selectedItem)} · ${deliveryLabel(selectedItem)}`,
+            tone: statusTone(selectedItem),
+          }),
+          createMessageSection("notification-subscription-description", {
+            content: selectedItem.description,
+          }),
+          createMessageSection("notification-subscription-trigger", {
+            content: `触发条件：${selectedItem.triggerDescription}`,
+            tone: "muted",
+          }),
+          createMessageSection("notification-subscription-recipient", {
+            content: `接收规则：${selectedItem.recipientDescription}`,
+            tone: "muted",
+          }),
+          ...(selectedItem.ownerResourceLabel || selectedItem.ownerResourceKey ? [
+            createMessageSection("notification-subscription-owner", {
+              content: `负责资源：${selectedItem.ownerResourceLabel || selectedItem.ownerResourceKey}`,
+              tone: "muted",
+            }),
+          ] : []),
+          ...(selectedItem.supportedChannels.length > 0 ? [
+            createMessageSection("notification-subscription-channels", {
+              content: `支持渠道：${selectedItem.supportedChannels.join("、")} · 当前可用：${selectedItem.availableChannels.join("、") || "无"}`,
+              tone: "muted",
+            }),
+          ] : []),
+          ...(selectedItem.details.length > 0 ? [
+            createMessageSection("notification-subscription-details", {
+              content: selectedItem.details.join(" · "),
+              tone: "muted",
+            }),
+          ] : []),
+        ],
+      })
+    : createMessageSection("notification-subscription-detail-empty", {
+        content: loading ? "正在加载通知订阅…" : "从左侧选择一项通知查看详情",
+        tone: "muted",
+      });
 
   return (
     <PageSurface
       kind="standard"
       tabbar={navigation}
       toolbar={{ items: [{ kind: "action-group", key: "subscription-actions", actions: [{ key: "refresh", kind: "refresh", label: "刷新", disabled: loading, onClick: () => void load() }] }] }}
-      body={createPageBody(sections)}
+      body={createMasterDetailBody({
+        master: { label: "通知与订阅", body: createPageBody(sections) },
+        detail: createPageBody([detail]),
+        desktop: { ratio: [3, 7] },
+        mobile: { detailActive: mobileDetailActive, onNavigateToList: () => setMobileDetailActive(false) },
+      })}
     />
   );
 }

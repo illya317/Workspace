@@ -1,0 +1,11 @@
+import { handleWecomNotificationDeliveryResultRequest } from "@workspace/platform/server/notification-delivery-worker-api";
+
+export const runtime = "nodejs";
+
+export async function POST(
+  request: Request,
+  context: { params: Promise<{ deliveryId: string }> },
+) {
+  const { deliveryId } = await context.params;
+  return handleWecomNotificationDeliveryResultRequest(request, deliveryId);
+}

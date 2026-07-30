@@ -11,6 +11,9 @@ const querySchema = z.object({
   offset: z.coerce.number().int().min(0).catch(0),
   category: z.enum(["all", "ordinary", "workflow", "approval", "review", "publish"]).optional(),
   filter: z.enum(["all", "todo", "originated"]).optional(),
+  keyword: z.string().trim().max(120).catch(""),
+  readState: z.enum(["all", "unread", "pending", "read"]).optional(),
+  workflowRequestId: z.coerce.number().int().positive().optional(),
 }).passthrough();
 const bodySchema = z.object({ action: z.literal("markAllRead") });
 

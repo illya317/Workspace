@@ -8,13 +8,20 @@ import {
   assertAssistantRuntimeEnvironment,
   bundleAssistantRuntime,
   readAssistantRuntimeDescriptor,
+  resolveAssistantPublicOrigin,
 } from "./assistant-runtime.mjs";
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "workspace-assistant-runtime-"));
   const output = path.join(root, "standalone");
   fs.mkdirSync(output);
-  for (const file of ["wecom-agent-bot.mjs", "wecom-agent-delivery.mjs", "wecom-agent-input.mjs", "wecom-agent-stream.mjs"]) {
+  for (const file of [
+    "wecom-agent-bot.mjs",
+    "wecom-agent-delivery.mjs",
+    "wecom-agent-input.mjs",
+    "wecom-agent-stream.mjs",
+    "wecom-notification-delivery.mjs",
+  ]) {
     const target = path.join(root, "scripts/runtime", file);
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, `// ${file}\n`);
@@ -47,6 +54,7 @@ test("Assistant runtime bundle carries the exact sidecar and transitive dependen
     "ws",
   ]);
   assert.equal(fs.existsSync(path.join(files.output, "scripts/runtime/wecom-agent-bot.mjs")), true);
+  assert.equal(fs.existsSync(path.join(files.output, "scripts/runtime/wecom-notification-delivery.mjs")), true);
   assert.equal(fs.existsSync(path.join(files.output, "node_modules/axios/package.json")), true);
   assert.equal(readAssistantRuntimeDescriptor(files.output).sidecars[0].activation, "active-slot-only");
   assert.equal(readAssistantRuntimeDescriptor(files.output).sidecars[0].memoryMiB, 256);
@@ -62,10 +70,54 @@ test("Assistant runtime refuses activation without every declared sidecar secret
     }),
     /WECHAT_BOT_SECRET/,
   );
+  assert.throws(
+    () => assertAssistantRuntimeEnvironment({
+      releaseRoot: files.output,
+      environment: { WECHAT_BOT_ID: "bot", WECHAT_BOT_SECRET: "secret" },
+    }),
+    /WECOM_WORKER_BRIDGE_SECRET/,
+  );
+  assert.throws(
+    () => assertAssistantRuntimeEnvironment({
+      releaseRoot: files.output,
+      environment: {
+        WECHAT_BOT_ID: "bot",
+        WECHAT_BOT_SECRET: "secret",
+        WECOM_WORKER_BRIDGE_SECRET: "short                           ",
+      },
+    }),
+    /at least 32 characters/,
+  );
   assert.doesNotThrow(() => assertAssistantRuntimeEnvironment({
     releaseRoot: files.output,
-    environment: { WECHAT_BOT_ID: "bot", WECHAT_BOT_SECRET: "secret" },
+    environment: {
+      WECHAT_BOT_ID: "bot",
+      WECHAT_BOT_SECRET: "secret",
+      WECOM_WORKER_BRIDGE_SECRET: "notification-worker-secret-32-characters",
+      WORKSPACE_PUBLIC_ORIGIN: "https://fh-bio.cn/test",
+    },
   }));
+  assert.equal(
+    resolveAssistantPublicOrigin({ WORKSPACE_PUBLIC_ORIGIN: "https://fh-bio.cn/test" }),
+    "https://fh-bio.cn",
+  );
+  assert.throws(
+    () => assertAssistantRuntimeEnvironment({
+      releaseRoot: files.output,
+      environment: {
+        WECHAT_BOT_ID: "bot",
+        WECHAT_BOT_SECRET: "secret",
+        WECOM_WORKER_BRIDGE_SECRET: "notification-worker-secret-32-characters",
+      },
+    }),
+    /WECHAT_REDIRECT_ORIGIN or WORKSPACE_PUBLIC_ORIGIN/,
+  );
+  assert.throws(
+    () => resolveAssistantPublicOrigin({
+      WORKSPACE_PUBLIC_ORIGIN: "https://user:password@fh-bio.cn/test",
+    }),
+    /public origin is invalid/,
+  );
 });
 
 test("Assistant runtime descriptor rejects drift", () => {

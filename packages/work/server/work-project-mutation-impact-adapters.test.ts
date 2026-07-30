@@ -46,3 +46,29 @@ test("keeps Restrict project memberships out of the configurable physical-cascad
   const ownedImpact = await ownedChildren.inspect(inspection(tx));
   assert.deepEqual(ownedImpact?.records.map((record) => record.entity), ["ProjectEnablingDepartment"]);
 });
+
+test("blocks hard deletion when project notification governance history exists", async () => {
+  const tx = {
+    projectNotificationRule: {
+      findFirst: async () => ({ id: 31, key: "deadline-risk" }),
+    },
+    projectNotificationEvaluation: {
+      findFirst: async () => ({ id: "eval-41", signalId: "scheduled:2026-08-01:project:42:v3" }),
+    },
+    $queryRaw: async () => [{ id: "signal-51", signalId: "scheduled:2026-08-01:project:42" }],
+  } as unknown as Prisma.TransactionClient;
+  const adapters = projectMutationImpactAdapters({ workItemRevision: () => "revision" });
+  const history = adapters.find((adapter) => (
+    adapter.relationKey === "work.project.notification-governance-history"
+  ));
+  assert.ok(history);
+
+  const impact = await history.inspect(inspection(tx));
+  assert.equal(impact?.policy, "block");
+  assert.deepEqual(impact?.records.map((record) => record.entity), [
+    "ProjectNotificationRule",
+    "ProjectNotificationEvaluation",
+    "ProjectNotificationSignal",
+  ]);
+  assert.match(impact?.reason ?? "", /归档项目并保留账本/);
+});

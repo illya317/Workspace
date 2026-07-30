@@ -8,12 +8,14 @@ import {
   listRegisteredNotificationTypes,
   type RegisteredNotificationType,
 } from "./notifications";
+import { listPublishedNotificationDefinitionsForSource } from "./notification-publishing";
 import { prisma } from "./prisma";
 
 const WORKSPACE_CHANNEL = "workspace" as const;
 const IMMEDIATE_CADENCE = "immediate" as const;
 
-type NotificationCatalogDefinition = ReturnType<typeof listRegisteredNotificationTypes>[number];
+type RegisteredNotificationCatalogDefinition = ReturnType<typeof listRegisteredNotificationTypes>[number];
+type NotificationCatalogDefinition = Omit<RegisteredNotificationCatalogDefinition, "type"> & { type: string };
 
 export type NotificationSubscriptionCommand = {
   mode: "override" | "reset";
@@ -48,13 +50,48 @@ async function hasCatalogReadAccess(userId: number, definition: NotificationCata
 }
 
 export async function listNotificationSubscriptionCatalog(userId: number) {
-  const [definitions, overrides] = await Promise.all([
+  const [registeredDefinitions, customDefinitions, overrides] = await Promise.all([
     Promise.resolve(listRegisteredNotificationTypes()),
+    listPublishedNotificationDefinitionsForSource(notificationCatalogSource()),
     prisma.notificationSubscription.findMany({
       where: { userId, channel: WORKSPACE_CHANNEL },
       select: { id: true, eventKey: true, enabled: true, channel: true, cadence: true, updatedAt: true },
     }),
   ]);
+  const definitions: NotificationCatalogDefinition[] = [
+    ...registeredDefinitions,
+    ...customDefinitions.map((definition) => ({
+      type: definition.key,
+      label: definition.label,
+      description: definition.description ?? "由低代码通知中心维护的配置化通知",
+      groupKey: "custom" as const,
+      groupLabel: "自定义通知",
+      triggerDescription: "由已授权的个人 API、Open API Client 或内部服务发布。",
+      recipientDescription: "发布方明确指定收件人，服务端验证账号可登录后投递。",
+      producerMode: "event" as const,
+      producerAvailable: true,
+      audienceMode: "assigned" as const,
+      subscriptionMode: "required" as const,
+      ownerResourceKey: null,
+      supportedChannels: [WORKSPACE_CHANNEL],
+      availableChannels: [WORKSPACE_CHANNEL],
+      defaultChannel: WORKSPACE_CHANNEL,
+      defaultCadence: IMMEDIATE_CADENCE,
+      defaultEnabled: true,
+      details: [
+        `已发布修订：${definition.revision}`,
+        definition.variableKeys.length > 0
+          ? `变量：${definition.variableKeys.join("、")}`
+          : "变量：无",
+      ],
+      category: "ordinary" as const,
+      flowType: null,
+      isImportant: definition.isImportant,
+      isStrongReminder: false,
+      requiresAcknowledgement: definition.responseMode === "acknowledge",
+      responseMode: definition.responseMode,
+    })),
+  ];
   const overrideByEventKey = new Map(overrides.map((override) => [override.eventKey, override]));
   return Promise.all(definitions.map(async (definition) => {
     const override = overrideByEventKey.get(definition.type) ?? null;
@@ -94,7 +131,13 @@ export async function buildNotificationSubscriptionCommand(input: {
   enabled?: boolean;
 }): Promise<DomainValidationResult<NotificationSubscriptionCommand>> {
   const definition = findCatalogDefinition(input.eventKey);
-  if (!definition) return failCommand("通知类型不存在", 404, "eventKey");
+  if (!definition) {
+    const publishedCustomDefinition = (await listPublishedNotificationDefinitionsForSource(notificationCatalogSource()))
+      .some((item) => item.key === input.eventKey);
+    return publishedCustomDefinition
+      ? failCommand("该通知按发布请求指定收件人，不能由个人关闭", 409, "eventKey")
+      : failCommand("通知类型不存在", 404, "eventKey");
+  }
   if (definition.subscriptionMode !== "optional") {
     return failCommand("该通知按职责或治理责任接收，不能由个人关闭", 409, "eventKey");
   }
@@ -185,4 +228,8 @@ export async function listEligibleNotificationSubscribers(input: {
       userId: subscription.user.id,
       username: subscription.user.username,
     }));
+}
+
+function notificationCatalogSource() {
+  return { kind: "internal" as const, id: "notification-subscription-catalog", label: "Workspace" };
 }

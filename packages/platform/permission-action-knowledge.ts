@@ -14,18 +14,20 @@ import {
 } from "./permission-resource-policy";
 import { RESOURCE_DEFS } from "./resources";
 import { isHighRiskPermissionAction } from "./permission-review-policy";
+import { defaultResourceActionAllows } from "./permission-default-actions";
 
 export const PERMISSION_ACTION_KNOWLEDGE_SCHEMA_VERSION = "1";
 
 export const PERMISSION_ACTION_KNOWLEDGE_SOURCE_FILES = [
   "packages/platform/action-registry.ts",
   "packages/platform/permission-resource-policy.ts",
+  "packages/platform/permission-default-actions.ts",
   "packages/platform/module-registry.ts",
   "packages/platform/business-action-registry.ts",
 ] as const;
 
 export type PermissionActionKnowledgeRisk = "basic" | "high";
-export type PermissionActionKnowledgeGrantMode = "explicit" | "ancestor_inherited" | "derived";
+export type PermissionActionKnowledgeGrantMode = "system_default" | "explicit" | "ancestor_inherited" | "derived";
 export type PermissionActionKnowledgeBindingRole = "direct" | "workflow_submit" | "workflow_process";
 
 export type PermissionActionKnowledgeBinding = {
@@ -271,6 +273,12 @@ function bindingRecord(binding: BindingCandidate): PermissionActionKnowledgeBind
 }
 
 function grantRecord(policy: PermissionResourceActionPolicy, actionKey: PermissionRegistryActionKey) {
+  if (defaultResourceActionAllows(policy.resourceKey, actionKey)) {
+    return {
+      mode: "system_default" as const,
+      description: "系统默认授予所有登录用户，无需显式配置；不代表匿名公开。",
+    };
+  }
   if (policy.explicitOnlyActions.includes(actionKey)) {
     return {
       mode: "explicit" as const,

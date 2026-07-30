@@ -21,4 +21,19 @@ export const SETTINGS_BUSINESS_ACTION_REGISTRATIONS = [
     ],
     notes: "账号自助写入只作用于当前认证用户；订阅开启时还会按通知注册表复核目标业务资源 read 权限。",
   },
+  {
+    moduleKey: "settings",
+    resourceKey: "settings.notifications",
+    originHrefPattern: "/settings/api/notifications",
+    eligibility: "permission_only",
+    key: "settings.notifications.publication.create",
+    label: "创建通知发布",
+    writeKind: "create",
+    targetKind: "NotificationPublication",
+    directPermissionAction: "create",
+    apiRoutes: [
+      route("POST", "/api/modules/settings/notifications/publications", "通过已发布定义幂等创建通知。"),
+    ],
+    notes: "调用方仅提交定义键、模板变量与受控受众输入；actor、投递策略和幂等账本由服务端持有。",
+  },
 ] as const;

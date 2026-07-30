@@ -37,6 +37,11 @@ model Project {
   planPhases          ProjectPlanPhase[]          @relation("ProjectPlanPhases")
   planDependencies    ProjectPlanDependency[]     @relation("ProjectPlanDependencies")
   planBaselines       ProjectPlanBaseline[]       @relation("ProjectPlanBaselines")
+  notificationRules   ProjectNotificationRule[]
+  notificationEvaluations ProjectNotificationEvaluation[]
+  notificationSignals ProjectNotificationSignal[]
+  notificationPublicationIntents ProjectNotificationPublicationIntent[]
+  notificationSignalRedriveEvents ProjectNotificationSignalRedriveEvent[]
   workAssignees       ProjectWorkAssignee[]
   linkedWorkItems     WorkItem[]                  @relation("WorkItemLinkedProject")
   linkedWorkPlans     WorkPlan[]                  @relation("WorkPlanLinkedProject")

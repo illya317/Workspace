@@ -6,6 +6,12 @@ import type {
 import { prisma, type Prisma } from "./prisma";
 import { permissionReviewNotificationDefinition, type PermissionReviewAlertPayload } from "./notification-permission-review";
 import type { ProjectMemberNotificationPayload } from "./notification-project-members";
+import {
+  commitNotificationPublication,
+  type NotificationPublicationCommitGuard,
+  type NotificationPublicationCommand,
+} from "./notification-publishing";
+import type { NotificationResponseMode } from "./notification-definition-dsl";
 export {
   clearReadUserNotifications,
   listUserNotifications,
@@ -64,7 +70,7 @@ type NotificationRenderResult = {
 
 export type NotificationAudienceMode = "assigned" | "governance_required" | "optional";
 export type NotificationSubscriptionMode = "required" | "optional";
-export type NotificationCatalogGroupKey = "work" | "workflow" | "business" | "security";
+export type NotificationCatalogGroupKey = "work" | "workflow" | "business" | "security" | "custom";
 export type NotificationChannel = "workspace";
 export type NotificationCadence = "immediate";
 export type NotificationProducerMode = "event" | "scheduled" | "scheduled_and_event";
@@ -98,6 +104,7 @@ type NotificationDefinition<TPayload> = NotificationCatalogMetadata<TPayload> & 
   isImportant?: boolean;
   isStrongReminder?: boolean;
   requiresAcknowledgement?: boolean;
+  responseMode?: NotificationResponseMode | "accept_reject";
   render: (payload: TPayload) => NotificationRenderResult;
 };
 
@@ -113,9 +120,11 @@ export interface CreateNotificationInput {
   resourceKey?: string | null;
   scopeId?: string | null;
   subscriptionId?: number | null;
+  dispatchId?: string | null;
   isImportant?: boolean;
   isStrongReminder?: boolean;
   requiresAcknowledgement?: boolean;
+  responseMode?: NotificationResponseMode | "accept_reject";
 }
 
 export type SendNotificationInput<TType extends RegisteredNotificationType = RegisteredNotificationType> = {
@@ -126,6 +135,7 @@ export type SendNotificationInput<TType extends RegisteredNotificationType = Reg
   isImportant?: boolean;
   isStrongReminder?: boolean;
   requiresAcknowledgement?: boolean;
+  responseMode?: NotificationResponseMode | "accept_reject";
   deliveryContext?: {
     recipientReason?: string | null;
     resourceKey?: string | null;
@@ -177,6 +187,7 @@ const notificationRegistry = {
     resourceKey: "work.tasks",
     isImportant: true,
     requiresAcknowledgement: true,
+    responseMode: "accept_reject",
     render: (payload) => ({
       title: "部门协作待响应",
       body: `${payload.responsibleDepartmentName} 邀请你所在部门参与「${payload.collaborationTitle}」。`,
@@ -204,6 +215,7 @@ const notificationRegistry = {
     recipientReason: "你是本次项目成员变更的直接对象",
     resourceKey: "work.projects",
     isImportant: true,
+    responseMode: "accept_reject",
     render: (payload) => ({
       title: "项目邀请",
       body: `${payload.inviterName} 邀请你加入「${payload.projectName}」，RASCI 职责：${payload.role}。`,
@@ -231,6 +243,7 @@ const notificationRegistry = {
     recipientReason: "你是本次项目角色变更的直接对象",
     resourceKey: "work.projects",
     isImportant: true,
+    responseMode: "accept_reject",
     render: (payload) => ({
       title: "项目角色已调整",
       body: `${payload.inviterName} 将你在「${payload.projectName}」中的 RASCI 职责由「${payload.changedFromRole || "未设置"}」调整为「${payload.role}」。`,
@@ -394,6 +407,8 @@ export function listRegisteredNotificationTypes() {
     isImportant: definition.isImportant ?? false,
     isStrongReminder: definition.isStrongReminder ?? false,
     requiresAcknowledgement: definition.requiresAcknowledgement ?? definition.isImportant ?? false,
+    responseMode: definition.responseMode
+      ?? ((definition.requiresAcknowledgement ?? definition.isImportant ?? false) ? "acknowledge" : "read"),
   }));
 }
 
@@ -422,11 +437,17 @@ export async function sendNotification<TType extends RegisteredNotificationType>
     isImportant: input.isImportant ?? definition.isImportant,
     isStrongReminder: input.isStrongReminder ?? definition.isStrongReminder,
     requiresAcknowledgement: input.requiresAcknowledgement ?? definition.requiresAcknowledgement,
+    responseMode: input.responseMode
+      ?? definition.responseMode
+      ?? ((input.requiresAcknowledgement ?? definition.requiresAcknowledgement ?? definition.isImportant ?? false) ? "acknowledge" : "read"),
   }, client);
 }
 
 export async function createNotification(input: CreateNotificationInput, client: Prisma.TransactionClient | typeof prisma = prisma) {
   if (input.actorUserId && input.actorUserId === input.recipientUserId) return null;
+  const responseMode = input.responseMode
+    ?? ((input.requiresAcknowledgement ?? input.isImportant ?? false) ? "acknowledge" : "read");
+  const requiresAcknowledgement = responseMode !== "read";
   return client.notification.create({
     data: {
       recipientUserId: input.recipientUserId,
@@ -440,11 +461,36 @@ export async function createNotification(input: CreateNotificationInput, client:
       resourceKey: input.resourceKey ?? null,
       scopeId: input.scopeId ?? null,
       subscriptionId: input.subscriptionId ?? null,
+      dispatchId: input.dispatchId ?? null,
       isImportant: input.isImportant ?? false,
       isStrongReminder: input.isStrongReminder ?? false,
-      requiresAcknowledgement: input.requiresAcknowledgement ?? input.isImportant ?? false,
+      requiresAcknowledgement,
+      responseMode,
     },
   });
+}
+
+export async function publishConfiguredNotification(
+  command: NotificationPublicationCommand,
+  commitGuard?: NotificationPublicationCommitGuard,
+) {
+  return commitNotificationPublication(command, async (projection, client) => {
+    const notification = await createNotification({
+      recipientUserId: projection.recipientUserId,
+      type: projection.type,
+      title: projection.title,
+      body: projection.body,
+      href: projection.href,
+      payload: projection.payload,
+      recipientReason: projection.recipientReason,
+      dispatchId: projection.dispatchId,
+      isImportant: projection.isImportant,
+      requiresAcknowledgement: projection.requiresAcknowledgement,
+      responseMode: projection.responseMode,
+    }, client);
+    if (!notification) throw new Error("Configured notification projection was unexpectedly suppressed");
+    return { id: notification.id };
+  }, commitGuard);
 }
 
 function resolveNotificationMetadata<TPayload>(

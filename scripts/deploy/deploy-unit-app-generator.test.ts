@@ -42,6 +42,15 @@ test("business app owns its pages and APIs plus common runtime probes", () => {
   assert.equal(files.some((file) => file.includes("/(modules)/work/")), false);
 });
 
+test("only the generated Work app starts the active-slot-fenced project notification scheduler", () => {
+  const workInstrumentation = generatedDeployUnitAppFiles("work")
+    .find((file) => file.path.endsWith("/instrumentation.ts"));
+  const financeInstrumentation = generatedDeployUnitAppFiles("finance")
+    .find((file) => file.path.endsWith("/instrumentation.ts"));
+  assert.match(workInstrumentation?.content ?? "", /startProjectNotificationScheduler/);
+  assert.doesNotMatch(financeInstrumentation?.content ?? "", /startProjectNotificationScheduler/);
+});
+
 test("Library app excludes repository sources from dynamic runtime storage traces", () => {
   const libraryConfig = generatedDeployUnitAppFiles("library")
     .find((file) => file.path.endsWith("/next.config.ts"));

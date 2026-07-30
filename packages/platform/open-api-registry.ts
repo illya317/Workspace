@@ -67,6 +67,52 @@ export const openApiRegistrations = [
       },
     ],
   },
+  {
+    key: "workspace.notifications",
+    label: "Workspace 通知开放 API",
+    description: "面向受信任外部系统提供已发布通知定义查询与幂等发布能力。",
+    consoleHref: "/settings/api/notifications",
+    runtimeParentResourceKey: "settings.notifications",
+    resources: [
+      {
+        key: "workspace.notifications",
+        label: "Workspace 通知",
+        description: "读取可调用定义并创建受控通知发布。",
+      },
+    ],
+    scopes: [
+      {
+        key: "workspace.notifications.definitions.read",
+        label: "读取通知定义",
+        resourceKey: "workspace.notifications",
+        action: "read",
+      },
+      {
+        key: "workspace.notifications.publications.write",
+        label: "发布通知",
+        resourceKey: "workspace.notifications",
+        action: "write",
+      },
+    ],
+    endpoints: [
+      {
+        key: "workspace.notifications.definitions.list",
+        label: "读取已发布通知定义",
+        method: "GET",
+        pathPrefix: "/api/open/v1/notifications/definitions",
+        scopeKey: "workspace.notifications.definitions.read",
+        action: "read",
+      },
+      {
+        key: "workspace.notifications.publications.create",
+        label: "创建通知发布",
+        method: "POST",
+        pathPrefix: "/api/open/v1/notifications/publications",
+        scopeKey: "workspace.notifications.publications.write",
+        action: "write",
+      },
+    ],
+  },
 ] satisfies OpenApiRegistration[];
 
 const scopeByKey = new Map(

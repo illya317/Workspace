@@ -9,6 +9,7 @@ import {
 
 export type NotificationCategory = "all" | "ordinary" | "workflow" | "approval" | "review" | "publish";
 export type NotificationFilter = "all" | "todo" | "originated";
+export type NotificationReadState = "all" | "unread" | "pending" | "read";
 export type WorkflowNotificationRole = "todo" | "originated" | "watching";
 export type { WorkflowFlowType, WorkflowStatus } from "../workflow-status";
 
@@ -17,6 +18,9 @@ export type ListUserNotificationsOptions = {
   offset?: number;
   category?: NotificationCategory;
   filter?: NotificationFilter;
+  keyword?: string;
+  readState?: NotificationReadState;
+  workflowRequestId?: number;
 };
 
 export type NotificationWorkflowDto = {
@@ -49,11 +53,13 @@ const WORKFLOW_ORIGINATED_NOTIFICATION_TYPES = [
 const WORKFLOW_FLOW_TYPES = ["approval", "review", "publish"] as const satisfies readonly WorkflowFlowType[];
 
 export function normalizeNotificationQuery(
-  options: Pick<ListUserNotificationsOptions, "category" | "filter">,
-): Required<Pick<ListUserNotificationsOptions, "category" | "filter">> {
+  options: Pick<ListUserNotificationsOptions, "category" | "filter" | "keyword" | "readState">,
+): Required<Pick<ListUserNotificationsOptions, "category" | "filter" | "keyword" | "readState">> {
   return {
     category: options.category ?? "all",
     filter: options.filter ?? "all",
+    keyword: options.keyword?.trim().slice(0, 120) ?? "",
+    readState: options.readState ?? "all",
   };
 }
 
@@ -63,28 +69,49 @@ export function baseNotificationWhere(userId: number): Prisma.NotificationWhereI
 
 export function buildNotificationWhere(
   userId: number,
-  query: Required<Pick<ListUserNotificationsOptions, "category" | "filter">>,
+  query: Pick<ListUserNotificationsOptions, "category" | "filter" | "keyword" | "readState">,
 ): Prisma.NotificationWhereInput {
+  const normalized = normalizeNotificationQuery(query);
   const and: Prisma.NotificationWhereInput[] = [baseNotificationWhere(userId)];
-  const categoryWhere = notificationCategoryWhere(query.category);
+  const categoryWhere = notificationCategoryWhere(normalized.category);
   if (categoryWhere) and.push(categoryWhere);
-  const filterWhere = notificationFilterWhere(userId, query.filter);
+  const filterWhere = notificationFilterWhere(userId, normalized.filter);
   if (filterWhere) and.push(filterWhere);
+  const readStateWhere = notificationReadStateWhere(normalized.readState);
+  if (readStateWhere) and.push(readStateWhere);
+  if (normalized.keyword) {
+    and.push({
+      OR: [
+        { title: { contains: normalized.keyword, mode: "insensitive" } },
+        { body: { contains: normalized.keyword, mode: "insensitive" } },
+        { type: { contains: normalized.keyword, mode: "insensitive" } },
+      ],
+    });
+  }
   return { AND: and };
 }
 
 export function buildNotificationSqlWhere(
   userId: number,
-  query: Required<Pick<ListUserNotificationsOptions, "category" | "filter">>,
+  query: Pick<ListUserNotificationsOptions, "category" | "filter" | "keyword" | "readState">,
 ) {
+  const normalized = normalizeNotificationQuery(query);
   const conditions: Prisma.Sql[] = [
     Prisma.sql`"recipientUserId" = ${userId}`,
     Prisma.sql`"clearedAt" IS NULL`,
   ];
-  const category = notificationCategorySql(query.category);
+  const category = notificationCategorySql(normalized.category);
   if (category) conditions.push(category);
-  const filter = notificationFilterSql(userId, query.filter);
+  const filter = notificationFilterSql(userId, normalized.filter);
   if (filter) conditions.push(filter);
+  const readState = notificationReadStateSql(normalized.readState);
+  if (readState) conditions.push(readState);
+  if (normalized.keyword) {
+    const pattern = `%${normalized.keyword}%`;
+    conditions.push(Prisma.sql`(
+      "title" ILIKE ${pattern} OR "body" ILIKE ${pattern} OR "type" ILIKE ${pattern}
+    )`);
+  }
   return Prisma.join(conditions, " AND ");
 }
 
@@ -203,6 +230,17 @@ function notificationFilterWhere(userId: number, filter: NotificationFilter): Pr
   };
 }
 
+function notificationReadStateWhere(readState: NotificationReadState): Prisma.NotificationWhereInput | null {
+  if (readState === "all") return null;
+  if (readState === "unread") return { readAt: null };
+  if (readState === "read") return { readAt: { not: null } };
+  return {
+    requiresAcknowledgement: true,
+    acknowledgedAt: null,
+    rejectedAt: null,
+  };
+}
+
 function notificationCategorySql(category: NotificationCategory): Prisma.Sql | null {
   if (category === "all") return null;
   if (category === "ordinary") return Prisma.sql`NOT (${workflowNotificationSql()})`;
@@ -253,6 +291,15 @@ function notificationFilterSql(userId: number, filter: NotificationFilter): Pris
     OR COALESCE("payloadJson", '') LIKE ${`%"workflowRole":"originated"%`}
     OR COALESCE("payloadJson", '') LIKE ${`%"submitterUserId":${userId}%`}
     OR COALESCE("payloadJson", '') LIKE ${`%"originatorUserId":${userId}%`}
+  )`;
+}
+
+function notificationReadStateSql(readState: NotificationReadState): Prisma.Sql | null {
+  if (readState === "all") return null;
+  if (readState === "unread") return Prisma.sql`"readAt" IS NULL`;
+  if (readState === "read") return Prisma.sql`"readAt" IS NOT NULL`;
+  return Prisma.sql`(
+    "requiresAcknowledgement" IS TRUE AND "acknowledgedAt" IS NULL AND "rejectedAt" IS NULL
   )`;
 }
 

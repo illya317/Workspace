@@ -12,7 +12,7 @@ export const ASSISTANT_RUNTIME_DESCRIPTOR = Object.freeze({
     processName: "workspace-assistant-wecom",
     entry: "scripts/runtime/wecom-agent-bot.mjs",
     memoryMiB: 256,
-    requiredEnv: ["WECHAT_BOT_ID", "WECHAT_BOT_SECRET"],
+    requiredEnv: ["WECHAT_BOT_ID", "WECHAT_BOT_SECRET", "WECOM_WORKER_BRIDGE_SECRET"],
     bridgePath: "/api/integrations/wecom/agent",
     activation: "active-slot-only",
   }],
@@ -23,8 +23,33 @@ const RUNTIME_FILES = [
   "scripts/runtime/wecom-agent-delivery.mjs",
   "scripts/runtime/wecom-agent-input.mjs",
   "scripts/runtime/wecom-agent-stream.mjs",
+  "scripts/runtime/wecom-notification-delivery.mjs",
 ];
 const RUNTIME_PACKAGES = ["@wecom/aibot-node-sdk", "sharp"];
+
+export function resolveAssistantPublicOrigin(environment = process.env) {
+  const candidate = (environment.WECHAT_REDIRECT_ORIGIN ?? "").trim()
+    || (environment.WORKSPACE_PUBLIC_ORIGIN ?? "").trim();
+  if (!candidate) {
+    throw new Error(
+      "Assistant sidecar requires WECHAT_REDIRECT_ORIGIN or WORKSPACE_PUBLIC_ORIGIN",
+    );
+  }
+  let url;
+  try {
+    url = new URL(candidate);
+  } catch {
+    throw new Error("Assistant sidecar public origin is invalid");
+  }
+  if (!["http:", "https:"].includes(url.protocol)
+    || url.username
+    || url.password
+    || url.search
+    || url.hash) {
+    throw new Error("Assistant sidecar public origin is invalid");
+  }
+  return url.origin;
+}
 
 function requireDirectory(directory, label) {
   const resolved = path.resolve(directory);
@@ -112,6 +137,10 @@ export function assertAssistantRuntimeEnvironment({ releaseRoot, environment = p
   if (missing.length > 0) {
     throw new Error(`Assistant sidecar environment is incomplete: ${missing.join(", ")}`);
   }
+  if ((environment.WECOM_WORKER_BRIDGE_SECRET ?? "").trim().length < 32) {
+    throw new Error("Assistant sidecar WECOM_WORKER_BRIDGE_SECRET must contain at least 32 characters");
+  }
+  resolveAssistantPublicOrigin(environment);
   return descriptor;
 }
 

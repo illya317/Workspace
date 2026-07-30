@@ -363,6 +363,7 @@ cp scripts/runtime/wecom-agent-bot.mjs .next/standalone/scripts/runtime/wecom-ag
 cp scripts/runtime/wecom-agent-delivery.mjs .next/standalone/scripts/runtime/wecom-agent-delivery.mjs
 cp scripts/runtime/wecom-agent-input.mjs .next/standalone/scripts/runtime/wecom-agent-input.mjs
 cp scripts/runtime/wecom-agent-stream.mjs .next/standalone/scripts/runtime/wecom-agent-stream.mjs
+cp scripts/runtime/wecom-notification-delivery.mjs .next/standalone/scripts/runtime/wecom-notification-delivery.mjs
 
 rm -rf .next/standalone/generated/prisma
 mkdir -p .next/standalone/generated
@@ -382,6 +383,7 @@ test -f .next/standalone/scripts/runtime/wecom-agent-bot.mjs
 test -f .next/standalone/scripts/runtime/wecom-agent-delivery.mjs
 test -f .next/standalone/scripts/runtime/wecom-agent-input.mjs
 test -f .next/standalone/scripts/runtime/wecom-agent-stream.mjs
+test -f .next/standalone/scripts/runtime/wecom-notification-delivery.mjs
 test -f .next/standalone/scripts/import/import-external-party-master.mjs
 test -f .next/standalone/generated/prisma/client.ts
 test ! -e .next/standalone/generated/production

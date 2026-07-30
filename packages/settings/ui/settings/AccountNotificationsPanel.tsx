@@ -1,5 +1,4 @@
 "use client";
-
 import { useCallback, useEffect, useRef, useState, type ComponentType } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import {
@@ -22,7 +21,6 @@ import {
   type WorkflowCategoryDto,
   type WorkflowInboxPerspective,
 } from "./AccountWorkflowNotificationsModel";
-
 export type AccountNotificationTabCounts = {
   ordinary: number;
   workflowTodo: number;
@@ -54,6 +52,8 @@ export type NotificationItem = {
   recipientReason: string | null;
   resourceKey: string | null;
   scopeId: string | null;
+  responseMode?: "read" | "acknowledge" | "accept_reject" | null;
+  source?: string | { label?: string | null; kind?: string | null } | null;
   isImportant: boolean;
   requiresAcknowledgement: boolean;
   readAt: string | null;
@@ -80,15 +80,12 @@ type NotificationResponse = {
   tabCounts?: AccountNotificationTabCounts;
   workflowCategories?: WorkflowCategoryDto[];
 };
-
 const PAGE_SIZE = 20;
 const RECENT_TIME_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const WEEKDAY_LABELS = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"] as const;
-
 function formatClock(date: Date) {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
-
 function formatNotificationTime(value: string) {
   const date = new Date(value);
   const timestamp = date.getTime();
@@ -100,27 +97,28 @@ function formatNotificationTime(value: string) {
   if (date.getFullYear() === now.getFullYear()) return `${date.getMonth() + 1}-${date.getDate()} ${clock}`;
   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${clock}`;
 }
-
 function emptyNotificationResponse(): NotificationResponse {
   return { items: [], total: 0, hasMore: false, unreadCount: 0, pendingCount: 0 };
 }
-
-function workflowQuery(perspective: WorkflowInboxPerspective, offset?: number) {
+function workflowQuery(
+  perspective: WorkflowInboxPerspective,
+  offset?: number,
+  focusRequestId?: number | null,
+) {
   const query = new URLSearchParams();
   if (offset !== undefined) query.set("offset", String(offset));
   query.set("limit", String(PAGE_SIZE));
   query.set("category", "workflow");
   query.set("filter", perspective === "received" ? "todo" : "originated");
+  if (perspective === "received" && focusRequestId) query.set("workflowRequestId", String(focusRequestId));
   return query;
 }
-
 function workflowTodoActionQuery() {
   const query = new URLSearchParams();
   query.set("category", "workflow");
   query.set("filter", "todo");
   return query;
 }
-
 function mergeNotificationItems(current: NotificationItem[], next: NotificationItem[]) {
   const seen = new Set<number>();
   const merged: NotificationItem[] = [];
@@ -131,22 +129,46 @@ function mergeNotificationItems(current: NotificationItem[], next: NotificationI
   }
   return merged;
 }
-
+function readWorkflowRequestId() {
+  if (typeof window === "undefined") return null;
+  const value = Number(new URL(window.location.href).searchParams.get("workflowRequestId"));
+  return Number.isInteger(value) && value > 0 ? value : null;
+}
+function notifyBadgeChanged() {
+  window.dispatchEvent(new CustomEvent("workspace-notifications-changed"));
+}
+function notificationSourceLabel(item: NotificationItem) {
+  if (typeof item.source === "string") return item.source;
+  return item.source?.label || item.source?.kind || "";
+}
 interface AccountNotificationsPanelProps {
   navigation: PageSurfaceTabBarSpec;
   currentUserId: number;
   onTabCountsChange?: (counts: AccountNotificationTabCounts) => void;
   workflowDetailRenderer?: AccountWorkflowDetailRenderer;
 }
-
 export default function AccountNotificationsPanel({
   navigation,
   currentUserId,
   onTabCountsChange,
   workflowDetailRenderer,
 }: AccountNotificationsPanelProps) {
+  const [workflowRequestId, setWorkflowRequestId] = useState<number | null>(null);
   const [mode, setMode] = useState<"ordinary" | "workflow">("ordinary");
   const [workflowPerspective, setWorkflowPerspective] = useState<WorkflowInboxPerspective>("received");
+  useEffect(() => {
+    function syncWorkflowRequestFromLocation() {
+      const nextRequestId = readWorkflowRequestId();
+      setWorkflowRequestId(nextRequestId);
+      if (nextRequestId) {
+        setWorkflowPerspective("received");
+        setMode("workflow");
+      }
+    }
+    syncWorkflowRequestFromLocation();
+    window.addEventListener("popstate", syncWorkflowRequestFromLocation);
+    return () => window.removeEventListener("popstate", syncWorkflowRequestFromLocation);
+  }, []);
   if (mode === "ordinary") {
     return (
       <AccountOrdinaryNotificationsPanel
@@ -168,10 +190,10 @@ export default function AccountNotificationsPanel({
       onShowOrdinary={() => setMode("ordinary")}
       onTabCountsChange={onTabCountsChange}
       workflowDetailRenderer={workflowDetailRenderer}
+      focusRequestId={workflowRequestId}
     />
   );
 }
-
 function WorkflowNotificationsPanel({
   navigation,
   currentUserId,
@@ -180,58 +202,65 @@ function WorkflowNotificationsPanel({
   workflowDetailRenderer: WorkflowDetailRenderer,
   perspective,
   onPerspectiveChange,
+  focusRequestId,
 }: AccountNotificationsPanelProps & {
   onShowOrdinary: () => void;
   perspective: WorkflowInboxPerspective;
   onPerspectiveChange: (perspective: WorkflowInboxPerspective) => void;
+  focusRequestId: number | null;
 }) {
   const [data, setData] = useState<NotificationResponse>(emptyNotificationResponse());
   const [selectedCategoryKey, setSelectedCategoryKey] = useState<string | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [mobileDetailActive, setMobileDetailActive] = useState(false);
   const selectedCategoryKeyRef = useRef<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [clearingItemId, setClearingItemId] = useState<number | null>(null);
   const [markingRead, setMarkingRead] = useState(false);
   const feedback = useFeedback();
-
   useEffect(() => {
     selectedCategoryKeyRef.current = selectedCategoryKey;
   }, [selectedCategoryKey]);
-
   const load = useCallback(async (offset = 0, append = false) => {
+    if (append) setLoadingMore(true);
     try {
-      const res = await fetch(workspacePath(`/api/settings/account/notifications?${workflowQuery(perspective, offset).toString()}`));
-      if (!res.ok) return;
-      const next = (await res.json()) as NotificationResponse;
-      if (next.tabCounts) onTabCountsChange?.(next.tabCounts);
-      if (append) {
-        setData((current) => ({ ...next, items: mergeNotificationItems(current.items, next.items) }));
-      } else {
-        setData(next);
-        const nextGroups = groupWorkflowItems(next.items, next.workflowCategories ?? []);
+      const query = workflowQuery(perspective, offset, focusRequestId);
+      const res = await fetch(workspacePath(`/api/settings/account/notifications?${query.toString()}`));
+      if (!res.ok) throw new Error("加载流程通知失败");
+      const response = (await res.json()) as NotificationResponse;
+      if (response.tabCounts) onTabCountsChange?.(response.tabCounts);
+      setData((current) => {
+        const items = append ? mergeNotificationItems(current.items, response.items) : response.items;
+        const next = { ...response, items };
+        const groups = groupWorkflowItems(items, response.workflowCategories ?? []);
+        const focusedItem = focusRequestId
+          ? items.find((item) => item.workflow?.requestId === focusRequestId)
+          : null;
+        const focusedGroup = focusedItem
+          ? groups.find((group) => group.items.some((item) => item.id === focusedItem.id))
+          : null;
         const currentCategoryKey = selectedCategoryKeyRef.current;
-        const nextCategoryKey = nextGroups.some((group) => group.key === currentCategoryKey)
-          ? currentCategoryKey
-          : nextGroups[0]?.key ?? null;
-        setSelectedCategoryKey(nextCategoryKey);
-        const nextSelectedGroup = nextGroups.find((group) => group.key === nextCategoryKey) ?? nextGroups[0] ?? null;
-        setSelectedItemId((current) => (
-          nextSelectedGroup?.items.some((item) => item.id === current)
-            ? current
-            : nextSelectedGroup?.items[0]?.id ?? null
-        ));
-        setDetailOpen((current) => current && Boolean(nextSelectedGroup?.items.length));
-      }
-    } catch {
-      // Keep current state.
+        const categoryKey = focusedGroup?.key
+          ?? (groups.some((group) => group.key === currentCategoryKey) ? currentCategoryKey : groups[0]?.key ?? null);
+        const group = groups.find((entry) => entry.key === categoryKey) ?? groups[0] ?? null;
+        setSelectedCategoryKey(categoryKey);
+        setSelectedItemId((currentId) => focusedItem?.id
+          ?? (group?.items.some((item) => item.id === currentId) ? currentId : group?.items[0]?.id ?? null));
+        if (focusedItem) setMobileDetailActive(true);
+        if (!append) setDetailOpen((current) => current && Boolean(group?.items.length));
+        return next;
+      });
+    } catch (error) {
+      feedback.error(error instanceof Error ? error.message : "加载流程通知失败");
+    } finally {
+      setLoadingMore(false);
     }
-  }, [onTabCountsChange, perspective]);
-
+  }, [feedback, focusRequestId, onTabCountsChange, perspective]);
   useEffect(() => {
     void load(0);
   }, [load]);
-
   async function markNotificationRead(item: NotificationItem) {
     if (item.readAt) return;
     setData((current) => ({
@@ -239,23 +268,30 @@ function WorkflowNotificationsPanel({
       unreadCount: Math.max(0, current.unreadCount - 1),
       items: current.items.map((entry) => entry.id === item.id ? { ...entry, readAt: new Date().toISOString() } : entry),
     }));
-    await fetch(workspacePath(`/api/settings/account/notifications/${item.id}`), {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "read" })
-    }).catch(() => load(0));
+    try {
+      const res = await fetch(workspacePath(`/api/settings/account/notifications/${item.id}`), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "read" }),
+      });
+      if (!res.ok) throw new Error("标记已读失败");
+      notifyBadgeChanged();
+    } catch (error) {
+      await load(0);
+      feedback.error(error instanceof Error ? error.message : "标记已读失败");
+    }
   }
-
   async function clearNotifications() {
     setClearing(true);
     try {
-      await fetch(workspacePath(`/api/settings/account/notifications?${workflowTodoActionQuery().toString()}`), { method: "DELETE" });
+      const res = await fetch(workspacePath(`/api/settings/account/notifications?${workflowTodoActionQuery().toString()}`), { method: "DELETE" });
+      if (!res.ok) throw new Error("清空通知失败");
+      notifyBadgeChanged();
       await load(0);
     } finally {
       setClearing(false);
     }
   }
-
   async function clearWorkflowItem(item: NotificationItem) {
     setClearingItemId(item.id);
     try {
@@ -267,6 +303,7 @@ function WorkflowNotificationsPanel({
       const result = await res.json().catch(() => ({})) as { error?: string };
       if (!res.ok) throw new Error(result.error || "删除通知失败");
       feedback.success("通知已删除");
+      notifyBadgeChanged();
       await load(0);
     } catch (error) {
       feedback.error(error instanceof Error ? error.message : "删除通知失败");
@@ -274,35 +311,32 @@ function WorkflowNotificationsPanel({
       setClearingItemId(null);
     }
   }
-
   async function markAllRead() {
     setMarkingRead(true);
     try {
-      await fetch(workspacePath(`/api/settings/account/notifications?${workflowTodoActionQuery().toString()}`), {
+      const res = await fetch(workspacePath(`/api/settings/account/notifications?${workflowTodoActionQuery().toString()}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "markAllRead" })
+        body: JSON.stringify({ action: "markAllRead" }),
       });
+      if (!res.ok) throw new Error("标记已读失败");
+      notifyBadgeChanged();
       await load(0);
     } finally {
       setMarkingRead(false);
     }
   }
-
   function itemTitle(item: NotificationItem) {
     return item.workflow?.title ?? item.title;
   }
-
   function itemDescription(item: NotificationItem) {
     return item.workflow?.summary ?? item.body;
   }
-
   function itemMeta(item: NotificationItem) {
     const actor = item.actor ? `${item.actor.name} · ` : "";
     if (!item.workflow) return `${actor}${formatNotificationTime(item.createdAt)}`;
     return `${actor}${getWorkflowFlowTypeLabel(item.workflow.flowType)} · ${formatNotificationTime(item.createdAt)}`;
   }
-
   const activeUnreadCount = data.items.filter((item) => !item.readAt).length;
   const toolbarItems: SurfaceToolbarItems = [
     {
@@ -331,6 +365,13 @@ function WorkflowNotificationsPanel({
           label: "刷新",
           onClick: () => void load(0),
         },
+        ...(data.hasMore ? [{
+          key: "load-more",
+          kind: "refresh" as const,
+          label: loadingMore ? "加载中…" : "加载更多",
+          disabled: loadingMore,
+          onClick: () => void load(data.items.length, true),
+        }] : []),
         ...(perspective === "received" ? [{
           key: "mark-read",
           kind: "double-check" as const,
@@ -386,6 +427,7 @@ function WorkflowNotificationsPanel({
           setSelectedCategoryKey(group.key);
           setSelectedItemId(group.items[0]?.id ?? null);
           setDetailOpen(false);
+          setMobileDetailActive(true);
         },
       })),
     })]
@@ -407,9 +449,12 @@ function WorkflowNotificationsPanel({
             return {
               key: item.id,
               title: itemTitle(item),
-              description: [itemDescription(item), itemMeta(item)].filter(Boolean).join(" · "),
+              description: [itemDescription(item), notificationSourceLabel(item), itemMeta(item)].filter(Boolean).join(" · "),
               unread: perspective === "received" && !item.readAt,
-              badges: [{ key: "status", label: status.label, tone: status.tone }],
+              badges: [
+                ...(item.isImportant ? [{ key: "important", label: "重要", tone: "warning" as const }] : []),
+                { key: "status", label: status.label, tone: status.tone },
+              ],
               actions: item.id > 0 ? [{
                 key: "delete-notification",
                 label: "删除",
@@ -432,6 +477,7 @@ function WorkflowNotificationsPanel({
     master: { label: "收件箱", body: createPageBody(leftSections) },
     detail: createPageBody(rightSections),
     desktop: { ratio: [2, 8] },
+    mobile: { detailActive: mobileDetailActive, onNavigateToList: () => setMobileDetailActive(false) },
   });
   return (
     <PageSurface

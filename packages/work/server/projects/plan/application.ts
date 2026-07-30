@@ -8,6 +8,11 @@ import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { validateCompletionSchedule } from "@workspace/platform/completion-date-policy";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { projectMemberHasActiveEmploymentOnDate } from "../../project-access-temporal";
+import {
+  bestEffortDrainProjectNotificationSignals,
+  enqueueProjectNotificationSignal,
+  PROJECT_NOTIFICATION_SIGNAL_PROJECT_SELECT,
+} from "../../project-notification-signals";
 
 const PLAN_ITEM_KINDS = ["project", "phase"] as const;
 type PlanItemKind = (typeof PLAN_ITEM_KINDS)[number];
@@ -191,16 +196,29 @@ export async function saveProjectPlanGantt(input: { userId: number; projectId: n
     const scheduleError = validateCompletionSchedule({ ...currentProject, actualStartDate: item.actualStartDate, actualEndDate: item.actualEndDate });
     if (scheduleError) return serviceError(scheduleError);
   }
-  await prisma.$transaction(async (tx) => {
+  const occurredAt = new Date();
+  const signalIds = await prisma.$transaction(async (tx) => {
+    const committedSignalIds: string[] = [];
     for (const item of normalized) {
       await ensureEditHistoryBaseline("Project", item.id, input.userId, tx);
-      await tx.project.update({
+      const saved = await tx.project.update({
         where: { id: item.id },
-        data: { actualStartDate: item.actualStartDate, actualEndDate: item.actualEndDate, editedBy: input.userId, editedAt: new Date(), version: { increment: 1 } },
+        data: { actualStartDate: item.actualStartDate, actualEndDate: item.actualEndDate, editedBy: input.userId, editedAt: occurredAt, version: { increment: 1 } },
+        select: PROJECT_NOTIFICATION_SIGNAL_PROJECT_SELECT,
       });
       await snapshotHistory("Project", item.id, input.userId, tx);
+      const signal = await enqueueProjectNotificationSignal(tx, {
+        project: saved,
+        signalKind: "project.updated",
+        signalId: `project:${item.id}:v${saved.version}:field:actualSchedule`,
+        changedField: "actualSchedule",
+        occurredAt,
+      });
+      if (signal.queued) committedSignalIds.push(signal.signalId);
     }
+    return committedSignalIds;
   });
+  if (signalIds.length > 0) await bestEffortDrainProjectNotificationSignals(signalIds);
   return serviceOk({ success: true });
 }
 

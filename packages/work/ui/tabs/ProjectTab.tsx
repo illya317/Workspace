@@ -17,6 +17,7 @@ import { useWorkGanttViewport } from "../gantt";
 import { getWorkSpaceHomePath } from "../works/space-paths";
 import type { WorkTaskSpace } from "../works/types";
 import { useProjectDetailEditorSection } from "./project/ProjectDetailEditor";
+import ProjectNotificationGovernanceView from "./project/ProjectNotificationGovernanceView";
 import { listProjectPlanGantt } from "./project/api";
 import type { ProjectPlanGanttData } from "./project/plan-gantt-model";
 import { buildTimelineRows } from "./project/plan-gantt-timeline-model";
@@ -139,8 +140,16 @@ function ProjectLedgerTab({
   const resolvedInitialProjectId = initialProjectId ?? (Number.isInteger(requestedProjectId) && requestedProjectId > 0 ? requestedProjectId : null);
   const model = useProjectTabModel(user, actionPermissions, resolvedInitialProjectId, { autoSelectFirst: Boolean(resolvedInitialProjectId) });
   const [activeDetailView, setActiveDetailView] = useState<ProjectDetailViewKey>("overview");
-  const orderedContributions = useMemo(
-    () => [...contributions].sort((left, right) => left.order - right.order || left.key.localeCompare(right.key)),
+  const orderedContributions = useMemo<ProjectHomeViewContribution[]>(
+    () => [
+      {
+        key: "notification-governance",
+        label: "通知监管",
+        order: 80,
+        component: ProjectNotificationGovernanceView,
+      },
+      ...contributions.filter((contribution) => contribution.key !== "notification-governance"),
+    ].sort((left, right) => left.order - right.order || left.key.localeCompare(right.key)),
     [contributions],
   );
   const projectDetailViewItems = useMemo<PageSurfaceTabBarItemSpec[]>(() => [

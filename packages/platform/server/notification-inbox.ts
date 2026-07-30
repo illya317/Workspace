@@ -31,16 +31,19 @@ export async function listUserNotifications(
   const options = typeof limitOrOptions === "number" ? { limit: limitOrOptions, offset } : limitOrOptions;
   const take = Math.min(Math.max(options.limit ?? 5, 1), 50);
   const skip = Math.max(options.offset ?? 0, 0);
+  const focusRequestId = Number.isInteger(options.workflowRequestId) && Number(options.workflowRequestId) > 0
+    ? Number(options.workflowRequestId)
+    : null;
   const query = normalizeNotificationQuery(options);
   if (query.filter === "todo" && query.category !== "ordinary") {
-    return listActiveWorkflowTodoNotifications(userId, take, skip);
+    return listActiveWorkflowTodoNotifications(userId, take, skip, focusRequestId);
   }
   if (query.filter === "originated" && query.category !== "ordinary") {
     return listOriginatedWorkflowRequests(userId, take, skip, query.category);
   }
   const visibleWhere = buildNotificationWhere(userId, query);
   const visibleAllWhere = baseNotificationWhere(userId);
-  const [orderedIds, total, unreadCount, pendingCount, ordinaryCount, workflowTodoCount, workflowMineCount] = await Promise.all([
+  const [orderedIds, total, unreadCount, pendingCount, ordinaryCount, ordinaryUnreadCount, workflowTodoCount, workflowMineCount] = await Promise.all([
     prisma.$queryRaw<{ id: number }[]>`
       SELECT "id"
       FROM "Notification"
@@ -59,6 +62,7 @@ export async function listUserNotifications(
     prisma.notification.count({ where: { ...visibleAllWhere, readAt: null } }),
     prisma.notification.count({ where: { ...visibleAllWhere, requiresAcknowledgement: true, acknowledgedAt: null, rejectedAt: null } }),
     prisma.notification.count({ where: buildNotificationWhere(userId, { category: "ordinary", filter: "all" }) }),
+    prisma.notification.count({ where: buildNotificationWhere(userId, { category: "ordinary", filter: "all", readState: "unread" }) }),
     listActiveWorkflowTodoItems(userId).then((items) => items.length),
     prisma.approvalRequest.count({ where: { submitterUserId: userId } }),
   ]);
@@ -68,7 +72,10 @@ export async function listUserNotifications(
     ? []
     : (await prisma.notification.findMany({
         where: { id: { in: itemIds } },
-        include: { actor: { select: { id: true, avatar: true, employees: { select: { name: true }, take: 1 } } } },
+        include: {
+          actor: { select: { id: true, avatar: true, employees: { select: { name: true }, take: 1 } } },
+          dispatch: { select: { id: true, sourceKind: true, sourceLabel: true, definitionKey: true, definitionRevision: true } },
+        },
       })).sort((a, b) => (itemOrder.get(a.id) ?? 0) - (itemOrder.get(b.id) ?? 0));
 
   const actionKeysByRequestId = await approvalActionKeysForNotifications(items);
@@ -78,6 +85,7 @@ export async function listUserNotifications(
     hasMore: skip + items.length < total,
     unreadCount,
     pendingCount,
+    attentionCount: ordinaryUnreadCount + workflowTodoCount,
     tabCounts: {
       ordinary: ordinaryCount,
       workflowTodo: workflowTodoCount,
@@ -87,22 +95,30 @@ export async function listUserNotifications(
   };
 }
 
-async function listActiveWorkflowTodoNotifications(userId: number, take: number, skip: number) {
+async function listActiveWorkflowTodoNotifications(
+  userId: number,
+  take: number,
+  skip: number,
+  focusRequestId: number | null,
+) {
   const visibleAllWhere = baseNotificationWhere(userId);
-  const [activeItems, unreadCount, pendingCount, ordinaryCount, workflowMineCount] = await Promise.all([
+  const [activeItems, unreadCount, pendingCount, ordinaryCount, ordinaryUnreadCount, workflowMineCount] = await Promise.all([
     listActiveWorkflowTodoItems(userId),
     prisma.notification.count({ where: { ...visibleAllWhere, readAt: null } }),
     prisma.notification.count({ where: { ...visibleAllWhere, requiresAcknowledgement: true, acknowledgedAt: null, rejectedAt: null } }),
     prisma.notification.count({ where: buildNotificationWhere(userId, { category: "ordinary", filter: "all" }) }),
+    prisma.notification.count({ where: buildNotificationWhere(userId, { category: "ordinary", filter: "all", readState: "unread" }) }),
     prisma.approvalRequest.count({ where: { submitterUserId: userId } }),
   ]);
-  const pagedItems = activeItems.slice(skip, skip + take);
+  const orderedItems = prioritizeWorkflowRequest(activeItems, focusRequestId);
+  const pagedItems = orderedItems.slice(skip, skip + take);
   return {
     items: pagedItems,
     total: activeItems.length,
     hasMore: skip + pagedItems.length < activeItems.length,
     unreadCount,
     pendingCount,
+    attentionCount: ordinaryUnreadCount + activeItems.length,
     tabCounts: {
       ordinary: ordinaryCount,
       workflowTodo: activeItems.length,
@@ -119,9 +135,10 @@ async function listOriginatedWorkflowRequests(
   category: NotificationCategory,
 ) {
   const visibleAllWhere = baseNotificationWhere(userId);
-  const [originated, ordinaryCount, workflowTodoCount, pendingCount] = await Promise.all([
+  const [originated, ordinaryCount, ordinaryUnreadCount, workflowTodoCount, pendingCount] = await Promise.all([
     listOriginatedWorkflowRequestItems(userId, take, skip, category),
     prisma.notification.count({ where: buildNotificationWhere(userId, { category: "ordinary", filter: "all" }) }),
+    prisma.notification.count({ where: buildNotificationWhere(userId, { category: "ordinary", filter: "all", readState: "unread" }) }),
     listActiveWorkflowTodoItems(userId).then((items) => items.length),
     prisma.notification.count({
       where: { ...visibleAllWhere, requiresAcknowledgement: true, acknowledgedAt: null, rejectedAt: null },
@@ -133,6 +150,7 @@ async function listOriginatedWorkflowRequests(
     hasMore: skip + originated.items.length < originated.total,
     unreadCount: 0,
     pendingCount,
+    attentionCount: ordinaryUnreadCount + workflowTodoCount,
     tabCounts: {
       ordinary: ordinaryCount,
       workflowTodo: workflowTodoCount,
@@ -163,6 +181,15 @@ async function listActiveWorkflowTodoItems(userId: number) {
     items.push(item);
   }
   return items.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+}
+
+function prioritizeWorkflowRequest<T extends { workflow?: { requestId?: number | null } | null }>(
+  items: T[],
+  requestId: number | null,
+) {
+  if (!requestId) return items;
+  const index = items.findIndex((item) => item.workflow?.requestId === requestId);
+  return index <= 0 ? items : [items[index]!, ...items.slice(0, index), ...items.slice(index + 1)];
 }
 
 async function listActiveWorkflowTodoNotificationItems(userId: number) {
@@ -212,7 +239,10 @@ async function listActiveWorkflowTodoNotificationItems(userId: number) {
     ? []
     : (await prisma.notification.findMany({
         where: { id: { in: activeIds } },
-        include: { actor: { select: { id: true, avatar: true, employees: { select: { name: true }, take: 1 } } } },
+        include: {
+          actor: { select: { id: true, avatar: true, employees: { select: { name: true }, take: 1 } } },
+          dispatch: { select: { id: true, sourceKind: true, sourceLabel: true, definitionKey: true, definitionRevision: true } },
+        },
       }))
         .sort((a, b) => (itemOrder.get(a.id) ?? 0) - (itemOrder.get(b.id) ?? 0))
         .map((item) => toNotificationDto(item, userId, actionKeysByRequestId));
@@ -225,9 +255,34 @@ async function listProviderWorkflowTodoItems(userId: number) {
 export async function updateUserNotification(userId: number, notificationId: number, action: NotificationAction) {
   const existing = await prisma.notification.findFirst({
     where: { id: notificationId, recipientUserId: userId },
-    select: { id: true, type: true },
+    select: {
+      id: true,
+      type: true,
+      responseMode: true,
+      requiresAcknowledgement: true,
+      acknowledgedAt: true,
+      rejectedAt: true,
+    },
   });
   if (!existing) return { success: false as const, error: "通知不存在", status: 404 };
+
+  const responseMode = existing.responseMode === "accept_reject"
+    ? "accept_reject"
+    : existing.responseMode === "acknowledge" ? "acknowledge" : "read";
+  if (action === "acknowledge" && responseMode === "read") {
+    return { success: false as const, error: "该通知无需确认", status: 409 };
+  }
+  if (action === "reject" && responseMode !== "accept_reject") {
+    return { success: false as const, error: "该通知不支持拒绝", status: 409 };
+  }
+  if (
+    action === "clear"
+    && (existing.requiresAcknowledgement || responseMode !== "read")
+    && !existing.acknowledgedAt
+    && !existing.rejectedAt
+  ) {
+    return { success: false as const, error: "待响应通知不能清除，请先完成响应", status: 409 };
+  }
 
   if (action === "acknowledge" || action === "reject") {
     const handled = await respondToRegisteredNotificationAction({

@@ -10,6 +10,10 @@ export async function register() {
   await preloadModuleRuntimeOverrides();
   const { startPermissionReviewScheduler } = await import("@workspace/platform/server/permission-review-scheduler");
   const { startDataQualityScheduler } = await import("@workspace/platform/server/data-quality-scheduler");
+  const { startProjectNotificationScheduler } = await import(
+    "@workspace/work/server/project-notification-scheduler"
+  );
   startPermissionReviewScheduler();
   startDataQualityScheduler();
+  startProjectNotificationScheduler();
 }

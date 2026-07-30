@@ -1,5 +1,5 @@
 import type { MutationImpactAdapter, MutationImpactRecord } from "@workspace/platform/server/mutation-impact";
-import type { Prisma } from "@workspace/platform/server/prisma";
+import { Prisma } from "@workspace/platform/server/prisma";
 
 type WorkProjectMutationImpactContext = { tx: Prisma.TransactionClient };
 
@@ -114,6 +114,60 @@ function projectMembershipsAdapter(): MutationImpactAdapter<WorkProjectMutationI
   };
 }
 
+function projectNotificationGovernanceHistoryAdapter(): MutationImpactAdapter<WorkProjectMutationImpactContext> {
+  return {
+    relationKey: "work.project.notification-governance-history",
+    sourceEntity: "Project",
+    intents: ["delete"],
+    async inspect({ context, current }) {
+      const projectId = Number(current.id);
+      const [rule, evaluation, signals] = await Promise.all([
+        context.tx.projectNotificationRule.findFirst({
+          where: { projectId },
+          select: { id: true, key: true },
+          orderBy: { id: "asc" },
+        }),
+        context.tx.projectNotificationEvaluation.findFirst({
+          where: { projectId },
+          select: { id: true, signalId: true },
+          orderBy: { evaluatedAt: "asc" },
+        }),
+        context.tx.$queryRaw<Array<{ id: string; signalId: string }>>(Prisma.sql`
+          SELECT "id", "signalId"
+          FROM "ProjectNotificationSignal"
+          WHERE "projectId" = ${projectId}
+          ORDER BY "createdAt" ASC, "id" ASC
+          LIMIT 1
+        `),
+      ]);
+      const signal = signals[0] ?? null;
+      const records: MutationImpactRecord[] = [
+        ...(rule ? [{
+          entity: "ProjectNotificationRule",
+          id: String(rule.id),
+          label: `通知监管规则 ${rule.key}`,
+        }] : []),
+        ...(evaluation ? [{
+          entity: "ProjectNotificationEvaluation",
+          id: evaluation.id,
+          label: `通知评估记录 ${evaluation.signalId}`,
+        }] : []),
+        ...(signal ? [{
+          entity: "ProjectNotificationSignal",
+          id: signal.id,
+          label: `通知事件信号 ${signal.signalId}`,
+        }] : []),
+      ];
+      return records.length ? {
+        policy: "block",
+        records,
+        reason: "项目通知监管信号、规则和评估记录属于审计事实，请归档项目并保留账本，不能硬删除",
+        requiresPerItemPermission: false,
+      } : null;
+    },
+  };
+}
+
 async function ownedRows(
   rowsPromise: Promise<Array<{ id: number }>>,
   entity: string,
@@ -132,6 +186,7 @@ export function projectMutationImpactAdapters(input: {
     projectWorkReferenceAdapter({ ...input, relationKey: "work.plan.linked.project", source: "plan", viaPhase: false }),
     projectWorkReferenceAdapter({ ...input, relationKey: "work.plan.linked.project-phase", source: "plan", viaPhase: true }),
     projectMembershipsAdapter(),
+    projectNotificationGovernanceHistoryAdapter(),
     projectOwnedChildrenAdapter(),
   ];
 }

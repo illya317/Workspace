@@ -60,6 +60,44 @@ test("Work project submission processing stays service-delegated to request hand
   }
 });
 
+test("Project notification rule APIs stay service-delegated with their project actions", () => {
+  for (const [method, apiPath, requiredAction] of [
+    ["POST", "/api/modules/work/projects/17/notification-rules", "update"],
+    ["PUT", "/api/modules/work/projects/17/notification-rules/23", "update"],
+    ["POST", "/api/modules/work/projects/17/notification-rules/23/preview", "read"],
+    ["POST", "/api/modules/work/projects/17/notification-rules/23/publish", "update"],
+    ["POST", "/api/modules/work/projects/17/notification-rules/23/archive", "update"],
+    ["POST", "/api/modules/work/projects/17/notification-signals/redrive", "update"],
+  ] as const) {
+    const policy = resolvePermissionApiActionPolicy({
+      method,
+      apiPath,
+      resourceKey: "work.projects",
+    });
+    assert.equal(policy.resourceKey, "work.projects");
+    assert.deepEqual(policy.requiredActions, [requiredAction]);
+    assert.equal(policy.runtimeEnforcement, "serviceDelegated");
+  }
+
+  const action = getBusinessActionRegistration("work.projects.notificationSignal.redrive");
+  const contract = getActionContractMetadata("work.projects.notificationSignal.redrive");
+  assert.equal(action?.writeKind, "revise");
+  assert.equal(action?.directPermissionAction, "update");
+  assert.deepEqual(action?.apiRoutes, [{
+    method: "POST",
+    path: "/api/modules/work/projects/:id/notification-signals/redrive",
+  }]);
+  assert.equal(contract?.kind, "lifecycle");
+  assert.equal(contract?.lifecycle?.operation, "custom");
+  assert.equal(contract?.lifecycle?.targetIdKey, "signalId");
+  assert.equal(contract?.lifecycle?.versionKey, "expectedAttemptCount");
+  assert.deepEqual(contract?.payload.changeFields, [{
+    field: "reason",
+    label: "重试原因",
+    required: true,
+  }]);
+});
+
 test("Work cycle and flow settings authorize against their configure capability", () => {
   for (const policy of [
     resolveGet("/api/modules/work/tasks/okr-control", "work.tasks"),
@@ -141,22 +179,23 @@ test("Finance ledger workbook downloads require export rather than ordinary read
 });
 
 test("Finance asset accounting uses its own write and export permissions", () => {
-  for (const [method, apiPath, requiredAction] of [
-    ["POST", "/api/modules/finance/assets", "create"],
-    ["PUT", "/api/modules/finance/assets", "update"],
-    ["PUT", "/api/modules/finance/assets/policies", "update"],
-    ["DELETE", "/api/modules/finance/assets/policies", "update"],
-    ["POST", "/api/modules/finance/assets/periods/recalculate", "revise"],
-    ["PUT", "/api/modules/finance/assets/periods/voucher-link", "revise"],
-    ["POST", "/api/modules/finance/assets/acquisition-evidence", "revise"],
-    ["PUT", "/api/modules/finance/assets/impairment-assessment", "revise"],
-    ["POST", "/api/modules/finance/assets/disposals", "revise"],
-    ["GET", "/api/modules/finance/assets/export", "export"],
+  for (const [method, apiPath, requiredAction, runtimeEnforcement] of [
+    ["POST", "/api/modules/finance/assets/periods/replay-preview", "read", "gateway"],
+    ["POST", "/api/modules/finance/assets", "create", "serviceDelegated"],
+    ["PUT", "/api/modules/finance/assets", "update", "gateway"],
+    ["PUT", "/api/modules/finance/assets/policies", "update", "gateway"],
+    ["DELETE", "/api/modules/finance/assets/policies", "update", "gateway"],
+    ["POST", "/api/modules/finance/assets/periods/recalculate", "revise", "gateway"],
+    ["PUT", "/api/modules/finance/assets/periods/voucher-link", "revise", "gateway"],
+    ["POST", "/api/modules/finance/assets/acquisition-evidence", "revise", "gateway"],
+    ["PUT", "/api/modules/finance/assets/impairment-assessment", "revise", "gateway"],
+    ["POST", "/api/modules/finance/assets/disposals", "revise", "gateway"],
+    ["GET", "/api/modules/finance/assets/export", "export", "gateway"],
   ] as const) {
     const policy = resolvePermissionApiActionPolicy({ method, apiPath, resourceKey: "finance.assets" });
     assert.equal(policy.resourceKey, "finance.assets");
     assert.deepEqual(policy.requiredActions, [requiredAction]);
-    assert.equal(policy.runtimeEnforcement, "gateway");
+    assert.equal(policy.runtimeEnforcement, runtimeEnforcement);
   }
 
   const deleteAction = getBusinessActionRegistration("finance.assets.categoryPolicy.delete");
@@ -192,11 +231,12 @@ test("Finance treasury and tax workspace routes use their own read and write per
   }
 });
 
-test("Finance close workspace separates read, open, and refresh permissions", () => {
+test("Finance close workspace separates read, open, refresh, and complete permissions", () => {
   for (const [method, apiPath, requiredAction] of [
     ["GET", "/api/modules/finance/ledger/closing", "read"],
     ["POST", "/api/modules/finance/ledger/closing", "create"],
     ["POST", "/api/modules/finance/ledger/closing/refresh", "update"],
+    ["POST", "/api/modules/finance/ledger/closing/complete", "approve"],
   ] as const) {
     const policy = resolvePermissionApiActionPolicy({ method, apiPath, resourceKey: "finance.ledger" });
     assert.equal(policy.resourceKey, "finance.ledger");
@@ -289,4 +329,31 @@ test("personal notification subscription writes use account read and are Agent-d
   const catalog = buildPersonalApiCatalog();
   assert.equal(catalog.contracts.some((item) => item.pathPrefix === "/api/modules/settings/account/notification-subscriptions"), true);
   assert.equal(catalog.mutations.some((item) => item.key === "settings.account.notificationSubscription.save"), true);
+});
+
+test("relation policy governance uses explicit read and configure actions", () => {
+  const apiPath = "/api/settings/governance/relation-policies";
+  for (const [method, requiredAction] of [["GET", "read"], ["PATCH", "configure"]] as const) {
+    const policy = resolvePermissionApiActionPolicy({
+      method,
+      apiPath,
+      resourceKey: "settings.governance",
+    });
+    assert.equal(policy.resourceKey, "settings.governance");
+    assert.deepEqual(policy.requiredActions, [requiredAction]);
+    assert.equal(policy.runtimeEnforcement, "serviceDelegated");
+    assert.match(policy.notes ?? "", /root users/);
+  }
+});
+
+test("SQL setting operations require governance configure", () => {
+  const policy = resolvePermissionApiActionPolicy({
+    method: "PATCH",
+    apiPath: "/api/settings/governance/sql-settings",
+    resourceKey: "settings.governance",
+  });
+  assert.equal(policy.resourceKey, "settings.governance");
+  assert.deepEqual(policy.requiredActions, ["configure"]);
+  assert.equal(policy.runtimeEnforcement, "serviceDelegated");
+  assert.match(policy.notes ?? "", /never executes privileged SQL/);
 });

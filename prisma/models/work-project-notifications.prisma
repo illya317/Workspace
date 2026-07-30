@@ -1,0 +1,187 @@
+/// 项目通知监管规则头（事实表，来源于有权限用户在项目监管界面的配置）
+model ProjectNotificationRule {
+  id                   Int                                  @id @default(autoincrement())
+  projectId            Int
+  key                  String
+  label                String
+  definitionKey        String
+  eventType            String
+  conditionJson        String                               @db.Text
+  audiencePolicyJson   String                               @db.Text
+  channelPolicyJson    String                               @db.Text
+  cooldownSeconds      Int                                  @default(0)
+  status               String                               @default("draft")
+  revision             Int                                  @default(1)
+  publishedRevision    Int?
+  version              Int                                  @default(1)
+  createdByUserId      Int
+  updatedByUserId      Int
+  publishedByUserId    Int?
+  archivedByUserId     Int?
+  publishedAt          DateTime?
+  archivedAt           DateTime?
+  createdAt            DateTime                             @default(now())
+  updatedAt            DateTime                             @default(now()) @updatedAt
+  project              Project                              @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  createdByUser        User                                 @relation("ProjectNotificationRuleCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  updatedByUser        User                                 @relation("ProjectNotificationRuleUpdater", fields: [updatedByUserId], references: [id], onDelete: Restrict)
+  publishedByUser      User?                                @relation("ProjectNotificationRulePublisher", fields: [publishedByUserId], references: [id], onDelete: Restrict)
+  archivedByUser       User?                                @relation("ProjectNotificationRuleArchiver", fields: [archivedByUserId], references: [id], onDelete: Restrict)
+  revisions            ProjectNotificationRuleRevision[]
+  evaluations          ProjectNotificationEvaluation[]
+  publicationIntents   ProjectNotificationPublicationIntent[]
+
+  @@unique([projectId, key])
+  @@unique([id, projectId], map: "ProjNotifyRule_id_project_key")
+  @@index([projectId, status, eventType])
+  @@index([definitionKey])
+}
+
+/// 项目通知规则不可变修订（事实表，来源于每次保存的完整规则草稿）
+model ProjectNotificationRuleRevision {
+  id                   Int                     @id @default(autoincrement())
+  ruleId               Int
+  revision             Int
+  key                  String
+  label                String
+  definitionKey        String
+  eventType            String
+  conditionJson        String                  @db.Text
+  conditionFingerprint String
+  audiencePolicyJson   String                  @db.Text
+  channelPolicyJson    String                  @db.Text
+  cooldownSeconds      Int
+  createdByUserId      Int
+  createdAt            DateTime                @default(now())
+  rule                 ProjectNotificationRule @relation(fields: [ruleId], references: [id], onDelete: Restrict)
+  createdByUser        User                    @relation("ProjectNotificationRuleRevisionCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  evaluations          ProjectNotificationEvaluation[] @relation("ProjectNotificationEvaluationRevision")
+  lifecycleEvents      ProjectNotificationRuleLifecycleEvent[]
+  publicationIntents   ProjectNotificationPublicationIntent[] @relation("ProjectNotificationPublicationIntentRevision")
+
+  @@unique([ruleId, revision])
+  @@index([createdByUserId])
+}
+
+/// 项目通知规则不可变评估账本（事实表，来源于项目事件或每日监管扫描）
+model ProjectNotificationEvaluation {
+  id               String                  @id @default(cuid())
+  ruleId           Int
+  ruleRevision     Int
+  projectId        Int
+  signalKind       String
+  signalId         String
+  outcome          String
+  factsFingerprint String
+  publicationId    String?
+  errorCode        String?
+  evaluatedAt      DateTime                @default(now())
+  rule             ProjectNotificationRule @relation(fields: [ruleId, projectId], references: [id, projectId], onDelete: Restrict)
+  ruleRevisionFact ProjectNotificationRuleRevision @relation("ProjectNotificationEvaluationRevision", fields: [ruleId, ruleRevision], references: [ruleId, revision], onDelete: Restrict)
+  project          Project                 @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  publication      NotificationPublication? @relation(fields: [publicationId], references: [id], onDelete: Restrict)
+
+  @@unique([ruleId, signalKind, signalId])
+  @@index([projectId, evaluatedAt])
+  @@index([ruleId, outcome, evaluatedAt])
+  @@index([publicationId])
+}
+
+/// 项目通知规则生命周期事件（事实表，来源于发布或归档动作的事务内追加）
+model ProjectNotificationRuleLifecycleEvent {
+  id           String                          @id
+  ruleId       Int
+  revision     Int
+  action       String
+  actorUserId  Int
+  occurredAt   DateTime                        @default(now())
+  priorVersion Int
+  newVersion   Int
+  ruleRevision ProjectNotificationRuleRevision @relation(fields: [ruleId, revision], references: [ruleId, revision], onDelete: Restrict)
+  actor        User                            @relation("ProjectNotificationRuleLifecycleEventActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@unique([ruleId, newVersion], map: "ProjNotifyRuleLifecycle_rule_version_key")
+  @@index([ruleId, occurredAt], map: "ProjNotifyRuleLifecycle_rule_time_idx")
+  @@index([actorUserId, occurredAt], map: "ProjNotifyRuleLifecycle_actor_time_idx")
+}
+
+/// 项目通知发布意图（事实表，来源于规则锁内冻结的受众、变量、渠道与幂等请求）
+model ProjectNotificationPublicationIntent {
+  id                 String                  @id
+  ruleId             Int
+  ruleRevision       Int
+  projectId          Int
+  signalKind         String
+  signalId           String
+  definitionKey      String
+  idempotencyKey     String
+  requestJson        String                  @db.Text
+  requestFingerprint String
+  status             String                  @default("publishing")
+  publicationId      String?                 @unique(map: "ProjNotifyIntent_publication_key")
+  preparedAt         DateTime                @default(now())
+  committedAt        DateTime?
+  failedAt           DateTime?
+  lastErrorCode      String?
+  updatedAt          DateTime                @default(now()) @updatedAt
+  rule               ProjectNotificationRule @relation(fields: [ruleId, projectId], references: [id, projectId], onDelete: Restrict)
+  ruleRevisionFact   ProjectNotificationRuleRevision @relation("ProjectNotificationPublicationIntentRevision", fields: [ruleId, ruleRevision], references: [ruleId, revision], onDelete: Restrict)
+  project            Project                 @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  publication        NotificationPublication? @relation(fields: [publicationId], references: [id], onDelete: Restrict)
+
+  @@unique([ruleId, signalKind, signalId], map: "ProjNotifyIntent_rule_signal_key")
+  @@unique([projectId, idempotencyKey], map: "ProjNotifyIntent_project_idempotency_key")
+  @@index([ruleId, status, preparedAt], map: "ProjNotifyIntent_rule_status_time_idx")
+  @@index([projectId, preparedAt], map: "ProjNotifyIntent_project_time_idx")
+}
+
+/// 项目通知事件信号（事实表，来源于项目写事务或每日监管扫描的不可丢失事件快照）
+model ProjectNotificationSignal {
+  id               String   @id
+  projectId        Int
+  projectVersion   Int
+  signalKind       String
+  signalId         String   @unique(map: "ProjNotifySignal_signal_key")
+  changedField     String
+  snapshotJson     String   @db.Text
+  factsFingerprint String
+  occurredAt       DateTime
+  status           String   @default("pending")
+  attemptCount     Int      @default(0)
+  nextAttemptAt    DateTime? @default(now())
+  leaseToken       String?  @unique(map: "ProjNotifySignal_lease_key")
+  leaseExpiresAt   DateTime?
+  processedAt      DateTime?
+  failedAt         DateTime?
+  lastErrorCode    String?
+  lastErrorSummary String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  sourceRedriveEvents ProjectNotificationSignalRedriveEvent[] @relation("ProjectNotificationSignalRedriveSource")
+  childRedriveEvent ProjectNotificationSignalRedriveEvent? @relation("ProjectNotificationSignalRedriveChild")
+
+  @@index([status, nextAttemptAt], map: "ProjNotifySignal_status_due_idx")
+  @@index([leaseExpiresAt], map: "ProjNotifySignal_lease_expiry_idx")
+  @@index([projectId, createdAt], map: "ProjNotifySignal_project_time_idx")
+}
+
+/// 项目通知死信人工重驱的不可变审计事实；关联原信号、派生信号、操作者、原因和 CAS 尝试号。
+model ProjectNotificationSignalRedriveEvent {
+  id                    String                    @id
+  projectId             Int
+  sourceSignalRecordId  String
+  redriveSignalRecordId String                    @unique(map: "ProjectNotifyRedrive_childSignal_key")
+  sourceAttemptCount    Int
+  actorUserId           Int
+  reason                String                    @db.Text
+  occurredAt            DateTime                  @default(now())
+  project               Project                   @relation(fields: [projectId], references: [id], onDelete: Restrict, map: "ProjectNotifyRedrive_project_fkey")
+  sourceSignal          ProjectNotificationSignal @relation("ProjectNotificationSignalRedriveSource", fields: [sourceSignalRecordId], references: [id], onDelete: Restrict, map: "ProjectNotifyRedrive_sourceSignal_fkey")
+  redriveSignal         ProjectNotificationSignal @relation("ProjectNotificationSignalRedriveChild", fields: [redriveSignalRecordId], references: [id], onDelete: Restrict, map: "ProjectNotifyRedrive_childSignal_fkey")
+  actor                 User                      @relation("ProjectNotificationSignalRedriveActor", fields: [actorUserId], references: [id], onDelete: Restrict, map: "ProjectNotifyRedrive_actor_fkey")
+
+  @@unique([sourceSignalRecordId, sourceAttemptCount], map: "ProjectNotifyRedrive_sourceAttempt_key")
+  @@index([projectId, occurredAt], map: "ProjectNotifyRedrive_project_time_idx")
+  @@index([actorUserId, occurredAt], map: "ProjectNotifyRedrive_actor_time_idx")
+}

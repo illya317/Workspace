@@ -102,6 +102,13 @@ function wrapperContent(repositoryRoot: string, sourceFile: string) {
   return `${GENERATED_BANNER}${fs.readFileSync(sourceFile, "utf8")}`;
 }
 
+function instrumentationContent(unitId: string) {
+  if (unitId !== "work") {
+    return `${GENERATED_BANNER}import { registerDeployUnitRuntime } from "@workspace/platform/server/deploy-unit-runtime";\n\nexport function register() {\n  return registerDeployUnitRuntime(${JSON.stringify(unitId)});\n}\n`;
+  }
+  return `${GENERATED_BANNER}import { registerDeployUnitRuntime } from "@workspace/platform/server/deploy-unit-runtime";\n\nexport async function register() {\n  await registerDeployUnitRuntime("work");\n  if (process.env.NEXT_RUNTIME !== "nodejs") return;\n  if (process.env.NEXT_PHASE === "phase-production-build") return;\n  const { startProjectNotificationScheduler } = await import(\n    "@workspace/work/server/project-notification-scheduler"\n  );\n  startProjectNotificationScheduler();\n}\n`;
+}
+
 function relativeReference(appRoot: string, compilerProject: string) {
   const withoutConfig = compilerProject.replace(/\/tsconfig\.json$/, "");
   let relative = path.relative(appRoot, withoutConfig).replaceAll(path.sep, "/");
@@ -218,7 +225,7 @@ export function generatedDeployUnitAppFiles(
   });
   files.push({
     path: path.join(appRoot, "instrumentation.ts"),
-    content: `${GENERATED_BANNER}import { registerDeployUnitRuntime } from "@workspace/platform/server/deploy-unit-runtime";\n\nexport function register() {\n  return registerDeployUnitRuntime(${JSON.stringify(unit.id)});\n}\n`,
+    content: instrumentationContent(unit.id),
   });
   files.push({
     path: path.join(appRoot, "tsconfig.json"),

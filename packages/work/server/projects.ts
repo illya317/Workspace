@@ -26,6 +26,11 @@ import {
   type WorkMutationImpactContext,
 } from "./work-mutation-impact";
 import { createProjectMembershipsInTransaction } from "./project-membership-lifecycle-service";
+import {
+  bestEffortDrainProjectNotificationSignals,
+  enqueueProjectNotificationSignal,
+  PROJECT_NOTIFICATION_SIGNAL_PROJECT_SELECT,
+} from "./project-notification-signals";
 
 export async function listProjects(input: { userId: number; keyword: string; page: number; pageSize: number; archived?: boolean }) {
   const [visibleWhere, createRuntime] = await Promise.all([
@@ -239,16 +244,18 @@ export async function updateProjectField(input: {
       isArchived: Boolean(command.data.data.isArchived),
     });
   }
-  await prisma.$transaction(async (tx) => {
+  const occurredAt = new Date();
+  const signal = await prisma.$transaction(async (tx) => {
     await ensureEditHistoryBaseline("Project", projectId, input.userId, tx);
-    await tx.project.update({
+    const saved = await tx.project.update({
       where: { id: projectId },
       data: {
         ...command.data.data,
         editedBy: input.userId,
-        editedAt: new Date(),
+        editedAt: occurredAt,
         version: { increment: 1 },
       },
+      select: PROJECT_NOTIFICATION_SIGNAL_PROJECT_SELECT,
     });
     if (command.data.enablingDepartmentIds) {
       await tx.projectEnablingDepartment.deleteMany({ where: { projectId } });
@@ -257,7 +264,15 @@ export async function updateProjectField(input: {
       });
     }
     await snapshotHistory("Project", projectId, input.userId, tx);
+    return enqueueProjectNotificationSignal(tx, {
+      project: saved,
+      signalKind: "project.updated",
+      signalId: `project:${projectId}:v${saved.version}:field:${input.field}`,
+      changedField: input.field,
+      occurredAt,
+    });
   });
+  if (signal.queued) await bestEffortDrainProjectNotificationSignals([signal.signalId]);
   return serviceOk({ success: true });
 }
 
@@ -299,13 +314,14 @@ async function updateProjectArchiveState(input: {
   isArchived: boolean;
 }) {
   try {
-    await runSerializableTransaction(async (tx) => {
+    const occurredAt = new Date();
+    const signal = await runSerializableTransaction(async (tx) => {
       const project = await tx.project.findUnique({
         where: { id: input.projectId },
         select: { id: true, name: true, version: true, isArchived: true },
       });
       if (!project) throw new Error("项目不存在");
-      if (project.isArchived === input.isArchived) return;
+      if (project.isArchived === input.isArchived) return null;
       const intent = input.isArchived ? "archive" as const : "restore" as const;
       const context = projectImpactContext(tx, input.userId, project.id);
       await buildAuditedWorkMutationImpactEngine(context).execute({
@@ -319,16 +335,29 @@ async function updateProjectArchiveState(input: {
             where: { id: project.id, version: project.version },
             data: {
               isArchived: input.isArchived,
-              archivedAt: input.isArchived ? new Date() : null,
+              archivedAt: input.isArchived ? occurredAt : null,
               editedBy: input.userId,
-              editedAt: new Date(),
+              editedAt: occurredAt,
               version: { increment: 1 },
             },
           });
           await snapshotHistory("Project", project.id, input.userId, tx);
         },
       });
+      const saved = await tx.project.findUnique({
+        where: { id: project.id },
+        select: PROJECT_NOTIFICATION_SIGNAL_PROJECT_SELECT,
+      });
+      if (!saved) throw new Error("项目不存在");
+      return enqueueProjectNotificationSignal(tx, {
+        project: saved,
+        signalKind: input.isArchived ? "project.archived" : "project.restored",
+        signalId: `project:${project.id}:v${saved.version}:field:isArchived`,
+        changedField: "isArchived",
+        occurredAt,
+      });
     });
+    if (signal?.queued) await bestEffortDrainProjectNotificationSignals([signal.signalId]);
     return serviceOk({ success: true });
   } catch (error) {
     const impactError = mutationImpactServiceError(error);

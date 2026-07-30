@@ -5,6 +5,7 @@ import test from "node:test";
 const build = readFileSync("ops/build-deploy-unit-artifact.sh", "utf8");
 const client = readFileSync("ops/deploy-unit.sh", "utf8");
 const apply = readFileSync("ops/apply-deploy-unit.sh", "utf8");
+const sidecar = readFileSync("ops/deploy-unit-sidecar.sh", "utf8");
 const gateway = readFileSync("ops/switch-deploy-gateway.sh", "utf8");
 
 test("unit builder uses governed typecheck and one exact Linux standalone artifact", () => {
@@ -43,6 +44,8 @@ test("client deploy accepts only trusted artifacts while rollback remains an exp
   assert.doesNotMatch(readFileSync("ops/deploy-notification.mjs", "utf8"), /^import .*cnb-build-timing-summary/m);
   assert.match(client, /internal-unit-identity\.mjs/);
   assert.match(client, /internal-rpc-deployment-guard\.mjs/);
+  assert.match(client, /deploy-unit-sidecar\.sh/);
+  assert.match(client, /WORKSPACE_MONOLITH_WECOM_PROCESS_NAME/);
   assert.ok(client.indexOf("DEPLOY_UNIT_TRUSTED_BUILD") < client.indexOf("rsync -az"));
 });
 
@@ -61,19 +64,29 @@ test("server apply checks control plane before PM2 and commits Gateway only afte
   assert.match(apply, /WORKSPACE_INTERNAL_ORIGIN="\$\{WORKSPACE_INTERNAL_ORIGIN:-\$\{WORKSPACE_PUBLIC_ORIGIN:-http:\/\/127\.0\.0\.1\}\}"/);
   assert.match(apply, /internal-unit-identity\.mjs" ensure/);
   assert.match(apply, /WORKSPACE_DEPLOY_UNIT_ID="\$UNIT_ID"/);
+  assert.match(apply, /WORKSPACE_DEPLOY_SLOT="\$slot"/);
+  assert.match(apply, /WORKSPACE_DEPLOY_CURRENT_STATE_FILE="\$CURRENT_STATE_FILE"/);
   assert.match(apply, /WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE="\$INTERNAL_SIGNING_PRIVATE_KEY_FILE"/);
   assert.match(apply, /WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE="\$INTERNAL_TRUSTED_PUBLIC_KEYS_FILE"/);
   assert.match(apply, /WORKSPACE_INTERNAL_REPLAY_DIRECTORY="\$INTERNAL_REPLAY_DIRECTORY"/);
   assert.match(apply, /internal-rpc-deployment-guard\.mjs" direct/);
   assert.match(apply, /--max-memory-restart "\$\{memory_mib\}M"/);
-  assert.match(apply, /assistant-runtime\.mjs" env-assert/);
-  assert.match(apply, /WECHAT_BOT_BRIDGE_URL="http:\/\/127\.0\.0\.1:\$port\$base_path\$bridge_path"/);
-  assert.match(apply, /wait_for_pm2_online "\$process_name"/);
+  assert.match(sidecar, /\$assistant_runtime_tool" env-assert/);
+  assert.match(sidecar, /WECHAT_BOT_BRIDGE_URL="http:\/\/127\.0\.0\.1:\$port\$base_path\$bridge_path"/);
+  assert.match(sidecar, /workspace_sidecar_wait_online "\$process_name"/);
+  assert.match(sidecar, /workspace_sidecar_wait_absent "\$process_name"/);
+  assert.match(sidecar, /pm2 delete "\$opposite_process"/);
+  assert.match(sidecar, /workspace_suspend_monolith_wecom_sidecar/);
+  assert.match(sidecar, /workspace_restore_monolith_wecom_sidecar/);
+  assert.match(sidecar, /workspace_capture_gateway_assistant_owner/);
+  assert.match(sidecar, /WORKSPACE_DEPLOY_SLOT="\$slot"/);
+  assert.match(sidecar, /WORKSPACE_DEPLOY_CURRENT_STATE_FILE=/);
   assert.match(apply, /profile-prepared/);
-  assert.ok(apply.indexOf('if [ "$MODE" = "shadow" ]') < apply.indexOf('start_release_sidecars "$manifest_copy"'));
-  assert.ok(apply.indexOf('start_release_sidecars "$manifest_copy"') < apply.indexOf('switch_gateway "$generation_id"'));
-  assert.ok(apply.indexOf('switch_gateway "$generation_id"') < apply.indexOf('stop_release_sidecars "$release_dir" "$active_slot"'));
-  assert.ok(apply.indexOf('switch_gateway "$generation_id"') < apply.lastIndexOf('write_unit_deploy_event deploy'));
+  assert.ok(deployBody.indexOf('if [ "$MODE" = "shadow" ]') < deployBody.indexOf('prepare_sidecar_handoff "$CURRENT_STATE_FILE"'));
+  assert.ok(deployBody.indexOf('stop_previous_sidecar_for_handoff') < deployBody.indexOf('switch_gateway "$generation_id"'));
+  assert.ok(deployBody.indexOf('switch_gateway "$generation_id"') < deployBody.indexOf('start_next_sidecar_for_handoff'));
+  assert.ok(deployBody.indexOf('start_next_sidecar_for_handoff') < deployBody.indexOf('pm2 delete "$(read_json_field "$manifest_copy" runtime.processName)-$active_slot"'));
+  assert.ok(deployBody.indexOf('switch_gateway "$generation_id"') < deployBody.lastIndexOf('write_unit_deploy_event deploy'));
   assert.match(apply, /if \[ "\$MODE" = "shadow" \][\s\S]*?write_unit_deploy_event deploy[^\n]*shadow/);
   assert.ok(apply.indexOf('internal-unit-identity.mjs" ensure') < apply.indexOf('pm2 delete "$process_name"'));
 });
@@ -85,5 +98,6 @@ test("Gateway switch validates, replaces one include, tests Nginx, and restores 
   assert.match(gateway, /sudo nginx -t/);
   assert.match(gateway, /sudo systemctl reload nginx/);
   assert.ok(gateway.indexOf("atomic_replace \"$CURRENT_SWAP\" \"$CURRENT_LINK\"") < gateway.indexOf("sudo nginx -t"));
+  assert.ok(gateway.indexOf("sudo systemctl reload nginx") < gateway.indexOf('write_committed_generation "$GENERATION_ID"'));
   assert.match(gateway, /if \[ "\$COMMITTED" = "0" \]/);
 });
