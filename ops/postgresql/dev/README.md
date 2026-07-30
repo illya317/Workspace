@@ -6,6 +6,7 @@ Security contract:
 
 - `app` receives only `workspace_dev_runtime_password` and the CA certificate.
 - `migrate` is a one-shot profile and receives only the migrator password and CA certificate.
+- The DB entrypoint runs as root only long enough to atomically copy the five local Compose password secrets plus HBA, ident, and role SQL into PostgreSQL-owned `0700` tmpfs directories with `0400` private files. Fresh init, server startup, and role rotation read only those copies.
 - The PostgreSQL server key is mounted only into `db`; the CA private key remains on the host.
 - Every TCP client uses TLS `verify-full`; the server certificate contains `DNS:db`.
 - PostgreSQL is attached only to `workspace-dev-db-internal`. The app joins that network and the pre-created external `workspace-dev-edge` network.
@@ -109,7 +110,7 @@ Do not run `up app` or `up db` through the legacy project after the secure cutov
      --file /home/ubuntu/workspace-dev/postgresql-security/compose.yaml \
      exec --user postgres -T db \
      psql -X -v ON_ERROR_STOP=1 -U workspace_dev -d postgres \
-     -f /workspace-dev/roles-and-grants.sql
+     -f /var/lib/postgresql/tls/private/roles-and-grants.sql
    ```
 
 7. Run the one-shot migration and its post-migration grant refresh:
@@ -137,9 +138,17 @@ Do not run `up app` or `up db` through the legacy project after the secure cutov
      --file /home/ubuntu/workspace-dev/postgresql-security/compose.yaml up -d app
    ```
 
-9. Repoint the watchdog's app restart command to the exact secure project/file/env command above, keeping its action limited to `up -d app`. Verify `/test/login`, `/test/api/internal/health`, that `/test/api/auth/dev-login-bypass` remains 404, and that production `/workspace` remains healthy. Release the watchdog lease in a `finally` path.
+9. Atomically switch the watchdog to the installed app-only Compose wrapper, then inspect the effective unit:
 
-Fresh volumes run `roles-and-grants.sql` through `/docker-entrypoint-initdb.d`; existing volumes require the explicit DB-local command above. The role script transfers non-extension public relations, routines, standalone types, and the public schema away from legacy `workspace_dev`; verification fails if any remain. `migrate-app.sh` refreshes grants after every migration and removes runtime access to `_prisma_migrations`.
+   ```bash
+   cd /home/ubuntu/workspace-dev/postgresql-security
+   sudo ./switch-watchdog.sh apply
+   sudo ./switch-watchdog.sh status
+   ```
+
+   The wrapper always uses fixed absolute Compose paths and `up -d --no-deps app`; it cannot start DB, migration, or market-data services. Verify `/test/login`, `/test/api/internal/health`, that `/test/api/auth/dev-login-bypass` remains 404, and that production `/workspace` remains healthy. Release the watchdog lease in a `finally` path.
+
+At container start, root copies HBA, ident, and role SQL from root-only bootstrap mounts into PostgreSQL-owned tmpfs files. Fresh volumes run the copied role SQL through `/docker-entrypoint-initdb.d`; existing volumes require the explicit DB-local command above against the copied tmpfs path. The role script transfers non-extension public relations, routines, standalone types, and the public schema away from legacy `workspace_dev` in both `workspace_dev` and `workspace_dev_shadow`; serial and identity sequences follow their owning table automatically. Verification fails unless the migrator can `SET ROLE workspace_dev_owner`, owns the shadow database and public schema, can create there, and leaves zero non-extension public objects owned by the legacy role. `migrate-app.sh` refreshes main-database grants after every migration and removes runtime access to `_prisma_migrations`.
 
 ## Automated verified backups
 
@@ -171,4 +180,16 @@ test -n "${latest_manifest}"
 
 ## Rollback
 
-Role creation and ownership changes are additive; do not drop the new roles during the observation window. Restore the saved Compose/HBA/app-env files and recreate only the development containers. The role script rotates the legacy `workspace_dev` password, so a legacy app rollback must update its private `DATABASE_URL` to the new `postgres_admin_password`; never restore the old database password. Keep market-data on both networks until the legacy app is restored. Do not restore database data unless an invariant or restore comparison proves corruption. The original `workspace_dev` superuser remains reachable by the DB container's local peer mapping and has no TCP HBA rule.
+Role creation and ownership changes are additive; do not drop the new roles or restore database data during the observation window unless an invariant or restore comparison proves corruption.
+
+The supported runtime rollback keeps the new source entrypoint. Before switching the watchdog to legacy Compose, update `/home/ubuntu/workspace-dev/runtime/.workspace/.env` privately so it contains the rotated legacy-admin `DATABASE_URL` and removes `DIRECT_URL`, `SHADOW_DATABASE_URL`, `PGPASSWORD`, and `PGOPTIONS`. Do not print the URL. Preserve a mode-`0600` backup and its SHA-256 first, then run:
+
+```bash
+cd /home/ubuntu/workspace-dev/postgresql-security
+sudo ./switch-watchdog.sh rollback
+sudo ./switch-watchdog.sh status
+```
+
+Rollback validation fails closed unless the legacy env is runtime-only. The installed wrapper still performs only `stop app` and `up -d --no-deps app`; migrations remain a separate one-shot command. Restore the saved legacy Compose/HBA files only after that validation, keep market-data on both networks, and use the new `postgres_admin_password` rather than the retired password.
+
+Restoring the old source entrypoint is outside this automated rollback. It requires a recorded source commit/tree hash, the saved pre-cutover runtime contract, and a separate approval because it reintroduces migration credentials into a long-running process. The original `workspace_dev` superuser remains reachable by the DB container's local peer mapping and has no TCP HBA rule.

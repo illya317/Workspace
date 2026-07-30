@@ -25,11 +25,11 @@ DECLARE
   secret_value text;
 BEGIN
   FOR role_name, secret_path IN VALUES
-    ('workspace_dev', '/run/secrets/postgres_admin_password'),
-    ('workspace_dev_runtime', '/run/secrets/workspace_dev_runtime_password'),
-    ('workspace_dev_migrator', '/run/secrets/workspace_dev_migrator_password'),
-    ('workspace_dev_backup', '/run/secrets/workspace_dev_backup_password'),
-    ('workspace_dev_monitor', '/run/secrets/workspace_dev_monitor_password')
+    ('workspace_dev', '/var/lib/postgresql/tls/private/postgres_admin_password'),
+    ('workspace_dev_runtime', '/var/lib/postgresql/tls/private/workspace_dev_runtime_password'),
+    ('workspace_dev_migrator', '/var/lib/postgresql/tls/private/workspace_dev_migrator_password'),
+    ('workspace_dev_backup', '/var/lib/postgresql/tls/private/workspace_dev_backup_password'),
+    ('workspace_dev_monitor', '/var/lib/postgresql/tls/private/workspace_dev_monitor_password')
   LOOP
     secret_value := regexp_replace(pg_read_file(secret_path), E'[\\r\\n]+$', '');
     IF length(secret_value) < 32 THEN
@@ -67,14 +67,7 @@ ALTER ROLE workspace_dev_monitor IN DATABASE workspace_dev SET default_transacti
 \connect workspace_dev
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-
-DO $schema_owner$
-BEGIN
-  IF (SELECT nspowner = 'workspace_dev'::regrole FROM pg_namespace WHERE nspname = 'public') THEN
-    ALTER SCHEMA public OWNER TO workspace_dev_owner;
-  END IF;
-END
-$schema_owner$;
+ALTER SCHEMA public OWNER TO workspace_dev_owner;
 
 DO $ownership$
 DECLARE
@@ -88,6 +81,17 @@ BEGIN
     WHERE n.nspname = 'public'
       AND c.relowner = 'workspace_dev'::regrole
       AND c.relkind IN ('r', 'p', 'S', 'v', 'm', 'f')
+      AND (
+        c.relkind <> 'S'
+        OR NOT EXISTS (
+          SELECT 1
+          FROM pg_depend sequence_ownership
+          WHERE sequence_ownership.classid = 'pg_class'::regclass
+            AND sequence_ownership.objid = c.oid
+            AND sequence_ownership.refclassid = 'pg_class'::regclass
+            AND sequence_ownership.deptype IN ('a', 'i')
+        )
+      )
       AND NOT EXISTS (
         SELECT 1
         FROM pg_depend d
@@ -243,3 +247,107 @@ BEGIN
   END IF;
 END
 $migration_ledger$;
+
+\connect workspace_dev_shadow
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+ALTER SCHEMA public OWNER TO workspace_dev_owner;
+
+DO $shadow_ownership$
+DECLARE
+  object_record record;
+  object_kind text;
+BEGIN
+  FOR object_record IN
+    SELECT n.nspname, c.relname, c.relkind
+    FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public'
+      AND c.relowner = 'workspace_dev'::regrole
+      AND c.relkind IN ('r', 'p', 'S', 'v', 'm', 'f')
+      AND (
+        c.relkind <> 'S'
+        OR NOT EXISTS (
+          SELECT 1
+          FROM pg_depend sequence_ownership
+          WHERE sequence_ownership.classid = 'pg_class'::regclass
+            AND sequence_ownership.objid = c.oid
+            AND sequence_ownership.refclassid = 'pg_class'::regclass
+            AND sequence_ownership.deptype IN ('a', 'i')
+        )
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM pg_depend d
+        WHERE d.classid = 'pg_class'::regclass
+          AND d.objid = c.oid
+          AND d.deptype = 'e'
+      )
+  LOOP
+    object_kind := CASE object_record.relkind
+      WHEN 'S' THEN 'SEQUENCE'
+      WHEN 'v' THEN 'VIEW'
+      WHEN 'm' THEN 'MATERIALIZED VIEW'
+      WHEN 'f' THEN 'FOREIGN TABLE'
+      ELSE 'TABLE'
+    END;
+    EXECUTE format(
+      'ALTER %s %I.%I OWNER TO workspace_dev_owner',
+      object_kind,
+      object_record.nspname,
+      object_record.relname
+    );
+  END LOOP;
+
+  FOR object_record IN
+    SELECT
+      n.nspname,
+      p.proname,
+      pg_get_function_identity_arguments(p.oid) AS identity_arguments
+    FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public'
+      AND p.proowner = 'workspace_dev'::regrole
+      AND NOT EXISTS (
+        SELECT 1
+        FROM pg_depend d
+        WHERE d.classid = 'pg_proc'::regclass
+          AND d.objid = p.oid
+          AND d.deptype = 'e'
+      )
+  LOOP
+    EXECUTE format(
+      'ALTER ROUTINE %I.%I(%s) OWNER TO workspace_dev_owner',
+      object_record.nspname,
+      object_record.proname,
+      object_record.identity_arguments
+    );
+  END LOOP;
+
+  FOR object_record IN
+    SELECT n.nspname, t.typname
+    FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'public'
+      AND t.typowner = 'workspace_dev'::regrole
+      AND t.typtype IN ('b', 'c', 'd', 'e', 'r', 'm')
+      AND NOT EXISTS (SELECT 1 FROM pg_type base_type WHERE base_type.typarray = t.oid)
+      AND (
+        t.typrelid = 0
+        OR EXISTS (
+          SELECT 1 FROM pg_class type_relation
+          WHERE type_relation.oid = t.typrelid AND type_relation.relkind = 'c'
+        )
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM pg_depend d WHERE d.classid = 'pg_type'::regclass AND d.objid = t.oid AND d.deptype = 'e'
+      )
+  LOOP
+    EXECUTE format('ALTER TYPE %I.%I OWNER TO workspace_dev_owner', object_record.nspname, object_record.typname);
+  END LOOP;
+END
+$shadow_ownership$;
+
+REVOKE ALL ON ALL TABLES IN SCHEMA public FROM PUBLIC;
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM PUBLIC;
+REVOKE EXECUTE ON ALL ROUTINES IN SCHEMA public FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE workspace_dev_owner IN SCHEMA public REVOKE EXECUTE ON ROUTINES FROM PUBLIC;

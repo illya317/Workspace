@@ -53,4 +53,17 @@ if grep -Eq '\|f$' <<<"${verification_rows}"; then
   exit 1
 fi
 
+shadow_verification_rows="$(
+  PGPASSWORD="$(password_from /run/secrets/workspace_dev_migrator_password)" \
+    PGUSER=workspace_dev_migrator \
+    PGDATABASE=workspace_dev_shadow \
+    PGOPTIONS='-c role=workspace_dev_owner' \
+    psql -X -v ON_ERROR_STOP=1 -AtF '|' -f /workspace-dev/verify-shadow.sql
+)"
+printf '%s\n' "${shadow_verification_rows}"
+if grep -Eq '\|f$' <<<"${shadow_verification_rows}"; then
+  echo "One or more PostgreSQL shadow ownership checks failed" >&2
+  exit 1
+fi
+
 echo "PostgreSQL development security verification passed"

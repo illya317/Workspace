@@ -35,7 +35,6 @@ SELECT 'legacy_no_public_relation_ownership', NOT EXISTS (
   JOIN pg_namespace n ON n.oid = c.relnamespace
   WHERE n.nspname = 'public'
     AND c.relowner = 'workspace_dev'::regrole
-    AND c.relkind IN ('r', 'p', 'S', 'v', 'm', 'f')
     AND NOT EXISTS (
       SELECT 1 FROM pg_depend d
       WHERE d.classid = 'pg_class'::regclass AND d.objid = c.oid AND d.deptype = 'e'
@@ -60,18 +59,18 @@ SELECT 'legacy_no_public_type_ownership', NOT EXISTS (
   JOIN pg_namespace n ON n.oid = t.typnamespace
   WHERE n.nspname = 'public'
     AND t.typowner = 'workspace_dev'::regrole
-    AND t.typtype IN ('b', 'c', 'd', 'e', 'r', 'm')
-    AND NOT EXISTS (SELECT 1 FROM pg_type base_type WHERE base_type.typarray = t.oid)
-    AND (
-      t.typrelid = 0
-      OR EXISTS (
-        SELECT 1 FROM pg_class type_relation
-        WHERE type_relation.oid = t.typrelid AND type_relation.relkind = 'c'
-      )
-    )
     AND NOT EXISTS (
       SELECT 1 FROM pg_depend d
       WHERE d.classid = 'pg_type'::regclass AND d.objid = t.oid AND d.deptype = 'e'
+    )
+    AND NOT EXISTS (
+      SELECT 1
+      FROM pg_type extension_base_type
+      JOIN pg_depend extension_dependency
+        ON extension_dependency.classid = 'pg_type'::regclass
+       AND extension_dependency.objid = extension_base_type.oid
+       AND extension_dependency.deptype = 'e'
+      WHERE extension_base_type.typarray = t.oid
     )
 )
 UNION ALL

@@ -39,9 +39,11 @@ for template_file in \
   roles-and-grants.sql \
   post-migrate-grants.sql \
   verify.sql \
+  verify-shadow.sql \
   README.md \
   systemd/workspace-dev-postgresql-backup.service \
-  systemd/workspace-dev-postgresql-backup.timer; do
+  systemd/workspace-dev-postgresql-backup.timer \
+  systemd/workspace-dev-watchdog-secure.conf; do
   install -d -m 0700 "${target_dir}/$(dirname "${template_file}")"
   install -m 0600 "${source_dir}/${template_file}" "${target_dir}/${template_file}"
 done
@@ -55,6 +57,8 @@ for executable_file in \
   rotate-backups.sh \
   start-app.sh \
   start-db.sh \
+  switch-watchdog.sh \
+  workspace-dev-watchdog-compose.sh \
   verify.sh; do
   install -m 0700 "${source_dir}/${executable_file}" "${target_dir}/${executable_file}"
 done

@@ -103,6 +103,37 @@ test("secure PostgreSQL dev template isolates runtime and migration credentials"
   assert.match(read("ops/postgresql/dev/migrate-app.sh"), /post-migrate-grants\.sql/);
 });
 
+test("database root bootstrap atomically makes local secrets readable only by postgres", () => {
+  const compose = read("ops/postgresql/dev/compose.yaml");
+  const startDatabase = read("ops/postgresql/dev/start-db.sh");
+  const roles = read("ops/postgresql/dev/roles-and-grants.sql");
+
+  assert.match(startDatabase, /id -u[\s\S]*must run as root/);
+  assert.match(startDatabase, /private_dir="\$\{tls_dir\}\/private"/);
+  assert.match(startDatabase, /install -d -o postgres -g postgres -m 0700/);
+  assert.match(startDatabase, /atomic_copy_for_postgres[\s\S]*install -o postgres -g postgres -m 0400[\s\S]*mv -f/);
+  for (const name of [
+    "postgres_admin_password",
+    "workspace_dev_runtime_password",
+    "workspace_dev_migrator_password",
+    "workspace_dev_backup_password",
+    "workspace_dev_monitor_password",
+  ]) {
+    assert.match(startDatabase, new RegExp(`\\b${name}\\b`));
+  }
+  assert.match(startDatabase, /configuration_names=[\s\S]*pg_hba\.conf[\s\S]*pg_ident\.conf[\s\S]*roles-and-grants\.sql/);
+  assert.match(startDatabase, /\/docker-entrypoint-initdb\.d[\s\S]*20-workspace-security\.sql/);
+  assert.match(startDatabase, /export POSTGRES_PASSWORD_FILE="\$\{private_dir\}\/postgres_admin_password"/);
+  assert.match(compose, /POSTGRES_PASSWORD_FILE: \/var\/lib\/postgresql\/tls\/private\/postgres_admin_password/);
+  assert.match(compose, /hba_file=\/var\/lib\/postgresql\/tls\/private\/pg_hba\.conf/);
+  assert.match(compose, /ident_file=\/var\/lib\/postgresql\/tls\/private\/pg_ident\.conf/);
+  assert.match(compose, /\.\/roles-and-grants\.sql:\/workspace-dev\/bootstrap\/roles-and-grants\.sql:ro/);
+  assert.match(compose, /\/docker-entrypoint-initdb\.d:size=1m,mode=0700/);
+  assert.doesNotMatch(compose, /\.\/roles-and-grants\.sql:\/docker-entrypoint-initdb\.d/);
+  assert.doesNotMatch(roles, /\/run\/secrets/);
+  assert.equal((roles.match(/\/var\/lib\/postgresql\/tls\/private\//g) ?? []).length, 5);
+});
+
 test("secure PostgreSQL dev template enforces verify-full TLS and private key confinement", () => {
   const compose = read("ops/postgresql/dev/compose.yaml");
   const urlRenderer = read("ops/postgresql/dev/render-database-url.mjs");
@@ -153,6 +184,8 @@ test("secure PostgreSQL dev networks isolate DB while preserving edge egress", (
 test("secure PostgreSQL dev roles, limits, verification, backup, and installer are fail closed", () => {
   const roles = read("ops/postgresql/dev/roles-and-grants.sql");
   const verification = read("ops/postgresql/dev/verify.sql");
+  const shadowVerification = read("ops/postgresql/dev/verify-shadow.sql");
+  const verificationRunner = read("ops/postgresql/dev/verify.sh");
   const backup = read("ops/postgresql/dev/backup-hook.sh");
   const rotation = read("ops/postgresql/dev/rotate-backups.sh");
   const installer = read("ops/postgresql/dev/install.sh");
@@ -163,7 +196,7 @@ test("secure PostgreSQL dev roles, limits, verification, backup, and installer a
 
   assert.match(roles, /workspace_dev_owner NOLOGIN NOSUPERUSER/);
   assert.match(roles, /workspace_dev_runtime LOGIN NOSUPERUSER/);
-  assert.match(roles, /\('workspace_dev', '\/run\/secrets\/postgres_admin_password'\)/);
+  assert.match(roles, /\('workspace_dev', '\/var\/lib\/postgresql\/tls\/private\/postgres_admin_password'\)/);
   assert.match(roles, /GRANT workspace_dev_owner TO workspace_dev_migrator/);
   assert.match(roles, /statement_timeout = ['"]120s['"]/);
   assert.match(roles, /lock_timeout = ['"]10s['"]/);
@@ -172,6 +205,24 @@ test("secure PostgreSQL dev roles, limits, verification, backup, and installer a
   assert.match(roles, /GRANT SELECT ON TABLE public\."_prisma_migrations" TO workspace_dev_backup/);
   assert.match(roles, /ALTER ROUTINE/);
   assert.match(roles, /ALTER TYPE/);
+  assert.match(roles, /c\.relkind <> 'S'[\s\S]*sequence_ownership\.deptype IN \('a', 'i'\)/);
+  assert.match(roles, /\\connect workspace_dev_shadow[\s\S]*ALTER SCHEMA public OWNER TO workspace_dev_owner/);
+  assert.match(roles, /\$shadow_ownership\$[\s\S]*ALTER ROUTINE[\s\S]*ALTER TYPE/);
+  const relationOwnershipVerification = verification.match(
+    /legacy_no_public_relation_ownership[\s\S]*?legacy_no_public_routine_ownership/,
+  )?.[0] ?? "";
+  assert.doesNotMatch(relationOwnershipVerification, /relkind IN|sequence_ownership|deptype IN \('a', 'i'\)/);
+  const typeOwnershipVerification = verification.match(
+    /legacy_no_public_type_ownership[\s\S]*?legacy_no_public_schema_ownership/,
+  )?.[0] ?? "";
+  assert.doesNotMatch(typeOwnershipVerification, /typtype IN|NOT EXISTS \(SELECT 1 FROM pg_type base_type|typrelid/);
+  assert.match(typeOwnershipVerification, /extension_base_type\.typarray = t\.oid/);
+  assert.match(shadowVerification, /shadow_database_owner/);
+  assert.match(shadowVerification, /shadow_public_schema_owner/);
+  assert.match(shadowVerification, /shadow_public_schema_create/);
+  assert.match(shadowVerification, /shadow_no_legacy_public_relation_ownership/);
+  assert.match(shadowVerification, /shadow_no_legacy_public_type_ownership/);
+  assert.match(verificationRunner, /PGDATABASE=workspace_dev_shadow[\s\S]*PGOPTIONS='-c role=workspace_dev_owner'/);
   assert.match(roles, /workspace_ddl_audit action=ddl/);
   assert.match(roles, /workspace_ddl_audit action=drop/);
   assert.match(verification, /tls_active/);
@@ -188,14 +239,35 @@ test("secure PostgreSQL dev roles, limits, verification, backup, and installer a
   assert.match(backupTimer, /Persistent=true/);
   assert.match(backupTimer, /OnCalendar=/);
   assert.match(installer, /Refusing to overwrite non-empty target/);
+  assert.match(installer, /verify-shadow\.sql/);
   assert.match(readme, /\/test\/api\/auth\/dev-login-bypass.*404/);
   assert.doesNotMatch(executableTemplateSources, /dev-login-bypass|CREATE POLICY|ENABLE ROW LEVEL SECURITY/);
+});
+
+test("watchdog switch is explicit, app-only, and rejects migration credentials on rollback", () => {
+  const watchdog = read("ops/postgresql/dev/workspace-dev-watchdog-compose.sh");
+  const switcher = read("ops/postgresql/dev/switch-watchdog.sh");
+  const dropin = read("ops/postgresql/dev/systemd/workspace-dev-watchdog-secure.conf");
+  const readme = read("ops/postgresql/dev/README.md");
+
+  assert.match(watchdog, /WORKSPACE_DEV_WATCHDOG_STACK_MODE/);
+  assert.match(watchdog, /SECURE_RUNTIME_ROOT=.*postgresql-security[\s\S]*workspace-dev-secure[\s\S]*SECURE_RUNTIME_ROOT.*compose\.yaml/);
+  assert.match(watchdog, /compose_app stop app/);
+  assert.match(watchdog, /compose_app up -d --no-deps app/);
+  assert.doesNotMatch(watchdog, /compose_app up -d (?!\-\-no-deps)/);
+  assert.match(switcher, /<apply\|rollback\|status>/);
+  assert.match(switcher, /validate_legacy_rollback/);
+  assert.match(switcher, /DIRECT_URL\|SHADOW_DATABASE_URL\|PGPASSWORD\|PGOPTIONS/);
+  assert.match(dropin, /ExecStart=\nExecStart=\/home\/ubuntu\/workspace-dev\/postgresql-security\/workspace-dev-watchdog-compose\.sh/);
+  assert.match(readme, /supported runtime rollback keeps the new source entrypoint/i);
+  assert.match(readme, /removes `DIRECT_URL`, `SHADOW_DATABASE_URL`, `PGPASSWORD`, and `PGOPTIONS`/);
 });
 
 test("secure PostgreSQL dev shell and Node templates pass syntax checks", () => {
   const scripts = [
     "backup-hook.sh", "generate-secrets.sh", "generate-tls.sh", "install-node-deps.sh",
-    "install.sh", "migrate-app.sh", "rotate-backups.sh", "start-app.sh", "start-db.sh", "verify.sh",
+    "install.sh", "migrate-app.sh", "rotate-backups.sh", "start-app.sh", "start-db.sh",
+    "switch-watchdog.sh", "verify.sh", "workspace-dev-watchdog-compose.sh",
   ];
   for (const script of scripts) {
     const scriptPath = fileURLToPath(new URL(`./postgresql/dev/${script}`, import.meta.url));

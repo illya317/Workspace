@@ -15,9 +15,9 @@ services:
     command:
       - postgres
       - -c
-      - hba_file=/etc/postgresql/workspace-dev/pg_hba.conf
+      - hba_file=/var/lib/postgresql/tls/private/pg_hba.conf
       - -c
-      - ident_file=/etc/postgresql/workspace-dev/pg_ident.conf
+      - ident_file=/var/lib/postgresql/tls/private/pg_ident.conf
       - -c
       - ssl=on
       - -c
@@ -61,7 +61,7 @@ services:
     environment:
       POSTGRES_DB: workspace_dev
       POSTGRES_USER: workspace_dev
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+      POSTGRES_PASSWORD_FILE: /var/lib/postgresql/tls/private/postgres_admin_password
     secrets:
       - postgres_admin_password
       - workspace_dev_runtime_password
@@ -74,12 +74,12 @@ services:
     volumes:
       - workspace-dev-postgres-data:/var/lib/postgresql/data
       - ./start-db.sh:/workspace-dev/start-db.sh:ro
-      - ./roles-and-grants.sql:/workspace-dev/roles-and-grants.sql:ro
-      - ./roles-and-grants.sql:/docker-entrypoint-initdb.d/20-workspace-security.sql:ro
-      - ./pg_hba.conf:/etc/postgresql/workspace-dev/pg_hba.conf:ro
-      - ./pg_ident.conf:/etc/postgresql/workspace-dev/pg_ident.conf:ro
+      - ./roles-and-grants.sql:/workspace-dev/bootstrap/roles-and-grants.sql:ro
+      - ./pg_hba.conf:/workspace-dev/bootstrap/pg_hba.conf:ro
+      - ./pg_ident.conf:/workspace-dev/bootstrap/pg_ident.conf:ro
     tmpfs:
       - /var/lib/postgresql/tls:size=1m,mode=0700
+      - /docker-entrypoint-initdb.d:size=1m,mode=0700
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U workspace_dev -d workspace_dev"]
       interval: 10s
@@ -191,6 +191,7 @@ services:
     volumes:
       - ./verify.sh:/workspace-dev/verify.sh:ro
       - ./verify.sql:/workspace-dev/verify.sql:ro
+      - ./verify-shadow.sql:/workspace-dev/verify-shadow.sql:ro
     networks:
       - workspace-dev-db-internal
 

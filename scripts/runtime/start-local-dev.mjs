@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn } from "node:child_process";
-import { promises as fs } from "node:fs";
+import { existsSync, promises as fs } from "node:fs";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -24,19 +24,34 @@ export function assertFixedDevArguments(args) {
   );
 }
 
-function isPostgresqlUrl(value) {
+function parsePostgresqlUrl(value) {
   try {
     const url = new URL(value);
-    return url.protocol === "postgresql:" || url.protocol === "postgres:";
+    return url.protocol === "postgresql:" || url.protocol === "postgres:" ? url : null;
   } catch {
-    return false;
+    return null;
   }
 }
 
-export function assertRuntimeDatabaseEnvironment(env = process.env) {
+export function assertRuntimeDatabaseEnvironment(env = process.env, fileExists = existsSync) {
   const databaseUrl = env.DATABASE_URL?.trim() ?? "";
-  if (!isPostgresqlUrl(databaseUrl)) {
+  const parsedUrl = parsePostgresqlUrl(databaseUrl);
+  if (!parsedUrl) {
     throw new Error("Workspace 长期开发进程必须通过 DATABASE_URL 使用 PostgreSQL runtime 账号。");
+  }
+
+  const sslRootCertificate = parsedUrl.searchParams.get("sslrootcert") ?? "";
+  const runtimeContractErrors = [];
+  if (parsedUrl.username !== "workspace_dev_runtime") runtimeContractErrors.push("username 必须是 workspace_dev_runtime");
+  if (parsedUrl.pathname !== "/workspace_dev") runtimeContractErrors.push("database 必须是 workspace_dev");
+  if (parsedUrl.searchParams.get("sslmode") !== "verify-full") runtimeContractErrors.push("sslmode 必须是 verify-full");
+  if (sslRootCertificate !== "/run/secrets/postgres_ca") {
+    runtimeContractErrors.push("sslrootcert 必须是 /run/secrets/postgres_ca");
+  } else if (!fileExists(sslRootCertificate)) {
+    runtimeContractErrors.push("sslrootcert 文件不存在");
+  }
+  if (runtimeContractErrors.length > 0) {
+    throw new Error(`Workspace runtime DATABASE_URL 不符合安全合同：${runtimeContractErrors.join("；")}。`);
   }
 
   const migrationVariables = ["DIRECT_URL", "SHADOW_DATABASE_URL"].filter(

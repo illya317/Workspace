@@ -26,10 +26,11 @@ test("occupied port guidance forbids switching ports", () => {
 });
 
 test("long-running local dev accepts only the runtime database URL", () => {
+  const runtimeUrl = "postgresql://workspace_dev_runtime:secret@db:5432/workspace_dev?sslmode=verify-full&sslrootcert=%2Frun%2Fsecrets%2Fpostgres_ca";
   assert.doesNotThrow(() =>
     assertRuntimeDatabaseEnvironment({
-      DATABASE_URL: "postgresql://workspace_dev_runtime:secret@db:5432/workspace_dev",
-    }),
+      DATABASE_URL: runtimeUrl,
+    }, (path) => path === "/run/secrets/postgres_ca"),
   );
   assert.throws(() => assertRuntimeDatabaseEnvironment({}), /必须通过 DATABASE_URL 使用 PostgreSQL runtime 账号/);
   assert.throws(
@@ -38,14 +39,43 @@ test("long-running local dev accepts only the runtime database URL", () => {
   );
 });
 
-test("long-running local dev rejects migration credentials", () => {
-  const runtime = "postgresql://workspace_dev_runtime:secret@db:5432/workspace_dev";
+test("long-running local dev enforces runtime identity, database, and verify-full CA", () => {
+  const secure = (value) => assertRuntimeDatabaseEnvironment(
+    { DATABASE_URL: value },
+    (path) => path === "/run/secrets/postgres_ca",
+  );
   assert.throws(
-    () => assertRuntimeDatabaseEnvironment({ DATABASE_URL: runtime, DIRECT_URL: runtime }),
+    () => secure("postgresql://workspace_dev:secret@db:5432/workspace_dev?sslmode=verify-full&sslrootcert=%2Frun%2Fsecrets%2Fpostgres_ca"),
+    /username 必须是 workspace_dev_runtime/,
+  );
+  assert.throws(
+    () => secure("postgresql://workspace_dev_runtime:secret@db:5432/other?sslmode=verify-full&sslrootcert=%2Frun%2Fsecrets%2Fpostgres_ca"),
+    /database 必须是 workspace_dev/,
+  );
+  assert.throws(
+    () => secure("postgresql://workspace_dev_runtime:secret@db:5432/workspace_dev?sslrootcert=%2Frun%2Fsecrets%2Fpostgres_ca"),
+    /sslmode 必须是 verify-full/,
+  );
+  assert.throws(
+    () => secure("postgresql://workspace_dev_runtime:secret@db:5432/workspace_dev?sslmode=verify-full&sslrootcert=%2Ftmp%2Fca.crt"),
+    /sslrootcert 必须是 \/run\/secrets\/postgres_ca/,
+  );
+  assert.throws(
+    () => assertRuntimeDatabaseEnvironment({
+      DATABASE_URL: "postgresql://workspace_dev_runtime:secret@db:5432/workspace_dev?sslmode=verify-full&sslrootcert=%2Frun%2Fsecrets%2Fpostgres_ca",
+    }, () => false),
+    /sslrootcert 文件不存在/,
+  );
+});
+
+test("long-running local dev rejects migration credentials", () => {
+  const runtime = "postgresql://workspace_dev_runtime:secret@db:5432/workspace_dev?sslmode=verify-full&sslrootcert=%2Frun%2Fsecrets%2Fpostgres_ca";
+  assert.throws(
+    () => assertRuntimeDatabaseEnvironment({ DATABASE_URL: runtime, DIRECT_URL: runtime }, () => true),
     /禁止持有迁移凭据：DIRECT_URL/,
   );
   assert.throws(
-    () => assertRuntimeDatabaseEnvironment({ DATABASE_URL: runtime, SHADOW_DATABASE_URL: runtime }),
+    () => assertRuntimeDatabaseEnvironment({ DATABASE_URL: runtime, SHADOW_DATABASE_URL: runtime }, () => true),
     /禁止持有迁移凭据：SHADOW_DATABASE_URL/,
   );
 });

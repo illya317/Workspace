@@ -97,7 +97,12 @@ function parsePostgresqlUrl(value, label, errors) {
   }
 }
 
-function databaseEnvironmentContract(workspaceEnv, runtimeEnv = {}, runtimeDatabaseOnly = false) {
+function databaseEnvironmentContract(
+  workspaceEnv,
+  runtimeEnv = {},
+  runtimeDatabaseOnly = false,
+  fileExists = fs.existsSync,
+) {
   const errors = [];
   const fileDatabaseUrl = workspaceEnv.get("DATABASE_URL") || "";
   const databaseUrl = runtimeDatabaseOnly
@@ -111,8 +116,25 @@ function databaseEnvironmentContract(workspaceEnv, runtimeEnv = {}, runtimeDatab
       }
     }
     const runtimeUrl = parsePostgresqlUrl(databaseUrl, "DATABASE_URL", errors);
+    if (runtimeUrl) {
+      const sslRootCertificate = runtimeUrl.searchParams.get("sslrootcert") || "";
+      if (runtimeUrl.username !== "workspace_dev_runtime") {
+        errors.push("DATABASE_URL username must be workspace_dev_runtime");
+      }
+      if (runtimeUrl.pathname !== "/workspace_dev") {
+        errors.push("DATABASE_URL database must be workspace_dev");
+      }
+      if (runtimeUrl.searchParams.get("sslmode") !== "verify-full") {
+        errors.push("DATABASE_URL sslmode must be verify-full");
+      }
+      if (sslRootCertificate !== "/run/secrets/postgres_ca") {
+        errors.push("DATABASE_URL sslrootcert must be /run/secrets/postgres_ca");
+      } else if (!fileExists(sslRootCertificate)) {
+        errors.push("DATABASE_URL sslrootcert does not exist");
+      }
+    }
     return {
-      databaseUrl: runtimeUrl ? databaseUrl : "",
+      databaseUrl: runtimeUrl && errors.length === 0 ? databaseUrl : "",
       errors,
       successMessage: "DATABASE_URL selects the PostgreSQL runtime database without migration credentials",
     };
