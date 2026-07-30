@@ -82,7 +82,7 @@
 
 `npm run typecheck:scope -- production` 这类 scoped 检查只构建目标工程及其上游，适合单模块开发；`typecheck:quick` 从当前 staged/working-tree 变更选择直接 package/App scope，不检查反向下游，也绝不自动升级为全图；`typecheck:affected` 用于 CI 从可信 changed-files evidence 选择 owner unit 及反向消费者；`typecheck:full` 才构建根 solution，只作 CI/发布权威入口。这些入口共享 project-reference 增量产物：声明文件固定输出到 `.cache/types/`，build info 固定输出到 `.cache/tsbuild/`，不会写入源码目录或进入 Next 的 source include。CI 必须同时缓存两者，不能只恢复 build info 而缺少下游需要的声明输出。不要为了触发“干净检查”删除 `.cache`；本地入口的 Node old-space 硬上限为 `4096 MiB`，不得通过提高内存重试。
 
-根 monolith 的 Next 通过 `next.config.ts#typescript.tsconfigPath` 使用 `tsconfig.app.json` 检查路由壳。当前 Next 16 会提示 project references 尚未完全支持，并尝试自己的 incremental build；因此 Next build 是 App/框架集成门禁，不能替代 `typecheck:full` 对完整工程图的权威检查。独立 unit builder 会先运行 deploy graph 派生的全部 package 与 `app-<unit>` scopes，生成的 unit Next config 才设置 `ignoreBuildErrors`，只跳过这次重复且不完整的 Next project-reference 类型遍历。
+根 monolith 的 Next 通过 `next.config.ts#typescript.tsconfigPath` 使用 `tsconfig.app.json` 检查路由壳。当前 Next 16 会提示 project references 尚未完全支持，并尝试自己的 incremental build；因此 Next build 不能替代 `typecheck:full` 对完整工程图的权威检查。CI/发布必须先通过 `typecheck:full`，随后使用 `build:next:after-typecheck` 显式设置外部类型权威标记，只跳过 Next 重复且不完整的 project-reference 类型遍历；普通 `build` 与 `build:next` 不设置该标记，仍保留 Next 自身检查。独立 unit builder 同样先运行 deploy graph 派生的全部 package 与 `app-<unit>` scopes，生成的 unit Next config 设置 `ignoreBuildErrors`，避免重复类型遍历。
 
 所有入口都必须经过 `scripts/check/with-check-lock.js -> scripts/check/run-typecheck.js`。专用 runner 会校验当前活锁及其 owner，直接执行 runner 会在加载编译器前失败；`typecheck:entrypoints:check` 同时扫描 package scripts、CI/ops/scripts 和现行 agent/工程文档，阻止裸 TypeScript CLI 命令重新进入仓库。锁包装器会把 `SIGINT`、`SIGTERM` 和终端挂断的 `SIGHUP` 转发到独立子进程组，等待子进程退出后才释放锁；宽限期后仍未退出则强制终止整个进程组。
 

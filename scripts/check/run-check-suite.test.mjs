@@ -239,6 +239,15 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
   assert.equal(resolveCheckPlan(["ci"]).tasks.some((task) => task.id === "typecheck-full"), true);
 });
 
+test("CI runs the authoritative full typecheck before a Next build that skips only the duplicate traversal", () => {
+  const tasks = resolveCheckPlan(["ci"]).tasks;
+  const typecheckIndex = tasks.findIndex((task) => task.id === "typecheck-full");
+  const buildIndex = tasks.findIndex((task) => task.id === "build-next");
+  assert.ok(typecheckIndex >= 0);
+  assert.ok(buildIndex > typecheckIndex);
+  assert.deepEqual(tasks[buildIndex]?.args, ["run", "build:next:after-typecheck"]);
+});
+
 test("unknown suites fail before any command can run", () => {
   assert.throws(() => resolveCheckPlan(["missing"]), /Unknown check suite/);
 });

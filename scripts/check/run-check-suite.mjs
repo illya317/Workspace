@@ -15,7 +15,7 @@ const TASKS = {
   "business-code-hardcoding": npmScript("business-code:check", "Business code registry and hardcoding"),
   "business-identity": npmScript("gate:business-identity", "Business identity boundary"),
   "business-temporal": npmScript("business-temporal:check", "Business Temporal registry and write seams"),
-  "build-next": npmScript("build:next", "Next production build", { cacheable: false }),
+  "build-next": npmScript("build:next:after-typecheck", "Next production build", { cacheable: false }),
   "company-hardcoding-warning": npmScript("company:check", "Company hardcoding", {
     severity: "warning",
     cacheable: false,
