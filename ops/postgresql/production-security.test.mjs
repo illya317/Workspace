@@ -58,7 +58,10 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
   assert.match(security, /pg_dumpall --globals-only --no-role-passwords/);
   assert.match(security, /http:\/\/127\.0\.0\.1:3000\/workspace\/api\/internal\/health/);
   assert.match(security, /http:\/\/127\.0\.0\.1:3000\/workspace\/api\/settings\/version/);
+  assert.match(security, /http:\/\/127\.0\.0\.1:3001\/health/);
   assert.match(security, /version\.version !== process\.env\.EXPECTED_VERSION/);
+  assert.match(security, /verify_natsu_tls_sessions/);
+  assert.match(security, /a\.datname='natsu' AND a\.usename='natsu_app'/);
   assert.match(security, /write_receipt applying/);
   assert.match(security, /apply 必须显式传 --execute/);
   assert.match(security, /rollback 必须显式传 --execute/);

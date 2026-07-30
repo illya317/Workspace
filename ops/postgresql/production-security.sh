@@ -42,6 +42,7 @@ CONTROL_ENV_TARGET="$CONFIG_ROOT/control-plane.env"
 FINANCE_ENV_TARGET="/etc/workspace/finance-bot.env"
 HEALTH_URL="http://127.0.0.1:3000/workspace/api/internal/health"
 VERSION_URL="http://127.0.0.1:3000/workspace/api/settings/version"
+NATSU_HEALTH_URL="http://127.0.0.1:3001/health"
 HBA_FILE="/etc/postgresql/$POSTGRES_MAJOR/main/pg_hba.conf"
 RUNTIME_RUNNER="/usr/local/sbin/workspace-runtime-pm2"
 LEGACY_RUNNER="/usr/local/sbin/workspace-legacy-pm2"
@@ -138,6 +139,28 @@ NODE
   done
   echo "[错误] 本机 /workspace health/version 未通过，expected=$EXPECTED_VERSION" >&2
   return 1
+}
+verify_natsu_http() {
+  local attempts="${1:-1}" payload attempt
+  for ((attempt=1; attempt<=attempts; attempt+=1)); do
+    if payload="$(curl --fail-with-body --silent --show-error --max-time 5 "$NATSU_HEALTH_URL" 2>/dev/null)" \
+      && NATSU_PAYLOAD="$payload" node -e 'const value=JSON.parse(process.env.NATSU_PAYLOAD);if(value?.status!=="ok")process.exit(1)'; then
+      return 0
+    fi
+    [ "$attempt" -eq "$attempts" ] || sleep 1
+  done
+  echo "[错误] 共享 PostgreSQL 集群上的 Natsu health 未通过" >&2
+  return 1
+}
+verify_natsu_tls_sessions() {
+  local result session_count all_tls
+  result="$(runuser -u postgres -- psql -X -d postgres -Atc \
+    "SELECT count(*)::text||'|'||COALESCE(bool_and(s.ssl),false)::text FROM pg_stat_activity a LEFT JOIN pg_stat_ssl s USING(pid) WHERE a.datname='natsu' AND a.usename='natsu_app'")"
+  IFS='|' read -r session_count all_tls <<<"$result"
+  [[ "$session_count" =~ ^[1-9][0-9]*$ ]] && [ "$all_tls" = true ] || {
+    echo "[错误] Natsu 必须至少有一个且全部为 TLS 的活动数据库会话，当前仅见计数/状态: $result" >&2
+    return 1
+  }
 }
 receipt_status() {
   [ -f "$RECEIPT_FILE" ] || { printf 'missing'; return; }
@@ -481,6 +504,8 @@ if [ "$COMMAND" = prepare ]; then
   assert_secret_input "$CONTROL_ENV_INPUT" "control env input"
   load_and_validate_urls
   verify_workspace_http 1
+  verify_natsu_http 1
+  verify_natsu_tls_sessions
   [ "$(runuser -u postgres -- psql -X -d postgres -Atc 'SHOW ssl')" = on ] || { echo "[错误] PostgreSQL 未启用 TLS" >&2; exit 1; }
   case "$(receipt_status)" in missing|rolled-back) ;; *) echo "[错误] 已存在未完成的 PostgreSQL security receipt" >&2; exit 1 ;; esac
   stamp="$(date -u +%Y%m%dT%H%M%SZ)-$$"
@@ -572,10 +597,12 @@ if [ "$COMMAND" = apply ]; then
   runuser -u postgres -- psql -X -d postgres -f "$SCRIPT_DIR/production-verify.sql" >/dev/null
   install_hba final "$backup_dir"
   verify_workspace_http 15
+  verify_natsu_http 15
   write_receipt applied "$backup_dir"
   echo "applied: $RECEIPT_FILE"
 elif [ "$COMMAND" = verify ]; then
   verify_workspace_http 3
+  verify_natsu_http 3
   runuser -u postgres -- psql -X -d postgres -f "$SCRIPT_DIR/production-verify.sql" >/dev/null
   node "$SCRIPT_DIR/production-pm2-plan.mjs" verify --plan "$backup_dir/pm2-plan.json" --runner "$RUNTIME_RUNNER"
   verify_legacy_pm2_empty
@@ -618,6 +645,7 @@ else
   install_hba before "$backup_dir"
   systemctl start finance-bot.service 2>/dev/null || true
   verify_workspace_http 45
+  verify_natsu_http 15
   write_receipt rolled-back "$backup_dir"
   echo "rolled-back: $RECEIPT_FILE"
 fi
