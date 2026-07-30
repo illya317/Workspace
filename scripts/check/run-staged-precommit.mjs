@@ -33,6 +33,18 @@ function linkRuntimeInputs(snapshotRoot, sourceRoot = repositoryRoot) {
   const nodeModules = path.join(sourceRoot, "node_modules");
   if (!fs.existsSync(nodeModules)) throw new Error("node_modules is required for staged pre-commit checks");
   fs.symlinkSync(nodeModules, path.join(snapshotRoot, "node_modules"), "dir");
+  const dotenvEntries = fs.readdirSync(sourceRoot, { withFileTypes: true })
+    .filter((entry) => (entry.isFile() || entry.isSymbolicLink()) && /^\.env(?:$|\.)/.test(entry.name));
+  for (const entry of dotenvEntries) {
+    const destination = path.join(snapshotRoot, entry.name);
+    try {
+      fs.lstatSync(destination);
+      continue;
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+    }
+    fs.symlinkSync(path.join(sourceRoot, entry.name), destination, "file");
+  }
   fs.mkdirSync(path.join(snapshotRoot, ".cache"), { recursive: true });
 }
 

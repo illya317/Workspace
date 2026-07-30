@@ -24,9 +24,12 @@ test("staged pre-commit executes the index content instead of later worktree edi
         "check:precommit:snapshot": "node verify.mjs",
       },
     }));
+    fs.writeFileSync(path.join(repository, ".gitignore"), ".env\n");
     fs.writeFileSync(path.join(repository, "verify.mjs"), [
       "import fs from 'node:fs';",
       "if (fs.readFileSync('candidate.txt', 'utf8') !== 'staged\\n') process.exit(17);",
+      "if (!fs.lstatSync('.env').isSymbolicLink()) process.exit(18);",
+      "if (fs.readFileSync('.env', 'utf8') !== 'DATABASE_URL=postgresql://local-secret\\n') process.exit(19);",
     ].join("\n"));
     fs.mkdirSync(path.join(repository, "node_modules"));
     fs.writeFileSync(path.join(repository, "candidate.txt"), "base\n");
@@ -36,6 +39,7 @@ test("staged pre-commit executes the index content instead of later worktree edi
     fs.writeFileSync(path.join(repository, "candidate.txt"), "staged\n");
     git(repository, ["add", "candidate.txt"]);
     fs.writeFileSync(path.join(repository, "candidate.txt"), "unstaged\n");
+    fs.writeFileSync(path.join(repository, ".env"), "DATABASE_URL=postgresql://local-secret\n");
 
     const result = spawnSync(process.execPath, [script], {
       cwd: repository,

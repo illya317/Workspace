@@ -1,3 +1,4 @@
+-- workspace:migration-mode=maintenance
 -- Agent is now a normal L1 page and owns the same entry/read/submit semantics
 -- that were previously duplicated under agent.assistant. Preserve every
 -- explicit grant before the resource seed removes the stale capability.
