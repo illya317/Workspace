@@ -1,0 +1,11 @@
+/var/log/postgresql/postgresql-16-main.log {
+    daily
+    rotate 30
+    maxsize 100M
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    create 0640 postgres adm
+}
