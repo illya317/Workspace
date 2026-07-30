@@ -71,6 +71,14 @@ if (command === "create") {
   }
   writePrivateJson(output, { schemaVersion: 1, kind: "workspace-production-pm2-migration", createdAt: new Date().toISOString(), processes });
   process.stdout.write("planned " + processes.length + " Workspace process(es)\n");
+} else if (command === "read-pid") {
+  const file = valueAfter("--file");
+  if (!file) fail("PM2 PID 文件参数缺失");
+  let value;
+  try { value = readFileSync(file, "utf8"); } catch { fail("PM2 PID 文件不可读"); }
+  const match = /^([1-9][0-9]*)\n?$/.exec(value);
+  if (!match || !Number.isSafeInteger(Number(match[1]))) fail("PM2 PID 文件格式无效");
+  process.stdout.write(match[1]);
 } else if (command === "apply" || command === "delete") {
   const plan = readJson(valueAfter("--plan"));
   const runner = valueAfter("--runner");
@@ -121,5 +129,5 @@ if (command === "create") {
     ? pids.join("\n") + "\n"
     : "verified " + plan.processes.length + " Workspace process(es)\n");
 } else {
-  fail("用法: production-pm2-plan.mjs create|apply|delete|verify|pids ...");
+  fail("用法: production-pm2-plan.mjs create|read-pid|apply|delete|verify|pids ...");
 }

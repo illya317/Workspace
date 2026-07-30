@@ -93,8 +93,6 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
   assert.match(security, /verify_runtime_systemd_pm2_processes/);
   assert.match(security, /systemctl show workspace-runtime-pm2\.service -p MainPID --value/);
   assert.match(security, /systemctl show workspace-runtime-pm2\.service -p ControlGroup --value/);
-  assert.match(security, /pm2_pid="\$\(< \/var\/lib\/workspace-runtime\/\.pm2\/pm2\.pid\)"/);
-  assert.doesNotMatch(security, /IFS= read -r pm2_pid/);
   assert.match(security, /\/proc\/\$pid\/cgroup/);
   assert.match(security, /systemctl disable --now workspace-runtime-pm2\.service/);
   assert.ok(
@@ -278,6 +276,31 @@ test("PM2 plan migrates exactly two processes and drops secret environment", () 
   }
 });
 
+test("PM2 PID reader accepts no trailing newline and rejects ambiguous content", () => {
+  const temporary = mkdtempSync(path.join(tmpdir(), "workspace-pm2-pid-"));
+  try {
+    const pidFile = path.join(temporary, "pm2.pid");
+    const command = [path.join(directory, "production-pm2-plan.mjs"), "read-pid", "--file", pidFile];
+    writeFileSync(pidFile, "435312");
+    const withoutNewline = spawnSync(process.execPath, command, { encoding: "utf8" });
+    assert.equal(withoutNewline.status, 0);
+    assert.equal(withoutNewline.stdout, "435312");
+
+    writeFileSync(pidFile, "435312\n");
+    assert.equal(spawnSync(process.execPath, command).status, 0);
+
+    for (const invalid of ["", "435312\n435313\n", "not-a-pid"]) {
+      writeFileSync(pidFile, invalid);
+      const result = spawnSync(process.execPath, command, { encoding: "utf8" });
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, /PM2 PID 文件格式无效/);
+      assert.doesNotMatch(result.stderr, /435312|435313|not-a-pid/);
+    }
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
+});
+
 test("PM2 wrappers preserve only allowlisted process values and strip control URLs", () => {
   const runtime = read("production-runtime-pm2.sh");
   assert.match(runtime, /process_environment=\(\)/);
@@ -298,4 +321,11 @@ test("runtime env and PM2 verification reject alternate PostgreSQL credentials",
     assert.match(plan, new RegExp(key));
   }
   assert.match(plan, /Object\.hasOwn\(processEnv, key\)/);
+});
+
+test("runtime daemon verification captures strict PID output without read newline semantics", () => {
+  const security = read("production-security.sh");
+  assert.match(security, /pm2_pid="\$\(node "\$SCRIPT_DIR\/production-pm2-plan\.mjs" read-pid --file \/var\/lib\/workspace-runtime\/\.pm2\/pm2\.pid\)"/);
+  assert.doesNotMatch(security, /IFS= read -r pm2_pid/);
+  assert.doesNotMatch(security, /(?:echo|printf)[^\n]*\$pm2_pid/);
 });
