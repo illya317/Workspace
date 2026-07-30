@@ -15,7 +15,7 @@ import {
   useFeedback,
 } from "@workspace/core/ui";
 import { postJson, requestJson } from "@workspace/platform/ui/api-client";
-import { createNotificationPublishingAuditSections } from "./notification-publishing-audit-sections";
+import { useNotificationPublishingAuditSections } from "./notification-publishing-audit-sections";
 import {
   EMPTY_NOTIFICATION_DEFINITION_DRAFT,
   extractNotificationVariableKeys,
@@ -66,6 +66,7 @@ export function useNotificationPublishingWorkbench({ enabled }: { enabled: boole
     () => extractNotificationVariableKeys(draft.titleTemplate, draft.bodyTemplate, draft.hrefTemplate),
     [draft.bodyTemplate, draft.hrefTemplate, draft.titleTemplate],
   );
+  const auditSections = useNotificationPublishingAuditSections({ data, loading });
   const update = <K extends keyof NotificationDefinitionDraft>(
     key: K,
     value: NotificationDefinitionDraft[K],
@@ -296,6 +297,6 @@ export function useNotificationPublishingWorkbench({ enabled }: { enabled: boole
         },
       ],
     }),
-    ...createNotificationPublishingAuditSections({ data, loading }),
+    ...auditSections,
   ];
 }

@@ -41,22 +41,22 @@ export function SettingsAccountPage({ user }: { user: SessionUser }) {
 
 export function SettingsApiPage({
   user,
-  focusRegistrationKey,
   canCreateClient = false,
   canRotateSecret = false,
   canGrantScopes = false,
+  canAccessNotifications = false,
 }: {
   user: SessionUser;
-  focusRegistrationKey?: string;
   canCreateClient?: boolean;
   canRotateSecret?: boolean;
   canGrantScopes?: boolean;
+  canAccessNotifications?: boolean;
 }) {
   return renderAppShellPage({
     title: "API 接入",
     backHref: "/settings",
     user,
-    children: <SettingsApiClient focusRegistrationKey={focusRegistrationKey} canCreateClient={canCreateClient} canRotateSecret={canRotateSecret} canGrantScopes={canGrantScopes} />,
+    children: <SettingsApiClient canCreateClient={canCreateClient} canRotateSecret={canRotateSecret} canGrantScopes={canGrantScopes} canAccessNotifications={canAccessNotifications} />,
   });
 }
 

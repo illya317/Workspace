@@ -16,25 +16,14 @@ import {
   type NotificationPublishingWorkbenchResponse,
 } from "./notification-publishing-workbench-model";
 
-export function createNotificationPublishingAuditSections(input: {
+export function useNotificationPublishingAuditSections(input: {
   data: NotificationPublishingWorkbenchResponse | null;
   loading: boolean;
 }): BodySurfaceSectionSpec[] {
   if (!input.data?.canAudit) return [];
-  return [
-    createLifecycleSection(input.data.lifecycleEvents, input.loading),
-    createChannelSection(input.data.channelEndpoints, input.loading),
-    createPublicationSection(input.data.publications, input.loading),
-  ];
-}
 
-function createLifecycleSection(rows: NotificationDefinitionLifecycleEventRow[], loading: boolean) {
-  const columns: DataSurfaceColumnSpec<NotificationDefinitionLifecycleEventRow>[] = [
-    {
-      key: "occurredAt",
-      label: "时间",
-      cell: (row) => formatNotificationConsoleDate(row.occurredAt),
-    },
+  const lifecycleColumns: DataSurfaceColumnSpec<NotificationDefinitionLifecycleEventRow>[] = [
+    { key: "occurredAt", label: "时间", cell: (row) => formatNotificationConsoleDate(row.occurredAt) },
     {
       key: "definition",
       label: "通知定义",
@@ -77,23 +66,8 @@ function createLifecycleSection(rows: NotificationDefinitionLifecycleEventRow[],
       }),
     },
   ];
-  return createSectionSection("notification-definition-lifecycle-ledger", {
-    title: "通知定义生命周期台账",
-    sections: [createPageDataSection("notification-definition-lifecycle-table", {
-      kind: "table",
-      rows,
-      columns,
-      visibleColumns: columns.map((column) => column.key),
-      loading,
-      emptyText: "暂无定义生命周期记录",
-      rowKey: (row) => row.id,
-      presentation: { density: "compact" },
-    })],
-  });
-}
 
-function createChannelSection(rows: NotificationChannelEndpointRow[], loading: boolean) {
-  const columns: DataSurfaceColumnSpec<NotificationChannelEndpointRow>[] = [
+  const channelColumns: DataSurfaceColumnSpec<NotificationChannelEndpointRow>[] = [
     {
       key: "endpoint",
       label: "渠道",
@@ -159,23 +133,8 @@ function createChannelSection(rows: NotificationChannelEndpointRow[], loading: b
         : "-",
     },
   ];
-  return createSectionSection("notification-channel-health", {
-    title: "通知渠道运行状态",
-    sections: [createPageDataSection("notification-channel-health-table", {
-      kind: "table",
-      rows,
-      columns,
-      visibleColumns: columns.map((column) => column.key),
-      loading,
-      emptyText: "暂无通知渠道运行记录",
-      rowKey: (row) => row.key,
-      presentation: { density: "compact" },
-    })],
-  });
-}
 
-function createPublicationSection(rows: NotificationPublicationRow[], loading: boolean) {
-  const columns: DataSurfaceColumnSpec<NotificationPublicationRow>[] = [
+  const publicationColumns: DataSurfaceColumnSpec<NotificationPublicationRow>[] = [
     { key: "createdAt", label: "时间", cell: (row) => formatNotificationConsoleDate(row.createdAt) },
     {
       key: "definitionKey",
@@ -207,17 +166,46 @@ function createPublicationSection(rows: NotificationPublicationRow[], loading: b
       },
     },
   ];
-  return createSectionSection("notification-publication-ledger", {
-    title: "最近发布回执",
-    sections: [createPageDataSection("notification-publication-table", {
-      kind: "table",
-      rows,
-      columns,
-      visibleColumns: columns.map((column) => column.key),
-      loading,
-      emptyText: "暂无发布记录",
-      rowKey: (row) => row.id,
-      presentation: { density: "compact" },
-    })],
-  });
+
+  return [
+    createSectionSection("notification-definition-lifecycle-ledger", {
+      title: "通知定义生命周期台账",
+      sections: [createPageDataSection("notification-definition-lifecycle-table", {
+        kind: "table",
+        rows: input.data.lifecycleEvents,
+        columns: lifecycleColumns,
+        visibleColumns: lifecycleColumns.map((column) => column.key),
+        loading: input.loading,
+        emptyText: "暂无定义生命周期记录",
+        rowKey: (row) => row.id,
+        presentation: { density: "compact" },
+      })],
+    }),
+    createSectionSection("notification-channel-health", {
+      title: "通知渠道运行状态",
+      sections: [createPageDataSection("notification-channel-health-table", {
+        kind: "table",
+        rows: input.data.channelEndpoints,
+        columns: channelColumns,
+        visibleColumns: channelColumns.map((column) => column.key),
+        loading: input.loading,
+        emptyText: "暂无通知渠道运行记录",
+        rowKey: (row) => row.key,
+        presentation: { density: "compact" },
+      })],
+    }),
+    createSectionSection("notification-publication-ledger", {
+      title: "最近发布回执",
+      sections: [createPageDataSection("notification-publication-table", {
+        kind: "table",
+        rows: input.data.publications,
+        columns: publicationColumns,
+        visibleColumns: publicationColumns.map((column) => column.key),
+        loading: input.loading,
+        emptyText: "暂无发布记录",
+        rowKey: (row) => row.id,
+        presentation: { density: "compact" },
+      })],
+    }),
+  ];
 }
