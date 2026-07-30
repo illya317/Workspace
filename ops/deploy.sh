@@ -25,6 +25,10 @@ EXPECTED_CNB_REPOSITORY="${EXPECTED_CNB_REPOSITORY:-}"
 CONTROL_PLANE_POLICY="${CONTROL_PLANE_POLICY:-auto}"
 DEPLOY_EXECUTION_MODE="${DEPLOY_EXECUTION_MODE:-combined}"
 WORKSPACE_GATEWAY_NGINX_SITE="${WORKSPACE_GATEWAY_NGINX_SITE:-}"
+WORKSPACE_RUNTIME_PM2_MODE="${WORKSPACE_RUNTIME_PM2_MODE:-legacy}"
+WORKSPACE_RUNTIME_PM2_RUNNER="${WORKSPACE_RUNTIME_PM2_RUNNER:-/usr/local/sbin/workspace-runtime-pm2}"
+REMOTE_CONTROL_ENV_FILE="${REMOTE_CONTROL_ENV_FILE:-}"
+REMOTE_RUNTIME_ENV_FILE="${REMOTE_RUNTIME_ENV_FILE:-}"
 if [ -n "$ENV_CONTENT" ]; then
   ENV_CONTENT_B64="$(printf '%s' "$ENV_CONTENT" | base64 | tr -d '\n')"
 else
@@ -45,6 +49,10 @@ case "$DEPLOY_EXECUTION_MODE" in
   application-only) CONTROL_PLANE_POLICY=require-existing ;;
   control-plane-only) CONTROL_PLANE_POLICY=refresh ;;
   *) echo "[错误] DEPLOY_EXECUTION_MODE 只能是 combined、application-only 或 control-plane-only"; exit 1 ;;
+esac
+case "$WORKSPACE_RUNTIME_PM2_MODE" in
+  legacy|hardened) ;;
+  *) echo "[错误] WORKSPACE_RUNTIME_PM2_MODE 只能是 legacy 或 hardened"; exit 1 ;;
 esac
 
 if [ -z "$REMOTE_DIR" ]; then
@@ -75,6 +83,51 @@ if [ -z "$REMOTE_WORKSPACE_CONFIG_DIR" ]; then
 elif [ "$REMOTE_WORKSPACE_CONFIG_DIR" != "$REMOTE_DIR/.workspace" ]; then
   echo "[警告] REMOTE_WORKSPACE_CONFIG_DIR 已统一为 $REMOTE_DIR/.workspace，忽略旧值: $REMOTE_WORKSPACE_CONFIG_DIR"
   REMOTE_WORKSPACE_CONFIG_DIR="$REMOTE_DIR/.workspace"
+fi
+
+if [ -z "$REMOTE_CONTROL_ENV_FILE" ]; then
+  if [ "$WORKSPACE_RUNTIME_PM2_MODE" = "hardened" ]; then
+    REMOTE_CONTROL_ENV_FILE="$REMOTE_WORKSPACE_CONFIG_DIR/control-plane.env"
+  else
+    REMOTE_CONTROL_ENV_FILE="$REMOTE_WORKSPACE_CONFIG_DIR/.env"
+  fi
+fi
+if [ -z "$REMOTE_RUNTIME_ENV_FILE" ]; then
+  if [ "$WORKSPACE_RUNTIME_PM2_MODE" = "hardened" ]; then
+    REMOTE_RUNTIME_ENV_FILE="$REMOTE_WORKSPACE_CONFIG_DIR/runtime.env"
+  else
+    REMOTE_RUNTIME_ENV_FILE="$REMOTE_CONTROL_ENV_FILE"
+  fi
+fi
+for remote_secret_path in "$REMOTE_CONTROL_ENV_FILE" "$REMOTE_RUNTIME_ENV_FILE"; do
+  case "$remote_secret_path" in
+    /*) ;;
+    *) echo "[错误] control/runtime env 路径必须是绝对路径: $remote_secret_path"; exit 1 ;;
+  esac
+  case "$remote_secret_path" in
+    *[!A-Za-z0-9_./-]*) echo "[错误] control/runtime env 路径包含不安全字符: $remote_secret_path"; exit 1 ;;
+  esac
+done
+if [ "$WORKSPACE_RUNTIME_PM2_MODE" = "legacy" ] && [ "$REMOTE_RUNTIME_ENV_FILE" != "$REMOTE_CONTROL_ENV_FILE" ]; then
+  echo "[错误] legacy PM2 模式不能声明独立 runtime env；请启用 WORKSPACE_RUNTIME_PM2_MODE=hardened"
+  exit 1
+fi
+if [ "$WORKSPACE_RUNTIME_PM2_MODE" = "hardened" ]; then
+  if [ -n "$ENV_CONTENT" ]; then
+    echo "[错误] hardened PM2 模式禁止通过 ENV_CONTENT 下发共享凭据；请预置隔离的 runtime/control-plane env"
+    exit 1
+  fi
+  if [ "$REMOTE_RUNTIME_ENV_FILE" = "$REMOTE_CONTROL_ENV_FILE" ]; then
+    echo "[错误] hardened PM2 模式必须隔离 runtime env 与 control-plane env"
+    exit 1
+  fi
+  case "$WORKSPACE_RUNTIME_PM2_RUNNER" in
+    /*) ;;
+    *) echo "[错误] WORKSPACE_RUNTIME_PM2_RUNNER 必须是绝对路径"; exit 1 ;;
+  esac
+  case "$WORKSPACE_RUNTIME_PM2_RUNNER" in
+    *[!A-Za-z0-9_./-]*) echo "[错误] WORKSPACE_RUNTIME_PM2_RUNNER 包含不安全字符"; exit 1 ;;
+  esac
 fi
 
 if [ -z "$REMOTE_BACKUP_DIR" ] && [ -n "$REMOTE_WORKSPACE_BACKUP_DIR" ]; then
@@ -209,7 +262,147 @@ cleanup_deploy() {
 trap cleanup_deploy EXIT
 
 ssh_cmd() {
-  ssh "${SSH_OPTIONS[@]}" "$SERVER" "$@"
+  if [ "$#" -ne 1 ]; then
+    echo "[错误] ssh_cmd 只接受一个完整 remote command" >&2
+    return 2
+  fi
+  local remote_command="$1"
+  ssh "${SSH_OPTIONS[@]}" "$SERVER" "
+workspace_assert_managed_runtime_environment() {
+  [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ] || return 0
+  local managed_processes
+  managed_processes=\$(sudo -n -- '$WORKSPACE_RUNTIME_PM2_RUNNER' jlist)
+  MANAGED_PROCESSES=\"\$managed_processes\" MANAGED_NAMES='$PM2_NAME-candidate,$PM2_NAME,$PM2_WECOM_BOT_NAME' node - <<'NODE'
+const processes = JSON.parse(process.env.MANAGED_PROCESSES || 'null');
+if (!Array.isArray(processes)) throw new Error('runtime PM2 runner jlist did not return an array');
+const managed = new Set(process.env.MANAGED_NAMES.split(','));
+for (const process of processes) {
+  if (!process || typeof process !== 'object' || !managed.has(process.name)) continue;
+  const environment = process.pm2_env || {};
+  for (const key of ['DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL', 'WORKSPACE_MONITOR_DATABASE_URL']) {
+    if (Object.prototype.hasOwnProperty.call(environment, key)) {
+      throw new Error('managed runtime process ' + process.name + ' contains forbidden ' + key);
+    }
+  }
+}
+NODE
+}
+pm2() {
+  if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+    local key
+    local -a runtime_pm2_environment=()
+    for key in PORT HOSTNAME BUILD_VERSION NEXT_PUBLIC_BUILD_VERSION PG_POOL_MAX PG_APPLICATION_NAME \\
+      WORKSPACE_DEPLOY_UNIT_ID WORKSPACE_INTERNAL_ORIGIN WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE \\
+      WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE WORKSPACE_INTERNAL_REPLAY_DIRECTORY WECHAT_BOT_BRIDGE_URL; do
+      if [ \"\${!key+x}\" = 'x' ]; then
+        runtime_pm2_environment+=(\"\$key=\${!key}\")
+      fi
+    done
+    sudo -n -- /usr/bin/env \"\${runtime_pm2_environment[@]}\" '$WORKSPACE_RUNTIME_PM2_RUNNER' \"\$@\"
+    local pm2_status=\$?
+    [ \"\$pm2_status\" -eq 0 ] || return \"\$pm2_status\"
+    if [ \"\${1:-}\" = 'start' ]; then
+      workspace_assert_managed_runtime_environment
+    fi
+  else
+    command pm2 \"\$@\"
+  fi
+}
+workspace_source_env_file() {
+  local env_file=\$1
+  if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+    . <(sudo -n -- /bin/cat \"\$env_file\")
+  else
+    . \"\$env_file\"
+  fi
+}
+workspace_privileged() {
+  if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+    sudo -n -- \"\$@\"
+  else
+    \"\$@\"
+  fi
+}
+load_runtime_environment() {
+  unset DATABASE_URL DIRECT_URL SHADOW_DATABASE_URL
+  set -a
+  workspace_source_env_file '$REMOTE_RUNTIME_ENV_FILE'
+  set +a
+  unset DIRECT_URL SHADOW_DATABASE_URL
+  test -n \"\${DATABASE_URL:-}\"
+}
+load_control_environment() {
+  local runtime_database_url
+  unset DATABASE_URL DIRECT_URL SHADOW_DATABASE_URL
+  set -a
+  workspace_source_env_file '$REMOTE_RUNTIME_ENV_FILE'
+  runtime_database_url=\$DATABASE_URL
+  if [ '$REMOTE_CONTROL_ENV_FILE' != '$REMOTE_RUNTIME_ENV_FILE' ]; then
+    workspace_source_env_file '$REMOTE_CONTROL_ENV_FILE'
+  fi
+  DATABASE_URL=\$runtime_database_url
+  export DATABASE_URL
+  unset SHADOW_DATABASE_URL
+  set +a
+  test -n \"\${DATABASE_URL:-}\"
+  test -n \"\${DIRECT_URL:-}\"
+  if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+    test -n \"\${WORKSPACE_BACKUP_DATABASE_URL:-}\"
+  fi
+}
+$remote_command
+"
+}
+
+verify_remote_runtime_pm2() {
+  if [ "$WORKSPACE_RUNTIME_PM2_MODE" != "hardened" ]; then
+    echo "==> 使用 legacy PM2 兼容模式；长期进程凭据隔离未由 deploy runner 强制"
+    return 0
+  fi
+  echo "==> 校验 production runtime PM2 runner 与凭据隔离契约..."
+  ssh_cmd "
+    set -e
+    sudo -n -- test -f '$WORKSPACE_RUNTIME_PM2_RUNNER'
+    sudo -n -- test -x '$WORKSPACE_RUNTIME_PM2_RUNNER'
+    sudo -n -- test -r '$REMOTE_CONTROL_ENV_FILE'
+    sudo -n -- test -r '$REMOTE_RUNTIME_ENV_FILE'
+    sudo -n -- python3 - '$WORKSPACE_RUNTIME_PM2_RUNNER' '$REMOTE_CONTROL_ENV_FILE' '$REMOTE_RUNTIME_ENV_FILE' <<'PY'
+from pathlib import Path
+import stat
+import sys
+
+runner, control, runtime = map(Path, sys.argv[1:])
+for path, label in ((runner, 'runtime PM2 runner'), (control, 'control-plane env'), (runtime, 'runtime env')):
+    if not path.is_file():
+        raise SystemExit(f'{label} must be a regular file')
+    if path.stat().st_uid != 0:
+        raise SystemExit(f'{label} must be root-owned')
+    if path.stat().st_mode & (stat.S_IWGRP | stat.S_IWOTH):
+        raise SystemExit(f'{label} must not be group/world-writable')
+if control.resolve() == runtime.resolve():
+    raise SystemExit('runtime and control-plane env must resolve to different files')
+runtime_keys = {
+    line.split('=', 1)[0].strip()
+    for line in runtime.read_text(encoding='utf-8').splitlines()
+    if line.strip() and not line.lstrip().startswith('#') and '=' in line
+}
+if 'DATABASE_URL' not in runtime_keys:
+    raise SystemExit('runtime env is missing DATABASE_URL')
+for forbidden in ('DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL', 'WORKSPACE_MONITOR_DATABASE_URL'):
+    if forbidden in runtime_keys:
+        raise SystemExit(f'runtime env contains forbidden {forbidden}')
+control_keys = {
+    line.split('=', 1)[0].strip()
+    for line in control.read_text(encoding='utf-8').splitlines()
+    if line.strip() and not line.lstrip().startswith('#') and '=' in line
+}
+for required in ('DIRECT_URL', 'WORKSPACE_BACKUP_DATABASE_URL'):
+    if required not in control_keys:
+        raise SystemExit(f'control-plane env is missing {required}')
+PY
+    sudo -n -- '$WORKSPACE_RUNTIME_PM2_RUNNER' --version >/dev/null
+    workspace_assert_managed_runtime_environment
+  "
 }
 
 start_ssh_master() {
@@ -707,9 +900,7 @@ if (!payload || payload.version !== process.env.EXPECTED_VERSION) {
 }
 NODE
     fi
-    set -a
-    . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    set +a
+    load_control_environment
     test -n \"\${DIRECT_URL:-}\"
     migration_rows=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -At -F '|' -c 'SELECT migration_name, checksum, CASE WHEN finished_at IS NULL THEN '\''0'\'' ELSE '\''1'\'' END, CASE WHEN rolled_back_at IS NULL THEN '\''0'\'' ELSE '\''1'\'' END, applied_steps_count::text FROM "_prisma_migrations" ORDER BY migration_name, id')
     MIGRATION_ROWS=\"\$migration_rows\" EXPECTED_COUNT='$RELEASE_BOOTSTRAP_MIGRATION_COUNT' EXPECTED_DIGEST='$RELEASE_BOOTSTRAP_MIGRATION_DIGEST' VALIDATION_MODE=\"\$database_progress\" python3 - <<'PY'
@@ -1188,14 +1379,19 @@ prepare_remote_runtime() {
     mkdir -p '$REMOTE_DIR'
     mkdir -p '$REMOTE_DIR/releases'
     mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR'
-    if [ ! -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env' ]; then
-      if [ -f '$REMOTE_DIR/.env' ]; then
-        cp '$REMOTE_DIR/.env' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-      elif [ -n '$ENV_CONTENT_B64' ]; then
-        printf '%s' '$ENV_CONTENT_B64' | base64 -d > '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-      else
-        echo '[错误] 服务器缺少运行态 .env，且未提供 ENV_CONTENT'
-        exit 1
+    if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+      sudo -n -- test -r '$REMOTE_CONTROL_ENV_FILE'
+      sudo -n -- test -r '$REMOTE_RUNTIME_ENV_FILE'
+    else
+      if [ ! -f '$REMOTE_CONTROL_ENV_FILE' ]; then
+        if [ -f '$REMOTE_DIR/.env' ]; then
+          cp '$REMOTE_DIR/.env' '$REMOTE_CONTROL_ENV_FILE'
+        elif [ -n '$ENV_CONTENT_B64' ]; then
+          printf '%s' '$ENV_CONTENT_B64' | base64 -d > '$REMOTE_CONTROL_ENV_FILE'
+        else
+          echo '[错误] 服务器缺少运行态 .env，且未提供 ENV_CONTENT'
+          exit 1
+        fi
       fi
     fi
     mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR/data'
@@ -1204,11 +1400,12 @@ prepare_remote_runtime() {
       rsync -a '$REMOTE_DIR/data/' '$REMOTE_WORKSPACE_CONFIG_DIR/data/'
     fi
 
+    if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'legacy' ]; then
     python3 - <<'PY'
 from pathlib import Path
 import re
 
-env_path = Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env')
+env_path = Path('$REMOTE_CONTROL_ENV_FILE')
 text = env_path.read_text()
 replacements = {
     'WORKSPACE_CONFIG_DIR': '$REMOTE_WORKSPACE_CONFIG_DIR',
@@ -1257,6 +1454,7 @@ for key, value in replacements.items():
         text = text.rstrip() + '\\n' + line + '\\n'
 env_path.write_text(text)
 PY
+    fi
   "
 }
 
@@ -1367,9 +1565,7 @@ ensure_remote_onlyoffice_runtime() {
   ssh_cmd "
     set -e
     chmod +x '$remote_tool_dir/install-onlyoffice-runtime.sh'
-    set -a
-    . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    set +a
+    load_runtime_environment
     calculate_runtime_digest() {
       {
         sha256sum \
@@ -1390,9 +1586,7 @@ ensure_remote_onlyoffice_runtime() {
     else
       WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$remote_tool_dir/install-onlyoffice-runtime.sh'
       WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$remote_tool_dir/install-onlyoffice-runtime.sh' --check
-      set -a
-      . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-      set +a
+      load_runtime_environment
       runtime_digest=\$(calculate_runtime_digest)
       printf '%s\\n' \"\$runtime_digest\" > \"\$runtime_marker.tmp\"
       chmod 600 \"\$runtime_marker.tmp\"
@@ -1405,22 +1599,24 @@ validate_remote_runtime() {
   echo "==> 校验服务器运行态配置..."
   ssh_cmd "
     set -e
-    test -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+      sudo -n -- test -r '$REMOTE_CONTROL_ENV_FILE'
+      sudo -n -- test -r '$REMOTE_RUNTIME_ENV_FILE'
+    else
+      test -r '$REMOTE_CONTROL_ENV_FILE'
+    fi
     test -f '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/product_stage_tests.json'
     test -d '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/full'
     test -d '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/records'
-    grep -q '^WORKSPACE_CONFIG_DIR=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    grep -q '^DATABASE_URL=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    grep -q '^DIRECT_URL=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    grep -q '^LIBRARY_SOURCE_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    grep -q '^LIBRARY_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    load_control_environment
+    test -n \"\${WORKSPACE_CONFIG_DIR:-}\"
+    test -n \"\${DATABASE_URL:-}\"
+    test -n \"\${DIRECT_URL:-}\"
+    test -n \"\${LIBRARY_SOURCE_ROOT:-}\"
+    test -n \"\${LIBRARY_ROOT:-}\"
     if [ '$INSTALL_ONLYOFFICE_RUNTIME' = '1' ]; then
-      grep -q '^ONLYOFFICE_JWT_SECRET=.' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-      grep -Eq '^WORKSPACE_PUBLIC_ORIGIN=https?://[^[:space:]]+' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    fi
-    if grep -Eq '^(AGENT_MODEL_PROVIDER|KIMI_API_KEY|KIMI_BASE_URL|KIMI_MODEL|KIMI_MAX_TOKENS|DEEPSEEK_API_KEY|DEEPSEEK_BASE_URL|DEEPSEEK_MODEL|AGENT_SOURCE_WORKTREE|AGENT_SOURCE_CACHE_DIR|AGENT_SOURCE_REPO_URL|AGENT_SOURCE_BRANCH|CNB_PR_TOKEN|CNB_PR_REPO|CNB_PR_BRANCH_PREFIX|CNB_PR_GIT_AUTHOR_NAME|CNB_PR_GIT_AUTHOR_EMAIL)=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'; then
-      echo '[错误] 服务器仍包含已废弃或越界的 Agent provider/source/PR 配置'
-      exit 1
+      test -n \"\${ONLYOFFICE_JWT_SECRET:-}\"
+      printf '%s' \"\${WORKSPACE_PUBLIC_ORIGIN:-}\" | grep -Eq '^https?://[^[:space:]]+'
     fi
     WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$REMOTE_WORKSPACE_CONFIG_DIR/runtime/kimi-agent-bootstrap/install-kimi-agent-runtime.sh' --check
     if [ '$INSTALL_ONLYOFFICE_RUNTIME' = '1' ]; then
@@ -1431,12 +1627,16 @@ from pathlib import Path
 import os
 import sys
 
-env = {}
-for line in Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env').read_text().splitlines():
-    if not line or line.lstrip().startswith('#') or '=' not in line:
-        continue
-    key, value = line.split('=', 1)
-    env[key] = value.strip().strip('\"').strip(\"'\")
+env = dict(os.environ)
+obsolete_agent_keys = {
+    'AGENT_MODEL_PROVIDER', 'KIMI_API_KEY', 'KIMI_BASE_URL', 'KIMI_MODEL', 'KIMI_MAX_TOKENS',
+    'DEEPSEEK_API_KEY', 'DEEPSEEK_BASE_URL', 'DEEPSEEK_MODEL', 'AGENT_SOURCE_WORKTREE',
+    'AGENT_SOURCE_CACHE_DIR', 'AGENT_SOURCE_REPO_URL', 'AGENT_SOURCE_BRANCH', 'CNB_PR_TOKEN',
+    'CNB_PR_REPO', 'CNB_PR_BRANCH_PREFIX', 'CNB_PR_GIT_AUTHOR_NAME', 'CNB_PR_GIT_AUTHOR_EMAIL',
+}
+present_obsolete = sorted(key for key in obsolete_agent_keys if key in env)
+if present_obsolete:
+    sys.exit('server environment still contains retired Agent provider/source/PR configuration')
 
 workspace = env.get('WORKSPACE_CONFIG_DIR', '')
 database = env.get('DATABASE_URL', '')
@@ -1465,7 +1665,9 @@ direct_endpoint = (direct_url.hostname, direct_url.port or 5432, direct_url.path
 if database_endpoint != direct_endpoint:
     sys.exit('DATABASE_URL and DIRECT_URL must select the same PostgreSQL host, port, and database')
 if cutover_source:
-    active_env_path = Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env').resolve()
+    if '$WORKSPACE_RUNTIME_PM2_MODE' == 'hardened':
+        sys.exit('SQLite cutover is incompatible with hardened runtime/control-plane credential isolation')
+    active_env_path = Path('$REMOTE_CONTROL_ENV_FILE').resolve()
     rollback_env_path = Path(rollback_env_value)
     if not rollback_env_path.is_absolute():
         sys.exit('SQLITE_CUTOVER_ROLLBACK_ENV must be absolute')
@@ -1501,9 +1703,6 @@ if library_source_root != expected_library_source:
     sys.exit(f'LIBRARY_SOURCE_ROOT must equal WORKSPACE_CONFIG_DIR/library/originals: {library_source_root}')
 print('Remote runtime env check passed.')
 PY
-    set -a
-    . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    set +a
     if [ -n \"\${SQLITE_CUTOVER_SOURCE:-}\" ]; then
       case \"\${SQLITE_CUTOVER_ROLLBACK_ENV:-}\" in /*) ;; *) echo '[错误] SQLITE_CUTOVER_ROLLBACK_ENV 必须是绝对路径'; exit 1 ;; esac
       test -r \"\$SQLITE_CUTOVER_ROLLBACK_ENV\"
@@ -1529,12 +1728,11 @@ backup_remote_postgresql() {
     set -e
     umask 077
     mkdir -p '$REMOTE_BACKUP_DIR'
-    set -a
-    . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    set +a
+    load_control_environment
     stamp=\$(date +%Y%m%d%H%M%S)
     backup='$REMOTE_BACKUP_DIR/workspace-postgresql-'\$stamp'.dump'
-    pg_dump --format=custom --no-owner --no-privileges --file=\"\$backup\" \"\$DIRECT_URL\"
+    backup_database_url=\"\${WORKSPACE_BACKUP_DATABASE_URL:-\$DIRECT_URL}\"
+    pg_dump --format=custom --no-owner --no-privileges --file=\"\$backup\" \"\$backup_database_url\"
     pg_restore --list \"\$backup\" >/dev/null
     if command -v sha256sum >/dev/null 2>&1; then
       sha256sum \"\$backup\" > \"\$backup.sha256\"
@@ -1552,23 +1750,23 @@ backup_remote_runtime() {
   ssh_cmd "
     set -e
     command -v rsync >/dev/null
-    mkdir -p '$REMOTE_RUNTIME_SNAPSHOT_DIR'
+    workspace_privileged mkdir -p '$REMOTE_RUNTIME_SNAPSHOT_DIR'
     if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR' ]; then
       stamp=\$(date +%Y%m%d%H%M%S)
       snapshot='$REMOTE_RUNTIME_SNAPSHOT_DIR/'\$stamp
       snapshot_tmp='$REMOTE_RUNTIME_SNAPSHOT_DIR/.'\$stamp'.tmp'
-      previous=\$(find '$REMOTE_RUNTIME_SNAPSHOT_DIR' -mindepth 1 -maxdepth 1 -type d -name '20*' -printf '%f\\n' | sort | tail -n 1)
-      rm -rf \"\$snapshot_tmp\"
-      mkdir -p \"\$snapshot_tmp\"
-      trap 'rm -rf \"\$snapshot_tmp\"' EXIT
+      previous=\$(workspace_privileged find '$REMOTE_RUNTIME_SNAPSHOT_DIR' -mindepth 1 -maxdepth 1 -type d -name '20*' -printf '%f\\n' | sort | tail -n 1)
+      workspace_privileged rm -rf \"\$snapshot_tmp\"
+      workspace_privileged mkdir -p \"\$snapshot_tmp\"
+      trap 'workspace_privileged rm -rf \"\$snapshot_tmp\"' EXIT
       if [ -n \"\$previous\" ]; then
-        rsync -a --delete --link-dest=\"$REMOTE_RUNTIME_SNAPSHOT_DIR/\$previous\" '$REMOTE_WORKSPACE_CONFIG_DIR/' \"\$snapshot_tmp/\"
+        workspace_privileged rsync -a --delete --link-dest=\"$REMOTE_RUNTIME_SNAPSHOT_DIR/\$previous\" '$REMOTE_WORKSPACE_CONFIG_DIR/' \"\$snapshot_tmp/\"
       else
-        rsync -a --delete '$REMOTE_WORKSPACE_CONFIG_DIR/' \"\$snapshot_tmp/\"
+        workspace_privileged rsync -a --delete '$REMOTE_WORKSPACE_CONFIG_DIR/' \"\$snapshot_tmp/\"
       fi
-      mv \"\$snapshot_tmp\" \"\$snapshot\"
+      workspace_privileged mv \"\$snapshot_tmp\" \"\$snapshot\"
       trap - EXIT
-      du -sh \"\$snapshot\"
+      workspace_privileged du -sh \"\$snapshot\"
     else
       echo '[警告] 运行态目录不存在，跳过备份: $REMOTE_WORKSPACE_CONFIG_DIR'
     fi
@@ -1579,11 +1777,11 @@ cleanup_remote_backups() {
   echo "==> 清理服务器备份（每类保留 ${BACKUP_RETENTION_DAYS} 天，最多 ${BACKUP_RETENTION_COUNT} 份）..."
   ssh_cmd "
     set -e
-    mkdir -p '$REMOTE_BACKUP_DIR'
+    workspace_privileged mkdir -p '$REMOTE_BACKUP_DIR'
     if [ ! -f '$REMOTE_WORKSPACE_CONFIG_DIR/maintenance-deploy' ]; then
-      rm -rf '$REMOTE_BACKUP_DIR/maintenance-pinned'
+      workspace_privileged rm -rf '$REMOTE_BACKUP_DIR/maintenance-pinned'
     fi
-    python3 - <<'PY'
+    workspace_privileged python3 - <<'PY'
 from pathlib import Path
 import shutil
 import time
@@ -1690,8 +1888,8 @@ NODE
     app_dir=\$(dirname \"\$release_dir/\$server_entry\")
     test -f \"\$release_dir/\$server_entry\"
 
-    ln -sfn '../../.workspace/.env' \"\$release_dir/.env\"
-    ln -sfn \"\$(realpath --relative-to=\"\$app_dir\" '$REMOTE_WORKSPACE_CONFIG_DIR/.env')\" \"\$app_dir/.env\"
+    ln -sfn \"\$(realpath --relative-to=\"\$release_dir\" '$REMOTE_RUNTIME_ENV_FILE')\" \"\$release_dir/.env\"
+    ln -sfn \"\$(realpath --relative-to=\"\$app_dir\" '$REMOTE_RUNTIME_ENV_FILE')\" \"\$app_dir/.env\"
     rm -rf \"\$release_dir/data\" \"\$app_dir/data\"
 
     if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' ]; then
@@ -1712,9 +1910,19 @@ NODE
       ln -sfn \"\$(realpath --relative-to=\"\$app_dir/public/assets/user\" '$REMOTE_WORKSPACE_CONFIG_DIR/assets/user/avatar')\" \"\$app_dir/public/assets/user/avatar\"
     fi
 
-    grep -q '^WORKSPACE_CONFIG_DIR=' \"\$release_dir/.env\"
-    grep -q '^DATABASE_URL=' \"\$release_dir/.env\"
-    grep -q '^DIRECT_URL=' \"\$release_dir/.env\"
+    test \"\$(readlink -f \"\$release_dir/.env\")\" = \"\$(readlink -f '$REMOTE_RUNTIME_ENV_FILE')\"
+    if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+      sudo -n -- grep -q '^WORKSPACE_CONFIG_DIR=' \"\$release_dir/.env\"
+      sudo -n -- grep -q '^DATABASE_URL=' \"\$release_dir/.env\"
+      if sudo -n -- grep -Eq '^[[:space:]]*(DIRECT_URL|SHADOW_DATABASE_URL)=' \"\$release_dir/.env\"; then
+        echo '[错误] release runtime .env 包含 control-plane 数据库凭据'
+        exit 1
+      fi
+    else
+      grep -q '^WORKSPACE_CONFIG_DIR=' \"\$release_dir/.env\"
+      grep -q '^DATABASE_URL=' \"\$release_dir/.env\"
+      grep -q '^DIRECT_URL=' \"\$release_dir/.env\"
+    fi
     test -f \"\$release_dir/prisma/schema.prisma\"
     test -f \"\$release_dir/prisma/migrations/migration_lock.toml\"
     test -f \"\$release_dir/scripts/check/check-prisma-deploy-status.js\"
@@ -1731,9 +1939,9 @@ NODE
     test -f \"\$release_dir/.release-manifest.json\"
 
     cd \"\$release_dir\"
-    set -a
-    . \"\$release_dir/.env\"
-    set +a
+    # Release/app .env is runtime-only. Migration, seed, and provisioning
+    # deliberately load the trusted control-plane environment.
+    load_control_environment
     export NODE_ENV=production
     cutover_source=\"\${SQLITE_CUTOVER_SOURCE:-}\"
     cutover_rollback_env=\"\${SQLITE_CUTOVER_ROLLBACK_ENV:-}\"
@@ -1941,6 +2149,13 @@ PY
       mv -Tf "\$current_swap_tmp" '$REMOTE_DIR/current'
       current_swap_tmp=''
     }
+    bind_runtime_env_to_release() {
+      local target_release=\$1
+      local target_app=\$2
+      ln -sfn \"\$(realpath --relative-to=\"\$target_release\" '$REMOTE_RUNTIME_ENV_FILE')\" \"\$target_release/.env\"
+      ln -sfn \"\$(realpath --relative-to=\"\$target_app\" '$REMOTE_RUNTIME_ENV_FILE')\" \"\$target_app/.env\"
+      test \"\$(readlink -f \"\$target_release/.env\")\" = \"\$(readlink -f '$REMOTE_RUNTIME_ENV_FILE')\"
+    }
     reset_gateway_overrides_to_full() {
       gateway_generated_at=\$(date -u +'%Y-%m-%dT%H:%M:%S.000Z')
       gateway_generation_id=\$(node '$REMOTE_GATEWAY_GENERATION_TOOL' create-fallback \
@@ -2045,14 +2260,15 @@ NODE
         fi
         if [ \"\$cutover_public_switched\" = '0' ]; then
           echo '[回滚] PostgreSQL writer 已停止且 WAL 未变化，恢复旧 SQLite env 与旧 release。'
-          cp \"\$cutover_rollback_env\" '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp'
-          chmod 600 '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp'
-          mv '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+          cp \"\$cutover_rollback_env\" '$REMOTE_CONTROL_ENV_FILE.rollback.tmp'
+          chmod 600 '$REMOTE_CONTROL_ENV_FILE.rollback.tmp'
+          mv '$REMOTE_CONTROL_ENV_FILE.rollback.tmp' '$REMOTE_CONTROL_ENV_FILE'
           set -a
-          . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+          . '$REMOTE_CONTROL_ENV_FILE'
           set +a
           old_server_entry=\$(cat \"\$old_release/.server-entry\" 2>/dev/null || printf 'server.js')
           old_app_dir=\$(dirname \"\$old_release/\$old_server_entry\")
+          bind_runtime_env_to_release \"\$old_release\" \"\$old_app_dir\"
           pm2 start \"\$old_release/\$old_server_entry\" --name '$PM2_NAME' --cwd \"\$old_app_dir\" --update-env
           rollback_ready=0
           for i in \$(seq 1 20); do
@@ -2092,6 +2308,7 @@ NODE
           echo '[回滚] 新 release 未完成健康/版本/证据提交，恢复上一 PostgreSQL 应用版本。'
           old_server_entry=\$(cat \"\$old_release/.server-entry\" 2>/dev/null || printf 'server.js')
           old_app_dir=\$(dirname \"\$old_release/\$old_server_entry\")
+          bind_runtime_env_to_release \"\$old_release\" \"\$old_app_dir\"
           PORT=3000 HOSTNAME=0.0.0.0 pm2 start \"\$old_release/\$old_server_entry\" --name '$PM2_NAME' --cwd \"\$old_app_dir\" --update-env
           atomic_switch_current \"\$old_release\"
           rollback_ready=0
@@ -2175,9 +2392,7 @@ NODE
           --migration-count '$RELEASE_DATABASE_REPLACEMENT_MIGRATION_COUNT' \
           --migrations-dir \"\$release_dir/prisma/migrations\" \
           --state-file \"\$database_replacement_state\"
-      set -a
-      . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-      set +a
+      load_control_environment
       echo '==> 整库替换已切换；后续 migration/seed/candidate 健康门禁继续复用标准流程'
     fi
     if [ \"\$maintenance_migration_started\" = '1' ]; then
@@ -2369,7 +2584,8 @@ NODE
         echo '==> 所有 writer 已停止并持久化；创建唯一的 migration 前 PostgreSQL 恢复点...'
         maintenance_backup_tmp=\"\$maintenance_backup.tmp.\$\$\"
         rm -f \"\$maintenance_backup_tmp\"
-        pg_dump --format=custom --no-owner --no-privileges --file=\"\$maintenance_backup_tmp\" \"\$DIRECT_URL\"
+        backup_database_url=\"\${WORKSPACE_BACKUP_DATABASE_URL:-\$DIRECT_URL}\"
+        pg_dump --format=custom --no-owner --no-privileges --file=\"\$maintenance_backup_tmp\" \"\$backup_database_url\"
         pg_restore --list \"\$maintenance_backup_tmp\" >/dev/null
         if command -v sha256sum >/dev/null 2>&1; then
           maintenance_backup_sha=\$(sha256sum \"\$maintenance_backup_tmp\" | awk '{print \$1}')
@@ -2459,7 +2675,7 @@ NODE
         --manifest \"\$cutover_manifest\" \\
         --execute
       psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -c \"INSERT INTO \\\"SystemConfig\\\" (\\\"key\\\", \\\"value\\\") VALUES ('database.cutover.marker', '\$SQLITE_CUTOVER_SHA256') ON CONFLICT (\\\"key\\\") DO UPDATE SET \\\"value\\\" = EXCLUDED.\\\"value\\\"\" >/dev/null
-      python3 - '$REMOTE_WORKSPACE_CONFIG_DIR/.env' \"\$cutover_manifest\" \"\$SQLITE_CUTOVER_SHA256\" <<'PY'
+      python3 - '$REMOTE_CONTROL_ENV_FILE' \"\$cutover_manifest\" \"\$SQLITE_CUTOVER_SHA256\" <<'PY'
 import json
 import os
 from pathlib import Path
@@ -2504,10 +2720,12 @@ PY
       echo '[错误] PostgreSQL 存在未验证约束，拒绝启动生产服务'
       exit 1
     fi
-    direct_fingerprint=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc \"SELECT COALESCE((SELECT value FROM \\\"SystemConfig\\\" WHERE key = 'database.cutover.marker'), 'none') || '|' || (SELECT checksum FROM \\\"_prisma_migrations\\\" WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL ORDER BY finished_at DESC LIMIT 1) || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"User\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"Resource\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"FinanceVoucherItem\\\")\")
-    runtime_fingerprint=\$(psql \"\$DATABASE_URL\" -v ON_ERROR_STOP=1 -Atc \"SELECT COALESCE((SELECT value FROM \\\"SystemConfig\\\" WHERE key = 'database.cutover.marker'), 'none') || '|' || (SELECT checksum FROM \\\"_prisma_migrations\\\" WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL ORDER BY finished_at DESC LIMIT 1) || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"User\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"Resource\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"FinanceVoucherItem\\\")\")
+    migration_checksum=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc 'SELECT checksum FROM \"_prisma_migrations\" WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL ORDER BY finished_at DESC LIMIT 1')
+    test -n \"\$migration_checksum\"
+    direct_fingerprint=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc \"SELECT COALESCE((SELECT value FROM \\\"SystemConfig\\\" WHERE key = 'database.cutover.marker'), 'none') || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"User\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"Resource\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"FinanceVoucherItem\\\")\")
+    runtime_fingerprint=\$(psql \"\$DATABASE_URL\" -v ON_ERROR_STOP=1 -Atc \"SELECT COALESCE((SELECT value FROM \\\"SystemConfig\\\" WHERE key = 'database.cutover.marker'), 'none') || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"User\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"Resource\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"FinanceVoucherItem\\\")\")
     if [ -z \"\$direct_fingerprint\" ] || [ \"\$direct_fingerprint\" != \"\$runtime_fingerprint\" ]; then
-      echo '[错误] DATABASE_URL 与 DIRECT_URL 的切换标记、migration checksum 或核心数据指纹不一致'
+      echo '[错误] DATABASE_URL 与 DIRECT_URL 的切换标记或核心数据指纹不一致'
       exit 1
     fi
     echo '==> 写入独立 control-plane lifecycle 回执...'
@@ -2699,6 +2917,7 @@ run_deploy_stage artifact.verify build_artifact
 echo "==> 验证服务器连接..."
 run_deploy_stage transport.connect start_ssh_master
 run_deploy_stage transport.remote-smoke ssh_cmd "echo CONNECTED && whoami && mkdir -p '$REMOTE_DIR'"
+run_deploy_stage runtime.pm2-contract verify_remote_runtime_pm2
 run_deploy_stage deploy.lock acquire_remote_deploy_lock
 run_deploy_stage deploy.tools sync_remote_deploy_tools
 run_deploy_stage deploy.reconcile reconcile_completed_deploy_markers

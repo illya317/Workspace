@@ -62,6 +62,47 @@ test("deploy delegates all receipt reads and writes to one versioned helper", ()
   assert.ok(invocation.indexOf("acquire_remote_deploy_lock") < invocation.indexOf("sync_remote_deploy_tools"));
 });
 
+test("hardened production runtime keeps PM2 and database credentials behind an explicit compatibility seam", () => {
+  assert.match(deploy, /WORKSPACE_RUNTIME_PM2_MODE="\$\{WORKSPACE_RUNTIME_PM2_MODE:-legacy\}"/);
+  assert.match(deploy, /WORKSPACE_RUNTIME_PM2_RUNNER="\$\{WORKSPACE_RUNTIME_PM2_RUNNER:-\/usr\/local\/sbin\/workspace-runtime-pm2\}"/);
+  assert.match(deploy, /WORKSPACE_RUNTIME_PM2_MODE" in\n\s+legacy\|hardened/);
+  assert.match(deploy, /hardened PM2 模式必须隔离 runtime env 与 control-plane env/);
+  assert.match(deploy, /hardened PM2 模式禁止通过 ENV_CONTENT 下发共享凭据/);
+
+  const sshShim = deploy.slice(deploy.indexOf("ssh_cmd()"), deploy.indexOf("start_ssh_master()"));
+  assert.match(sshShim, /pm2\(\)[\s\S]*?sudo -n -- \/usr\/bin\/env[\s\S]*?'\$WORKSPACE_RUNTIME_PM2_RUNNER'/);
+  assert.match(sshShim, /PORT HOSTNAME BUILD_VERSION NEXT_PUBLIC_BUILD_VERSION PG_POOL_MAX PG_APPLICATION_NAME/);
+  assert.match(sshShim, /else\n\s+command pm2/);
+  assert.match(sshShim, /workspace_assert_managed_runtime_environment/);
+  assert.match(sshShim, /\['DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL'/);
+  assert.match(sshShim, /workspace_source_env_file '\$REMOTE_RUNTIME_ENV_FILE'/);
+  assert.match(sshShim, /workspace_source_env_file '\$REMOTE_CONTROL_ENV_FILE'/);
+  assert.match(sshShim, /runtime_database_url=\\\$DATABASE_URL[\s\S]*?DATABASE_URL=\\\$runtime_database_url/);
+  assert.match(sshShim, /WORKSPACE_BACKUP_DATABASE_URL/);
+  assertOrdered(deploy.slice(deploy.indexOf('echo "==> 验证服务器连接..."')), [
+    "start_ssh_master",
+    "verify_remote_runtime_pm2",
+    "acquire_remote_deploy_lock",
+    "reconcile_completed_deploy_markers",
+  ]);
+
+  const remoteDeploy = deploy.slice(
+    deploy.indexOf("deploy_remote_artifact()"),
+    deploy.indexOf("run_healthcheck()"),
+  );
+  assert.match(remoteDeploy, /ln -sfn [^\n]*REMOTE_RUNTIME_ENV_FILE[^\n]*release_dir\/\.env/);
+  assert.match(remoteDeploy, /release runtime \.env 包含 control-plane 数据库凭据/);
+  assert.match(remoteDeploy, /WORKSPACE_BACKUP_DATABASE_URL:-\\\$DIRECT_URL/);
+  assert.doesNotMatch(remoteDeploy, /\. \"\\\$release_dir\/\.env\"/);
+  assertOrdered(remoteDeploy, [
+    "load_control_environment",
+    "migrate deploy --schema=",
+    "seed-resources-runtime.mjs",
+    "PORT=3101 HOSTNAME=127.0.0.1 pm2 start",
+  ]);
+  assert.match(remoteDeploy, /bind_runtime_env_to_release[\s\S]*?pm2 start \\"\\\$old_release/);
+});
+
 test("legacy local receipt repair revalidates the frozen production identity under the deploy lock", () => {
   assert.match(deploy, /deployedReceiptRecovery/);
   assert.match(deploy, /receiptRecovery\.kind !== 'legacy-local-injection-source'/);
@@ -190,7 +231,7 @@ test("a second maintenance attempt keeps old rollback disabled and reuses the ve
   assert.match(deploy, /maintenance_backup_sha\\" != 'pending'[\s\S]*?digest 不匹配/);
   assert.match(
     deploy,
-    /if \[ ! -f '\$REMOTE_WORKSPACE_CONFIG_DIR\/maintenance-deploy' \]; then\n\s+rm -rf '\$REMOTE_BACKUP_DIR\/maintenance-pinned'/,
+    /if \[ ! -f '\$REMOTE_WORKSPACE_CONFIG_DIR\/maintenance-deploy' \]; then\n\s+workspace_privileged rm -rf '\$REMOTE_BACKUP_DIR\/maintenance-pinned'/,
   );
   assert.match(
     deploy,
