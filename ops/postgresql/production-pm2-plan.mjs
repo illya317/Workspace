@@ -1,0 +1,98 @@
+#!/usr/bin/env node
+import { readFileSync, realpathSync, renameSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
+const [command, ...argv] = process.argv.slice(2);
+const valueAfter = (flag) => { const index = argv.indexOf(flag); return index >= 0 ? argv[index + 1] : ""; };
+const fail = (message) => { console.error("[错误] " + message); process.exit(1); };
+const readJson = (file) => JSON.parse(readFileSync(file, "utf8"));
+const writePrivateJson = (file, value) => {
+  const temporary = file + ".tmp-" + process.pid;
+  writeFileSync(temporary, JSON.stringify(value, null, 2) + "\n", { mode: 0o600 });
+  renameSync(temporary, file);
+};
+const REQUIRED_NAMES = new Set(["workspace", "workspace-wecom-agent"]);
+const managedName = (name) => REQUIRED_NAMES.has(name);
+const SAFE_ENV = new Set([
+  "PORT", "HOSTNAME", "BUILD_VERSION", "NEXT_PUBLIC_BUILD_VERSION", "PG_POOL_MAX",
+  "PG_APPLICATION_NAME", "WORKSPACE_DEPLOY_UNIT_ID", "WORKSPACE_INTERNAL_ORIGIN",
+  "WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE", "WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE",
+  "WORKSPACE_INTERNAL_REPLAY_DIRECTORY", "WECHAT_BOT_BRIDGE_URL",
+]);
+const safeArgument = (value) => !/postgres(?:ql)?:\/\/[^\s:]+:[^\s@]+@/i.test(value)
+  && !/(?:password|secret|token|api[_-]?key)=/i.test(value);
+if (command === "create") {
+  const input = valueAfter("--input");
+  const output = valueAfter("--output");
+  const remoteRootInput = path.resolve(valueAfter("--remote-root"));
+  let remoteRoot;
+  try { remoteRoot = realpathSync(remoteRootInput); } catch { fail("remote root 不存在"); }
+  if (!input || !output || remoteRoot === path.parse(remoteRoot).root) fail("create 参数不完整");
+  const source = readJson(input);
+  if (!Array.isArray(source)) fail("PM2 snapshot 不是数组");
+  const unexpected = source.map((entry) => String(entry?.name ?? ""))
+    .filter((name) => name.startsWith("workspace") && !managedName(name));
+  if (unexpected.length) fail("存在未纳入迁移的 Workspace 进程: " + unexpected.sort().join(", "));
+  const processes = source.filter((entry) => managedName(entry?.name)).map((entry) => {
+    const env = entry.pm2_env ?? {};
+    let executable;
+    let cwd;
+    try {
+      executable = realpathSync(path.resolve(String(env.pm_exec_path ?? "")));
+      cwd = realpathSync(path.resolve(String(env.pm_cwd ?? "")));
+    } catch { fail(entry.name + " 的 exec/cwd 不存在"); }
+    const systemNode = realpathSync(process.execPath);
+    if ((!executable.startsWith(remoteRoot + "/") && executable !== systemNode) || !cwd.startsWith(remoteRoot + "/")) {
+      fail(entry.name + " 的 exec/cwd 不在 Workspace runtime root");
+    }
+    const runtimeEnv = {};
+    for (const key of SAFE_ENV) {
+      const value = env[key];
+      if (typeof value === "string" && value) runtimeEnv[key] = value;
+    }
+    const args = Array.isArray(env.args) ? env.args.map(String) : [];
+    if (args.some((value) => !safeArgument(value))) fail(entry.name + " 的 argv 疑似包含 secret");
+    return { name: entry.name, executable, cwd, args, env: runtimeEnv };
+  }).sort((left, right) => left.name.localeCompare(right.name));
+  for (const required of REQUIRED_NAMES) {
+    if (processes.filter((entry) => entry.name === required).length !== 1) fail("PM2 snapshot 必须且只能有一个 " + required);
+  }
+  writePrivateJson(output, { schemaVersion: 1, kind: "workspace-production-pm2-migration", createdAt: new Date().toISOString(), processes });
+  process.stdout.write("planned " + processes.length + " Workspace process(es)\n");
+} else if (command === "apply" || command === "delete") {
+  const plan = readJson(valueAfter("--plan"));
+  const runner = valueAfter("--runner");
+  if (plan?.kind !== "workspace-production-pm2-migration" || !runner) fail("plan/runner 无效");
+  for (const processSpec of plan.processes) {
+    const args = command === "delete" ? ["delete", processSpec.name]
+      : ["start", processSpec.executable, "--name", processSpec.name, "--cwd", processSpec.cwd, "--update-env", "--", ...processSpec.args];
+    const result = spawnSync(runner, args, {
+      encoding: "utf8",
+      env: { PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", ...processSpec.env },
+    });
+    if (result.status !== 0) fail(command + " " + processSpec.name + " 失败");
+  }
+} else if (command === "verify") {
+  const plan = readJson(valueAfter("--plan"));
+  const runner = valueAfter("--runner");
+  const result = spawnSync(runner, ["jlist"], { encoding: "utf8", env: { PATH: process.env.PATH ?? "/usr/bin" } });
+  if (result.status !== 0) fail("无法读取隔离 PM2 状态");
+  const actual = JSON.parse(result.stdout || "[]");
+  const unexpected = actual.map((entry) => String(entry?.name ?? ""))
+    .filter((name) => name.startsWith("workspace") && !managedName(name));
+  if (unexpected.length) fail("隔离 PM2 存在额外 Workspace 进程: " + unexpected.sort().join(", "));
+  for (const expected of plan.processes) {
+    const matches = actual.filter((entry) => entry?.name === expected.name);
+    if (matches.length !== 1) fail(expected.name + " 进程数不等于 1");
+    const match = matches[0];
+    if (match?.pm2_env?.status !== "online") fail(expected.name + " 未 online");
+    const processEnv = { ...(match.pm2_env.env ?? {}), ...match.pm2_env };
+    if (processEnv.DIRECT_URL || processEnv.SHADOW_DATABASE_URL) fail(expected.name + " 泄露 control-plane URL");
+    let user = "";
+    try { user = decodeURIComponent(new URL(String(processEnv.DATABASE_URL || "")).username); } catch {}
+    if (user !== "workspace_runtime") fail(expected.name + " 未使用 workspace_runtime");
+  }
+  process.stdout.write("verified " + plan.processes.length + " Workspace process(es)\n");
+} else {
+  fail("用法: production-pm2-plan.mjs create|apply|delete|verify ...");
+}

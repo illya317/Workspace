@@ -1,0 +1,47 @@
+[Unit]
+Description=Workspace isolated PM2 runtime
+After=network.target postgresql.service
+Wants=postgresql.service
+[Service]
+Type=forking
+User=workspace-runtime
+Group=workspace-runtime
+Environment=HOME=/var/lib/workspace-runtime
+Environment=PM2_HOME=/var/lib/workspace-runtime/.pm2
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+EnvironmentFile=/home/ubuntu/workspace/.workspace/runtime.env
+UnsetEnvironment=DIRECT_URL SHADOW_DATABASE_URL
+PIDFile=/var/lib/workspace-runtime/.pm2/pm2.pid
+ExecStart=/usr/bin/pm2 resurrect
+ExecReload=/usr/bin/pm2 reload all --update-env
+ExecStop=/usr/bin/pm2 kill
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/var/lib/workspace-runtime
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/library
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/data/docs-editor/templates
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/data/qc-batches.json
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/data/qc-template-feedback.json
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/data/qc.json
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/assets/agent/avatar
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/assets/user/avatar
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/template/hr/position-description-view-templates.json
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/agent/sessions
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/agent/wecom-bot-state.json
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/cache/production/qc
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/tmp
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/runtime/kimi-agent/work
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/runtime/kimi-agent/turns
+ReadWritePaths=-/home/ubuntu/workspace/.workspace/runtime/kimi-agent/home
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+[Install]
+WantedBy=multi-user.target
