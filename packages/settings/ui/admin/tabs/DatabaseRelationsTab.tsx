@@ -345,14 +345,6 @@ export function useDatabaseRelationsTab({ enabled, showToast }: UseDatabaseRelat
       content: loading ? "正在读取数据库结构" : "暂无数据关系",
     })])
     : createPageBody([
-        createMetricsSection("database-schema-metrics", {
-          metrics: [
-            { key: "tables", label: "当前数据表", value: visibleTables.length },
-            { key: "columns", label: "当前字段", value: visibleTables.reduce((sum, table) => sum + table.columnCount, 0) },
-            { key: "relations", label: "当前外键", value: visibleRelations.length },
-            { key: "schema", label: "数据库 Schema", value: `${catalog.databaseName} / ${catalog.schemaName}` },
-          ],
-        }),
         ...(graph ? [createVisualizationSection("database-schema-graph", {
           kind: "chart",
           chart: {
@@ -367,6 +359,14 @@ export function useDatabaseRelationsTab({ enabled, showToast }: UseDatabaseRelat
             visual: graph,
           },
         })] : []),
+        createMetricsSection("database-schema-metrics", {
+          metrics: [
+            { key: "tables", label: "当前数据表", value: visibleTables.length },
+            { key: "columns", label: "当前字段", value: visibleTables.reduce((sum, table) => sum + table.columnCount, 0) },
+            { key: "relations", label: "当前外键", value: visibleRelations.length },
+            { key: "schema", label: "数据库 Schema", value: `${catalog.databaseName} / ${catalog.schemaName}` },
+          ],
+        }),
         ...(selectedTable ? [{
           ...createPageTableSection("database-table-fields", {
             rows: selectedTable.columns,
