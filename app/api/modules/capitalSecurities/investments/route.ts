@@ -1,0 +1,39 @@
+import { z } from "zod";
+
+import {
+  createInvestmentEnterprise,
+  getInvestmentEnterpriseWorkspace,
+  updateInvestmentEnterprise,
+} from "@workspace/capital-securities/server/investment-enterprises";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+const querySchema = z.object({
+  keyword: z.string().catch(""),
+  profileId: z.coerce.number().int().positive().optional(),
+});
+
+const profileSchema = z.object({
+  id: z.coerce.number().int().positive().optional(),
+  version: z.coerce.number().int().nonnegative().optional(),
+  companyId: z.coerce.number().int().positive().optional(),
+  portfolioCode: z.string().min(1).max(80),
+}).passthrough();
+
+export const GET = createCommandRoute({
+  querySchema,
+  buildCommand: ({ query, user }) => okCommand({ userId: user.userId, keyword: query.keyword, profileId: query.profileId ?? null }),
+  action: getInvestmentEnterpriseWorkspace,
+});
+
+export const POST = createCommandRoute({
+  bodySchema: profileSchema.extend({ companyId: z.coerce.number().int().positive() }),
+  buildCommand: ({ body, user }) => okCommand({ userId: user.userId, body }),
+  action: createInvestmentEnterprise,
+});
+
+export const PUT = createCommandRoute({
+  bodySchema: profileSchema.extend({ id: z.coerce.number().int().positive(), version: z.coerce.number().int().nonnegative() }),
+  buildCommand: ({ body, user }) => okCommand({ userId: user.userId, body }),
+  action: updateInvestmentEnterprise,
+});

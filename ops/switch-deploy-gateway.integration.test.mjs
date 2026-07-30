@@ -137,6 +137,10 @@ test("switch bootstraps the Nginx include and atomically selects an immutable ge
   assert.match(site, new RegExp(`include ${files.gatewayRoot.replaceAll("/", "\\/")}\/current\/workspace-gateway\\.conf;`));
   assert.doesNotMatch(site, /proxy_pass http:\/\/127\.0\.0\.1:3000/);
   assert.equal(path.basename(readlinkSync(path.join(files.gatewayRoot, "current"))), path.basename(blue));
+  assert.equal(
+    readFileSync(path.join(files.gatewayRoot, "committed-generation"), "utf8").trim(),
+    path.basename(blue),
+  );
 
   const idempotent = runSwitch(files, blue);
   assert.equal(idempotent.status, 0, idempotent.stderr);
@@ -151,4 +155,8 @@ test("failed Nginx reload restores the previous Gateway generation", () => {
   const failed = runSwitch(files, green, { FAIL_GATEWAY_RELOAD: "1" });
   assert.notEqual(failed.status, 0);
   assert.equal(path.basename(readlinkSync(path.join(files.gatewayRoot, "current"))), oldGenerationId);
+  assert.equal(
+    readFileSync(path.join(files.gatewayRoot, "committed-generation"), "utf8").trim(),
+    oldGenerationId,
+  );
 });

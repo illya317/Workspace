@@ -85,6 +85,32 @@ test("registered route shells use the C2 module readiness fast path", () => {
   assert.equal(impact.failClosed, false);
 });
 
+test("NEWS read entrypoints use readiness while unverified writes stay fail closed", () => {
+  const readImpact = resolveModuleImpact(map, [
+    "app/(modules)/news/page.tsx",
+    "app/api/modules/news/route.ts",
+  ]);
+  assert.deepEqual(readImpact.requiredSuites, ["module-readiness"]);
+  assert.deepEqual(readImpact.matchedRuleIds, [
+    "news-api-readiness",
+    "news-page-readiness",
+  ]);
+  assert.deepEqual(readImpact.affectedModules, ["news"]);
+  assert.equal(readImpact.riskFloor, "C2");
+  assert.equal(readImpact.failClosed, false);
+
+  const writePath = "packages/news/server/news-service.ts";
+  const writeImpact = resolveModuleImpact(map, [writePath]);
+  assert.deepEqual(writeImpact.requiredSuites, ["module-readiness"]);
+  assert.deepEqual(writeImpact.matchedRuleIds, ["news-write-unverified"]);
+  assert.deepEqual(writeImpact.affectedModules, ["news"]);
+  assert.deepEqual(writeImpact.potentialWritePaths, [writePath]);
+  assert.deepEqual(writeImpact.unmappedModulePaths, []);
+  assert.deepEqual(writeImpact.unmappedWritePaths, [writePath]);
+  assert.equal(writeImpact.riskFloor, "C3");
+  assert.equal(writeImpact.failClosed, true);
+});
+
 test("explicit read-only UI can use C2 while unclassified UI remains C3", () => {
   const readOnlyImpact = resolveModuleImpact(map, [
     "packages/work/ui/home/WorkHomePage.tsx",

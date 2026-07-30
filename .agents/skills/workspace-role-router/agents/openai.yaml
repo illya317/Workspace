@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workspace Role Router"
+  short_description: "Choose the right Workspace delivery role first"
+  default_prompt: "Use $workspace-role-router to choose the primary Workspace role before starting this task."

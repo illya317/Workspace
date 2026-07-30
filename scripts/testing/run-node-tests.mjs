@@ -38,6 +38,7 @@ const clientReactTests = new Set([
   "packages/finance/ui/assets/asset-location.test.ts",
   "packages/finance/ui/tax/tax-ui-sections.test.ts",
   "packages/settings/ui/admin/tabs/SourceCodeAnalysisSection.test.ts",
+  "packages/settings/ui/settings/NotificationPublishingWorkbench.test.ts",
 ]);
 
 function walk(repositoryRoot, relativeDir) {

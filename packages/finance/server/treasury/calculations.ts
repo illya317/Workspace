@@ -4,6 +4,22 @@ export function roundMoney(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+export function calculateInterestDayCount(
+  from: string,
+  through: string,
+  convention: "actual_365" | "actual_360" | "30_360",
+) {
+  if (convention === "30_360") {
+    const [fromYear, fromMonth, fromDay] = from.split("-").map(Number);
+    const [toYear, toMonth, toDay] = through.split("-").map(Number);
+    return (toYear - fromYear) * 360 + (toMonth - fromMonth) * 30
+      + Math.max(0, Math.min(30, toDay) - Math.min(30, fromDay)) + 1;
+  }
+  return Math.round(
+    (Date.parse(`${through}T00:00:00.000Z`) - Date.parse(`${from}T00:00:00.000Z`)) / 86_400_000,
+  ) + 1;
+}
+
 export function calculateBankReconciliation(input: {
   statementEndingBalance: number;
   ledgerEndingBalance: number;

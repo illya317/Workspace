@@ -24,3 +24,21 @@ test("relation policy persistence belongs to Settings governance", () => {
   assert.equal(databaseTableOwnerKey("RelationPolicyConfig"), "settings.governance");
   assert.equal(databaseTableOwnerKey("RelationPolicyRevision"), "settings.governance");
 });
+
+test("investment enterprise entities belong to the Capital Securities investments resource", () => {
+  const tables = [
+    "InvestmentEnterpriseProfile",
+    "InvestmentEnterpriseMeeting",
+    "InvestmentEnterpriseDiligenceItem",
+    "InvestmentEnterpriseContract",
+    "InvestmentEnterpriseMonitoringRecord",
+    "InvestmentEnterpriseDocumentLink",
+  ];
+
+  assert.deepEqual(tables.map(databaseTableOwnerKey), tables.map(() => "capitalSecurities.investments"));
+});
+
+test("investor profile entities belong to the Capital Securities investors resource", () => {
+  assert.equal(databaseTableOwnerKey("InvestorShareholderProfile"), "capitalSecurities.investors");
+  assert.equal(databaseTableOwnerKey("InvestorDueDiligenceRecord"), "capitalSecurities.investors");
+});

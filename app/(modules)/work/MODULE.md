@@ -58,6 +58,9 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 - `Project`：项目事实表。通过 `projectType` 区分公司项目、部门项目、其他项目。技术枚举 `company` 保留为组织级项目的存量编码。
 - `EmployeeProject`：项目人员/项目角色关联表，承接项目负责人和 RASCI 项目分工。
 - `ProjectPlanPhase` / `ProjectPlanBaseline`：存量项目甘特兼容模型；不再作为 `/work/project` 的任务编辑入口。
+- `ProjectNotificationRule`：项目通知监管规则头；不可变 revision 保存每次完整条件、RASCI 受众、渠道和冷却策略，evaluation 账本保存每次项目事件或每日巡检的结果。
+- `ProjectNotificationRuleLifecycleEvent`：规则发布/归档的不可变生命周期事实；固化 revision、操作者、动作时间和前后版本，不能用可覆盖的 head 字段代替历史。
+- `ProjectNotificationSignal`：项目通知事件 outbox；项目字段、归档/恢复和阶段排期对项目日期的写入，都在同一事务中固化当时版本快照和唯一 signalId，再由带租约的消费者重试评估。
 
 `Project` / `EmployeeProject` 表名保留是存量 schema 命名，不代表项目仍归 HR；业务归属是 Work。
 `EmployeeProject.startDate/endDate` 是项目角色的包含式有效期间。项目列表可见性、对象 view/edit/manage/delete、项目甘特负责人和系统计划 owner 都只消费业务日有效成员，并同时要求成员员工存在当前 Employment；非管理员的项目创建者特权也要求当前 Employment。岗位/部门 scoped grant 的主体也只能从同一业务日有效的 Employment + EDP 派生，历史或非法任职不得继续携带授权。离职从生效日 D 起停止授予项目角色、创建者特权和历史岗位/部门授权，但历史成员记录继续保留。账号停用是独立动作，不能靠忽略成员期间来维持权限。
@@ -65,6 +68,10 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 项目成员使用稳定 `membershipUid` 和递增 `sequence` 形成有效版本；新增、角色变化、历史纠错、终止、取消未来与拒绝邀请都进入 `ProjectMembershipChange` 命令台账。所有命令要求幂等键，修改既有版本时还要求 expected version，并在 Serializable 事务中检查同一成员/项目期间不重叠；终结旧版本前的完整 `sourceBefore`、重新打开的来源快照及新旧版本引用都保存在不可变回执中。成员历史不允许普通更新、硬删或通用审计恢复；列表/详情按服务端基准日分开返回当前、待生效和历史。
 
 `/work/project` 是项目库和项目组合管理入口，仅用于项目新建、项目列表、总览和存量阶段排期；“阶段排期”作为 `/work/project/:projectId` 内的独立 tab 展示。真正的执行甘特位于 `/work/project/:projectId/space` 的“计划 → 甘特图”，使用 `targetType=project` 和 `targetId=projectId`，并与部门空间复用同一套 Work Tasks 工作台。项目工作台的读写权限先由项目自身成员/负责人权限派生。
+
+项目详情的“通知监管”属于 `work.projects`，而不是 Settings 的全局定义编辑器。Work 只决定何时通知、通知哪些项目 RASCI 角色以及选择 Workspace/企业微信受控渠道；Platform 负责已发布 `custom.*` 定义、幂等发布、站内投影、企业微信 outbox 和投递回执。规则条件只能读取登记的项目快照字段，禁止脚本、SQL、正则、任意字段路径、裸 `chatid` 和 webhook。规则发布要求项目 manage/update 能力与显式 `settings.notifications.configure` 同时成立；读取、预览和评估账本分别复核通知 read/audit 能力。
+
+项目字段更新、归档、恢复以及阶段排期对项目实际日期的更新，必须在项目事实写事务内同时写入稳定版本信号，并固化事件发生时生效的 `(ruleId, publishedRevision)`；连续版本延迟消费时，各自只读取事务内固化的事件与规则修订快照，后续重发或归档不能隐藏旧事件。每日监管巡检使用业务日幂等信号。提交后只做尽力 drain；进程崩溃、租约过期或基础设施异常由 scheduler 的分钟级 backlog drain 批量回收并按有界退避重试，达到上限后保留 failed/dead-letter 状态，不能静默丢失。单条规则的坏配置写入 error evaluation 后继续其他规则；未知或暂态故障也必须先评估后续规则，再令整条 signal 重试。同一规则的状态、publishedRevision、cooldown、幂等发布和 evaluation 在规则行锁内复核，避免并发突破冷却窗口。通知失败不得回滚已经提交的项目事实，必须进入 signal/evaluation/delivery 账本。存在信号、规则或评估历史的项目不能硬删，应归档并保留监管证据。项目 RASCI 受众以 `signal.occurredAt` 对应业务日解析 `EmployeeProject` 与 Employment 的有效期间；这不是完整受众快照，回放依赖已保留的成员/任职有效期版本，账号 `username/canLogin` 与企业微信 `wxUserId` 仍使用消费时的当前事实，存量未版本化 RASCI 或账号绑定不能重建为历史值。企业微信复用 Assistant 的单一 Bot 长连接。
 
 ### 工作计划
 

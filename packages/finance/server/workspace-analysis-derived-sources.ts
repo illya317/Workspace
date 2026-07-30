@@ -178,7 +178,7 @@ export const FINANCE_MANAGEMENT_BUDGET_VARIANCES_SOURCE = source<ManagementBudge
 });
 export const FINANCE_MANAGEMENT_PERFORMANCE_SOURCE = source<ManagementPerformanceKpi>({
   sourceKey: "finance.analysis.management.performance", label: "管理绩效 KPI", description: "增长、利润、偿债和现金 KPI。", apiPath: "/api/modules/finance/analysis/management", rowsPath: "performance",
-  fields: { key: f("指标键", "KPI 稳定键。", "text"), label: f("指标名称", "KPI 名称。", "text"), value: f("本期值", "本期指标值。", "number"), priorValue: f("上期值", "比较期间指标值。", "number"), format: f("格式", "amount、percent、ratio 或 days。", "text"), direction: f("方向", "higher、lower 或 context。", "text"), source: f("事实来源", "指标事实来源。", "text") },
+  fields: { category: f("指标类别", "增长、盈利、效率、偿债或现金质量。", "text"), key: f("指标键", "KPI 稳定键。", "text"), label: f("指标名称", "KPI 名称。", "text"), value: f("本期值", "本期指标值。", "number"), priorValue: f("上期值", "比较期间指标值。", "number"), format: f("格式", "amount、percent、ratio 或 days。", "text"), direction: f("方向", "higher、lower 或 context。", "text"), source: f("事实来源", "指标事实来源。", "text") },
 });
 export const FINANCE_MANAGEMENT_RISKS_SOURCE = source<ManagementRiskFinding>({
   sourceKey: "finance.analysis.management.risks", label: "经营风险发现", description: "按既定阈值产生的经营风险发现。", apiPath: "/api/modules/finance/analysis/management", rowsPath: "risks",

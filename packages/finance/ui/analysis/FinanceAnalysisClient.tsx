@@ -28,7 +28,7 @@ import {
   type ManagementAccountingView,
 } from "./ManagementAccountingSections";
 
-function useManagementData(scope: string, year: number) {
+function useManagementData(scope: string, year: number, month: number | null) {
   const [data, setData] = useState<ManagementAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,6 +38,7 @@ function useManagementData(scope: string, year: number) {
     setLoading(true);
     setError(null);
     const params = new URLSearchParams({ companyCodes: scope, year: String(year) });
+    if (month !== null) params.set("month", String(month));
     fetch(workspacePath(`/api/modules/finance/analysis/management?${params}`), { signal: controller.signal })
       .then(async (response) => {
         const payload = await response.json();
@@ -53,7 +54,7 @@ function useManagementData(scope: string, year: number) {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [scope, year]);
+  }, [scope, year, month]);
 
   return { data, error, loading };
 }
@@ -74,8 +75,9 @@ export default function FinanceAnalysisClient({ user: _user }: { user: SessionUs
   const companyOptions = useCompanyOptions();
   const [scope, setScope] = useState(defaultScope);
   const [year, setYear] = useState(tenant.finance.defaultAnalysisYear);
+  const [month, setMonth] = useState<number | null>(null);
   const [view, setView] = useState<ManagementAccountingView>("overview");
-  const { data, error, loading } = useManagementData(scope, year);
+  const { data, error, loading } = useManagementData(scope, year, month);
   const navigation = useMemo(() => createPageTabBar({
     items: managementAccountingTabs,
     active: view,
@@ -88,9 +90,13 @@ export default function FinanceAnalysisClient({ user: _user }: { user: SessionUs
   ];
   const availableYears = data?.fundFlow.scope.availableYears.length ? data.fundFlow.scope.availableYears : [year];
   const yearOptions = availableYears.map((value) => ({ value: String(value), label: String(value) }));
+  const resolvedMonth = month ?? data?.scope.month ?? 12;
+  const availableMonths = data?.fundFlow.scope.availableMonths.length ? data.fundFlow.scope.availableMonths : [resolvedMonth];
+  const monthOptions = availableMonths.map((value) => ({ value: String(value), label: value === 12 ? "12月（全年）" : `${value}月（累计）` }));
   const toolbarItems: SurfaceToolbarItems = [
-    { kind: "select", key: "scope", label: "分析范围", options: scopeOptions, value: scope, onChange: setScope },
-    { kind: "select", key: "year", label: "年度", options: yearOptions, value: String(year), onChange: (value) => setYear(Number(value)) },
+    { kind: "select", key: "scope", label: "分析范围", options: scopeOptions, value: scope, onChange: (value) => { setScope(value); setMonth(null); } },
+    { kind: "select", key: "year", label: "年度", options: yearOptions, value: String(year), onChange: (value) => { setYear(Number(value)); setMonth(null); } },
+    { kind: "select", key: "month", label: "截至月份", options: monthOptions, value: String(resolvedMonth), onChange: (value) => setMonth(Number(value)) },
     { kind: "text", key: "period", content: data?.scope.periodLabel ?? `${year}年` },
     ...(loading ? [{ kind: "text" as const, key: "loading", content: "正在核对三表、流水、预算与成本数据…" }] : []),
   ];

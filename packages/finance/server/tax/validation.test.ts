@@ -15,7 +15,6 @@ function dependencies(overrides: Partial<TaxValidationDependencies> = {}): TaxVa
     findCompanyByCode: async (code) => ({ id: 2, code, isActive: true }),
     findPeriod: async (id) => ({ id, companyCode: "ZX02", year: 2026, month: 6, isClosed: false }),
     findTaxType: async (id) => ({ id, isActive: true }),
-    partyExists: async () => true,
     findRegistration: async (id) => ({
       id,
       companyCode: "ZX02",

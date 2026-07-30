@@ -133,7 +133,7 @@ const interestLine = z.object({
   accrualThrough: date,
   principalBasis: z.coerce.number().finite().nonnegative().max(1e15),
   annualRate: rate,
-  dayCount: z.coerce.number().int().positive().max(366),
+  dayCount: z.coerce.number().int().positive().max(366).optional(),
   sourceReportedInterestAmount: money.nullish(),
   note: optionalText,
 });

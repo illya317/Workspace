@@ -21,7 +21,7 @@ mock.module("./access", {
     canViewWorkTaskTarget: async () => { calls.push("tasks"); return allowed; },
   },
 } as never);
-mock.module("./meeting-access", {
+mock.module("./meetings/access", {
   namedExports: {
     canUseMeetings: async () => { calls.push("meetings"); return allowed; },
   },

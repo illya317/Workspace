@@ -8,27 +8,24 @@ import {
   accumulateAmount, acquisitionEvidenceSummary, resolveConfirmedDisposalDate, disposalVoucherMatches,
   fullVoucherSummary, impairmentVoucherMatches, impairmentVoucherSummary, policySnapshotMatches,
   postedVoucherInScope, relevantPolicies, scopedVoucherSummary, uniqueDepreciationVouchers,
-  voucherItemsMatchTotals, type AssetCloseCard, type AssetDepreciationCloseFacts,
-  type AssetDepreciationVoucherFact, type AssetImpairmentCloseFacts, type AssetMovementCloseFacts,
+  voucherItemsMatchTotals, type AssetCloseCard, type AssetDepreciationCloseFacts, type AssetDepreciationVoucherFact,
+  type AssetImpairmentCloseFacts, type AssetMovementCloseFacts,
 } from "./close-provider-evidence";
 import { moneyEquals, moneyIsNonZero, moneyIsZero, moneyToCents, voucherItemsAreFullyConsumed } from "./money-cents";
+import { buildSourceClosedCutoverOutcome, isControlledCutoverOpening } from "./close-cutover-policy";
 import { FINANCE_ASSET_LEGACY_CUTOVER_MODE } from "./legacy-cutover";
 
 export type { AssetCloseCard, AssetDepreciationCloseFacts, AssetImpairmentCloseFacts, AssetMovementCloseFacts, AssetPolicyFact } from "./close-provider-evidence";
-
 const unique = (values: string[]) => [...new Set(values)].sort();
 type AssetCloseDeepLinkView = "cards" | "period" | "adjustments";
 const scopedLink = (view: AssetCloseDeepLinkView, scope: FinanceCloseScope) => `/finance/assets?view=${view}&companyCode=${encodeURIComponent(scope.companyCode)}&year=${scope.year}&month=${scope.month}`;
 const money = (value: unknown) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
-
 function result(
   status: FinanceCloseProviderInspection["status"],
   contributorVersion: string,
   deepLink: string,
   payload: unknown,
-  blockers: FinanceCloseBlockerDto[] = [],
-  evidenceRefs: string[] = [],
-  voucherRefs: string[] = [],
+  blockers: FinanceCloseBlockerDto[] = [], evidenceRefs: string[] = [], voucherRefs: string[] = [],
 ): FinanceCloseProviderInspection {
   const normalizedEvidenceRefs = unique(evidenceRefs);
   const normalizedVoucherRefs = unique(voucherRefs);
@@ -69,7 +66,9 @@ export function inspectAssetMovementCloseFacts(
     return result("ready", "asset-movements-close-v2", deepLink, payload);
   }
   for (const card of relevantCards) {
-    if (!card.acquisitionDate) blockers.push(issue("asset_acquisition_date_missing", `资产 ${card.assetCode} 缺少取得日期，无法判断本期增减`, deepLink));
+    if (!card.acquisitionDate && !isControlledCutoverOpening(card, end)) {
+      blockers.push(issue("asset_acquisition_date_missing", `资产 ${card.assetCode} 缺少取得日期，无法判断本期增减`, deepLink));
+    }
     if (card.status !== "active" && (!card.disposal || card.disposal.status !== "confirmed")) blockers.push(issue("asset_disposal_fact_missing", `资产 ${card.assetCode} 状态为 ${card.status}，但缺少已确认处置事实`, scopedLink("adjustments", scope)));
     if (card.status === "active" && card.disposal?.status === "confirmed" && card.disposal.disposalDate <= end) blockers.push(issue("asset_disposal_status_inconsistent", `资产 ${card.assetCode} 已确认处置但卡片仍为使用中`, deepLink));
     const policy = policyByCategory.get(card.categoryId);
@@ -243,6 +242,11 @@ export function inspectAssetDepreciationCloseFacts(
   const policyByCategory = new Map(facts.policies.map((policy) => [policy.categoryId, policy]));
   const blockers: FinanceCloseBlockerDto[] = [];
   const relevantCards = facts.cards.filter((card) => !card.disposal || card.disposal.status !== "confirmed" || card.disposal.disposalDate >= start);
+  const sourceClosedCutover = buildSourceClosedCutoverOutcome(scope, facts, relevantCards, end);
+  if (sourceClosedCutover) {
+    return result("ready", "asset-depreciation-close-v2+source-closed-cutover-v1", deepLink,
+      sourceClosedCutover.payload, [], sourceClosedCutover.evidenceRefs, sourceClosedCutover.voucherRefs);
+  }
   if (relevantCards.length === 0) {
     const payload = { periodId, applicable: false, applicabilityEstablished: facts.applicabilityEstablished, assetGlBalance: money(facts.assetGlBalance), assetCount: 0 };
     if (!facts.applicabilityEstablished) return result("blocked", "asset-depreciation-close-v2", deepLink, payload, [issue("asset_applicability_unproven", "尚未配置公司年度资产政策，无法证明本期不适用折旧摊销", deepLink)]);

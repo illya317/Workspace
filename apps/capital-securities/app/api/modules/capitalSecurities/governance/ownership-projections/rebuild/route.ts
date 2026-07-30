@@ -2,11 +2,11 @@
 import { z } from "zod";
 
 import {
-  buildOwnershipProjectionRebuildCommand,
   OwnershipProjectionRebuildError,
   rebuildOwnershipProjection,
 } from "@workspace/capital-securities/server";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const rebuildBodySchema = z.object({
@@ -16,7 +16,7 @@ const rebuildBodySchema = z.object({
 
 export const POST = createCommandRoute({
   bodySchema: rebuildBodySchema,
-  buildCommand: ({ body, user }) => buildOwnershipProjectionRebuildCommand({
+  buildCommand: ({ body, user }) => okCommand({
     ...body,
     triggeredBy: user.userId,
   }),

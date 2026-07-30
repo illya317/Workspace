@@ -18,6 +18,7 @@ test("parses the Fenghua layout and normalizes intangible amortization labels", 
   const fixed = parsed.assets.find((asset) => asset.assetKind === "fixed_asset");
   assert.equal(fixed?.depreciationStartDate, undefined);
   assert.ok(parsed.warnings.some((item) => item.code === "FIXED_DEPRECIATION_START_MISSING" && item.sourceRange === "9&10-1!A4:T4"));
+  assert.ok(parsed.warnings.every((item) => item.note === "证据完整性由人工复核，不阻断导入"));
   assert.ok(parsed.blockers.some((item) => item.code === "DEFERRED_ACCUMULATED_CONTROL_FAILED"));
   assert.ok(parsed.warnings.some((item) => item.code === "LEASEHOLD_IMPROVEMENT_EVIDENCE_MISSING"));
 });

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workspace Review"
+  short_description: "Independently review Workspace delivery risks"
+  default_prompt: "Use $workspace-review to independently review the final Workspace diff and validation evidence."

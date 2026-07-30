@@ -14,7 +14,7 @@ export type TaxScope = { companyCode: string; year: number; month: number };
 export type TaxRegistrationWriteInput = FinanceSourceTraceInput & {
   companyCode: string;
   taxTypeId: number;
-  authorityPartyId?: number | null;
+  authorityName?: string | null;
   registrationNo: string;
   jurisdiction: string;
   filingFrequency: "monthly" | "quarterly" | "annual" | "event";

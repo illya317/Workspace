@@ -25,6 +25,7 @@ const BUSINESS_PACKAGE_SCOPES = new Set([
   "hr",
   "inventory",
   "library",
+  "news",
   "production",
   "work",
 ]);

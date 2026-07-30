@@ -19,7 +19,7 @@ export const taxScopeSchema = z.object({
 });
 
 const registration = z.object({
-  ...source, companyCode: text, taxTypeId: id, authorityPartyId: id.nullish(),
+  ...source, companyCode: text, taxTypeId: id, authorityName: optionalText,
   registrationNo: text, jurisdiction: text,
   filingFrequency: z.enum(["monthly", "quarterly", "annual", "event"]),
   effectiveFrom: date, effectiveThrough: date.nullish(),

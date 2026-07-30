@@ -19,7 +19,7 @@ export type TaxTypeRow = {
 export type RegistrationRow = FinanceSourceTraceInput & {
   id: number;
   taxTypeId: number;
-  authorityPartyId: number | null;
+  authorityName: string | null;
   registrationNo: string;
   jurisdiction: string;
   filingFrequency: "monthly" | "quarterly" | "annual" | "event";
@@ -28,7 +28,6 @@ export type RegistrationRow = FinanceSourceTraceInput & {
   status: "draft" | "active" | "suspended" | "ended";
   version: number;
   taxType: TaxTypeRow | null;
-  authorityPartyName: string | null;
 };
 
 export type AccrualLineRow = FinanceSourceTraceInput & TaxAccrualLineInput & {
@@ -133,8 +132,7 @@ export type RegistrationDraft = SourceDraft & {
   id?: number;
   version?: number;
   taxTypeId: string;
-  authorityPartyId: string;
-  authorityPartyName: string;
+  authorityName: string;
   registrationNo: string;
   jurisdiction: string;
   filingFrequency: RegistrationRow["filingFrequency"];

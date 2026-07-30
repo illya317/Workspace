@@ -245,6 +245,8 @@
 | recordedEmployeeSocialInsuranceRevisions | EmployeeSocialInsurancePeriodRevision[] | @relation("EmployeeSocialInsuranceRevisionRecorder") |  |
 | createdContractRecords | ContractRecord[] | @relation("ContractRecordCreator") |  |
 | editHistories | EditHistory[] | @relation("EditHistoryEditor") |  |
+| updatedRelationPolicyConfigs | RelationPolicyConfig[] | @relation("RelationPolicyConfigUpdater") |  |
+| recordedRelationPolicyRevisions | RelationPolicyRevision[] | @relation("RelationPolicyRevisionActor") |  |
 | employees | Employee[] | @relation("EmployeeUser") |  |
 | agentProfile | AgentProfile? | @relation("AgentProfileActor") |  |
 | editedFinanceAccounts | FinanceAccount[] | @relation("FinanceAccountEditor") |  |
@@ -276,6 +278,21 @@
 | editedWorkpapers | FinanceStatementWorkpaper[] | @relation("WorkpaperEditor") |  |
 | notifications | Notification[] | @relation("NotificationRecipient") |  |
 | createdNotifications | Notification[] | @relation("NotificationActor") |  |
+| newsReactions | NewsReaction[] | @relation("NewsReactionUser") |  |
+| notificationDeliveries | NotificationDelivery[] | - |  |
+| createdNotificationDefinitions | NotificationDefinition[] | @relation("NotificationDefinitionCreator") |  |
+| updatedNotificationDefinitions | NotificationDefinition[] | @relation("NotificationDefinitionUpdater") |  |
+| publishedNotificationDefinitions | NotificationDefinition[] | @relation("NotificationDefinitionPublisher") |  |
+| archivedNotificationDefinitions | NotificationDefinition[] | @relation("NotificationDefinitionArchiver") |  |
+| createdNotificationDefinitionRevisions | NotificationDefinitionRevision[] | @relation("NotificationDefinitionRevisionCreator") |  |
+| notificationDefinitionLifecycleEvents | NotificationDefinitionLifecycleEvent[] | @relation("NotificationDefinitionLifecycleEventActor") |  |
+| createdProjectNotificationRules | ProjectNotificationRule[] | @relation("ProjectNotificationRuleCreator") |  |
+| updatedProjectNotificationRules | ProjectNotificationRule[] | @relation("ProjectNotificationRuleUpdater") |  |
+| publishedProjectNotificationRules | ProjectNotificationRule[] | @relation("ProjectNotificationRulePublisher") |  |
+| archivedProjectNotificationRules | ProjectNotificationRule[] | @relation("ProjectNotificationRuleArchiver") |  |
+| createdProjectNotificationRuleRevisions | ProjectNotificationRuleRevision[] | @relation("ProjectNotificationRuleRevisionCreator") |  |
+| projectNotificationRuleLifecycleEvents | ProjectNotificationRuleLifecycleEvent[] | @relation("ProjectNotificationRuleLifecycleEventActor") |  |
+| projectNotificationSignalRedriveEvents | ProjectNotificationSignalRedriveEvent[] | @relation("ProjectNotificationSignalRedriveActor") |  |
 | notificationSubscriptions | NotificationSubscription[] | - |  |
 | permissionGrantLedgerEvents | PermissionGrantLedgerEvent[] | @relation("PermissionGrantLedgerActor") |  |
 | submittedApprovalRequests | ApprovalRequest[] | @relation("ApprovalRequestSubmitter") |  |
@@ -411,9 +428,11 @@
 | resourceKey | String? | - |  |
 | scopeId | String? | - |  |
 | subscriptionId | Int? | - |  |
+| dispatchId | String? | - |  |
 | isImportant | Boolean | @default(false) |  |
 | isStrongReminder | Boolean | @default(false) |  |
 | requiresAcknowledgement | Boolean | @default(false) |  |
+| responseMode | String | @default("read") |  |
 | readAt | DateTime? | - |  |
 | acknowledgedAt | DateTime? | - |  |
 | rejectedAt | DateTime? | - |  |
@@ -423,6 +442,219 @@
 | recipient | User | @relation("NotificationRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade) |  |
 | actor | User? | @relation("NotificationActor", fields: [actorUserId], references: [id], onDelete: SetNull) |  |
 | subscription | NotificationSubscription? | @relation(fields: [subscriptionId], references: [id], onDelete: SetNull) |  |
+| dispatch | NotificationPublication? | @relation(fields: [dispatchId], references: [id], onDelete: SetNull) |  |
+| delivery | NotificationDelivery? | - |  |
+
+### InvestmentEnterpriseProfile
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| profileUid | String | @unique @default(uuid()) |  |
+| companyId | Int | @unique |  |
+| portfolioCode | String | @unique |  |
+| investmentStatus | String | @default("active") |  |
+| investmentStage | String? | - |  |
+| industry | String? | - |  |
+| investmentDate | DateTime? | - |  |
+| exitDate | DateTime? | - |  |
+| investmentCurrency | String | @default("CNY") |  |
+| investedAmount | Decimal? | @db.Decimal(20, 2) |  |
+| currentValuation | Decimal? | @db.Decimal(20, 2) |  |
+| valuationDate | DateTime? | - |  |
+| investmentLead | String? | - |  |
+| dealTeam | String? | - |  |
+| boardSeat | String? | - |  |
+| investmentThesis | String? | @db.Text |  |
+| keyRisks | String? | @db.Text |  |
+| exitPlan | String? | @db.Text |  |
+| nextReviewDate | DateTime? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| company | Company | @relation(fields: [companyId], references: [id], onDelete: Restrict) |  |
+| meetings | InvestmentEnterpriseMeeting[] | - |  |
+| diligenceItems | InvestmentEnterpriseDiligenceItem[] | - |  |
+| contracts | InvestmentEnterpriseContract[] | - |  |
+| monitoring | InvestmentEnterpriseMonitoringRecord[] | - |  |
+| documentLinks | InvestmentEnterpriseDocumentLink[] | - |  |
+
+### InvestmentEnterpriseMeeting
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| profileId | Int | - |  |
+| meetingType | String | @default("shareholders") |  |
+| title | String | - |  |
+| meetingDate | DateTime? | - |  |
+| status | String | @default("planned") |  |
+| decisionSummary | String? | @db.Text |  |
+| votingResult | String? | - |  |
+| followUpOwner | String? | - |  |
+| followUpDueDate | DateTime? | - |  |
+| notes | String? | @db.Text |  |
+| sourceReference | String? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| profile | InvestmentEnterpriseProfile | @relation(fields: [profileId], references: [id], onDelete: Cascade) |  |
+
+### InvestmentEnterpriseDiligenceItem
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| profileId | Int | - |  |
+| workstream | String | - |  |
+| title | String | - |  |
+| riskLevel | String | @default("medium") |  |
+| status | String | @default("open") |  |
+| finding | String? | @db.Text |  |
+| recommendation | String? | @db.Text |  |
+| ownerName | String? | - |  |
+| dueDate | DateTime? | - |  |
+| remediationStatus | String | @default("not_started") |  |
+| remediationEvidence | String? | @db.Text |  |
+| sourceReference | String? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| profile | InvestmentEnterpriseProfile | @relation(fields: [profileId], references: [id], onDelete: Cascade) |  |
+
+### InvestmentEnterpriseContract
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| profileId | Int | - |  |
+| contractType | String | - |  |
+| title | String | - |  |
+| counterpartyText | String? | @map("counterparty") |  |
+| signedDate | DateTime? | - |  |
+| effectiveDate | DateTime? | - |  |
+| expiryDate | DateTime? | - |  |
+| noticeDate | DateTime? | - |  |
+| status | String | @default("draft") |  |
+| currency | String | @default("CNY") |  |
+| amount | Decimal? | @db.Decimal(20, 2) |  |
+| keyTerms | String? | @db.Text |  |
+| obligationSummary | String? | @db.Text |  |
+| sourceReference | String? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| profile | InvestmentEnterpriseProfile | @relation(fields: [profileId], references: [id], onDelete: Cascade) |  |
+
+### InvestmentEnterpriseMonitoringRecord
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| profileId | Int | - |  |
+| periodEnd | DateTime | - |  |
+| status | String | @default("draft") |  |
+| currency | String | @default("CNY") |  |
+| revenue | Decimal? | @db.Decimal(20, 2) |  |
+| netProfit | Decimal? | @db.Decimal(20, 2) |  |
+| cashBalance | Decimal? | @db.Decimal(20, 2) |  |
+| valuation | Decimal? | @db.Decimal(20, 2) |  |
+| headcount | Int? | - |  |
+| highlights | String? | @db.Text |  |
+| risks | String? | @db.Text |  |
+| sourceReference | String? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| profile | InvestmentEnterpriseProfile | @relation(fields: [profileId], references: [id], onDelete: Cascade) |  |
+
+### InvestmentEnterpriseDocumentLink
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| linkUid | String | @unique @default(uuid()) |  |
+| profileId | Int | - |  |
+| libraryDocumentUid | String? | - |  |
+| documentCategory | String | - |  |
+| title | String | - |  |
+| notes | String? | @db.Text |  |
+| uploadStatus | String | @default("pending") |  |
+| failureReason | String? | - |  |
+| linkedBy | Int? | - |  |
+| linkedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| profile | InvestmentEnterpriseProfile | @relation(fields: [profileId], references: [id], onDelete: Cascade) |  |
+
+### InvestorShareholderProfile
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| issuerCompanyId | Int | - |  |
+| shareholderPartyId | Int | - |  |
+| investorCategory | String? | - |  |
+| contactName | String? | - |  |
+| contactTitle | String? | - |  |
+| phone | String? | - |  |
+| email | String? | - |  |
+| address | String? | - |  |
+| relationshipOwner | String? | - |  |
+| relationshipStatus | String | @default("active") |  |
+| communicationPreference | String? | - |  |
+| notes | String? | @db.Text |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| issuer | Company | @relation("InvestorShareholderProfileIssuer", fields: [issuerCompanyId], references: [id], onDelete: Restrict) |  |
+| shareholder | Party | @relation("InvestorShareholderProfileParty", fields: [shareholderPartyId], references: [id], onDelete: Restrict) |  |
+
+### InvestorDueDiligenceRecord
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| sourceKey | String | @unique |  |
+| issuerCompanyId | Int | - |  |
+| investorPartyId | Int? | - |  |
+| investorOrganization | String | - |  |
+| visitorName | String | - |  |
+| visitorTitle | String? | - |  |
+| phone | String? | - |  |
+| email | String? | - |  |
+| diligenceDate | DateTime | @db.Date |  |
+| diligenceType | String | @default("comprehensive") |  |
+| visitMethod | String | @default("onsite") |  |
+| status | String | @default("planned") |  |
+| hostName | String? | - |  |
+| ndaStatus | String | @default("pending") |  |
+| dataRoomStatus | String | @default("not_opened") |  |
+| focusAreas | String? | @db.Text |  |
+| followUpAction | String? | @db.Text |  |
+| nextFollowUpDate | DateTime? | @db.Date |  |
+| notes | String? | @db.Text |  |
+| isArchived | Boolean | @default(false) |  |
+| archivedAt | DateTime? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| issuer | Company | @relation("InvestorDueDiligenceIssuer", fields: [issuerCompanyId], references: [id], onDelete: Restrict) |  |
+| investorParty | Party? | @relation("InvestorDueDiligenceInvestorParty", fields: [investorPartyId], references: [id], onDelete: SetNull) |  |
 
 ### OwnershipInterest
 
@@ -1023,11 +1255,12 @@
 | shareCapitalSnapshotPositions | ShareCapitalSnapshotPosition[] | - |  |
 | controlledAfterCapitalEvents | ShareCapitalEvent[] | @relation("ShareCapitalEventController") |  |
 | shareholderGroupMemberships | ShareholderGroupMembership[] | - |  |
+| investorShareholderProfiles | InvestorShareholderProfile[] | @relation("InvestorShareholderProfileParty") |  |
+| investorDueDiligenceRecords | InvestorDueDiligenceRecord[] | @relation("InvestorDueDiligenceInvestorParty") |  |
 | registryOwnershipParticipants | CompanyRegistryOwnershipParticipant[] | - |  |
 | contractsAsPartyA | Contract[] | @relation("ContractPartyA") |  |
 | contractsAsPartyB | Contract[] | @relation("ContractPartyB") |  |
 | financeLoansAsLender | FinanceLoan[] | - |  |
-| financeTaxAuthorities | FinanceTaxRegistration[] | - |  |
 | inventoryDocuments | InventoryDocument[] | - |  |
 
 ### PartyNameHistory
@@ -1214,8 +1447,20 @@
 | residualRate | Decimal | @default(0) @db.Decimal(10, 6) |  |
 | usefulLifeMonths | Int? | - |  |
 | method | String | @default("straight_line") |  |
+| initializationMode | String | @default("standard") |  |
 | openingAccumulatedAmount | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| openingImpairmentAmount | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| openingNetBookValue | Decimal? | @db.Decimal(20, 2) |  |
 | openingAsOfDate | String? | - |  |
+| cutoverDate | String? | - |  |
+| remainingUsefulLifeMonthsAtCutover | Int? | - |  |
+| cutoverResidualValue | Decimal? | @db.Decimal(20, 2) |  |
+| cutoverAllocationStatus | String? | - |  |
+| cutoverReconciliationFingerprint | String? | - |  |
+| cutoverPeriodId | Int? | - |  |
+| cutoverAssetBalanceId | Int? | - |  |
+| cutoverAccumulatedBalanceId | Int? | - |  |
+| cutoverImpairmentBalanceId | Int? | - |  |
 | status | String | @default("active") |  |
 | nonAmortizationReason | String? | - |  |
 | note | String? | - |  |
@@ -1230,6 +1475,10 @@
 | category | FinanceAssetCategory | @relation(fields: [categoryId], references: [id], onDelete: Restrict) |  |
 | assetAccount | FinanceAccount? | @relation("FinanceAssetCardAssetAccount", fields: [assetAccountId], references: [id], onDelete: Restrict) |  |
 | accumulatedAccount | FinanceAccount? | @relation("FinanceAssetCardAccumulatedAccount", fields: [accumulatedAccountId], references: [id], onDelete: Restrict) |  |
+| cutoverPeriod | FinancePeriod? | @relation("FinanceAssetCardCutoverPeriod", fields: [cutoverPeriodId], references: [id], onDelete: Restrict) |  |
+| cutoverAssetBalance | FinanceAccountBalance? | @relation("FinanceAssetCardCutoverAssetBalance", fields: [cutoverAssetBalanceId], references: [id], onDelete: Restrict) |  |
+| cutoverAccumulatedBalance | FinanceAccountBalance? | @relation("FinanceAssetCardCutoverAccumulatedBalance", fields: [cutoverAccumulatedBalanceId], references: [id], onDelete: Restrict) |  |
+| cutoverImpairmentBalance | FinanceAccountBalance? | @relation("FinanceAssetCardCutoverImpairmentBalance", fields: [cutoverImpairmentBalanceId], references: [id], onDelete: Restrict) |  |
 | costLines | FinanceAssetCostLine[] | - |  |
 | allocations | FinanceAssetExpenseAllocation[] | - |  |
 | periodEntries | FinanceAssetPeriodEntry[] | - |  |
@@ -1315,8 +1564,16 @@
 | importedBy | Int? | - |  |
 | importedAt | DateTime | @default(now()) |  |
 | note | String? | - |  |
+| cutoverDate | String? | - |  |
+| cutoverPeriodId | Int? | - |  |
+| ledgerReconciliationFingerprint | String? | - |  |
+| ledgerNetBookValue | Decimal? | @db.Decimal(20, 2) |  |
+| importedNetBookValue | Decimal? | @db.Decimal(20, 2) |  |
+| unallocatedNetBookValue | Decimal? | @db.Decimal(20, 2) |  |
+| reconciliationStatus | String? | - |  |
 | acquisitionEvidence | FinanceAssetAcquisitionEvidence[] | - |  |
 | company | Company? | @relation(fields: [companyId], references: [id], onDelete: Restrict) |  |
+| cutoverPeriod | FinancePeriod? | @relation("FinanceAssetImportBatchCutoverPeriod", fields: [cutoverPeriodId], references: [id], onDelete: Restrict) |  |
 
 ### FinanceAssetPeriodEntry
 
@@ -2973,6 +3230,8 @@
 | assetImpairmentAssessments | FinanceAssetImpairmentAssessment[] | - |  |
 | assetDisposals | FinanceAssetDisposal[] | - |  |
 | assetAcquisitionEvidence | FinanceAssetAcquisitionEvidence[] | - |  |
+| assetCutoverCards | FinanceAssetCard[] | @relation("FinanceAssetCardCutoverPeriod") |  |
+| assetCutoverImportBatches | FinanceAssetImportBatch[] | @relation("FinanceAssetImportBatchCutoverPeriod") |  |
 | sourceStatuses | FinanceSourcePeriodStatus[] | - |  |
 | bankReconciliations | FinanceBankReconciliation[] | - |  |
 | interestWorkpapers | FinanceInterestWorkpaper[] | - |  |
@@ -3105,6 +3364,9 @@
 | period | FinancePeriod | @relation(fields: [periodId], references: [id]) |  |
 | account | FinanceAccount | @relation(fields: [accountId], references: [id]) |  |
 | company | Company? | @relation(fields: [companyId], references: [id], onDelete: Restrict) |  |
+| assetCutoverCards | FinanceAssetCard[] | @relation("FinanceAssetCardCutoverAssetBalance") |  |
+| accumulatedAssetCutoverCards | FinanceAssetCard[] | @relation("FinanceAssetCardCutoverAccumulatedBalance") |  |
+| impairmentAssetCutoverCards | FinanceAssetCard[] | @relation("FinanceAssetCardCutoverImpairmentBalance") |  |
 
 ### FinanceReclassRule
 
@@ -3507,7 +3769,7 @@
 | id | Int | @id @default(autoincrement()) |  |
 | companyId | Int | - |  |
 | taxTypeId | Int | - |  |
-| authorityPartyId | Int? | - |  |
+| authorityName | String? | - |  |
 | registrationNo | String | - |  |
 | jurisdiction | String | - |  |
 | filingFrequency | String | - |  |
@@ -3527,7 +3789,6 @@
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | company | Company | @relation(fields: [companyId], references: [id], onDelete: Restrict) |  |
 | taxType | FinanceTaxType | @relation(fields: [taxTypeId], references: [id], onDelete: Restrict) |  |
-| authorityParty | Party? | @relation(fields: [authorityPartyId], references: [id], onDelete: Restrict) |  |
 | workpapers | FinanceTaxWorkpaper[] | - |  |
 | filings | FinanceTaxFiling[] | - |  |
 | snapshots | FinanceTaxReconciliationSnapshot[] | - |  |
@@ -3883,6 +4144,9 @@
 | ownershipProjectionRuns | OwnershipProjectionRun[] | - |  |
 | shareCapitalEvents | ShareCapitalEvent[] | - |  |
 | shareholderGroups | ShareholderGroup[] | - |  |
+| investorShareholderProfiles | InvestorShareholderProfile[] | @relation("InvestorShareholderProfileIssuer") |  |
+| investorDueDiligenceRecords | InvestorDueDiligenceRecord[] | @relation("InvestorDueDiligenceIssuer") |  |
+| investmentEnterpriseProfile | InvestmentEnterpriseProfile? | - |  |
 | registryChanges | CompanyRegistryChange[] | - |  |
 | positionReportOverrides | PositionReportOverride[] | - |  |
 | reportingEdps | EDP[] | @relation("EDPReportingCompany") |  |
@@ -5204,6 +5468,7 @@
 | version | LibraryDocumentVersion | @relation(fields: [versionId], references: [id], onDelete: Cascade) |  |
 | artifact | LibraryArtifact? | @relation(fields: [artifactId], references: [id], onDelete: SetNull) |  |
 | entityMentions | LibraryEntityMention[] | - |  |
+| embeddings | LibraryContentEmbedding[] | - |  |
 
 ### LibrarySearchIndex
 
@@ -5225,6 +5490,21 @@
 | createdAt | DateTime | @default(now()) |  |
 | version | LibraryDocumentVersion | @relation(fields: [versionId], references: [id], onDelete: Cascade) |  |
 | artifact | LibraryArtifact? | @relation(fields: [artifactId], references: [id], onDelete: SetNull) |  |
+| embeddings | LibraryContentEmbedding[] | - |  |
+
+### LibraryContentEmbedding
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| indexId | Int | - |  |
+| chunkId | Int | - |  |
+| modelKey | String | - |  |
+| dimensions | Int | - |  |
+| values | Float[] | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| index | LibrarySearchIndex | @relation(fields: [indexId], references: [id], onDelete: Cascade) |  |
+| chunk | LibraryContentChunk | @relation(fields: [chunkId], references: [id], onDelete: Cascade) |  |
 
 ### LibraryExportJob
 
@@ -5529,6 +5809,216 @@
 | createdAt | DateTime | @default(now()) |  |
 | batch | MutationImpactBatch | @relation(fields: [batchId], references: [id], onDelete: Cascade) |  |
 
+### NewsReaction
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| userId | Int | - |  |
+| itemKey | String | - |  |
+| reportId | String? | - |  |
+| title | String | - |  |
+| source | String? | - |  |
+| url | String? | - |  |
+| kind | String? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @updatedAt |  |
+| user | User | @relation("NewsReactionUser", fields: [userId], references: [id], onDelete: Cascade) |  |
+
+### NotificationDefinition
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| key | String | @unique |  |
+| label | String | - |  |
+| description | String? | - |  |
+| titleTemplate | String | - |  |
+| bodyTemplate | String | @db.Text |  |
+| hrefTemplate | String? | - |  |
+| responseMode | String | @default("read") |  |
+| isImportant | Boolean | @default(false) |  |
+| allowProjectMonitoring | Boolean | @default(false) |  |
+| variableKeysJson | String | @default("[]") |  |
+| allowUserApi | Boolean | @default(false) |  |
+| allowedOpenApiClientIdsJson | String | @default("[]") |  |
+| status | String | @default("active") |  |
+| revision | Int | @default(1) |  |
+| publishedRevision | Int? | - |  |
+| version | Int | @default(1) |  |
+| publishedAt | DateTime? | - |  |
+| publishedByUserId | Int? | - |  |
+| archivedAt | DateTime? | - |  |
+| archivedByUserId | Int? | - |  |
+| createdByUserId | Int | - |  |
+| updatedByUserId | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @updatedAt |  |
+| revisions | NotificationDefinitionRevision[] | - |  |
+| lifecycleEvents | NotificationDefinitionLifecycleEvent[] | @relation("NotificationDefinitionLifecycleHead") |  |
+| publications | NotificationPublication[] | - |  |
+| createdBy | User | @relation("NotificationDefinitionCreator", fields: [createdByUserId], references: [id], onDelete: Restrict) |  |
+| updatedBy | User | @relation("NotificationDefinitionUpdater", fields: [updatedByUserId], references: [id], onDelete: Restrict) |  |
+| publishedBy | User? | @relation("NotificationDefinitionPublisher", fields: [publishedByUserId], references: [id], onDelete: SetNull) |  |
+| archivedBy | User? | @relation("NotificationDefinitionArchiver", fields: [archivedByUserId], references: [id], onDelete: SetNull) |  |
+
+### NotificationDefinitionRevision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| definitionId | Int | - |  |
+| revision | Int | - |  |
+| key | String | - |  |
+| label | String | - |  |
+| description | String? | - |  |
+| titleTemplate | String | - |  |
+| bodyTemplate | String | @db.Text |  |
+| hrefTemplate | String? | - |  |
+| responseMode | String | - |  |
+| isImportant | Boolean | - |  |
+| allowProjectMonitoring | Boolean | @default(false) |  |
+| variableKeysJson | String | - |  |
+| allowUserApi | Boolean | - |  |
+| allowedOpenApiClientIdsJson | String | - |  |
+| contentFingerprint | String | - |  |
+| createdByUserId | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| definition | NotificationDefinition | @relation(fields: [definitionId], references: [id], onDelete: Cascade) |  |
+| createdBy | User | @relation("NotificationDefinitionRevisionCreator", fields: [createdByUserId], references: [id], onDelete: Restrict) |  |
+| publications | NotificationPublication[] | @relation("NotificationPublicationDefinitionRevision") |  |
+| lifecycleEvents | NotificationDefinitionLifecycleEvent[] | @relation("NotificationDefinitionLifecycleRevision") |  |
+
+### NotificationDefinitionLifecycleEvent
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id |  |
+| definitionId | Int | - |  |
+| revision | Int | - |  |
+| action | String | - |  |
+| actorUserId | Int | - |  |
+| occurredAt | DateTime | @default(now()) |  |
+| priorVersion | Int | - |  |
+| newVersion | Int | - |  |
+| definition | NotificationDefinition | @relation("NotificationDefinitionLifecycleHead", fields: [definitionId], references: [id], onDelete: Restrict) |  |
+| revisionFact | NotificationDefinitionRevision | @relation("NotificationDefinitionLifecycleRevision", fields: [definitionId, revision], references: [definitionId, revision], onDelete: Restrict) |  |
+| actor | User | @relation("NotificationDefinitionLifecycleEventActor", fields: [actorUserId], references: [id], onDelete: Restrict) |  |
+
+### NotificationPublication
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id @default(cuid()) |  |
+| definitionId | Int | - |  |
+| definitionKey | String | - |  |
+| definitionRevision | Int | - |  |
+| sourceKind | String | - |  |
+| sourceId | String | - |  |
+| sourceLabel | String | - |  |
+| idempotencyKey | String | - |  |
+| fingerprint | String | - |  |
+| audienceJson | String | @db.Text |  |
+| status | String | @default("committed") |  |
+| recipientCount | Int | - |  |
+| deliveryCount | Int | - |  |
+| pendingDeliveryCount | Int | @default(0) |  |
+| deliveredDeliveryCount | Int | @default(0) |  |
+| failedDeliveryCount | Int | @default(0) |  |
+| createdAt | DateTime | @default(now()) |  |
+| definition | NotificationDefinition | @relation(fields: [definitionId], references: [id], onDelete: Restrict) |  |
+| definitionRevisionFact | NotificationDefinitionRevision | @relation("NotificationPublicationDefinitionRevision", fields: [definitionId, definitionRevision], references: [definitionId, revision], onDelete: Restrict) |  |
+| notifications | Notification[] | - |  |
+| deliveries | NotificationDelivery[] | - |  |
+| projectEvaluations | ProjectNotificationEvaluation[] | - |  |
+| projectPublicationIntents | ProjectNotificationPublicationIntent[] | - |  |
+
+### NotificationDelivery
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| publicationId | String | - |  |
+| recipientUserId | Int? | - |  |
+| recipientUsername | String | - |  |
+| channel | String | @default("workspace") |  |
+| endpointId | Int? | - |  |
+| destination | String? | - |  |
+| title | String? | - |  |
+| body | String? | @db.Text |  |
+| href | String? | - |  |
+| status | String | @default("delivered") |  |
+| attemptCount | Int | @default(0) |  |
+| nextAttemptAt | DateTime? | - |  |
+| leaseToken | String? | @unique |  |
+| leaseExpiresAt | DateTime? | - |  |
+| deliveredAt | DateTime? | - |  |
+| failedAt | DateTime? | - |  |
+| lastErrorCode | String? | - |  |
+| lastErrorSummary | String? | - |  |
+| providerMessageId | String? | - |  |
+| notificationId | Int? | @unique |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| publication | NotificationPublication | @relation(fields: [publicationId], references: [id], onDelete: Cascade) |  |
+| recipient | User? | @relation(fields: [recipientUserId], references: [id], onDelete: SetNull) |  |
+| notification | Notification? | @relation(fields: [notificationId], references: [id], onDelete: SetNull) |  |
+| endpoint | NotificationChannelEndpoint? | @relation(fields: [endpointId], references: [id], onDelete: Restrict) |  |
+| attempts | NotificationDeliveryAttempt[] | - |  |
+
+### NotificationChannelEndpoint
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| key | String | @unique |  |
+| channel | String | - |  |
+| label | String | - |  |
+| runtimeBindingKey | String | @unique |  |
+| status | String | @default("active") |  |
+| healthStatus | String | @default("unknown") |  |
+| lastHeartbeatAt | DateTime? | - |  |
+| lastSuccessAt | DateTime? | - |  |
+| lastFailureAt | DateTime? | - |  |
+| lastErrorCode | String? | - |  |
+| lastErrorSummary | String? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| deliveries | NotificationDelivery[] | - |  |
+| workerRequests | NotificationDeliveryWorkerRequest[] | - |  |
+
+### NotificationDeliveryAttempt
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id @default(cuid()) |  |
+| deliveryId | Int | - |  |
+| attemptNo | Int | - |  |
+| outcome | String | - |  |
+| resultFingerprint | String | - |  |
+| providerMessageId | String? | - |  |
+| errorCode | String? | - |  |
+| errorSummary | String? | - |  |
+| nextAttemptAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| delivery | NotificationDelivery | @relation(fields: [deliveryId], references: [id], onDelete: Cascade) |  |
+
+### NotificationDeliveryWorkerRequest
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id @default(cuid()) |  |
+| endpointId | Int | - |  |
+| requestId | String | - |  |
+| operation | String | - |  |
+| requestFingerprint | String | - |  |
+| responseStatus | Int | - |  |
+| responseJson | String | @db.Text |  |
+| expiresAt | DateTime | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| endpoint | NotificationChannelEndpoint | @relation(fields: [endpointId], references: [id], onDelete: Cascade) |  |
+
 ### NotificationSubscription
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -5789,6 +6279,34 @@
 |------|------|------|------|
 | key | String | @id |  |
 | value | String | - |  |
+
+### RelationPolicyConfig
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| policyKey | String | @id |  |
+| settingsJson | Json | - |  |
+| baselineHash | String | - |  |
+| version | Int | @default(1) |  |
+| updatedByUserId | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| updatedBy | User? | @relation("RelationPolicyConfigUpdater", fields: [updatedByUserId], references: [id], onDelete: SetNull) |  |
+
+### RelationPolicyRevision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| policyKey | String | - |  |
+| version | Int | - |  |
+| changeKind | String | - |  |
+| reason | String? | - |  |
+| settingsJson | Json | - |  |
+| baselineHash | String | - |  |
+| actorUserId | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| actor | User? | @relation("RelationPolicyRevisionActor", fields: [actorUserId], references: [id], onDelete: SetNull) |  |
 
 ### BusinessCodeSequence
 
@@ -6236,6 +6754,171 @@
 | toMode | String | - |  |
 | fromSnapshotJson | String | @default("{ |  |
 
+### ProjectNotificationRule
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| projectId | Int | - |  |
+| key | String | - |  |
+| label | String | - |  |
+| definitionKey | String | - |  |
+| eventType | String | - |  |
+| conditionJson | String | @db.Text |  |
+| audiencePolicyJson | String | @db.Text |  |
+| channelPolicyJson | String | @db.Text |  |
+| cooldownSeconds | Int | @default(0) |  |
+| status | String | @default("draft") |  |
+| revision | Int | @default(1) |  |
+| publishedRevision | Int? | - |  |
+| version | Int | @default(1) |  |
+| createdByUserId | Int | - |  |
+| updatedByUserId | Int | - |  |
+| publishedByUserId | Int? | - |  |
+| archivedByUserId | Int? | - |  |
+| publishedAt | DateTime? | - |  |
+| archivedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| project | Project | @relation(fields: [projectId], references: [id], onDelete: Restrict) |  |
+| createdByUser | User | @relation("ProjectNotificationRuleCreator", fields: [createdByUserId], references: [id], onDelete: Restrict) |  |
+| updatedByUser | User | @relation("ProjectNotificationRuleUpdater", fields: [updatedByUserId], references: [id], onDelete: Restrict) |  |
+| publishedByUser | User? | @relation("ProjectNotificationRulePublisher", fields: [publishedByUserId], references: [id], onDelete: Restrict) |  |
+| archivedByUser | User? | @relation("ProjectNotificationRuleArchiver", fields: [archivedByUserId], references: [id], onDelete: Restrict) |  |
+| revisions | ProjectNotificationRuleRevision[] | - |  |
+| evaluations | ProjectNotificationEvaluation[] | - |  |
+| publicationIntents | ProjectNotificationPublicationIntent[] | - |  |
+
+### ProjectNotificationRuleRevision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| ruleId | Int | - |  |
+| revision | Int | - |  |
+| key | String | - |  |
+| label | String | - |  |
+| definitionKey | String | - |  |
+| eventType | String | - |  |
+| conditionJson | String | @db.Text |  |
+| conditionFingerprint | String | - |  |
+| audiencePolicyJson | String | @db.Text |  |
+| channelPolicyJson | String | @db.Text |  |
+| cooldownSeconds | Int | - |  |
+| createdByUserId | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| rule | ProjectNotificationRule | @relation(fields: [ruleId], references: [id], onDelete: Restrict) |  |
+| createdByUser | User | @relation("ProjectNotificationRuleRevisionCreator", fields: [createdByUserId], references: [id], onDelete: Restrict) |  |
+| evaluations | ProjectNotificationEvaluation[] | @relation("ProjectNotificationEvaluationRevision") |  |
+| lifecycleEvents | ProjectNotificationRuleLifecycleEvent[] | - |  |
+| publicationIntents | ProjectNotificationPublicationIntent[] | @relation("ProjectNotificationPublicationIntentRevision") |  |
+
+### ProjectNotificationEvaluation
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id @default(cuid()) |  |
+| ruleId | Int | - |  |
+| ruleRevision | Int | - |  |
+| projectId | Int | - |  |
+| signalKind | String | - |  |
+| signalId | String | - |  |
+| outcome | String | - |  |
+| factsFingerprint | String | - |  |
+| publicationId | String? | - |  |
+| errorCode | String? | - |  |
+| evaluatedAt | DateTime | @default(now()) |  |
+| rule | ProjectNotificationRule | @relation(fields: [ruleId, projectId], references: [id, projectId], onDelete: Restrict) |  |
+| ruleRevisionFact | ProjectNotificationRuleRevision | @relation("ProjectNotificationEvaluationRevision", fields: [ruleId, ruleRevision], references: [ruleId, revision], onDelete: Restrict) |  |
+| project | Project | @relation(fields: [projectId], references: [id], onDelete: Restrict) |  |
+| publication | NotificationPublication? | @relation(fields: [publicationId], references: [id], onDelete: Restrict) |  |
+
+### ProjectNotificationRuleLifecycleEvent
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id |  |
+| ruleId | Int | - |  |
+| revision | Int | - |  |
+| action | String | - |  |
+| actorUserId | Int | - |  |
+| occurredAt | DateTime | @default(now()) |  |
+| priorVersion | Int | - |  |
+| newVersion | Int | - |  |
+| ruleRevision | ProjectNotificationRuleRevision | @relation(fields: [ruleId, revision], references: [ruleId, revision], onDelete: Restrict) |  |
+| actor | User | @relation("ProjectNotificationRuleLifecycleEventActor", fields: [actorUserId], references: [id], onDelete: Restrict) |  |
+
+### ProjectNotificationPublicationIntent
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id |  |
+| ruleId | Int | - |  |
+| ruleRevision | Int | - |  |
+| projectId | Int | - |  |
+| signalKind | String | - |  |
+| signalId | String | - |  |
+| definitionKey | String | - |  |
+| idempotencyKey | String | - |  |
+| requestJson | String | @db.Text |  |
+| requestFingerprint | String | - |  |
+| status | String | @default("publishing") |  |
+| publicationId | String? | @unique |  |
+| preparedAt | DateTime | @default(now()) |  |
+| committedAt | DateTime? | - |  |
+| failedAt | DateTime? | - |  |
+| lastErrorCode | String? | - |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| rule | ProjectNotificationRule | @relation(fields: [ruleId, projectId], references: [id, projectId], onDelete: Restrict) |  |
+| ruleRevisionFact | ProjectNotificationRuleRevision | @relation("ProjectNotificationPublicationIntentRevision", fields: [ruleId, ruleRevision], references: [ruleId, revision], onDelete: Restrict) |  |
+| project | Project | @relation(fields: [projectId], references: [id], onDelete: Restrict) |  |
+| publication | NotificationPublication? | @relation(fields: [publicationId], references: [id], onDelete: Restrict) |  |
+
+### ProjectNotificationSignal
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id |  |
+| projectId | Int | - |  |
+| projectVersion | Int | - |  |
+| signalKind | String | - |  |
+| signalId | String | @unique |  |
+| changedField | String | - |  |
+| snapshotJson | String | @db.Text |  |
+| factsFingerprint | String | - |  |
+| occurredAt | DateTime | - |  |
+| status | String | @default("pending") |  |
+| attemptCount | Int | @default(0) |  |
+| nextAttemptAt | DateTime? | @default(now()) |  |
+| leaseToken | String? | @unique |  |
+| leaseExpiresAt | DateTime? | - |  |
+| processedAt | DateTime? | - |  |
+| failedAt | DateTime? | - |  |
+| lastErrorCode | String? | - |  |
+| lastErrorSummary | String? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| project | Project | @relation(fields: [projectId], references: [id], onDelete: Restrict) |  |
+| sourceRedriveEvents | ProjectNotificationSignalRedriveEvent[] | @relation("ProjectNotificationSignalRedriveSource") |  |
+| childRedriveEvent | ProjectNotificationSignalRedriveEvent? | @relation("ProjectNotificationSignalRedriveChild") |  |
+
+### ProjectNotificationSignalRedriveEvent
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id |  |
+| projectId | Int | - |  |
+| sourceSignalRecordId | String | - |  |
+| redriveSignalRecordId | String | @unique(map: "ProjectNotifyRedrive_childSignal_key") |  |
+| sourceAttemptCount | Int | - |  |
+| actorUserId | Int | - |  |
+| reason | String | @db.Text |  |
+| occurredAt | DateTime | @default(now()) |  |
+| project | Project | @relation(fields: [projectId], references: [id], onDelete: Restrict, map: "ProjectNotifyRedrive_project_fkey") |  |
+| sourceSignal | ProjectNotificationSignal | @relation("ProjectNotificationSignalRedriveSource", fields: [sourceSignalRecordId], references: [id], onDelete: Restrict, map: "ProjectNotifyRedrive_sourceSignal_fkey") |  |
+| redriveSignal | ProjectNotificationSignal | @relation("ProjectNotificationSignalRedriveChild", fields: [redriveSignalRecordId], references: [id], onDelete: Restrict, map: "ProjectNotifyRedrive_childSignal_fkey") |  |
+| actor | User | @relation("ProjectNotificationSignalRedriveActor", fields: [actorUserId], references: [id], onDelete: Restrict, map: "ProjectNotifyRedrive_actor_fkey") |  |
+
 ### Project
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -6277,6 +6960,11 @@
 | planPhases | ProjectPlanPhase[] | @relation("ProjectPlanPhases") |  |
 | planDependencies | ProjectPlanDependency[] | @relation("ProjectPlanDependencies") |  |
 | planBaselines | ProjectPlanBaseline[] | @relation("ProjectPlanBaselines") |  |
+| notificationRules | ProjectNotificationRule[] | - |  |
+| notificationEvaluations | ProjectNotificationEvaluation[] | - |  |
+| notificationSignals | ProjectNotificationSignal[] | - |  |
+| notificationPublicationIntents | ProjectNotificationPublicationIntent[] | - |  |
+| notificationSignalRedriveEvents | ProjectNotificationSignalRedriveEvent[] | - |  |
 | workAssignees | ProjectWorkAssignee[] | - |  |
 | linkedWorkItems | WorkItem[] | @relation("WorkItemLinkedProject") |  |
 | linkedWorkPlans | WorkPlan[] | @relation("WorkPlanLinkedProject") |  |

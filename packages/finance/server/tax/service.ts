@@ -40,7 +40,7 @@ function registrationData(input: Extract<TaxCreateInput | TaxUpdateInput, { kind
   return {
     companyId,
     taxTypeId: input.taxTypeId,
-    authorityPartyId: input.authorityPartyId ?? null,
+    authorityName: input.authorityName ?? null,
     registrationNo: input.registrationNo,
     jurisdiction: input.jurisdiction,
     filingFrequency: input.filingFrequency,
@@ -287,7 +287,7 @@ export async function listTaxWorkspace(scope: { companyCode: string; year: numbe
   const bounds = monthBounds(scope.year, scope.month);
   const registrations = await prisma.financeTaxRegistration.findMany({
     where: { company: { code: scope.companyCode } },
-    include: { taxType: true, authorityParty: { select: { id: true, name: true } } },
+    include: { taxType: true },
     orderBy: [{ status: "asc" }, { registrationNo: "asc" }],
   });
   const taxTypes = await prisma.financeTaxType.findMany({ where: { isActive: true }, orderBy: [{ jurisdiction: "asc" }, { code: "asc" }] });

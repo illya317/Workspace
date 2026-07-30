@@ -34,12 +34,11 @@ function toTaxTypeRow(row: Record<string, unknown>): TaxTypeRow {
 
 function toRegistrationRow(row: Record<string, unknown>): RegistrationRow {
   const taxType = recordValue(row.taxType);
-  const authority = recordValue(row.authorityParty);
   return {
     ...traceFromRecord(row),
     id: numberValue(row.id),
     taxTypeId: numberValue(row.taxTypeId),
-    authorityPartyId: nullableNumber(row.authorityPartyId),
+    authorityName: nullableString(row.authorityName),
     registrationNo: stringValue(row.registrationNo),
     jurisdiction: stringValue(row.jurisdiction),
     filingFrequency: enumValue(row.filingFrequency, ["monthly", "quarterly", "annual", "event"], "monthly"),
@@ -48,7 +47,6 @@ function toRegistrationRow(row: Record<string, unknown>): RegistrationRow {
     status: enumValue(row.status, ["draft", "active", "suspended", "ended"], "draft"),
     version: numberValue(row.version),
     taxType: taxType ? toTaxTypeRow(taxType) : null,
-    authorityPartyName: authority ? stringValue(authority.name) : null,
   };
 }
 

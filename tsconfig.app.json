@@ -33,6 +33,7 @@
     { "path": "./packages/hr" },
     { "path": "./packages/inventory" },
     { "path": "./packages/library" },
+    { "path": "./packages/news" },
     { "path": "./packages/production" },
     { "path": "./packages/settings" },
     { "path": "./packages/work" }

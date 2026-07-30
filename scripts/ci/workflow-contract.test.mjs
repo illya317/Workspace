@@ -153,7 +153,7 @@ test("quality executors and every workflow are code-owner protected", () => {
     "/docs/engineering/ops/",
     "/docs/engineering/checks.md",
     "/docs/engineering/agent-handbook.md",
-    "/docs/roles/operations.md",
+    "/.agents/skills/workspace-operations/",
     "/prisma/",
     "/scripts/migrate/",
     "/scripts/runtime/",

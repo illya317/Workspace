@@ -6,7 +6,7 @@
 - 所有 model 必须按领域放在 `prisma/models/*.prisma`。
 - 禁止把新 model 直接写回 `prisma/schema.prisma`。
 
-当前领域划分（64 个 model 文件、280 个 model；逐字段关系以 `docs/generated/tables.md` 为准）：
+当前领域划分（74 个 model 文件、300 个 model；逐字段关系以 `docs/generated/tables.md` 为准）：
 
 | 文件 | 领域 | 模型 |
 |------|------|------|
@@ -59,6 +59,8 @@
 | `library-processing.prisma` | 资料处理与交付 | LibraryProcessingJob, LibraryArtifact, LibraryContentChunk, LibrarySearchIndex, LibraryExportJob |
 | `library.prisma` | 资料库、尽调、目录与标签 | LibraryDocument, LibraryDocumentVersion, LibraryCategory, LibraryDirectory, DueDiligenceParty, DueDiligenceRequest, DueDiligenceQuestion, DueDiligenceMaterialSelection, LibraryGeneratedSource, LibraryTag, LibraryDocumentTag |
 | `mutation-impact.prisma` | Platform 变更影响治理 | MutationImpactBatch, MutationImpactEffect |
+| `news.prisma` | 外部资讯偏好 | NewsReaction |
+| `notification-publishing.prisma` | 配置化通知定义、不可变修订、发布与投递回执 | NotificationDefinition, NotificationDefinitionRevision, NotificationPublication, NotificationDelivery |
 | `notification-subscriptions.prisma` | 个人通知订阅 | NotificationSubscription |
 | `open-api.prisma` | Open API 接入 | OpenApiClient, OpenApiResource, OpenApiScope, OpenApiClientScopeGrant, OpenApiAccessLog |
 | `product-master.prisma` | 跨生产、库存与财务的产品主档 | Product, ProductSourceMapping |
@@ -124,11 +126,11 @@ model Employee {
    - HR → `app/(modules)/hr/ARCHITECTURE.md`
    - Capital Securities → `app/(modules)/capital-securities/ARCHITECTURE.md`
    - Finance Cost → `app/(modules)/finance/cost/ARCHITECTURE.md`
-2. 运行验证：
+2. 按根 `AGENTS.md` 和 `workspace-data` skill 的当前策略运行最小验证；默认入口是：
    ```bash
-   npm run db:validate && npm run schema:check && npx prisma generate && npm run typecheck:scope -- prisma-client
+   npm run check:data
    ```
-3. 提交前确保 `npm run build` 通过。
+3. 只有用户明确要求、正在诊断生成类型，或进入 CI/发布门禁时，才追加 Prisma generate、`typecheck:scope -- prisma-client` 或 build；普通本地 schema 任务不默认运行这些重检查。
 
 ## 7. 数据发布
 

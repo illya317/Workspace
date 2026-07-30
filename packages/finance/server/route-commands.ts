@@ -28,6 +28,10 @@ import {
 } from "./domain/finance-validation";
 import { listFinanceBalances, recomputeFinanceBalances } from "./ledger/balance-api";
 import {
+  replayFinanceBalanceCutover,
+  type FinanceBalanceCutoverReplayScope,
+} from "./ledger/balance-cutover-replay";
+import {
   listCounterpartyBalances,
   type ListCounterpartyBalancesInput,
 } from "./ledger/counterparty-balances";
@@ -201,6 +205,21 @@ export function buildListFinanceBalancesCommand(input: {
 
 export function executeListFinanceBalancesCommand(command: Parameters<typeof listFinanceBalances>[0]) {
   return listFinanceBalances(command);
+}
+
+export function buildFinanceBalanceCutoverReplayCommand(
+  input: FinanceBalanceCutoverReplayScope,
+): DomainValidationResult<FinanceBalanceCutoverReplayScope> {
+  const scope = buildFinancePeriodScopeCommand(input);
+  if (!scope.ok) return scope;
+  if (scope.data.month === undefined) return failCommand("month 为必填", 400, "month");
+  return okCommand({ ...scope.data, month: scope.data.month });
+}
+
+export function executeFinanceBalanceCutoverReplayCommand(
+  command: FinanceBalanceCutoverReplayScope,
+) {
+  return replayFinanceBalanceCutover(command);
 }
 
 export function buildListCounterpartyBalancesCommand(input: {

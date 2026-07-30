@@ -5,7 +5,7 @@ import { okCommand } from "@workspace/platform/server/domain-validation";
 import {
   buildCreateProjectNotificationRuleCommand,
   createProjectNotificationRule,
-  projectNotificationRuleCreateSchema,
+  projectNotificationRuleCreateRequestSchema,
   listProjectNotificationRules,
 } from "@workspace/work/server";
 
@@ -24,7 +24,7 @@ export const GET = createCommandRoute({
 export const POST = createCommandRoute({
   paramsSchema,
   paramsError: "项目 ID 无效",
-  bodySchema: projectNotificationRuleCreateSchema,
+  bodySchema: projectNotificationRuleCreateRequestSchema,
   bodyError: "项目通知规则无效",
   buildCommand: ({ params, body, user }) => buildCreateProjectNotificationRuleCommand({
     userId: user.userId,

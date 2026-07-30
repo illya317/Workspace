@@ -306,6 +306,7 @@ export type LibrarySearchIndexWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"LibrarySearchIndex"> | Date | string
   version?: Prisma.XOR<Prisma.LibraryDocumentVersionScalarRelationFilter, Prisma.LibraryDocumentVersionWhereInput>
   artifact?: Prisma.XOR<Prisma.LibraryArtifactNullableScalarRelationFilter, Prisma.LibraryArtifactWhereInput> | null
+  embeddings?: Prisma.LibraryContentEmbeddingListRelationFilter
 }
 
 export type LibrarySearchIndexOrderByWithRelationInput = {
@@ -325,6 +326,7 @@ export type LibrarySearchIndexOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   version?: Prisma.LibraryDocumentVersionOrderByWithRelationInput
   artifact?: Prisma.LibraryArtifactOrderByWithRelationInput
+  embeddings?: Prisma.LibraryContentEmbeddingOrderByRelationAggregateInput
 }
 
 export type LibrarySearchIndexWhereUniqueInput = Prisma.AtLeast<{
@@ -348,6 +350,7 @@ export type LibrarySearchIndexWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"LibrarySearchIndex"> | Date | string
   version?: Prisma.XOR<Prisma.LibraryDocumentVersionScalarRelationFilter, Prisma.LibraryDocumentVersionWhereInput>
   artifact?: Prisma.XOR<Prisma.LibraryArtifactNullableScalarRelationFilter, Prisma.LibraryArtifactWhereInput> | null
+  embeddings?: Prisma.LibraryContentEmbeddingListRelationFilter
 }, "id" | "indexUid" | "versionId_kind_generation">
 
 export type LibrarySearchIndexOrderByWithAggregationInput = {
@@ -406,6 +409,7 @@ export type LibrarySearchIndexCreateInput = {
   createdAt?: Date | string
   version: Prisma.LibraryDocumentVersionCreateNestedOneWithoutSearchIndexesInput
   artifact?: Prisma.LibraryArtifactCreateNestedOneWithoutIndexesInput
+  embeddings?: Prisma.LibraryContentEmbeddingCreateNestedManyWithoutIndexInput
 }
 
 export type LibrarySearchIndexUncheckedCreateInput = {
@@ -423,6 +427,7 @@ export type LibrarySearchIndexUncheckedCreateInput = {
   indexChecksum?: string | null
   builtAt?: Date | string | null
   createdAt?: Date | string
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedCreateNestedManyWithoutIndexInput
 }
 
 export type LibrarySearchIndexUpdateInput = {
@@ -439,6 +444,7 @@ export type LibrarySearchIndexUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.LibraryDocumentVersionUpdateOneRequiredWithoutSearchIndexesNestedInput
   artifact?: Prisma.LibraryArtifactUpdateOneWithoutIndexesNestedInput
+  embeddings?: Prisma.LibraryContentEmbeddingUpdateManyWithoutIndexNestedInput
 }
 
 export type LibrarySearchIndexUncheckedUpdateInput = {
@@ -456,6 +462,7 @@ export type LibrarySearchIndexUncheckedUpdateInput = {
   indexChecksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   builtAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedUpdateManyWithoutIndexNestedInput
 }
 
 export type LibrarySearchIndexCreateManyInput = {
@@ -589,6 +596,11 @@ export type LibrarySearchIndexSumOrderByAggregateInput = {
   generation?: Prisma.SortOrder
 }
 
+export type LibrarySearchIndexScalarRelationFilter = {
+  is?: Prisma.LibrarySearchIndexWhereInput
+  isNot?: Prisma.LibrarySearchIndexWhereInput
+}
+
 export type LibrarySearchIndexCreateNestedManyWithoutArtifactInput = {
   create?: Prisma.XOR<Prisma.LibrarySearchIndexCreateWithoutArtifactInput, Prisma.LibrarySearchIndexUncheckedCreateWithoutArtifactInput> | Prisma.LibrarySearchIndexCreateWithoutArtifactInput[] | Prisma.LibrarySearchIndexUncheckedCreateWithoutArtifactInput[]
   connectOrCreate?: Prisma.LibrarySearchIndexCreateOrConnectWithoutArtifactInput | Prisma.LibrarySearchIndexCreateOrConnectWithoutArtifactInput[]
@@ -629,6 +641,20 @@ export type LibrarySearchIndexUncheckedUpdateManyWithoutArtifactNestedInput = {
   update?: Prisma.LibrarySearchIndexUpdateWithWhereUniqueWithoutArtifactInput | Prisma.LibrarySearchIndexUpdateWithWhereUniqueWithoutArtifactInput[]
   updateMany?: Prisma.LibrarySearchIndexUpdateManyWithWhereWithoutArtifactInput | Prisma.LibrarySearchIndexUpdateManyWithWhereWithoutArtifactInput[]
   deleteMany?: Prisma.LibrarySearchIndexScalarWhereInput | Prisma.LibrarySearchIndexScalarWhereInput[]
+}
+
+export type LibrarySearchIndexCreateNestedOneWithoutEmbeddingsInput = {
+  create?: Prisma.XOR<Prisma.LibrarySearchIndexCreateWithoutEmbeddingsInput, Prisma.LibrarySearchIndexUncheckedCreateWithoutEmbeddingsInput>
+  connectOrCreate?: Prisma.LibrarySearchIndexCreateOrConnectWithoutEmbeddingsInput
+  connect?: Prisma.LibrarySearchIndexWhereUniqueInput
+}
+
+export type LibrarySearchIndexUpdateOneRequiredWithoutEmbeddingsNestedInput = {
+  create?: Prisma.XOR<Prisma.LibrarySearchIndexCreateWithoutEmbeddingsInput, Prisma.LibrarySearchIndexUncheckedCreateWithoutEmbeddingsInput>
+  connectOrCreate?: Prisma.LibrarySearchIndexCreateOrConnectWithoutEmbeddingsInput
+  upsert?: Prisma.LibrarySearchIndexUpsertWithoutEmbeddingsInput
+  connect?: Prisma.LibrarySearchIndexWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibrarySearchIndexUpdateToOneWithWhereWithoutEmbeddingsInput, Prisma.LibrarySearchIndexUpdateWithoutEmbeddingsInput>, Prisma.LibrarySearchIndexUncheckedUpdateWithoutEmbeddingsInput>
 }
 
 export type LibrarySearchIndexCreateNestedManyWithoutVersionInput = {
@@ -686,6 +712,7 @@ export type LibrarySearchIndexCreateWithoutArtifactInput = {
   builtAt?: Date | string | null
   createdAt?: Date | string
   version: Prisma.LibraryDocumentVersionCreateNestedOneWithoutSearchIndexesInput
+  embeddings?: Prisma.LibraryContentEmbeddingCreateNestedManyWithoutIndexInput
 }
 
 export type LibrarySearchIndexUncheckedCreateWithoutArtifactInput = {
@@ -702,6 +729,7 @@ export type LibrarySearchIndexUncheckedCreateWithoutArtifactInput = {
   indexChecksum?: string | null
   builtAt?: Date | string | null
   createdAt?: Date | string
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedCreateNestedManyWithoutIndexInput
 }
 
 export type LibrarySearchIndexCreateOrConnectWithoutArtifactInput = {
@@ -750,6 +778,88 @@ export type LibrarySearchIndexScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"LibrarySearchIndex"> | Date | string
 }
 
+export type LibrarySearchIndexCreateWithoutEmbeddingsInput = {
+  indexUid?: string
+  kind: string
+  engineKey: string
+  modelKey?: string | null
+  embeddingDimensions?: number | null
+  generation: number
+  status?: string
+  active?: boolean
+  indexChecksum?: string | null
+  builtAt?: Date | string | null
+  createdAt?: Date | string
+  version: Prisma.LibraryDocumentVersionCreateNestedOneWithoutSearchIndexesInput
+  artifact?: Prisma.LibraryArtifactCreateNestedOneWithoutIndexesInput
+}
+
+export type LibrarySearchIndexUncheckedCreateWithoutEmbeddingsInput = {
+  id?: number
+  indexUid?: string
+  versionId: number
+  artifactId?: number | null
+  kind: string
+  engineKey: string
+  modelKey?: string | null
+  embeddingDimensions?: number | null
+  generation: number
+  status?: string
+  active?: boolean
+  indexChecksum?: string | null
+  builtAt?: Date | string | null
+  createdAt?: Date | string
+}
+
+export type LibrarySearchIndexCreateOrConnectWithoutEmbeddingsInput = {
+  where: Prisma.LibrarySearchIndexWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibrarySearchIndexCreateWithoutEmbeddingsInput, Prisma.LibrarySearchIndexUncheckedCreateWithoutEmbeddingsInput>
+}
+
+export type LibrarySearchIndexUpsertWithoutEmbeddingsInput = {
+  update: Prisma.XOR<Prisma.LibrarySearchIndexUpdateWithoutEmbeddingsInput, Prisma.LibrarySearchIndexUncheckedUpdateWithoutEmbeddingsInput>
+  create: Prisma.XOR<Prisma.LibrarySearchIndexCreateWithoutEmbeddingsInput, Prisma.LibrarySearchIndexUncheckedCreateWithoutEmbeddingsInput>
+  where?: Prisma.LibrarySearchIndexWhereInput
+}
+
+export type LibrarySearchIndexUpdateToOneWithWhereWithoutEmbeddingsInput = {
+  where?: Prisma.LibrarySearchIndexWhereInput
+  data: Prisma.XOR<Prisma.LibrarySearchIndexUpdateWithoutEmbeddingsInput, Prisma.LibrarySearchIndexUncheckedUpdateWithoutEmbeddingsInput>
+}
+
+export type LibrarySearchIndexUpdateWithoutEmbeddingsInput = {
+  indexUid?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  engineKey?: Prisma.StringFieldUpdateOperationsInput | string
+  modelKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingDimensions?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  generation?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  indexChecksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  builtAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.LibraryDocumentVersionUpdateOneRequiredWithoutSearchIndexesNestedInput
+  artifact?: Prisma.LibraryArtifactUpdateOneWithoutIndexesNestedInput
+}
+
+export type LibrarySearchIndexUncheckedUpdateWithoutEmbeddingsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  indexUid?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.IntFieldUpdateOperationsInput | number
+  artifactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  engineKey?: Prisma.StringFieldUpdateOperationsInput | string
+  modelKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingDimensions?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  generation?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  indexChecksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  builtAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type LibrarySearchIndexCreateWithoutVersionInput = {
   indexUid?: string
   kind: string
@@ -763,6 +873,7 @@ export type LibrarySearchIndexCreateWithoutVersionInput = {
   builtAt?: Date | string | null
   createdAt?: Date | string
   artifact?: Prisma.LibraryArtifactCreateNestedOneWithoutIndexesInput
+  embeddings?: Prisma.LibraryContentEmbeddingCreateNestedManyWithoutIndexInput
 }
 
 export type LibrarySearchIndexUncheckedCreateWithoutVersionInput = {
@@ -779,6 +890,7 @@ export type LibrarySearchIndexUncheckedCreateWithoutVersionInput = {
   indexChecksum?: string | null
   builtAt?: Date | string | null
   createdAt?: Date | string
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedCreateNestedManyWithoutIndexInput
 }
 
 export type LibrarySearchIndexCreateOrConnectWithoutVersionInput = {
@@ -836,6 +948,7 @@ export type LibrarySearchIndexUpdateWithoutArtifactInput = {
   builtAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.LibraryDocumentVersionUpdateOneRequiredWithoutSearchIndexesNestedInput
+  embeddings?: Prisma.LibraryContentEmbeddingUpdateManyWithoutIndexNestedInput
 }
 
 export type LibrarySearchIndexUncheckedUpdateWithoutArtifactInput = {
@@ -852,6 +965,7 @@ export type LibrarySearchIndexUncheckedUpdateWithoutArtifactInput = {
   indexChecksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   builtAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedUpdateManyWithoutIndexNestedInput
 }
 
 export type LibrarySearchIndexUncheckedUpdateManyWithoutArtifactInput = {
@@ -899,6 +1013,7 @@ export type LibrarySearchIndexUpdateWithoutVersionInput = {
   builtAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artifact?: Prisma.LibraryArtifactUpdateOneWithoutIndexesNestedInput
+  embeddings?: Prisma.LibraryContentEmbeddingUpdateManyWithoutIndexNestedInput
 }
 
 export type LibrarySearchIndexUncheckedUpdateWithoutVersionInput = {
@@ -915,6 +1030,7 @@ export type LibrarySearchIndexUncheckedUpdateWithoutVersionInput = {
   indexChecksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   builtAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedUpdateManyWithoutIndexNestedInput
 }
 
 export type LibrarySearchIndexUncheckedUpdateManyWithoutVersionInput = {
@@ -934,6 +1050,35 @@ export type LibrarySearchIndexUncheckedUpdateManyWithoutVersionInput = {
 }
 
 
+/**
+ * Count Type LibrarySearchIndexCountOutputType
+ */
+
+export type LibrarySearchIndexCountOutputType = {
+  embeddings: number
+}
+
+export type LibrarySearchIndexCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  embeddings?: boolean | LibrarySearchIndexCountOutputTypeCountEmbeddingsArgs
+}
+
+/**
+ * LibrarySearchIndexCountOutputType without action
+ */
+export type LibrarySearchIndexCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibrarySearchIndexCountOutputType
+   */
+  select?: Prisma.LibrarySearchIndexCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * LibrarySearchIndexCountOutputType without action
+ */
+export type LibrarySearchIndexCountOutputTypeCountEmbeddingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryContentEmbeddingWhereInput
+}
+
 
 export type LibrarySearchIndexSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -952,6 +1097,8 @@ export type LibrarySearchIndexSelect<ExtArgs extends runtime.Types.Extensions.In
   createdAt?: boolean
   version?: boolean | Prisma.LibraryDocumentVersionDefaultArgs<ExtArgs>
   artifact?: boolean | Prisma.LibrarySearchIndex$artifactArgs<ExtArgs>
+  embeddings?: boolean | Prisma.LibrarySearchIndex$embeddingsArgs<ExtArgs>
+  _count?: boolean | Prisma.LibrarySearchIndexCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["librarySearchIndex"]>
 
 export type LibrarySearchIndexSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1013,6 +1160,8 @@ export type LibrarySearchIndexOmit<ExtArgs extends runtime.Types.Extensions.Inte
 export type LibrarySearchIndexInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   version?: boolean | Prisma.LibraryDocumentVersionDefaultArgs<ExtArgs>
   artifact?: boolean | Prisma.LibrarySearchIndex$artifactArgs<ExtArgs>
+  embeddings?: boolean | Prisma.LibrarySearchIndex$embeddingsArgs<ExtArgs>
+  _count?: boolean | Prisma.LibrarySearchIndexCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LibrarySearchIndexIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   version?: boolean | Prisma.LibraryDocumentVersionDefaultArgs<ExtArgs>
@@ -1028,6 +1177,7 @@ export type $LibrarySearchIndexPayload<ExtArgs extends runtime.Types.Extensions.
   objects: {
     version: Prisma.$LibraryDocumentVersionPayload<ExtArgs>
     artifact: Prisma.$LibraryArtifactPayload<ExtArgs> | null
+    embeddings: Prisma.$LibraryContentEmbeddingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1440,6 +1590,7 @@ export interface Prisma__LibrarySearchIndexClient<T, Null = never, ExtArgs exten
   readonly [Symbol.toStringTag]: "PrismaPromise"
   version<T extends Prisma.LibraryDocumentVersionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersionDefaultArgs<ExtArgs>>): Prisma.Prisma__LibraryDocumentVersionClient<runtime.Types.Result.GetResult<Prisma.$LibraryDocumentVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   artifact<T extends Prisma.LibrarySearchIndex$artifactArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibrarySearchIndex$artifactArgs<ExtArgs>>): Prisma.Prisma__LibraryArtifactClient<runtime.Types.Result.GetResult<Prisma.$LibraryArtifactPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  embeddings<T extends Prisma.LibrarySearchIndex$embeddingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibrarySearchIndex$embeddingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryContentEmbeddingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1900,6 +2051,30 @@ export type LibrarySearchIndex$artifactArgs<ExtArgs extends runtime.Types.Extens
    */
   include?: Prisma.LibraryArtifactInclude<ExtArgs> | null
   where?: Prisma.LibraryArtifactWhereInput
+}
+
+/**
+ * LibrarySearchIndex.embeddings
+ */
+export type LibrarySearchIndex$embeddingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryContentEmbedding
+   */
+  select?: Prisma.LibraryContentEmbeddingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryContentEmbedding
+   */
+  omit?: Prisma.LibraryContentEmbeddingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryContentEmbeddingInclude<ExtArgs> | null
+  where?: Prisma.LibraryContentEmbeddingWhereInput
+  orderBy?: Prisma.LibraryContentEmbeddingOrderByWithRelationInput | Prisma.LibraryContentEmbeddingOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryContentEmbeddingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryContentEmbeddingScalarFieldEnum | Prisma.LibraryContentEmbeddingScalarFieldEnum[]
 }
 
 /**

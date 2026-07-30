@@ -10,6 +10,7 @@ import { requireStoredFinanceAssetDepreciationMethod } from "./depreciation-meth
 import { firstMonthAfterFinanceAssetCutover, FINANCE_ASSET_LEGACY_CUTOVER_MODE } from "./legacy-cutover";
 import { gateFinanceAssetLegacyCutoverBlockers } from "./legacy-cutover-blocker-gate";
 import { isExecutionApprovedGovernedReconciler } from "./approved-cutover-config";
+import { partitionFinanceAssetWorkbookIssues } from "./workbook-import-issue-policy";
 import {
   validateFinanceAssetLedgerCutoverResult,
   type FinanceAssetCutoverAuthoritativeContext,
@@ -81,17 +82,18 @@ export async function importAssetWorkbook(
   if (!command.ok) throw new Error(command.issue.message);
   input = command.data;
   const parsed = dependencies.parseWorkbook(input.buffer, input);
+  const classifiedIssues = partitionFinanceAssetWorkbookIssues(parsed.blockers);
   const blockerGate = gateFinanceAssetLegacyCutoverBlockers({
     year: input.year,
     month: input.month,
     hasErpGlReconciliation: overrides.reconcileCutover != null,
-    blockers: parsed.blockers,
+    blockers: classifiedIssues.blockers,
   });
   if (blockerGate.blocking.length > 0 || (!parsed.readyForImport && parsed.blockers.length === 0)) {
     const codes = [...new Set(blockerGate.blocking.map((item) => item.code))];
     throw new Error(`资产底稿存在 ${blockerGate.blocking.length || 1} 个阻断项，停止导入：${codes.join(", ") || "PARSER_READY_STATE_INVALID"}`);
   }
-  const workbookWarnings = [...parsed.warnings, ...blockerGate.warnings];
+  const workbookWarnings = [...parsed.warnings, ...classifiedIssues.warnings, ...blockerGate.warnings];
   const checksum = createHash("sha256").update(input.buffer).digest("hex");
   return dependencies.database.$transaction(async (tx) => {
     const company = await tx.company.findUnique({
@@ -143,6 +145,8 @@ export async function importAssetWorkbook(
         workbookNetBookValue: asset.closingNetAmount,
         workbookAccumulatedAmount: cutoverAccumulatedAmount(asset),
         fullUsefulLifeMonths: basis.fullUsefulLifeMonths,
+        usefulLifeMonths: basis.usefulLifeMonths,
+        nonAmortizationReason: basis.nonAmortizationReason,
         remainingUsefulLifeMonthsAtCutover: basis.remainingUsefulLifeMonthsAtCutover,
         cutoverResidualValue: basis.cutoverResidualValue,
         residualRate: basis.residualRate,
@@ -221,10 +225,9 @@ export async function importAssetWorkbook(
       if (category.assetKind !== asset.assetKind || policy.category.assetKind !== asset.assetKind || policy.category.id !== category.id) {
         throw new Error(`解析资产与年度分类政策不一致：${asset.name}`);
       }
-      const usefulLifeMonths = prepared.fullUsefulLifeMonths;
-      const policyLifeForValidation = usefulLifeMonths;
-      if (policy.minimumUsefulLifeMonths != null && policyLifeForValidation < policy.minimumUsefulLifeMonths) throw new Error(`资产使用寿命低于年度分类政策下限：${asset.name}`);
-      if (policy.maximumUsefulLifeMonths != null && policyLifeForValidation > policy.maximumUsefulLifeMonths) throw new Error(`资产使用寿命超过年度分类政策上限：${asset.name}`);
+      const usefulLifeMonths = prepared.usefulLifeMonths;
+      if (usefulLifeMonths != null && policy.minimumUsefulLifeMonths != null && usefulLifeMonths < policy.minimumUsefulLifeMonths) throw new Error(`资产使用寿命低于年度分类政策下限：${asset.name}`);
+      if (usefulLifeMonths != null && policy.maximumUsefulLifeMonths != null && usefulLifeMonths > policy.maximumUsefulLifeMonths) throw new Error(`资产使用寿命超过年度分类政策上限：${asset.name}`);
       const residualRate = prepared.residualRate;
       const existing = await tx.financeAssetCard.findUnique({
         where: { companyCode_sourceKey: { companyCode: input.companyCode, sourceKey: asset.sourceKey } },
@@ -235,7 +238,7 @@ export async function importAssetWorkbook(
           impairmentAllocations: { where: { assessment: { status: "confirmed" } }, select: { id: true }, take: 1 },
         },
       });
-      const data = cardData(asset, { ...input, companyId: company.id }, policy, usefulLifeMonths, residualRate, method, allocation, reconciliationFingerprint, period.id, cutoverDate, reconciliation.executionApproval);
+      const data = cardData(asset, { ...input, companyId: company.id }, policy, usefulLifeMonths, residualRate, method, allocation, reconciliationFingerprint, period.id, cutoverDate, prepared.nonAmortizationReason, reconciliation.executionApproval);
       const postedEntries = existing?.periodEntries.filter((entry) => entry.status === "posted" || entry.voucherId != null) ?? [];
       if (existing && allocation.allocationStatus === "pending" && existing.periodEntries.length > 0) {
         throw new Error(`资产切点待分配前必须先清理已有折旧摊销条目：${asset.name}`);
@@ -317,7 +320,6 @@ export async function importAssetWorkbook(
         const stale = existingCostLines.find((line) => !line.sourceKey || !expectedSourceKeys.has(line.sourceKey));
         if (stale) throw new Error(`装修资产存在陈旧或未知成本行，停止重导：${stale.sourceKey ?? "NULL"}`);
         for (const line of parsed.renovationCostEvidence) {
-          if (line.treatment === "excluded_from_source_total" && !line.reason?.trim()) throw new Error(`装修排除成本行缺少原因：${line.sourceKey}`);
           await tx.financeAssetCostLine.upsert({
             where: { assetId_sourceKey: { assetId: card.id, sourceKey: line.sourceKey } },
             create: { assetId: card.id, lineType: "invoice", treatment: line.treatment, amount: line.amount, reason: line.reason ?? null, sourceFile: line.sourceFile, sourceSheet: line.sourceSheet, sourceRow: line.sourceRow, sourceKey: line.sourceKey },
@@ -395,7 +397,7 @@ async function loadAuthoritativeCutoverContext(
   };
 }
 
-function cardData(asset: ParsedCurrentPeriodAsset, input: { companyCode: string; companyId: number; userId?: number }, policy: Awaited<ReturnType<typeof resolveFinanceAssetCategoryPolicy>>, usefulLifeMonths: number | null, residualRate: number, method: "straight_line", allocation: FinanceAssetLedgerCutoverResult["allocations"][number], reconciliationFingerprint: string, cutoverPeriodId: number, cutoverDate: string, executionApproval?: FinanceAssetLedgerCutoverResult["executionApproval"]) {
+function cardData(asset: ParsedCurrentPeriodAsset, input: { companyCode: string; companyId: number; userId?: number }, policy: Awaited<ReturnType<typeof resolveFinanceAssetCategoryPolicy>>, usefulLifeMonths: number | null, residualRate: number, method: "straight_line", allocation: FinanceAssetLedgerCutoverResult["allocations"][number], reconciliationFingerprint: string, cutoverPeriodId: number, cutoverDate: string, nonAmortizationReason: string | null, executionApproval?: FinanceAssetLedgerCutoverResult["executionApproval"]) {
   const note = [
     asset.note,
     `sourceAssetCode=${asset.assetCode}`,
@@ -403,7 +405,7 @@ function cardData(asset: ParsedCurrentPeriodAsset, input: { companyCode: string;
     asset.depreciationStartEvidence ? `depreciationStartEvidence=${asset.depreciationStartEvidence}` : undefined,
     asset.depreciationStartSourceRange ? `depreciationStartSourceRange=${asset.depreciationStartSourceRange}` : undefined,
   ].filter(Boolean).join("；");
-  return { companyCode: input.companyCode, companyId: input.companyId, name: asset.name, assetKind: asset.assetKind, categoryId: policy.category.id, sourceCategory: asset.sourceCategory ?? null, assetAccountCode: policy.assetAccount.code, assetAccountId: policy.assetAccount.id, accumulatedAccountCode: policy.accumulatedAccount?.code ?? null, accumulatedAccountId: policy.accumulatedAccount?.id ?? null, acquisitionDate: asset.acquisitionDate ?? null, depreciationStartDate: firstMonthAfterFinanceAssetCutover(cutoverDate), originalCost: asset.originalCost, residualRate, usefulLifeMonths, method, initializationMode: FINANCE_ASSET_LEGACY_CUTOVER_MODE, openingAccumulatedAmount: allocation.openingAccumulatedAmount, openingImpairmentAmount: allocation.openingImpairmentAmount, openingNetBookValue: allocation.openingNetBookValue, openingAsOfDate: cutoverDate, cutoverDate, remainingUsefulLifeMonthsAtCutover: allocation.remainingUsefulLifeMonthsAtCutover, cutoverResidualValue: allocation.cutoverResidualValue, cutoverAllocationStatus: allocation.allocationStatus, cutoverReconciliationFingerprint: reconciliationFingerprint, cutoverPeriodId, cutoverAssetBalanceId: allocation.assetBalance.id, cutoverAccumulatedBalanceId: allocation.accumulatedBalance?.id ?? null, cutoverImpairmentBalanceId: allocation.impairmentBalance?.id ?? null, nonAmortizationReason: null, note: [note, allocation.roundingAdjustment ? `cutoverRoundingAdjustment=${allocation.roundingAdjustment.toFixed(2)}` : undefined, allocation.ledgerControlAllocationMode ? `cutoverLedgerControl=${allocation.ledgerControlAllocationMode}` : undefined, allocation.ledgerControlAdjustment ? `cutoverLedgerControlAdjustment=${allocation.ledgerControlAdjustment.toFixed(2)}` : undefined, allocation.ledgerControlApprovalReason ? `cutoverLedgerControlApproval=${allocation.ledgerControlApprovalReason}` : undefined, executionApproval ? `cutoverExecutionApproval=${executionApproval.approvalReference}/${executionApproval.approvedBy}/${executionApproval.executedBy}` : undefined].filter(Boolean).join("；"), sourceFile: asset.sourceFile, sourceSheet: asset.sourceSheet, sourceRow: asset.sourceRow, sourceKey: asset.sourceKey, editedBy: input.userId ?? null };
+  return { companyCode: input.companyCode, companyId: input.companyId, name: asset.name, assetKind: asset.assetKind, categoryId: policy.category.id, sourceCategory: asset.sourceCategory ?? null, assetAccountCode: policy.assetAccount.code, assetAccountId: policy.assetAccount.id, accumulatedAccountCode: policy.accumulatedAccount?.code ?? null, accumulatedAccountId: policy.accumulatedAccount?.id ?? null, acquisitionDate: asset.acquisitionDate ?? null, depreciationStartDate: firstMonthAfterFinanceAssetCutover(cutoverDate), originalCost: asset.originalCost, residualRate, usefulLifeMonths, method, initializationMode: FINANCE_ASSET_LEGACY_CUTOVER_MODE, openingAccumulatedAmount: allocation.openingAccumulatedAmount, openingImpairmentAmount: allocation.openingImpairmentAmount, openingNetBookValue: allocation.openingNetBookValue, openingAsOfDate: cutoverDate, cutoverDate, remainingUsefulLifeMonthsAtCutover: allocation.remainingUsefulLifeMonthsAtCutover, cutoverResidualValue: allocation.cutoverResidualValue, cutoverAllocationStatus: allocation.allocationStatus, cutoverReconciliationFingerprint: reconciliationFingerprint, cutoverPeriodId, cutoverAssetBalanceId: allocation.assetBalance.id, cutoverAccumulatedBalanceId: allocation.accumulatedBalance?.id ?? null, cutoverImpairmentBalanceId: allocation.impairmentBalance?.id ?? null, nonAmortizationReason, note: [note, allocation.roundingAdjustment ? `cutoverRoundingAdjustment=${allocation.roundingAdjustment.toFixed(2)}` : undefined, allocation.ledgerControlAllocationMode ? `cutoverLedgerControl=${allocation.ledgerControlAllocationMode}` : undefined, allocation.ledgerControlAdjustment ? `cutoverLedgerControlAdjustment=${allocation.ledgerControlAdjustment.toFixed(2)}` : undefined, allocation.ledgerControlApprovalReason ? `cutoverLedgerControlApproval=${allocation.ledgerControlApprovalReason}` : undefined, executionApproval ? `cutoverExecutionApproval=${executionApproval.approvalReference}/${executionApproval.approvedBy}/${executionApproval.executedBy}` : undefined].filter(Boolean).join("；"), sourceFile: asset.sourceFile, sourceSheet: asset.sourceSheet, sourceRow: asset.sourceRow, sourceKey: asset.sourceKey, editedBy: input.userId ?? null };
 }
 
 export function canonicalizeFinanceAssetCutoverEstimates(
@@ -462,16 +464,19 @@ function resolveCutoverAccountingBasis(
   }
   const configuredLife = asset.usefulLifeMonths ?? policy.defaultUsefulLifeMonths;
   if (!policy.category.depreciable) {
-    return { residualRate, fullUsefulLifeMonths: configuredLife ?? 0, remainingUsefulLifeMonthsAtCutover: 0, cutoverResidualValue: money(asset.closingNetAmount) };
+    return { residualRate, fullUsefulLifeMonths: configuredLife ?? 0, usefulLifeMonths: configuredLife ?? null, remainingUsefulLifeMonthsAtCutover: 0, cutoverResidualValue: money(asset.closingNetAmount), nonAmortizationReason: null };
   }
   if (!Number.isInteger(configuredLife) || Number(configuredLife) <= 0) {
+    if (asset.assetKind === "intangible" && policy.usefulLifeMode === "required_or_indefinite_basis") {
+      return { residualRate, fullUsefulLifeMonths: 0, usefulLifeMonths: null, remainingUsefulLifeMonthsAtCutover: 0, cutoverResidualValue: money(asset.closingNetAmount), nonAmortizationReason: "使用寿命证据待人工复核；复核前不自动摊销" };
+    }
     throw new Error(`资产完整使用寿命未由来源或年度分类政策有效补齐：${asset.name}`);
   }
   const fullUsefulLifeMonths = Number(configuredLife);
   const policyResidualValue = money(asset.originalCost * residualRate);
   const cutoverResidualValue = money(Math.min(asset.closingNetAmount, policyResidualValue));
   const remainingDepreciable = money(asset.closingNetAmount - cutoverResidualValue);
-  if (remainingDepreciable <= 0) return { residualRate, fullUsefulLifeMonths, remainingUsefulLifeMonthsAtCutover: 0, cutoverResidualValue };
+  if (remainingDepreciable <= 0) return { residualRate, fullUsefulLifeMonths, usefulLifeMonths: fullUsefulLifeMonths, remainingUsefulLifeMonthsAtCutover: 0, cutoverResidualValue, nonAmortizationReason: null };
   const sourceRemaining = asset.depreciationStartDate
     ? fullUsefulLifeMonths - monthsThroughCutover(asset.depreciationStartDate, cutoverDate)
     : null;
@@ -479,7 +484,7 @@ function resolveCutoverAccountingBasis(
   const valueImpliedRemaining = monthlyPolicyAmount > 0 ? Math.ceil((remainingDepreciable - 0.005) / monthlyPolicyAmount) : 0;
   const remainingUsefulLifeMonthsAtCutover = Math.max(1, Math.min(fullUsefulLifeMonths,
     sourceRemaining != null && sourceRemaining > 0 ? sourceRemaining : valueImpliedRemaining));
-  return { residualRate, fullUsefulLifeMonths, remainingUsefulLifeMonthsAtCutover, cutoverResidualValue };
+  return { residualRate, fullUsefulLifeMonths, usefulLifeMonths: fullUsefulLifeMonths, remainingUsefulLifeMonthsAtCutover, cutoverResidualValue, nonAmortizationReason: null };
 }
 
 function monthsThroughCutover(startDate: string, cutoverDate: string) {

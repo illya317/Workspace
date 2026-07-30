@@ -1,26 +1,26 @@
 "use client";
-
-import { useEffect, useMemo, useState } from "react";
-
+import { useMemo } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import {
   createAnalysisSection,
+  createEmptySection,
+  createFieldsSection,
   createMasterDetailBody,
-  createMessageSection,
   createPageBody,
-  createPageDataSection,
+  createPanelSection,
   createPageTableSection,
   createPageTabBar,
   createStatusSection,
   createVisualizationSection,
   PageSurface,
-  useFeedback,
+  type PageSurfaceCreateSpec,
   type SelectorSurfaceProps,
   type VisualizationNetworkSpec,
 } from "@workspace/core/ui";
-import { requestJson } from "@workspace/platform/ui/api-client";
-import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
-import type { InvestorRelationshipView, ShareholderPosition } from "../types";
+import type {
+  InvestorDueDiligenceRecord,
+  ShareholderPosition,
+} from "../types";
 import {
   CAPITAL_TRANSACTION_COLUMNS,
   CAPITAL_TRANSACTION_VISIBLE_COLUMNS,
@@ -29,69 +29,53 @@ import {
   flattenShareCapitalTransactions,
   formatRelationshipRatio,
   formatWanYuan,
-  SHAREHOLDER_COLUMNS,
-  SHAREHOLDER_VISIBLE_COLUMNS,
 } from "./investor-relationships-ui";
+import {
+  DILIGENCE_STATUS_LABELS,
+  dueDiligenceFormSections,
+  emptyInvestorDueDiligenceDraft,
+  shareholderProfileFormSections,
+} from "./investor-relationship-forms";
+import {
+  currentBusinessDate,
+  useInvestorRelationshipState,
+} from "./use-investor-relationship-state";
+import { createInvestorCaptableSections } from "./investor-captable-sections";
 import { downloadOwnershipStructurePdf } from "./ownership-structure-pdf";
-
 const ENDPOINT = "/api/modules/capitalSecurities/investors";
-
-type InvestorView = "shareholders" | "captable" | "structure";
-
+type InvestorView = "shareholders" | "captable" | "structure" | "diligence";
 const VIEWS = [
   { key: "shareholders", label: "股权情况" },
   { key: "captable", label: "股权结构表" },
   { key: "structure", label: "股权结构图" },
+  { key: "diligence", label: "尽调情况" },
 ] as const;
-
-export default function InvestorsClient() {
-  const businessTimeZone = useTenantConfig().localization.businessTimeZone;
-  const [view, setView] = useState<InvestorView>("shareholders");
-  const [asOf, setAsOf] = useState(() => currentBusinessDate(businessTimeZone));
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
-  const [selectedPartyId, setSelectedPartyId] = useState<number | null>(null);
-  const [data, setData] = useState<InvestorRelationshipView | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [mobileDetailActive, setMobileDetailActive] = useState(false);
-  const [exportingStructure, setExportingStructure] = useState(false);
-  const feedback = useFeedback();
-
-  useEffect(() => {
-    let active = true;
-    const params = new URLSearchParams({ asOf });
-    if (selectedCompanyId) params.set("issuerCompanyId", String(selectedCompanyId));
-    setLoading(true);
-    setError("");
-    void requestJson<InvestorRelationshipView>(`${ENDPOINT}?${params.toString()}`)
-      .then((nextData) => {
-        if (!active) return;
-        setData(nextData);
-        if (selectedCompanyId === null && nextData.selectedCompany) {
-          setSelectedCompanyId(nextData.selectedCompany.id);
-        }
-        setSelectedPartyId((current) => nextData.shareholders.some((item) => item.partyId === current)
-          ? current
-          : nextData.shareholders[0]?.partyId ?? null);
-      })
-      .catch((cause: unknown) => {
-        if (!active) return;
-        setError(cause instanceof Error ? cause.message : "投资人关系加载失败");
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => { active = false; };
-  }, [asOf, selectedCompanyId]);
-
+export default function InvestorsClient({
+  canCreate = false,
+  canUpdate = false,
+  canDelete = false,
+}: {
+  canCreate?: boolean;
+  canUpdate?: boolean;
+  canDelete?: boolean;
+}) {
+  const {
+    businessTimeZone, view, setView, asOf, setAsOf,
+    selectedCompanyId, setSelectedCompanyId, selectedPartyId, setSelectedPartyId,
+    selectedDiligenceId, setSelectedDiligenceId, data, profileDraft, diligenceDraft,
+    setDiligenceDraft, creatingDiligence, setCreatingDiligence, loading, error,
+    mobileDetailActive, setMobileDetailActive, exportingStructure, setExportingStructure,
+    savingProfile, savingDiligence, feedback, selectedShareholder, selectedDiligence,
+    updateProfileDraft, resetProfileDraft, saveProfile, updateDiligenceDraft,
+    openDiligenceCreate, cancelDiligenceCreate, createDiligence,
+    resetDiligenceDraft, saveDiligence, archiveDiligence,
+  } = useInvestorRelationshipState({ canCreate, canUpdate, canDelete });
   const navigation = useMemo(() => createPageTabBar({
     items: [...VIEWS],
     active: view,
     onChange: (key) => setView(key as InvestorView),
-    ariaLabel: "股权与股权结构表视图",
-  }), [view]);
-
-  const selectedShareholder = data?.shareholders.find((item) => item.partyId === selectedPartyId) ?? null;
+    ariaLabel: "投资人关系工作视图",
+  }), [setView, view]);
   const selector = useMemo<SelectorSurfaceProps<ShareholderPosition>>(() => ({
     kind: "list",
     title: `股东 · ${data?.shareholders.length ?? 0}`,
@@ -117,7 +101,36 @@ export default function InvestorsClient() {
       setSelectedPartyId(shareholder.partyId);
       setMobileDetailActive(true);
     },
-  }), [data?.shareholders, error, loading, selectedPartyId]);
+  }), [data?.shareholders, error, loading, selectedPartyId, setMobileDetailActive, setSelectedPartyId]);
+
+  const diligenceSelector = useMemo<SelectorSurfaceProps<InvestorDueDiligenceRecord>>(() => ({
+    kind: "list",
+    title: `尽调人员 · ${data?.dueDiligenceRecords.length ?? 0}`,
+    items: (data?.dueDiligenceRecords ?? []).map((record) => ({
+      key: record.id,
+      value: record,
+      card: {
+        title: record.visitorName,
+        subtitle: [record.investorOrganization, record.visitorTitle].filter(Boolean).join(" · "),
+        code: record.diligenceDate,
+        meta: record.hostName ? `对接：${record.hostName}` : "内部对接人待补",
+        status: {
+          label: DILIGENCE_STATUS_LABELS[record.status],
+          tone: record.status === "completed" ? "success" : record.status === "cancelled" ? "muted" : "warning",
+        },
+      },
+    })),
+    selectedId: selectedDiligenceId,
+    loading,
+    loadingText: "正在加载尽调记录",
+    emptyText: "暂无尽调人员记录",
+    onSelect: (record) => {
+      setCreatingDiligence(false);
+      setSelectedDiligenceId(record.id);
+      setDiligenceDraft({ ...record });
+      setMobileDetailActive(true);
+    },
+  }), [data?.dueDiligenceRecords, loading, selectedDiligenceId, setCreatingDiligence, setDiligenceDraft, setMobileDetailActive, setSelectedDiligenceId]);
 
   const transactionRows = useMemo(
     () => flattenShareCapitalTransactions(data?.events ?? [], selectedPartyId),
@@ -206,6 +219,7 @@ export default function InvestorsClient() {
   return (
     <PageSurface
       kind="standard"
+      create={diligenceCreateSurface()}
       tabbar={navigation}
       toolbar={{
         items: [
@@ -221,17 +235,19 @@ export default function InvestorsClient() {
             onChange: (value: string) => {
               setSelectedCompanyId(value ? Number(value) : null);
               setSelectedPartyId(null);
+              setSelectedDiligenceId(null);
+              setCreatingDiligence(false);
             },
             searchable: true,
           } as const]),
-          {
+          ...(view === "diligence" ? [] : [{
             kind: "period",
             key: "as-of",
             mode: "date",
             value: asOf,
-            onChange: (value) => setAsOf(value || currentBusinessDate(businessTimeZone)),
+            onChange: (value: string | null) => setAsOf(value || currentBusinessDate(businessTimeZone)),
             placeholder: "股权基准日",
-          },
+          } as const]),
           ...(view === "captable" ? [{
             kind: "action-group" as const,
             key: "captable-actions",
@@ -268,7 +284,14 @@ export default function InvestorsClient() {
         content: loading ? "正在生成股权台账" : "暂无可查询的公司",
       })]);
     }
-    if (view === "captable") return createPageBody(captableSections());
+    if (view === "captable") return createPageBody(createInvestorCaptableSections({ data, asOf, captableRows, financingRows }));
+    if (view === "diligence") {
+      return createMasterDetailBody({
+        master: { label: "尽调人员", presentation: "compact", body: { kind: "selector", selector: diligenceSelector } },
+        detail: createPageBody(dueDiligenceSections()),
+        mobile: { detailActive: mobileDetailActive, onNavigateToList: () => setMobileDetailActive(false) },
+      });
+    }
     if (view === "structure") {
       return createPageBody([
         createVisualizationSection("shareholding-structure", {
@@ -297,18 +320,45 @@ export default function InvestorsClient() {
         content: loading ? "正在生成股东信息" : "暂无股东信息",
       })];
     }
+    if (!profileDraft) {
+      return [createStatusSection("shareholder-profile-loading", {
+        kind: "loading",
+        content: "正在准备股东资料",
+      })];
+    }
+    const profileSections = shareholderProfileFormSections(
+      selectedShareholder,
+      profileDraft,
+      updateProfileDraft,
+      canUpdate,
+    );
     return [
-      createAnalysisSection("shareholder-information", {
-        title: "股东信息",
-        sections: [createPageTableSection("shareholder-information-table", {
-          rows: [selectedShareholder],
-          columns: SHAREHOLDER_COLUMNS,
-          visibleColumns: SHAREHOLDER_VISIBLE_COLUMNS,
-          rowKey: (row) => row.partyId,
-          loading,
-          emptyText: "暂无股东信息",
-          presentation: { density: "compact", cellWrap: "nowrap" },
-        })],
+      createPanelSection("shareholder-information", {
+        title: `${selectedShareholder.name} · 股东资料`,
+        sections: profileSections.map((section, index) => createFieldsSection(
+          `shareholder-profile-${section.key}`,
+          section.items,
+          {
+            header: section.title ? { title: section.title } : undefined,
+            layout: section.layout,
+            actions: canUpdate && index === profileSections.length - 1 ? [
+              {
+                key: "reset-profile",
+                action: "reset",
+                label: "撤销修改",
+                disabled: savingProfile,
+                onClick: resetProfileDraft,
+              },
+              {
+                key: "save-profile",
+                action: "save",
+                label: savingProfile ? "保存中..." : "保存股东资料",
+                disabled: savingProfile,
+                onClick: () => { void saveProfile(); },
+              },
+            ] : undefined,
+          },
+        )),
       }),
       createAnalysisSection("share-capital-transactions", {
         title: "转让、增资、减资与回购记录",
@@ -325,77 +375,81 @@ export default function InvestorsClient() {
     ];
   }
 
-  function captableSections() {
-    return [
-      createMessageSection("captable-rule", {
-        tone: data?.metrics.pendingEventCount ? "warning" : "muted",
-        content: data?.metrics.pendingEventCount
-          ? `口径：认缴注册资本｜单位：万元｜基准日：${asOf}｜黄色轮次为待变更，暂不计入当前已登记股权。持股比例和估值均由注册资本与实际出资自动计算。`
-          : `口径：认缴注册资本｜单位：万元｜基准日：${asOf}。持股比例和估值均由注册资本与实际出资自动计算。`,
-      }),
-      createAnalysisSection("captable", {
-        title: `${data?.selectedCompany?.name ?? ""}股权结构表`,
-        sections: [createPageDataSection("captable-table", {
-          kind: "structured",
-          rows: captableRows,
-          structuredScroll: true,
-          format: {
-            kind: "matrix",
-            columnWidths: [
-              "11rem",
-              ...(data?.captableRounds ?? []).flatMap(() => ["8rem", "6rem"]),
-            ],
-            headerRowHeight: "4rem",
-            bodyRowHeight: "3rem",
-          },
-          frame: "clipped",
-          scroll: { x: true, y: "hidden" },
-          mobile: {
-            presentation: "landscape",
-            title: "股权结构表",
-            reason: "股权结构表是跨轮次比较矩阵，请横屏查看完整轮次。",
-          },
-          presentation: {
-            density: "compact",
-            header: "strong",
-            grid: "cells",
-            cellWrap: "nowrap",
-            controlHeight: "auto",
-          },
-        })],
-      }),
-      createAnalysisSection("financing-rounds", {
-        title: "各轮估值与出资",
-        sections: [createPageDataSection("financing-rounds-table", {
-          kind: "structured",
-          rows: financingRows,
-          structuredScroll: true,
-          format: {
-            kind: "matrix",
-            columnWidths: [
-              "13rem",
-              ...(data?.financingRounds ?? []).map(() => "11rem"),
-            ],
-            headerRowHeight: "4rem",
-            bodyRowHeight: "3rem",
-          },
-          frame: "clipped",
-          scroll: { x: true, y: "hidden" },
-          mobile: {
-            presentation: "landscape",
-            title: "各轮估值与出资",
-            reason: "估值与出资按轮次横向比较，请横屏查看。",
-          },
-          presentation: {
-            density: "compact",
-            header: "strong",
-            grid: "cells",
-            cellWrap: "nowrap",
-            controlHeight: "auto",
-          },
-        })],
-      }),
-    ];
+  function dueDiligenceSections() {
+    if (creatingDiligence) return [];
+    if (!diligenceDraft || !selectedDiligence) {
+      return [createEmptySection("diligence-empty", {
+        presentation: "plain",
+        content: loading ? "正在加载尽调记录" : "从左侧选择人员查看详情，或新增一条尽调记录",
+      })];
+    }
+    const sections = dueDiligenceFormSections(
+      diligenceDraft,
+      data?.shareholders ?? [],
+      updateDiligenceDraft,
+      canUpdate,
+    );
+    return [createPanelSection("diligence-detail", {
+      title: `${diligenceDraft.visitorName || "尽调人员"} · ${diligenceDraft.investorOrganization || "投资机构"}`,
+      sections: sections.map((section, index) => createFieldsSection(
+        `diligence-detail-${section.key}`,
+        section.items,
+        {
+          header: section.title ? { title: section.title } : undefined,
+          layout: section.layout,
+          actions: index === sections.length - 1 ? [
+            ...(canDelete ? [{
+              key: "archive-diligence",
+              action: "delete" as const,
+              label: "移除记录",
+              disabled: savingDiligence,
+              onClick: () => { void archiveDiligence(); },
+            }] : []),
+            ...(canUpdate ? [
+              {
+                key: "reset-diligence",
+                action: "reset" as const,
+                label: "撤销修改",
+                disabled: savingDiligence,
+                onClick: resetDiligenceDraft,
+              },
+              {
+                key: "save-diligence",
+                action: "save" as const,
+                label: savingDiligence ? "保存中..." : "保存尽调记录",
+                disabled: savingDiligence || !diligenceDraft.visitorName || !diligenceDraft.investorOrganization || !diligenceDraft.diligenceDate,
+                onClick: () => { void saveDiligence(); },
+              },
+            ] : []),
+          ] : undefined,
+        },
+      )),
+    })];
+  }
+
+  function diligenceCreateSurface(): PageSurfaceCreateSpec {
+    const draft = diligenceDraft
+      ?? emptyInvestorDueDiligenceDraft(data?.selectedCompany?.id ?? 0, currentBusinessDate(businessTimeZone));
+    return {
+      id: "investor-due-diligence-create",
+      presentation: "block",
+      title: "新增尽调人员记录",
+      open: creatingDiligence,
+      canCreate: canCreate && view === "diligence" && Boolean(data?.selectedCompany),
+      disabled: savingDiligence,
+      content: {
+        kind: "sections",
+        sections: dueDiligenceFormSections(draft, data?.shareholders ?? [], updateDiligenceDraft, true),
+      },
+      submission: {
+        action: "save",
+        disabled: savingDiligence || !draft.visitorName || !draft.investorOrganization || !draft.diligenceDate,
+        execute: createDiligence,
+      },
+      feedback: { saved: "尽调记录已新增", error: "新增尽调记录失败" },
+      onOpenChange: (open) => open ? openDiligenceCreate() : cancelDiligenceCreate(),
+      onCancel: cancelDiligenceCreate,
+    };
   }
 
   function downloadCaptable() {
@@ -419,13 +473,4 @@ export default function InvestorsClient() {
       setExportingStructure(false);
     }
   }
-}
-
-function currentBusinessDate(timeZone: string) {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
 }

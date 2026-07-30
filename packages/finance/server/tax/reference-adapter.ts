@@ -55,7 +55,6 @@ export const taxValidationDependencies: TaxValidationDependencies = {
     select: { id: true, companyCode: true, year: true, month: true, isClosed: true },
   }),
   findTaxType: (id) => prisma.financeTaxType.findUnique({ where: { id }, select: { id: true, isActive: true } }),
-  partyExists: async (id) => Boolean(await prisma.party.findUnique({ where: { id }, select: { id: true } })),
   findRegistration: async (id) => {
     const row = await prisma.financeTaxRegistration.findUnique({
       where: { id },

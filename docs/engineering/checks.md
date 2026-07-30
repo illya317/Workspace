@@ -60,6 +60,8 @@
 | 单元部署 contract | `npm run deploy:unit:contract -- --unit <id>` | 只打印/写出派生 contract，不构建或部署；用于核对公开路由、compiler closure、控制平面 floor 与独立部署 blocker。 |
 | OKR 计划治理 | `npm run work-plan-governance:check` | 只做静态治理：强制 WorkPlan 创建时绑定流程/日期版本，审批单记录来源版本，OKR 设置只能增量写策略且不能批量清空。对应行为由 `test:domain:work-plan-governance` 执行。 |
 | Action contract 文档 | `npm run docs:action-contracts` / `npm run docs:action-contracts:check` | 从 canonical registry 生成或校验 `docs/generated/action-contracts.md`；`docs:check` 会阻断漂移。 |
+| API Agent 使用手册 | `npm run docs:api-agent-guide` / `npm run docs:api-agent-guide:check` | 生成或校验 `docs/generated/api-agent-guide.md` 及租户 Docs 副本，并确认模板 BusinessAction/API route 仍已注册；`docs:check` 会阻断漂移。 |
+| 生产 Agent Docs | `npm run docs:production-agent` / `npm run docs:production-agent:check` | 生成目录、复制显式白名单产品指南，并校验每份生产 paper 以目录开头；不会递归外放工程文档。 |
 | Permission action 文档 | `npm run docs:permission-actions` / `npm run docs:permission-actions:check` | 从 action/resource/business registry 生成或校验 `docs/generated/permission-actions.md`；`docs:check` 会阻断漂移。 |
 
 ## 边界

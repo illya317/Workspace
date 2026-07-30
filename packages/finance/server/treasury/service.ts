@@ -6,7 +6,7 @@ import type {
   TreasuryBankAccountDto, TreasuryBankReconciliationDto, TreasuryInterestWorkpaperDto,
   TreasuryLoanDto, TreasuryPrincipalEventDto,
 } from "../../types/treasury";
-import { calculateBankReconciliation, calculateInterestWorkpaper, calculateLoanPrincipalBalance, roundMoney } from "./calculations";
+import { calculateBankReconciliation, calculateInterestDayCount, calculateInterestWorkpaper, calculateLoanPrincipalBalance, roundMoney } from "./calculations";
 import { resolveUniqueLoanDayCountConvention } from "./conventions";
 import { date, dateDto, timestampDto, traceData, traceDto } from "./serialization";
 import { principalEventMatchesInput, type TreasuryCreateCommand, type TreasuryUpdateCommand } from "./validation";
@@ -77,14 +77,14 @@ function rateTermData(input: LoanRateTermInput) {
     ...traceData(input),
   };
 }
-function interestLineData(input: InterestWorkpaperLineInput) {
+function interestLineData(input: InterestWorkpaperLineInput, convention: DayCountConvention) {
   return {
     lineNo: input.lineNo,
     accrualFrom: date(input.accrualFrom)!,
     accrualThrough: date(input.accrualThrough)!,
     principalBasis: input.principalBasis,
     annualRate: input.annualRate,
-    dayCount: input.dayCount,
+    dayCount: calculateInterestDayCount(input.accrualFrom, input.accrualThrough, convention),
     sourceReportedInterestAmount: input.sourceReportedInterestAmount ?? null,
     note: input.note ?? null,
     ...traceData(input),
@@ -398,7 +398,7 @@ export async function executeTreasuryCreate(command: TreasuryCreateCommand) {
       inputFingerprint: command.calculation!.inputFingerprint,
       note: input.note ?? null,
       ...traceData(input),
-      lines: { create: input.lines.map(interestLineData) },
+      lines: { create: input.lines.map((line) => interestLineData(line, input.dayCountConvention)) },
       voucherLinks: { create: input.voucherLinks.map(voucherLinkData) },
     },
     include: workpaperInclude,
@@ -502,11 +502,11 @@ export async function executeTreasuryUpdate(command: TreasuryUpdateCommand) {
     });
     for (const line of input.lines) {
       if (line.id == null) {
-        await tx.financeInterestWorkpaperLine.create({ data: { workpaperId: input.id, ...interestLineData(line) } });
+        await tx.financeInterestWorkpaperLine.create({ data: { workpaperId: input.id, ...interestLineData(line, input.dayCountConvention) } });
         continue;
       }
       const updated = await tx.financeInterestWorkpaperLine.updateMany({
-        where: { id: line.id, workpaperId: input.id }, data: interestLineData(line),
+        where: { id: line.id, workpaperId: input.id }, data: interestLineData(line, input.dayCountConvention),
       });
       if (updated.count !== 1) throw new Error("利息行不存在或不属于当前底稿");
     }

@@ -1,6 +1,6 @@
-# Agent 详细手册
+# 工程系统手册
 
-这份文档承接原 `AGENTS.md` 中的大段细则。`AGENTS.md` 只做入口和导航；规则细节、流程清单和速查表统一放在这里或对应专题文档。
+这份文档汇总跨专题工程事实，供维护者阅读，也供 coding agent 按需引用。Agent 的开工入口和角色流程分别以 `AGENTS.md`、`.agents/skills/workspace-role-router` 和对应 role skill 为准；不要在这里维护第二套路由。
 
 ## 1. 技术栈
 
@@ -67,7 +67,7 @@ OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
 | Apps 业务包 | `packages/hr/`, `packages/production/`, `packages/finance/`, `packages/<domain>/` | 各业务模块自己的 UI、server、types、constants、import、module 注册 |
 | 业务页面壳 | `app/(modules)/<domain>/` | Next 路由 facade，只组合 package UI，保留领域 `ARCHITECTURE.md` |
 | API 路由壳 | `app/api/modules/<domain>/<l2-kebab>/` | 鉴权、权限、Zod 参数校验、调用 package service、返回 DTO |
-| 开发辅助 | `app/api/auth/dev-login-bypass/` | 开发环境快速登录，仅本地 |
+| 远端开发 | `docs/engineering/ops/remote-development.md` | 先确认 Codex 实际工作目录；服务器项目走 SSH/Remote SSH，不提供免认证登录 bypass |
 | 旧业务服务 | `server/services/<domain>/` | 存量兼容/待迁移旧代码；新增业务 service 不再优先放这里 |
 | 认证权限 | `@workspace/platform/server/auth`, `@workspace/platform/permissions`, `packages/platform/server/auth/`, `packages/platform/server/rbac/` | 登录、session、RBAC、资源树；新代码使用 Platform 契约 |
 | 数据库 | `prisma/` | Prisma schema、migration、seed |
@@ -97,25 +97,13 @@ Pi DeepSeek Flash、Kimi SDK/CLI 的固定版本、模型认证和生产校验�
 
 ### Agent 接力和文件隔离
 
-开工前先读 `AGENTS.md`、`docs/engineering/project-overview.md` 和 `docs/engineering/agent-startup.md`，再按角色进入 `docs/roles/*.md`，最后按任务类型进入专题文档。Coordinator、Architecture、Feature、Data、Operations、Review、Hygiene 不能混用职责：
-
-| 角色 | 权威说明 |
-|---|---|
-| Coordinator / Integrator | `docs/roles/coordinator.md` |
-| Architecture | `docs/roles/architecture.md` |
-| Feature | `docs/roles/feature.md` |
-| Data | `docs/roles/data.md` |
-| Operations | `docs/roles/operations.md` |
-| Review | `docs/roles/review.md` |
-| Hygiene | `docs/roles/hygiene.md` |
-
-Coordinator 负责规划、拆包、分配、跟进、集成和收口自检；最终 Review 必须保持独立，不审自己刚实现或刚集成的改动。
+开工角色由 `.agents/skills/workspace-role-router/SKILL.md` 选择，具体边界由对应 `workspace-*` skill 定义。Coordinator 负责规划、拆包、分配、跟进、集成和收口自检；最终 Review 必须保持独立，不审自己刚实现或刚集成的改动。
 
 并行时只 stage 自己的文件。`git status --short` 中出现其他 agent 的范围时，不要提交、回滚、格式化或改名。确实需要干净工作区验证时，先 stage 自己的文件，再用 `git stash push --keep-index --include-untracked` 临时隔离，验证后恢复 stash。
 
 ## 4. 必读文档触发条件
 
-`AGENTS.md` 保留简版触发表。完整治理规则见 `docs/engineering/architecture-governance.md`。
+`AGENTS.md` 保留 Role Gate，角色 skill 保留任务触发，完整治理规则见 `docs/engineering/architecture-governance.md`。
 
 如果任务同时命中多个条件，全部相关文档都要读。读完后在交付说明里写明参考了哪些文档，以及是否同步更新了文档。
 

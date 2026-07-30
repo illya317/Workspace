@@ -8,6 +8,7 @@ import {
   layoutMapNetworkLabels,
   MAP_PRIMARY_LABEL_FONT_SIZE,
   MAP_RELATED_LABEL_FONT_SIZE,
+  type MapLabelTextMeasurer,
   type ScreenRect,
 } from "./VisualizationNetworkMapLabelLayout";
 import type { MapNetworkLabelSelection } from "./VisualizationNetworkMapInteraction";
@@ -61,7 +62,7 @@ export function VisualizationNetworkMapLabels({
       {labels.map((label) => (
         <span
           key={label.key}
-          className={`absolute grid place-items-center overflow-hidden whitespace-pre-line break-all rounded bg-[#fbfbfa]/95 px-1.5 py-0.5 text-center text-slate-600 ${label.primary ? "font-semibold" : "font-medium"}`}
+          className={`absolute grid place-items-center whitespace-pre rounded bg-[#fbfbfa]/95 px-1.5 py-0.5 text-center text-slate-600 ${label.primary ? "font-semibold" : "font-medium"}`}
           style={{
             left: label.left,
             top: label.top,
@@ -90,6 +91,7 @@ function mapLabelLayouts(
   const width = container.clientWidth;
   const height = container.clientHeight;
   const zoom = graph.getZoom();
+  const measureText = mapLabelTextMeasurer(container);
   const nodes = graph.getNodeData().flatMap((node) => {
     const data = node.data as unknown as Partial<MapNetworkNodeDatum> | undefined;
     if (!node.id || data?.kind !== "map" || !data.spec || typeof data.diameter !== "number") return [];
@@ -108,8 +110,27 @@ function mapLabelLayouts(
     selection,
     width,
     height,
+    measureText,
     reservedRects: reservedMapAreas(width, height, reserveBackNavigation, reserveDirectionLegend),
   });
+}
+
+const mapLabelMeasurers = new WeakMap<HTMLElement, MapLabelTextMeasurer>();
+
+function mapLabelTextMeasurer(container: HTMLElement) {
+  const existing = mapLabelMeasurers.get(container);
+  if (existing) return existing;
+  const context = document.createElement("canvas").getContext("2d");
+  if (!context) return undefined;
+  const fontFamily = getComputedStyle(container).fontFamily || "sans-serif";
+  const measure: MapLabelTextMeasurer = (line, primary) => {
+    const fontSize = primary ? MAP_PRIMARY_LABEL_FONT_SIZE : MAP_RELATED_LABEL_FONT_SIZE;
+    context.font = `${primary ? 600 : 500} ${fontSize}px ${fontFamily}`;
+    const metrics = context.measureText(line);
+    return Math.max(metrics.width, metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight);
+  };
+  mapLabelMeasurers.set(container, measure);
+  return measure;
 }
 
 function reservedMapAreas(

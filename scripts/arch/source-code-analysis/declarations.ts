@@ -20,6 +20,7 @@ const BUSINESS_MODULES = [
   { key: "external", label: "外部关系", packageName: "external", appSegment: "external", ownerResourceKey: "external" },
   { key: "capital-securities", label: "资本证券", packageName: "capital-securities", appSegment: "capital-securities", legacyApiSegment: "capitalSecurities", ownerResourceKey: "capitalSecurities" },
   { key: "library", label: "资料库", packageName: "library", appSegment: "library", ownerResourceKey: "library" },
+  { key: "news", label: "资讯", packageName: "news", appSegment: "news", ownerResourceKey: "news" },
 ] as const;
 
 const businessDeclarations: SourceModuleDeclaration[] = BUSINESS_MODULES.map((module) => ({
@@ -47,6 +48,7 @@ const registeredProductPrefixes = [
   "app/(modules)/settings/",
   "app/api/agent/",
   "app/api/integrations/wecom/agent/",
+  "app/api/integrations/wecom/notifications/",
   "app/api/modules/settings/",
   "app/api/settings/",
 ];
@@ -84,6 +86,8 @@ export const PRODUCTION_RUNTIME_SCRIPT_REGISTRATIONS = [
   "scripts/runtime/wecom-agent-input.test.mjs",
   "scripts/runtime/wecom-agent-stream.mjs",
   "scripts/runtime/wecom-agent-stream.test.mjs",
+  "scripts/runtime/wecom-notification-delivery.mjs",
+  "scripts/runtime/wecom-notification-delivery.test.mjs",
   "scripts/seed-resources-runtime.mjs",
   "scripts/write-resource-manifest.ts",
 ] as const;
@@ -139,6 +143,7 @@ export const SOURCE_MODULE_DECLARATIONS: SourceModuleDeclaration[] = [
       "app/(modules)/agent/",
       "app/api/agent/",
       "app/api/integrations/wecom/agent/",
+      "app/api/integrations/wecom/notifications/",
       "packages/agent/",
     ],
   },

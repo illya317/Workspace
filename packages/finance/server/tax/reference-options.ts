@@ -8,12 +8,11 @@ import {
 } from "@workspace/platform/server/relation-registry";
 import { FINANCE_FK_REGISTRY } from "../assets/fk-registry";
 
-export const TAX_AUTHORITY_PARTY_FK_KEY = "finance.tax.authorityParty";
 export const TAX_ACCRUAL_VOUCHER_FK_KEY = "finance.tax.accrualVoucherItem";
 export const TAX_PAYMENT_VOUCHER_FK_KEY = "finance.tax.paymentVoucherItem";
 
 export const taxReferenceOptionsQuerySchema = z.object({
-  fkKey: z.enum([TAX_AUTHORITY_PARTY_FK_KEY, TAX_ACCRUAL_VOUCHER_FK_KEY, TAX_PAYMENT_VOUCHER_FK_KEY]),
+  fkKey: z.enum([TAX_ACCRUAL_VOUCHER_FK_KEY, TAX_PAYMENT_VOUCHER_FK_KEY]),
   keyword: z.string().optional().default(""),
   lifecycleScope: z.enum(["active", "all", "archived"]).optional(),
   companyCode: z.string().trim().min(1).optional(),
@@ -22,7 +21,6 @@ export const taxReferenceOptionsQuerySchema = z.object({
   month: z.coerce.number().int().min(1).max(12).optional(),
 }).strict().superRefine((value, context) => {
   const scopeRequirement = {
-    [TAX_AUTHORITY_PARTY_FK_KEY]: { fields: [] as const, message: "" },
     [TAX_ACCRUAL_VOUCHER_FK_KEY]: {
       fields: ["companyCode", "periodId"] as const,
       message: "计税凭证候选缺少公司或会计期间",

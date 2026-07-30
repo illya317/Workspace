@@ -1,6 +1,7 @@
 "use client";
 
-import { createMasterDetailBody, createPageBody, PageSurface, type BodySurfaceSectionSpec, type PageSurfaceCreateSpec, type PageSurfaceToolbarSpec, type SelectorSurfaceProps } from "@workspace/core/ui";
+import { PageSurface, type BodySurfaceSectionSpec, type PageSurfaceCreateSpec, type PageSurfaceToolbarSpec, type SelectorSurfaceProps } from "@workspace/core/ui";
+import { createCategoryItemDetailBody } from "@workspace/platform/ui";
 import type { RosterSurfaceTabBarProps } from "../../roster-surface";
 import type { Department } from "./types";
 
@@ -24,13 +25,12 @@ export function DepartmentPositionActiveWorkspace({
       {...surface}
       create={create}
       toolbar={toolbar}
-      body={createMasterDetailBody({
-        master: {
+      body={createCategoryItemDetailBody({
+        category: {
           label: "组织岗位",
-          presentation: "compact",
-          body: { kind: "selector", selector },
+          selector,
         },
-        detail: createPageBody(sections),
+        detailSections: sections,
       })}
     />
   );

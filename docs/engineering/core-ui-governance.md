@@ -147,7 +147,7 @@ Core UI 声明分类只服务 `/settings/governance` UI Tab 和 agent 阅读，�
 1. `header`：页眉，默认页面必须有；登录页等特殊页面可显式 `hidden`。
 2. `tabbar`：页面级声明式 Tab 段。L1/L2 模块入口属于 route/module 层或模块入口卡片，不放进 `TabBar`；`TabBar` 只承载当前页面内部视图切换，也就是 L3 及以下。父项声明 `children` 时由 Core 以 accordion 方式在选中父 Tab 后同栏展开子 Tab，并通过 `activeChild / onChildChange` 控制。
 3. `toolbar`：页面级唯一工具栏。搜索、筛选、字段切换、刷新、导出、生成等进入标准 toolbar item；新建 `+` 只能由下一段派生。
-4. `create`：标准页唯一的页面级新建 slot；只接收一个 `PageSurfaceCreateSpec`，由 PageSurface 派生唯一 Toolbar `+`。业务不得把 toolbar create 埋进正文树。
+4. `create`：标准页唯一的页面级新建 slot；只接收一个 `PageSurfaceCreateSpec`，由 PageSurface 派生唯一 Toolbar `+`。普通正文在页面工具栏下承载；body 含 split 时自动投影到右侧详情区，新建期间主栏保持可见且不可折叠。业务不得把 toolbar create 埋进正文树。
 5. `body`：正文，只接收 `BodySurfaceProps`。业务正文由 `BodySurface.kind` 决定 `create/data/form/document/visualization/selector/section` 分类；局部新建流归 `CreateSurface trigger="surface"`，数据摘要指标和可展开记录归 `DataSurface`，正文 empty/loading/error 归 `BodySurface kind="section"` 的 `status`。split 是 `BodySurface kind="section" layout="split"`，左右两侧都接 `BodySurfaceProps`。
 6. `footer`：整页页脚；全宽表格/数据分页在 `PageSurface.footer.pagination`，`BodySurface` split 主列表分页在 `master.footer.pagination`。
 
@@ -155,7 +155,7 @@ Core UI 声明分类只服务 `/settings/governance` UI Tab 和 agent 阅读，�
 
 `NavigationSurface` 是 Core 内部 renderer，由 `PageSurface.tabbar`、`PageSurface.footer.pagination`、`BodySurface` split 的 `master.footer.pagination`、`BodySurfaceModalSpec.pagination` 和 AppShell context selector 的公开 Interface 调度。正文 Surface 只能通过 `BodySurface` 选择正文内容形态，不自行承载页面级 toolbar/pagination；split 主列表是唯一可由 `master.footer.pagination` 声明的正文分页位置。`SelectorSurface` 只能作为 BodySurface 内容声明，不决定 split 外框、开合、比例或分页位置。FormSurface 可以拥有自身固定的表单标题与生命周期动作栏，但这只是表单内部结构，不是页面 toolbar，也不允许调用方指定位置。
 
-正文 Surface 和业务 section 都不声明页面外框。`BodySurfaceSectionSpec` 不暴露 `chrome/framed` 开关：Core 根据 section 的层级和结构统一派生外观，顶层有标题或动作的标准 section 使用 card，无标题结构容器和 CreateSurface 宿主保持透明，card 内的有标题子 section 使用 divider。`DataSurface` 和 `VisualizationSurface` 不再包自己的 PanelCard，避免同一个 body 被两层 layout 同时裁决。
+正文 Surface 和业务 section 都不声明页面外框。`BodySurfaceSectionSpec` 不暴露 `chrome/framed` 开关：Core 根据 section 的层级和结构统一派生外观，顶层根 section 或 section spec 有标题或动作时使用 card，无标题结构容器、split 和 CreateSurface 宿主保持透明，card 内的有标题子 section 使用 divider。`DataSurface` 和 `VisualizationSurface` 不再包自己的 PanelCard，避免同一个 body 被两层 layout 同时裁决。
 
 `Surface` 命名表示声明层，不表示业务可直接 renderer。当前 `PageSurface` 仍承担主要 runtime 入口；正文二级 Surface 通过 `BodySurface` 选择，不作为业务直引 renderer。`host` 目录当前为空，`internal` 不开放。
 
@@ -193,7 +193,7 @@ DataSurface 的展开范围由 Core 统一表达。纵向展开沿用 `expandedR
 
 当前批准的新 Surface section helper：
 
-- `PageSurface.create`：页面级标准新建流的唯一 slot，payload 为不含 trigger 的 `PageSurfaceCreateSpec`。Agent 选择 `presentation: inline | block | modal` 与 `content: form | sections`；PageSurface 固定派生唯一 Toolbar `+`，类型层无法在同一页面声明两个页面级 create。
+- `PageSurface.create`：页面级标准新建流的唯一 slot，payload 为不含 trigger 的 `PageSurfaceCreateSpec`。Agent 选择 `presentation: inline | block | modal` 与 `content: form | sections`；PageSurface 固定派生唯一 Toolbar `+`，类型层无法在同一页面声明两个页面级 create。body 含 split 时，inline/block 在新建期间替换右侧详情，modal 从详情上下文打开；主栏始终保留，禁止把新建内容渲染成横跨左右两栏的全页 block。
 - `BodySurface kind="create"`：所属 Surface 内的局部新建流，payload 为 `CreateSurface trigger="surface"`，只选择 `presentation: block | modal`、普通 block 可选的跨区 `anchor` 与 `content: form | sections`。`BodySurfaceSectionHeaderSpec.create` 的局部 block 在类型层禁止 anchor，由 Core 自动紧贴 section header并置于 body 前，因此表格新增固定出现在列头上方。
 - 需要先选择创建类型时，只能增加 `flow.kind="two-stage"`：第一段只声明选择字段并自动进入第二段，不声明自己的 layout；Core 强制两段复用第二段 `form.layout` 和同一个 shell，第一段不显示保存/提交。
 - `createFormSection(key, surface)`：生成 `BodySurface kind="form"` section。低层 form wrapper。
@@ -245,7 +245,7 @@ Surface 使用红线：
 - Core 内部或明确 UI-system 任务也不得恢复 `ToolbarCustomItem`；临时验证应扩展标准 item 或使用非 Toolbar 的普通容器。
 - Surface 内部 toolbar 的 `option-group` 默认是 micro accordion；普通 agent 不要把长分段筛选常驻铺开。
 - 页面级标准新建只声明 `PageSurface.create`；局部标准新建只声明 `CreateSurface trigger="surface"`。调用方不得声明 `trigger="toolbar"`、手工 `+`、动作样式、图标、标签或顺序。
-- PageSurface 的 toolbar 和 create slot 都全页唯一；BodySurface split 侧栏控制与 PageSurface.create 由 PageSurface 一次性合并渲染。正文 Surface 不得拥有 `toolbar/toolbarItems` contract，也不得在 implementation 中渲染 `<Toolbar>`。
+- PageSurface 的 toolbar 和 create slot 都全页唯一；BodySurface split 侧栏控制与 PageSurface.create 由 PageSurface 一次性合并调度，split 下 create 固定由详情侧承载并锁定主栏可见。正文 Surface 不得拥有 `toolbar/toolbarItems` contract，也不得在 implementation 中渲染 `<Toolbar>`。
 - `FormSurfaceActionSpec` 只声明动作语义和行为，不开放 `icon / variant / size / presentation / section / order / commandPlacement`。Core 根据 `ACTION_GLYPH_ACTIONS` 和 `ACTION_GLYPH_ORDER` 固定图标、样式、位置与顺序；`unarchive` 统一使用 restore glyph。
 - `FormSurface.submit` 只由同一表单的主 `save` / `submit` action 驱动：Enter 提交必须复用该 action 的 disabled 状态（包括 pending、校验和权限结果）；主 action 缺失或被禁用时不得调用 `onSubmit`。带 `onClick` 的 action 使用普通 button，避免点击时同时触发 action 与原生 form submit。
 - `FormSurface.commands` 与 `commandPlacement` 仅允许 `kind: "filters"` 使用。普通字段、详情和登录表单不得用 command 表达根生命周期动作。

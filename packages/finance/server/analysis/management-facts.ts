@@ -13,11 +13,13 @@ export interface CompanyStatementFacts {
   priorIncome: AmountMap;
   balance: AmountMap;
   priorBalance: AmountMap;
+  openingBalance: AmountMap;
   cashFlow: AmountMap;
   incomeSource: ManagementFactSource;
   balanceSource: ManagementFactSource;
   priorIncomeSource: ManagementFactSource;
   priorBalanceSource: ManagementFactSource;
+  openingBalanceSource: ManagementFactSource;
 }
 
 function leafCodes(codes: string[]) {
@@ -117,11 +119,12 @@ export async function loadCompanyStatementFacts(
   year: number,
   month: number,
 ): Promise<CompanyStatementFacts> {
-  const [income, priorIncome, balance, priorBalance, cashFlow] = await Promise.all([
+  const [income, priorIncome, balance, priorBalance, openingBalance, cashFlow] = await Promise.all([
     loadIncomeAmounts(companyCode, year, month),
     loadIncomeAmounts(companyCode, year - 1, month),
     loadBalanceAmounts(companyCode, year, month),
     loadBalanceAmounts(companyCode, year - 1, month),
+    loadBalanceAmounts(companyCode, year - 1, 12),
     loadCashFlowAmounts(companyCode, year, month),
   ]);
   return {
@@ -129,11 +132,13 @@ export async function loadCompanyStatementFacts(
     priorIncome: priorIncome.amounts,
     balance: balance.amounts,
     priorBalance: priorBalance.amounts,
+    openingBalance: openingBalance.amounts,
     cashFlow,
     incomeSource: income.source,
     balanceSource: balance.source,
     priorIncomeSource: priorIncome.source,
     priorBalanceSource: priorBalance.source,
+    openingBalanceSource: openingBalance.source,
   };
 }
 

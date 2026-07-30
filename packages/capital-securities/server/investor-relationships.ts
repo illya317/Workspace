@@ -1,11 +1,14 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { maskPartyIdentityNumber, type PartySubjectType } from "@workspace/platform/server/party-directory";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 import type {
   CaptableCompany,
   CaptableShareholderRow,
   FinancingRound,
   FinancingRoundContribution,
+  InvestorDueDiligenceRecord,
   InvestorRelationshipView,
+  InvestorShareholderProfileRecord,
   ShareCapitalEventRecord,
   ShareCapitalEventType,
   ShareholderPosition,
@@ -18,12 +21,10 @@ import {
 import { deriveCapitalEventValuation } from "./domain/capital-event-valuation";
 import { buildOwnershipStructureGraph } from "./domain/ownership-structure-graph";
 import { buildCaptableWorkbook } from "./investor-captable-workbook";
-
 type InvestorRelationshipQuery = {
   issuerCompanyId?: number;
   asOf?: string;
 };
-
 export async function getInvestorRelationshipView(
   input: InvestorRelationshipQuery,
 ): Promise<InvestorRelationshipView> {
@@ -41,8 +42,17 @@ export async function getInvestorRelationshipView(
     ?? companyItems[0]
     ?? null;
   if (!selectedCompany) return emptyView(asOf, companyItems);
-
-  const sourceEvents = await loadShareCapitalEvents(selectedCompany.id, asOfDate);
+  const [sourceEvents, shareholderProfiles, dueDiligenceRows] = await Promise.all([
+    loadShareCapitalEvents(selectedCompany.id, asOfDate),
+    prisma.investorShareholderProfile.findMany({
+      where: { issuerCompanyId: selectedCompany.id },
+      orderBy: [{ shareholderPartyId: "asc" }],
+    }),
+    prisma.investorDueDiligenceRecord.findMany({
+      where: { issuerCompanyId: selectedCompany.id, isArchived: false },
+      orderBy: [{ diligenceDate: "desc" }, { id: "desc" }],
+    }),
+  ]);
   const ledgerEvents = toLedgerEvents(sourceEvents);
   const projection = projectEquityLedger(ledgerEvents, asOfDate);
   const snapshotByEventId = new Map(projection.snapshots.map((snapshot) => [snapshot.eventId, snapshot]));
@@ -64,6 +74,22 @@ export async function getInvestorRelationshipView(
     dateRangeByPartyId,
     projection.confirmedState,
     projection.projectedState,
+    new Map(shareholderProfiles.map((profile) => [profile.shareholderPartyId, {
+      id: profile.id,
+      issuerCompanyId: profile.issuerCompanyId,
+      shareholderPartyId: profile.shareholderPartyId,
+      investorCategory: profile.investorCategory as InvestorShareholderProfileRecord["investorCategory"],
+      contactName: profile.contactName,
+      contactTitle: profile.contactTitle,
+      phone: profile.phone,
+      email: profile.email,
+      address: profile.address,
+      relationshipOwner: profile.relationshipOwner,
+      relationshipStatus: profile.relationshipStatus as InvestorShareholderProfileRecord["relationshipStatus"],
+      communicationPreference: profile.communicationPreference,
+      notes: profile.notes,
+      version: profile.version,
+    } satisfies InvestorShareholderProfileRecord])),
   );
   const events: ShareCapitalEventRecord[] = sourceEvents.map((event) => {
     const snapshot = snapshotByEventId.get(event.id);
@@ -129,6 +155,28 @@ export async function getInvestorRelationshipView(
     .filter((row) => row.positions.some((position) => position.isPresent))
     .sort((left, right) => firstPositiveRound(left) - firstPositiveRound(right));
   const financingRounds = buildFinancingRounds(events);
+  const dueDiligenceRecords = dueDiligenceRows.map((record): InvestorDueDiligenceRecord => ({
+    id: record.id,
+    issuerCompanyId: record.issuerCompanyId,
+    investorPartyId: record.investorPartyId,
+    investorOrganization: record.investorOrganization,
+    visitorName: record.visitorName,
+    visitorTitle: record.visitorTitle,
+    phone: record.phone,
+    email: record.email,
+    diligenceDate: formatDate(record.diligenceDate),
+    diligenceType: record.diligenceType as InvestorDueDiligenceRecord["diligenceType"],
+    visitMethod: record.visitMethod as InvestorDueDiligenceRecord["visitMethod"],
+    status: record.status as InvestorDueDiligenceRecord["status"],
+    hostName: record.hostName,
+    ndaStatus: record.ndaStatus as InvestorDueDiligenceRecord["ndaStatus"],
+    dataRoomStatus: record.dataRoomStatus as InvestorDueDiligenceRecord["dataRoomStatus"],
+    focusAreas: record.focusAreas,
+    followUpAction: record.followUpAction,
+    nextFollowUpDate: record.nextFollowUpDate ? formatDate(record.nextFollowUpDate) : null,
+    notes: record.notes,
+    version: record.version,
+  }));
   const structureRootCompany = allCompanies.find(
     (company) => company.code === getTenantProfile().finance.referenceCompanyCode,
   ) ?? null;
@@ -142,7 +190,6 @@ export async function getInvestorRelationshipView(
         selectedSourceEvents: sourceEvents,
       })
     : null;
-
   return {
     asOf,
     companies: companyItems,
@@ -152,6 +199,7 @@ export async function getInvestorRelationshipView(
     captableRounds,
     captableRows,
     financingRounds,
+    dueDiligenceRecords,
     ownershipStructure,
     metrics: {
       shareholderCount: projection.confirmedState.holdings.size,
@@ -367,6 +415,7 @@ function buildShareholders(
   dateRangeByPartyId: Map<number, { first: Date; latest: Date }>,
   confirmedState: EquityLedgerState,
   projectedState: EquityLedgerState,
+  profileByPartyId: Map<number, InvestorShareholderProfileRecord> = new Map(),
 ): ShareholderPosition[] {
   const partyIds = new Set([...confirmedState.holdings.keys(), ...projectedState.holdings.keys()]);
   return [...partyIds]
@@ -379,15 +428,21 @@ function buildShareholders(
       const projected = projectedHolding ? projectedHolding.registeredCapitalAmountYuan : 0;
       const pending = confirmed !== null && projected !== null ? projected - confirmed : null;
       const dates = dateRangeByPartyId.get(partyId);
+      const subjectType: PartySubjectType = party.subjectType === "individual" ? "individual" : "organization";
       return {
         partyId,
         name: party.name,
+        fullName: party.fullName,
+        subjectType,
+        identityNumberMasked: maskPartyIdentityNumber(party.identityNumber, subjectType),
+        legalRepresentative: party.legalRepresentative,
         confirmedSubscribedCapitalYuan: confirmed,
         pendingCapitalDeltaYuan: pending,
         projectedSubscribedCapitalYuan: projected,
         shareRatio: confirmedHolding ? confirmedHolding.shareRatio : 0,
         firstEventDate: dates ? formatDate(dates.first) : null,
         latestEventDate: dates ? formatDate(dates.latest) : null,
+        profile: profileByPartyId.get(partyId) ?? null,
       } satisfies ShareholderPosition;
     })
     .filter((item): item is ShareholderPosition => item !== null)
@@ -396,7 +451,14 @@ function buildShareholders(
       || left.name.localeCompare(right.name, "zh-CN"));
 }
 
-type PartyRecord = { id: number; name: string };
+type PartyRecord = {
+  id: number;
+  name: string;
+  fullName: string | null;
+  subjectType: string;
+  identityNumber: string;
+  legalRepresentative: string | null;
+};
 
 function collectParties(events: Array<{
   transactions: Array<{ fromParty: PartyRecord | null; toParty: PartyRecord | null }>;
@@ -448,6 +510,7 @@ function emptyView(asOf: string, companies: CaptableCompany[]): InvestorRelation
     captableRounds: [],
     captableRows: [],
     financingRounds: [],
+    dueDiligenceRecords: [],
     ownershipStructure: null,
     metrics: { shareholderCount: 0, registeredCapitalYuan: 0, pendingEventCount: 0 },
   };

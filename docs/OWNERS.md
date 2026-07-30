@@ -6,21 +6,23 @@ This is the authority for who maintains each class of documentation and when cod
 
 | Area | Location | Owner | Notes |
 |---|---|---|---|
-| Agent entry and doc routing | `AGENTS.md`, `docs/README.md`, `docs/OWNERS.md` | Coordinator | Keep short; link outward instead of copying rules. |
-| Role responsibilities | `docs/roles/*` | Coordinator + role owner | Coordinator owns routing shape; each role owns its own checklist and risks. |
+| Agent bootstrap and role routing | `AGENTS.md`, `.agents/skills/workspace-role-router`, `CLAUDE.md` | Coordinator | Keep the always-on entry short; it selects a role instead of copying role bodies. |
+| Role skills | `.agents/skills/workspace-*`, mirrored by `.claude/skills/*` symlinks | Coordinator + role owner | Coordinator owns routing shape; each role owns its own workflow, checklist and risks. |
+| Docs index and ownership | `docs/README.md`, `docs/OWNERS.md` | Coordinator | Keep audience boundaries and owner routing current. |
 | Project overview | `docs/engineering/project-overview.md` | Coordinator / Architecture | Coordinator owns freshness and agent map; Architecture owns architecture facts. Data, Operations, and Feature own their sections when facts change. |
 | Architecture and module boundaries | `docs/engineering/architecture-governance.md`, `docs/engineering/module-boundaries.md`, `docs/engineering/structure-agent-execution.md` | Architecture | Includes route shell, API shell, registry, Platform/Core/App layering, gate semantics. |
 | Deep modules and intent interfaces | `docs/engineering/deep-module-design.md` | Architecture | UI-system and Feature contribute implementation evidence; Architecture owns terminology and acceptance rules. |
 | Core UI and reusable primitives | `docs/engineering/core-ui-governance.md`, `docs/engineering/core-toolbar.md`, `docs/engineering/reusable-components.md` | Architecture / UI-system | Feature agents may propose updates, but contract changes require Architecture/UI-system ownership. |
 | Checks, CI, runtime, deploy | `docs/engineering/checks.md`, `docs/engineering/ops/*` | Operations | Must match `package.json`, CI, and local runtime behavior. |
-| DB, schema, seed, migration, import/export, generated docs | `docs/engineering/schema-governance.md`, `docs/engineering/database.md`, `docs/generated/README.md`, `docs/generated/*` | Data | Generated artifacts are not hand-edited; update generator or source data. The legacy handwritten `docs/generated/api.md` summary is the explicit exception and is co-owned by Architecture / Feature until migrated. |
+| DB, schema, seed, migration, import/export, generated docs | `docs/engineering/schema-governance.md`, `docs/engineering/database.md`, `docs/generated/README.md`, `docs/generated/*` | Data / declared artifact owner | Generated artifacts are not hand-edited; update generator or source data. `api-agent-guide.md` is owned by Architecture / Agent / Docs Feature. The legacy handwritten `docs/generated/api.md` summary is the explicit exception and is co-owned by Architecture / Feature until migrated. |
 | RBAC and permission matrix | `docs/engineering/security/*` | Architecture | Data/Feature contribute domain facts; Architecture owns permission model semantics. |
 | Module business knowledge | `app/(modules)/*/ARCHITECTURE.md`, `app/(modules)/*/MODULE.md` | Feature / UI owner | Data owns schema/import facts inside the module; Architecture owns boundary claims. |
 | User and product docs | `docs/product/*`, `app/(modules)/docs/*` | Feature / product owner | Data owns external data-source references when applicable. |
+| Production Agent Docs | `docs/generated/agent-doc-catalog.md`, selected `docs/product/*`, tenant `docs.companyDocuments` paper copies | Architecture / Agent / Docs Feature | Publish only the explicit generator whitelist. Every paper begins with a directory and is queryable by section; engineering/ops/schema docs remain internal. |
 | Planning policy | `docs/planning/README.md` | Hygiene | Actual plans and tracking stay in Git-ignored `.planning/`; tenant evidence stays under `WORKSPACE_CONFIG_DIR/audit/`. |
 | Hygiene gates and zero baselines | `scripts/check/company-hardcoding-*`, `scripts/check/tenant-hardcoding-*`, `scripts/arch/*baseline*.json` | Hygiene | Run strict on the scheduled CI cadence, keep active tenant-hardcoding debt at zero, and return architecture/feature/data fixes to their owners. |
 | Special reference material | `docs/reference/*` | Declared owner in each file | Must state purpose and owner; cannot replace engineering rules or planning lifecycle. |
-| Review checklist and risk patterns | `docs/roles/review.md` and future review docs | Review | Focus on bypass paths, regressions, verification gaps, and missing tests. |
+| Review checklist and risk patterns | `.agents/skills/workspace-review/SKILL.md` and future skill references | Review | Focus on bypass paths, regressions, verification gaps, and missing tests. |
 
 ## Must Update Docs
 

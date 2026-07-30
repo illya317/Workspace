@@ -35,7 +35,7 @@ mock.module("./projects", { namedExports: {
   listProjects: async () => ({ projects: [], total: 0 }),
 } } as never);
 mock.module("./project-members", { namedExports: { listProjectMembers: async () => ({ entries: [], total: 0 }) } } as never);
-mock.module("./meetings", { namedExports: {
+mock.module("./meetings/application", { namedExports: {
   getMeetingDetail: async () => ({ ok: false, error: "unused" }),
   listMeetings: async () => ({ ok: true, data: { meetings: [] } }),
 } } as never);

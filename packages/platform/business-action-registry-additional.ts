@@ -6,6 +6,7 @@ import { INVENTORY_RECEIPT_BUSINESS_ACTION_REGISTRATIONS } from "./business-acti
 import { PRODUCTION_PRODUCTS_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-production-products";
 import { SETTINGS_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-settings";
 import { FINANCE_OPERATIONS_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-finance-operations";
+import { WORK_PROJECT_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-work-projects";
 
 const PERMISSION_ONLY = { eligibility: "permission_only" } as const;
 const OPTIONAL_APPROVAL_AUTO = {
@@ -21,6 +22,12 @@ const LIBRARY_BASIC_INFO = {
   moduleKey: "library",
   resourceKey: "library.basicInfo",
   originHrefPattern: "/library/basic-info",
+} as const;
+
+const NEWS = {
+  moduleKey: "news",
+  resourceKey: "news",
+  originHrefPattern: "/news",
 } as const;
 
 const FINANCE_LEDGER = {
@@ -65,20 +72,19 @@ const CAPITAL_SECURITIES_GOVERNANCE = {
   originHrefPattern: "/capital-securities/governance",
 } as const;
 
+const CAPITAL_SECURITIES_INVESTORS = {
+  moduleKey: "capitalSecurities",
+  resourceKey: "capitalSecurities.investors",
+  originHrefPattern: "/capital-securities/investors",
+} as const;
+
+const CAPITAL_SECURITIES_INVESTMENTS = {
+  moduleKey: "capitalSecurities",
+  resourceKey: "capitalSecurities.investments",
+  originHrefPattern: "/capital-securities/investments",
+} as const;
+
 const STANDARD_SPACE_SCOPES = ["personal", "department", "committee", "company"] as const;
-
-const WORK_PROJECTS = {
-  moduleKey: "work",
-  resourceKey: "work.projects",
-  scopeTypes: STANDARD_SPACE_SCOPES,
-  originHrefPattern: "/work/project",
-} as const;
-
-const WORK_PROJECT_INITIATION = {
-  moduleKey: "work",
-  resourceKey: "work.projects.initiate",
-  originHrefPattern: "/work/project",
-} as const;
 
 const WORK_TASKS = {
   moduleKey: "work",
@@ -106,6 +112,7 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   ...AGENT_BUSINESS_ACTION_REGISTRATIONS,
   ...SETTINGS_BUSINESS_ACTION_REGISTRATIONS,
   ...FINANCE_OPERATIONS_BUSINESS_ACTION_REGISTRATIONS,
+  ...WORK_PROJECT_BUSINESS_ACTION_REGISTRATIONS,
   {
     ...HR_PERFORMANCE,
     eligibility: "workflow_optional",
@@ -174,139 +181,6 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
       route("POST", "/api/modules/work/tasks/submissions/:id/submit"),
     ],
     notes: "Legacy mixed objective approval runtime key. New target settings use department/personal objective submit action keys.",
-  },
-  {
-    ...WORK_PROJECT_INITIATION,
-    eligibility: "workflow_required",
-    flowType: "approval",
-    separationPolicy: "auto_pass_if_authorized",
-    submitPermissionAction: "submit",
-    workflowCategoryKey: "collaboration",
-    key: "work.projects.project.create",
-    label: "提交项目确认",
-    writeKind: "submit",
-    targetKind: "Project",
-    apiRoutes: [
-      route("POST", "/api/modules/work/projects"),
-      route("GET", "/api/modules/work/projects/submissions/:id"),
-      route("POST", "/api/modules/work/projects/submissions/:id/approve"),
-      route("POST", "/api/modules/work/projects/submissions/:id/reject"),
-      route("POST", "/api/modules/work/projects/submissions/:id/comment"),
-    ],
-    notes: "项目提交后由所有赋能部门负责人会签；通过前不创建正式 Project。",
-  },
-  {
-    ...WORK_PROJECTS,
-    ...PERMISSION_ONLY,
-    key: "work.projects.project.update",
-    label: "更新项目",
-    writeKind: "update",
-    targetKind: "Project",
-    directPermissionAction: "update",
-    apiRoutes: [route("PUT", "/api/modules/work/projects/:id")],
-  },
-  {
-    ...WORK_PROJECTS,
-    ...PERMISSION_ONLY,
-    key: "work.projects.project.delete",
-    label: "删除项目",
-    writeKind: "delete",
-    targetKind: "Project",
-    directPermissionAction: "delete",
-    apiRoutes: [route("DELETE", "/api/modules/work/projects/:id")],
-  },
-  {
-    ...WORK_PROJECTS,
-    ...PERMISSION_ONLY,
-    key: "work.projects.member.create",
-    label: "添加项目成员",
-    writeKind: "create",
-    targetKind: "EmployeeProject",
-    directPermissionAction: "create",
-    apiRoutes: [route("POST", "/api/modules/work/projects/members")],
-  },
-  {
-    ...WORK_PROJECTS,
-    ...PERMISSION_ONLY,
-    key: "work.projects.member.update",
-    label: "更新项目成员",
-    writeKind: "update",
-    targetKind: "EmployeeProject",
-    directPermissionAction: "update",
-    apiRoutes: [route("PUT", "/api/modules/work/projects/members/:id")],
-  },
-  {
-    ...WORK_PROJECTS,
-    ...PERMISSION_ONLY,
-    key: "work.projects.member.delete",
-    label: "结束项目成员关系",
-    writeKind: "delete",
-    targetKind: "EmployeeProject",
-    directPermissionAction: "delete",
-    apiRoutes: [route("DELETE", "/api/modules/work/projects/members/:id")],
-  },
-  {
-    ...WORK_PROJECTS,
-    ...PERMISSION_ONLY,
-    key: "work.projects.phase.create",
-    label: "创建项目阶段",
-    writeKind: "create",
-    targetKind: "ProjectPlanPhase",
-    directPermissionAction: "create",
-    apiRoutes: [route("POST", "/api/modules/work/projects/:id/plan-phases")],
-  },
-  {
-    ...WORK_PROJECTS,
-    ...PERMISSION_ONLY,
-    key: "work.projects.phase.update",
-    label: "更新项目阶段",
-    writeKind: "update",
-    targetKind: "ProjectPlanPhase",
-    directPermissionAction: "update",
-    apiRoutes: [route("PUT", "/api/modules/work/projects/:id/plan-phases/:phaseId")],
-  },
-  {
-    ...WORK_PROJECTS,
-    ...PERMISSION_ONLY,
-    key: "work.projects.phase.delete",
-    label: "删除项目阶段",
-    writeKind: "delete",
-    targetKind: "ProjectPlanPhase",
-    directPermissionAction: "delete",
-    apiRoutes: [route("DELETE", "/api/modules/work/projects/:id/plan-phases/:phaseId")],
-  },
-  {
-    ...WORK_PROJECTS,
-    ...PERMISSION_ONLY,
-    key: "work.projects.planGantt.save",
-    label: "保存项目甘特",
-    writeKind: "save",
-    targetKind: "ProjectPlanGantt",
-    directPermissionAction: "update",
-    apiRoutes: [
-      route("PUT", "/api/modules/work/projects/:id/plan-gantt"),
-      route("PUT", "/api/modules/work/projects/:id/plan-dependencies"),
-    ],
-  },
-  {
-    ...WORK_PROJECTS,
-    ...PERMISSION_ONLY,
-    key: "work.projects.baseline.create",
-    label: "创建项目计划基线",
-    writeKind: "create",
-    targetKind: "ProjectPlanBaseline",
-    directPermissionAction: "create",
-    apiRoutes: [route("POST", "/api/modules/work/projects/:id/plan-baselines")],
-  },
-  {
-    ...WORK_PROJECTS,
-    ...PERMISSION_ONLY,
-    key: "work.projects.baseline.activate",
-    label: "启用项目计划基线",
-    writeKind: "revise",
-    targetKind: "ProjectPlanBaseline",
-    directPermissionAction: "revise",
-    apiRoutes: [route("POST", "/api/modules/work/projects/:id/plan-baselines/:baselineId/activate")],
   },
   {
     ...LIBRARY_BASIC_INFO,
@@ -485,6 +359,7 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.reclassResult.adjust", label: "调整重分类结果", writeKind: "update", targetKind: "ReclassResult", directPermissionAction: "revise", apiRoutes: [route("PATCH", "/api/modules/finance/ledger/reclass-results/:id")] },
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.close.open", label: "开启关账工作台", writeKind: "create", targetKind: "FinanceCloseRun", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/ledger/closing")] },
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.close.refresh", label: "刷新关账工作台", writeKind: "update", targetKind: "FinanceCloseRun", directPermissionAction: "update", apiRoutes: [route("POST", "/api/modules/finance/ledger/closing/refresh")] },
+  { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.close.complete", label: "完成会计期间关账", writeKind: "approve", targetKind: "FinanceCloseRun", directPermissionAction: "approve", apiRoutes: [route("POST", "/api/modules/finance/ledger/closing/complete")] },
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.close.workpaper.save", label: "保存关账底稿", writeKind: "update", targetKind: "FinanceCloseWorkpaper", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/finance/ledger/closing/workpapers")] },
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.close.workpaper.review", label: "复核关账底稿", writeKind: "approve", targetKind: "FinanceCloseWorkpaper", directPermissionAction: "approve", apiRoutes: [route("POST", "/api/modules/finance/ledger/closing/workpapers/review")] },
   { ...FINANCE_STATEMENTS, ...PERMISSION_ONLY, key: "finance.statements.report.export", label: "下载财务三表", writeKind: "export", targetKind: "FinanceStatementWorkbook", directPermissionAction: "export", apiRoutes: [route("GET", "/api/modules/finance/statements/reports/export", "GET export is permission-only and generates no business record."), route("GET", "/api/modules/finance/statements/consolidation/batches/:batchId/report/export", "GET export is permission-only and generates no business record.")] },
@@ -537,4 +412,14 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   { ...CAPITAL_SECURITIES_GOVERNANCE, ...PERMISSION_ONLY, key: "capitalSecurities.governance.company.create", label: "新建公司", writeKind: "create", targetKind: "Company", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/capitalSecurities/governance/companies")] },
   { ...CAPITAL_SECURITIES_GOVERNANCE, ...PERMISSION_ONLY, key: "capitalSecurities.governance.company.update", label: "更新公司", writeKind: "update", targetKind: "Company", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/capitalSecurities/governance/companies")] },
   { ...CAPITAL_SECURITIES_GOVERNANCE, ...PERMISSION_ONLY, key: "capitalSecurities.governance.ownershipProjection.rebuild", label: "重建股权投影", writeKind: "update", targetKind: "OwnershipInterest", directPermissionAction: "update", apiRoutes: [route("POST", "/api/modules/capitalSecurities/governance/ownership-projections/rebuild")] },
+  { ...CAPITAL_SECURITIES_INVESTORS, ...PERMISSION_ONLY, key: "capitalSecurities.investors.shareholderProfile.update", label: "保存股东关系资料", writeKind: "update", targetKind: "InvestorShareholderProfile", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/capitalSecurities/investors/shareholder-profiles")] },
+  { ...CAPITAL_SECURITIES_INVESTORS, ...PERMISSION_ONLY, key: "capitalSecurities.investors.dueDiligence.create", label: "新增投资人尽调记录", writeKind: "create", targetKind: "InvestorDueDiligenceRecord", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/capitalSecurities/investors/due-diligence")] },
+  { ...CAPITAL_SECURITIES_INVESTORS, ...PERMISSION_ONLY, key: "capitalSecurities.investors.dueDiligence.update", label: "更新投资人尽调记录", writeKind: "update", targetKind: "InvestorDueDiligenceRecord", directPermissionAction: "update", apiRoutes: [route("PATCH", "/api/modules/capitalSecurities/investors/due-diligence/:id")] },
+  { ...CAPITAL_SECURITIES_INVESTORS, ...PERMISSION_ONLY, key: "capitalSecurities.investors.dueDiligence.archive", label: "移除投资人尽调记录", writeKind: "delete", targetKind: "InvestorDueDiligenceRecord", directPermissionAction: "delete", apiRoutes: [route("DELETE", "/api/modules/capitalSecurities/investors/due-diligence/:id")] },
+  { ...CAPITAL_SECURITIES_INVESTMENTS, ...PERMISSION_ONLY, key: "capitalSecurities.investments.profile.create", label: "新建投资企业档案", writeKind: "create", targetKind: "InvestmentEnterpriseProfile", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/capitalSecurities/investments")] },
+  { ...CAPITAL_SECURITIES_INVESTMENTS, ...PERMISSION_ONLY, key: "capitalSecurities.investments.profile.update", label: "更新投资企业档案", writeKind: "update", targetKind: "InvestmentEnterpriseProfile", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/capitalSecurities/investments")] },
+  { ...CAPITAL_SECURITIES_INVESTMENTS, ...PERMISSION_ONLY, key: "capitalSecurities.investments.record.create", label: "新增投资企业业务记录", writeKind: "create", targetKind: "InvestmentEnterpriseRecord", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/capitalSecurities/investments/records")], notes: "The validated kind discriminant selects meeting, diligence, contract, or monitoring persistence." },
+  { ...CAPITAL_SECURITIES_INVESTMENTS, ...PERMISSION_ONLY, key: "capitalSecurities.investments.record.update", label: "更新投资企业业务记录", writeKind: "update", targetKind: "InvestmentEnterpriseRecord", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/capitalSecurities/investments/records")], notes: "The validated kind discriminant and optimistic version select the exact record table." },
+  { ...CAPITAL_SECURITIES_INVESTMENTS, ...PERMISSION_ONLY, key: "capitalSecurities.investments.document.import", label: "上传并分析投资企业资料", writeKind: "import", targetKind: "InvestmentEnterpriseDocumentLink", directPermissionAction: "import", apiRoutes: [route("POST", "/api/modules/capitalSecurities/investments/documents")], notes: "Capital stores the stable document link while the Library owner creates immutable versions, OCR chunks, and vector indexes." },
+  { ...NEWS, ...PERMISSION_ONLY, key: "news.reaction.save", label: "保存资讯偏好", writeKind: "update", targetKind: "NewsReaction", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/news/reactions")] },
 ] as const;

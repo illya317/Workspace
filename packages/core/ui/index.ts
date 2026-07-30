@@ -114,6 +114,8 @@ export { default as VisualizationSurface } from "./VisualizationSurface";
 export type {
   VisualizationBarChartSpec,
   VisualizationBarSpec,
+  VisualizationCandlestickPointSpec,
+  VisualizationCandlestickSpec,
   VisualizationComparisonBarItemSpec,
   VisualizationComparisonBarSectionSpec,
   VisualizationComparisonBarsSpec,

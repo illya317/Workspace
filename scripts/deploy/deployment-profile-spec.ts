@@ -14,7 +14,7 @@ export interface DeploymentProfileSpec {
 export const deploymentProfileSpecs: readonly DeploymentProfileSpec[] = [
   {
     id: "full",
-    version: 1,
+    version: 2,
     label: "Workspace 全功能",
     unitIds: [
       "workspace-shell",
@@ -29,6 +29,7 @@ export const deploymentProfileSpecs: readonly DeploymentProfileSpec[] = [
       "capital-securities",
       "work",
       "administration",
+      "news",
     ],
     rollout: {
       strategy: "shadow-all-then-atomic-gateway",

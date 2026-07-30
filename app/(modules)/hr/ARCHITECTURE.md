@@ -19,7 +19,7 @@
 
 - `员工资料`：默认入口，先显示员工列表，再进入 `/hr/roster/employees/[id]` 维护单个员工的多维资料。
 - `组织架构`：通过 `DepartmentPositionTab` 的组织模式维护组织单元树。底层仍使用兼容 Prisma model `Department`，产品语义已收敛为“组织单元”。
-- `部门岗位`：通过 `DepartmentPositionTab` 的岗位模式维护岗位与说明书。
+- `部门岗位`：通过 `DepartmentPositionTab` 的岗位模式维护岗位与说明书；页面复用 Platform 分类/直属子项/详情工作台，左侧选择组织，右侧顶部展示直属岗位，选中岗位后在下方编辑详情。
 - `员工信息表`：用于集中查看员工、雇佣、合同、部门岗位数据。员工、合同和雇佣非期间字段可先形成页面草稿，再由顶部保存一次提交当前 change set；Employment 的在职/入离职日期和全部 EDP 字段只读，结构变化进入员工详情“生命周期”。
 - `花名册`：管理版、尽调版、CSV 导出和 Open API 共用同一生成口径，只纳入当前在职且在职雇佣记录中没有“顾问”职务的人员；离职人员和顾问仍保留在员工资料、分析等独立场景中，不进入花名册。
 
@@ -213,7 +213,7 @@ HR 生成资料对外开放 API 使用独立 Open API 注册体系，不复用�
 | HR 生成资料花名册 | `GET /api/open/v1/hr/generated/roster` | `hr.generated.roster.read` | `hr.roster` |
 
 - 注册源：`packages/platform/open-api-registry.ts` 的 `hr.generated`。
-- 控制台：`/settings/api/hr-generated`，进入权限仍是内部 `settings.api`。
+- 控制台：`/settings/api` 的“能力目录” tab，进入权限仍是内部 `settings.api`。
 - 调用鉴权：`Authorization: Bearer <OpenApiClient secret>` + `OpenApiClientScopeGrant`。
 - `runtimeParentResourceKey = "hr.roster"` 只控制模块启停，不继承 `hr.roster` RBAC 授权。
 

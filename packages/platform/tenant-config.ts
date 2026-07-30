@@ -47,7 +47,7 @@ export type TenantCompanyDocumentConfig = {
   title: string;
   description: string;
   format: "office" | "paper";
-  source: "tenant-file" | "permission-actions";
+  source: "tenant-file" | "permission-actions" | "api-agent-guide" | "agent-doc-catalog" | "product-guide";
   file: string;
 };
 

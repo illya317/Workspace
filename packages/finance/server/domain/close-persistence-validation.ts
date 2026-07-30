@@ -4,7 +4,7 @@ import {
   financeCloseWorkpaperReviewIdempotencyKey,
 } from "../../types/close";
 import { sha256CanonicalJson } from "../close/canonical-json";
-import type { OpenFinanceCloseCommand, RefreshFinanceCloseCommand } from "../close/command-types";
+import type { CompleteFinanceCloseCommand, OpenFinanceCloseCommand, RefreshFinanceCloseCommand } from "../close/command-types";
 import type {
   ReviewFinanceCloseWorkpaperCommand,
   SaveFinanceCloseWorkpaperCommand,
@@ -104,6 +104,32 @@ export function validateRefreshFinanceClosePersistenceCommand(command: RefreshFi
   }
   if (command.isPeriodClosed && command.idempotentRunId === null) {
     return failCommand("会计期间已关闭，不能刷新关账运行", 409, "runId");
+  }
+  return okCommand(command);
+}
+
+export function validateCompleteFinanceClosePersistenceCommand(command: CompleteFinanceCloseCommand) {
+  if (!validScope(command) || !positiveInteger(command.actorUserId) || !positiveInteger(command.runId)) {
+    return failCommand("关账完成命令的运行、公司、期间或操作人无效", 400);
+  }
+  if (!Number.isInteger(command.expectedVersion) || command.expectedVersion <= 0) {
+    return failCommand("关账运行版本无效", 400, "expectedVersion");
+  }
+  if (!command.idempotencyKey.trim()) return failCommand("关账完成幂等键为空", 400, "idempotencyKey");
+  if (command.idempotentRunId !== null && command.idempotentRunId !== command.runId) {
+    return failCommand("关账完成幂等运行与目标运行不一致", 409, "idempotentRunId");
+  }
+  const expectedFingerprint = sha256CanonicalJson({
+    kind: "finance_close_complete",
+    runId: command.runId,
+    expectedVersion: command.expectedVersion,
+    actorUserId: command.actorUserId,
+  });
+  if (command.requestFingerprint !== expectedFingerprint) {
+    return failCommand("关账完成命令指纹与目标运行不一致", 409, "requestFingerprint");
+  }
+  if (command.isPeriodClosed && command.idempotentRunId === null) {
+    return failCommand("会计期间已关闭，不能重复完成关账", 409, "runId");
   }
   return okCommand(command);
 }

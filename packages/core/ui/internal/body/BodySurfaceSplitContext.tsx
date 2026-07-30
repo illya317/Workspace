@@ -4,6 +4,7 @@ import { createContext, useContext, type ReactNode } from "react";
 
 export interface BodySurfaceSplitRuntime {
   open: boolean;
+  disabled?: boolean;
   onOpenChange: (open: boolean) => void;
 }
 

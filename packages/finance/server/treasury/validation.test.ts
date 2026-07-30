@@ -302,6 +302,24 @@ test("validates interest day count against period dates and convention", async (
   assert.equal(rejected.issue.field, "dayCount");
 });
 
+test("derives omitted interest day count and keeps the canonical fingerprint stable", async () => {
+  const deps = {
+    findPeriod: async () => period,
+    findLoan: async () => ({ id: 20, companyId: 2, companyCode: "ZX02", startOn: new Date("2026-01-01Z"), endOn: null, version: 1, rateTermConventions: ["actual_365" as const] }),
+    findVoucherItems: async () => [],
+  };
+  const explicit = await buildTreasuryCreateCommand({ kind: "interest_workpaper_create", ...workpaper }, 7, deps);
+  const derived = await buildTreasuryCreateCommand({
+    kind: "interest_workpaper_create",
+    ...workpaper,
+    lines: workpaper.lines.map(({ dayCount: _dayCount, ...line }) => line),
+  }, 7, deps);
+  assert.equal(derived.ok, true);
+  assert.equal(explicit.ok, true);
+  if (!derived.ok || !explicit.ok) return;
+  assert.equal(derived.data.calculation?.inputFingerprint, explicit.data.calculation?.inputFingerprint);
+});
+
 test("fails closed when loan conventions are absent, mixed or different from the workpaper", async () => {
   assert.equal(resolveUniqueLoanDayCountConvention([]), null);
   assert.equal(resolveUniqueLoanDayCountConvention(["actual_365", "actual_360"]), null);

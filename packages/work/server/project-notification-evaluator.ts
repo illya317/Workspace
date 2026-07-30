@@ -51,9 +51,11 @@ import {
 import {
   projectNotificationConditionSnapshot,
   ProjectNotificationSignalProcessingError,
-  type ClaimedProjectNotificationSignal,
-  type ProjectNotificationSignalKind,
-  type StoredProjectNotificationSnapshot,
+} from "./project-notification-signal-runtime";
+import type {
+  ClaimedProjectNotificationSignal,
+  ProjectNotificationSignalKind,
+  StoredProjectNotificationSnapshot,
 } from "./project-notification-signal-contract";
 import {
   findCompatibleDefinition,

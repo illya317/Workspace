@@ -14,3 +14,5 @@ export const refreshFinanceCloseSchema = z.object({
   expectedVersion: z.coerce.number().int().positive(),
   idempotencyKey,
 });
+
+export const completeFinanceCloseSchema = refreshFinanceCloseSchema;

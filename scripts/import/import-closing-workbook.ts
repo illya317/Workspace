@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createExecutionApprovedFinanceAssetErpGlCutoverReconciler, getApprovedFinanceAssetLegacySyntheticAssets, loadApprovedFinanceAssetCutoverConfig } from "@workspace/finance/server/assets/approved-cutover-config";
 import { parseAssetWorkbook } from "@workspace/finance/server/assets/current-period-workbook";
+import { importAssetWorkbook } from "@workspace/finance/server/assets/workbook-import";
 import { applyFinanceAssetLegacySyntheticAssets } from "@workspace/finance/server/assets/legacy-synthetic-assets";
 import { requireClosingWorkbookActor } from "./closing-workbook-cutover-config";
 
@@ -41,8 +42,7 @@ async function main() {
     return;
   }
   const actor = requireClosingWorkbookActor(option("actor"));
-  const [{ importAssetWorkbook }, inventoryModule, { prisma }] = await Promise.all([
-    import("@workspace/finance/server/assets/workbook-import"),
+  const [inventoryModule, { prisma }] = await Promise.all([
     assetOnly ? Promise.resolve(null) : import("@workspace/inventory/server/workbook-import"),
     import("@workspace/platform/server/prisma"),
   ]);

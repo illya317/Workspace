@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn } from "node:child_process";
-import { promises as fs } from "node:fs";
+import { existsSync, promises as fs } from "node:fs";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -13,7 +13,6 @@ export const LOCAL_DEV_PORT = 3000;
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const lockPath = path.join(repositoryRoot, ".cache/runtime/local-dev-server.lock");
 const nextCliPath = path.join(repositoryRoot, "node_modules/next/dist/bin/next");
-const prismaCliPath = path.join(repositoryRoot, "node_modules/prisma/build/index.js");
 const workspaceCheckPath = path.join(repositoryRoot, "scripts/check/check-workspace-runtime.js");
 const sourceCodeAnalysisPath = path.join(repositoryRoot, "scripts/arch/source-code-analysis/cli.ts");
 
@@ -23,6 +22,46 @@ export function assertFixedDevArguments(args) {
   throw new Error(
     `Workspace 本地开发固定使用 ${LOCAL_DEV_PORT} 端口，禁止传入启动参数或改用其他端口。请直接运行 npm run dev。`,
   );
+}
+
+function parsePostgresqlUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "postgresql:" || url.protocol === "postgres:" ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+export function assertRuntimeDatabaseEnvironment(env = process.env, fileExists = existsSync) {
+  const databaseUrl = env.DATABASE_URL?.trim() ?? "";
+  const parsedUrl = parsePostgresqlUrl(databaseUrl);
+  if (!parsedUrl) {
+    throw new Error("Workspace 长期开发进程必须通过 DATABASE_URL 使用 PostgreSQL runtime 账号。");
+  }
+
+  const sslRootCertificate = parsedUrl.searchParams.get("sslrootcert") ?? "";
+  const runtimeContractErrors = [];
+  if (parsedUrl.username !== "workspace_dev_runtime") runtimeContractErrors.push("username 必须是 workspace_dev_runtime");
+  if (parsedUrl.pathname !== "/workspace_dev") runtimeContractErrors.push("database 必须是 workspace_dev");
+  if (parsedUrl.searchParams.get("sslmode") !== "verify-full") runtimeContractErrors.push("sslmode 必须是 verify-full");
+  if (sslRootCertificate !== "/run/secrets/postgres_ca") {
+    runtimeContractErrors.push("sslrootcert 必须是 /run/secrets/postgres_ca");
+  } else if (!fileExists(sslRootCertificate)) {
+    runtimeContractErrors.push("sslrootcert 文件不存在");
+  }
+  if (runtimeContractErrors.length > 0) {
+    throw new Error(`Workspace runtime DATABASE_URL 不符合安全合同：${runtimeContractErrors.join("；")}。`);
+  }
+
+  const migrationVariables = ["DIRECT_URL", "SHADOW_DATABASE_URL"].filter(
+    (name) => env[name]?.trim(),
+  );
+  if (migrationVariables.length > 0) {
+    throw new Error(
+      `Workspace 长期开发进程禁止持有迁移凭据：${migrationVariables.join(", ")}。请先运行一次性 npm run db:migrate:dev。`,
+    );
+  }
 }
 
 export function occupiedPortMessage(port = LOCAL_DEV_PORT) {
@@ -110,7 +149,10 @@ async function acquireDevServerLock() {
 async function runWorkspacePreflight() {
   const child = spawn(process.execPath, [workspaceCheckPath], {
     cwd: repositoryRoot,
-    env: process.env,
+    env: {
+      ...process.env,
+      WORKSPACE_RUNTIME_DATABASE_ONLY: "1",
+    },
     stdio: "inherit",
   });
   const result = await new Promise((resolve, reject) => {
@@ -119,27 +161,6 @@ async function runWorkspacePreflight() {
   });
   if (result.code !== 0) {
     throw new Error("Workspace 私有配置检查未通过，本地服务未启动；先完成 npm run workspace:init、租户配置和 npm run workspace:check。");
-  }
-}
-
-async function runDevelopmentMigrations() {
-  const child = spawn(
-    process.execPath,
-    [prismaCliPath, "migrate", "deploy", "--schema=./prisma"],
-    {
-      cwd: repositoryRoot,
-      env: process.env,
-      stdio: "inherit",
-    },
-  );
-  const result = await new Promise((resolve, reject) => {
-    child.once("error", reject);
-    child.once("exit", (code, signal) => resolve({ code, signal }));
-  });
-  if (result.code !== 0) {
-    throw new Error(
-      "Workspace 本地数据库 migration 未完成，dev server 未启动；请检查 DATABASE_URL、DIRECT_URL 和 Prisma migration 状态。",
-    );
   }
 }
 
@@ -169,6 +190,7 @@ async function runNextDev() {
 
 export async function main(args = process.argv.slice(2)) {
   assertFixedDevArguments(args);
+  assertRuntimeDatabaseEnvironment();
 
   if (!(await isPortAvailable())) {
     await runSourceCodeAnalysisSnapshot("--ensure");
@@ -181,7 +203,6 @@ export async function main(args = process.argv.slice(2)) {
 
     await runSourceCodeAnalysisSnapshot();
     await runWorkspacePreflight();
-    await runDevelopmentMigrations();
     await fs.rm(path.join(repositoryRoot, ".next"), { recursive: true, force: true });
     const result = await runNextDev();
     if (result.code !== null) return result.code;

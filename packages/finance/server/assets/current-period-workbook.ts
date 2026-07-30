@@ -2,6 +2,7 @@ import * as XLSX from "xlsx";
 import { parseCurrentPeriodFixedAssets } from "./current-period-fixed-assets";
 import { parseCurrentPeriodOtherAssets } from "./current-period-other-assets";
 import type { AssetWorkbookScope, ParsedAssetWorkbook } from "./current-period-workbook-types";
+import { partitionFinanceAssetWorkbookIssues } from "./workbook-import-issue-policy";
 
 export function parseAssetWorkbook(buffer: Buffer, rawScope: AssetWorkbookScope): ParsedAssetWorkbook {
   const scope = { ...rawScope, sourceFile: fileName(rawScope.sourceFile) };
@@ -13,8 +14,7 @@ export function parseAssetWorkbook(buffer: Buffer, rawScope: AssetWorkbookScope)
   for (const asset of assets) {
     if (asset.categoryCandidate.startsWith("PENDING-")) issues.push({ code: "ASSET_CATEGORY_UNRESOLVED", message: `资产分类无法唯一识别：${asset.name}`, sourceSheet: asset.sourceSheet, sourceRange: asset.sourceRange });
   }
-  const warnings = issues.filter((issue) => EVIDENCE_WARNING_CODES.has(issue.code));
-  const blockers = issues.filter((issue) => !EVIDENCE_WARNING_CODES.has(issue.code));
+  const { blockers, warnings } = partitionFinanceAssetWorkbookIssues(issues);
   return {
     scope,
     workbookCompanyLabels: [...new Set([fixed.companyLabel, ...other.companyLabels].filter((value): value is string => Boolean(value)))],
@@ -27,20 +27,6 @@ export function parseAssetWorkbook(buffer: Buffer, rawScope: AssetWorkbookScope)
     readyForImport: blockers.length === 0,
   };
 }
-
-const EVIDENCE_WARNING_CODES = new Set([
-  "FIXED_RESIDUAL_RATE_MISSING",
-  "FIXED_DEPRECIATION_START_MISSING",
-  "INTANGIBLE_USEFUL_LIFE_IMPLIED_ONLY",
-  "INTANGIBLE_USEFUL_LIFE_MISSING",
-  "LAND_USE_RIGHT_RECOGNITION_REVIEW",
-  "LICENSE_RECOGNITION_REVIEW",
-  "DEFERRED_USEFUL_LIFE_IMPLIED_ONLY",
-  "LEASEHOLD_IMPROVEMENT_EVIDENCE_MISSING",
-  "SHORT_TERM_ACCOUNT_CLASSIFICATION_MISSING",
-  "RENOVATION_COST_EXCLUSION_REASON_MISSING",
-  "RENOVATION_CARD_EVIDENCE_MISSING",
-]);
 
 function fileName(value: string) {
   return value.trim().split(/[\\/]/).at(-1) ?? value.trim();

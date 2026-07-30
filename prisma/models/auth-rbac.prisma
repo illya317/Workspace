@@ -59,6 +59,7 @@ model User {
   editedWorkpapers                  FinanceStatementWorkpaper[]         @relation("WorkpaperEditor")
   notifications                     Notification[]                      @relation("NotificationRecipient")
   createdNotifications              Notification[]                      @relation("NotificationActor")
+  newsReactions                     NewsReaction[]                      @relation("NewsReactionUser")
   notificationDeliveries            NotificationDelivery[]
   createdNotificationDefinitions    NotificationDefinition[]            @relation("NotificationDefinitionCreator")
   updatedNotificationDefinitions    NotificationDefinition[]            @relation("NotificationDefinitionUpdater")

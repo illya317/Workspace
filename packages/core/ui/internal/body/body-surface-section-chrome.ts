@@ -1,7 +1,15 @@
-import type { BodySurfaceSectionSpec } from "../../BodySurface.types";
+import type { BodySurfaceSectionProps, BodySurfaceSectionSpec } from "../../BodySurface.types";
 import { sectionStackPosition, type BodySectionStackPosition } from "./BodySurfaceSectionStack.styles";
 
 export type BodySurfaceSectionChrome = "card" | "divider" | "plain";
+
+export function bodySurfaceRootOwnsFrame(
+  section: BodySurfaceSectionProps,
+  frameDepth = 0,
+) {
+  if (frameDepth > 0 || section.layout === "split") return false;
+  return Boolean(section.title || section.commands?.length);
+}
 
 function sectionHasHeader(section: BodySurfaceSectionSpec) {
   return Boolean(

@@ -45,6 +45,13 @@ function impactMap() {
   });
 }
 
+function workspaceImpactMap() {
+  return validateTrustedImpactMap(JSON.parse(fs.readFileSync(
+    new URL("../testing/module-impact-map.json", import.meta.url),
+    "utf8",
+  )));
+}
+
 function git(cwd, args) {
   const result = spawnSync("git", args, { cwd, encoding: "utf8" });
   assert.equal(result.status, 0, result.stderr);
@@ -205,6 +212,37 @@ test("covered module code selects C2 and its exact E2E spec", () => {
   assert.equal(result.runE2e, true);
   assert.equal(result.e2eMode, "targeted");
   assert.deepEqual(result.e2eSpecs, ["e2e/settings-save.spec.ts"]);
+});
+
+test("NEWS page, read API, package, and write APIs require module readiness", () => {
+  const map = workspaceImpactMap();
+  const readOnlyPaths = [
+    "app/(modules)/news/page.tsx",
+    "app/api/modules/news/route.ts",
+  ];
+  for (const changedPath of readOnlyPaths) {
+    const result = classifyChangedPaths({ changedPaths: [changedPath], map });
+    assert.equal(result.riskClass, "C2", changedPath);
+    assert.equal(result.runE2e, true, changedPath);
+    assert.equal(result.e2eMode, "targeted", changedPath);
+    assert.deepEqual(result.requiredSuites, ["module-readiness"], changedPath);
+    assert.deepEqual(result.e2eSpecs, ["e2e/module-readiness.spec.ts"], changedPath);
+  }
+
+  const unverifiedWritePaths = [
+    "packages/news/server/news-service.ts",
+    "packages/news/ui/NewsWorkspaceClient.tsx",
+    "app/api/modules/news/reactions/route.ts",
+  ];
+  for (const changedPath of unverifiedWritePaths) {
+    const result = classifyChangedPaths({ changedPaths: [changedPath], map });
+    assert.equal(result.riskClass, "C3", changedPath);
+    assert.equal(result.runE2e, true, changedPath);
+    assert.equal(result.e2eMode, "targeted", changedPath);
+    assert.deepEqual(result.requiredSuites, ["module-readiness"], changedPath);
+    assert.deepEqual(result.e2eSpecs, ["e2e/module-readiness.spec.ts"], changedPath);
+    assert.deepEqual(result.unmappedWritePaths, [changedPath], changedPath);
+  }
 });
 
 test("known module code without a coverage rule stays limited to its affected code lanes", () => {

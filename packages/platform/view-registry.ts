@@ -275,6 +275,19 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
+    route: "/capital-securities/investments",
+    moduleKey: "capitalSecurities",
+    label: "投资企业",
+    views: [
+      { key: "overview", label: "投资概览" },
+      { key: "meetings", label: "股东会" },
+      { key: "diligence", label: "尽调资料" },
+      { key: "contracts", label: "相关合同" },
+      { key: "monitoring", label: "投后监控" },
+      { key: "documents", label: "智能资料" },
+    ],
+  },
+  {
     route: "/capital-securities/governance",
     moduleKey: "capitalSecurities",
     label: "治理架构",
@@ -282,6 +295,16 @@ const basePageViewDefinitions: PageViewDefinition[] = [
       { key: "governance", label: "治理组织" },
       { key: "companies", label: "公司信息" },
       { key: "relations", label: "股权关系" },
+    ],
+  },
+  {
+    route: "/capital-securities/market-intelligence",
+    moduleKey: "capitalSecurities",
+    label: "市场情报",
+    views: [
+      { key: "watchlist", label: "我的订阅" },
+      { key: "catalog", label: "市场目录" },
+      { key: "analysis", label: "分析方法" },
     ],
   },
   {

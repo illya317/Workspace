@@ -84,8 +84,9 @@ ops/*.local.sh
 /.codex-tmp/
 /output/
 
-# Agent worktrees
-/.claude/
+# Claude Code local state; project skills under .claude/skills are tracked symlinks.
+/.claude/worktrees/
+/.claude/settings.local.json
 
 # Planning files (local working memory)
 /task_plan.md

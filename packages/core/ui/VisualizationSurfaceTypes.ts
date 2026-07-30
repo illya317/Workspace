@@ -76,6 +76,26 @@ export interface VisualizationComparisonBarsSpec {
   legend?: VisualizationLegendSpec[];
 }
 
+export interface VisualizationCandlestickPointSpec {
+  key: string;
+  label: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume?: number | null;
+}
+
+export interface VisualizationCandlestickSpec {
+  kind: "candlestick";
+  points: VisualizationCandlestickPointSpec[];
+  movingAveragePeriods?: number[];
+  directionConvention?: "red-up" | "green-up";
+  height?: number;
+  emptyText?: string;
+  volumeLabel?: string;
+}
+
 export interface VisualizationTreeBadgeSpec {
   key: string;
   label: string;
@@ -166,6 +186,7 @@ export type VisualizationSpec =
   | VisualizationBarChartSpec
   | VisualizationGroupedBarChartSpec
   | VisualizationComparisonBarsSpec
+  | VisualizationCandlestickSpec
   | VisualizationTreeSpec
   | VisualizationNetworkSpec;
 

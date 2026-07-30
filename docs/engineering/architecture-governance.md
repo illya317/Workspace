@@ -4,7 +4,7 @@
 
 ## 0. 文档入口
 
-Agent 开工先读 `AGENTS.md` 和 `docs/README.md`，再进入自己的 `docs/roles/*.md`。本文件只保留架构放置规则，不再维护角色分流、并行线程或任务专题索引。
+Agent 开工先遵守 `AGENTS.md` 的 Role Gate，调用 `workspace-role-router` 并进入对应 `.agents/skills/workspace-*`。本文件只保留架构放置规则，不再维护角色分流、并行线程或任务专题索引。
 
 如果代码改动导致文档过期，任务不算完成。并行时先看 `git status --short`，只提交自己负责的文件。
 
@@ -210,7 +210,7 @@ API 一级目录只表达系统能力类型：
 
 `/api/modules/<module>` 只是路由归属和权限归属，不表示 API 层可以写业务逻辑。真实逻辑仍然在 `packages/<module>/server/*`；route 只能做认证、权限、Zod 参数校验、调用 package service 或 Platform 通用 factory、返回 DTO。写入请求继续按 `Zod schema -> domain validator -> service/Prisma` 收口。
 
-`/api/open/v1/*` 不属于业务模块内部 API，也不复用 L2 RBAC resource。新增开放能力时必须一次性注册管理页面 `consoleHref`、开放资源 `resources`、授权 scope、endpoint、`runtimeParentResourceKey`。`npm run arch:gate` 会检查 registry、页面、route 文件和 route wrapper 是否一致。
+`/api/open/v1/*` 不属于业务模块内部 API，也不复用 L2 RBAC resource。新增开放能力时必须一次性注册共享管理页 `consoleHref=/settings/api`、同页 `consoleTab`、开放资源 `resources`、授权 scope、endpoint、`runtimeParentResourceKey`。开放能力只能进入 `/settings/api` 的同页 tab，禁止为单个 registration 新建 `/settings/api/*` 页面；`npm run arch:gate` 会检查 registry、共享页面、route 文件和 route wrapper 是否一致，page contract gate 会拒绝未登记的深层页面。
 
 禁止新增 `/api/hr`、`/api/finance`、`/api/work`、`/api/employees` 等一级业务目录，也不要用 redirect 或 compatibility proxy 继续延长旧路径。历史旧路径删除时必须同步删除文档、脚本和部署配置中的引用。
 
@@ -255,7 +255,7 @@ Core UI registry 治理：
 
 - Core UI registry 保留三组核心口径：`declares` 是 agent 可声明能力，`contract` 是生成契约详情，`composes` 是内部组合关系。旧 `category/subcategory`、`role`、`exposure`、`verified` 不再作为 registry 字段。
 - 业务和普通 agent 默认只能使用公共 runtime 入口、helper 或 Surface spec；正文二级 Surface 通过 `BodySurface` 声明，不作为业务直引 renderer。`/settings/governance` 的 UI Tab 只自动展示有 `declares` 的封装组件，分类派生为 `页面布局 / 页面内容 / 通用`。
-- 标准页面级新建流只有一个 `PageSurface.create` slot；局部新建通过 `BodySurface kind="create"` 使用 `CreateSurface trigger="surface"`。业务不得声明 toolbar trigger。内部 renderer 不得挂 public `declares`，按钮位置、样式和顺序不得进入业务 contract。
+- 标准页面级新建流只有一个 `PageSurface.create` slot；body 含 split 时 Core 将 inline/block 投影到右侧详情并在新建期间锁定主栏可见，禁止全页横跨分栏。局部新建通过 `BodySurface kind="create"` 使用 `CreateSurface trigger="surface"`。业务不得声明 toolbar trigger。内部 renderer 不得挂 public `declares`，按钮位置、样式和顺序不得进入业务 contract。
 - Platform runtime 使用 Core UI 时只能走公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent L1 使用 Platform `ModuleHomePage`；三个 L2 分别通过公开的 `PageSurface` / `BodySurface` contract 组合配置、分析和汇报视图。
 - 改 `packages/core/ui/**`、Core UI registry 或 `/settings/governance` 的 UI 声明能力页必须是 UI-system/Architecture 任务，并通过 `CORE_UI_CHANGE=1` 或明确 change request 授权。
 

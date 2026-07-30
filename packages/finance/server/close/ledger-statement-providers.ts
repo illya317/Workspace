@@ -189,7 +189,8 @@ async function ledgerInspection(
 ): Promise<FinanceCloseFactInspection> {
   const facts = canonicalLedgerFacts(await deps.loadLedgerFacts(scope));
   const link = workpaperLink(taskKey);
-  const unbalanced = facts.vouchers.filter((voucher) => {
+  const closeVouchers = facts.vouchers.filter((voucher) => voucher.status !== "archived");
+  const unbalanced = closeVouchers.filter((voucher) => {
     const headerDebitCents = moneyToCents(voucher.totalDebit);
     const headerCreditCents = moneyToCents(voucher.totalCredit);
     const itemDebitCents = voucher.items.reduce((sum, item) => sum + moneyToCents(item.debit), 0);
@@ -199,8 +200,8 @@ async function ledgerInspection(
       || headerDebitCents !== itemDebitCents
       || headerCreditCents !== itemCreditCents;
   });
-  const unposted = facts.vouchers.filter((voucher) => voucher.status !== "posted");
-  const invalidAccounts = facts.vouchers.flatMap((voucher) => voucher.items).filter((item) => (
+  const unposted = closeVouchers.filter((voucher) => voucher.status !== "posted");
+  const invalidAccounts = closeVouchers.flatMap((voucher) => voucher.items).filter((item) => (
     !item.account.isActive || item.account.companyCode !== scope.companyCode
       || item.account.year !== null && item.account.year !== scope.year
   ));

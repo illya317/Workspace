@@ -88,6 +88,11 @@ function kpiValue(row: ManagementPerformanceKpi, value: number | null) {
 }
 
 export const performanceColumns: DataSurfaceColumnSpec<ManagementPerformanceKpi>[] = [
+  { key: "category", label: "类别", required: true, cell: (row) => ({
+    kind: "badge",
+    label: row.category === "growth" ? "增长" : row.category === "profitability" ? "盈利" : row.category === "efficiency" ? "效率" : row.category === "solvency" ? "偿债" : "现金质量",
+    tone: row.category === "growth" ? "blue" : row.category === "solvency" ? "amber" : row.category === "cash" ? "green" : "gray",
+  }) },
   { key: "label", label: "KPI", required: true, emphasis: "medium", cell: (row) => row.label },
   { key: "value", label: "本期", required: true, align: "right", cell: (row) => kpiValue(row, row.value) },
   { key: "prior", label: "上年同期", required: true, align: "right", cell: (row) => kpiValue(row, row.priorValue) },

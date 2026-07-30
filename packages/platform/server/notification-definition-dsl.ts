@@ -4,6 +4,8 @@ import { z } from "zod";
 import { workspaceBasePath } from "@workspace/core/routing";
 import { failCommand, okCommand, type DomainValidationResult } from "./domain-validation";
 
+export type { NotificationResponseMode } from "./notification-definition-contract";
+
 export const NOTIFICATION_TITLE_MAX_LENGTH = 120;
 export const NOTIFICATION_BODY_MAX_LENGTH = 2_000;
 export const NOTIFICATION_HREF_MAX_LENGTH = 600;
@@ -97,7 +99,6 @@ export type NotificationDefinitionSaveInput = z.infer<typeof notificationDefinit
 export type NotificationDefinitionVersionInput = z.infer<typeof notificationDefinitionVersionSchema>;
 export type NotificationPublicationSource = z.infer<typeof notificationPublicationSourceSchema>;
 export type NotificationPublicationRequest = z.infer<typeof notificationPublicationRequestSchema>;
-export type NotificationResponseMode = NotificationDefinitionSaveInput["responseMode"];
 export type NotificationTemplateVariables = NotificationPublicationRequest["variables"];
 
 export type PreparedNotificationDefinition = Omit<NotificationDefinitionSaveInput, "id" | "expectedVersion"> & {

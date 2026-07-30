@@ -109,7 +109,8 @@ export type InterestWorkpaperLineInput = FinanceSourceTraceInput & {
   accrualThrough: string;
   principalBasis: number;
   annualRate: number;
-  dayCount: number;
+  /** Optional input control; the Finance server derives and persists the canonical value. */
+  dayCount?: number;
   sourceReportedInterestAmount?: number | null;
   note?: string | null;
 };

@@ -38,6 +38,8 @@ export function toProviderWorkflowTodoDto(item: WorkflowTodoProviderItem) {
     isImportant: true,
     isStrongReminder: false,
     requiresAcknowledgement: false,
+    responseMode: "read" as const,
+    source: null,
     readAt: createdAt,
     acknowledgedAt: null,
     rejectedAt: null,
@@ -68,6 +70,14 @@ export function toNotificationDto(
     isImportant: item.isImportant,
     isStrongReminder: item.isStrongReminder,
     requiresAcknowledgement: item.requiresAcknowledgement,
+    responseMode: normalizeNotificationResponseMode(item.responseMode),
+    source: item.dispatch ? {
+      kind: normalizeNotificationSourceKind(item.dispatch.sourceKind),
+      label: item.dispatch.sourceLabel,
+      definitionKey: item.dispatch.definitionKey,
+      revision: item.dispatch.definitionRevision,
+      publicationId: item.dispatch.id,
+    } : null,
     readAt: item.readAt?.toISOString() ?? null,
     acknowledgedAt: item.acknowledgedAt?.toISOString() ?? null,
     rejectedAt: item.rejectedAt?.toISOString() ?? null,
@@ -89,11 +99,19 @@ export type NotificationModelRow = {
   isImportant: boolean;
   isStrongReminder: boolean;
   requiresAcknowledgement: boolean;
+  responseMode: string;
   readAt: Date | null;
   acknowledgedAt: Date | null;
   rejectedAt: Date | null;
   createdAt: Date;
   actor: { id: number; avatar: string | null; employees: Array<{ name: string }> } | null;
+  dispatch: {
+    id: string;
+    sourceKind: string;
+    sourceLabel: string;
+    definitionKey: string;
+    definitionRevision: number;
+  } | null;
 };
 
 export function toOriginatedWorkflowDto(row: {
@@ -115,6 +133,7 @@ export function toOriginatedWorkflowDto(row: {
     },
     title, body: summary, href, recipientReason: "你是该流程的发起人", resourceKey: row.resourceKey,
     scopeId: row.scopeId, isImportant: false, isStrongReminder: false, requiresAcknowledgement: false,
+    responseMode: "read" as const, source: null,
     readAt: createdAt, acknowledgedAt: null, rejectedAt: null, createdAt, actor: null,
   };
 }
@@ -135,5 +154,13 @@ function workflowEventTypeForStatus(status: string) {
   if (status === "withdrawn") return "withdraw";
   if (status === "cancelled") return "cancel";
   return null;
+}
+function normalizeNotificationResponseMode(value: string) {
+  if (value === "acknowledge" || value === "accept_reject") return value;
+  return "read" as const;
+}
+function normalizeNotificationSourceKind(value: string) {
+  if (value === "user-api" || value === "open-api") return value;
+  return "internal" as const;
 }
 function numberFromUnknown(value: unknown) { return typeof value === "number" && Number.isInteger(value) && value > 0 ? value : null; }

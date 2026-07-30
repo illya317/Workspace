@@ -4,7 +4,7 @@ import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import {
   listProjectNotificationEvaluations,
-  projectNotificationEvaluationQuerySchema,
+  projectNotificationEvaluationQueryRequestSchema,
 } from "@workspace/work/server";
 
 const paramsSchema = z.object({
@@ -15,7 +15,7 @@ const paramsSchema = z.object({
 export const GET = createCommandRoute({
   paramsSchema,
   paramsError: "项目或规则 ID 无效",
-  querySchema: projectNotificationEvaluationQuerySchema,
+  querySchema: projectNotificationEvaluationQueryRequestSchema,
   buildCommand: ({ params, query, user }) => okCommand({
     userId: user.userId,
     projectId: params.id,

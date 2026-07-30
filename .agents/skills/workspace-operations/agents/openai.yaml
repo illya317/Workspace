@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workspace Operations"
+  short_description: "Operate Workspace CI, runtime, and deployments"
+  default_prompt: "Use $workspace-operations to diagnose or change this Workspace runtime or delivery workflow."

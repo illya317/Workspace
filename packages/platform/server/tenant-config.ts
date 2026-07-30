@@ -39,11 +39,15 @@ const companyDocumentSchema = z.object({
   title: nonEmptyString,
   description: nonEmptyString,
   format: z.enum(["office", "paper"]),
-  source: z.enum(["tenant-file", "permission-actions"]),
+  source: z.enum(["tenant-file", "permission-actions", "api-agent-guide", "agent-doc-catalog", "product-guide"]),
   file: relativeConfigPath,
 }).superRefine((value, context) => {
-  if (value.source === "permission-actions" && value.format !== "paper") {
-    context.addIssue({ code: "custom", path: ["format"], message: "permission-actions must use paper format" });
+  if (value.source !== "tenant-file" && value.format !== "paper") {
+    context.addIssue({
+      code: "custom",
+      path: ["format"],
+      message: `${value.source} must use paper format`,
+    });
   }
   if (value.source === "tenant-file" && value.format !== "office") {
     context.addIssue({ code: "custom", path: ["format"], message: "tenant-file company documents must use office format" });

@@ -37,18 +37,12 @@ function fields(value: unknown): FormSurfaceFieldSpec[] {
   return [...own, ...Object.values(row).flatMap(fields)];
 }
 
-test("Tax registration uses the standard remote Party reference for its authority", () => {
+test("Tax registration stores the authority as plain text without a Party reference", () => {
   const draft = createTaxDraft("registration", scope);
-  const field = fields(sections(draft)).find((item) => item.key === "authorityPartyId");
+  const field = fields(sections(draft)).find((item) => item.key === "authorityName");
   assert.ok(field);
-  assert.deepEqual(field.spec.options, {
-    source: "remote",
-    fkKey: "finance.tax.authorityParty",
-    endpoint: "/api/modules/finance/tax/reference-options",
-    returnField: "id",
-    lifecycleScope: "active",
-    queryParams: undefined,
-  });
+  assert.equal(field.spec.control, "text");
+  assert.equal(field.spec.options, undefined);
 });
 
 test("Tax accrual and payment voucher references are remotely scoped to their business periods", () => {

@@ -40,7 +40,6 @@ export function systemApiRoutes(): ApiRouteRegistration[] {
     { method: "GET", pathPrefix: "/api/auth/gateway-check", access: "protected", notes: "Session gateway check; verifies login state without reading business resources." },
     { method: "GET", pathPrefix: "/api/auth/me", access: "protected", notes: "Current-session identity snapshot; business resources are exposed through derived session claims." },
     { method: "GET", pathPrefix: "/api/auth/wecom", access: "public", notes: "WeCom desktop panel and in-app OAuth endpoints; must be reachable before a local session exists." },
-    { method: "GET", pathPrefix: "/api/auth/dev-login-bypass", access: "dev", notes: "Development-only bypass helper; unavailable as a production business capability." },
     { method: "GET", pathPrefix: "/api/settings/account/week-info", access: "public", notes: "Calendar week metadata endpoint; returns no user or business-resource data." },
   ];
 }
@@ -52,6 +51,9 @@ export function assistantIntegrationApiRoutes(): ApiRouteRegistration[] {
     { method: "POST", pathPrefix: "/api/integrations/wecom/agent", access: "public", notes: "HMAC-authenticated localhost bridge from the WeCom intelligent-robot worker; sender RBAC is enforced by Platform." },
     { method: "GET", pathPrefix: "/api/integrations/wecom/agent/artifacts", access: "internal", notes: "HMAC-authenticated artifact stream for the WeCom worker; signed claims and Library permissions are rechecked." },
     { method: "POST", pathPrefix: "/api/integrations/wecom/agent/artifacts/cleanup", access: "internal", notes: "HMAC-authenticated maintenance call removes expired generated packages while retaining their audit rows." },
+    { method: "POST", pathPrefix: "/api/integrations/wecom/notifications/claim", access: "internal", notes: "HMAC-authenticated WeCom notification worker claim endpoint; leases one durable outbox delivery at a time." },
+    { method: "POST", pathPrefix: "/api/integrations/wecom/notifications/result", access: "internal", notes: "HMAC-authenticated WeCom notification worker result endpoint; validates the delivery lease and attempt before committing the outcome." },
+    { method: "POST", pathPrefix: "/api/integrations/wecom/notifications/heartbeat", access: "internal", notes: "HMAC-authenticated WeCom notification worker heartbeat endpoint; exposes only operational channel health." },
     { method: "GET", pathPrefix: "/api/integrations/wecom/download", access: "public", notes: "Short-lived user-bound artifact link; requires a matching Workspace or WeCom-authenticated session before download." },
     { method: "GET", pathPrefix: "/api/integrations/onlyoffice/library-documents", access: "internal", notes: "Short-lived JWT binds DocumentServer reads to one immutable Library document version and checksum; no browser session is accepted." },
     { method: "GET", pathPrefix: "/api/integrations/onlyoffice/company-documents", access: "internal", notes: "Short-lived JWT binds DocumentServer reads to one configured company document and checksum; no browser session is accepted." },

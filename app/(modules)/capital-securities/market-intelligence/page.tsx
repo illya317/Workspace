@@ -1,0 +1,9 @@
+import { MarketIntelligenceClient } from "@workspace/capital-securities/ui";
+import { createProtectedModulePage } from "@workspace/platform/server/protected-page";
+
+export default createProtectedModulePage({
+  route: "/capital-securities/market-intelligence",
+  title: "证券市场情报",
+  backHref: "/capital-securities",
+  render: () => <MarketIntelligenceClient />,
+});

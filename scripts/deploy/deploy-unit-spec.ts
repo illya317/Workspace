@@ -244,6 +244,7 @@ export const deployUnitBlueprints: readonly DeployUnitBlueprint[] = [
     maturity: "active",
     capacity: { memoryMiB: 512, databasePoolMax: 3 },
   }),
+  nextZone("news", 3212, "@workspace/news", { maturity: "active", capacity: { memoryMiB: 512, databasePoolMax: 3 } }),
 ] as const;
 
 export const deployGraphControlPlane = {

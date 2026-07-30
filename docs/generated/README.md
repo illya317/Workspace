@@ -4,7 +4,7 @@ This directory primarily contains generated documentation artifacts. Do not hand
 
 ## Owner
 
-Data owns schema/table/generated-docs facts. Operations owns generator runtime issues only when the generation command or CI/runtime behavior changes.
+The artifact table declares content ownership. Data owns schema/table facts; Operations owns generator runtime issues only when the generation command or CI/runtime behavior changes.
 
 ## Current Artifacts
 
@@ -14,6 +14,8 @@ Data owns schema/table/generated-docs facts. Operations owns generator runtime i
 | `api.md` | Legacy handwritten API summary; the generator intentionally leaves an existing file unchanged | Architecture / Feature |
 | `tables.md`, `tables.html` | `node --import tsx scripts/generate/generate-docs.ts`; `prisma/models/*.prisma` | Data |
 | `action-contracts.md` | `npm run docs:action-contracts`; ActionContract registry | Architecture |
+| `api-agent-guide.md` | `npm run docs:api-agent-guide`; API contract、BusinessAction registry 与 Agent connector | Architecture / Agent / Docs Feature |
+| `agent-doc-catalog.md` | `npm run docs:production-agent`; explicit production publication whitelist | Architecture / Agent / Docs Feature |
 | `permission-actions.md` | `npm run docs:permission-actions`; action/resource/business registries | Architecture |
 | `business-code-registry.md` | `npm run business-code:docs`; business-code object and system-template registries | Architecture / Feature |
 
@@ -23,3 +25,4 @@ Data owns schema/table/generated-docs facts. Operations owns generator runtime i
 - `api.md` is the only current exception: it identifies itself as a handwritten summary and is not overwritten by the generator. Treat `api.html` as the complete source-discovered route/method inventory. Its access badges come from the authoritative API contract plus explicit route wrappers; `未识别（查 API contract）` is deliberately not equivalent to public access.
 - If generated output becomes stale, assign the fix to Data unless the failure is a script/runtime issue.
 - If generator behavior changes, update `docs/OWNERS.md`, `docs/engineering/schema-governance.md`, or the relevant engineering doc in the same task.
+- Production Agent documents must start with `## 目录`. `docs:production-agent:check` verifies the explicit publication whitelist and every configured runtime copy; it never recursively publishes the source tree.

@@ -2,6 +2,7 @@ import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import type { InventoryClosingContract } from "@workspace/platform/contracts/inventory-closing";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import {
+  validateCompleteFinanceClosePersistenceCommand,
   validateOpenFinanceClosePersistenceCommand,
   validateRefreshFinanceClosePersistenceCommand,
 } from "../domain/close-persistence-validation";
@@ -14,12 +15,13 @@ import {
 } from "./evidence-snapshot-store";
 import { inspectFinanceCloseContributors, planFinanceCloseRefresh, type FinanceCloseProviderRegistry } from "./providers";
 import { deriveCloseProcessReviewPlan } from "./process-review-plan";
-import type { OpenFinanceCloseCommand, RefreshFinanceCloseCommand, ResolvedFinanceCloseScope } from "./validation";
+import type { CompleteFinanceCloseCommand, OpenFinanceCloseCommand, RefreshFinanceCloseCommand, ResolvedFinanceCloseScope } from "./validation";
+import { applyHistoricalCutoverEvidencePolicy } from "./historical-cutover-evidence-policy";
 
 class CloseConflict extends Error {}
 type CloseTransactionClient = Pick<
   Prisma.TransactionClient,
-  "financeCloseEvent" | "financeCloseRun" | "financeCloseTask" | "financeCloseEvidenceSnapshot"
+  "financeCloseEvent" | "financeCloseRun" | "financeCloseTask" | "financeCloseEvidenceSnapshot" | "financePeriod"
 >;
 type CloseReplayEvent = {
   runId: number;
@@ -185,7 +187,21 @@ export async function refreshFinanceClose(
 
   // Contributor inspection is deliberately complete before the transaction begins.
   const inspections = await inspectFinanceCloseContributors(command, registry);
-  const plan = deriveCloseProcessReviewPlan(planFinanceCloseRefresh(inspections));
+  const historicalFacts = await prisma.financePeriod.findUnique({
+    where: { id: command.periodId },
+    select: {
+      sourceClosed: true,
+      _count: { select: { balances: true } },
+      vouchers: { where: { status: "posted" }, select: { id: true }, orderBy: { id: "asc" } },
+    },
+  });
+  const governedInspections = applyHistoricalCutoverEvidencePolicy(inspections, {
+    enabled: command.year === 2026 && command.month === 6 && historicalFacts?.sourceClosed === true
+      && historicalFacts._count.balances > 0 && historicalFacts.vouchers.length > 0,
+    periodRef: `finance-period:${command.periodId}`,
+    voucherRefs: historicalFacts?.vouchers.map((row) => `finance-voucher:${row.id}`) ?? [],
+  });
+  const plan = deriveCloseProcessReviewPlan(planFinanceCloseRefresh(governedInspections));
   try {
     await deps.transaction(async (tx) => {
       const existingEvent = await tx.financeCloseEvent.findUnique({
@@ -247,10 +263,81 @@ export async function refreshFinanceClose(
   }
 }
 
+export async function completeFinanceClose(
+  command: CompleteFinanceCloseCommand,
+  deps: FinanceCloseServiceDependencies = defaultDependencies,
+) {
+  const validated = validateCompleteFinanceClosePersistenceCommand(command);
+  if (!validated.ok) return serviceError(validated.issue.message, validated.issue.status);
+  command = validated.data;
+  if (command.idempotentRunId) {
+    return serviceOk(await deps.loadWorkspace({ ...command, isPeriodClosed: true }));
+  }
+  try {
+    await deps.transaction(async (tx) => {
+      const existingEvent = await tx.financeCloseEvent.findUnique({
+        where: { idempotencyKey: command.idempotencyKey },
+        select: {
+          runId: true, eventKind: true, requestFingerprint: true,
+          run: { select: { id: true, companyId: true, periodId: true } },
+        },
+      });
+      if (existingEvent) {
+        if (!closeEventMatches(existingEvent, command, "completed")) throw new CloseConflict("幂等键冲突");
+        return;
+      }
+      const tasks = await tx.financeCloseTask.findMany({
+        where: { runId: command.runId },
+        select: { taskKey: true, status: true },
+      });
+      const taskByKey = new Map(tasks.map((task) => [task.taskKey, task.status]));
+      const notReady = FINANCE_CLOSE_TASK_CATALOG.filter((task) => taskByKey.get(task.taskKey) !== "ready");
+      if (notReady.length > 0 || tasks.length !== FINANCE_CLOSE_TASK_CATALOG.length) {
+        throw new CloseConflict(`仍有 ${notReady.length} 项关账任务未就绪，不能完成关账`);
+      }
+      const claimedRun = await tx.financeCloseRun.updateMany({
+        where: {
+          id: command.runId,
+          companyId: command.companyId,
+          periodId: command.periodId,
+          status: "open",
+          version: command.expectedVersion,
+        },
+        data: { status: "completed", completedAt: new Date(), version: { increment: 1 } },
+      });
+      if (claimedRun.count !== 1) throw new CloseConflict("关账运行版本已变化，请刷新后重试");
+      const closedPeriod = await tx.financePeriod.updateMany({
+        where: { id: command.periodId, companyCode: command.companyCode, isClosed: false },
+        data: { isClosed: true },
+      });
+      if (closedPeriod.count !== 1) throw new CloseConflict("会计期间状态已变化，请刷新后重试");
+      await tx.financeCloseEvent.create({ data: {
+        runId: command.runId,
+        actorUserId: command.actorUserId,
+        eventKind: "completed",
+        fromStatus: "open",
+        toStatus: "completed",
+        idempotencyKey: command.idempotencyKey,
+        requestFingerprint: command.requestFingerprint,
+      } });
+    });
+    return serviceOk(await deps.loadWorkspace({ ...command, isPeriodClosed: true }));
+  } catch (error) {
+    if (error instanceof CloseConflict || prismaUniqueConflict(error)) {
+      const replay = await deps.findEvent(command.idempotencyKey);
+      if (closeEventMatches(replay, command, "completed")) {
+        return serviceOk(await deps.loadWorkspace({ ...command, isPeriodClosed: true }));
+      }
+      return serviceError(error instanceof CloseConflict ? error.message : "关账完成幂等冲突", 409);
+    }
+    throw error;
+  }
+}
+
 function closeEventMatches(
   event: CloseReplayEvent | null,
-  command: OpenFinanceCloseCommand | RefreshFinanceCloseCommand,
-  eventKind: "opened" | "refreshed",
+  command: OpenFinanceCloseCommand | RefreshFinanceCloseCommand | CompleteFinanceCloseCommand,
+  eventKind: "opened" | "refreshed" | "completed",
 ) {
   return Boolean(event
     && event.eventKind === eventKind

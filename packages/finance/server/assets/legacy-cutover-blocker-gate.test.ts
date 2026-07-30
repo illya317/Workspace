@@ -48,6 +48,20 @@ test("keeps every non-audited blocker fail-closed", () => {
   assert.deepEqual(result.warnings, []);
 });
 
+test("the 630 override covers every historical workbook amount-control family", () => {
+  for (const code of [
+    "FIXED_ORIGINAL_CONTROL_FAILED",
+    "INTANGIBLE_SOURCE_TOTAL_MISSING",
+    "INTANGIBLE_AMORTIZATION_CONTROL_FAILED",
+    "INTANGIBLE_ACCUMULATED_CONTROL_FAILED",
+    "INTANGIBLE_NET_CONTROL_FAILED",
+    "RENOVATION_INVOICE_CONTROL_FAILED",
+    "RENOVATION_TOTAL_FORMULA_UNINTERPRETABLE",
+  ]) {
+    assert.ok(FINANCE_ASSET_GL_OVERRIDE_BLOCKER_CODES.includes(code as never), code);
+  }
+});
+
 test("does not override blockers outside 2026-06 or without an injected GL reconciler", () => {
   const blocker = sourceEvidence("FIXED_DEPRECIATION_CONTROL_FAILED");
   for (const scope of [

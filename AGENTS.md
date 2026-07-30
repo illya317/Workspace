@@ -8,31 +8,32 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Agent Entry
 
-本文件只放开工入口和硬红线。详细规则不要继续堆在这里，按 `docs/README.md` 分层进入。
+本文件只放 always-on 开工入口和硬红线。开发 agent 的角色流程放在 `.agents/skills/`；给人阅读和共同维护的工程/产品事实仍按 `docs/README.md` 分层。
 
 ## Start Here
 
-1. 先读本文件，确认红线和角色入口。
-2. 不要先扫全库；先读 `docs/engineering/project-overview.md`，确认项目地图、事实来源和新鲜度。
-3. 按任务读对应 `docs/roles/*.md`。
-4. 涉及具体模块时，再读 `app/(modules)/*/ARCHITECTURE.md` 或 `MODULE.md`。
-5. zsh 搜索含括号路径时要加引号或转义，例如 `rg foo 'app/(modules)/work'`，避免被 `()` 当成 glob 语法。
+1. 先读本文件，确认宿主环境、权威工作目录和硬红线。
+2. 在任何深度源码搜索、编辑或检查前，先选角色：Codex 调用 `$workspace-role-router`，Claude Code 调用 `/workspace-role-router`（真源为 `.agents/skills/workspace-role-router/SKILL.md`）。
+3. 选择一个主角色；读取 router 后的第一条角色声明更新应包含环境、主角色、辅助角色和将读取的专题文档，然后完整读取对应 role skill。此前可以只报告正在确认环境。
+4. 不要先扫全库；再读 `docs/engineering/project-overview.md`，确认项目地图、事实来源和新鲜度。
+5. 涉及具体模块时，再读 `app/(modules)/*/ARCHITECTURE.md` 或 `MODULE.md`。
+6. zsh 搜索含括号路径时要加引号或转义，例如 `rg foo 'app/(modules)/work'`，避免被 `()` 当成 glob 语法。
 
-| 任务 | 角色入口 |
-|---|---|
-| 规划、拆任务、多 agent 协调、集成收口 | `docs/roles/coordinator.md` |
-| UI 改造、业务功能、页面/API、顺手业务修复 | `docs/roles/feature.md` |
-| 架构边界、registry、RBAC/API contract、Core/Platform/App 规则 | `docs/roles/architecture.md` |
-| schema、migration、seed、导入、生成数据 | `docs/roles/data.md` |
-| CI、部署、环境、脚本运行态 | `docs/roles/operations.md` |
-| 历史债、baseline、lint/arch 漏洞、重复实现清理 | `docs/roles/hygiene.md` |
-| 最终独立 review | `docs/roles/review.md` |
+| 主角色 | 选择条件 | Skill |
+|---|---|---|
+| Coordinator | 规划、拆任务、多 agent、跨模块依赖、集成收口 | `workspace-coordinator` |
+| Feature | UI、业务功能、页面/API 壳、业务 service、普通 bug | `workspace-feature` |
+| Architecture | 架构边界、registry、RBAC/API contract、Core/Platform/App 规则 | `workspace-architecture` |
+| Data | schema、migration、seed、导入/导出、生成数据 | `workspace-data` |
+| Operations | CI、部署、环境、构建、脚本运行态 | `workspace-operations` |
+| Hygiene | 历史债、baseline、lint/arch 漏洞、重复实现清理 | `workspace-hygiene` |
+| Review | 完成后的独立 review；不能审自己实现或集成的改动 | `workspace-review` |
 
 ## Document Map
 
 | 层 | 位置 |
 |---|---|
-| 角色职责 | `docs/roles/*` |
+| Agent 角色流程 | `.agents/skills/workspace-*/SKILL.md`；Claude Code 入口为 `.claude/skills/*` 软链接 |
 | 工程规范 | `docs/engineering/*` |
 | 生成文档 | `docs/generated/*` |
 | 模块长期知识 | `app/(modules)/*/ARCHITECTURE.md`, `app/(modules)/*/MODULE.md` |
@@ -55,11 +56,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 10. **不为兼容污染协议**：破坏式收敛时，不要因为兼容旧调用点而在公开 contract、声明项或 kind 分支里增加额外选项；不兼容应暴露出来并通过迁移解决。
 11. **Playwright/Chrome 生命周期必须闭环**：默认使用 `npm run test:e2e` 和 `@playwright/test` fixture；禁止在 `tsx -e`、shell one-liner 或业务脚本中直接调用 `chromium/firefox/webkit.launch()`。确需手动启动 Browser 时只能经过 `scripts/testing/with-playwright.ts`，并保证 `try/finally`、`SIGINT/SIGTERM` 和最终 `browser.close()`；任务收尾必须通过 Playwright 进程检查。
 12. **提交先 stage 本任务**：开始提交检查前先看 `git status --short` 并只 stage 本任务文件；pre-commit 只验证该 index 快照。不要回滚、格式化或提交别人的改动。
-13. **本地 dev 固定 3000 且全机单实例**：统一使用 `npm run dev`，禁止传端口参数或改用 3100 等其他端口；3000 已占用时复用现有 Workspace 实例，不得再启动一个。浏览器调试、E2E 或本地写入流程需要端口连续性时，agent 必须先用 `npm run dev:guard -- pause 30m --reason "<用途>"` 取得自动重启抑制租约，完成后用返回的 lease ID 释放；状态统一通过 `npm run dev:status` 查看。
-14. **本机任务默认串行**：除非用户对当前任务明确要求并行或多 agent，不启动 subagent，不并发执行 npm 检查、测试、构建、Prisma generate 或 dev server。同一时间只允许一个重任务；发现已有同类进程时等待或复用，不再启动第二个。
+13. **先确认运行环境**：宿主项目入口声明的远端开发、容器、端口和生产边界优先。直接本地 checkout 才统一使用 `npm run dev` 的 3000 单实例；不得把外部映射端口误当成本地 dev 端口。需要端口连续性时按宿主规则取得并释放 `dev:guard` 租约。
+14. **并发服从宿主模式，重检查始终串行**：是否启动 subagent 服从当前 system / collaboration mode。无论是否允许多 agent，都不并发执行 npm 检查、测试、构建、Prisma generate 或 dev server；发现已有同类进程时等待或复用。
 15. **本地类型检查默认不运行**：普通开发、修复、review 和 commit 收口都不主动运行任何 `typecheck:*`。只在用户明确要求、任务直接修改 TypeScript 工程/类型基础设施或正在定位具体编译错误时做本地诊断，CI/发布验证按 base/head 保留受影响依赖闭包的权威类型检查。例外执行前必须先告知用户，且只串行跑一次最小 `typecheck:scope`；无法界定单一 scope 时才使用 `typecheck:quick`，`typecheck:full` 仅在用户显式要求全量诊断时运行。禁止直接调用 TypeScript CLI 或绕过项目锁。
 16. **本地检查内存硬上限 4GB**：本机 lint、typecheck、build、test、Prisma generate 和其他检查的 Node old-space 上限不得超过 `4096 MiB`；禁止因 OOM 提高内存或绕过检查锁重试。锁等待不足时可以提高 `CHECK_LOCK_TIMEOUT_MS` 或命令等待时间；在 `4096 MiB` 内仍无法完成则停止并报告，交由 CI/发布门禁处理。
 17. **UI 文案默认克制**：字段标签和选项已经能表达语义时，不再补解释、实现路径或技术细节；仅在防误操作、不可逆后果、合规要求或非显然约束下保留必要提示。
 18. **发布验证与部署必须分离**：`ops/publish.sh prepare` 只冻结 release tree 和私有配置；随后用 `publish.sh validate`（CNB）或 `publish.sh validate --local` 对生产 Git base 到候选 head 的改动项目及依赖闭包验证一次并生成 immutable artifact。`publish.sh deploy` / `--direct` 只能消费同一 validation base、source SHA、tree SHA 和 artifact digest 的结果，禁止重新运行源码门禁或现场重建。部署阶段仅保留生产身份/顺序、migration 区间、锁、备份、传输 digest、健康检查、原子切换和回滚。除用户显式要求外，不得增加其他门禁或自动升级全量检查。
 
-检查命令按 `docs/engineering/checks.md` 选择，本地默认串行执行。如用户例外启用多 agent，由 Coordinator/Integrator 按顺序做一次最终统一验证，各 agent 不重复跑重检查。
+检查命令按 `docs/engineering/checks.md` 选择并串行执行。多 agent 任务由 Coordinator/Integrator 按顺序做一次最终统一验证，各 agent 不重复跑重检查。

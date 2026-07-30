@@ -210,6 +210,64 @@ test("missing historical start evidence is non-blocking for a GL-controlled cuto
   assert.equal(harness.capture.createData?.depreciationStartDate, "2026-07-01");
 });
 
+test("evidence issues cannot block at the importer boundary", async () => {
+  const harness = createHarness({
+    parsed: {
+      ...parsedWorkbook,
+      blockers: [{ code: "LICENSE_RECOGNITION_REVIEW", message: "牌照证据待人工复核", sourceSheet: "9&10-2" }],
+      readyForImport: false,
+    },
+  });
+
+  const result = await importAssetWorkbook(importInput(), harness.dependencies);
+
+  assert.equal(result.blockerCount, 0);
+  assert.equal(result.warningCount, 1);
+  assert.equal(result.workbookWarnings[0]?.code, "LICENSE_RECOGNITION_REVIEW");
+  assert.match(result.workbookWarnings[0]?.note ?? "", /人工复核，不阻断导入/);
+});
+
+test("missing useful-life evidence imports an indefinite-basis intangible without inventing amortization", async () => {
+  const asset = {
+    ...importedAsset,
+    assetKind: "intangible" as const,
+    categoryCandidate: "IA-LICENSE",
+    sourceCategory: "车辆牌照",
+    name: "车辆牌照",
+    residualRate: 0,
+    usefulLifeMonths: undefined,
+    closingNetAmount: 1_200,
+  };
+  const parsed = {
+    ...parsedWorkbook,
+    assets: [asset],
+    blockers: [
+      { code: "INTANGIBLE_USEFUL_LIFE_MISSING", message: "使用寿命证据待复核", sourceSheet: "9&10-2" },
+      { code: "LICENSE_RECOGNITION_REVIEW", message: "牌照确认条件待复核", sourceSheet: "9&10-2" },
+    ],
+    readyForImport: false,
+  };
+  const policy = {
+    ...resolvedPolicy,
+    category: { ...resolvedPolicy.category, code: "IA-LICENSE", name: "许可权", assetKind: "intangible" as const },
+    assetAccount: { ...resolvedPolicy.assetAccount, code: "1701", name: "无形资产" },
+    accumulatedAccount: { ...resolvedPolicy.accumulatedAccount, code: "1702", name: "累计摊销" },
+    defaultUsefulLifeMonths: null,
+    defaultResidualRate: 0,
+    usefulLifeMode: "required_or_indefinite_basis" as const,
+    reviewRequired: true,
+  };
+  const harness = createHarness({ parsed, policy: policy as never });
+
+  const result = await importAssetWorkbook(importInput(), harness.dependencies);
+
+  assert.equal(result.warningCount, 2);
+  assert.equal(harness.capture.createData?.usefulLifeMonths, null);
+  assert.equal(harness.capture.createData?.remainingUsefulLifeMonthsAtCutover, 0);
+  assert.equal(harness.capture.createData?.cutoverResidualValue, 1_200);
+  assert.match(String(harness.capture.createData?.nonAmortizationReason), /待人工复核/);
+});
+
 test("rejects a plain callback that attempts to downgrade audited parser blockers", async () => {
   const existingWarning = {
     code: "POLICY_EVIDENCE_PENDING",
@@ -311,8 +369,10 @@ function createHarness(options: {
   currentPeriodEntry?: { normalAmount: number; status: string; voucherId: number | null } | null;
   concurrentChange?: "version" | "acquisition" | "posted" | "impairment";
   parsed?: ParsedAssetWorkbook;
+  policy?: Awaited<ReturnType<AssetWorkbookImportDependencies["resolvePolicy"]>>;
 } = {}) {
   const effectiveAsset = (options.parsed ?? parsedWorkbook).assets[0]!;
+  const effectivePolicy = options.policy ?? resolvedPolicy as unknown as Awaited<ReturnType<AssetWorkbookImportDependencies["resolvePolicy"]>>;
   const existing = options.existing ?? null;
   let storedEvidence = options.existingEvidence ?? null;
   let storedPeriodEntry: ({ id?: number } & NonNullable<typeof options.currentPeriodEntry>) | null = options.currentPeriodEntry ?? null;
@@ -339,17 +399,17 @@ function createHarness(options: {
     companyId: 1,
     name: importedAsset.name,
     assetKind: importedAsset.assetKind,
-    categoryId: resolvedPolicy.category.id,
-    assetAccountCode: resolvedPolicy.assetAccount.code,
-    assetAccountId: resolvedPolicy.assetAccount.id,
-    accumulatedAccountCode: resolvedPolicy.accumulatedAccount.code,
-    accumulatedAccountId: resolvedPolicy.accumulatedAccount.id,
+    categoryId: effectivePolicy.category.id,
+    assetAccountCode: effectivePolicy.assetAccount.code,
+    assetAccountId: effectivePolicy.assetAccount.id,
+    accumulatedAccountCode: effectivePolicy.accumulatedAccount?.code ?? null,
+    accumulatedAccountId: effectivePolicy.accumulatedAccount?.id ?? null,
     acquisitionDate: importedAsset.acquisitionDate,
     depreciationStartDate: importedAsset.depreciationStartDate,
     originalCost: importedAsset.originalCost,
     residualRate: importedAsset.residualRate,
     usefulLifeMonths: importedAsset.usefulLifeMonths,
-    method: resolvedPolicy.defaultMethod,
+    method: effectivePolicy.defaultMethod,
     initializationMode: "legacy_cutover",
     openingAccumulatedAmount: 110,
     openingImpairmentAmount: 0,
@@ -384,12 +444,12 @@ function createHarness(options: {
     },
     financeAccountBalance: {
       findMany: async () => [
-        { id: 41, accountId: 30, periodId: 40, companyCode: "TEST", companyId: 1, closingDebit: effectiveAsset.originalCost, closingCredit: 0, account: { code: "1601", balanceDirection: "debit", companyCode: "TEST", companyId: 1, year: 2026, isActive: true } },
-        { id: 42, accountId: 31, periodId: 40, companyCode: "TEST", companyId: 1, closingDebit: 0, closingCredit: Math.round((effectiveAsset.originalCost - effectiveAsset.closingNetAmount + Number.EPSILON) * 100) / 100, account: { code: "1602", balanceDirection: "credit", companyCode: "TEST", companyId: 1, year: 2026, isActive: true } },
+        { id: 41, accountId: effectivePolicy.assetAccount.id, periodId: 40, companyCode: "TEST", companyId: 1, closingDebit: effectiveAsset.originalCost, closingCredit: 0, account: { code: effectivePolicy.assetAccount.code, balanceDirection: "debit", companyCode: "TEST", companyId: 1, year: 2026, isActive: true } },
+        { id: 42, accountId: effectivePolicy.accumulatedAccount?.id ?? 31, periodId: 40, companyCode: "TEST", companyId: 1, closingDebit: 0, closingCredit: Math.round((effectiveAsset.originalCost - effectiveAsset.closingNetAmount + Number.EPSILON) * 100) / 100, account: { code: effectivePolicy.accumulatedAccount?.code ?? "1602", balanceDirection: "credit", companyCode: "TEST", companyId: 1, year: 2026, isActive: true } },
       ],
     },
     financeAssetCategory: {
-      findMany: async () => [{ id: 20, code: "FA-ELECTRONIC", assetKind: "fixed_asset" }],
+      findMany: async () => [{ id: effectivePolicy.category.id, code: effectivePolicy.category.code, assetKind: effectivePolicy.category.assetKind }],
     },
     financeAssetCard: {
       findUnique: async () => storedCard,
@@ -491,12 +551,12 @@ function createHarness(options: {
   const dependencies: AssetWorkbookImportDependencies = {
     database,
     parseWorkbook: (() => options.parsed ?? parsedWorkbook) as AssetWorkbookImportDependencies["parseWorkbook"],
-    resolvePolicy: (async () => resolvedPolicy) as unknown as AssetWorkbookImportDependencies["resolvePolicy"],
+    resolvePolicy: (async () => effectivePolicy) as AssetWorkbookImportDependencies["resolvePolicy"],
     allocateAssetCode: (async (tx: unknown, input: Record<string, unknown>) => {
       capture.allocationCalls.push({ tx, input });
       return { code: "TEST-FA-ELECTRONIC-2026-00002" };
     }) as unknown as AssetWorkbookImportDependencies["allocateAssetCode"],
-    reconcileCutover: (async (_tx, input) => cutoverResult(options.parsed ?? parsedWorkbook, input.assets[0]!)) as AssetWorkbookImportDependencies["reconcileCutover"],
+    reconcileCutover: (async (_tx, input) => cutoverResult(options.parsed ?? parsedWorkbook, input.assets[0]!, effectivePolicy)) as AssetWorkbookImportDependencies["reconcileCutover"],
   };
   return {
     capture,
@@ -512,6 +572,7 @@ function createHarness(options: {
 function cutoverResult(
   parsed: ParsedAssetWorkbook,
   basis: { remainingUsefulLifeMonthsAtCutover: number; cutoverResidualValue: number },
+  policy: Awaited<ReturnType<AssetWorkbookImportDependencies["resolvePolicy"]>>,
 ) {
   const asset = parsed.assets[0]!;
   const openingAccumulatedAmount = Math.round((asset.originalCost - asset.closingNetAmount + Number.EPSILON) * 100) / 100;
@@ -525,11 +586,11 @@ function cutoverResult(
     unallocatedNetBookValue: 0,
     warnings: [],
     accountControls: [{
-      key: "asset:30", role: "asset" as const, sourceKeys: [asset.sourceKey], accountId: 30, accountCode: "1601", balanceId: 41,
+      key: `asset:${policy.assetAccount.id}`, role: "asset" as const, sourceKeys: [asset.sourceKey], accountId: policy.assetAccount.id, accountCode: policy.assetAccount.code, balanceId: 41,
       selection: "full_account" as const, allocationMode: "standard" as const, approvalReason: null, approvedSelectedAmount: null, expectedDirection: "debit" as const, workspaceClosingDebit: asset.originalCost, workspaceClosingCredit: 0,
       sourceClosingDebit: asset.originalCost, sourceClosingCredit: 0, sourceSelectedAmount: asset.originalCost, allocatedAmount: asset.originalCost, difference: 0,
     }, {
-      key: "accumulated:31", role: "accumulated" as const, sourceKeys: [asset.sourceKey], accountId: 31, accountCode: "1602", balanceId: 42,
+      key: `accumulated:${policy.accumulatedAccount?.id ?? 31}`, role: "accumulated" as const, sourceKeys: [asset.sourceKey], accountId: policy.accumulatedAccount?.id ?? 31, accountCode: policy.accumulatedAccount?.code ?? "1602", balanceId: 42,
       selection: "full_account" as const, allocationMode: "standard" as const, approvalReason: null, approvedSelectedAmount: null, expectedDirection: "credit" as const, workspaceClosingDebit: 0, workspaceClosingCredit: openingAccumulatedAmount,
       sourceClosingDebit: 0, sourceClosingCredit: openingAccumulatedAmount, sourceSelectedAmount: openingAccumulatedAmount, allocatedAmount: openingAccumulatedAmount, difference: 0,
     }],
@@ -545,8 +606,8 @@ function cutoverResult(
       ledgerControlAdjustment: 0,
       ledgerControlAllocationMode: null,
       ledgerControlApprovalReason: null,
-      assetBalance: { id: 41, accountId: 30, periodId: 40, companyCode: "TEST" },
-      accumulatedBalance: { id: 42, accountId: 31, periodId: 40, companyCode: "TEST" },
+      assetBalance: { id: 41, accountId: policy.assetAccount.id, periodId: 40, companyCode: "TEST" },
+      accumulatedBalance: { id: 42, accountId: policy.accumulatedAccount?.id ?? 31, periodId: 40, companyCode: "TEST" },
       impairmentBalance: null,
     }],
   };

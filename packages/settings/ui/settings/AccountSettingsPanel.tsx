@@ -30,7 +30,8 @@ function isAccountPageTab(value: string): value is AccountPageTab {
   return ACCOUNT_PAGE_TABS.includes(value as AccountPageTab);
 }
 function parseAccountPageTab(value: string | null): AccountPageTab {
-  return value === "inbox" || value === "subscriptions" ? value : "profile";
+  if (value === "inbox" || value === "notifications") return "inbox";
+  return value === "subscriptions" ? "subscriptions" : "profile";
 }
 export default function AccountSettingsPanel({
   user,
@@ -60,7 +61,7 @@ export default function AccountSettingsPanel({
     }
     function handleTabEvent(event: Event) {
       const detail = event instanceof CustomEvent ? String(event.detail ?? "") : "";
-      if (isAccountPageTab(detail)) setAccountPageTab(detail);
+      if (isAccountPageTab(detail) || detail === "notifications") setAccountPageTab(parseAccountPageTab(detail));
     }
     syncFromLocation();
     window.addEventListener("popstate", syncFromLocation);

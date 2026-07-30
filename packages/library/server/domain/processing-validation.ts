@@ -12,6 +12,19 @@ export interface ProcessLibraryVersionCommand {
   pipelineVersion: string;
 }
 
+export interface BuildLibraryVectorIndexCommand {
+  versionUid: string;
+}
+
+export function buildLibraryVectorIndexCommand(input: {
+  versionUid: string;
+}): DomainValidationResult<BuildLibraryVectorIndexCommand> {
+  const versionUid = input.versionUid.trim();
+  return UUID_PATTERN.test(versionUid)
+    ? okCommand({ versionUid })
+    : failCommand("Invalid version UID", 400, "versionUid");
+}
+
 export interface LibraryVersionRuntimeStorageCommand {
   versionId: number;
 }

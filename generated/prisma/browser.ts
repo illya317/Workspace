@@ -110,6 +110,46 @@ export type PermissionGrantLedgerEvent = Prisma.PermissionGrantLedgerEventModel
  */
 export type Notification = Prisma.NotificationModel
 /**
+ * Model InvestmentEnterpriseProfile
+ * 投资企业档案（事实表，人工维护并关联资本证券中的唯一 Company 主体）
+ */
+export type InvestmentEnterpriseProfile = Prisma.InvestmentEnterpriseProfileModel
+/**
+ * Model InvestmentEnterpriseMeeting
+ * 投资企业治理会议与决议（事实表，人工录入或由文件分析结果经人工确认）
+ */
+export type InvestmentEnterpriseMeeting = Prisma.InvestmentEnterpriseMeetingModel
+/**
+ * Model InvestmentEnterpriseDiligenceItem
+ * 投资企业尽调发现与整改项（事实表，人工录入或由文件分析结果经人工确认）
+ */
+export type InvestmentEnterpriseDiligenceItem = Prisma.InvestmentEnterpriseDiligenceItemModel
+/**
+ * Model InvestmentEnterpriseContract
+ * 投资企业相关合同及关键义务（事实表，人工录入或由文件分析结果经人工确认）
+ */
+export type InvestmentEnterpriseContract = Prisma.InvestmentEnterpriseContractModel
+/**
+ * Model InvestmentEnterpriseMonitoringRecord
+ * 投资企业定期经营监控快照（事实表，来源于企业报送、财务报表或人工确认）
+ */
+export type InvestmentEnterpriseMonitoringRecord = Prisma.InvestmentEnterpriseMonitoringRecordModel
+/**
+ * Model InvestmentEnterpriseDocumentLink
+ * 投资企业与资料库原件的受控关联（事实表，只保存业务归类与稳定 UID，不复制原件、OCR 或向量）
+ */
+export type InvestmentEnterpriseDocumentLink = Prisma.InvestmentEnterpriseDocumentLinkModel
+/**
+ * Model InvestorShareholderProfile
+ * 发行主体与股东之间的投资人关系资料；股本金额和持股比例仍只来源于股权事件账本
+ */
+export type InvestorShareholderProfile = Prisma.InvestorShareholderProfileModel
+/**
+ * Model InvestorDueDiligenceRecord
+ * 投资人尽调参与人员台账；一行记录一位外部参与人及其当次尽调、资料开放与跟进状态
+ */
+export type InvestorDueDiligenceRecord = Prisma.InvestorDueDiligenceRecordModel
+/**
  * Model OwnershipInterest
  * 股权事件账本派生的有效期投影；只读缓存，不允许人工或页面直接维护
  */
@@ -1069,6 +1109,11 @@ export type LibraryContentChunk = Prisma.LibraryContentChunkModel
  */
 export type LibrarySearchIndex = Prisma.LibrarySearchIndexModel
 /**
+ * Model LibraryContentEmbedding
+ * 资料内容向量（派生表，由已锁定的模型版本对稳定 chunk 生成，可按索引代次整体重建）
+ */
+export type LibraryContentEmbedding = Prisma.LibraryContentEmbeddingModel
+/**
  * Model LibraryExportJob
  * 资料批量导出任务（事实表，由有 export 权限的用户创建并保存不可变版本选择）
  */
@@ -1142,6 +1187,51 @@ export type MutationImpactBatch = Prisma.MutationImpactBatchModel
  * 变更影响效果（append-only 事实表，记录批次内按确定性顺序评估和执行的最小化摘要）
  */
 export type MutationImpactEffect = Prisma.MutationImpactEffectModel
+/**
+ * Model NewsReaction
+ * 用户对外部资讯的当前偏好信号；新闻快照避免上游条目消失后失去语义。
+ */
+export type NewsReaction = Prisma.NewsReactionModel
+/**
+ * Model NotificationDefinition
+ * 可由低代码控制台维护的通知定义头；字段保存当前草稿，revision/version 分别控制内容修订与 CAS。
+ */
+export type NotificationDefinition = Prisma.NotificationDefinitionModel
+/**
+ * Model NotificationDefinitionRevision
+ * 通知定义的不可变内容快照；发布只移动 head 指针，不修改历史 revision。
+ */
+export type NotificationDefinitionRevision = Prisma.NotificationDefinitionRevisionModel
+/**
+ * Model NotificationDefinitionLifecycleEvent
+ * 通知定义状态机的不可变审计事实；每次 head 版本推进都必须在同一事务内追加一条事件。
+ */
+export type NotificationDefinitionLifecycleEvent = Prisma.NotificationDefinitionLifecycleEventModel
+/**
+ * Model NotificationPublication
+ * 一次配置化通知发布的不可变请求与结果头；幂等范围由 sourceKind/sourceId 隔离。
+ */
+export type NotificationPublication = Prisma.NotificationPublicationModel
+/**
+ * Model NotificationDelivery
+ * 发布批次到站内 Notification 的逐收件人投递回执。
+ */
+export type NotificationDelivery = Prisma.NotificationDeliveryModel
+/**
+ * Model NotificationChannelEndpoint
+ * 通知渠道的安全运行绑定和健康状态；provider 凭据仍只存在于私有运行环境中。
+ */
+export type NotificationChannelEndpoint = Prisma.NotificationChannelEndpointModel
+/**
+ * Model NotificationDeliveryAttempt
+ * 企业微信等异步渠道的一次不可变投递尝试；当前状态保留在 NotificationDelivery。
+ */
+export type NotificationDeliveryAttempt = Prisma.NotificationDeliveryAttemptModel
+/**
+ * Model NotificationDeliveryWorkerRequest
+ * Worker 请求的短期幂等回执；不保存原始 body、签名或任何 provider secret。
+ */
+export type NotificationDeliveryWorkerRequest = Prisma.NotificationDeliveryWorkerRequestModel
 /**
  * Model NotificationSubscription
  * 个人通知订阅覆盖（事实表，来源于用户本人或其确认后的 Agent 设置）
@@ -1352,6 +1442,41 @@ export type WorkOkrControlPolicyRevision = Prisma.WorkOkrControlPolicyRevisionMo
  * 工作计划治理模式迁移事件（append-only 事实表，记录显式 workflow/direct 切换）
  */
 export type WorkPlanGovernanceEvent = Prisma.WorkPlanGovernanceEventModel
+/**
+ * Model ProjectNotificationRule
+ * 项目通知监管规则头（事实表，来源于有权限用户在项目监管界面的配置）
+ */
+export type ProjectNotificationRule = Prisma.ProjectNotificationRuleModel
+/**
+ * Model ProjectNotificationRuleRevision
+ * 项目通知规则不可变修订（事实表，来源于每次保存的完整规则草稿）
+ */
+export type ProjectNotificationRuleRevision = Prisma.ProjectNotificationRuleRevisionModel
+/**
+ * Model ProjectNotificationEvaluation
+ * 项目通知规则不可变评估账本（事实表，来源于项目事件或每日监管扫描）
+ */
+export type ProjectNotificationEvaluation = Prisma.ProjectNotificationEvaluationModel
+/**
+ * Model ProjectNotificationRuleLifecycleEvent
+ * 项目通知规则生命周期事件（事实表，来源于发布或归档动作的事务内追加）
+ */
+export type ProjectNotificationRuleLifecycleEvent = Prisma.ProjectNotificationRuleLifecycleEventModel
+/**
+ * Model ProjectNotificationPublicationIntent
+ * 项目通知发布意图（事实表，来源于规则锁内冻结的受众、变量、渠道与幂等请求）
+ */
+export type ProjectNotificationPublicationIntent = Prisma.ProjectNotificationPublicationIntentModel
+/**
+ * Model ProjectNotificationSignal
+ * 项目通知事件信号（事实表，来源于项目写事务或每日监管扫描的不可丢失事件快照）
+ */
+export type ProjectNotificationSignal = Prisma.ProjectNotificationSignalModel
+/**
+ * Model ProjectNotificationSignalRedriveEvent
+ * 项目通知死信人工重驱的不可变审计事实；关联原信号、派生信号、操作者、原因和 CAS 尝试号。
+ */
+export type ProjectNotificationSignalRedriveEvent = Prisma.ProjectNotificationSignalRedriveEventModel
 /**
  * Model Project
  * 项目/虚拟团队

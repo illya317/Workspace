@@ -1,0 +1,23 @@
+import { z } from "zod";
+
+import { updateInvestorShareholderProfile } from "@workspace/capital-securities/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+const bodySchema = z.object({
+  issuerCompanyId: z.coerce.number().int().positive(),
+  shareholderPartyId: z.coerce.number().int().positive(),
+  version: z.coerce.number().int().nonnegative().nullable().optional(),
+}).passthrough();
+
+export const PUT = createCommandRoute({
+  bodySchema,
+  buildCommand: ({ body, user }) => okCommand({
+    userId: user.userId,
+    issuerCompanyId: body.issuerCompanyId,
+    shareholderPartyId: body.shareholderPartyId,
+    expectedVersion: body.version ?? null,
+    body,
+  }),
+  action: updateInvestorShareholderProfile,
+});

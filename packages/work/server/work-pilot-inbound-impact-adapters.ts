@@ -96,7 +96,6 @@ function workItemOwnedDetailsAdapter(): MutationImpactAdapter<PilotImpactContext
         })),
       ];
       return records.length ? {
-        policy: "auto_cascade_owned",
         records,
         reason: "工作项的参与人和当前职责快照会随工作项删除",
         requiresPerItemPermission: false,
@@ -120,7 +119,6 @@ function workPlanOwnedDetailsAdapter(): MutationImpactAdapter<PilotImpactContext
         orderBy: { id: "asc" },
       });
       return rows.length ? {
-        policy: "auto_cascade_owned",
         records: rows.map((row) => ({
           entity: "WorkPlanAlignment",
           id: String(row.id),
@@ -153,7 +151,6 @@ function reportSnapshotAdapter(input: {
         orderBy: { id: "asc" },
       });
       return rows.length ? {
-        policy: "retain",
         records: rows.map((row) => ({
           entity: "WorkReportItem",
           id: String(row.id),

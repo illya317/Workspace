@@ -252,7 +252,7 @@ same frozen result request and does not call the provider a second time.
 
 ## User experience
 
-`/settings/api/notifications` is the low-code dispatch desk. It keeps the definition list, draft form,
+The “通知定义” tab on `/settings/api` is the low-code definition desk. It keeps the definition list, draft form,
 live placeholder preview, allowed Clients, project-supervision opt-in, lifecycle actions, API example,
 the recent definition lifecycle ledger, channel health and publication/delivery facts together. The
 lifecycle audit DTO exposes only stable definition labels/keys, revision/version coordinates, action,
@@ -260,6 +260,13 @@ actor identity and time. The inbox always displays the source and recipient reas
 notifications.
 Mobile master/detail pages must pass the Core `mobile.detailActive/onNavigateToList` contract rather
 than relying on desktop split behavior.
+
+The adjacent “企业微信群” tab is the group-delivery governance desk: a Bot-observed group first
+appears as unclaimed, then an administrator assigns its stable `groupKey`, display name and owner and
+verifies recent Bot presence. Per-group policies bind a published definition, governed data scope,
+manual or weekly schedule, optional fixed `work.weekly-report` Agent adapter, enablement and recent
+delivery/failure evidence. UI and Agent inputs never expose or accept provider conversation IDs,
+raw `chatId` values or webhooks; only active + verified groups with enabled policies may enqueue.
 
 The project detail page owns the “通知监管” tab. It presents rule draft/publish/archive lifecycle,
 guided conditions, RASCI recipients, Workspace/WeCom channel policy, cooldown, preview and the

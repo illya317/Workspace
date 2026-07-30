@@ -1,7 +1,5 @@
 import {
-  createEmptySection,
   createFieldsSection,
-  createPanelSection,
   type BodySurfaceSectionSpec,
   type FormSurfaceItemSpec,
 } from "@workspace/core/ui";
@@ -15,6 +13,7 @@ import {
   BUSINESS_CODE_OBJECTS,
   type BusinessCodeObjectKey,
 } from "@workspace/platform/business-code-registry";
+import { createCategoryDirectItemSection } from "@workspace/platform/ui";
 
 export type BusinessCodeApplicationEditor = {
   mode: "create" | "edit";
@@ -91,43 +90,7 @@ export function createBusinessCodeTemplateApplicationsSection(
           templateKey: input.templateKey,
         }),
       }];
-  const sections: BodySurfaceSectionSpec[] = applied.length ? [{
-    key: "business-code-template-application-grid",
-    body: {
-      kind: "data",
-      data: {
-        kind: "structured",
-        rows: [[{
-          content: {
-            kind: "selectionGrid",
-            mode: "action",
-            layout: "fixed",
-            columns: 2,
-            ariaLabel: "关联编码对象",
-            options: applied.map((definition) => ({
-              value: definition.key,
-              label: definition.label,
-              code: businessCodeObjectExample(input.config, definition.key),
-            })),
-            onItemClick: (option) => {
-              const definition = applied.find((candidate) => candidate.key === option.value);
-              if (!definition) return;
-              input.onEditorChange({
-                mode: "edit",
-                objectKey: definition.key,
-                templateKey: selectedBusinessCodeTemplateKey(input.config, definition.key),
-              });
-            },
-          },
-        }]],
-        frame: "plain",
-      },
-    },
-  }] : [createEmptySection("business-code-template-applications-empty", {
-    presentation: "plain",
-    compact: true,
-    content: "暂无关联编码对象",
-  })];
+  const editorSections: BodySurfaceSectionSpec[] = [];
   if (input.editor) {
     const submit = async () => {
       if (!input.editor?.objectKey || !input.editor.templateKey) return;
@@ -135,7 +98,7 @@ export function createBusinessCodeTemplateApplicationsSection(
         input.onEditorChange(null);
       }
     };
-    sections.push(createFieldsSection(
+    editorSections.push(createFieldsSection(
       "business-code-template-application-editor",
       editorItems,
       {
@@ -162,8 +125,27 @@ export function createBusinessCodeTemplateApplicationsSection(
     ));
   }
 
-  return createPanelSection("business-code-template-applications", {
+  return createCategoryDirectItemSection({
+    key: "business-code-template-applications",
     title: "关联编码对象",
+    ariaLabel: "关联编码对象",
+    mode: "action",
+    columns: 2,
+    options: applied.map((definition) => ({
+      value: definition.key,
+      label: definition.label,
+      code: businessCodeObjectExample(input.config, definition.key),
+    })),
+    onItemClick: (option) => {
+      const definition = applied.find((candidate) => candidate.key === option.value);
+      if (!definition) return;
+      input.onEditorChange({
+        mode: "edit",
+        objectKey: definition.key,
+        templateKey: selectedBusinessCodeTemplateKey(input.config, definition.key),
+      });
+    },
+    emptyText: "暂无关联编码对象",
     create: available.length > 0 && !input.editor ? {
       id: "business-code-template-application-editor",
       title: "关联编码对象",
@@ -175,6 +157,6 @@ export function createBusinessCodeTemplateApplicationsSection(
         templateKey: input.templateKey,
       }),
     } : undefined,
-    sections,
+    sectionsAfterGrid: editorSections,
   });
 }

@@ -4,7 +4,7 @@ import type { CloseValidationDependencies } from "./validation-dependencies";
 
 export const closeValidationDependencies: CloseValidationDependencies = {
   findCompanyByCode: (code) => prisma.company.findUnique({ where: { code }, select: { id: true, code: true, isActive: true } }),
-  findPeriod: (scope) => prisma.financePeriod.findUnique({ where: { companyCode_year_month: scope }, select: { id: true, companyCode: true, year: true, month: true, isClosed: true } }),
+  findPeriod: ({ companyCode, year, month }) => prisma.financePeriod.findUnique({ where: { companyCode_year_month: { companyCode, year, month } }, select: { id: true, companyCode: true, year: true, month: true, isClosed: true } }),
   findUser: (id) => prisma.user.findUnique({ where: { id }, select: { id: true, canLogin: true } }),
   findRun: (id) => prisma.financeCloseRun.findUnique({
     where: { id },

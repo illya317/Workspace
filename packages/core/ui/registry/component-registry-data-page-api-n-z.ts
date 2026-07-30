@@ -157,6 +157,7 @@ export const page_api_registry_entries = [
           { name: "visual.barChart", description: "单序列条形图。" },
           { name: "visual.groupedBarChart", description: "分组条形图。" },
           { name: "visual.comparisonBars", description: "实际值与参考值对比。" },
+          { name: "visual.candlestick", description: "OHLC K 线、简单移动均线与成交量；Core 统一计算布局、交互和涨跌色约定。" },
           { name: "visual.tree", description: "树形层级可视化。" },
           { name: "visual.network", description: "自动布局的有向关系图。" },
           { name: "visual.network.presentation", description: "diagram 用于结构图；map 用于力导向拓扑探索。" },
@@ -178,12 +179,12 @@ export const page_api_registry_entries = [
   },
   {
     name: "VisualizationSurfaceChart",
-    description: "VisualizationSurface 轻量图表 renderer。",
+    description: "VisualizationSurface 轻量图表 renderer，包含条形、对比、树形与 K 线。",
     composes: [],
   },
   {
     name: "VisualizationSurfaceTypes",
-    description: "VisualizationSurface 轻量图、关系图与甘特图 public spec types。",
+    description: "VisualizationSurface 轻量图、K 线、关系图与甘特图 public spec types。",
     composes: [],
   },
   {

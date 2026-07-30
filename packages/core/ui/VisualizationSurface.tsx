@@ -7,6 +7,8 @@ import type { VisualizationSurfaceFrameSpec, VisualizationSurfaceProps } from ".
 export type {
   VisualizationBarChartSpec,
   VisualizationBarSpec,
+  VisualizationCandlestickPointSpec,
+  VisualizationCandlestickSpec,
   VisualizationComparisonBarItemSpec,
   VisualizationComparisonBarSectionSpec,
   VisualizationComparisonBarsSpec,

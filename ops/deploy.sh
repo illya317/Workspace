@@ -25,6 +25,10 @@ EXPECTED_CNB_REPOSITORY="${EXPECTED_CNB_REPOSITORY:-}"
 CONTROL_PLANE_POLICY="${CONTROL_PLANE_POLICY:-auto}"
 DEPLOY_EXECUTION_MODE="${DEPLOY_EXECUTION_MODE:-combined}"
 WORKSPACE_GATEWAY_NGINX_SITE="${WORKSPACE_GATEWAY_NGINX_SITE:-}"
+WORKSPACE_RUNTIME_PM2_MODE="${WORKSPACE_RUNTIME_PM2_MODE:-legacy}"
+WORKSPACE_RUNTIME_PM2_RUNNER="${WORKSPACE_RUNTIME_PM2_RUNNER:-/usr/local/sbin/workspace-runtime-pm2}"
+REMOTE_CONTROL_ENV_FILE="${REMOTE_CONTROL_ENV_FILE:-}"
+REMOTE_RUNTIME_ENV_FILE="${REMOTE_RUNTIME_ENV_FILE:-}"
 if [ -n "$ENV_CONTENT" ]; then
   ENV_CONTENT_B64="$(printf '%s' "$ENV_CONTENT" | base64 | tr -d '\n')"
 else
@@ -45,6 +49,10 @@ case "$DEPLOY_EXECUTION_MODE" in
   application-only) CONTROL_PLANE_POLICY=require-existing ;;
   control-plane-only) CONTROL_PLANE_POLICY=refresh ;;
   *) echo "[错误] DEPLOY_EXECUTION_MODE 只能是 combined、application-only 或 control-plane-only"; exit 1 ;;
+esac
+case "$WORKSPACE_RUNTIME_PM2_MODE" in
+  legacy|hardened) ;;
+  *) echo "[错误] WORKSPACE_RUNTIME_PM2_MODE 只能是 legacy 或 hardened"; exit 1 ;;
 esac
 
 if [ -z "$REMOTE_DIR" ]; then
@@ -75,6 +83,51 @@ if [ -z "$REMOTE_WORKSPACE_CONFIG_DIR" ]; then
 elif [ "$REMOTE_WORKSPACE_CONFIG_DIR" != "$REMOTE_DIR/.workspace" ]; then
   echo "[警告] REMOTE_WORKSPACE_CONFIG_DIR 已统一为 $REMOTE_DIR/.workspace，忽略旧值: $REMOTE_WORKSPACE_CONFIG_DIR"
   REMOTE_WORKSPACE_CONFIG_DIR="$REMOTE_DIR/.workspace"
+fi
+
+if [ -z "$REMOTE_CONTROL_ENV_FILE" ]; then
+  if [ "$WORKSPACE_RUNTIME_PM2_MODE" = "hardened" ]; then
+    REMOTE_CONTROL_ENV_FILE="$REMOTE_WORKSPACE_CONFIG_DIR/control-plane.env"
+  else
+    REMOTE_CONTROL_ENV_FILE="$REMOTE_WORKSPACE_CONFIG_DIR/.env"
+  fi
+fi
+if [ -z "$REMOTE_RUNTIME_ENV_FILE" ]; then
+  if [ "$WORKSPACE_RUNTIME_PM2_MODE" = "hardened" ]; then
+    REMOTE_RUNTIME_ENV_FILE="$REMOTE_WORKSPACE_CONFIG_DIR/runtime.env"
+  else
+    REMOTE_RUNTIME_ENV_FILE="$REMOTE_CONTROL_ENV_FILE"
+  fi
+fi
+for remote_secret_path in "$REMOTE_CONTROL_ENV_FILE" "$REMOTE_RUNTIME_ENV_FILE"; do
+  case "$remote_secret_path" in
+    /*) ;;
+    *) echo "[错误] control/runtime env 路径必须是绝对路径: $remote_secret_path"; exit 1 ;;
+  esac
+  case "$remote_secret_path" in
+    *[!A-Za-z0-9_./-]*) echo "[错误] control/runtime env 路径包含不安全字符: $remote_secret_path"; exit 1 ;;
+  esac
+done
+if [ "$WORKSPACE_RUNTIME_PM2_MODE" = "legacy" ] && [ "$REMOTE_RUNTIME_ENV_FILE" != "$REMOTE_CONTROL_ENV_FILE" ]; then
+  echo "[错误] legacy PM2 模式不能声明独立 runtime env；请启用 WORKSPACE_RUNTIME_PM2_MODE=hardened"
+  exit 1
+fi
+if [ "$WORKSPACE_RUNTIME_PM2_MODE" = "hardened" ]; then
+  if [ -n "$ENV_CONTENT" ]; then
+    echo "[错误] hardened PM2 模式禁止通过 ENV_CONTENT 下发共享凭据；请预置隔离的 runtime/control-plane env"
+    exit 1
+  fi
+  if [ "$REMOTE_RUNTIME_ENV_FILE" = "$REMOTE_CONTROL_ENV_FILE" ]; then
+    echo "[错误] hardened PM2 模式必须隔离 runtime env 与 control-plane env"
+    exit 1
+  fi
+  case "$WORKSPACE_RUNTIME_PM2_RUNNER" in
+    /*) ;;
+    *) echo "[错误] WORKSPACE_RUNTIME_PM2_RUNNER 必须是绝对路径"; exit 1 ;;
+  esac
+  case "$WORKSPACE_RUNTIME_PM2_RUNNER" in
+    *[!A-Za-z0-9_./-]*) echo "[错误] WORKSPACE_RUNTIME_PM2_RUNNER 包含不安全字符"; exit 1 ;;
+  esac
 fi
 
 if [ -z "$REMOTE_BACKUP_DIR" ] && [ -n "$REMOTE_WORKSPACE_BACKUP_DIR" ]; then
@@ -209,7 +262,311 @@ cleanup_deploy() {
 trap cleanup_deploy EXIT
 
 ssh_cmd() {
-  ssh "${SSH_OPTIONS[@]}" "$SERVER" "$@"
+  if [ "$#" -ne 1 ]; then
+    echo "[错误] ssh_cmd 只接受一个完整 remote command" >&2
+    return 2
+  fi
+  local remote_command="$1"
+  ssh "${SSH_OPTIONS[@]}" "$SERVER" "
+workspace_assert_hardened_database_url() {
+  local database_url_value=\$1
+  local expected_database_role=\$2
+  local require_owner_role=\$3
+  local database_url_label=\$4
+  DATABASE_URL_VALUE=\"\$database_url_value\" \\
+  EXPECTED_DATABASE_ROLE=\"\$expected_database_role\" \\
+  REQUIRE_OWNER_ROLE=\"\$require_owner_role\" \\
+  DATABASE_URL_LABEL=\"\$database_url_label\" \\
+  node - <<'NODE'
+const label = process.env.DATABASE_URL_LABEL || 'database URL';
+const fail = () => {
+  throw new Error(label + ' violates hardened PostgreSQL URL contract');
+};
+let url;
+try {
+  url = new URL(process.env.DATABASE_URL_VALUE || '');
+} catch {
+  fail();
+}
+let username;
+let password;
+try {
+  username = decodeURIComponent(url.username);
+  password = decodeURIComponent(url.password);
+} catch {
+  fail();
+}
+const forbiddenConnectionOverrides = [
+  'user', 'password', 'host', 'hostaddr', 'port', 'dbname', 'database',
+  'service', 'servicefile', 'ssl', 'sslcert', 'sslkey',
+];
+if (forbiddenConnectionOverrides.some((key) => url.searchParams.has(key))) fail();
+const singleQueryValue = (key) => {
+  const values = url.searchParams.getAll(key);
+  if (values.length !== 1) fail();
+  return values[0];
+};
+if (!['postgres:', 'postgresql:'].includes(url.protocol)
+    || username !== process.env.EXPECTED_DATABASE_ROLE
+    || !password
+    || Array.from(password).some((character) => {
+      const codePoint = character.codePointAt(0);
+      return codePoint < 32 || codePoint === 127;
+    })
+    || url.hostname !== '127.0.0.1'
+    || url.port !== '5432'
+    || url.pathname !== '/workspace'
+    || url.hash
+    || singleQueryValue('sslmode') !== 'verify-full'
+    || singleQueryValue('sslrootcert') !== '/etc/workspace/postgresql/ca.pem') {
+  fail();
+}
+const options = url.searchParams.getAll('options');
+if (process.env.REQUIRE_OWNER_ROLE === '1') {
+  if (options.length !== 1 || options[0] !== '-c role=workspace_owner') fail();
+} else if (options.length !== 0) {
+  fail();
+}
+NODE
+}
+workspace_assert_managed_runtime_environment() {
+  [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ] || return 0
+  local managed_processes
+  managed_processes=\$(sudo -n -- '$WORKSPACE_RUNTIME_PM2_RUNNER' jlist)
+  MANAGED_PROCESSES=\"\$managed_processes\" \\
+    MANAGED_WEB_NAMES='$PM2_NAME-candidate,$PM2_NAME' \\
+    MANAGED_BOT_NAMES='$PM2_WECOM_BOT_NAME,workspace-assistant-wecom-blue,workspace-assistant-wecom-green' \\
+    node - <<'NODE'
+const processes = JSON.parse(process.env.MANAGED_PROCESSES || 'null');
+if (!Array.isArray(processes)) throw new Error('runtime PM2 runner jlist did not return an array');
+const webNames = new Set(process.env.MANAGED_WEB_NAMES.split(','));
+const botNames = new Set(process.env.MANAGED_BOT_NAMES.split(','));
+const managed = new Set([...webNames, ...botNames]);
+const failDatabaseUrl = (label) => {
+  throw new Error(label + ' violates hardened PostgreSQL URL contract');
+};
+const assertHardenedDatabaseUrl = (raw, label) => {
+  let url;
+  try {
+    url = new URL(String(raw || ''));
+  } catch {
+    failDatabaseUrl(label);
+  }
+  let username;
+  let password;
+  try {
+    username = decodeURIComponent(url.username);
+    password = decodeURIComponent(url.password);
+  } catch {
+    failDatabaseUrl(label);
+  }
+  const forbiddenConnectionOverrides = [
+    'user', 'password', 'host', 'hostaddr', 'port', 'dbname', 'database',
+    'service', 'servicefile', 'ssl', 'sslcert', 'sslkey',
+  ];
+  if (forbiddenConnectionOverrides.some((key) => url.searchParams.has(key))) failDatabaseUrl(label);
+  const singleQueryValue = (key) => {
+    const values = url.searchParams.getAll(key);
+    if (values.length !== 1) failDatabaseUrl(label);
+    return values[0];
+  };
+  if (!['postgres:', 'postgresql:'].includes(url.protocol)
+      || username !== 'workspace_runtime'
+      || !password
+      || Array.from(password).some((character) => {
+        const codePoint = character.codePointAt(0);
+        return codePoint < 32 || codePoint === 127;
+      })
+      || url.hostname !== '127.0.0.1'
+      || url.port !== '5432'
+      || url.pathname !== '/workspace'
+      || url.hash
+      || singleQueryValue('sslmode') !== 'verify-full'
+      || singleQueryValue('sslrootcert') !== '/etc/workspace/postgresql/ca.pem'
+      || url.searchParams.has('options')) {
+    failDatabaseUrl(label);
+  }
+};
+for (const process of processes) {
+  if (!process || typeof process !== 'object' || !managed.has(process.name)) continue;
+  const environment = process.pm2_env || {};
+  const nestedEnvironment = environment.env && typeof environment.env === 'object' ? environment.env : {};
+  const environmentSources = [nestedEnvironment, environment];
+  const mergedEnvironment = Object.assign({}, nestedEnvironment, environment);
+  if (botNames.has(process.name)) {
+    const leaked = Object.keys(mergedEnvironment).filter((key) => (
+      key === 'DATABASE_URL'
+      || key === 'WORKSPACE_DATABASE_URL'
+      || ['DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL', 'WORKSPACE_MONITOR_DATABASE_URL'].includes(key)
+      || /^PG[A-Z0-9_]*$/.test(key)
+      || /^NEXTAUTH(?:_|$)/.test(key)
+      || /^ONLYOFFICE(?:_|$)/.test(key)
+      || /^WORKSPACE_(?:RUNTIME|MIGRATOR|BACKUP|MONITOR)_DATABASE/.test(key)
+    ));
+    if (leaked.length > 0) {
+      throw new Error('Bot runtime process ' + process.name + ' contains forbidden ' + leaked.join(','));
+    }
+    continue;
+  }
+  for (const key of [
+    'DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL', 'WORKSPACE_MONITOR_DATABASE_URL',
+    'WORKSPACE_DATABASE_URL', 'WORKSPACE_RUNTIME_DATABASE_PASSWORD', 'WORKSPACE_MIGRATOR_DATABASE_PASSWORD',
+    'WORKSPACE_BACKUP_DATABASE_PASSWORD', 'WORKSPACE_MONITOR_DATABASE_PASSWORD',
+    'PGPASSWORD', 'PGPASSFILE', 'PGSERVICE', 'PGSERVICEFILE', 'PGOPTIONS', 'PGUSER', 'PGHOST', 'PGDATABASE',
+  ]) {
+    if (environmentSources.some((source) => Object.prototype.hasOwnProperty.call(source, key))) {
+      throw new Error('managed runtime process ' + process.name + ' contains forbidden ' + key);
+    }
+  }
+  const runtimeDatabaseUrls = environmentSources
+    .filter((source) => Object.prototype.hasOwnProperty.call(source, 'DATABASE_URL'))
+    .map((source) => source.DATABASE_URL);
+  if (runtimeDatabaseUrls.length === 0
+      || runtimeDatabaseUrls.some((value) => value !== runtimeDatabaseUrls[0])) {
+    failDatabaseUrl('managed runtime process ' + process.name + ' DATABASE_URL');
+  }
+  assertHardenedDatabaseUrl(
+    runtimeDatabaseUrls[0],
+    'managed runtime process ' + process.name + ' DATABASE_URL',
+  );
+}
+NODE
+}
+pm2() {
+  if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+    local key
+    local -a runtime_pm2_environment=()
+    for key in PORT HOSTNAME BUILD_VERSION NEXT_PUBLIC_BUILD_VERSION NEXT_PUBLIC_BASE_PATH PG_POOL_MAX PG_APPLICATION_NAME \\
+      WORKSPACE_CONFIG_DIR WORKSPACE_DEPLOY_UNIT_ID WORKSPACE_DEPLOY_SLOT WORKSPACE_DEPLOY_CURRENT_STATE_FILE WORKSPACE_INTERNAL_ORIGIN \\
+      WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE \\
+      WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE WORKSPACE_INTERNAL_REPLAY_DIRECTORY WECHAT_BOT_BRIDGE_URL \\
+      PROJECT_NOTIFICATION_SCHEDULER_DISABLED; do
+      if [ \"\${!key+x}\" = 'x' ]; then
+        runtime_pm2_environment+=(\"\$key=\${!key}\")
+      fi
+    done
+    sudo -n -- /usr/bin/env \"\${runtime_pm2_environment[@]}\" '$WORKSPACE_RUNTIME_PM2_RUNNER' \"\$@\"
+    local pm2_status=\$?
+    [ \"\$pm2_status\" -eq 0 ] || return \"\$pm2_status\"
+    if [ \"\${1:-}\" = 'start' ]; then
+      workspace_assert_managed_runtime_environment
+    fi
+  else
+    command pm2 \"\$@\"
+  fi
+}
+workspace_source_env_file() {
+  local env_file=\$1
+  if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+    . <(sudo -n -- /bin/cat \"\$env_file\")
+  else
+    . \"\$env_file\"
+  fi
+}
+workspace_privileged() {
+  if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+    sudo -n -- \"\$@\"
+  else
+    \"\$@\"
+  fi
+}
+load_runtime_environment() {
+  unset DATABASE_URL DIRECT_URL SHADOW_DATABASE_URL
+  set -a
+  workspace_source_env_file '$REMOTE_RUNTIME_ENV_FILE'
+  set +a
+  unset DIRECT_URL SHADOW_DATABASE_URL
+  test -n \"\${DATABASE_URL:-}\"
+}
+load_control_environment() {
+  local runtime_database_url
+  unset DATABASE_URL DIRECT_URL SHADOW_DATABASE_URL WORKSPACE_BACKUP_DATABASE_URL WORKSPACE_MONITOR_DATABASE_URL
+  set -a
+  workspace_source_env_file '$REMOTE_RUNTIME_ENV_FILE'
+  runtime_database_url=\$DATABASE_URL
+  if [ '$REMOTE_CONTROL_ENV_FILE' != '$REMOTE_RUNTIME_ENV_FILE' ]; then
+    workspace_source_env_file '$REMOTE_CONTROL_ENV_FILE'
+  fi
+  DATABASE_URL=\$runtime_database_url
+  export DATABASE_URL
+  unset SHADOW_DATABASE_URL
+  set +a
+  test -n \"\${DATABASE_URL:-}\"
+  test -n \"\${DIRECT_URL:-}\"
+  if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+    test -n \"\${WORKSPACE_BACKUP_DATABASE_URL:-}\"
+  fi
+}
+$remote_command
+"
+}
+
+verify_remote_runtime_pm2() {
+  if [ "$WORKSPACE_RUNTIME_PM2_MODE" != "hardened" ]; then
+    echo "==> 使用 legacy PM2 兼容模式；长期进程凭据隔离未由 deploy runner 强制"
+    return 0
+  fi
+  echo "==> 校验 production runtime PM2 runner 与凭据隔离契约..."
+  ssh_cmd "
+    set -e
+    sudo -n -- test -f '$WORKSPACE_RUNTIME_PM2_RUNNER'
+    sudo -n -- test -x '$WORKSPACE_RUNTIME_PM2_RUNNER'
+    sudo -n -- test -r '$REMOTE_CONTROL_ENV_FILE'
+    sudo -n -- test -r '$REMOTE_RUNTIME_ENV_FILE'
+    sudo -n -- python3 - '$WORKSPACE_RUNTIME_PM2_RUNNER' '$REMOTE_CONTROL_ENV_FILE' '$REMOTE_RUNTIME_ENV_FILE' <<'PY'
+from pathlib import Path
+import stat
+import sys
+
+runner, control, runtime = map(Path, sys.argv[1:])
+for path, label in ((runner, 'runtime PM2 runner'), (control, 'control-plane env'), (runtime, 'runtime env')):
+    if not path.is_file():
+        raise SystemExit(f'{label} must be a regular file')
+    if path.stat().st_uid != 0:
+        raise SystemExit(f'{label} must be root-owned')
+    if path.stat().st_mode & (stat.S_IWGRP | stat.S_IWOTH):
+        raise SystemExit(f'{label} must not be group/world-writable')
+if stat.S_IMODE(control.stat().st_mode) & 0o077:
+    raise SystemExit('control-plane env must not be accessible by group or other users')
+runtime_mode = stat.S_IMODE(runtime.stat().st_mode)
+if not runtime_mode & stat.S_IRUSR or not runtime_mode & stat.S_IRGRP:
+    raise SystemExit('runtime env must be readable only by root and its dedicated runtime group')
+if runtime_mode & 0o027:
+    raise SystemExit('runtime env must not be group-writable/executable or accessible by other users')
+if control.resolve() == runtime.resolve():
+    raise SystemExit('runtime and control-plane env must resolve to different files')
+runtime_keys = {
+    line.split('=', 1)[0].strip()
+    for line in runtime.read_text(encoding='utf-8').splitlines()
+    if line.strip() and not line.lstrip().startswith('#') and '=' in line
+}
+if 'DATABASE_URL' not in runtime_keys:
+    raise SystemExit('runtime env is missing DATABASE_URL')
+for forbidden in (
+    'DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL', 'WORKSPACE_MONITOR_DATABASE_URL',
+    'PGPASSWORD', 'PGPASSFILE', 'PGSERVICE', 'PGSERVICEFILE', 'PGOPTIONS', 'PGUSER', 'PGHOST', 'PGDATABASE',
+):
+    if forbidden in runtime_keys:
+        raise SystemExit(f'runtime env contains forbidden {forbidden}')
+control_keys = {
+    line.split('=', 1)[0].strip()
+    for line in control.read_text(encoding='utf-8').splitlines()
+    if line.strip() and not line.lstrip().startswith('#') and '=' in line
+}
+for required in ('DIRECT_URL', 'WORKSPACE_BACKUP_DATABASE_URL'):
+    if required not in control_keys:
+        raise SystemExit(f'control-plane env is missing {required}')
+PY
+    load_control_environment
+    workspace_assert_hardened_database_url \"\$DATABASE_URL\" workspace_runtime 0 DATABASE_URL
+    workspace_assert_hardened_database_url \"\$DIRECT_URL\" workspace_migrator 1 DIRECT_URL
+    workspace_assert_hardened_database_url \"\$WORKSPACE_BACKUP_DATABASE_URL\" workspace_backup 0 WORKSPACE_BACKUP_DATABASE_URL
+    if [ \"\${WORKSPACE_MONITOR_DATABASE_URL+x}\" = 'x' ]; then
+      workspace_assert_hardened_database_url \"\$WORKSPACE_MONITOR_DATABASE_URL\" workspace_monitor 0 WORKSPACE_MONITOR_DATABASE_URL
+    fi
+    sudo -n -- '$WORKSPACE_RUNTIME_PM2_RUNNER' --version >/dev/null
+    workspace_assert_managed_runtime_environment
+  "
 }
 
 start_ssh_master() {
@@ -240,6 +597,7 @@ sync_remote_deploy_tools() {
     ops/release-receipt.mjs ops/control-plane-receipt.mjs ops/tenant-config-manifest.mjs \
     ops/control-plane-requirements.mjs ops/deploy-unit-release.mjs \
     ops/gateway-generation.mjs ops/switch-deploy-gateway.sh \
+    ops/deploy-unit-sidecar.sh ops/assistant-runtime.mjs \
     "$SERVER:$REMOTE_DEPLOY_TOOL_DIR/"
   rsync -az -e "$RSYNC_SSH_COMMAND" "$FULL_DEPLOY_GRAPH_TMP" "$SERVER:$REMOTE_FULL_DEPLOY_GRAPH"
   rm -f "$FULL_DEPLOY_GRAPH_TMP"
@@ -247,7 +605,8 @@ sync_remote_deploy_tools() {
   ssh_cmd "
     chmod 755 '$REMOTE_RELEASE_RECEIPT_TOOL' '$REMOTE_CONTROL_PLANE_RECEIPT_TOOL' '$REMOTE_DEPLOY_TOOL_DIR/tenant-config-manifest.mjs' \
       '$REMOTE_DEPLOY_TOOL_DIR/control-plane-requirements.mjs' '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-release.mjs' \
-      '$REMOTE_GATEWAY_GENERATION_TOOL' '$REMOTE_GATEWAY_SWITCH_TOOL'
+      '$REMOTE_GATEWAY_GENERATION_TOOL' '$REMOTE_GATEWAY_SWITCH_TOOL' \
+      '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-sidecar.sh' '$REMOTE_DEPLOY_TOOL_DIR/assistant-runtime.mjs'
     chmod 600 '$REMOTE_FULL_DEPLOY_GRAPH'
     node --check '$REMOTE_RELEASE_RECEIPT_TOOL'
     node --check '$REMOTE_CONTROL_PLANE_RECEIPT_TOOL'
@@ -255,7 +614,9 @@ sync_remote_deploy_tools() {
     node --check '$REMOTE_DEPLOY_TOOL_DIR/control-plane-requirements.mjs'
     node --check '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-release.mjs'
     node --check '$REMOTE_GATEWAY_GENERATION_TOOL'
+    node --check '$REMOTE_DEPLOY_TOOL_DIR/assistant-runtime.mjs'
     bash -n '$REMOTE_GATEWAY_SWITCH_TOOL'
+    bash -n '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-sidecar.sh'
     node '$REMOTE_GATEWAY_GENERATION_TOOL' graph-digest --graph '$REMOTE_FULL_DEPLOY_GRAPH' >/dev/null
   "
 
@@ -707,9 +1068,7 @@ if (!payload || payload.version !== process.env.EXPECTED_VERSION) {
 }
 NODE
     fi
-    set -a
-    . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    set +a
+    load_control_environment
     test -n \"\${DIRECT_URL:-}\"
     migration_rows=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -At -F '|' -c 'SELECT migration_name, checksum, CASE WHEN finished_at IS NULL THEN '\''0'\'' ELSE '\''1'\'' END, CASE WHEN rolled_back_at IS NULL THEN '\''0'\'' ELSE '\''1'\'' END, applied_steps_count::text FROM "_prisma_migrations" ORDER BY migration_name, id')
     MIGRATION_ROWS=\"\$migration_rows\" EXPECTED_COUNT='$RELEASE_BOOTSTRAP_MIGRATION_COUNT' EXPECTED_DIGEST='$RELEASE_BOOTSTRAP_MIGRATION_DIGEST' VALIDATION_MODE=\"\$database_progress\" python3 - <<'PY'
@@ -1188,14 +1547,19 @@ prepare_remote_runtime() {
     mkdir -p '$REMOTE_DIR'
     mkdir -p '$REMOTE_DIR/releases'
     mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR'
-    if [ ! -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env' ]; then
-      if [ -f '$REMOTE_DIR/.env' ]; then
-        cp '$REMOTE_DIR/.env' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-      elif [ -n '$ENV_CONTENT_B64' ]; then
-        printf '%s' '$ENV_CONTENT_B64' | base64 -d > '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-      else
-        echo '[错误] 服务器缺少运行态 .env，且未提供 ENV_CONTENT'
-        exit 1
+    if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+      sudo -n -- test -r '$REMOTE_CONTROL_ENV_FILE'
+      sudo -n -- test -r '$REMOTE_RUNTIME_ENV_FILE'
+    else
+      if [ ! -f '$REMOTE_CONTROL_ENV_FILE' ]; then
+        if [ -f '$REMOTE_DIR/.env' ]; then
+          cp '$REMOTE_DIR/.env' '$REMOTE_CONTROL_ENV_FILE'
+        elif [ -n '$ENV_CONTENT_B64' ]; then
+          printf '%s' '$ENV_CONTENT_B64' | base64 -d > '$REMOTE_CONTROL_ENV_FILE'
+        else
+          echo '[错误] 服务器缺少运行态 .env，且未提供 ENV_CONTENT'
+          exit 1
+        fi
       fi
     fi
     mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR/data'
@@ -1204,11 +1568,12 @@ prepare_remote_runtime() {
       rsync -a '$REMOTE_DIR/data/' '$REMOTE_WORKSPACE_CONFIG_DIR/data/'
     fi
 
+    if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'legacy' ]; then
     python3 - <<'PY'
 from pathlib import Path
 import re
 
-env_path = Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env')
+env_path = Path('$REMOTE_CONTROL_ENV_FILE')
 text = env_path.read_text()
 replacements = {
     'WORKSPACE_CONFIG_DIR': '$REMOTE_WORKSPACE_CONFIG_DIR',
@@ -1257,6 +1622,7 @@ for key, value in replacements.items():
         text = text.rstrip() + '\\n' + line + '\\n'
 env_path.write_text(text)
 PY
+    fi
   "
 }
 
@@ -1367,9 +1733,7 @@ ensure_remote_onlyoffice_runtime() {
   ssh_cmd "
     set -e
     chmod +x '$remote_tool_dir/install-onlyoffice-runtime.sh'
-    set -a
-    . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    set +a
+    load_runtime_environment
     calculate_runtime_digest() {
       {
         sha256sum \
@@ -1390,9 +1754,7 @@ ensure_remote_onlyoffice_runtime() {
     else
       WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$remote_tool_dir/install-onlyoffice-runtime.sh'
       WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$remote_tool_dir/install-onlyoffice-runtime.sh' --check
-      set -a
-      . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-      set +a
+      load_runtime_environment
       runtime_digest=\$(calculate_runtime_digest)
       printf '%s\\n' \"\$runtime_digest\" > \"\$runtime_marker.tmp\"
       chmod 600 \"\$runtime_marker.tmp\"
@@ -1405,22 +1767,24 @@ validate_remote_runtime() {
   echo "==> 校验服务器运行态配置..."
   ssh_cmd "
     set -e
-    test -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+      sudo -n -- test -r '$REMOTE_CONTROL_ENV_FILE'
+      sudo -n -- test -r '$REMOTE_RUNTIME_ENV_FILE'
+    else
+      test -r '$REMOTE_CONTROL_ENV_FILE'
+    fi
     test -f '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/product_stage_tests.json'
     test -d '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/full'
     test -d '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/records'
-    grep -q '^WORKSPACE_CONFIG_DIR=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    grep -q '^DATABASE_URL=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    grep -q '^DIRECT_URL=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    grep -q '^LIBRARY_SOURCE_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    grep -q '^LIBRARY_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    load_control_environment
+    test -n \"\${WORKSPACE_CONFIG_DIR:-}\"
+    test -n \"\${DATABASE_URL:-}\"
+    test -n \"\${DIRECT_URL:-}\"
+    test -n \"\${LIBRARY_SOURCE_ROOT:-}\"
+    test -n \"\${LIBRARY_ROOT:-}\"
     if [ '$INSTALL_ONLYOFFICE_RUNTIME' = '1' ]; then
-      grep -q '^ONLYOFFICE_JWT_SECRET=.' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-      grep -Eq '^WORKSPACE_PUBLIC_ORIGIN=https?://[^[:space:]]+' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    fi
-    if grep -Eq '^(AGENT_MODEL_PROVIDER|KIMI_API_KEY|KIMI_BASE_URL|KIMI_MODEL|KIMI_MAX_TOKENS|DEEPSEEK_API_KEY|DEEPSEEK_BASE_URL|DEEPSEEK_MODEL|AGENT_SOURCE_WORKTREE|AGENT_SOURCE_CACHE_DIR|AGENT_SOURCE_REPO_URL|AGENT_SOURCE_BRANCH|CNB_PR_TOKEN|CNB_PR_REPO|CNB_PR_BRANCH_PREFIX|CNB_PR_GIT_AUTHOR_NAME|CNB_PR_GIT_AUTHOR_EMAIL)=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'; then
-      echo '[错误] 服务器仍包含已废弃或越界的 Agent provider/source/PR 配置'
-      exit 1
+      test -n \"\${ONLYOFFICE_JWT_SECRET:-}\"
+      printf '%s' \"\${WORKSPACE_PUBLIC_ORIGIN:-}\" | grep -Eq '^https?://[^[:space:]]+'
     fi
     WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$REMOTE_WORKSPACE_CONFIG_DIR/runtime/kimi-agent-bootstrap/install-kimi-agent-runtime.sh' --check
     if [ '$INSTALL_ONLYOFFICE_RUNTIME' = '1' ]; then
@@ -1431,12 +1795,16 @@ from pathlib import Path
 import os
 import sys
 
-env = {}
-for line in Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env').read_text().splitlines():
-    if not line or line.lstrip().startswith('#') or '=' not in line:
-        continue
-    key, value = line.split('=', 1)
-    env[key] = value.strip().strip('\"').strip(\"'\")
+env = dict(os.environ)
+obsolete_agent_keys = {
+    'AGENT_MODEL_PROVIDER', 'KIMI_API_KEY', 'KIMI_BASE_URL', 'KIMI_MODEL', 'KIMI_MAX_TOKENS',
+    'DEEPSEEK_API_KEY', 'DEEPSEEK_BASE_URL', 'DEEPSEEK_MODEL', 'AGENT_SOURCE_WORKTREE',
+    'AGENT_SOURCE_CACHE_DIR', 'AGENT_SOURCE_REPO_URL', 'AGENT_SOURCE_BRANCH', 'CNB_PR_TOKEN',
+    'CNB_PR_REPO', 'CNB_PR_BRANCH_PREFIX', 'CNB_PR_GIT_AUTHOR_NAME', 'CNB_PR_GIT_AUTHOR_EMAIL',
+}
+present_obsolete = sorted(key for key in obsolete_agent_keys if key in env)
+if present_obsolete:
+    sys.exit('server environment still contains retired Agent provider/source/PR configuration')
 
 workspace = env.get('WORKSPACE_CONFIG_DIR', '')
 database = env.get('DATABASE_URL', '')
@@ -1465,7 +1833,9 @@ direct_endpoint = (direct_url.hostname, direct_url.port or 5432, direct_url.path
 if database_endpoint != direct_endpoint:
     sys.exit('DATABASE_URL and DIRECT_URL must select the same PostgreSQL host, port, and database')
 if cutover_source:
-    active_env_path = Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env').resolve()
+    if '$WORKSPACE_RUNTIME_PM2_MODE' == 'hardened':
+        sys.exit('SQLite cutover is incompatible with hardened runtime/control-plane credential isolation')
+    active_env_path = Path('$REMOTE_CONTROL_ENV_FILE').resolve()
     rollback_env_path = Path(rollback_env_value)
     if not rollback_env_path.is_absolute():
         sys.exit('SQLITE_CUTOVER_ROLLBACK_ENV must be absolute')
@@ -1501,9 +1871,6 @@ if library_source_root != expected_library_source:
     sys.exit(f'LIBRARY_SOURCE_ROOT must equal WORKSPACE_CONFIG_DIR/library/originals: {library_source_root}')
 print('Remote runtime env check passed.')
 PY
-    set -a
-    . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    set +a
     if [ -n \"\${SQLITE_CUTOVER_SOURCE:-}\" ]; then
       case \"\${SQLITE_CUTOVER_ROLLBACK_ENV:-}\" in /*) ;; *) echo '[错误] SQLITE_CUTOVER_ROLLBACK_ENV 必须是绝对路径'; exit 1 ;; esac
       test -r \"\$SQLITE_CUTOVER_ROLLBACK_ENV\"
@@ -1529,12 +1896,11 @@ backup_remote_postgresql() {
     set -e
     umask 077
     mkdir -p '$REMOTE_BACKUP_DIR'
-    set -a
-    . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    set +a
+    load_control_environment
     stamp=\$(date +%Y%m%d%H%M%S)
     backup='$REMOTE_BACKUP_DIR/workspace-postgresql-'\$stamp'.dump'
-    pg_dump --format=custom --no-owner --no-privileges --file=\"\$backup\" \"\$DIRECT_URL\"
+    backup_database_url=\"\${WORKSPACE_BACKUP_DATABASE_URL:-\$DIRECT_URL}\"
+    pg_dump --format=custom --no-owner --no-privileges --file=\"\$backup\" \"\$backup_database_url\"
     pg_restore --list \"\$backup\" >/dev/null
     if command -v sha256sum >/dev/null 2>&1; then
       sha256sum \"\$backup\" > \"\$backup.sha256\"
@@ -1552,23 +1918,23 @@ backup_remote_runtime() {
   ssh_cmd "
     set -e
     command -v rsync >/dev/null
-    mkdir -p '$REMOTE_RUNTIME_SNAPSHOT_DIR'
+    workspace_privileged mkdir -p '$REMOTE_RUNTIME_SNAPSHOT_DIR'
     if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR' ]; then
       stamp=\$(date +%Y%m%d%H%M%S)
       snapshot='$REMOTE_RUNTIME_SNAPSHOT_DIR/'\$stamp
       snapshot_tmp='$REMOTE_RUNTIME_SNAPSHOT_DIR/.'\$stamp'.tmp'
-      previous=\$(find '$REMOTE_RUNTIME_SNAPSHOT_DIR' -mindepth 1 -maxdepth 1 -type d -name '20*' -printf '%f\\n' | sort | tail -n 1)
-      rm -rf \"\$snapshot_tmp\"
-      mkdir -p \"\$snapshot_tmp\"
-      trap 'rm -rf \"\$snapshot_tmp\"' EXIT
+      previous=\$(workspace_privileged find '$REMOTE_RUNTIME_SNAPSHOT_DIR' -mindepth 1 -maxdepth 1 -type d -name '20*' -printf '%f\\n' | sort | tail -n 1)
+      workspace_privileged rm -rf \"\$snapshot_tmp\"
+      workspace_privileged mkdir -p \"\$snapshot_tmp\"
+      trap 'workspace_privileged rm -rf \"\$snapshot_tmp\"' EXIT
       if [ -n \"\$previous\" ]; then
-        rsync -a --delete --link-dest=\"$REMOTE_RUNTIME_SNAPSHOT_DIR/\$previous\" '$REMOTE_WORKSPACE_CONFIG_DIR/' \"\$snapshot_tmp/\"
+        workspace_privileged rsync -a --delete --link-dest=\"$REMOTE_RUNTIME_SNAPSHOT_DIR/\$previous\" '$REMOTE_WORKSPACE_CONFIG_DIR/' \"\$snapshot_tmp/\"
       else
-        rsync -a --delete '$REMOTE_WORKSPACE_CONFIG_DIR/' \"\$snapshot_tmp/\"
+        workspace_privileged rsync -a --delete '$REMOTE_WORKSPACE_CONFIG_DIR/' \"\$snapshot_tmp/\"
       fi
-      mv \"\$snapshot_tmp\" \"\$snapshot\"
+      workspace_privileged mv \"\$snapshot_tmp\" \"\$snapshot\"
       trap - EXIT
-      du -sh \"\$snapshot\"
+      workspace_privileged du -sh \"\$snapshot\"
     else
       echo '[警告] 运行态目录不存在，跳过备份: $REMOTE_WORKSPACE_CONFIG_DIR'
     fi
@@ -1579,11 +1945,11 @@ cleanup_remote_backups() {
   echo "==> 清理服务器备份（每类保留 ${BACKUP_RETENTION_DAYS} 天，最多 ${BACKUP_RETENTION_COUNT} 份）..."
   ssh_cmd "
     set -e
-    mkdir -p '$REMOTE_BACKUP_DIR'
+    workspace_privileged mkdir -p '$REMOTE_BACKUP_DIR'
     if [ ! -f '$REMOTE_WORKSPACE_CONFIG_DIR/maintenance-deploy' ]; then
-      rm -rf '$REMOTE_BACKUP_DIR/maintenance-pinned'
+      workspace_privileged rm -rf '$REMOTE_BACKUP_DIR/maintenance-pinned'
     fi
-    python3 - <<'PY'
+    workspace_privileged python3 - <<'PY'
 from pathlib import Path
 import shutil
 import time
@@ -1690,8 +2056,8 @@ NODE
     app_dir=\$(dirname \"\$release_dir/\$server_entry\")
     test -f \"\$release_dir/\$server_entry\"
 
-    ln -sfn '../../.workspace/.env' \"\$release_dir/.env\"
-    ln -sfn \"\$(realpath --relative-to=\"\$app_dir\" '$REMOTE_WORKSPACE_CONFIG_DIR/.env')\" \"\$app_dir/.env\"
+    ln -sfn \"\$(realpath --relative-to=\"\$release_dir\" '$REMOTE_RUNTIME_ENV_FILE')\" \"\$release_dir/.env\"
+    ln -sfn \"\$(realpath --relative-to=\"\$app_dir\" '$REMOTE_RUNTIME_ENV_FILE')\" \"\$app_dir/.env\"
     rm -rf \"\$release_dir/data\" \"\$app_dir/data\"
 
     if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' ]; then
@@ -1712,9 +2078,19 @@ NODE
       ln -sfn \"\$(realpath --relative-to=\"\$app_dir/public/assets/user\" '$REMOTE_WORKSPACE_CONFIG_DIR/assets/user/avatar')\" \"\$app_dir/public/assets/user/avatar\"
     fi
 
-    grep -q '^WORKSPACE_CONFIG_DIR=' \"\$release_dir/.env\"
-    grep -q '^DATABASE_URL=' \"\$release_dir/.env\"
-    grep -q '^DIRECT_URL=' \"\$release_dir/.env\"
+    test \"\$(readlink -f \"\$release_dir/.env\")\" = \"\$(readlink -f '$REMOTE_RUNTIME_ENV_FILE')\"
+    if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+      sudo -n -- grep -q '^WORKSPACE_CONFIG_DIR=' \"\$release_dir/.env\"
+      sudo -n -- grep -q '^DATABASE_URL=' \"\$release_dir/.env\"
+      if sudo -n -- grep -Eq '^[[:space:]]*(DIRECT_URL|SHADOW_DATABASE_URL)=' \"\$release_dir/.env\"; then
+        echo '[错误] release runtime .env 包含 control-plane 数据库凭据'
+        exit 1
+      fi
+    else
+      grep -q '^WORKSPACE_CONFIG_DIR=' \"\$release_dir/.env\"
+      grep -q '^DATABASE_URL=' \"\$release_dir/.env\"
+      grep -q '^DIRECT_URL=' \"\$release_dir/.env\"
+    fi
     test -f \"\$release_dir/prisma/schema.prisma\"
     test -f \"\$release_dir/prisma/migrations/migration_lock.toml\"
     test -f \"\$release_dir/scripts/check/check-prisma-deploy-status.js\"
@@ -1731,9 +2107,11 @@ NODE
     test -f \"\$release_dir/.release-manifest.json\"
 
     cd \"\$release_dir\"
-    set -a
-    . \"\$release_dir/.env\"
-    set +a
+    # shellcheck source=/dev/null
+    source '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-sidecar.sh'
+    # Release/app .env is runtime-only. Migration, seed, and provisioning
+    # deliberately load the trusted control-plane environment.
+    load_control_environment
     export NODE_ENV=production
     cutover_source=\"\${SQLITE_CUTOVER_SOURCE:-}\"
     cutover_rollback_env=\"\${SQLITE_CUTOVER_ROLLBACK_ENV:-}\"
@@ -1743,6 +2121,36 @@ NODE
     current_swap_tmp=''
     public_process_stopped=0
     release_committed=0
+    full_wecom_assistant_owner=0
+    full_wecom_assistant_stopped=0
+    full_wecom_monolith_started=0
+    full_wecom_handoff_started=0
+    full_wecom_handoff_committed=0
+    full_wecom_gateway_switched=0
+    full_wecom_previous_gateway_target=''
+    full_wecom_assistant_release=''
+    full_wecom_assistant_manifest=''
+    full_wecom_assistant_slot=''
+    full_wecom_assistant_process=''
+    if workspace_capture_gateway_assistant_owner '$REMOTE_GATEWAY_ROOT'; then
+      full_wecom_assistant_owner=1
+      full_wecom_previous_gateway_target=\"\$WORKSPACE_GATEWAY_ASSISTANT_GATEWAY_TARGET\"
+      full_wecom_assistant_release=\"\$WORKSPACE_GATEWAY_ASSISTANT_RELEASE\"
+      full_wecom_assistant_manifest=\"\$WORKSPACE_GATEWAY_ASSISTANT_MANIFEST\"
+      full_wecom_assistant_slot=\"\$WORKSPACE_GATEWAY_ASSISTANT_SLOT\"
+      full_wecom_assistant_process=\"\$WORKSPACE_GATEWAY_ASSISTANT_PROCESS\"
+      if [ \"\$(workspace_sidecar_process_state \"\$full_wecom_assistant_process\")\" != 'online' ]; then
+        echo '[错误] Gateway 声明 Assistant Bot owner，但对应 sidecar 未在线' >&2
+        exit 1
+      fi
+      workspace_suspend_monolith_wecom_sidecar '$PM2_WECOM_BOT_NAME'
+    else
+      assistant_owner_status=\$?
+      if [ \"\$assistant_owner_status\" -ne 1 ]; then
+        echo '[错误] 无法确认企业微信 Bot 的 Gateway owner' >&2
+        exit 1
+      fi
+    fi
     remote_timing_enabled='$REMOTE_RELEASE_TIMING_ENABLED'
     remote_timing_stage=''
     remote_timing_state_file=''
@@ -1843,6 +2251,88 @@ except Exception:
     print('__unavailable__')
 PY
     }
+    wecom_bridge_secret_is_valid() {
+      node -e 'process.exit((process.env.WECOM_WORKER_BRIDGE_SECRET || \"\").trim().length >= 32 ? 0 : 1)'
+    }
+    wecom_release_requires_bridge_secret() {
+      local target_release=\$1
+      grep -q 'WECOM_WORKER_BRIDGE_SECRET' \
+        \"\$target_release/scripts/runtime/wecom-agent-bot.mjs\" 2>/dev/null
+    }
+    start_wecom_bot_for_release() {
+      local target_release=\$1
+      local start_context=\$2
+      local bot_entry=\"\$target_release/scripts/runtime/wecom-agent-bot.mjs\"
+      if workspace_capture_gateway_assistant_owner '$REMOTE_GATEWAY_ROOT'; then
+        echo \"==> \$start_context 保持 Assistant unit 企业微信 Bot owner，不启动 monolith Bot\"
+        return 0
+      else
+        local assistant_owner_status=\$?
+        if [ \"\$assistant_owner_status\" -ne 1 ]; then
+          echo \"[错误] \$start_context 无法确认企业微信 Bot owner\" >&2
+          return 1
+        fi
+      fi
+      if [ ! -f \"\$bot_entry\" ]; then
+        echo \"==> \$start_context 不包含企业微信智能机器人，跳过恢复\"
+        return 0
+      fi
+      if [ -z \"\${WECHAT_BOT_ID:-}\" ] && [ -z \"\${WECHAT_BOT_SECRET:-}\" ]; then
+        if [ \"\${wecom_bot_was_running:-0}\" = '1' ]; then
+          echo \"[错误] \$start_context 缺少原企业微信 Bot 凭据，无法恢复既有 Bot\" >&2
+          return 1
+        fi
+        echo \"==> \$start_context 未配置企业微信智能机器人\"
+        return 0
+      fi
+      if [ -z \"\${WECHAT_BOT_ID:-}\" ] || [ -z \"\${WECHAT_BOT_SECRET:-}\" ]; then
+        echo \"[错误] \$start_context 的 WECHAT_BOT_ID/WECHAT_BOT_SECRET 必须同时配置\" >&2
+        return 1
+      fi
+      if wecom_release_requires_bridge_secret \"\$target_release\" \
+        && ! wecom_bridge_secret_is_valid; then
+        echo \"[错误] \$start_context 要求至少 32 字符的独立 WECOM_WORKER_BRIDGE_SECRET\" >&2
+        return 1
+      fi
+      pm2 start \"\$bot_entry\" --name '$PM2_WECOM_BOT_NAME' --cwd \"\$target_release\" --update-env
+      workspace_sidecar_wait_online '$PM2_WECOM_BOT_NAME'
+    }
+    assert_new_wecom_release_ready() {
+      local current_wecom_pid
+      wecom_bot_was_running=0
+      current_wecom_pid=\$(pm2_pid_or_unavailable '$PM2_WECOM_BOT_NAME')
+      case \"\$current_wecom_pid\" in
+        0) ;;
+        ''|*[!0-9]*)
+          echo '[错误] 无法确认现有企业微信 Bot 状态，拒绝继续发布' >&2
+          return 1
+          ;;
+        *) wecom_bot_was_running=1 ;;
+      esac
+      if [ \"\$full_wecom_assistant_owner\" = '1' ]; then
+        wecom_bot_was_running=1
+      fi
+      if [ -z \"\${WECHAT_BOT_ID:-}\" ] && [ -z \"\${WECHAT_BOT_SECRET:-}\" ]; then
+        if [ \"\$wecom_bot_was_running\" = '1' ]; then
+          echo '[错误] 现有企业微信 Bot 正在运行，但新 release 缺少 Bot 凭据' >&2
+          return 1
+        fi
+        return 0
+      fi
+      if [ -z \"\${WECHAT_BOT_ID:-}\" ] || [ -z \"\${WECHAT_BOT_SECRET:-}\" ]; then
+        echo '[错误] WECHAT_BOT_ID/WECHAT_BOT_SECRET 必须同时配置' >&2
+        return 1
+      fi
+      test -f \"\$release_dir/scripts/runtime/wecom-agent-bot.mjs\" || {
+        echo '[错误] 新 release 缺少企业微信 Bot runtime' >&2
+        return 1
+      }
+      if wecom_release_requires_bridge_secret \"\$release_dir\" \
+        && ! wecom_bridge_secret_is_valid; then
+        echo '[错误] 企业微信通知升级要求至少 32 字符的独立 WECOM_WORKER_BRIDGE_SECRET；发布在切换 writer 前终止' >&2
+        return 1
+      fi
+    }
     assert_release_version() {
       version_url=\$1
       version_label=\$2
@@ -1941,6 +2431,46 @@ PY
       mv -Tf "\$current_swap_tmp" '$REMOTE_DIR/current'
       current_swap_tmp=''
     }
+    bind_runtime_env_to_release() {
+      local target_release=\$1
+      local target_app=\$2
+      ln -sfn \"\$(realpath --relative-to=\"\$target_release\" '$REMOTE_RUNTIME_ENV_FILE')\" \"\$target_release/.env\"
+      ln -sfn \"\$(realpath --relative-to=\"\$target_app\" '$REMOTE_RUNTIME_ENV_FILE')\" \"\$target_app/.env\"
+      test \"\$(readlink -f \"\$target_release/.env\")\" = \"\$(readlink -f '$REMOTE_RUNTIME_ENV_FILE')\"
+    }
+    begin_full_wecom_handoff() {
+      [ \"\$full_wecom_assistant_owner\" = '1' ] || return 0
+      [ \"\$full_wecom_assistant_stopped\" = '0' ] || return 0
+      full_wecom_handoff_started=1
+      full_wecom_assistant_stopped=1
+      workspace_stop_deploy_unit_sidecar assistant \
+        \"\$full_wecom_assistant_release\" \"\$full_wecom_assistant_slot\"
+    }
+    restore_full_wecom_handoff() {
+      [ \"\$full_wecom_assistant_owner\" = '1' ] || return 0
+      [ \"\$full_wecom_handoff_started\" = '1' ] || return 0
+      [ \"\$full_wecom_handoff_committed\" = '0' ] || return 0
+      local gateway_restored=1
+      pm2 delete '$PM2_WECOM_BOT_NAME' >/dev/null 2>&1 || true
+      workspace_sidecar_wait_absent '$PM2_WECOM_BOT_NAME' || true
+      if [ \"\$full_wecom_gateway_switched\" = '1' ]; then
+        if ! WORKSPACE_GATEWAY_ROOT='$REMOTE_GATEWAY_ROOT' \
+          WORKSPACE_GATEWAY_NGINX_SITE='$WORKSPACE_GATEWAY_NGINX_SITE' \
+          '$REMOTE_GATEWAY_SWITCH_TOOL' --generation \"\$full_wecom_previous_gateway_target\"; then
+          gateway_restored=0
+        fi
+      fi
+      if [ \"\$gateway_restored\" = '1' ]; then
+        workspace_start_deploy_unit_sidecar \
+          assistant '$REMOTE_WORKSPACE_CONFIG_DIR' \"\$full_wecom_assistant_manifest\" \
+          \"\$full_wecom_assistant_release\" \"\$full_wecom_assistant_slot\" \
+          '$REMOTE_DEPLOY_TOOL_DIR/assistant-runtime.mjs'
+      else
+        echo '[错误] Full Bot handoff 无法恢复原 Gateway；Assistant sidecar 保持停止' >&2
+        return 1
+      fi
+      pm2 save
+    }
     reset_gateway_overrides_to_full() {
       gateway_generated_at=\$(date -u +'%Y-%m-%dT%H:%M:%S.000Z')
       gateway_generation_id=\$(node '$REMOTE_GATEWAY_GENERATION_TOOL' create-fallback \
@@ -2003,6 +2533,11 @@ NODE
       if [ \"\$exit_code\" -ne 0 ] && [ \"\$release_committed\" = '1' ]; then
         exit "\$exit_code"
       fi
+      if [ \"\$exit_code\" -ne 0 ] && [ \"\$release_committed\" = '0' ] \
+        && [ \"\$full_wecom_handoff_started\" = '1' ] \
+        && ! restore_full_wecom_handoff; then
+        echo '[错误] Full 企业微信 Bot ownership 自动恢复失败；保持单 owner/fail-closed' >&2
+      fi
       candidate_cleanup_failed=0
       if [ \"\$exit_code\" -ne 0 ]; then
         pm2 delete "\$cutover_candidate_name" 2>/dev/null || true
@@ -2045,14 +2580,15 @@ NODE
         fi
         if [ \"\$cutover_public_switched\" = '0' ]; then
           echo '[回滚] PostgreSQL writer 已停止且 WAL 未变化，恢复旧 SQLite env 与旧 release。'
-          cp \"\$cutover_rollback_env\" '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp'
-          chmod 600 '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp'
-          mv '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+          cp \"\$cutover_rollback_env\" '$REMOTE_CONTROL_ENV_FILE.rollback.tmp'
+          chmod 600 '$REMOTE_CONTROL_ENV_FILE.rollback.tmp'
+          mv '$REMOTE_CONTROL_ENV_FILE.rollback.tmp' '$REMOTE_CONTROL_ENV_FILE'
           set -a
-          . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+          . '$REMOTE_CONTROL_ENV_FILE'
           set +a
           old_server_entry=\$(cat \"\$old_release/.server-entry\" 2>/dev/null || printf 'server.js')
           old_app_dir=\$(dirname \"\$old_release/\$old_server_entry\")
+          bind_runtime_env_to_release \"\$old_release\" \"\$old_app_dir\"
           pm2 start \"\$old_release/\$old_server_entry\" --name '$PM2_NAME' --cwd \"\$old_app_dir\" --update-env
           rollback_ready=0
           for i in \$(seq 1 20); do
@@ -2066,9 +2602,8 @@ NODE
             echo '[错误] 旧 SQLite release 已尝试恢复，但 3000 端口健康检查失败。'
             pm2 logs '$PM2_NAME' --lines 80 --nostream || true
           fi
-          if [ -n \"\${WECHAT_BOT_ID:-}\" ] && [ -n \"\${WECHAT_BOT_SECRET:-}\" ] && [ -f \"\$old_release/scripts/runtime/wecom-agent-bot.mjs\" ]; then
-            pm2 start \"\$old_release/scripts/runtime/wecom-agent-bot.mjs\" --name '$PM2_WECOM_BOT_NAME' --cwd \"\$old_release\" --update-env
-          fi
+          start_wecom_bot_for_release \"\$old_release\" '旧 SQLite release 回滚' \
+            || echo '[错误] 旧 SQLite release 已恢复，但企业微信 Bot 恢复失败' >&2
           pm2 save
         fi
       elif [ \"\$exit_code\" -ne 0 ] && [ -z \"\$cutover_source\" ] && [ \"\$public_process_stopped\" = '1' ] && [ \"\$release_committed\" = '0' ]; then
@@ -2092,6 +2627,7 @@ NODE
           echo '[回滚] 新 release 未完成健康/版本/证据提交，恢复上一 PostgreSQL 应用版本。'
           old_server_entry=\$(cat \"\$old_release/.server-entry\" 2>/dev/null || printf 'server.js')
           old_app_dir=\$(dirname \"\$old_release/\$old_server_entry\")
+          bind_runtime_env_to_release \"\$old_release\" \"\$old_app_dir\"
           PORT=3000 HOSTNAME=0.0.0.0 pm2 start \"\$old_release/\$old_server_entry\" --name '$PM2_NAME' --cwd \"\$old_app_dir\" --update-env
           atomic_switch_current \"\$old_release\"
           rollback_ready=0
@@ -2106,9 +2642,8 @@ NODE
             echo '[错误] 上一 PostgreSQL 应用版本已重启，但健康检查失败。'
             pm2 logs '$PM2_NAME' --lines 80 --nostream || true
           fi
-          if [ -n \"\${WECHAT_BOT_ID:-}\" ] && [ -n \"\${WECHAT_BOT_SECRET:-}\" ] && [ -f \"\$old_release/scripts/runtime/wecom-agent-bot.mjs\" ]; then
-            pm2 start \"\$old_release/scripts/runtime/wecom-agent-bot.mjs\" --name '$PM2_WECOM_BOT_NAME' --cwd \"\$old_release\" --update-env
-          fi
+          start_wecom_bot_for_release \"\$old_release\" '上一 PostgreSQL release 回滚' \
+            || echo '[错误] 上一 PostgreSQL release 已恢复，但企业微信 Bot 恢复失败' >&2
           pm2 save
         else
           echo '[错误] 没有可用的上一 release，无法自动恢复公网应用。'
@@ -2116,6 +2651,9 @@ NODE
       fi
       exit \"\$exit_code\"
     }
+    if [ '$DEPLOY_EXECUTION_MODE' != 'control-plane-only' ]; then
+      assert_new_wecom_release_ready
+    fi
     trap rollback_cutover EXIT
     control_plane_policy='$CONTROL_PLANE_POLICY'
     if [ -n '$RELEASE_DATABASE_REPLACEMENT_DUMP_SHA' ]; then
@@ -2175,9 +2713,7 @@ NODE
           --migration-count '$RELEASE_DATABASE_REPLACEMENT_MIGRATION_COUNT' \
           --migrations-dir \"\$release_dir/prisma/migrations\" \
           --state-file \"\$database_replacement_state\"
-      set -a
-      . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-      set +a
+      load_control_environment
       echo '==> 整库替换已切换；后续 migration/seed/candidate 健康门禁继续复用标准流程'
     fi
     if [ \"\$maintenance_migration_started\" = '1' ]; then
@@ -2369,7 +2905,8 @@ NODE
         echo '==> 所有 writer 已停止并持久化；创建唯一的 migration 前 PostgreSQL 恢复点...'
         maintenance_backup_tmp=\"\$maintenance_backup.tmp.\$\$\"
         rm -f \"\$maintenance_backup_tmp\"
-        pg_dump --format=custom --no-owner --no-privileges --file=\"\$maintenance_backup_tmp\" \"\$DIRECT_URL\"
+        backup_database_url=\"\${WORKSPACE_BACKUP_DATABASE_URL:-\$DIRECT_URL}\"
+        pg_dump --format=custom --no-owner --no-privileges --file=\"\$maintenance_backup_tmp\" \"\$backup_database_url\"
         pg_restore --list \"\$maintenance_backup_tmp\" >/dev/null
         if command -v sha256sum >/dev/null 2>&1; then
           maintenance_backup_sha=\$(sha256sum \"\$maintenance_backup_tmp\" | awk '{print \$1}')
@@ -2459,7 +2996,7 @@ NODE
         --manifest \"\$cutover_manifest\" \\
         --execute
       psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -c \"INSERT INTO \\\"SystemConfig\\\" (\\\"key\\\", \\\"value\\\") VALUES ('database.cutover.marker', '\$SQLITE_CUTOVER_SHA256') ON CONFLICT (\\\"key\\\") DO UPDATE SET \\\"value\\\" = EXCLUDED.\\\"value\\\"\" >/dev/null
-      python3 - '$REMOTE_WORKSPACE_CONFIG_DIR/.env' \"\$cutover_manifest\" \"\$SQLITE_CUTOVER_SHA256\" <<'PY'
+      python3 - '$REMOTE_CONTROL_ENV_FILE' \"\$cutover_manifest\" \"\$SQLITE_CUTOVER_SHA256\" <<'PY'
 import json
 import os
 from pathlib import Path
@@ -2504,10 +3041,12 @@ PY
       echo '[错误] PostgreSQL 存在未验证约束，拒绝启动生产服务'
       exit 1
     fi
-    direct_fingerprint=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc \"SELECT COALESCE((SELECT value FROM \\\"SystemConfig\\\" WHERE key = 'database.cutover.marker'), 'none') || '|' || (SELECT checksum FROM \\\"_prisma_migrations\\\" WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL ORDER BY finished_at DESC LIMIT 1) || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"User\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"Resource\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"FinanceVoucherItem\\\")\")
-    runtime_fingerprint=\$(psql \"\$DATABASE_URL\" -v ON_ERROR_STOP=1 -Atc \"SELECT COALESCE((SELECT value FROM \\\"SystemConfig\\\" WHERE key = 'database.cutover.marker'), 'none') || '|' || (SELECT checksum FROM \\\"_prisma_migrations\\\" WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL ORDER BY finished_at DESC LIMIT 1) || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"User\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"Resource\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"FinanceVoucherItem\\\")\")
+    migration_checksum=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc 'SELECT checksum FROM \"_prisma_migrations\" WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL ORDER BY finished_at DESC LIMIT 1')
+    test -n \"\$migration_checksum\"
+    direct_fingerprint=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc \"SELECT COALESCE((SELECT value FROM \\\"SystemConfig\\\" WHERE key = 'database.cutover.marker'), 'none') || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"User\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"Resource\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"FinanceVoucherItem\\\")\")
+    runtime_fingerprint=\$(psql \"\$DATABASE_URL\" -v ON_ERROR_STOP=1 -Atc \"SELECT COALESCE((SELECT value FROM \\\"SystemConfig\\\" WHERE key = 'database.cutover.marker'), 'none') || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"User\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"Resource\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"FinanceVoucherItem\\\")\")
     if [ -z \"\$direct_fingerprint\" ] || [ \"\$direct_fingerprint\" != \"\$runtime_fingerprint\" ]; then
-      echo '[错误] DATABASE_URL 与 DIRECT_URL 的切换标记、migration checksum 或核心数据指纹不一致'
+      echo '[错误] DATABASE_URL 与 DIRECT_URL 的切换标记或核心数据指纹不一致'
       exit 1
     fi
     echo '==> 写入独立 control-plane lifecycle 回执...'
@@ -2542,6 +3081,7 @@ PY
       exit 0
     fi
     begin_remote_timing_stage candidate.warmup
+    export PROJECT_NOTIFICATION_SCHEDULER_DISABLED=1
     pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
     PORT=3101 HOSTNAME=127.0.0.1 pm2 start \"\$release_dir/\$server_entry\" --name \"\$cutover_candidate_name\" --cwd \"\$app_dir\" --update-env
     qc_cache_ready=0
@@ -2560,6 +3100,7 @@ PY
     assert_release_version 'http://127.0.0.1:3101/workspace/api/settings/version' 'candidate'
     verify_remote_deployed_record 'pre-cutover'
     pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
+    unset PROJECT_NOTIFICATION_SCHEDULER_DISABLED
     if [ \"\$(pm2_pid_or_unavailable \"\$cutover_candidate_name\")\" != '0' ]; then
       echo '[错误] PostgreSQL candidate writer 未能确认停止，拒绝启动公网进程'
       exit 1
@@ -2591,13 +3132,13 @@ PY
     assert_release_version 'http://127.0.0.1:3000/workspace/api/settings/version' 'public'
     cutover_public_switched=1
     atomic_switch_current \"\$release_dir\"
+    begin_full_wecom_handoff
     reset_gateway_overrides_to_full
+    if [ \"\$full_wecom_assistant_owner\" = '1' ]; then full_wecom_gateway_switched=1; fi
     pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
-    if [ -n "\${WECHAT_BOT_ID:-}" ] && [ -n "\${WECHAT_BOT_SECRET:-}" ]; then
-      pm2 start "\$release_dir/scripts/runtime/wecom-agent-bot.mjs" --name '$PM2_WECOM_BOT_NAME' --cwd "\$release_dir" --update-env
-    else
-      echo '==> 跳过企业微信智能机器人：WECHAT_BOT_ID/WECHAT_BOT_SECRET 未配置'
-    fi
+    workspace_sidecar_wait_absent '$PM2_WECOM_BOT_NAME'
+    if [ \"\$full_wecom_assistant_owner\" = '1' ]; then full_wecom_monolith_started=1; fi
+    start_wecom_bot_for_release "\$release_dir" '新 release'
     pm2 save
     node '$REMOTE_RELEASE_RECEIPT_TOOL' write \
       --file '$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json' \
@@ -2615,6 +3156,7 @@ PY
       --release-id '$release_id' \
       --release-dir '$REMOTE_DIR/releases/$release_id'
     release_committed=1
+    full_wecom_handoff_committed=1
     commit_database_replacement_state
     finish_remote_timing_stage passed 0
     rm -f '$REMOTE_WORKSPACE_CONFIG_DIR/maintenance-deploy'
@@ -2699,6 +3241,7 @@ run_deploy_stage artifact.verify build_artifact
 echo "==> 验证服务器连接..."
 run_deploy_stage transport.connect start_ssh_master
 run_deploy_stage transport.remote-smoke ssh_cmd "echo CONNECTED && whoami && mkdir -p '$REMOTE_DIR'"
+run_deploy_stage runtime.pm2-contract verify_remote_runtime_pm2
 run_deploy_stage deploy.lock acquire_remote_deploy_lock
 run_deploy_stage deploy.tools sync_remote_deploy_tools
 run_deploy_stage deploy.reconcile reconcile_completed_deploy_markers

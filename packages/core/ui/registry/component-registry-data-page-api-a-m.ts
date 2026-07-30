@@ -8,7 +8,7 @@ export const page_api_registry_entries = [
   },
   {
     name: "BodySurface",
-    description: "PageSurface 正文声明与渲染 Surface；公开类型由独立声明层提供",
+    description: "PageSurface 正文声明与渲染 Surface；根 section 有标题或动作时由 Core 统一派生外层 frame，公开类型由独立声明层提供",
     declares: [
       {
         name: "kind",

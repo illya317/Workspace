@@ -41,6 +41,8 @@ app/api/modules/library/basic-info/
   generated-sources/route.ts            # GET 已启用生成来源列表（Phase 6）
   generated-sources/[key]/generate/route.ts # POST 执行生成并入库（Phase 6）
 
+app/api/modules/library/internal/business-document-intelligence/route.ts # Capital 受签名调用的资料智能协议
+
 app/api/integrations/onlyoffice/
   library-documents/[id]/versions/[versionId]/route.ts # GET 短时 JWT 绑定的原始 Office 版本文件流（无浏览器会话）
 
@@ -52,6 +54,8 @@ packages/library/server/
   permissions.ts              # 保密等级过滤 + 权限校验（Phase 2）
   versions.ts                 # 版本管理（Phase 2）
   uploads.ts                  # 首版上传、原文件 Markdown 抽取、PDF-only 预览编排和 Review 确认
+  business-document-intelligence.ts # 被投企业资料上传、处理状态与精确范围语义检索
+  embeddings.ts              # 本地固定模型生成版本级向量索引并返回带 locator 的片段
   office-preview.ts           # Library 版本鉴权、源文件短时 claims 与共享 ONLYOFFICE 宿主适配
   version-storage.ts          # 隐藏托管版本区的不可变文件写入和旧版本固化
   deletion.ts                 # 永久删除的引用保护、运行态文件暂存/恢复与 DB 删除
@@ -77,6 +81,8 @@ packages/platform/server/onlyoffice-viewer.ts # Library 与公司文档共用的
 packages/platform/server/authoritative-library-source-contract.ts # 跨部署单元的权威资料源稳定协议
 packages/platform/server/authoritative-library-source-client.ts   # Library 侧签名 RPC 客户端
 packages/platform/server/authoritative-library-source-route.ts    # 业务 owner 侧签名 RPC 路由适配
+packages/platform/server/business-document-intelligence-contract.ts # Capital 与 Library 间稳定请求/响应协议
+packages/platform/server/business-document-intelligence-client.ts   # Capital 侧签名内部 RPC 客户端
 ```
 
 ## 一条龙处理契约（Pipeline v1）
@@ -86,6 +92,12 @@ packages/platform/server/authoritative-library-source-route.ts    # 业务 owner
 任务状态只允许 `queued -> running -> succeeded|warning|failed|cancelled`。可重试错误限于临时解析/OCR、Agent 不可用、索引和导出失败；源文件缺失、checksum 不符、格式不支持、taxonomy 或 locator 违规必须先修复输入/规则，禁止盲目重试。新 pipeline/tool/model 版本通过新 idempotency key 重建，旧派生物可保留但不得继续作为 active index。
 
 派生物、chunk、索引和导出都引用稳定 UID：`artifactUid`、`chunkUid`、`indexUid`、`exportUid`。原件不建成派生物，也不被压缩/OCR 结果覆盖。chunk 必须保存 `locatorJson`，至少包含页码、幻灯片、工作表/单元格、章节或时间戳之一。
+
+### 被投企业文档智能
+
+Capital Securities 只传递企业编码、稳定资料 UID 和当前用户上下文，不直接读写 Library 表。Library 在 `投资企业/<companyCode>` 逻辑目录创建不可变资料版本，先复用现有抽取/OCR pipeline 生成带 locator 的 `LibraryContentChunk`，再为当前版本建立 generation 化的 `LibrarySearchIndex(kind=vector)` 与 `LibraryContentEmbedding`。向量模型固定为 `Qwen/Qwen3-Embedding-0.6B`、1024 维并归一化；索引保存 `modelKey + dimensions + vector`，新 generation 激活时旧 generation 退役。
+
+语义检索在向量化前先按调用用户重新校验 `capitalSecurities.investments.read`，并且只接受已链接的精确 `LibraryDocument.documentUid` 集合；结果返回原文片段、文件名、chunk UID、相似度和 locator。没有本地模型、没有可用 chunk 或没有 active vector generation 时返回明确的 `unavailable`，不得悄悄扩大到全资料库，也不得生成无来源结论。OCR 和模型抽取均是候选证据，正式尽调结论、合同义务和整改状态仍需人工确认后写入 Capital 业务表。
 
 ### Agent / Kimi 边界
 

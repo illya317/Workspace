@@ -60,6 +60,7 @@ export interface FundFlowAnalysis {
     periodLabel: string;
     aggregation: "single" | "uneliminated";
     availableYears: number[];
+    availableMonths: number[];
   };
   metrics: {
     inflow: number;

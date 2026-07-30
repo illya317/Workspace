@@ -13,8 +13,8 @@ import {
 } from "./project-notification-publication-intent";
 import {
   parseClaimedProjectNotificationSnapshot,
-  type ClaimedProjectNotificationSignal,
-} from "./project-notification-signal-contract";
+} from "./project-notification-signal-runtime";
+import type { ClaimedProjectNotificationSignal } from "./project-notification-signal-contract";
 import { bestEffortDrainProjectNotificationSignals } from "./project-notification-signals";
 
 const exactConfigureGrantOptions = {

@@ -69,6 +69,14 @@ export const ModelName = {
   DepartmentResourceActionGrant: 'DepartmentResourceActionGrant',
   PermissionGrantLedgerEvent: 'PermissionGrantLedgerEvent',
   Notification: 'Notification',
+  InvestmentEnterpriseProfile: 'InvestmentEnterpriseProfile',
+  InvestmentEnterpriseMeeting: 'InvestmentEnterpriseMeeting',
+  InvestmentEnterpriseDiligenceItem: 'InvestmentEnterpriseDiligenceItem',
+  InvestmentEnterpriseContract: 'InvestmentEnterpriseContract',
+  InvestmentEnterpriseMonitoringRecord: 'InvestmentEnterpriseMonitoringRecord',
+  InvestmentEnterpriseDocumentLink: 'InvestmentEnterpriseDocumentLink',
+  InvestorShareholderProfile: 'InvestorShareholderProfile',
+  InvestorDueDiligenceRecord: 'InvestorDueDiligenceRecord',
   OwnershipInterest: 'OwnershipInterest',
   OwnershipProjectionRun: 'OwnershipProjectionRun',
   CompanyRegistryChange: 'CompanyRegistryChange',
@@ -259,6 +267,7 @@ export const ModelName = {
   LibraryArtifact: 'LibraryArtifact',
   LibraryContentChunk: 'LibraryContentChunk',
   LibrarySearchIndex: 'LibrarySearchIndex',
+  LibraryContentEmbedding: 'LibraryContentEmbedding',
   LibraryExportJob: 'LibraryExportJob',
   LibraryDocument: 'LibraryDocument',
   LibraryDocumentVersion: 'LibraryDocumentVersion',
@@ -273,6 +282,15 @@ export const ModelName = {
   LibraryDocumentTag: 'LibraryDocumentTag',
   MutationImpactBatch: 'MutationImpactBatch',
   MutationImpactEffect: 'MutationImpactEffect',
+  NewsReaction: 'NewsReaction',
+  NotificationDefinition: 'NotificationDefinition',
+  NotificationDefinitionRevision: 'NotificationDefinitionRevision',
+  NotificationDefinitionLifecycleEvent: 'NotificationDefinitionLifecycleEvent',
+  NotificationPublication: 'NotificationPublication',
+  NotificationDelivery: 'NotificationDelivery',
+  NotificationChannelEndpoint: 'NotificationChannelEndpoint',
+  NotificationDeliveryAttempt: 'NotificationDeliveryAttempt',
+  NotificationDeliveryWorkerRequest: 'NotificationDeliveryWorkerRequest',
   NotificationSubscription: 'NotificationSubscription',
   OpenApiClient: 'OpenApiClient',
   OpenApiResource: 'OpenApiResource',
@@ -315,6 +333,13 @@ export const ModelName = {
   WorkOkrControlRevision: 'WorkOkrControlRevision',
   WorkOkrControlPolicyRevision: 'WorkOkrControlPolicyRevision',
   WorkPlanGovernanceEvent: 'WorkPlanGovernanceEvent',
+  ProjectNotificationRule: 'ProjectNotificationRule',
+  ProjectNotificationRuleRevision: 'ProjectNotificationRuleRevision',
+  ProjectNotificationEvaluation: 'ProjectNotificationEvaluation',
+  ProjectNotificationRuleLifecycleEvent: 'ProjectNotificationRuleLifecycleEvent',
+  ProjectNotificationPublicationIntent: 'ProjectNotificationPublicationIntent',
+  ProjectNotificationSignal: 'ProjectNotificationSignal',
+  ProjectNotificationSignalRedriveEvent: 'ProjectNotificationSignalRedriveEvent',
   Project: 'Project',
   ProjectEnablingDepartment: 'ProjectEnablingDepartment',
   EmployeeProject: 'EmployeeProject',
@@ -706,9 +731,11 @@ export const NotificationScalarFieldEnum = {
   resourceKey: 'resourceKey',
   scopeId: 'scopeId',
   subscriptionId: 'subscriptionId',
+  dispatchId: 'dispatchId',
   isImportant: 'isImportant',
   isStrongReminder: 'isStrongReminder',
   requiresAcknowledgement: 'requiresAcknowledgement',
+  responseMode: 'responseMode',
   readAt: 'readAt',
   acknowledgedAt: 'acknowledgedAt',
   rejectedAt: 'rejectedAt',
@@ -718,6 +745,210 @@ export const NotificationScalarFieldEnum = {
 } as const
 
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const InvestmentEnterpriseProfileScalarFieldEnum = {
+  id: 'id',
+  profileUid: 'profileUid',
+  companyId: 'companyId',
+  portfolioCode: 'portfolioCode',
+  investmentStatus: 'investmentStatus',
+  investmentStage: 'investmentStage',
+  industry: 'industry',
+  investmentDate: 'investmentDate',
+  exitDate: 'exitDate',
+  investmentCurrency: 'investmentCurrency',
+  investedAmount: 'investedAmount',
+  currentValuation: 'currentValuation',
+  valuationDate: 'valuationDate',
+  investmentLead: 'investmentLead',
+  dealTeam: 'dealTeam',
+  boardSeat: 'boardSeat',
+  investmentThesis: 'investmentThesis',
+  keyRisks: 'keyRisks',
+  exitPlan: 'exitPlan',
+  nextReviewDate: 'nextReviewDate',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InvestmentEnterpriseProfileScalarFieldEnum = (typeof InvestmentEnterpriseProfileScalarFieldEnum)[keyof typeof InvestmentEnterpriseProfileScalarFieldEnum]
+
+
+export const InvestmentEnterpriseMeetingScalarFieldEnum = {
+  id: 'id',
+  profileId: 'profileId',
+  meetingType: 'meetingType',
+  title: 'title',
+  meetingDate: 'meetingDate',
+  status: 'status',
+  decisionSummary: 'decisionSummary',
+  votingResult: 'votingResult',
+  followUpOwner: 'followUpOwner',
+  followUpDueDate: 'followUpDueDate',
+  notes: 'notes',
+  sourceReference: 'sourceReference',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InvestmentEnterpriseMeetingScalarFieldEnum = (typeof InvestmentEnterpriseMeetingScalarFieldEnum)[keyof typeof InvestmentEnterpriseMeetingScalarFieldEnum]
+
+
+export const InvestmentEnterpriseDiligenceItemScalarFieldEnum = {
+  id: 'id',
+  profileId: 'profileId',
+  workstream: 'workstream',
+  title: 'title',
+  riskLevel: 'riskLevel',
+  status: 'status',
+  finding: 'finding',
+  recommendation: 'recommendation',
+  ownerName: 'ownerName',
+  dueDate: 'dueDate',
+  remediationStatus: 'remediationStatus',
+  remediationEvidence: 'remediationEvidence',
+  sourceReference: 'sourceReference',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InvestmentEnterpriseDiligenceItemScalarFieldEnum = (typeof InvestmentEnterpriseDiligenceItemScalarFieldEnum)[keyof typeof InvestmentEnterpriseDiligenceItemScalarFieldEnum]
+
+
+export const InvestmentEnterpriseContractScalarFieldEnum = {
+  id: 'id',
+  profileId: 'profileId',
+  contractType: 'contractType',
+  title: 'title',
+  counterpartyText: 'counterpartyText',
+  signedDate: 'signedDate',
+  effectiveDate: 'effectiveDate',
+  expiryDate: 'expiryDate',
+  noticeDate: 'noticeDate',
+  status: 'status',
+  currency: 'currency',
+  amount: 'amount',
+  keyTerms: 'keyTerms',
+  obligationSummary: 'obligationSummary',
+  sourceReference: 'sourceReference',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InvestmentEnterpriseContractScalarFieldEnum = (typeof InvestmentEnterpriseContractScalarFieldEnum)[keyof typeof InvestmentEnterpriseContractScalarFieldEnum]
+
+
+export const InvestmentEnterpriseMonitoringRecordScalarFieldEnum = {
+  id: 'id',
+  profileId: 'profileId',
+  periodEnd: 'periodEnd',
+  status: 'status',
+  currency: 'currency',
+  revenue: 'revenue',
+  netProfit: 'netProfit',
+  cashBalance: 'cashBalance',
+  valuation: 'valuation',
+  headcount: 'headcount',
+  highlights: 'highlights',
+  risks: 'risks',
+  sourceReference: 'sourceReference',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InvestmentEnterpriseMonitoringRecordScalarFieldEnum = (typeof InvestmentEnterpriseMonitoringRecordScalarFieldEnum)[keyof typeof InvestmentEnterpriseMonitoringRecordScalarFieldEnum]
+
+
+export const InvestmentEnterpriseDocumentLinkScalarFieldEnum = {
+  id: 'id',
+  linkUid: 'linkUid',
+  profileId: 'profileId',
+  libraryDocumentUid: 'libraryDocumentUid',
+  documentCategory: 'documentCategory',
+  title: 'title',
+  notes: 'notes',
+  uploadStatus: 'uploadStatus',
+  failureReason: 'failureReason',
+  linkedBy: 'linkedBy',
+  linkedAt: 'linkedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InvestmentEnterpriseDocumentLinkScalarFieldEnum = (typeof InvestmentEnterpriseDocumentLinkScalarFieldEnum)[keyof typeof InvestmentEnterpriseDocumentLinkScalarFieldEnum]
+
+
+export const InvestorShareholderProfileScalarFieldEnum = {
+  id: 'id',
+  issuerCompanyId: 'issuerCompanyId',
+  shareholderPartyId: 'shareholderPartyId',
+  investorCategory: 'investorCategory',
+  contactName: 'contactName',
+  contactTitle: 'contactTitle',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  relationshipOwner: 'relationshipOwner',
+  relationshipStatus: 'relationshipStatus',
+  communicationPreference: 'communicationPreference',
+  notes: 'notes',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InvestorShareholderProfileScalarFieldEnum = (typeof InvestorShareholderProfileScalarFieldEnum)[keyof typeof InvestorShareholderProfileScalarFieldEnum]
+
+
+export const InvestorDueDiligenceRecordScalarFieldEnum = {
+  id: 'id',
+  sourceKey: 'sourceKey',
+  issuerCompanyId: 'issuerCompanyId',
+  investorPartyId: 'investorPartyId',
+  investorOrganization: 'investorOrganization',
+  visitorName: 'visitorName',
+  visitorTitle: 'visitorTitle',
+  phone: 'phone',
+  email: 'email',
+  diligenceDate: 'diligenceDate',
+  diligenceType: 'diligenceType',
+  visitMethod: 'visitMethod',
+  status: 'status',
+  hostName: 'hostName',
+  ndaStatus: 'ndaStatus',
+  dataRoomStatus: 'dataRoomStatus',
+  focusAreas: 'focusAreas',
+  followUpAction: 'followUpAction',
+  nextFollowUpDate: 'nextFollowUpDate',
+  notes: 'notes',
+  isArchived: 'isArchived',
+  archivedAt: 'archivedAt',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InvestorDueDiligenceRecordScalarFieldEnum = (typeof InvestorDueDiligenceRecordScalarFieldEnum)[keyof typeof InvestorDueDiligenceRecordScalarFieldEnum]
 
 
 export const OwnershipInterestScalarFieldEnum = {
@@ -3406,7 +3637,7 @@ export const FinanceTaxRegistrationScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
   taxTypeId: 'taxTypeId',
-  authorityPartyId: 'authorityPartyId',
+  authorityName: 'authorityName',
   registrationNo: 'registrationNo',
   jurisdiction: 'jurisdiction',
   filingFrequency: 'filingFrequency',
@@ -4865,6 +5096,19 @@ export const LibrarySearchIndexScalarFieldEnum = {
 export type LibrarySearchIndexScalarFieldEnum = (typeof LibrarySearchIndexScalarFieldEnum)[keyof typeof LibrarySearchIndexScalarFieldEnum]
 
 
+export const LibraryContentEmbeddingScalarFieldEnum = {
+  id: 'id',
+  indexId: 'indexId',
+  chunkId: 'chunkId',
+  modelKey: 'modelKey',
+  dimensions: 'dimensions',
+  values: 'values',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryContentEmbeddingScalarFieldEnum = (typeof LibraryContentEmbeddingScalarFieldEnum)[keyof typeof LibraryContentEmbeddingScalarFieldEnum]
+
+
 export const LibraryExportJobScalarFieldEnum = {
   id: 'id',
   exportUid: 'exportUid',
@@ -5134,6 +5378,195 @@ export const MutationImpactEffectScalarFieldEnum = {
 } as const
 
 export type MutationImpactEffectScalarFieldEnum = (typeof MutationImpactEffectScalarFieldEnum)[keyof typeof MutationImpactEffectScalarFieldEnum]
+
+
+export const NewsReactionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  itemKey: 'itemKey',
+  reportId: 'reportId',
+  title: 'title',
+  source: 'source',
+  url: 'url',
+  kind: 'kind',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NewsReactionScalarFieldEnum = (typeof NewsReactionScalarFieldEnum)[keyof typeof NewsReactionScalarFieldEnum]
+
+
+export const NotificationDefinitionScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  label: 'label',
+  description: 'description',
+  titleTemplate: 'titleTemplate',
+  bodyTemplate: 'bodyTemplate',
+  hrefTemplate: 'hrefTemplate',
+  responseMode: 'responseMode',
+  isImportant: 'isImportant',
+  allowProjectMonitoring: 'allowProjectMonitoring',
+  variableKeysJson: 'variableKeysJson',
+  allowUserApi: 'allowUserApi',
+  allowedOpenApiClientIdsJson: 'allowedOpenApiClientIdsJson',
+  status: 'status',
+  revision: 'revision',
+  publishedRevision: 'publishedRevision',
+  version: 'version',
+  publishedAt: 'publishedAt',
+  publishedByUserId: 'publishedByUserId',
+  archivedAt: 'archivedAt',
+  archivedByUserId: 'archivedByUserId',
+  createdByUserId: 'createdByUserId',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationDefinitionScalarFieldEnum = (typeof NotificationDefinitionScalarFieldEnum)[keyof typeof NotificationDefinitionScalarFieldEnum]
+
+
+export const NotificationDefinitionRevisionScalarFieldEnum = {
+  id: 'id',
+  definitionId: 'definitionId',
+  revision: 'revision',
+  key: 'key',
+  label: 'label',
+  description: 'description',
+  titleTemplate: 'titleTemplate',
+  bodyTemplate: 'bodyTemplate',
+  hrefTemplate: 'hrefTemplate',
+  responseMode: 'responseMode',
+  isImportant: 'isImportant',
+  allowProjectMonitoring: 'allowProjectMonitoring',
+  variableKeysJson: 'variableKeysJson',
+  allowUserApi: 'allowUserApi',
+  allowedOpenApiClientIdsJson: 'allowedOpenApiClientIdsJson',
+  contentFingerprint: 'contentFingerprint',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationDefinitionRevisionScalarFieldEnum = (typeof NotificationDefinitionRevisionScalarFieldEnum)[keyof typeof NotificationDefinitionRevisionScalarFieldEnum]
+
+
+export const NotificationDefinitionLifecycleEventScalarFieldEnum = {
+  id: 'id',
+  definitionId: 'definitionId',
+  revision: 'revision',
+  action: 'action',
+  actorUserId: 'actorUserId',
+  occurredAt: 'occurredAt',
+  priorVersion: 'priorVersion',
+  newVersion: 'newVersion'
+} as const
+
+export type NotificationDefinitionLifecycleEventScalarFieldEnum = (typeof NotificationDefinitionLifecycleEventScalarFieldEnum)[keyof typeof NotificationDefinitionLifecycleEventScalarFieldEnum]
+
+
+export const NotificationPublicationScalarFieldEnum = {
+  id: 'id',
+  definitionId: 'definitionId',
+  definitionKey: 'definitionKey',
+  definitionRevision: 'definitionRevision',
+  sourceKind: 'sourceKind',
+  sourceId: 'sourceId',
+  sourceLabel: 'sourceLabel',
+  idempotencyKey: 'idempotencyKey',
+  fingerprint: 'fingerprint',
+  audienceJson: 'audienceJson',
+  status: 'status',
+  recipientCount: 'recipientCount',
+  deliveryCount: 'deliveryCount',
+  pendingDeliveryCount: 'pendingDeliveryCount',
+  deliveredDeliveryCount: 'deliveredDeliveryCount',
+  failedDeliveryCount: 'failedDeliveryCount',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationPublicationScalarFieldEnum = (typeof NotificationPublicationScalarFieldEnum)[keyof typeof NotificationPublicationScalarFieldEnum]
+
+
+export const NotificationDeliveryScalarFieldEnum = {
+  id: 'id',
+  publicationId: 'publicationId',
+  recipientUserId: 'recipientUserId',
+  recipientUsername: 'recipientUsername',
+  channel: 'channel',
+  endpointId: 'endpointId',
+  destination: 'destination',
+  title: 'title',
+  body: 'body',
+  href: 'href',
+  status: 'status',
+  attemptCount: 'attemptCount',
+  nextAttemptAt: 'nextAttemptAt',
+  leaseToken: 'leaseToken',
+  leaseExpiresAt: 'leaseExpiresAt',
+  deliveredAt: 'deliveredAt',
+  failedAt: 'failedAt',
+  lastErrorCode: 'lastErrorCode',
+  lastErrorSummary: 'lastErrorSummary',
+  providerMessageId: 'providerMessageId',
+  notificationId: 'notificationId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationDeliveryScalarFieldEnum = (typeof NotificationDeliveryScalarFieldEnum)[keyof typeof NotificationDeliveryScalarFieldEnum]
+
+
+export const NotificationChannelEndpointScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  channel: 'channel',
+  label: 'label',
+  runtimeBindingKey: 'runtimeBindingKey',
+  status: 'status',
+  healthStatus: 'healthStatus',
+  lastHeartbeatAt: 'lastHeartbeatAt',
+  lastSuccessAt: 'lastSuccessAt',
+  lastFailureAt: 'lastFailureAt',
+  lastErrorCode: 'lastErrorCode',
+  lastErrorSummary: 'lastErrorSummary',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationChannelEndpointScalarFieldEnum = (typeof NotificationChannelEndpointScalarFieldEnum)[keyof typeof NotificationChannelEndpointScalarFieldEnum]
+
+
+export const NotificationDeliveryAttemptScalarFieldEnum = {
+  id: 'id',
+  deliveryId: 'deliveryId',
+  attemptNo: 'attemptNo',
+  outcome: 'outcome',
+  resultFingerprint: 'resultFingerprint',
+  providerMessageId: 'providerMessageId',
+  errorCode: 'errorCode',
+  errorSummary: 'errorSummary',
+  nextAttemptAt: 'nextAttemptAt',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationDeliveryAttemptScalarFieldEnum = (typeof NotificationDeliveryAttemptScalarFieldEnum)[keyof typeof NotificationDeliveryAttemptScalarFieldEnum]
+
+
+export const NotificationDeliveryWorkerRequestScalarFieldEnum = {
+  id: 'id',
+  endpointId: 'endpointId',
+  requestId: 'requestId',
+  operation: 'operation',
+  requestFingerprint: 'requestFingerprint',
+  responseStatus: 'responseStatus',
+  responseJson: 'responseJson',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationDeliveryWorkerRequestScalarFieldEnum = (typeof NotificationDeliveryWorkerRequestScalarFieldEnum)[keyof typeof NotificationDeliveryWorkerRequestScalarFieldEnum]
 
 
 export const NotificationSubscriptionScalarFieldEnum = {
@@ -5836,6 +6269,148 @@ export const WorkPlanGovernanceEventScalarFieldEnum = {
 } as const
 
 export type WorkPlanGovernanceEventScalarFieldEnum = (typeof WorkPlanGovernanceEventScalarFieldEnum)[keyof typeof WorkPlanGovernanceEventScalarFieldEnum]
+
+
+export const ProjectNotificationRuleScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  key: 'key',
+  label: 'label',
+  definitionKey: 'definitionKey',
+  eventType: 'eventType',
+  conditionJson: 'conditionJson',
+  audiencePolicyJson: 'audiencePolicyJson',
+  channelPolicyJson: 'channelPolicyJson',
+  cooldownSeconds: 'cooldownSeconds',
+  status: 'status',
+  revision: 'revision',
+  publishedRevision: 'publishedRevision',
+  version: 'version',
+  createdByUserId: 'createdByUserId',
+  updatedByUserId: 'updatedByUserId',
+  publishedByUserId: 'publishedByUserId',
+  archivedByUserId: 'archivedByUserId',
+  publishedAt: 'publishedAt',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectNotificationRuleScalarFieldEnum = (typeof ProjectNotificationRuleScalarFieldEnum)[keyof typeof ProjectNotificationRuleScalarFieldEnum]
+
+
+export const ProjectNotificationRuleRevisionScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  revision: 'revision',
+  key: 'key',
+  label: 'label',
+  definitionKey: 'definitionKey',
+  eventType: 'eventType',
+  conditionJson: 'conditionJson',
+  conditionFingerprint: 'conditionFingerprint',
+  audiencePolicyJson: 'audiencePolicyJson',
+  channelPolicyJson: 'channelPolicyJson',
+  cooldownSeconds: 'cooldownSeconds',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectNotificationRuleRevisionScalarFieldEnum = (typeof ProjectNotificationRuleRevisionScalarFieldEnum)[keyof typeof ProjectNotificationRuleRevisionScalarFieldEnum]
+
+
+export const ProjectNotificationEvaluationScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  ruleRevision: 'ruleRevision',
+  projectId: 'projectId',
+  signalKind: 'signalKind',
+  signalId: 'signalId',
+  outcome: 'outcome',
+  factsFingerprint: 'factsFingerprint',
+  publicationId: 'publicationId',
+  errorCode: 'errorCode',
+  evaluatedAt: 'evaluatedAt'
+} as const
+
+export type ProjectNotificationEvaluationScalarFieldEnum = (typeof ProjectNotificationEvaluationScalarFieldEnum)[keyof typeof ProjectNotificationEvaluationScalarFieldEnum]
+
+
+export const ProjectNotificationRuleLifecycleEventScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  revision: 'revision',
+  action: 'action',
+  actorUserId: 'actorUserId',
+  occurredAt: 'occurredAt',
+  priorVersion: 'priorVersion',
+  newVersion: 'newVersion'
+} as const
+
+export type ProjectNotificationRuleLifecycleEventScalarFieldEnum = (typeof ProjectNotificationRuleLifecycleEventScalarFieldEnum)[keyof typeof ProjectNotificationRuleLifecycleEventScalarFieldEnum]
+
+
+export const ProjectNotificationPublicationIntentScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  ruleRevision: 'ruleRevision',
+  projectId: 'projectId',
+  signalKind: 'signalKind',
+  signalId: 'signalId',
+  definitionKey: 'definitionKey',
+  idempotencyKey: 'idempotencyKey',
+  requestJson: 'requestJson',
+  requestFingerprint: 'requestFingerprint',
+  status: 'status',
+  publicationId: 'publicationId',
+  preparedAt: 'preparedAt',
+  committedAt: 'committedAt',
+  failedAt: 'failedAt',
+  lastErrorCode: 'lastErrorCode',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectNotificationPublicationIntentScalarFieldEnum = (typeof ProjectNotificationPublicationIntentScalarFieldEnum)[keyof typeof ProjectNotificationPublicationIntentScalarFieldEnum]
+
+
+export const ProjectNotificationSignalScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  projectVersion: 'projectVersion',
+  signalKind: 'signalKind',
+  signalId: 'signalId',
+  changedField: 'changedField',
+  snapshotJson: 'snapshotJson',
+  factsFingerprint: 'factsFingerprint',
+  occurredAt: 'occurredAt',
+  status: 'status',
+  attemptCount: 'attemptCount',
+  nextAttemptAt: 'nextAttemptAt',
+  leaseToken: 'leaseToken',
+  leaseExpiresAt: 'leaseExpiresAt',
+  processedAt: 'processedAt',
+  failedAt: 'failedAt',
+  lastErrorCode: 'lastErrorCode',
+  lastErrorSummary: 'lastErrorSummary',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectNotificationSignalScalarFieldEnum = (typeof ProjectNotificationSignalScalarFieldEnum)[keyof typeof ProjectNotificationSignalScalarFieldEnum]
+
+
+export const ProjectNotificationSignalRedriveEventScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  sourceSignalRecordId: 'sourceSignalRecordId',
+  redriveSignalRecordId: 'redriveSignalRecordId',
+  sourceAttemptCount: 'sourceAttemptCount',
+  actorUserId: 'actorUserId',
+  reason: 'reason',
+  occurredAt: 'occurredAt'
+} as const
+
+export type ProjectNotificationSignalRedriveEventScalarFieldEnum = (typeof ProjectNotificationSignalRedriveEventScalarFieldEnum)[keyof typeof ProjectNotificationSignalRedriveEventScalarFieldEnum]
 
 
 export const ProjectScalarFieldEnum = {

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
-import { z } from "zod";
+import type { ZodType } from "zod";
 
 import {
   claimWecomNotificationDeliveries,
@@ -10,6 +10,11 @@ import {
   recordWecomNotificationDeliveryResult,
   recordWecomNotificationWorkerHeartbeat,
 } from "./notification-delivery-outbox";
+import {
+  notificationDeliveryWorkerClaimSchema,
+  notificationDeliveryWorkerHeartbeatSchema,
+  notificationDeliveryWorkerResultSchema,
+} from "./notification-delivery-worker-contract";
 import { prisma, type Prisma } from "./prisma";
 import {
   authenticateWecomNotificationWorkerRequest,
@@ -18,42 +23,12 @@ import {
 
 const WORKER_REQUEST_RETENTION_MS = 24 * 60 * 60 * 1_000;
 const WORKER_BODY_MAX_BYTES = 16 * 1_024;
-const workerIdSchema = z.string().trim().min(1).max(120);
-
-const claimSchema = z.object({
-  workerId: workerIdSchema,
-  limit: z.coerce.number().int().min(1).max(50).optional().default(20),
-}).strict();
-
-const resultSchema = z.object({
-  workerId: workerIdSchema,
-  leaseToken: z.string().uuid(),
-  attemptNo: z.coerce.number().int().positive(),
-  outcome: z.enum(["delivered", "retryable_failure", "permanent_failure"]),
-  providerMessageId: z.string().trim().max(256).nullable().optional(),
-  errorCode: z.string().trim().max(120).nullable().optional(),
-  errorSummary: z.string().trim().max(500).nullable().optional(),
-}).strict().superRefine((value, context) => {
-  if (value.outcome !== "delivered" && !value.errorCode) {
-    context.addIssue({
-      code: "custom",
-      path: ["errorCode"],
-      message: "失败结果必须提供 errorCode",
-    });
-  }
-});
-
-const heartbeatSchema = z.object({
-  workerId: workerIdSchema,
-  connected: z.boolean(),
-  workerVersion: z.string().trim().max(120).nullable().optional(),
-}).strict();
 
 type WorkerOperation = "claim" | "result" | "heartbeat";
 type WorkerResponse = { status: number; body: Record<string, unknown> };
 
 export async function handleWecomNotificationClaimRequest(request: Request) {
-  return handleWorkerRequest(request, "claim", claimSchema, async (tx, body) => ({
+  return handleWorkerRequest(request, "claim", notificationDeliveryWorkerClaimSchema, async (tx, body) => ({
     status: 200,
     body: {
       endpointKey: WECOM_NOTIFICATION_ENDPOINT_KEY,
@@ -66,7 +41,7 @@ export async function handleWecomNotificationDeliveryResultRequest(
   request: Request,
   deliveryIdValue: string,
 ) {
-  return handleWorkerRequest(request, "result", resultSchema, async (tx, body) => {
+  return handleWorkerRequest(request, "result", notificationDeliveryWorkerResultSchema, async (tx, body) => {
     const deliveryId = Number(deliveryIdValue);
     if (!Number.isSafeInteger(deliveryId) || deliveryId <= 0) {
       return {
@@ -82,7 +57,7 @@ export async function handleWecomNotificationDeliveryResultRequest(
 }
 
 export async function handleWecomNotificationHeartbeatRequest(request: Request) {
-  return handleWorkerRequest(request, "heartbeat", heartbeatSchema, async (tx, body) => ({
+  return handleWorkerRequest(request, "heartbeat", notificationDeliveryWorkerHeartbeatSchema, async (tx, body) => ({
     status: 200,
     body: await recordWecomNotificationWorkerHeartbeat(tx, body),
   }));
@@ -91,7 +66,7 @@ export async function handleWecomNotificationHeartbeatRequest(request: Request) 
 async function handleWorkerRequest<TBody>(
   request: Request,
   operation: WorkerOperation,
-  schema: z.ZodType<TBody>,
+  schema: ZodType<TBody>,
   execute: (tx: Prisma.TransactionClient, body: TBody) => Promise<WorkerResponse>,
   operationTarget = "",
 ) {

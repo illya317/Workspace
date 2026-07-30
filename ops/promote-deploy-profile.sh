@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
+GATEWAY_NGINX_SITE="$(printenv WORKSPACE_GATEWAY_NGINX_SITE 2>/dev/null || true)"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=ops/deploy-unit-sidecar.sh
+source "$SCRIPT_DIR/deploy-unit-sidecar.sh"
 REMOTE_DIR="${REMOTE_DIR:-}"
 PROFILE_FILE="${1:-}"
 RELEASE_FILE="${2:-}"
@@ -28,6 +31,11 @@ done
 
 CONFIG_ROOT="$REMOTE_DIR/.workspace"
 GATEWAY_ROOT="$CONFIG_ROOT/gateway"
+MONOLITH_WECOM_PROCESS_NAME="${WORKSPACE_MONOLITH_WECOM_PROCESS_NAME:-workspace-wecom-agent}"
+[[ "$MONOLITH_WECOM_PROCESS_NAME" =~ ^[A-Za-z0-9._-]+$ ]] || {
+  echo "[错误] WORKSPACE_MONOLITH_WECOM_PROCESS_NAME 不是安全的 PM2 名称" >&2
+  exit 1
+}
 CURRENT_GATEWAY="$GATEWAY_ROOT/current"
 CURRENT_STATE_ROOT="$CURRENT_GATEWAY/unit-states"
 EMPTY_STATE_ROOT="$GATEWAY_ROOT/empty-states"
@@ -44,7 +52,55 @@ if ! flock -n 9; then
 fi
 
 PROMOTION_FILE="$(mktemp "$PROMOTION_ROOT/.promotion-XXXXXX.json")"
-cleanup() { rm -f "$PROMOTION_FILE"; }
+ASSISTANT_TRANSITION=0
+ASSISTANT_OLD_STOPPED=0
+ASSISTANT_MONOLITH_WAS_ONLINE=0
+ASSISTANT_NEW_STARTED=0
+ASSISTANT_HANDOFF_COMMITTED=0
+GATEWAY_SWITCHED=0
+OLD_GATEWAY_TARGET=""
+if [ -L "$CURRENT_GATEWAY" ]; then
+  OLD_GATEWAY_TARGET="$(readlink -f "$CURRENT_GATEWAY")"
+elif [ -e "$CURRENT_GATEWAY" ]; then
+  echo "[错误] Gateway current 必须是 symlink" >&2
+  exit 1
+fi
+ASSISTANT_OLD_RELEASE=""
+ASSISTANT_OLD_MANIFEST=""
+ASSISTANT_OLD_SLOT=""
+ASSISTANT_NEW_RELEASE=""
+ASSISTANT_NEW_MANIFEST=""
+ASSISTANT_NEW_SLOT=""
+cleanup() {
+  local exit_code=$?
+  set +e
+  rm -f "$PROMOTION_FILE"
+  if [ "$exit_code" -ne 0 ] && [ "$ASSISTANT_TRANSITION" = "1" ] \
+    && [ "$ASSISTANT_HANDOFF_COMMITTED" = "0" ]; then
+    local gateway_restored=1
+    if [ "$ASSISTANT_NEW_STARTED" = "1" ]; then
+      workspace_stop_deploy_unit_sidecar assistant "$ASSISTANT_NEW_RELEASE" "$ASSISTANT_NEW_SLOT" || true
+    fi
+    if [ "$GATEWAY_SWITCHED" = "1" ] && [ -n "$OLD_GATEWAY_TARGET" ]; then
+      WORKSPACE_GATEWAY_ROOT="$GATEWAY_ROOT" \
+        WORKSPACE_GATEWAY_NGINX_SITE="$GATEWAY_NGINX_SITE" \
+        "$SCRIPT_DIR/switch-deploy-gateway.sh" --generation "$OLD_GATEWAY_TARGET" \
+        || gateway_restored=0
+    elif [ "$GATEWAY_SWITCHED" = "1" ]; then
+      gateway_restored=0
+    fi
+    if [ "$ASSISTANT_OLD_STOPPED" = "1" ] && [ "$gateway_restored" = "1" ]; then
+      workspace_start_deploy_unit_sidecar \
+        assistant "$CONFIG_ROOT" "$ASSISTANT_OLD_MANIFEST" "$ASSISTANT_OLD_RELEASE" "$ASSISTANT_OLD_SLOT" \
+        "$SCRIPT_DIR/assistant-runtime.mjs" || true
+    elif [ "$ASSISTANT_MONOLITH_WAS_ONLINE" = "1" ] && [ "$gateway_restored" = "1" ]; then
+      WORKSPACE_MONOLITH_WECOM_SIDECAR_WAS_ONLINE=1
+      workspace_restore_monolith_wecom_sidecar "$MONOLITH_WECOM_PROCESS_NAME" || true
+    fi
+    pm2 save >/dev/null 2>&1 || true
+  fi
+  exit "$exit_code"
+}
 trap cleanup EXIT
 
 promotion_args=(
@@ -63,6 +119,26 @@ node "$SCRIPT_DIR/internal-rpc-deployment-guard.mjs" promotion \
   --graph "$GRAPH_FILE" \
   --promotion "$PROMOTION_FILE"
 
+ASSISTANT_PROPOSED_STATE="$(node -e '
+const value=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8"));
+const assistant=value.stateOverrides.find((item) => item.unitId === "assistant");
+if (assistant) process.stdout.write(assistant.file);
+' "$PROMOTION_FILE")"
+if [ -n "$ASSISTANT_PROPOSED_STATE" ]; then
+  [ -f "$ASSISTANT_PROPOSED_STATE" ] || { echo "[错误] Assistant proposed state 不存在" >&2; exit 1; }
+  ASSISTANT_TRANSITION=1
+  ASSISTANT_NEW_RELEASE="$(workspace_sidecar_read_json_field "$ASSISTANT_PROPOSED_STATE" active.releaseDir)"
+  ASSISTANT_NEW_SLOT="$(workspace_sidecar_read_json_field "$ASSISTANT_PROPOSED_STATE" active.slot)"
+  ASSISTANT_NEW_MANIFEST="$ASSISTANT_NEW_RELEASE/artifact.manifest.json"
+  [ -f "$ASSISTANT_NEW_MANIFEST" ] || { echo "[错误] Assistant 新 release manifest 不存在" >&2; exit 1; }
+  if [ -f "$CURRENT_STATE_ROOT/assistant.json" ]; then
+    ASSISTANT_OLD_RELEASE="$(workspace_sidecar_read_json_field "$CURRENT_STATE_ROOT/assistant.json" active.releaseDir)"
+    ASSISTANT_OLD_SLOT="$(workspace_sidecar_read_json_field "$CURRENT_STATE_ROOT/assistant.json" active.slot)"
+    ASSISTANT_OLD_MANIFEST="$ASSISTANT_OLD_RELEASE/artifact.manifest.json"
+    [ -f "$ASSISTANT_OLD_MANIFEST" ] || { echo "[错误] Assistant 旧 release manifest 不存在" >&2; exit 1; }
+  fi
+fi
+
 STATE_ROOT="$EMPTY_STATE_ROOT"
 [ ! -d "$CURRENT_STATE_ROOT" ] || STATE_ROOT="$CURRENT_STATE_ROOT"
 generation_args=(
@@ -72,6 +148,13 @@ generation_args=(
   --output-root "$GATEWAY_ROOT"
   --generated-at "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
 )
+if [ "$ASSISTANT_TRANSITION" = "1" ] && [ -z "$OLD_GATEWAY_TARGET" ]; then
+  OLD_GENERATION_ID="$(node "$SCRIPT_DIR/gateway-generation.mjs" create-fallback \
+    --graph "$GRAPH_FILE" \
+    --output-root "$GATEWAY_ROOT" \
+    --generated-at "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)")"
+  OLD_GATEWAY_TARGET="$GATEWAY_ROOT/generations/$OLD_GENERATION_ID"
+fi
 # shellcheck disable=SC2016
 while IFS=$'\t' read -r unit_id state_file; do
   [[ "$unit_id" =~ ^[a-z][a-z0-9-]*$ ]] || { echo "[错误] promotion unit id 无效" >&2; exit 1; }
@@ -83,9 +166,26 @@ for (const item of p.stateOverrides) process.stdout.write(`${item.unitId}\t${ite
 ' "$PROMOTION_FILE")
 
 GENERATION_ID="$(node "$SCRIPT_DIR/gateway-generation.mjs" "${generation_args[@]}")"
+if [ "$ASSISTANT_TRANSITION" = "1" ]; then
+  workspace_suspend_monolith_wecom_sidecar "$MONOLITH_WECOM_PROCESS_NAME"
+  ASSISTANT_MONOLITH_WAS_ONLINE="$WORKSPACE_MONOLITH_WECOM_SIDECAR_WAS_ONLINE"
+fi
+if [ "$ASSISTANT_TRANSITION" = "1" ] && [ -n "$ASSISTANT_OLD_RELEASE" ]; then
+  ASSISTANT_OLD_STOPPED=1
+  workspace_stop_deploy_unit_sidecar assistant "$ASSISTANT_OLD_RELEASE" "$ASSISTANT_OLD_SLOT"
+fi
 WORKSPACE_GATEWAY_ROOT="$GATEWAY_ROOT" \
-  WORKSPACE_GATEWAY_NGINX_SITE="${WORKSPACE_GATEWAY_NGINX_SITE:-}" \
+  WORKSPACE_GATEWAY_NGINX_SITE="$GATEWAY_NGINX_SITE" \
   "$SCRIPT_DIR/switch-deploy-gateway.sh" --generation "$GATEWAY_ROOT/generations/$GENERATION_ID"
+GATEWAY_SWITCHED=1
+if [ "$ASSISTANT_TRANSITION" = "1" ]; then
+  ASSISTANT_NEW_STARTED=1
+  workspace_start_deploy_unit_sidecar \
+    assistant "$CONFIG_ROOT" "$ASSISTANT_NEW_MANIFEST" "$ASSISTANT_NEW_RELEASE" "$ASSISTANT_NEW_SLOT" \
+    "$SCRIPT_DIR/assistant-runtime.mjs"
+  ASSISTANT_HANDOFF_COMMITTED=1
+  pm2 save
+fi
 
 PROMOTION_SHA="$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8")).promotionSha256)' "$PROMOTION_FILE")"
 FINAL_PROMOTION="$PROMOTION_ROOT/$PROMOTION_SHA.json"

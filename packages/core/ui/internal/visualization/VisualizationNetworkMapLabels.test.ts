@@ -48,6 +48,34 @@ test("overview selection lays out only its root label without touching circles",
   assert.equal(nodes.some((node) => intersectsNode(labels[0]!, node)), false);
 });
 
+test("rendered font metrics keep every character of short labels visible", () => {
+  const labels = layoutMapNetworkLabels({
+    nodes: [{ key: "root", label: "Company", x: 220, y: 180, radius: 24, degree: 12 }],
+    selection: { rootNodeKey: "root", relatedNodeKeys: [] },
+    width: 520,
+    height: 380,
+    measureText: (line) => line === "Company" ? 58.4 : line.length * 8,
+  });
+
+  assert.equal(labels[0]?.label, "Company");
+  assert.equal(labels[0]?.width, 73);
+});
+
+test("long mixed labels wrap explicitly without dropping content", () => {
+  const label = "超长Company名称2026完整版";
+  const labels = layoutMapNetworkLabels({
+    nodes: [{ key: "root", label, x: 260, y: 190, radius: 24, degree: 12 }],
+    selection: { rootNodeKey: "root", relatedNodeKeys: [] },
+    width: 620,
+    height: 420,
+    measureText: (line) => [...line].length * 13,
+  });
+
+  assert.ok(labels[0]?.label.includes("\n"));
+  assert.equal(labels[0]?.label.replaceAll("\n", ""), label);
+  assert.ok((labels[0]?.height ?? 0) > 22);
+});
+
 test("focused label layout avoids every circle and every previously placed label", () => {
   const nodes: ScreenNode[] = [
     { key: "root", label: "User", x: 320, y: 260, radius: 28, degree: 24 },

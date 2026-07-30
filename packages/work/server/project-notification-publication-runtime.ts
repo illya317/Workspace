@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { NOTIFICATION_PUBLICATION_RATE_LIMITED } from "@workspace/platform/server/notification-publishing";
 
 import type { PublishedProjectNotificationRuleRevision } from "./project-notification-evaluation-state";
-import { ProjectNotificationSignalProcessingError } from "./project-notification-signal-contract";
+import { ProjectNotificationSignalProcessingError } from "./project-notification-signal-runtime";
 import type { ProjectNotificationSnapshot } from "./domain/project-notification-condition";
 
 type TrustedNotificationVariables = Record<string, string | number | boolean>;

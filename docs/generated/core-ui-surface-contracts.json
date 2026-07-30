@@ -255,8 +255,8 @@
 {"name":"toSorted","description":"Returns a copy of an array with its elements sorted."},
 {"name":"toSpliced","description":"Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."},
 {"name":"with","description":"Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."},
-{"name":"__@iterator@11202","description":"Iterator"},
-{"name":"__@unscopables@11204","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
+{"name":"__@iterator@11206","description":"Iterator"},
+{"name":"__@unscopables@11208","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
 ]},
 {"name":"rowInteractions","description":"类型：(DataSurfaceStructuredRowInteractionSpec | null)[]。","children":[
 {"name":"onClick","description":"类型：() => void。"},
@@ -316,7 +316,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -381,7 +381,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -439,7 +439,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -580,7 +580,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -2576,8 +2576,8 @@
 {"name":"toSorted","description":"Returns a copy of an array with its elements sorted."},
 {"name":"toSpliced","description":"Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."},
 {"name":"with","description":"Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."},
-{"name":"__@iterator@11202","description":"Iterator"},
-{"name":"__@unscopables@11204","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
+{"name":"__@iterator@11206","description":"Iterator"},
+{"name":"__@unscopables@11208","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
 ]},
 {"name":"rowInteractions","description":"类型：(DataSurfaceStructuredRowInteractionSpec | null)[]。","children":[
 {"name":"onClick","description":"类型：() => void。"},
@@ -2637,7 +2637,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -2702,7 +2702,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -2760,7 +2760,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -2901,7 +2901,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -4821,7 +4821,7 @@
 {"name":"chart","description":"类型：VisualizationSurfaceChartSpec。","children":[
 {"name":"visual","description":"类型：VisualizationSpec。","children":[
 {"name":"emptyText","description":"类型：string。"},
-{"name":"kind","description":"可选值：barChart / comparisonBars / groupedBarChart / network / tree。","children":[
+{"name":"kind","description":"可选值：barChart / candlestick / comparisonBars / groupedBarChart / network / tree。","children":[
 {"name":"barChart","description":"barChart 分支声明。","children":[
 {"name":"title","description":"类型：string。"},
 {"name":"bars","description":"类型：VisualizationBarSpec[]。","children":[
@@ -4857,6 +4857,24 @@
 {"name":"solid","description":"字面量取值。"}
 ]}
 ]}
+]},
+{"name":"candlestick","description":"candlestick 分支声明。","children":[
+{"name":"points","description":"类型：VisualizationCandlestickPointSpec[]。","children":[
+{"name":"key","description":"类型：string。"},
+{"name":"label","description":"类型：string。"},
+{"name":"open","description":"类型：number。"},
+{"name":"high","description":"类型：number。"},
+{"name":"low","description":"类型：number。"},
+{"name":"close","description":"类型：number。"},
+{"name":"volume","description":"类型：number。"}
+]},
+{"name":"movingAveragePeriods","description":"类型：number[]。"},
+{"name":"directionConvention","description":"可选值：green-up / red-up。","children":[
+{"name":"green-up","description":"字面量取值。"},
+{"name":"red-up","description":"字面量取值。"}
+]},
+{"name":"height","description":"类型：number。"},
+{"name":"volumeLabel","description":"类型：string。"}
 ]},
 {"name":"comparisonBars","description":"comparisonBars 分支声明。","children":[
 {"name":"sections","description":"类型：VisualizationComparisonBarSectionSpec[]。","children":[
@@ -5344,8 +5362,8 @@
 {"name":"toSorted","description":"Returns a copy of an array with its elements sorted."},
 {"name":"toSpliced","description":"Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."},
 {"name":"with","description":"Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."},
-{"name":"__@iterator@11202","description":"Iterator"},
-{"name":"__@unscopables@11204","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
+{"name":"__@iterator@11206","description":"Iterator"},
+{"name":"__@unscopables@11208","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
 ]},
 {"name":"rowInteractions","description":"类型：(DataSurfaceStructuredRowInteractionSpec | null)[]。","children":[
 {"name":"onClick","description":"类型：() => void。"},
@@ -5405,7 +5423,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -5470,7 +5488,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -5528,7 +5546,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -5669,7 +5687,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -7589,7 +7607,7 @@
 {"name":"chart","description":"类型：VisualizationSurfaceChartSpec。","children":[
 {"name":"visual","description":"类型：VisualizationSpec。","children":[
 {"name":"emptyText","description":"类型：string。"},
-{"name":"kind","description":"可选值：barChart / comparisonBars / groupedBarChart / network / tree。","children":[
+{"name":"kind","description":"可选值：barChart / candlestick / comparisonBars / groupedBarChart / network / tree。","children":[
 {"name":"barChart","description":"barChart 分支声明。","children":[
 {"name":"title","description":"类型：string。"},
 {"name":"bars","description":"类型：VisualizationBarSpec[]。","children":[
@@ -7625,6 +7643,24 @@
 {"name":"solid","description":"字面量取值。"}
 ]}
 ]}
+]},
+{"name":"candlestick","description":"candlestick 分支声明。","children":[
+{"name":"points","description":"类型：VisualizationCandlestickPointSpec[]。","children":[
+{"name":"key","description":"类型：string。"},
+{"name":"label","description":"类型：string。"},
+{"name":"open","description":"类型：number。"},
+{"name":"high","description":"类型：number。"},
+{"name":"low","description":"类型：number。"},
+{"name":"close","description":"类型：number。"},
+{"name":"volume","description":"类型：number。"}
+]},
+{"name":"movingAveragePeriods","description":"类型：number[]。"},
+{"name":"directionConvention","description":"可选值：green-up / red-up。","children":[
+{"name":"green-up","description":"字面量取值。"},
+{"name":"red-up","description":"字面量取值。"}
+]},
+{"name":"height","description":"类型：number。"},
+{"name":"volumeLabel","description":"类型：string。"}
 ]},
 {"name":"comparisonBars","description":"comparisonBars 分支声明。","children":[
 {"name":"sections","description":"类型：VisualizationComparisonBarSectionSpec[]。","children":[
@@ -8126,8 +8162,8 @@
 {"name":"toSorted","description":"Returns a copy of an array with its elements sorted."},
 {"name":"toSpliced","description":"Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."},
 {"name":"with","description":"Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."},
-{"name":"__@iterator@11202","description":"Iterator"},
-{"name":"__@unscopables@11204","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
+{"name":"__@iterator@11206","description":"Iterator"},
+{"name":"__@unscopables@11208","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
 ]},
 {"name":"rowInteractions","description":"类型：(DataSurfaceStructuredRowInteractionSpec | null)[]。","children":[
 {"name":"onClick","description":"类型：() => void。"},
@@ -8187,7 +8223,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -8252,7 +8288,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -8310,7 +8346,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -8451,7 +8487,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -10403,7 +10439,7 @@
 {"name":"chart","description":"类型：VisualizationSurfaceChartSpec。","children":[
 {"name":"visual","description":"类型：VisualizationSpec。","children":[
 {"name":"emptyText","description":"类型：string。"},
-{"name":"kind","description":"可选值：barChart / comparisonBars / groupedBarChart / network / tree。","children":[
+{"name":"kind","description":"可选值：barChart / candlestick / comparisonBars / groupedBarChart / network / tree。","children":[
 {"name":"barChart","description":"barChart 分支声明。","children":[
 {"name":"title","description":"类型：string。"},
 {"name":"bars","description":"类型：VisualizationBarSpec[]。","children":[
@@ -10439,6 +10475,24 @@
 {"name":"solid","description":"字面量取值。"}
 ]}
 ]}
+]},
+{"name":"candlestick","description":"candlestick 分支声明。","children":[
+{"name":"points","description":"类型：VisualizationCandlestickPointSpec[]。","children":[
+{"name":"key","description":"类型：string。"},
+{"name":"label","description":"类型：string。"},
+{"name":"open","description":"类型：number。"},
+{"name":"high","description":"类型：number。"},
+{"name":"low","description":"类型：number。"},
+{"name":"close","description":"类型：number。"},
+{"name":"volume","description":"类型：number。"}
+]},
+{"name":"movingAveragePeriods","description":"类型：number[]。"},
+{"name":"directionConvention","description":"可选值：green-up / red-up。","children":[
+{"name":"green-up","description":"字面量取值。"},
+{"name":"red-up","description":"字面量取值。"}
+]},
+{"name":"height","description":"类型：number。"},
+{"name":"volumeLabel","description":"类型：string。"}
 ]},
 {"name":"comparisonBars","description":"comparisonBars 分支声明。","children":[
 {"name":"sections","description":"类型：VisualizationComparisonBarSectionSpec[]。","children":[
@@ -10865,7 +10919,7 @@
 {"name":"chart","description":"类型：VisualizationSurfaceChartSpec。","children":[
 {"name":"visual","description":"类型：VisualizationSpec。","children":[
 {"name":"emptyText","description":"类型：string。"},
-{"name":"kind","description":"可选值：barChart / comparisonBars / groupedBarChart / network / tree。","children":[
+{"name":"kind","description":"可选值：barChart / candlestick / comparisonBars / groupedBarChart / network / tree。","children":[
 {"name":"barChart","description":"barChart 分支声明。","children":[
 {"name":"title","description":"类型：string。"},
 {"name":"bars","description":"类型：VisualizationBarSpec[]。","children":[
@@ -10901,6 +10955,24 @@
 {"name":"solid","description":"字面量取值。"}
 ]}
 ]}
+]},
+{"name":"candlestick","description":"candlestick 分支声明。","children":[
+{"name":"points","description":"类型：VisualizationCandlestickPointSpec[]。","children":[
+{"name":"key","description":"类型：string。"},
+{"name":"label","description":"类型：string。"},
+{"name":"open","description":"类型：number。"},
+{"name":"high","description":"类型：number。"},
+{"name":"low","description":"类型：number。"},
+{"name":"close","description":"类型：number。"},
+{"name":"volume","description":"类型：number。"}
+]},
+{"name":"movingAveragePeriods","description":"类型：number[]。"},
+{"name":"directionConvention","description":"可选值：green-up / red-up。","children":[
+{"name":"green-up","description":"字面量取值。"},
+{"name":"red-up","description":"字面量取值。"}
+]},
+{"name":"height","description":"类型：number。"},
+{"name":"volumeLabel","description":"类型：string。"}
 ]},
 {"name":"comparisonBars","description":"comparisonBars 分支声明。","children":[
 {"name":"sections","description":"类型：VisualizationComparisonBarSectionSpec[]。","children":[
@@ -11380,8 +11452,8 @@
 {"name":"toSorted","description":"Returns a copy of an array with its elements sorted."},
 {"name":"toSpliced","description":"Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."},
 {"name":"with","description":"Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."},
-{"name":"__@iterator@11202","description":"Iterator"},
-{"name":"__@unscopables@11204","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
+{"name":"__@iterator@11206","description":"Iterator"},
+{"name":"__@unscopables@11208","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
 ]},
 {"name":"rowInteractions","description":"类型：(DataSurfaceStructuredRowInteractionSpec | null)[]。","children":[
 {"name":"onClick","description":"类型：() => void。"},
@@ -11441,7 +11513,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -11506,7 +11578,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -11564,7 +11636,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -11943,7 +12015,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -16636,8 +16708,8 @@
 {"name":"toSorted","description":"Returns a copy of an array with its elements sorted."},
 {"name":"toSpliced","description":"Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."},
 {"name":"with","description":"Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."},
-{"name":"__@iterator@11202","description":"Iterator"},
-{"name":"__@unscopables@11204","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
+{"name":"__@iterator@11206","description":"Iterator"},
+{"name":"__@unscopables@11208","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
 ]},
 {"name":"rowInteractions","description":"类型：(DataSurfaceStructuredRowInteractionSpec | null)[]。","children":[
 {"name":"onClick","description":"类型：() => void。"},
@@ -16697,7 +16769,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -16762,7 +16834,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -16820,7 +16892,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -16961,7 +17033,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -18957,8 +19029,8 @@
 {"name":"toSorted","description":"Returns a copy of an array with its elements sorted."},
 {"name":"toSpliced","description":"Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."},
 {"name":"with","description":"Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."},
-{"name":"__@iterator@11202","description":"Iterator"},
-{"name":"__@unscopables@11204","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
+{"name":"__@iterator@11206","description":"Iterator"},
+{"name":"__@unscopables@11208","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
 ]},
 {"name":"rowInteractions","description":"类型：(DataSurfaceStructuredRowInteractionSpec | null)[]。","children":[
 {"name":"onClick","description":"类型：() => void。"},
@@ -19018,7 +19090,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -19083,7 +19155,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -19141,7 +19213,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -19282,7 +19354,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -21202,7 +21274,7 @@
 {"name":"chart","description":"类型：VisualizationSurfaceChartSpec。","children":[
 {"name":"visual","description":"类型：VisualizationSpec。","children":[
 {"name":"emptyText","description":"类型：string。"},
-{"name":"kind","description":"可选值：barChart / comparisonBars / groupedBarChart / network / tree。","children":[
+{"name":"kind","description":"可选值：barChart / candlestick / comparisonBars / groupedBarChart / network / tree。","children":[
 {"name":"barChart","description":"barChart 分支声明。","children":[
 {"name":"title","description":"类型：string。"},
 {"name":"bars","description":"类型：VisualizationBarSpec[]。","children":[
@@ -21238,6 +21310,24 @@
 {"name":"solid","description":"字面量取值。"}
 ]}
 ]}
+]},
+{"name":"candlestick","description":"candlestick 分支声明。","children":[
+{"name":"points","description":"类型：VisualizationCandlestickPointSpec[]。","children":[
+{"name":"key","description":"类型：string。"},
+{"name":"label","description":"类型：string。"},
+{"name":"open","description":"类型：number。"},
+{"name":"high","description":"类型：number。"},
+{"name":"low","description":"类型：number。"},
+{"name":"close","description":"类型：number。"},
+{"name":"volume","description":"类型：number。"}
+]},
+{"name":"movingAveragePeriods","description":"类型：number[]。"},
+{"name":"directionConvention","description":"可选值：green-up / red-up。","children":[
+{"name":"green-up","description":"字面量取值。"},
+{"name":"red-up","description":"字面量取值。"}
+]},
+{"name":"height","description":"类型：number。"},
+{"name":"volumeLabel","description":"类型：string。"}
 ]},
 {"name":"comparisonBars","description":"comparisonBars 分支声明。","children":[
 {"name":"sections","description":"类型：VisualizationComparisonBarSectionSpec[]。","children":[
@@ -21725,8 +21815,8 @@
 {"name":"toSorted","description":"Returns a copy of an array with its elements sorted."},
 {"name":"toSpliced","description":"Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."},
 {"name":"with","description":"Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."},
-{"name":"__@iterator@11202","description":"Iterator"},
-{"name":"__@unscopables@11204","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
+{"name":"__@iterator@11206","description":"Iterator"},
+{"name":"__@unscopables@11208","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
 ]},
 {"name":"rowInteractions","description":"类型：(DataSurfaceStructuredRowInteractionSpec | null)[]。","children":[
 {"name":"onClick","description":"类型：() => void。"},
@@ -21786,7 +21876,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -21851,7 +21941,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -21909,7 +21999,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -22050,7 +22140,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -23970,7 +24060,7 @@
 {"name":"chart","description":"类型：VisualizationSurfaceChartSpec。","children":[
 {"name":"visual","description":"类型：VisualizationSpec。","children":[
 {"name":"emptyText","description":"类型：string。"},
-{"name":"kind","description":"可选值：barChart / comparisonBars / groupedBarChart / network / tree。","children":[
+{"name":"kind","description":"可选值：barChart / candlestick / comparisonBars / groupedBarChart / network / tree。","children":[
 {"name":"barChart","description":"barChart 分支声明。","children":[
 {"name":"title","description":"类型：string。"},
 {"name":"bars","description":"类型：VisualizationBarSpec[]。","children":[
@@ -24006,6 +24096,24 @@
 {"name":"solid","description":"字面量取值。"}
 ]}
 ]}
+]},
+{"name":"candlestick","description":"candlestick 分支声明。","children":[
+{"name":"points","description":"类型：VisualizationCandlestickPointSpec[]。","children":[
+{"name":"key","description":"类型：string。"},
+{"name":"label","description":"类型：string。"},
+{"name":"open","description":"类型：number。"},
+{"name":"high","description":"类型：number。"},
+{"name":"low","description":"类型：number。"},
+{"name":"close","description":"类型：number。"},
+{"name":"volume","description":"类型：number。"}
+]},
+{"name":"movingAveragePeriods","description":"类型：number[]。"},
+{"name":"directionConvention","description":"可选值：green-up / red-up。","children":[
+{"name":"green-up","description":"字面量取值。"},
+{"name":"red-up","description":"字面量取值。"}
+]},
+{"name":"height","description":"类型：number。"},
+{"name":"volumeLabel","description":"类型：string。"}
 ]},
 {"name":"comparisonBars","description":"comparisonBars 分支声明。","children":[
 {"name":"sections","description":"类型：VisualizationComparisonBarSectionSpec[]。","children":[
@@ -24507,8 +24615,8 @@
 {"name":"toSorted","description":"Returns a copy of an array with its elements sorted."},
 {"name":"toSpliced","description":"Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."},
 {"name":"with","description":"Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."},
-{"name":"__@iterator@11202","description":"Iterator"},
-{"name":"__@unscopables@11204","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
+{"name":"__@iterator@11206","description":"Iterator"},
+{"name":"__@unscopables@11208","description":"Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."}
 ]},
 {"name":"rowInteractions","description":"类型：(DataSurfaceStructuredRowInteractionSpec | null)[]。","children":[
 {"name":"onClick","description":"类型：() => void。"},
@@ -24568,7 +24676,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -24633,7 +24741,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -24691,7 +24799,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -24832,7 +24940,7 @@
 {"name":"at","description":"Returns a new String consisting of the single UTF-16 code unit located at the specified index."},
 {"name":"isWellFormed","description":"Returns true if all leading surrogates and trailing surrogates appear paired and in order."},
 {"name":"toWellFormed","description":"Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD)."},
-{"name":"__@iterator@11202","description":"Iterator"},
+{"name":"__@iterator@11206","description":"Iterator"},
 {"name":"toFixed","description":"Returns a string representing a number in fixed-point notation."},
 {"name":"toExponential","description":"Returns a string containing a number represented in exponential notation."},
 {"name":"toPrecision","description":"Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits."},
@@ -26784,7 +26892,7 @@
 {"name":"chart","description":"类型：VisualizationSurfaceChartSpec。","children":[
 {"name":"visual","description":"类型：VisualizationSpec。","children":[
 {"name":"emptyText","description":"类型：string。"},
-{"name":"kind","description":"可选值：barChart / comparisonBars / groupedBarChart / network / tree。","children":[
+{"name":"kind","description":"可选值：barChart / candlestick / comparisonBars / groupedBarChart / network / tree。","children":[
 {"name":"barChart","description":"barChart 分支声明。","children":[
 {"name":"title","description":"类型：string。"},
 {"name":"bars","description":"类型：VisualizationBarSpec[]。","children":[
@@ -26820,6 +26928,24 @@
 {"name":"solid","description":"字面量取值。"}
 ]}
 ]}
+]},
+{"name":"candlestick","description":"candlestick 分支声明。","children":[
+{"name":"points","description":"类型：VisualizationCandlestickPointSpec[]。","children":[
+{"name":"key","description":"类型：string。"},
+{"name":"label","description":"类型：string。"},
+{"name":"open","description":"类型：number。"},
+{"name":"high","description":"类型：number。"},
+{"name":"low","description":"类型：number。"},
+{"name":"close","description":"类型：number。"},
+{"name":"volume","description":"类型：number。"}
+]},
+{"name":"movingAveragePeriods","description":"类型：number[]。"},
+{"name":"directionConvention","description":"可选值：green-up / red-up。","children":[
+{"name":"green-up","description":"字面量取值。"},
+{"name":"red-up","description":"字面量取值。"}
+]},
+{"name":"height","description":"类型：number。"},
+{"name":"volumeLabel","description":"类型：string。"}
 ]},
 {"name":"comparisonBars","description":"comparisonBars 分支声明。","children":[
 {"name":"sections","description":"类型：VisualizationComparisonBarSectionSpec[]。","children":[
@@ -27246,7 +27372,7 @@
 {"name":"chart","description":"类型：VisualizationSurfaceChartSpec。","children":[
 {"name":"visual","description":"类型：VisualizationSpec。","children":[
 {"name":"emptyText","description":"类型：string。"},
-{"name":"kind","description":"可选值：barChart / comparisonBars / groupedBarChart / network / tree。","children":[
+{"name":"kind","description":"可选值：barChart / candlestick / comparisonBars / groupedBarChart / network / tree。","children":[
 {"name":"barChart","description":"barChart 分支声明。","children":[
 {"name":"title","description":"类型：string。"},
 {"name":"bars","description":"类型：VisualizationBarSpec[]。","children":[
@@ -27282,6 +27408,24 @@
 {"name":"solid","description":"字面量取值。"}
 ]}
 ]}
+]},
+{"name":"candlestick","description":"candlestick 分支声明。","children":[
+{"name":"points","description":"类型：VisualizationCandlestickPointSpec[]。","children":[
+{"name":"key","description":"类型：string。"},
+{"name":"label","description":"类型：string。"},
+{"name":"open","description":"类型：number。"},
+{"name":"high","description":"类型：number。"},
+{"name":"low","description":"类型：number。"},
+{"name":"close","description":"类型：number。"},
+{"name":"volume","description":"类型：number。"}
+]},
+{"name":"movingAveragePeriods","description":"类型：number[]。"},
+{"name":"directionConvention","description":"可选值：green-up / red-up。","children":[
+{"name":"green-up","description":"字面量取值。"},
+{"name":"red-up","description":"字面量取值。"}
+]},
+{"name":"height","description":"类型：number。"},
+{"name":"volumeLabel","description":"类型：string。"}
 ]},
 {"name":"comparisonBars","description":"comparisonBars 分支声明。","children":[
 {"name":"sections","description":"类型：VisualizationComparisonBarSectionSpec[]。","children":[
@@ -28468,7 +28612,7 @@
 {"name":"chart","description":"类型：VisualizationSurfaceChartSpec。","children":[
 {"name":"visual","description":"类型：VisualizationSpec。","children":[
 {"name":"emptyText","description":"类型：string。"},
-{"name":"kind","description":"可选值：barChart / comparisonBars / groupedBarChart / network / tree。","children":[
+{"name":"kind","description":"可选值：barChart / candlestick / comparisonBars / groupedBarChart / network / tree。","children":[
 {"name":"barChart","description":"barChart 分支声明。","children":[
 {"name":"title","description":"类型：string。"},
 {"name":"bars","description":"类型：VisualizationBarSpec[]。","children":[
@@ -28504,6 +28648,24 @@
 {"name":"solid","description":"字面量取值。"}
 ]}
 ]}
+]},
+{"name":"candlestick","description":"candlestick 分支声明。","children":[
+{"name":"points","description":"类型：VisualizationCandlestickPointSpec[]。","children":[
+{"name":"key","description":"类型：string。"},
+{"name":"label","description":"类型：string。"},
+{"name":"open","description":"类型：number。"},
+{"name":"high","description":"类型：number。"},
+{"name":"low","description":"类型：number。"},
+{"name":"close","description":"类型：number。"},
+{"name":"volume","description":"类型：number。"}
+]},
+{"name":"movingAveragePeriods","description":"类型：number[]。"},
+{"name":"directionConvention","description":"可选值：green-up / red-up。","children":[
+{"name":"green-up","description":"字面量取值。"},
+{"name":"red-up","description":"字面量取值。"}
+]},
+{"name":"height","description":"类型：number。"},
+{"name":"volumeLabel","description":"类型：string。"}
 ]},
 {"name":"comparisonBars","description":"comparisonBars 分支声明。","children":[
 {"name":"sections","description":"类型：VisualizationComparisonBarSectionSpec[]。","children":[

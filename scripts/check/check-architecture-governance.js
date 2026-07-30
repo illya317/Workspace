@@ -6,8 +6,20 @@ const { execSync } = require("child_process");
 
 const ROOT = path.resolve(__dirname, "..", "..");
 
+const ROLE_SKILL_NAMES = [
+  "workspace-role-router",
+  "workspace-coordinator",
+  "workspace-feature",
+  "workspace-architecture",
+  "workspace-data",
+  "workspace-operations",
+  "workspace-hygiene",
+  "workspace-review",
+];
+
 const REQUIRED_FILES = [
   "AGENTS.md",
+  "CLAUDE.md",
   "docs/OWNERS.md",
   "docs/README.md",
   "docs/engineering/project-overview.md",
@@ -16,6 +28,7 @@ const REQUIRED_FILES = [
   "docs/product/README.md",
   "docs/reference/README.md",
   "docs/engineering/architecture-governance.md",
+  ...ROLE_SKILL_NAMES.map((name) => `.agents/skills/${name}/SKILL.md`),
 ];
 
 const REQUIRED_README_SECTIONS = [
@@ -35,8 +48,11 @@ const REQUIRED_AGENT_SECTIONS = [
 
 const REQUIRED_AGENT_PHRASES = [
   "不要先扫全库",
+  "读取 router 后的第一条角色声明更新",
   "docs/engineering/project-overview.md",
-  "docs/roles/",
+  "$workspace-role-router",
+  "/workspace-role-router",
+  ".agents/skills/workspace-role-router/SKILL.md",
   "docs/OWNERS.md",
 ];
 
@@ -113,6 +129,36 @@ for (const file of REQUIRED_FILES) {
   } else {
     ok(`${file} exists`);
   }
+}
+
+for (const name of ROLE_SKILL_NAMES) {
+  const skillPath = `.agents/skills/${name}/SKILL.md`;
+  if (fs.existsSync(rel(skillPath))) {
+    const source = readText(skillPath);
+    if (!source.startsWith(`---\nname: ${name}\n`)) {
+      fail(`${skillPath} must start with matching name frontmatter`);
+    }
+    if (!/^description: \S.+$/m.test(source)) {
+      fail(`${skillPath} must declare a non-empty description`);
+    }
+    if (!source.includes("读取 router 后的第一条角色声明更新")) {
+      fail(`${skillPath} must confirm the role declaration after routing`);
+    }
+  }
+
+  const claudePath = rel(".claude", "skills", name);
+  const canonicalPath = rel(".agents", "skills", name);
+  if (!fs.existsSync(claudePath)) {
+    fail(`.claude/skills/${name} symlink is required`);
+  } else if (!fs.lstatSync(claudePath).isSymbolicLink()) {
+    fail(`.claude/skills/${name} must be a symlink`);
+  } else if (fs.realpathSync(claudePath) !== fs.realpathSync(canonicalPath)) {
+    fail(`.claude/skills/${name} must target .agents/skills/${name}`);
+  }
+}
+
+if (fs.existsSync(rel("CLAUDE.md")) && readText("CLAUDE.md").trim() !== "@AGENTS.md") {
+  fail("CLAUDE.md must import the shared AGENTS.md entry");
 }
 
 if (fs.existsSync(rel("README.md"))) {

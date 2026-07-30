@@ -194,6 +194,13 @@ export {
 } from "./project-notification-route-commands";
 
 export {
+  projectNotificationEvaluationQueryRequestSchema,
+  projectNotificationRuleCreateRequestSchema,
+  projectNotificationRuleUpdateRequestSchema,
+  projectNotificationRuleVersionRequestSchema,
+} from "./project-notification-route-schemas";
+
+export {
   previewProjectNotificationRule,
 } from "./project-notification-evaluator";
 

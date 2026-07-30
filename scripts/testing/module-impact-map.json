@@ -88,6 +88,7 @@
         "Library readiness",
         "External customer readiness",
         "Administration home readiness",
+        "NEWS page and read API readiness",
         "configurable 15 second slow readiness budget",
         "navigation timing and slow resource diagnostics"
       ]
@@ -296,6 +297,22 @@
         "app/api/modules/library/",
         "packages/library/server/",
         "packages/library/ui/"
+      ]
+    },
+    {
+      "id": "news",
+      "roots": {
+        "prefixes": [
+          "app/(modules)/news/",
+          "app/api/modules/news/",
+          "packages/news/"
+        ],
+        "files": []
+      },
+      "potentialWritePrefixes": [
+        "app/api/modules/news/",
+        "packages/news/server/",
+        "packages/news/ui/"
       ]
     },
     {
@@ -516,6 +533,42 @@
         "files": ["app/(modules)/library/basic-info/page.tsx"]
       },
       "traits": ["latency", "read-only", "ui"],
+      "riskFloor": "C2",
+      "requiredSuites": ["module-readiness"]
+    },
+    {
+      "id": "news-page-readiness",
+      "modules": ["news"],
+      "paths": {
+        "prefixes": [],
+        "files": ["app/(modules)/news/page.tsx"]
+      },
+      "traits": ["latency", "read-only", "ui"],
+      "riskFloor": "C2",
+      "requiredSuites": ["module-readiness"]
+    },
+    {
+      "id": "news-api-readiness",
+      "modules": ["news"],
+      "paths": {
+        "prefixes": [],
+        "files": ["app/api/modules/news/route.ts"]
+      },
+      "traits": ["api", "latency", "read-only", "server"],
+      "riskFloor": "C2",
+      "requiredSuites": ["module-readiness"]
+    },
+    {
+      "id": "news-write-unverified",
+      "modules": ["news"],
+      "paths": {
+        "prefixes": [
+          "app/api/modules/news/reactions/",
+          "packages/news/"
+        ],
+        "files": []
+      },
+      "traits": ["api", "latency", "server", "ui"],
       "riskFloor": "C2",
       "requiredSuites": ["module-readiness"]
     },

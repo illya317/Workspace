@@ -115,7 +115,7 @@ test("API href validation strips deployment base paths without blocking settings
   }
 
   const allowedUiRoute = prepareNotificationDefinition(definition({
-    hrefTemplate: "/settings/api/notifications",
+    hrefTemplate: "/settings/api?tab=notifications",
   }));
   assert.equal(allowedUiRoute.ok, true);
 

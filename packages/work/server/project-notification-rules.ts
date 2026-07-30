@@ -8,17 +8,20 @@ import { canManageProject, canViewProject } from "./access";
 import {
   canonicalJson,
   prepareProjectNotificationCondition,
-  projectNotificationConditionSchema,
   type ProjectNotificationCondition,
 } from "./domain/project-notification-condition";
+import {
+  projectNotificationEventTypeSchema,
+  projectNotificationRuleEditableSchema,
+  projectNotificationRuleUpdateSchema,
+  type ProjectNotificationRuleEditable,
+} from "./domain/project-notification-rule-validation";
 import { validateProjectNotificationWriteInput } from "./domain/project-notification-write-validation";
 import {
   parseProjectNotificationAudiencePolicy,
   parseProjectNotificationChannelPolicy,
   parseStoredProjectNotificationAudiencePolicy,
   parseStoredProjectNotificationChannelPolicy,
-  projectNotificationAudiencePolicySchema,
-  projectNotificationChannelPolicySchema,
   type ProjectNotificationAudiencePolicy,
   type ProjectNotificationChannelPolicy,
   resolveProjectNotificationAudience,
@@ -53,42 +56,18 @@ export {
   PROJECT_NOTIFICATION_VARIABLE_KEYS,
   projectNotificationPublicationSource,
 } from "./project-notification-definition-catalog";
+export {
+  projectNotificationEvaluationQuerySchema,
+  projectNotificationEventTypeSchema,
+  projectNotificationRuleCreateSchema,
+  projectNotificationRuleEditableSchema,
+  projectNotificationRuleUpdateSchema,
+  projectNotificationRuleVersionSchema,
+} from "./domain/project-notification-rule-validation";
+export type { ProjectNotificationRuleEditable } from "./domain/project-notification-rule-validation";
 const exactNotificationGrantOptions = {
   grantMatch: { action: "exact" as const, resource: "exact" as const },
 };
-
-export const projectNotificationEventTypeSchema = z.enum(PROJECT_NOTIFICATION_EVENT_TYPES);
-
-export const projectNotificationRuleEditableSchema = z.object({
-  key: z.string().trim().min(1).max(80).regex(
-    /^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$/,
-    "规则 key 只能使用小写字母、数字、点、下划线和连字符",
-  ),
-  label: z.string().trim().min(1).max(120),
-  definitionKey: z.string().trim().min(1).max(120).regex(
-    /^custom\.[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$/,
-    "通知定义必须使用 custom.* 命名空间",
-  ),
-  eventType: projectNotificationEventTypeSchema,
-  condition: projectNotificationConditionSchema,
-  audiencePolicy: projectNotificationAudiencePolicySchema,
-  channelPolicy: projectNotificationChannelPolicySchema,
-  cooldownSeconds: z.coerce.number().int().min(0).max(31_536_000),
-}).strict();
-
-export const projectNotificationRuleCreateSchema = projectNotificationRuleEditableSchema;
-export const projectNotificationRuleUpdateSchema = projectNotificationRuleEditableSchema.extend({
-  version: z.coerce.number().int().positive(),
-}).strict();
-export const projectNotificationRuleVersionSchema = z.object({
-  version: z.coerce.number().int().positive(),
-}).strict();
-export const projectNotificationEvaluationQuerySchema = z.object({
-  page: z.coerce.number().int().min(1).catch(1),
-  pageSize: z.coerce.number().int().min(1).max(100).catch(50),
-}).strict();
-
-export type ProjectNotificationRuleEditable = z.infer<typeof projectNotificationRuleEditableSchema>;
 
 export type ProjectNotificationRuleDto = {
   id: number; projectId: number; key: string; label: string; definitionKey: string;

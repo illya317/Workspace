@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { usesVerifiedApiRouteFactory } = require("./verified-api-route-factories");
 
 const ROOT = path.resolve(__dirname, "..", "..");
 const API_ROOT = path.join(ROOT, "app/api");
@@ -20,7 +21,6 @@ const PUBLIC_API_ROUTES = new Set([
   "app/api/auth/me/route.ts",
   "app/api/auth/wecom/callback/route.ts",
   "app/api/auth/wecom/start/route.ts",
-  "app/api/auth/dev-login-bypass/route.ts",
   "app/api/settings/version/route.ts",
   "app/api/settings/account/week-info/route.ts",
 ]);
@@ -76,7 +76,7 @@ function hasApiRouteHelperGate(code) {
   ) || (
     hasNamedImport(code, "createWorkspaceAnalysisSourceRpcHandler", ["@workspace/platform/server/workspace-analysis-source-rpc"]) &&
     /\bcreateWorkspaceAnalysisSourceRpcHandler\s*\(/.test(code)
-  );
+  ) || usesVerifiedApiRouteFactory(code);
 }
 
 function walk(dir, files = []) {

@@ -24,11 +24,12 @@ model Party {
   shareCapitalSnapshotPositions ShareCapitalSnapshotPosition[]
   controlledAfterCapitalEvents  ShareCapitalEvent[]                   @relation("ShareCapitalEventController")
   shareholderGroupMemberships   ShareholderGroupMembership[]
+  investorShareholderProfiles   InvestorShareholderProfile[]          @relation("InvestorShareholderProfileParty")
+  investorDueDiligenceRecords   InvestorDueDiligenceRecord[]          @relation("InvestorDueDiligenceInvestorParty")
   registryOwnershipParticipants CompanyRegistryOwnershipParticipant[]
   contractsAsPartyA             Contract[]                            @relation("ContractPartyA")
   contractsAsPartyB             Contract[]                            @relation("ContractPartyB")
   financeLoansAsLender          FinanceLoan[]
-  financeTaxAuthorities         FinanceTaxRegistration[]
   inventoryDocuments           InventoryDocument[]
 
   @@unique([subjectType, identityNumber])

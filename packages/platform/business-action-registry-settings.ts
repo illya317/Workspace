@@ -24,7 +24,7 @@ export const SETTINGS_BUSINESS_ACTION_REGISTRATIONS = [
   {
     moduleKey: "settings",
     resourceKey: "settings.notifications",
-    originHrefPattern: "/settings/api/notifications",
+    originHrefPattern: "/settings/api",
     eligibility: "permission_only",
     key: "settings.notifications.publication.create",
     label: "创建通知发布",

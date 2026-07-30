@@ -22,6 +22,9 @@ model Company {
   ownershipProjectionRuns           OwnershipProjectionRun[]
   shareCapitalEvents                ShareCapitalEvent[]
   shareholderGroups                 ShareholderGroup[]
+  investorShareholderProfiles       InvestorShareholderProfile[]       @relation("InvestorShareholderProfileIssuer")
+  investorDueDiligenceRecords       InvestorDueDiligenceRecord[]       @relation("InvestorDueDiligenceIssuer")
+  investmentEnterpriseProfile       InvestmentEnterpriseProfile?
   registryChanges                   CompanyRegistryChange[]
   positionReportOverrides           PositionReportOverride[]
   reportingEdps                     EDP[]                              @relation("EDPReportingCompany")

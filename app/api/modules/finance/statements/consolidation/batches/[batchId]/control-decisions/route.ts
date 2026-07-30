@@ -23,6 +23,7 @@ const controlDecisionSchema = z.discriminatedUnion("mode", [
     mode: z.literal("notApplicable"),
     controlKey: z.enum([
     "elimination:investmentEquity",
+    "elimination:nonControllingInterest",
     "elimination:intercompanyBalance",
     ]),
   }),

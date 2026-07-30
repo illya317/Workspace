@@ -2,7 +2,19 @@
 
 # 全项目权限 Action 授权手册
 
-当前共 20 个 permission action、105 个资源策略、212 个已注册 BusinessAction。
+## 目录
+
+| 问题 | 章节或结构化入口 |
+|---|---|
+| 授权前必须遵守什么 | 授权前先看这四条 |
+| 权限如何复查和报警 | 定期复查与异常通报 |
+| action 的通用含义 | Action 通用字典 |
+| approve 在不同资源的含义 | approve 到底是什么意思 |
+| 某个资源有哪些 action | 全项目资源 Action 清单 |
+| 派生空间和流程配置权限 | 派生空间与流程配置资源 |
+| 精确查询单个权限或 API 绑定 | `GET /api/modules/docs/company/permission-actions` |
+
+当前共 20 个 permission action、109 个资源策略、229 个已注册 BusinessAction。
 
 事实来源：`action-registry.ts`、`permission-resource-policy.ts`、`module-registry.ts` 与 `business-action-registry.ts`。业务写入的状态、校验和持久化细节继续以 `action-contracts.md` 为准。
 
@@ -61,7 +73,7 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `docs.editor.approve` | 模板编辑器 | 流程处理资格：可作为“创建文档模板草稿”所发起流程的处理人（`docs.editor.template.draft.create`；具体处理接口和对象范围仍由 workflow/service 决定）<br>流程处理资格：可作为“保存文档模板草稿”所发起流程的处理人（`docs.editor.template.draft.save`；具体处理接口和对象范围仍由 workflow/service 决定）<br>流程处理资格：可作为“发布文档模板”所发起流程的处理人（`docs.editor.template.publish`；具体处理接口和对象范围仍由 workflow/service 决定） | 对应组织空间内的模板审批或发布责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
 | `finance.assets.approve` | 资产会计 | 流程处理资格：可作为“创建资产卡片”所发起流程的处理人（`finance.assets.asset.create`；具体处理接口和对象范围仍由 workflow/service 决定） | 该资源的正式审批/复核责任人；需结合对象范围和职责分离配置。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
 | `finance.budget.approve` | 预算管理 | 直接执行：启用预算版本（`finance.budget.version.activate`；POST /api/modules/finance/budget/versions/:id/activate） | 有权启用预算版本的预算负责人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
-| `finance.ledger.approve` | 总账会计 | 直接执行：复核集团科目（`finance.ledger.groupAccount.review`；POST /api/modules/finance/ledger/group-accounts/:id/review）<br>直接执行：复核关账底稿（`finance.ledger.close.workpaper.review`；POST /api/modules/finance/ledger/closing/workpapers/review） | 集团科目或总账治理的复核责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
+| `finance.ledger.approve` | 总账会计 | 直接执行：复核集团科目（`finance.ledger.groupAccount.review`；POST /api/modules/finance/ledger/group-accounts/:id/review）<br>直接执行：完成会计期间关账（`finance.ledger.close.complete`；POST /api/modules/finance/ledger/closing/complete）<br>直接执行：复核关账底稿（`finance.ledger.close.workpaper.review`；POST /api/modules/finance/ledger/closing/workpapers/review） | 集团科目或总账治理的复核责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
 | `finance.statements.approve` | 财务报表 | 直接执行：通过合并抵销分录（`finance.statements.consolidationEntry.approve`；POST /api/modules/finance/statements/consolidation/batches/:batchId/entries/:entryId/approve）<br>直接执行：独立复核合并批次（`finance.statements.consolidationBatch.review`；POST /api/modules/finance/statements/consolidation/batches/:batchId/review）<br>直接执行：发布合并报表（`finance.statements.consolidationBatch.publish`；POST /api/modules/finance/statements/consolidation/batches/:batchId/publish） | 合并抵销、合并批次复核与报表发布责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
 | `hr.performance.approve` | 绩效管理 | 流程处理资格：可作为“发起绩效评审”所发起流程的处理人（`hr.performance.review.evaluate`；具体处理接口和对象范围仍由 workflow/service 决定） | 绩效流程的正式审批责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
 | `hr.roster.approve` | 人事基础资料 | 流程处理资格：可作为“创建部门”所发起流程的处理人（`hr.roster.department.create`；具体处理接口和对象范围仍由 workflow/service 决定）<br>流程处理资格：可作为“更新部门”所发起流程的处理人（`hr.roster.department.update`；具体处理接口和对象范围仍由 workflow/service 决定） | 组织、人事资料审批责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
@@ -305,7 +317,7 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `work.projects.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
 | `work.projects.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
 | `work.projects.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：添加项目成员（`work.projects.member.create`；POST /api/modules/work/projects/members）<br>直接执行：创建项目阶段（`work.projects.phase.create`；POST /api/modules/work/projects/:id/plan-phases）<br>直接执行：创建项目计划基线（`work.projects.baseline.create`；POST /api/modules/work/projects/:id/plan-baselines） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
-| `work.projects.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新项目（`work.projects.project.update`；PUT /api/modules/work/projects/:id）<br>直接执行：更新项目成员（`work.projects.member.update`；PUT /api/modules/work/projects/members/:id）<br>直接执行：更新项目阶段（`work.projects.phase.update`；PUT /api/modules/work/projects/:id/plan-phases/:phaseId）<br>直接执行：保存项目甘特（`work.projects.planGantt.save`；PUT /api/modules/work/projects/:id/plan-gantt、PUT /api/modules/work/projects/:id/plan-dependencies） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `work.projects.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新项目（`work.projects.project.update`；PUT /api/modules/work/projects/:id）<br>直接执行：创建项目通知监管规则（`work.projects.notificationRule.create`；POST /api/modules/work/projects/:id/notification-rules）<br>直接执行：更新项目通知监管规则（`work.projects.notificationRule.update`；PUT /api/modules/work/projects/:id/notification-rules/:ruleId）<br>直接执行：发布项目通知监管规则（`work.projects.notificationRule.publish`；POST /api/modules/work/projects/:id/notification-rules/:ruleId/publish）<br>直接执行：归档项目通知监管规则（`work.projects.notificationRule.archive`；POST /api/modules/work/projects/:id/notification-rules/:ruleId/archive）<br>直接执行：重新驱动失败的项目通知信号（`work.projects.notificationSignal.redrive`；POST /api/modules/work/projects/:id/notification-signals/redrive）<br>直接执行：更新项目成员（`work.projects.member.update`；PUT /api/modules/work/projects/members/:id）<br>直接执行：更新项目阶段（`work.projects.phase.update`；PUT /api/modules/work/projects/:id/plan-phases/:phaseId）<br>直接执行：保存项目甘特（`work.projects.planGantt.save`；PUT /api/modules/work/projects/:id/plan-gantt、PUT /api/modules/work/projects/:id/plan-dependencies） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `work.projects.delete`<br>删除 | 删除记录；可能是硬删除，也可能由具体业务动作定义为受控删除，不能理解成编辑权限。 | 直接执行：删除项目（`work.projects.project.delete`；DELETE /api/modules/work/projects/:id）<br>直接执行：结束项目成员关系（`work.projects.member.delete`；DELETE /api/modules/work/projects/members/:id）<br>直接执行：删除项目阶段（`work.projects.phase.delete`；DELETE /api/modules/work/projects/:id/plan-phases/:phaseId） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `work.projects.revise`<br>修订 | 对已生效、已提交或有历史版本的对象进行受控修订、重开或更正。 | 直接执行：启用项目计划基线（`work.projects.baseline.activate`；POST /api/modules/work/projects/:id/plan-baselines/:baselineId/activate） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `work.projects.submit`<br>提交 | 提交、确认或发起业务流程；不代表有权处理或通过该流程。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
@@ -364,8 +376,8 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 
 | Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
 |---|---|---|---|---|
-| `docs.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 当前资源配置或由系统规则派生；不从父资源继承。 | 无 |
-| `docs.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 当前资源配置或由系统规则派生；不从父资源继承。 | `entry` |
+| `docs.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 系统默认授予所有登录用户，无需显式配置；不代表匿名公开。 | 无 |
+| `docs.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 系统默认授予所有登录用户，无需显式配置；不代表匿名公开。 | `entry` |
 | `docs.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
 #### 公司管理（`docs.company`）
@@ -374,8 +386,8 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 
 | Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
 |---|---|---|---|---|
-| `docs.company.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
-| `docs.company.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
+| `docs.company.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 系统默认授予所有登录用户，无需显式配置；不代表匿名公开。 | 无 |
+| `docs.company.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 系统默认授予所有登录用户，无需显式配置；不代表匿名公开。 | `entry` |
 | `docs.company.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
 #### 模板编辑器（`docs.editor`）
@@ -546,8 +558,8 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 
 | Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
 |---|---|---|---|---|
-| `settings.account.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
-| `settings.account.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 直接执行：设置个人通知订阅（`settings.account.notificationSubscription.save`；PUT /api/modules/settings/account/notification-subscriptions/:eventKey、DELETE /api/modules/settings/account/notification-subscriptions/:eventKey） | 可在当前资源配置，也可能从父资源继承。 | `entry` |
+| `settings.account.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 系统默认授予所有登录用户，无需显式配置；不代表匿名公开。 | 无 |
+| `settings.account.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 直接执行：设置个人通知订阅（`settings.account.notificationSubscription.save`；PUT /api/modules/settings/account/notification-subscriptions/:eventKey、DELETE /api/modules/settings/account/notification-subscriptions/:eventKey） | 系统默认授予所有登录用户，无需显式配置；不代表匿名公开。 | `entry` |
 | `settings.account.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 页面/API guard（无独立 BusinessAction）。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `settings.account.revise`<br>修订 | 对已生效、已提交或有历史版本的对象进行受控修订、重开或更正。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `settings.account.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
@@ -622,6 +634,21 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `settings.governance.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 | `settings.governance.configure`<br>配置 | 修改规则、流程或系统配置；默认不自动包含业务数据读写。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 | `settings.governance.audit`<br>审计 | 查看审计、变更或权限台账；默认不自动包含业务数据读写。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+
+#### 通知开放（`settings.notifications`）
+
+类型：独立 capability · 页面：`/settings/api` · owner：`settings.api` · scope：全局
+
+资源说明：Notification definitions, publication, and audit are independently granted; API publication always requires both create and apiUse.
+
+| Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
+|---|---|---|---|---|
+| `settings.notifications.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry` |
+| `settings.notifications.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：创建通知发布（`settings.notifications.publication.create`；POST /api/modules/settings/notifications/publications） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `settings.notifications.apiUse`<br>API 调用 | 通过集成 API 使用该资源能力；默认不自动包含业务读写。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+| `settings.notifications.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+| `settings.notifications.configure`<br>配置 | 修改规则、流程或系统配置；默认不自动包含业务数据读写。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+| `settings.notifications.audit`<br>审计 | 查看审计、变更或权限台账；默认不自动包含业务数据读写。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
 ### 财务管理（`finance`）
 
@@ -707,7 +734,7 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `finance.ledger.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新会计科目（`finance.ledger.account.update`；PUT /api/modules/finance/ledger/accounts/:id）<br>直接执行：更新凭证（`finance.ledger.voucher.update`；PUT /api/modules/finance/ledger/vouchers/:id）<br>直接执行：更新会计期间（`finance.ledger.period.update`；PUT /api/modules/finance/ledger/periods/:id）<br>直接执行：刷新关账工作台（`finance.ledger.close.refresh`；POST /api/modules/finance/ledger/closing/refresh）<br>直接执行：保存关账底稿（`finance.ledger.close.workpaper.save`；PUT /api/modules/finance/ledger/closing/workpapers） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `finance.ledger.delete`<br>删除 | 删除记录；可能是硬删除，也可能由具体业务动作定义为受控删除，不能理解成编辑权限。 | 直接执行：删除会计科目（`finance.ledger.account.delete`；DELETE /api/modules/finance/ledger/accounts/:id）<br>直接执行：删除凭证（`finance.ledger.voucher.delete`；DELETE /api/modules/finance/ledger/vouchers/:id）<br>直接执行：删除会计期间（`finance.ledger.period.delete`；DELETE /api/modules/finance/ledger/periods/:id）<br>直接执行：删除集团科目（`finance.ledger.groupAccount.delete`；DELETE /api/modules/finance/ledger/group-accounts/:id） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `finance.ledger.revise`<br>修订 | 对已生效、已提交或有历史版本的对象进行受控修订、重开或更正。 | 直接执行：重算科目余额（`finance.ledger.balance.revise`；POST /api/modules/finance/ledger/balances）<br>直接执行：新增集团科目（`finance.ledger.groupAccount.create`；POST /api/modules/finance/ledger/group-accounts）<br>直接执行：编辑集团科目（`finance.ledger.groupAccount.update`；PUT /api/modules/finance/ledger/group-accounts/:id）<br>直接执行：保存集团科目映射（`finance.ledger.groupAccountMapping.save`；PUT /api/modules/finance/ledger/group-accounts）<br>直接执行：保存重分类规则（`finance.ledger.reclassRule.save`；PUT /api/modules/finance/ledger/reclass-rules）<br>直接执行：保存重分类调整（`finance.ledger.reclassAdjustment.save`；PUT /api/modules/finance/ledger/reclass-adjustments）<br>直接执行：生成重分类结果（`finance.ledger.reclassResult.generate`；POST /api/modules/finance/ledger/reclass-results）<br>直接执行：调整重分类结果（`finance.ledger.reclassResult.adjust`；PATCH /api/modules/finance/ledger/reclass-results/:id） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
-| `finance.ledger.approve`<br>审批通过 | 对该资源执行通过、复核、启用、发布或关闭等生效决策；必须结合完整 resource.action 和下方业务绑定理解。 | 直接执行：复核集团科目（`finance.ledger.groupAccount.review`；POST /api/modules/finance/ledger/group-accounts/:id/review）<br>直接执行：复核关账底稿（`finance.ledger.close.workpaper.review`；POST /api/modules/finance/ledger/closing/workpapers/review） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `finance.ledger.approve`<br>审批通过 | 对该资源执行通过、复核、启用、发布或关闭等生效决策；必须结合完整 resource.action 和下方业务绑定理解。 | 直接执行：复核集团科目（`finance.ledger.groupAccount.review`；POST /api/modules/finance/ledger/group-accounts/:id/review）<br>直接执行：完成会计期间关账（`finance.ledger.close.complete`；POST /api/modules/finance/ledger/closing/complete）<br>直接执行：复核关账底稿（`finance.ledger.close.workpaper.review`；POST /api/modules/finance/ledger/closing/workpapers/review） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `finance.ledger.export`<br>导出 | 导出、下载、打印或对外发送该资源数据。 | 直接执行：下载总账 Excel（`finance.ledger.workspace.export`；GET /api/modules/finance/ledger/export） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `finance.ledger.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
@@ -838,17 +865,62 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `capitalSecurities.governance.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：保存治理组织（`capitalSecurities.governance.organization.save`；PUT /api/modules/capitalSecurities/governance/organizations）<br>直接执行：更新公司（`capitalSecurities.governance.company.update`；PUT /api/modules/capitalSecurities/governance/companies）<br>直接执行：重建股权投影（`capitalSecurities.governance.ownershipProjection.rebuild`；POST /api/modules/capitalSecurities/governance/ownership-projections/rebuild） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `capitalSecurities.governance.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
+#### 投资企业（`capitalSecurities.investments`）
+
+类型：业务资源 · 页面：`/capital-securities/investments` · scope：全局
+
+资源说明：Investee profiles, governance meetings, diligence findings, contract obligations, monitoring records, and stable Library document links. Company, Party, ownership facts, immutable files, OCR, chunks, and embeddings remain authoritative in their owner modules.
+
+| Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
+|---|---|---|---|---|
+| `capitalSecurities.investments.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
+| `capitalSecurities.investments.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
+| `capitalSecurities.investments.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：新建投资企业档案（`capitalSecurities.investments.profile.create`；POST /api/modules/capitalSecurities/investments）<br>直接执行：新增投资企业业务记录（`capitalSecurities.investments.record.create`；POST /api/modules/capitalSecurities/investments/records） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `capitalSecurities.investments.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新投资企业档案（`capitalSecurities.investments.profile.update`；PUT /api/modules/capitalSecurities/investments）<br>直接执行：更新投资企业业务记录（`capitalSecurities.investments.record.update`；PUT /api/modules/capitalSecurities/investments/records） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `capitalSecurities.investments.import`<br>导入 | 导入、摄取或批量确认外部数据；默认不自动包含 create/update。 | 直接执行：上传并分析投资企业资料（`capitalSecurities.investments.document.import`；POST /api/modules/capitalSecurities/investments/documents） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+| `capitalSecurities.investments.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+
 #### 投资人关系（`capitalSecurities.investors`）
 
 类型：业务资源 · 页面：`/capital-securities/investors` · scope：全局
 
-资源说明：Read-only temporal projection over OwnershipInterest; current and historical Captables are generated by issuer and as-of date, while pending changes remain traceable but non-effective.
+资源说明：Captables remain read-only temporal projections over the capital ledger. create/update/delete only maintain shareholder relationship profiles and soft-archived due-diligence participant records; they never mutate calculated ownership amounts or ratios.
 
 | Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
 |---|---|---|---|---|
 | `capitalSecurities.investors.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
 | `capitalSecurities.investors.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
+| `capitalSecurities.investors.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：新增投资人尽调记录（`capitalSecurities.investors.dueDiligence.create`；POST /api/modules/capitalSecurities/investors/due-diligence） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `capitalSecurities.investors.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：保存股东关系资料（`capitalSecurities.investors.shareholderProfile.update`；PUT /api/modules/capitalSecurities/investors/shareholder-profiles）<br>直接执行：更新投资人尽调记录（`capitalSecurities.investors.dueDiligence.update`；PATCH /api/modules/capitalSecurities/investors/due-diligence/:id） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `capitalSecurities.investors.delete`<br>删除 | 删除记录；可能是硬删除，也可能由具体业务动作定义为受控删除，不能理解成编辑权限。 | 直接执行：移除投资人尽调记录（`capitalSecurities.investors.dueDiligence.archive`；DELETE /api/modules/capitalSecurities/investors/due-diligence/:id） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `capitalSecurities.investors.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+
+#### 市场情报（`capitalSecurities.marketIntelligence`）
+
+类型：业务资源 · 页面：`/capital-securities/market-intelligence` · scope：全局
+
+资源说明：Read-only market catalog and quote aggregation. Browser-local watchlists do not create a server-side business record; provider adapters must not bypass upstream market-data licensing.
+
+| Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
+|---|---|---|---|---|
+| `capitalSecurities.marketIntelligence.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
+| `capitalSecurities.marketIntelligence.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
+| `capitalSecurities.marketIntelligence.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+
+### 资讯（`news`）
+
+#### 资讯（`news`）
+
+类型：业务资源 · 页面：`/news` · scope：全局
+
+资源说明：All authenticated users receive create access for their own like or dislike preference on external news items.
+
+| Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
+|---|---|---|---|---|
+| `news.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 系统默认授予所有登录用户，无需显式配置；不代表匿名公开。 | 无 |
+| `news.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 系统默认授予所有登录用户，无需显式配置；不代表匿名公开。 | `entry` |
+| `news.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：保存资讯偏好（`news.reaction.save`；POST /api/modules/news/reactions） | 系统默认授予所有登录用户，无需显式配置；不代表匿名公开。 | `entry`、`read` |
+| `news.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
 ## 派生空间与流程配置资源
 

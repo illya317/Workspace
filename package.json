@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "node scripts/runtime/start-local-dev.mjs",
+    "db:migrate:dev": "node scripts/runtime/migrate-local-dev.mjs",
     "dev:guard": "node scripts/runtime/local-dev-guard-cli.mjs",
     "dev:status": "node scripts/runtime/local-dev-guard-cli.mjs status",
     "build": "node scripts/check/with-check-lock.js -- npm run build:inner",
@@ -158,6 +159,10 @@
     "api:check": "npm run arch:gate",
     "docs:action-contracts": "node --import tsx scripts/generate-action-contract-docs.ts",
     "docs:action-contracts:check": "node scripts/check/with-check-lock.js -- node --import tsx scripts/generate-action-contract-docs.ts --check",
+    "docs:api-agent-guide": "node --import tsx scripts/generate-api-agent-guide.ts",
+    "docs:api-agent-guide:check": "node scripts/check/with-check-lock.js -- node --import tsx scripts/generate-api-agent-guide.ts --check",
+    "docs:production-agent": "node --import tsx scripts/generate-production-agent-docs.ts",
+    "docs:production-agent:check": "node scripts/check/with-check-lock.js -- node --import tsx scripts/generate-production-agent-docs.ts --check",
     "docs:permission-actions": "node --import tsx scripts/generate-permission-action-docs.ts",
     "permission-review:baseline": "node --import tsx scripts/generate-permission-review-baseline.ts",
     "permission-review:check": "node --conditions=react-server --import tsx scripts/check/permission-review.ts",

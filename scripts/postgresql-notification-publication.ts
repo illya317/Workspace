@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 
 import type { ServiceResult } from "@workspace/platform/service-result";
 import {
-  archiveNotificationDefinition,
+  commitNotificationDefinitionArchivedState,
   buildNotificationPublicationCommand,
   commitNotificationPublication,
   publishNotificationDefinition,
@@ -353,7 +353,7 @@ async function assertArchivedDefinitionFailsClosed(fixture: Fixture) {
     label: "build command before definition archive",
   });
   requireServiceOk(
-    await archiveNotificationDefinition(
+    await commitNotificationDefinitionArchivedState(
       fixture.users.actor!.id,
       definition.key,
       definition.version,

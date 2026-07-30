@@ -19,7 +19,7 @@ mock.module("./assets/service", { namedExports: {
   },
 } } as never);
 mock.module("./analysis/fund-flow-analysis", { namedExports: { getFundFlowAnalysis: async () => ({
-  scope: { companyCodes: ["ZX01"], label: "甲公司", year: 2026, month: 6, periodLabel: "2026年1—6月", aggregation: "single", availableYears: [2026, 2025] },
+  scope: { companyCodes: ["ZX01"], label: "甲公司", year: 2026, month: 6, periodLabel: "2026年1—6月", aggregation: "single", availableYears: [2026, 2025], availableMonths: [1, 2, 3, 4, 5, 6] },
   metrics: { inflow: 100, outflow: 80, netCashChange: 20, endingCash: 30, financingInflowShare: 0.1, operatingCoverage: 1.2 },
   evidence: { cashFlowCompanyCount: 1, voucherCount: 2, voucherItemCount: 4, cashLinkedVoucherCount: 1, cashFlowNetCashChange: 20, ledgerNetCashChange: 20, balanceNetCashChange: 20 },
   warnings: ["口径警告"], activities: [], sources: [], uses: [], ledgerChannels: [], balanceSignals: [], companies: [],

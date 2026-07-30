@@ -32,7 +32,7 @@ git status --short --branch
 | Data | Prisma、migration、seed、导入脚本、生成脚本和生成物 | 通用 UI、页面体验、架构 gate |
 | Operations | CI、部署、环境、package scripts、运行态脚本 | 领域业务规则、页面 UI、service 业务逻辑 |
 
-如果任务会跨角色，先让 Architecture 或 Orchestrator 拆分；不要一个 agent 同时改 gate、业务 UI、schema 和 CI。
+如果任务会跨角色，先由 Coordinator 拆分，并标明 Architecture、Feature、Data、Operations 等执行边界；不要一个 agent 同时改 gate、业务 UI、schema 和 CI。
 
 ## 3. 任务包执行格式
 
@@ -152,7 +152,7 @@ baseline 是历史债锁，不是白名单。
 | Data | `npm run arch:gate`; `npm run db:validate`; 涉及生成脚本时跑对应生成/审计命令 |
 | Operations | `npm run arch:gate`; 相关 CI/script dry run |
 
-本地 dev server 固定使用 3000 端口且全机只允许一个实例。统一运行 `npm run dev`，不得附加端口参数；3000 已占用时复用现有 Workspace 实例，不得改用其他端口。需要人工确认时运行：
+开发服务的启动方式和宿主端口服从当前环境入口。只有直接本地 checkout 才使用 `npm run dev` 的内部 3000 单实例；远端开发使用宿主入口声明的映射端口，绝不能把生产 3000 当作开发端口。直接本地 checkout 需要人工确认时运行：
 
 ```bash
 lsof -nP -iTCP:3000 -sTCP:LISTEN

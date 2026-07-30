@@ -1,11 +1,10 @@
 import type { ReactNode } from "react";
 
-export const MAX_PRIMARY_PORTAL_SLOTS = 12;
+export const MAX_PRIMARY_PORTAL_SLOTS = 13;
 export const MAX_PINNED_PORTAL_SLOTS = 2;
 export const MAX_PORTAL_SLOTS = MAX_PRIMARY_PORTAL_SLOTS + MAX_PINNED_PORTAL_SLOTS;
 
-const PREVIOUS_PRIMARY_PORTAL_SLOTS = 9;
-const PREVIOUS_PORTAL_SLOTS = PREVIOUS_PRIMARY_PORTAL_SLOTS + MAX_PINNED_PORTAL_SLOTS;
+const LEGACY_PRIMARY_PORTAL_SLOTS = [12, 9] as const;
 
 export interface PortalSlot {
   key: string | null;
@@ -106,10 +105,11 @@ function normalizeLegacyPortalSlots(rawItems: unknown[], validKeys?: ReadonlySet
   const seenShortcuts = new Set<string>();
   const primaryKeys: string[] = [];
   const shortcutKeys: string[] = [];
-  const separatedGroups = rawItems.length === PREVIOUS_PORTAL_SLOTS;
-  const primaryItems = separatedGroups ? rawItems.slice(0, PREVIOUS_PRIMARY_PORTAL_SLOTS) : rawItems;
+  const legacyPrimaryCount = LEGACY_PRIMARY_PORTAL_SLOTS.find((count) => rawItems.length === count + MAX_PINNED_PORTAL_SLOTS);
+  const separatedGroups = legacyPrimaryCount !== undefined;
+  const primaryItems = separatedGroups ? rawItems.slice(0, legacyPrimaryCount) : rawItems;
   const shortcutItems = separatedGroups
-    ? rawItems.slice(PREVIOUS_PRIMARY_PORTAL_SLOTS)
+    ? rawItems.slice(legacyPrimaryCount)
     : rawItems.filter((item) => Boolean(item && typeof item === "object" && "pinned" in item && (item as { pinned?: unknown }).pinned));
   for (const item of primaryItems) {
     const rawKey = item && typeof item === "object" && "key" in item

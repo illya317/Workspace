@@ -1,0 +1,382 @@
+#!/usr/bin/env tsx
+
+import "dotenv/config";
+import fs from "node:fs";
+import path from "node:path";
+
+import { operationalAnalysisTemplateDraftCreateBodySchema } from "../packages/finance/server/cost/operational-analysis-template-schema";
+import { assertApiContractRegistered } from "../packages/platform/api-registry";
+import {
+  listBusinessActionRegistrations,
+  type BusinessActionRegistration,
+} from "../packages/platform/business-action-registry";
+
+const OUTPUT_PATH = path.resolve(import.meta.dirname, "../docs/generated/api-agent-guide.md");
+const TEMPLATE_ACTION_KEYS = [
+  "finance.operationalAnalytics.template.draft.create",
+  "finance.operationalAnalytics.template.draft.update",
+  "finance.operationalAnalytics.template.lifecycle",
+] as const;
+
+const ANALYSIS_BASE_PATH = "/api/modules/finance/cost/operational-analytics/spaces/department/1";
+const WORK_STATUS_TEMPLATE_EXAMPLE = operationalAnalysisTemplateDraftCreateBodySchema.parse({
+  name: "工作状态看板",
+  description: "展示当前空间工作节点的状态数量与明细",
+  definition: {
+    schemaVersion: 3,
+    dataset: "workspace.sources",
+    layout: "grid",
+    sources: [
+      { key: "items", sourceKey: "work.items", sourceVersion: 1 },
+    ],
+    filters: [{
+      key: "status",
+      label: "状态",
+      source: "items",
+      field: "status",
+      kind: "select",
+      options: [
+        { label: "进行中", value: "active" },
+        { label: "已暂停", value: "paused" },
+        { label: "已完成", value: "done" },
+      ],
+    }],
+    blocks: [
+      {
+        key: "summary",
+        kind: "metrics",
+        source: "items",
+        metrics: [{
+          key: "itemCount",
+          label: "工作节点数",
+          operation: "count",
+          field: "id",
+          format: "integer",
+        }],
+      },
+      {
+        key: "statusChart",
+        kind: "chart",
+        source: "items",
+        title: "状态分布",
+        dimension: { field: "status", label: "状态" },
+        metrics: [{
+          key: "itemCount",
+          label: "数量",
+          operation: "count",
+          field: "id",
+          format: "integer",
+        }],
+        sort: "valueDesc",
+      },
+      {
+        key: "details",
+        kind: "table",
+        source: "items",
+        title: "工作明细",
+        columns: [
+          { key: "content", label: "工作内容", field: "content" },
+          { key: "status", label: "状态", field: "status" },
+          { key: "plannedEndDate", label: "计划结束", field: "plannedEndDate", format: "date" },
+        ],
+        limit: 100,
+      },
+    ],
+  },
+});
+
+function configuredApiAgentGuideTargets() {
+  const configuredRoot = process.env.WORKSPACE_CONFIG_DIR?.trim();
+  if (!configuredRoot || !path.isAbsolute(configuredRoot)) return [];
+  const root = fs.realpathSync(configuredRoot);
+  const profilePath = path.join(root, "config/tenant/profile.json");
+  if (!fs.existsSync(profilePath)) return [];
+  const profile = JSON.parse(fs.readFileSync(profilePath, "utf8")) as {
+    docs?: { companyDocuments?: Array<{ source?: string; file?: string }> };
+  };
+  return (profile.docs?.companyDocuments ?? [])
+    .filter((document) => document.source === "api-agent-guide" && document.file)
+    .map((document) => {
+      const resolved = path.resolve(root, document.file!);
+      if (resolved !== root && !resolved.startsWith(`${root}${path.sep}`)) {
+        throw new Error(`Configured API Agent guide escapes WORKSPACE_CONFIG_DIR: ${document.file}`);
+      }
+      return resolved;
+    });
+}
+
+function materializeRoute(route: string) {
+  return route
+    .replace(":targetType", "department")
+    .replace(/:[^/]+/g, "1");
+}
+
+function templateActions() {
+  const registrations = new Map(
+    listBusinessActionRegistrations().map((registration) => [registration.key, registration]),
+  );
+  return TEMPLATE_ACTION_KEYS.map((key) => {
+    const registration = registrations.get(key);
+    if (!registration) throw new Error(`Missing BusinessAction registration: ${key}`);
+    if (!registration.apiRoutes?.length) throw new Error(`BusinessAction has no API route: ${key}`);
+    for (const route of registration.apiRoutes) {
+      assertApiContractRegistered(route.method, materializeRoute(route.path));
+    }
+    return registration;
+  });
+}
+
+function assertReadContracts() {
+  assertApiContractRegistered("GET", "/api/settings/account/api-catalog");
+  assertApiContractRegistered("GET", "/api/modules/docs/company/documents");
+  assertApiContractRegistered("GET", "/api/modules/docs/company/documents/api-agent-guide");
+  assertApiContractRegistered("GET", "/api/modules/work/tasks/spaces");
+  assertApiContractRegistered("GET", `${ANALYSIS_BASE_PATH}/sources/discover`);
+  assertApiContractRegistered("GET", `${ANALYSIS_BASE_PATH}/templates/contract`);
+  assertApiContractRegistered("GET", `${ANALYSIS_BASE_PATH}/templates`);
+  assertApiContractRegistered("GET", `${ANALYSIS_BASE_PATH}/templates/1`);
+  assertApiContractRegistered("GET", `${ANALYSIS_BASE_PATH}/templates/1/lifecycle`);
+  assertApiContractRegistered("POST", `${ANALYSIS_BASE_PATH}/templates/1/preview`);
+  assertApiContractRegistered("POST", `${ANALYSIS_BASE_PATH}/templates/1/runtime`);
+}
+
+function renderActionTable(actions: readonly BusinessActionRegistration[]) {
+  const lines = [
+    "| 操作 | BusinessAction | 方法与路径 | 权限 |",
+    "|---|---|---|---|",
+  ];
+  for (const action of actions) {
+    const routes = action.apiRoutes!
+      .map((route) => `\`${route.method} ${route.path}\``)
+      .join("<br>");
+    const permission = action.directPermissionAction ? `\`${action.directPermissionAction}\`` : "由 service 决定";
+    lines.push(`| ${action.label} | \`${action.key}\` | ${routes} | ${permission} |`);
+  }
+  lines.push("");
+  return lines;
+}
+
+export function renderApiAgentGuide() {
+  assertReadContracts();
+  const actions = templateActions();
+  const lines = [
+    "<!-- AUTO-GENERATED by scripts/generate-api-agent-guide.ts. DO NOT EDIT. -->",
+    "",
+    "# Workspace API Agent 使用手册",
+    "",
+    "## 目录",
+    "",
+    "| 问题 | 章节 |",
+    "|---|---|",
+    "| 外部 Agent 与内置 Agent 怎么调用 | 两种 Agent 的调用边界 |",
+    "| 完整创建顺序 | 端到端顺序 |",
+    "| 怎么找真实个人/部门/项目空间 | 1. 发现 Work 空间 |",
+    "| 怎么拿当前 JSON Schema 和路径 | 2. 读取当前空间的模板 contract |",
+    "| 怎么选择字段和数据源 | 3. 发现模板可用的数据源 |",
+    "| 怎么创建、预览和发布 | 4–6. 组装、创建、回读、预览和发布 |",
+    "| 失败后怎么处理 | 错误处理 |",
+    "| 给其他 Agent 的最短规则 | 可直接交给其他 Agent 的执行规则 |",
+    "",
+    "本文给持个人 API Key 的外部 Agent，以及 Workspace 页面助手、企微助手等内置 Agent 使用。重点说明如何创建 Work 个人、部门或项目空间里的**经营分析展示模板**。",
+    "",
+    "> 本文的“展示模板”是 `WorkspaceAnalysisTemplate`：它决定经营分析页面使用哪些数据源、筛选器、指标、图表、表格和说明区块。它不是 `/docs/editor` 的文档模板，也不是工作计划、任务或周报模板。",
+    "",
+    "> **先发现，再判断。** 经营分析展示模板有正式 REST API。不得因为页面里有 Agent 新建入口、没有专用 SDK 或一次调用失败，就断言“只能由浏览器内页面助手创建”。",
+    "",
+    "## 两种 Agent 的调用边界",
+    "",
+    "| 调用者 | API 发现 | 认证 | 读取 | 写入 |",
+    "|---|---|---|---|---|",
+    "| 外部 Agent | `GET /api/settings/account/api-catalog` | 请求头 `X-API-Key` | 直接请求登记的 `GET /api/modules/**` | 自己完成用户确认后，直接请求登记的写 API |",
+    "| Workspace 内置 Agent | `workspace.api.discover` | 服务端注入短时委托，不接触 Key、Cookie 或 token | `workspace.api.read` | `workspace.api.proposeMutation` 冻结提案；用户确认后系统按原 method/path/body 执行 |",
+    "",
+    "外部 Agent 的 Key 所属用户需要 `settings.account.apiAccess`。经营分析 API 还会分别检查目标空间的 `finance.operationalAnalytics.read/configure`；API-Key 请求额外要求同一空间的 `finance.operationalAnalytics.apiUse`。这些权限互不替代。",
+    "",
+    "## 端到端顺序",
+    "",
+    "```text",
+    "发现真实空间 -> 读取该空间模板 contract -> 发现并展开数据源 -> 组装 v3 展示定义",
+    "-> 用户确认 -> 创建草稿 -> 回读草稿 -> 预览 -> 用户确认 -> 发布 -> 用正式 revision 运行并验收",
+    "```",
+    "",
+    "路径里的 `:targetType` 只允许 `personal`、`department`、`project`，`:targetId` 是对应用户、部门或项目的真实数字 ID。空间身份只来自路径，创建 body 里不得再发送或覆盖 `scopeType`、`scopeId`、`templateId`。",
+    "",
+    "## 1. 发现 Work 空间",
+    "",
+    "先读取：",
+    "",
+    "```http",
+    "GET /api/modules/work/tasks/spaces",
+    "```",
+    "",
+    "从返回的 `data.spaces[]` 选择用户明确指定且可见的空间，使用其中的 `targetType`、`targetId`、`name` 和 `lifecycleStatus`。个人空间的 `targetId` 当前是用户 ID，部门空间是部门 ID，但 Agent 仍必须使用接口返回值，不能从姓名或 URL 文本猜 ID。",
+    "",
+    "这个接口负责发现 Work 空间身份，不代表调用者一定能配置经营分析。下一步的模板 contract 会再次检查该空间的 `configure`，外部 Key 还会检查 `apiUse`。",
+    "",
+    "内置 Agent：",
+    "",
+    "```text",
+    "workspace.api.read({\"path\":\"/api/modules/work/tasks/spaces\"})",
+    "```",
+    "",
+    "外部 Agent：",
+    "",
+    "```bash",
+    "curl --fail-with-body --silent --show-error \\",
+    "  \"$WORKSPACE_BASE_URL/api/modules/work/tasks/spaces\" \\",
+    "  -H \"Accept: application/json\" \\",
+    "  -H \"X-API-Key: $WORKSPACE_API_KEY\"",
+    "```",
+    "",
+    "`WORKSPACE_BASE_URL` 必须包含部署 base path，例如 `https://example.com/workspace`。API Key 只能放在 Agent 的秘密存储中，禁止写入提示词、日志或文档。",
+    "",
+    "## 2. 读取当前空间的模板 contract",
+    "",
+    "把下方示例中的 `department/123` 替换为上一步选中的真实空间：",
+    "",
+    "```http",
+    "GET /api/modules/finance/cost/operational-analytics/spaces/department/123/templates/contract",
+    "```",
+    "",
+    "这是 Agent 创建展示模板时最重要的端点。返回 `data.routes`、`data.rules`、`data.bodySchemas` 和 `data.example`，其中包含当前空间的精确路径、创建/修订/预览/生命周期 JSON Schema 和创建示例。Agent 应按返回内容构造请求，不要把本文当成永不变化的第二份 schema。",
+    "",
+    "内置 Agent 应先：",
+    "",
+    "```text",
+    "workspace.api.discover({\"query\":\"经营分析 展示模板 创建\"})",
+    "workspace.api.read({\"path\":\"/api/modules/finance/cost/operational-analytics/spaces/department/123/templates/contract\"})",
+    "```",
+    "",
+    "外部 Agent 应先读取 API Catalog，再直接 GET 同一路径。外部 Key 从“设置 → 账户 → API 访问”创建；不要要求用户把 Key 粘贴进聊天。",
+    "",
+    "## 3. 发现模板可用的数据源",
+    "",
+    "数据源关键词必填。先按用户想展示的业务概念搜索摘要：",
+    "",
+    "```http",
+    "GET /api/modules/finance/cost/operational-analytics/spaces/department/123/sources/discover?keyword=工作&page=1&pageSize=20",
+    "```",
+    "",
+    "再把候选的精确 `sourceKey@version` 放进 `selected`，一次最多展开 4 个：",
+    "",
+    "```http",
+    "GET /api/modules/finance/cost/operational-analytics/spaces/department/123/sources/discover?keyword=工作&page=1&pageSize=20&selected=work.items@1",
+    "```",
+    "",
+    "只有展开后的定义才是可用依据。逐项读取：",
+    "",
+    "- `sourceKey` 和 `version`：原样写入模板，不用模糊名称代替。",
+    "- `scopeBindings`：确认该 source 支持当前 personal、department 或 project 空间。",
+    "- `parameters`：只使用已声明参数；目标空间由服务端可信上下文注入，不能写进参数冒充其他空间。",
+    "- `fields[].key` 与 `capabilities`：展示、筛选、分组和聚合只能使用明确允许的字段能力。",
+    "- `authorization` 和 `availability`：缺少底层业务读取权限或 provider 不可用时，应停止并报告，不能换内部 URL 绕过。",
+    "",
+    "## 4. 组装 v3 展示模板草稿",
+    "",
+    "新建 body 严格只有 `name`、可选 `description` 和 `definition`。新写入只接受 `schemaVersion: 3`、`dataset: workspace.sources`。下面示例展示一个当前空间工作节点的状态看板；发送前必须用 discovery 返回结果核对 source 版本、字段和能力：",
+    "",
+    "```json",
+    ...JSON.stringify(WORK_STATUS_TEMPLATE_EXAMPLE, null, 2).split("\n"),
+    "```",
+    "",
+    "模板可以包含最多 4 个 source、12 个 filter 和 24 个带唯一 key 的 block。不要保存内部 API URL、rowsPath、SQL、JavaScript、文件路径或分页机制；v3 只保存稳定的 source 引用和展示定义。",
+    "",
+    "## 5. 用户确认后创建草稿",
+    "",
+    "外部 Agent：",
+    "",
+    "```bash",
+    "curl --fail-with-body --silent --show-error \\",
+    "  -X POST \"$WORKSPACE_BASE_URL/api/modules/finance/cost/operational-analytics/spaces/department/123/templates\" \\",
+    "  -H \"Accept: application/json\" \\",
+    "  -H \"Content-Type: application/json\" \\",
+    "  -H \"X-API-Key: $WORKSPACE_API_KEY\" \\",
+    "  --data-binary @analysis-template.json",
+    "```",
+    "",
+    "内置 Agent：",
+    "",
+    "```text",
+    "workspace.api.proposeMutation({",
+    "  \"method\": \"POST\",",
+    "  \"path\": \"/api/modules/finance/cost/operational-analytics/spaces/department/123/templates\",",
+    "  \"body\": { ...上面的草稿 JSON... }",
+    "})",
+    "```",
+    "",
+    "内置工具只会生成不可变提案，不会立即写入。必须等待用户确认，不能把“已生成提案”说成“模板已创建”。外部 Agent 也必须在自己的对话层展示空间、模板名称、数据源和区块影响并取得等价确认。",
+    "",
+    "创建成功返回模板 `id`、当前 `revision`、`publishedRevision: null`、`status: draft` 和 `executionMode: direct`。它只是草稿，不会立即出现在普通读者的正式模板列表。",
+    "",
+    "## 6. 回读、预览和发布",
+    "",
+    "1. 回读可编辑草稿：`GET .../templates/:templateId`，保存完整 definition 和当前 head revision。",
+    "2. 修订草稿：`PUT .../templates/:templateId`，body 使用 contract 的 update schema，并带刚回读的 `expectedRevision`。",
+    "3. 预览：`POST .../templates/:templateId/preview`，body 至少包含当前 `expectedRevision` 和要预览的 `revision`。预览会重新检查空间与所有 source 权限，但不发布。",
+    "4. 读取生命周期：`GET .../templates/:templateId/lifecycle`，只使用服务端返回的 enabled action。",
+    "5. 用户确认后发布：`POST .../templates/:templateId/lifecycle`，body 例如 `{\"action\":\"publish\",\"expectedRevision\":1,\"reason\":\"预览通过后发布\"}`。内置 Agent 仍必须用 `workspace.api.proposeMutation`。",
+    "6. 再次读取模板目录；使用返回的 `publishedRevision` 调 `POST .../templates/:templateId/runtime`，核对正式页面的指标、图表、表格和筛选器。",
+    "",
+    "普通 `GET .../templates` 只向读者返回 active 的正式修订；具有 `configure` 的调用者会在同一响应中额外得到草稿/归档管理摘要。销售系统预置只在该空间存在销售事实时出现；其他空间没有模板时，空画布是正常状态。",
+    "",
+    "## 模板写入动作",
+    "",
+    ...renderActionTable(actions),
+    "生命周期 `publish`、`rollback`、`discard`、`archive`、`restore` 都要求当前正整数 `expectedRevision`；rollback 还要求 `sourceRevision`。任何 `409` 都先重新读取草稿和生命周期，展示差异后再让用户决定，禁止盲目重试旧请求。",
+    "",
+    "## 错误处理",
+    "",
+    "| 现象 | 正确处理 |",
+    "|---|---|",
+    "| `400` | 按当前空间 `/templates/contract` 的 JSON Schema 修正 body；不要尝试旧 v1/v2 或把 scope 写进 body。 |",
+    "| `401` | 检查 Key 或内置 Agent binding；检查 Base URL 是否包含 `/workspace`。不要打印凭据。 |",
+    "| `403` | 区分 `read`、`configure`、API-Key 专属 `apiUse` 和底层 source owner 权限；不要换内部路径绕过。 |",
+    "| `404` | 重新读取空间和模板目录，确认 target/template 对当前主体可见。 |",
+    "| `409` | 名称重复、revision 过期、source 版本不可用或正式版本变化。重新读取并展示差异，禁止原样重试。 |",
+    "| `503` | 必需 source provider 暂时不可用；这是可重试基础设施故障，不要把它改写成模板定义错误。 |",
+    "| 无系统销售模板 | 当前空间没有销售事实；从空画布创建合适模板，不得拿部门销售数据冒充个人或项目数据。 |",
+    "",
+    "## 可直接交给其他 Agent 的执行规则",
+    "",
+    "```text",
+    "用户说 Work 个人/部门/项目空间的展示模板时，指经营分析 WorkspaceAnalysisTemplate，不是 Docs Editor 文档模板。",
+    "先 GET /api/modules/work/tasks/spaces 取得真实 targetType/targetId，再读取该空间的 /templates/contract。",
+    "按用户业务意图调用 /sources/discover，keyword 必填；把选中的 sourceKey@version 再展开，字段和能力只信 discovery 返回值。",
+    "新建只使用 contract 的 create schema：name、description、schemaVersion=3 的 workspace.sources definition；scope 只能在 path。",
+    "外部 Agent 使用 X-API-Key 并额外满足 apiUse；内置 Agent 只用 workspace.api.discover/read/proposeMutation，不能索要凭据或直接写入。",
+    "创建后必须回读、预览、确认、发布，再用 publishedRevision 运行验收。遇到 409 重新读取，禁止盲目重试。",
+    "不得从页面形态推断没有 REST API，也不得回退到浏览器自动化绕过权限、contract 或提案确认。",
+    "```",
+    "",
+    "事实来源：Work 空间目录、Finance operational analytics API contract、数据源 registry、BusinessAction registry 与 Agent generic business API connector。生成时会校验本文涉及的核心路由和模板写动作仍已注册。",
+  ];
+  return `${lines.join("\n").trimEnd()}\n`;
+}
+
+function main() {
+  const rendered = renderApiAgentGuide();
+  const configuredTargets = configuredApiAgentGuideTargets();
+  if (process.argv.includes("--check")) {
+    const staleTargets = [OUTPUT_PATH, ...configuredTargets].filter((target) => {
+      const current = fs.existsSync(target) ? fs.readFileSync(target, "utf8") : "";
+      return current !== rendered;
+    });
+    if (staleTargets.length > 0) {
+      process.stderr.write("Generated API Agent guide is stale. Run `npm run docs:api-agent-guide`.\n");
+      for (const target of staleTargets) process.stderr.write(`- ${target}\n`);
+      process.exit(1);
+    }
+    process.stdout.write("✓ Generated API Agent guide is current.\n");
+    return;
+  }
+  fs.writeFileSync(OUTPUT_PATH, rendered, "utf8");
+  for (const target of configuredTargets) {
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, rendered, "utf8");
+  }
+  process.stdout.write(
+    `Generated ${[OUTPUT_PATH, ...configuredTargets].map((target) => path.relative(process.cwd(), target)).join(", ")}.\n`,
+  );
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) main();

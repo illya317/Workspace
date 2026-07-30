@@ -9,8 +9,8 @@ const governedRoots = [
   ".githooks",
   "ops",
   "scripts",
+  ".agents/skills",
   "docs/engineering",
-  "docs/roles",
   "docs/planning/short-term",
   "docs/planning/tracking",
 ];

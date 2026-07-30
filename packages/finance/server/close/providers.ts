@@ -41,18 +41,23 @@ function validInspection(value: FinanceCloseProviderInspection) {
 }
 
 export async function inspectFinanceCloseContributors(scope: FinanceCloseScope, registry: FinanceCloseProviderRegistry) {
+  const providerScope: FinanceCloseScope = {
+    companyCode: scope.companyCode,
+    year: scope.year,
+    month: scope.month,
+  };
   const unique = new Map(FINANCE_CLOSE_TASK_CATALOG.map((item) => [item.contributorKey, item.deepLink]));
   const results = new Map<string, FinanceCloseProviderInspection>();
   for (const [contributorKey, deepLink] of unique) {
     const provider = registry.get(contributorKey);
     if (!provider) {
-      results.set(contributorKey, unavailable(scope, contributorKey, deepLink, "provider_not_registered"));
+      results.set(contributorKey, unavailable(providerScope, contributorKey, deepLink, "provider_not_registered"));
       continue;
     }
     try {
-      results.set(contributorKey, validInspection(await provider.inspectPeriodClose(scope)));
+      results.set(contributorKey, validInspection(await provider.inspectPeriodClose(providerScope)));
     } catch {
-      results.set(contributorKey, unavailable(scope, contributorKey, deepLink));
+      results.set(contributorKey, unavailable(providerScope, contributorKey, deepLink));
     }
   }
   return results;

@@ -23,6 +23,7 @@ Repository-owned runtime dependency contracts:
 
 - [CI/CD 与测试分级](./ci-cd.md)
 - [Deploy Unit Graph](./deploy-units.md)
+- [远端开发环境与 Codex SSH 项目](./remote-development.md)
 - [私有工作区与新租户初始化](./workspace-config.md)
 - [Agent runtime: Pi DeepSeek Flash and Kimi](./kimi-agent-runtime.md)
 - [数据发布批次与生产回执](./data-releases.md)

@@ -21,3 +21,5 @@ export type RefreshFinanceCloseCommand = ResolvedFinanceCloseScope & {
   requestFingerprint: string;
   idempotentRunId: number | null;
 };
+
+export type CompleteFinanceCloseCommand = RefreshFinanceCloseCommand;

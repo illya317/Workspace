@@ -4,7 +4,7 @@ import { createCommandRoute } from "@workspace/platform/server/api-route";
 import {
   buildUpdateProjectNotificationRuleCommand,
   updateProjectNotificationRule,
-  projectNotificationRuleUpdateSchema,
+  projectNotificationRuleUpdateRequestSchema,
 } from "@workspace/work/server";
 
 const paramsSchema = z.object({
@@ -15,7 +15,7 @@ const paramsSchema = z.object({
 export const PUT = createCommandRoute({
   paramsSchema,
   paramsError: "项目或规则 ID 无效",
-  bodySchema: projectNotificationRuleUpdateSchema,
+  bodySchema: projectNotificationRuleUpdateRequestSchema,
   bodyError: "项目通知规则无效",
   buildCommand: ({ params, body, user }) => buildUpdateProjectNotificationRuleCommand({
     userId: user.userId,

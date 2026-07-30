@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { CloseValidationDependencies } from "./validation";
-import { buildOpenFinanceCloseCommand, buildRefreshFinanceCloseCommand } from "./validation";
+import { buildCompleteFinanceCloseCommand, buildOpenFinanceCloseCommand, buildRefreshFinanceCloseCommand } from "./validation";
 
 function deps(overrides: Partial<CloseValidationDependencies> = {}): CloseValidationDependencies {
   const company = { id: 2, code: "C02", isActive: true };
@@ -74,4 +74,28 @@ test("closed periods reject new refreshes but allow a strict idempotent replay",
   }));
   assert.equal(replay.ok, true);
   if (replay.ok) assert.equal(replay.data.idempotentRunId, 8);
+});
+
+test("completion validates open run CAS and permits only an exact completed replay", async () => {
+  const input = { runId: 8, expectedVersion: 3, idempotencyKey: "close-complete-1" };
+  const accepted = await buildCompleteFinanceCloseCommand(input, 7, deps());
+  assert.equal(accepted.ok, true);
+  const stale = await buildCompleteFinanceCloseCommand({ ...input, expectedVersion: 2 }, 7, deps());
+  assert.equal(stale.ok, false);
+  if (!accepted.ok) return;
+  const completedPeriod = { id: 6, companyCode: "C02", year: 2026, month: 6, isClosed: true };
+  const completedRun = {
+    id: 8, companyId: 2, periodId: 6, status: "completed", version: 4,
+    company: { id: 2, code: "C02", isActive: true }, period: completedPeriod,
+  };
+  const replay = await buildCompleteFinanceCloseCommand(input, 7, deps({
+    findRun: async () => completedRun,
+    findEvent: async () => ({ eventKind: "completed", requestFingerprint: accepted.data.requestFingerprint, run: completedRun }),
+  }));
+  assert.equal(replay.ok, true);
+  const collision = await buildCompleteFinanceCloseCommand(input, 7, deps({
+    findRun: async () => completedRun,
+    findEvent: async () => ({ eventKind: "refreshed", requestFingerprint: accepted.data.requestFingerprint, run: completedRun }),
+  }));
+  assert.equal(collision.ok, false);
 });

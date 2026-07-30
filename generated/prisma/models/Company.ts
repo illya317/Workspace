@@ -333,6 +333,9 @@ export type CompanyWhereInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunListRelationFilter
   shareCapitalEvents?: Prisma.ShareCapitalEventListRelationFilter
   shareholderGroups?: Prisma.ShareholderGroupListRelationFilter
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileListRelationFilter
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordListRelationFilter
+  investmentEnterpriseProfile?: Prisma.XOR<Prisma.InvestmentEnterpriseProfileNullableScalarRelationFilter, Prisma.InvestmentEnterpriseProfileWhereInput> | null
   registryChanges?: Prisma.CompanyRegistryChangeListRelationFilter
   positionReportOverrides?: Prisma.PositionReportOverrideListRelationFilter
   reportingEdps?: Prisma.EDPListRelationFilter
@@ -423,6 +426,9 @@ export type CompanyOrderByWithRelationInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunOrderByRelationAggregateInput
   shareCapitalEvents?: Prisma.ShareCapitalEventOrderByRelationAggregateInput
   shareholderGroups?: Prisma.ShareholderGroupOrderByRelationAggregateInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileOrderByRelationAggregateInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordOrderByRelationAggregateInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileOrderByWithRelationInput
   registryChanges?: Prisma.CompanyRegistryChangeOrderByRelationAggregateInput
   positionReportOverrides?: Prisma.PositionReportOverrideOrderByRelationAggregateInput
   reportingEdps?: Prisma.EDPOrderByRelationAggregateInput
@@ -516,6 +522,9 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunListRelationFilter
   shareCapitalEvents?: Prisma.ShareCapitalEventListRelationFilter
   shareholderGroups?: Prisma.ShareholderGroupListRelationFilter
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileListRelationFilter
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordListRelationFilter
+  investmentEnterpriseProfile?: Prisma.XOR<Prisma.InvestmentEnterpriseProfileNullableScalarRelationFilter, Prisma.InvestmentEnterpriseProfileWhereInput> | null
   registryChanges?: Prisma.CompanyRegistryChangeListRelationFilter
   positionReportOverrides?: Prisma.PositionReportOverrideListRelationFilter
   reportingEdps?: Prisma.EDPListRelationFilter
@@ -652,6 +661,9 @@ export type CompanyCreateInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -741,6 +753,9 @@ export type CompanyUncheckedCreateInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -829,6 +844,9 @@ export type CompanyUpdateInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -918,6 +936,9 @@ export type CompanyUncheckedUpdateInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -1127,6 +1148,48 @@ export type CompanySumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
+}
+
+export type CompanyCreateNestedOneWithoutInvestmentEnterpriseProfileInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutInvestmentEnterpriseProfileInput, Prisma.CompanyUncheckedCreateWithoutInvestmentEnterpriseProfileInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutInvestmentEnterpriseProfileInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutInvestmentEnterpriseProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutInvestmentEnterpriseProfileInput, Prisma.CompanyUncheckedCreateWithoutInvestmentEnterpriseProfileInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutInvestmentEnterpriseProfileInput
+  upsert?: Prisma.CompanyUpsertWithoutInvestmentEnterpriseProfileInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutInvestmentEnterpriseProfileInput, Prisma.CompanyUpdateWithoutInvestmentEnterpriseProfileInput>, Prisma.CompanyUncheckedUpdateWithoutInvestmentEnterpriseProfileInput>
+}
+
+export type CompanyCreateNestedOneWithoutInvestorShareholderProfilesInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutInvestorShareholderProfilesInput, Prisma.CompanyUncheckedCreateWithoutInvestorShareholderProfilesInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutInvestorShareholderProfilesInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutInvestorShareholderProfilesNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutInvestorShareholderProfilesInput, Prisma.CompanyUncheckedCreateWithoutInvestorShareholderProfilesInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutInvestorShareholderProfilesInput
+  upsert?: Prisma.CompanyUpsertWithoutInvestorShareholderProfilesInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutInvestorShareholderProfilesInput, Prisma.CompanyUpdateWithoutInvestorShareholderProfilesInput>, Prisma.CompanyUncheckedUpdateWithoutInvestorShareholderProfilesInput>
+}
+
+export type CompanyCreateNestedOneWithoutInvestorDueDiligenceRecordsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutInvestorDueDiligenceRecordsInput, Prisma.CompanyUncheckedCreateWithoutInvestorDueDiligenceRecordsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutInvestorDueDiligenceRecordsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutInvestorDueDiligenceRecordsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutInvestorDueDiligenceRecordsInput, Prisma.CompanyUncheckedCreateWithoutInvestorDueDiligenceRecordsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutInvestorDueDiligenceRecordsInput
+  upsert?: Prisma.CompanyUpsertWithoutInvestorDueDiligenceRecordsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutInvestorDueDiligenceRecordsInput, Prisma.CompanyUpdateWithoutInvestorDueDiligenceRecordsInput>, Prisma.CompanyUncheckedUpdateWithoutInvestorDueDiligenceRecordsInput>
 }
 
 export type CompanyCreateNestedOneWithoutIssuedOwnershipsInput = {
@@ -2225,6 +2288,1140 @@ export type CompanyUpdateOneWithoutStockFinishedGoodsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutStockFinishedGoodsInput, Prisma.CompanyUpdateWithoutStockFinishedGoodsInput>, Prisma.CompanyUncheckedUpdateWithoutStockFinishedGoodsInput>
 }
 
+export type CompanyCreateWithoutInvestmentEnterpriseProfileInput = {
+  code: string
+  description?: string | null
+  registeredCapital?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  managementGroup: string
+  codePoolCode?: string | null
+  isActive?: boolean
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  party: Prisma.PartyCreateNestedOneWithoutCompanyInput
+  issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
+  shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
+  positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
+  reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
+  ownedFinanceAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutCompanyInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutLinkedCompanyInput
+  sourceFinanceVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutSourceCompanyInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
+  financeBankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutCompanyInput
+  financeLoans?: Prisma.FinanceLoanCreateNestedManyWithoutCompanyInput
+  financeTaxRegistrations?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutCompanyInput
+  financeTaxPayments?: Prisma.FinanceTaxPaymentCreateNestedManyWithoutCompanyInput
+  financeCloseRuns?: Prisma.FinanceCloseRunCreateNestedManyWithoutCompanyInput
+  financeCloseWorkpapers?: Prisma.FinanceCloseWorkpaperCreateNestedManyWithoutCompanyInput
+  financeBudgetVersions?: Prisma.FinanceBudgetVersionCreateNestedManyWithoutCompanyInput
+  financeStatementSourcePackages?: Prisma.FinanceStatementSourcePackageCreateNestedManyWithoutCompanyInput
+  financeConsolidationParentBatches?: Prisma.FinanceConsolidationBatchCreateNestedManyWithoutParentCompanyInput
+  financeConsolidationEntities?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedManyWithoutCompanyInput
+  financeConsolidationChildEntities?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedManyWithoutDirectParentCompanyInput
+  financeConsolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCompanyInput
+  financeConsolidationCounterparties?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCounterpartyCompanyInput
+  financeConsolidationParentScopes?: Prisma.FinanceConsolidationScopeSelectionCreateNestedManyWithoutParentCompanyInput
+  financeConsolidationCompanyScopes?: Prisma.FinanceConsolidationScopeSelectionCreateNestedManyWithoutCompanyInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
+  employmentRecords?: Prisma.EmploymentCreateNestedManyWithoutCompanyInput
+  financeAccountBalances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutCompanyInput
+  financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutCompanyInput
+  financeAssetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutCompanyInput
+  financeAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCompanyInput
+  financeAssetAcquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedManyWithoutCompanyInput
+  financeAssetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutCompanyInput
+  financeAssetDisposals?: Prisma.FinanceAssetDisposalCreateNestedManyWithoutCompanyInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentCreateNestedManyWithoutCompanyInput
+  financeAssetImportBatches?: Prisma.FinanceAssetImportBatchCreateNestedManyWithoutCompanyInput
+  financeAuxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutCompanyInput
+  financeBalanceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutCompanyInput
+  financeBalanceReclassAdjustmentHistories?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutCompanyInput
+  financeBalanceSnapshots?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutCompanyInput
+  financeCashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCompanyInput
+  financeCashFlowAllocationAdjustments?: Prisma.FinanceCashFlowAllocationAdjustmentCreateNestedManyWithoutCompanyInput
+  financeCashFlowItems?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutCompanyInput
+  financeCurrencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutCompanyInput
+  originFinanceGroupAccounts?: Prisma.FinanceGroupAccountCreateNestedManyWithoutOriginCompanyInput
+  financeGroupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutCompanyInput
+  financeLedgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutCompanyInput
+  financeOpenItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutCompanyInput
+  financePeriods?: Prisma.FinancePeriodCreateNestedManyWithoutCompanyInput
+  financeReclassItemRules?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutCompanyInput
+  financeSourceAccountBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutCompanyInput
+  financeSourceLedgerMappings?: Prisma.FinanceSourceLedgerMappingCreateNestedManyWithoutCompanyInput
+  financeStatementVoucherExclusions?: Prisma.FinanceStatementVoucherExclusionCreateNestedManyWithoutCompanyInput
+  financeStatementWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutCompanyInput
+  financeVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutCompanyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  inventoryImportBatches?: Prisma.InventoryImportBatchCreateNestedManyWithoutCompanyInput
+  inventoryLedgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutCompanyInput
+  inventoryPeriodCloses?: Prisma.InventoryPeriodCloseCreateNestedManyWithoutCompanyInput
+  inventoryStocktakes?: Prisma.InventoryStocktakeCreateNestedManyWithoutCompanyInput
+  inventoryWarehouses?: Prisma.InventoryWarehouseCreateNestedManyWithoutCompanyInput
+  stockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutCompanyInput
+  stockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutCompanyInput
+  stockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutInvestmentEnterpriseProfileInput = {
+  id?: number
+  partyId: number
+  code: string
+  description?: string | null
+  registeredCapital?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  managementGroup: string
+  codePoolCode?: string | null
+  isActive?: boolean
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
+  shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
+  reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
+  ownedFinanceAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutCompanyInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutLinkedCompanyInput
+  sourceFinanceVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutSourceCompanyInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
+  financeBankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutCompanyInput
+  financeLoans?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutCompanyInput
+  financeTaxRegistrations?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutCompanyInput
+  financeTaxPayments?: Prisma.FinanceTaxPaymentUncheckedCreateNestedManyWithoutCompanyInput
+  financeCloseRuns?: Prisma.FinanceCloseRunUncheckedCreateNestedManyWithoutCompanyInput
+  financeCloseWorkpapers?: Prisma.FinanceCloseWorkpaperUncheckedCreateNestedManyWithoutCompanyInput
+  financeBudgetVersions?: Prisma.FinanceBudgetVersionUncheckedCreateNestedManyWithoutCompanyInput
+  financeStatementSourcePackages?: Prisma.FinanceStatementSourcePackageUncheckedCreateNestedManyWithoutCompanyInput
+  financeConsolidationParentBatches?: Prisma.FinanceConsolidationBatchUncheckedCreateNestedManyWithoutParentCompanyInput
+  financeConsolidationEntities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateNestedManyWithoutCompanyInput
+  financeConsolidationChildEntities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateNestedManyWithoutDirectParentCompanyInput
+  financeConsolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCompanyInput
+  financeConsolidationCounterparties?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCounterpartyCompanyInput
+  financeConsolidationParentScopes?: Prisma.FinanceConsolidationScopeSelectionUncheckedCreateNestedManyWithoutParentCompanyInput
+  financeConsolidationCompanyScopes?: Prisma.FinanceConsolidationScopeSelectionUncheckedCreateNestedManyWithoutCompanyInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
+  employmentRecords?: Prisma.EmploymentUncheckedCreateNestedManyWithoutCompanyInput
+  financeAccountBalances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutCompanyInput
+  financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetAcquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetDisposals?: Prisma.FinanceAssetDisposalUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetImportBatches?: Prisma.FinanceAssetImportBatchUncheckedCreateNestedManyWithoutCompanyInput
+  financeAuxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutCompanyInput
+  financeBalanceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutCompanyInput
+  financeBalanceReclassAdjustmentHistories?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutCompanyInput
+  financeBalanceSnapshots?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutCompanyInput
+  financeCashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCompanyInput
+  financeCashFlowAllocationAdjustments?: Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateNestedManyWithoutCompanyInput
+  financeCashFlowItems?: Prisma.FinanceCashFlowItemUncheckedCreateNestedManyWithoutCompanyInput
+  financeCurrencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutCompanyInput
+  originFinanceGroupAccounts?: Prisma.FinanceGroupAccountUncheckedCreateNestedManyWithoutOriginCompanyInput
+  financeGroupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutCompanyInput
+  financeLedgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutCompanyInput
+  financeOpenItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutCompanyInput
+  financePeriods?: Prisma.FinancePeriodUncheckedCreateNestedManyWithoutCompanyInput
+  financeReclassItemRules?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutCompanyInput
+  financeSourceAccountBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutCompanyInput
+  financeSourceLedgerMappings?: Prisma.FinanceSourceLedgerMappingUncheckedCreateNestedManyWithoutCompanyInput
+  financeStatementVoucherExclusions?: Prisma.FinanceStatementVoucherExclusionUncheckedCreateNestedManyWithoutCompanyInput
+  financeStatementWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutCompanyInput
+  financeVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryImportBatches?: Prisma.InventoryImportBatchUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryLedgerEntries?: Prisma.InventoryLedgerEntryUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryPeriodCloses?: Prisma.InventoryPeriodCloseUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryStocktakes?: Prisma.InventoryStocktakeUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryWarehouses?: Prisma.InventoryWarehouseUncheckedCreateNestedManyWithoutCompanyInput
+  stockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutCompanyInput
+  stockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutCompanyInput
+  stockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutInvestmentEnterpriseProfileInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutInvestmentEnterpriseProfileInput, Prisma.CompanyUncheckedCreateWithoutInvestmentEnterpriseProfileInput>
+}
+
+export type CompanyUpsertWithoutInvestmentEnterpriseProfileInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutInvestmentEnterpriseProfileInput, Prisma.CompanyUncheckedUpdateWithoutInvestmentEnterpriseProfileInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutInvestmentEnterpriseProfileInput, Prisma.CompanyUncheckedCreateWithoutInvestmentEnterpriseProfileInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutInvestmentEnterpriseProfileInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutInvestmentEnterpriseProfileInput, Prisma.CompanyUncheckedUpdateWithoutInvestmentEnterpriseProfileInput>
+}
+
+export type CompanyUpdateWithoutInvestmentEnterpriseProfileInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
+  issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
+  shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
+  reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
+  ownedFinanceAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutCompanyNestedInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithoutLinkedCompanyNestedInput
+  sourceFinanceVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithoutSourceCompanyNestedInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
+  financeBankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutCompanyNestedInput
+  financeLoans?: Prisma.FinanceLoanUpdateManyWithoutCompanyNestedInput
+  financeTaxRegistrations?: Prisma.FinanceTaxRegistrationUpdateManyWithoutCompanyNestedInput
+  financeTaxPayments?: Prisma.FinanceTaxPaymentUpdateManyWithoutCompanyNestedInput
+  financeCloseRuns?: Prisma.FinanceCloseRunUpdateManyWithoutCompanyNestedInput
+  financeCloseWorkpapers?: Prisma.FinanceCloseWorkpaperUpdateManyWithoutCompanyNestedInput
+  financeBudgetVersions?: Prisma.FinanceBudgetVersionUpdateManyWithoutCompanyNestedInput
+  financeStatementSourcePackages?: Prisma.FinanceStatementSourcePackageUpdateManyWithoutCompanyNestedInput
+  financeConsolidationParentBatches?: Prisma.FinanceConsolidationBatchUpdateManyWithoutParentCompanyNestedInput
+  financeConsolidationEntities?: Prisma.FinanceConsolidationEntitySnapshotUpdateManyWithoutCompanyNestedInput
+  financeConsolidationChildEntities?: Prisma.FinanceConsolidationEntitySnapshotUpdateManyWithoutDirectParentCompanyNestedInput
+  financeConsolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCompanyNestedInput
+  financeConsolidationCounterparties?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCounterpartyCompanyNestedInput
+  financeConsolidationParentScopes?: Prisma.FinanceConsolidationScopeSelectionUpdateManyWithoutParentCompanyNestedInput
+  financeConsolidationCompanyScopes?: Prisma.FinanceConsolidationScopeSelectionUpdateManyWithoutCompanyNestedInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
+  employmentRecords?: Prisma.EmploymentUpdateManyWithoutCompanyNestedInput
+  financeAccountBalances?: Prisma.FinanceAccountBalanceUpdateManyWithoutCompanyNestedInput
+  financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutCompanyNestedInput
+  financeAssetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutCompanyNestedInput
+  financeAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutCompanyNestedInput
+  financeAssetAcquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateManyWithoutCompanyNestedInput
+  financeAssetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutCompanyNestedInput
+  financeAssetDisposals?: Prisma.FinanceAssetDisposalUpdateManyWithoutCompanyNestedInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUpdateManyWithoutCompanyNestedInput
+  financeAssetImportBatches?: Prisma.FinanceAssetImportBatchUpdateManyWithoutCompanyNestedInput
+  financeAuxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutCompanyNestedInput
+  financeBalanceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutCompanyNestedInput
+  financeBalanceReclassAdjustmentHistories?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutCompanyNestedInput
+  financeBalanceSnapshots?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutCompanyNestedInput
+  financeCashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCompanyNestedInput
+  financeCashFlowAllocationAdjustments?: Prisma.FinanceCashFlowAllocationAdjustmentUpdateManyWithoutCompanyNestedInput
+  financeCashFlowItems?: Prisma.FinanceCashFlowItemUpdateManyWithoutCompanyNestedInput
+  financeCurrencies?: Prisma.FinanceCurrencyUpdateManyWithoutCompanyNestedInput
+  originFinanceGroupAccounts?: Prisma.FinanceGroupAccountUpdateManyWithoutOriginCompanyNestedInput
+  financeGroupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutCompanyNestedInput
+  financeLedgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutCompanyNestedInput
+  financeOpenItems?: Prisma.FinanceOpenItemUpdateManyWithoutCompanyNestedInput
+  financePeriods?: Prisma.FinancePeriodUpdateManyWithoutCompanyNestedInput
+  financeReclassItemRules?: Prisma.FinanceReclassItemRuleUpdateManyWithoutCompanyNestedInput
+  financeSourceAccountBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutCompanyNestedInput
+  financeSourceLedgerMappings?: Prisma.FinanceSourceLedgerMappingUpdateManyWithoutCompanyNestedInput
+  financeStatementVoucherExclusions?: Prisma.FinanceStatementVoucherExclusionUpdateManyWithoutCompanyNestedInput
+  financeStatementWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutCompanyNestedInput
+  financeVouchers?: Prisma.FinanceVoucherUpdateManyWithoutCompanyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  inventoryImportBatches?: Prisma.InventoryImportBatchUpdateManyWithoutCompanyNestedInput
+  inventoryLedgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutCompanyNestedInput
+  inventoryPeriodCloses?: Prisma.InventoryPeriodCloseUpdateManyWithoutCompanyNestedInput
+  inventoryStocktakes?: Prisma.InventoryStocktakeUpdateManyWithoutCompanyNestedInput
+  inventoryWarehouses?: Prisma.InventoryWarehouseUpdateManyWithoutCompanyNestedInput
+  stockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutCompanyNestedInput
+  stockPackagings?: Prisma.StockPackagingUpdateManyWithoutCompanyNestedInput
+  stockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutInvestmentEnterpriseProfileInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  partyId?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
+  shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
+  reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
+  ownedFinanceAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutCompanyNestedInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutLinkedCompanyNestedInput
+  sourceFinanceVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutSourceCompanyNestedInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
+  financeBankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+  financeLoans?: Prisma.FinanceLoanUncheckedUpdateManyWithoutCompanyNestedInput
+  financeTaxRegistrations?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutCompanyNestedInput
+  financeTaxPayments?: Prisma.FinanceTaxPaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCloseRuns?: Prisma.FinanceCloseRunUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCloseWorkpapers?: Prisma.FinanceCloseWorkpaperUncheckedUpdateManyWithoutCompanyNestedInput
+  financeBudgetVersions?: Prisma.FinanceBudgetVersionUncheckedUpdateManyWithoutCompanyNestedInput
+  financeStatementSourcePackages?: Prisma.FinanceStatementSourcePackageUncheckedUpdateManyWithoutCompanyNestedInput
+  financeConsolidationParentBatches?: Prisma.FinanceConsolidationBatchUncheckedUpdateManyWithoutParentCompanyNestedInput
+  financeConsolidationEntities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateManyWithoutCompanyNestedInput
+  financeConsolidationChildEntities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateManyWithoutDirectParentCompanyNestedInput
+  financeConsolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCompanyNestedInput
+  financeConsolidationCounterparties?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyCompanyNestedInput
+  financeConsolidationParentScopes?: Prisma.FinanceConsolidationScopeSelectionUncheckedUpdateManyWithoutParentCompanyNestedInput
+  financeConsolidationCompanyScopes?: Prisma.FinanceConsolidationScopeSelectionUncheckedUpdateManyWithoutCompanyNestedInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
+  employmentRecords?: Prisma.EmploymentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAccountBalances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetAcquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetDisposals?: Prisma.FinanceAssetDisposalUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetImportBatches?: Prisma.FinanceAssetImportBatchUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAuxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutCompanyNestedInput
+  financeBalanceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeBalanceReclassAdjustmentHistories?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutCompanyNestedInput
+  financeBalanceSnapshots?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCashFlowAllocationAdjustments?: Prisma.FinanceCashFlowAllocationAdjustmentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCashFlowItems?: Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCurrencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutCompanyNestedInput
+  originFinanceGroupAccounts?: Prisma.FinanceGroupAccountUncheckedUpdateManyWithoutOriginCompanyNestedInput
+  financeGroupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutCompanyNestedInput
+  financeLedgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutCompanyNestedInput
+  financeOpenItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutCompanyNestedInput
+  financePeriods?: Prisma.FinancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
+  financeReclassItemRules?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutCompanyNestedInput
+  financeSourceAccountBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutCompanyNestedInput
+  financeSourceLedgerMappings?: Prisma.FinanceSourceLedgerMappingUncheckedUpdateManyWithoutCompanyNestedInput
+  financeStatementVoucherExclusions?: Prisma.FinanceStatementVoucherExclusionUncheckedUpdateManyWithoutCompanyNestedInput
+  financeStatementWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutCompanyNestedInput
+  financeVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryImportBatches?: Prisma.InventoryImportBatchUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryLedgerEntries?: Prisma.InventoryLedgerEntryUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryPeriodCloses?: Prisma.InventoryPeriodCloseUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryStocktakes?: Prisma.InventoryStocktakeUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryWarehouses?: Prisma.InventoryWarehouseUncheckedUpdateManyWithoutCompanyNestedInput
+  stockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutCompanyNestedInput
+  stockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutCompanyNestedInput
+  stockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutInvestorShareholderProfilesInput = {
+  code: string
+  description?: string | null
+  registeredCapital?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  managementGroup: string
+  codePoolCode?: string | null
+  isActive?: boolean
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  party: Prisma.PartyCreateNestedOneWithoutCompanyInput
+  issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
+  shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
+  registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
+  positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
+  reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
+  ownedFinanceAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutCompanyInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutLinkedCompanyInput
+  sourceFinanceVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutSourceCompanyInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
+  financeBankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutCompanyInput
+  financeLoans?: Prisma.FinanceLoanCreateNestedManyWithoutCompanyInput
+  financeTaxRegistrations?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutCompanyInput
+  financeTaxPayments?: Prisma.FinanceTaxPaymentCreateNestedManyWithoutCompanyInput
+  financeCloseRuns?: Prisma.FinanceCloseRunCreateNestedManyWithoutCompanyInput
+  financeCloseWorkpapers?: Prisma.FinanceCloseWorkpaperCreateNestedManyWithoutCompanyInput
+  financeBudgetVersions?: Prisma.FinanceBudgetVersionCreateNestedManyWithoutCompanyInput
+  financeStatementSourcePackages?: Prisma.FinanceStatementSourcePackageCreateNestedManyWithoutCompanyInput
+  financeConsolidationParentBatches?: Prisma.FinanceConsolidationBatchCreateNestedManyWithoutParentCompanyInput
+  financeConsolidationEntities?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedManyWithoutCompanyInput
+  financeConsolidationChildEntities?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedManyWithoutDirectParentCompanyInput
+  financeConsolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCompanyInput
+  financeConsolidationCounterparties?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCounterpartyCompanyInput
+  financeConsolidationParentScopes?: Prisma.FinanceConsolidationScopeSelectionCreateNestedManyWithoutParentCompanyInput
+  financeConsolidationCompanyScopes?: Prisma.FinanceConsolidationScopeSelectionCreateNestedManyWithoutCompanyInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
+  employmentRecords?: Prisma.EmploymentCreateNestedManyWithoutCompanyInput
+  financeAccountBalances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutCompanyInput
+  financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutCompanyInput
+  financeAssetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutCompanyInput
+  financeAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCompanyInput
+  financeAssetAcquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedManyWithoutCompanyInput
+  financeAssetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutCompanyInput
+  financeAssetDisposals?: Prisma.FinanceAssetDisposalCreateNestedManyWithoutCompanyInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentCreateNestedManyWithoutCompanyInput
+  financeAssetImportBatches?: Prisma.FinanceAssetImportBatchCreateNestedManyWithoutCompanyInput
+  financeAuxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutCompanyInput
+  financeBalanceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutCompanyInput
+  financeBalanceReclassAdjustmentHistories?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutCompanyInput
+  financeBalanceSnapshots?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutCompanyInput
+  financeCashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCompanyInput
+  financeCashFlowAllocationAdjustments?: Prisma.FinanceCashFlowAllocationAdjustmentCreateNestedManyWithoutCompanyInput
+  financeCashFlowItems?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutCompanyInput
+  financeCurrencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutCompanyInput
+  originFinanceGroupAccounts?: Prisma.FinanceGroupAccountCreateNestedManyWithoutOriginCompanyInput
+  financeGroupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutCompanyInput
+  financeLedgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutCompanyInput
+  financeOpenItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutCompanyInput
+  financePeriods?: Prisma.FinancePeriodCreateNestedManyWithoutCompanyInput
+  financeReclassItemRules?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutCompanyInput
+  financeSourceAccountBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutCompanyInput
+  financeSourceLedgerMappings?: Prisma.FinanceSourceLedgerMappingCreateNestedManyWithoutCompanyInput
+  financeStatementVoucherExclusions?: Prisma.FinanceStatementVoucherExclusionCreateNestedManyWithoutCompanyInput
+  financeStatementWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutCompanyInput
+  financeVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutCompanyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  inventoryImportBatches?: Prisma.InventoryImportBatchCreateNestedManyWithoutCompanyInput
+  inventoryLedgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutCompanyInput
+  inventoryPeriodCloses?: Prisma.InventoryPeriodCloseCreateNestedManyWithoutCompanyInput
+  inventoryStocktakes?: Prisma.InventoryStocktakeCreateNestedManyWithoutCompanyInput
+  inventoryWarehouses?: Prisma.InventoryWarehouseCreateNestedManyWithoutCompanyInput
+  stockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutCompanyInput
+  stockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutCompanyInput
+  stockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutInvestorShareholderProfilesInput = {
+  id?: number
+  partyId: number
+  code: string
+  description?: string | null
+  registeredCapital?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  managementGroup: string
+  codePoolCode?: string | null
+  isActive?: boolean
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
+  shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
+  registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
+  reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
+  ownedFinanceAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutCompanyInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutLinkedCompanyInput
+  sourceFinanceVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutSourceCompanyInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
+  financeBankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutCompanyInput
+  financeLoans?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutCompanyInput
+  financeTaxRegistrations?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutCompanyInput
+  financeTaxPayments?: Prisma.FinanceTaxPaymentUncheckedCreateNestedManyWithoutCompanyInput
+  financeCloseRuns?: Prisma.FinanceCloseRunUncheckedCreateNestedManyWithoutCompanyInput
+  financeCloseWorkpapers?: Prisma.FinanceCloseWorkpaperUncheckedCreateNestedManyWithoutCompanyInput
+  financeBudgetVersions?: Prisma.FinanceBudgetVersionUncheckedCreateNestedManyWithoutCompanyInput
+  financeStatementSourcePackages?: Prisma.FinanceStatementSourcePackageUncheckedCreateNestedManyWithoutCompanyInput
+  financeConsolidationParentBatches?: Prisma.FinanceConsolidationBatchUncheckedCreateNestedManyWithoutParentCompanyInput
+  financeConsolidationEntities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateNestedManyWithoutCompanyInput
+  financeConsolidationChildEntities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateNestedManyWithoutDirectParentCompanyInput
+  financeConsolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCompanyInput
+  financeConsolidationCounterparties?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCounterpartyCompanyInput
+  financeConsolidationParentScopes?: Prisma.FinanceConsolidationScopeSelectionUncheckedCreateNestedManyWithoutParentCompanyInput
+  financeConsolidationCompanyScopes?: Prisma.FinanceConsolidationScopeSelectionUncheckedCreateNestedManyWithoutCompanyInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
+  employmentRecords?: Prisma.EmploymentUncheckedCreateNestedManyWithoutCompanyInput
+  financeAccountBalances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutCompanyInput
+  financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetAcquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetDisposals?: Prisma.FinanceAssetDisposalUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetImportBatches?: Prisma.FinanceAssetImportBatchUncheckedCreateNestedManyWithoutCompanyInput
+  financeAuxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutCompanyInput
+  financeBalanceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutCompanyInput
+  financeBalanceReclassAdjustmentHistories?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutCompanyInput
+  financeBalanceSnapshots?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutCompanyInput
+  financeCashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCompanyInput
+  financeCashFlowAllocationAdjustments?: Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateNestedManyWithoutCompanyInput
+  financeCashFlowItems?: Prisma.FinanceCashFlowItemUncheckedCreateNestedManyWithoutCompanyInput
+  financeCurrencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutCompanyInput
+  originFinanceGroupAccounts?: Prisma.FinanceGroupAccountUncheckedCreateNestedManyWithoutOriginCompanyInput
+  financeGroupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutCompanyInput
+  financeLedgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutCompanyInput
+  financeOpenItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutCompanyInput
+  financePeriods?: Prisma.FinancePeriodUncheckedCreateNestedManyWithoutCompanyInput
+  financeReclassItemRules?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutCompanyInput
+  financeSourceAccountBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutCompanyInput
+  financeSourceLedgerMappings?: Prisma.FinanceSourceLedgerMappingUncheckedCreateNestedManyWithoutCompanyInput
+  financeStatementVoucherExclusions?: Prisma.FinanceStatementVoucherExclusionUncheckedCreateNestedManyWithoutCompanyInput
+  financeStatementWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutCompanyInput
+  financeVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryImportBatches?: Prisma.InventoryImportBatchUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryLedgerEntries?: Prisma.InventoryLedgerEntryUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryPeriodCloses?: Prisma.InventoryPeriodCloseUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryStocktakes?: Prisma.InventoryStocktakeUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryWarehouses?: Prisma.InventoryWarehouseUncheckedCreateNestedManyWithoutCompanyInput
+  stockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutCompanyInput
+  stockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutCompanyInput
+  stockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutInvestorShareholderProfilesInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutInvestorShareholderProfilesInput, Prisma.CompanyUncheckedCreateWithoutInvestorShareholderProfilesInput>
+}
+
+export type CompanyUpsertWithoutInvestorShareholderProfilesInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutInvestorShareholderProfilesInput, Prisma.CompanyUncheckedUpdateWithoutInvestorShareholderProfilesInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutInvestorShareholderProfilesInput, Prisma.CompanyUncheckedCreateWithoutInvestorShareholderProfilesInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutInvestorShareholderProfilesInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutInvestorShareholderProfilesInput, Prisma.CompanyUncheckedUpdateWithoutInvestorShareholderProfilesInput>
+}
+
+export type CompanyUpdateWithoutInvestorShareholderProfilesInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
+  issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
+  shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
+  registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
+  reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
+  ownedFinanceAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutCompanyNestedInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithoutLinkedCompanyNestedInput
+  sourceFinanceVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithoutSourceCompanyNestedInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
+  financeBankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutCompanyNestedInput
+  financeLoans?: Prisma.FinanceLoanUpdateManyWithoutCompanyNestedInput
+  financeTaxRegistrations?: Prisma.FinanceTaxRegistrationUpdateManyWithoutCompanyNestedInput
+  financeTaxPayments?: Prisma.FinanceTaxPaymentUpdateManyWithoutCompanyNestedInput
+  financeCloseRuns?: Prisma.FinanceCloseRunUpdateManyWithoutCompanyNestedInput
+  financeCloseWorkpapers?: Prisma.FinanceCloseWorkpaperUpdateManyWithoutCompanyNestedInput
+  financeBudgetVersions?: Prisma.FinanceBudgetVersionUpdateManyWithoutCompanyNestedInput
+  financeStatementSourcePackages?: Prisma.FinanceStatementSourcePackageUpdateManyWithoutCompanyNestedInput
+  financeConsolidationParentBatches?: Prisma.FinanceConsolidationBatchUpdateManyWithoutParentCompanyNestedInput
+  financeConsolidationEntities?: Prisma.FinanceConsolidationEntitySnapshotUpdateManyWithoutCompanyNestedInput
+  financeConsolidationChildEntities?: Prisma.FinanceConsolidationEntitySnapshotUpdateManyWithoutDirectParentCompanyNestedInput
+  financeConsolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCompanyNestedInput
+  financeConsolidationCounterparties?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCounterpartyCompanyNestedInput
+  financeConsolidationParentScopes?: Prisma.FinanceConsolidationScopeSelectionUpdateManyWithoutParentCompanyNestedInput
+  financeConsolidationCompanyScopes?: Prisma.FinanceConsolidationScopeSelectionUpdateManyWithoutCompanyNestedInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
+  employmentRecords?: Prisma.EmploymentUpdateManyWithoutCompanyNestedInput
+  financeAccountBalances?: Prisma.FinanceAccountBalanceUpdateManyWithoutCompanyNestedInput
+  financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutCompanyNestedInput
+  financeAssetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutCompanyNestedInput
+  financeAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutCompanyNestedInput
+  financeAssetAcquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateManyWithoutCompanyNestedInput
+  financeAssetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutCompanyNestedInput
+  financeAssetDisposals?: Prisma.FinanceAssetDisposalUpdateManyWithoutCompanyNestedInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUpdateManyWithoutCompanyNestedInput
+  financeAssetImportBatches?: Prisma.FinanceAssetImportBatchUpdateManyWithoutCompanyNestedInput
+  financeAuxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutCompanyNestedInput
+  financeBalanceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutCompanyNestedInput
+  financeBalanceReclassAdjustmentHistories?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutCompanyNestedInput
+  financeBalanceSnapshots?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutCompanyNestedInput
+  financeCashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCompanyNestedInput
+  financeCashFlowAllocationAdjustments?: Prisma.FinanceCashFlowAllocationAdjustmentUpdateManyWithoutCompanyNestedInput
+  financeCashFlowItems?: Prisma.FinanceCashFlowItemUpdateManyWithoutCompanyNestedInput
+  financeCurrencies?: Prisma.FinanceCurrencyUpdateManyWithoutCompanyNestedInput
+  originFinanceGroupAccounts?: Prisma.FinanceGroupAccountUpdateManyWithoutOriginCompanyNestedInput
+  financeGroupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutCompanyNestedInput
+  financeLedgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutCompanyNestedInput
+  financeOpenItems?: Prisma.FinanceOpenItemUpdateManyWithoutCompanyNestedInput
+  financePeriods?: Prisma.FinancePeriodUpdateManyWithoutCompanyNestedInput
+  financeReclassItemRules?: Prisma.FinanceReclassItemRuleUpdateManyWithoutCompanyNestedInput
+  financeSourceAccountBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutCompanyNestedInput
+  financeSourceLedgerMappings?: Prisma.FinanceSourceLedgerMappingUpdateManyWithoutCompanyNestedInput
+  financeStatementVoucherExclusions?: Prisma.FinanceStatementVoucherExclusionUpdateManyWithoutCompanyNestedInput
+  financeStatementWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutCompanyNestedInput
+  financeVouchers?: Prisma.FinanceVoucherUpdateManyWithoutCompanyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  inventoryImportBatches?: Prisma.InventoryImportBatchUpdateManyWithoutCompanyNestedInput
+  inventoryLedgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutCompanyNestedInput
+  inventoryPeriodCloses?: Prisma.InventoryPeriodCloseUpdateManyWithoutCompanyNestedInput
+  inventoryStocktakes?: Prisma.InventoryStocktakeUpdateManyWithoutCompanyNestedInput
+  inventoryWarehouses?: Prisma.InventoryWarehouseUpdateManyWithoutCompanyNestedInput
+  stockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutCompanyNestedInput
+  stockPackagings?: Prisma.StockPackagingUpdateManyWithoutCompanyNestedInput
+  stockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutInvestorShareholderProfilesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  partyId?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
+  shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
+  registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
+  reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
+  ownedFinanceAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutCompanyNestedInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutLinkedCompanyNestedInput
+  sourceFinanceVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutSourceCompanyNestedInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
+  financeBankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+  financeLoans?: Prisma.FinanceLoanUncheckedUpdateManyWithoutCompanyNestedInput
+  financeTaxRegistrations?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutCompanyNestedInput
+  financeTaxPayments?: Prisma.FinanceTaxPaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCloseRuns?: Prisma.FinanceCloseRunUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCloseWorkpapers?: Prisma.FinanceCloseWorkpaperUncheckedUpdateManyWithoutCompanyNestedInput
+  financeBudgetVersions?: Prisma.FinanceBudgetVersionUncheckedUpdateManyWithoutCompanyNestedInput
+  financeStatementSourcePackages?: Prisma.FinanceStatementSourcePackageUncheckedUpdateManyWithoutCompanyNestedInput
+  financeConsolidationParentBatches?: Prisma.FinanceConsolidationBatchUncheckedUpdateManyWithoutParentCompanyNestedInput
+  financeConsolidationEntities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateManyWithoutCompanyNestedInput
+  financeConsolidationChildEntities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateManyWithoutDirectParentCompanyNestedInput
+  financeConsolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCompanyNestedInput
+  financeConsolidationCounterparties?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyCompanyNestedInput
+  financeConsolidationParentScopes?: Prisma.FinanceConsolidationScopeSelectionUncheckedUpdateManyWithoutParentCompanyNestedInput
+  financeConsolidationCompanyScopes?: Prisma.FinanceConsolidationScopeSelectionUncheckedUpdateManyWithoutCompanyNestedInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
+  employmentRecords?: Prisma.EmploymentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAccountBalances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetAcquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetDisposals?: Prisma.FinanceAssetDisposalUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetImportBatches?: Prisma.FinanceAssetImportBatchUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAuxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutCompanyNestedInput
+  financeBalanceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeBalanceReclassAdjustmentHistories?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutCompanyNestedInput
+  financeBalanceSnapshots?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCashFlowAllocationAdjustments?: Prisma.FinanceCashFlowAllocationAdjustmentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCashFlowItems?: Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCurrencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutCompanyNestedInput
+  originFinanceGroupAccounts?: Prisma.FinanceGroupAccountUncheckedUpdateManyWithoutOriginCompanyNestedInput
+  financeGroupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutCompanyNestedInput
+  financeLedgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutCompanyNestedInput
+  financeOpenItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutCompanyNestedInput
+  financePeriods?: Prisma.FinancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
+  financeReclassItemRules?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutCompanyNestedInput
+  financeSourceAccountBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutCompanyNestedInput
+  financeSourceLedgerMappings?: Prisma.FinanceSourceLedgerMappingUncheckedUpdateManyWithoutCompanyNestedInput
+  financeStatementVoucherExclusions?: Prisma.FinanceStatementVoucherExclusionUncheckedUpdateManyWithoutCompanyNestedInput
+  financeStatementWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutCompanyNestedInput
+  financeVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryImportBatches?: Prisma.InventoryImportBatchUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryLedgerEntries?: Prisma.InventoryLedgerEntryUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryPeriodCloses?: Prisma.InventoryPeriodCloseUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryStocktakes?: Prisma.InventoryStocktakeUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryWarehouses?: Prisma.InventoryWarehouseUncheckedUpdateManyWithoutCompanyNestedInput
+  stockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutCompanyNestedInput
+  stockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutCompanyNestedInput
+  stockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutInvestorDueDiligenceRecordsInput = {
+  code: string
+  description?: string | null
+  registeredCapital?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  managementGroup: string
+  codePoolCode?: string | null
+  isActive?: boolean
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  party: Prisma.PartyCreateNestedOneWithoutCompanyInput
+  issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
+  shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
+  registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
+  positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
+  reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
+  ownedFinanceAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutCompanyInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutLinkedCompanyInput
+  sourceFinanceVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutSourceCompanyInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
+  financeBankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutCompanyInput
+  financeLoans?: Prisma.FinanceLoanCreateNestedManyWithoutCompanyInput
+  financeTaxRegistrations?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutCompanyInput
+  financeTaxPayments?: Prisma.FinanceTaxPaymentCreateNestedManyWithoutCompanyInput
+  financeCloseRuns?: Prisma.FinanceCloseRunCreateNestedManyWithoutCompanyInput
+  financeCloseWorkpapers?: Prisma.FinanceCloseWorkpaperCreateNestedManyWithoutCompanyInput
+  financeBudgetVersions?: Prisma.FinanceBudgetVersionCreateNestedManyWithoutCompanyInput
+  financeStatementSourcePackages?: Prisma.FinanceStatementSourcePackageCreateNestedManyWithoutCompanyInput
+  financeConsolidationParentBatches?: Prisma.FinanceConsolidationBatchCreateNestedManyWithoutParentCompanyInput
+  financeConsolidationEntities?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedManyWithoutCompanyInput
+  financeConsolidationChildEntities?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedManyWithoutDirectParentCompanyInput
+  financeConsolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCompanyInput
+  financeConsolidationCounterparties?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCounterpartyCompanyInput
+  financeConsolidationParentScopes?: Prisma.FinanceConsolidationScopeSelectionCreateNestedManyWithoutParentCompanyInput
+  financeConsolidationCompanyScopes?: Prisma.FinanceConsolidationScopeSelectionCreateNestedManyWithoutCompanyInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCompanyInput
+  employmentRecords?: Prisma.EmploymentCreateNestedManyWithoutCompanyInput
+  financeAccountBalances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutCompanyInput
+  financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutCompanyInput
+  financeAssetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutCompanyInput
+  financeAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutCompanyInput
+  financeAssetAcquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedManyWithoutCompanyInput
+  financeAssetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutCompanyInput
+  financeAssetDisposals?: Prisma.FinanceAssetDisposalCreateNestedManyWithoutCompanyInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentCreateNestedManyWithoutCompanyInput
+  financeAssetImportBatches?: Prisma.FinanceAssetImportBatchCreateNestedManyWithoutCompanyInput
+  financeAuxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutCompanyInput
+  financeBalanceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutCompanyInput
+  financeBalanceReclassAdjustmentHistories?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutCompanyInput
+  financeBalanceSnapshots?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutCompanyInput
+  financeCashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCompanyInput
+  financeCashFlowAllocationAdjustments?: Prisma.FinanceCashFlowAllocationAdjustmentCreateNestedManyWithoutCompanyInput
+  financeCashFlowItems?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutCompanyInput
+  financeCurrencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutCompanyInput
+  originFinanceGroupAccounts?: Prisma.FinanceGroupAccountCreateNestedManyWithoutOriginCompanyInput
+  financeGroupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutCompanyInput
+  financeLedgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutCompanyInput
+  financeOpenItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutCompanyInput
+  financePeriods?: Prisma.FinancePeriodCreateNestedManyWithoutCompanyInput
+  financeReclassItemRules?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutCompanyInput
+  financeSourceAccountBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutCompanyInput
+  financeSourceLedgerMappings?: Prisma.FinanceSourceLedgerMappingCreateNestedManyWithoutCompanyInput
+  financeStatementVoucherExclusions?: Prisma.FinanceStatementVoucherExclusionCreateNestedManyWithoutCompanyInput
+  financeStatementWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutCompanyInput
+  financeVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutCompanyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  inventoryImportBatches?: Prisma.InventoryImportBatchCreateNestedManyWithoutCompanyInput
+  inventoryLedgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutCompanyInput
+  inventoryPeriodCloses?: Prisma.InventoryPeriodCloseCreateNestedManyWithoutCompanyInput
+  inventoryStocktakes?: Prisma.InventoryStocktakeCreateNestedManyWithoutCompanyInput
+  inventoryWarehouses?: Prisma.InventoryWarehouseCreateNestedManyWithoutCompanyInput
+  stockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutCompanyInput
+  stockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutCompanyInput
+  stockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutInvestorDueDiligenceRecordsInput = {
+  id?: number
+  partyId: number
+  code: string
+  description?: string | null
+  registeredCapital?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  managementGroup: string
+  codePoolCode?: string | null
+  isActive?: boolean
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
+  shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
+  registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
+  reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
+  ownedFinanceAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutCompanyInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutLinkedCompanyInput
+  sourceFinanceVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutSourceCompanyInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
+  financeBankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutCompanyInput
+  financeLoans?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutCompanyInput
+  financeTaxRegistrations?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutCompanyInput
+  financeTaxPayments?: Prisma.FinanceTaxPaymentUncheckedCreateNestedManyWithoutCompanyInput
+  financeCloseRuns?: Prisma.FinanceCloseRunUncheckedCreateNestedManyWithoutCompanyInput
+  financeCloseWorkpapers?: Prisma.FinanceCloseWorkpaperUncheckedCreateNestedManyWithoutCompanyInput
+  financeBudgetVersions?: Prisma.FinanceBudgetVersionUncheckedCreateNestedManyWithoutCompanyInput
+  financeStatementSourcePackages?: Prisma.FinanceStatementSourcePackageUncheckedCreateNestedManyWithoutCompanyInput
+  financeConsolidationParentBatches?: Prisma.FinanceConsolidationBatchUncheckedCreateNestedManyWithoutParentCompanyInput
+  financeConsolidationEntities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateNestedManyWithoutCompanyInput
+  financeConsolidationChildEntities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateNestedManyWithoutDirectParentCompanyInput
+  financeConsolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCompanyInput
+  financeConsolidationCounterparties?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCounterpartyCompanyInput
+  financeConsolidationParentScopes?: Prisma.FinanceConsolidationScopeSelectionUncheckedCreateNestedManyWithoutParentCompanyInput
+  financeConsolidationCompanyScopes?: Prisma.FinanceConsolidationScopeSelectionUncheckedCreateNestedManyWithoutCompanyInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCompanyInput
+  employmentRecords?: Prisma.EmploymentUncheckedCreateNestedManyWithoutCompanyInput
+  financeAccountBalances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutCompanyInput
+  financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetAcquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetDisposals?: Prisma.FinanceAssetDisposalUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUncheckedCreateNestedManyWithoutCompanyInput
+  financeAssetImportBatches?: Prisma.FinanceAssetImportBatchUncheckedCreateNestedManyWithoutCompanyInput
+  financeAuxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutCompanyInput
+  financeBalanceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutCompanyInput
+  financeBalanceReclassAdjustmentHistories?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutCompanyInput
+  financeBalanceSnapshots?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutCompanyInput
+  financeCashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCompanyInput
+  financeCashFlowAllocationAdjustments?: Prisma.FinanceCashFlowAllocationAdjustmentUncheckedCreateNestedManyWithoutCompanyInput
+  financeCashFlowItems?: Prisma.FinanceCashFlowItemUncheckedCreateNestedManyWithoutCompanyInput
+  financeCurrencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutCompanyInput
+  originFinanceGroupAccounts?: Prisma.FinanceGroupAccountUncheckedCreateNestedManyWithoutOriginCompanyInput
+  financeGroupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutCompanyInput
+  financeLedgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutCompanyInput
+  financeOpenItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutCompanyInput
+  financePeriods?: Prisma.FinancePeriodUncheckedCreateNestedManyWithoutCompanyInput
+  financeReclassItemRules?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutCompanyInput
+  financeSourceAccountBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutCompanyInput
+  financeSourceLedgerMappings?: Prisma.FinanceSourceLedgerMappingUncheckedCreateNestedManyWithoutCompanyInput
+  financeStatementVoucherExclusions?: Prisma.FinanceStatementVoucherExclusionUncheckedCreateNestedManyWithoutCompanyInput
+  financeStatementWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutCompanyInput
+  financeVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryImportBatches?: Prisma.InventoryImportBatchUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryLedgerEntries?: Prisma.InventoryLedgerEntryUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryPeriodCloses?: Prisma.InventoryPeriodCloseUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryStocktakes?: Prisma.InventoryStocktakeUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryWarehouses?: Prisma.InventoryWarehouseUncheckedCreateNestedManyWithoutCompanyInput
+  stockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutCompanyInput
+  stockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutCompanyInput
+  stockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutInvestorDueDiligenceRecordsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutInvestorDueDiligenceRecordsInput, Prisma.CompanyUncheckedCreateWithoutInvestorDueDiligenceRecordsInput>
+}
+
+export type CompanyUpsertWithoutInvestorDueDiligenceRecordsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutInvestorDueDiligenceRecordsInput, Prisma.CompanyUncheckedUpdateWithoutInvestorDueDiligenceRecordsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutInvestorDueDiligenceRecordsInput, Prisma.CompanyUncheckedCreateWithoutInvestorDueDiligenceRecordsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutInvestorDueDiligenceRecordsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutInvestorDueDiligenceRecordsInput, Prisma.CompanyUncheckedUpdateWithoutInvestorDueDiligenceRecordsInput>
+}
+
+export type CompanyUpdateWithoutInvestorDueDiligenceRecordsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
+  issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
+  shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
+  registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
+  reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
+  ownedFinanceAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutCompanyNestedInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithoutLinkedCompanyNestedInput
+  sourceFinanceVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithoutSourceCompanyNestedInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
+  financeBankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutCompanyNestedInput
+  financeLoans?: Prisma.FinanceLoanUpdateManyWithoutCompanyNestedInput
+  financeTaxRegistrations?: Prisma.FinanceTaxRegistrationUpdateManyWithoutCompanyNestedInput
+  financeTaxPayments?: Prisma.FinanceTaxPaymentUpdateManyWithoutCompanyNestedInput
+  financeCloseRuns?: Prisma.FinanceCloseRunUpdateManyWithoutCompanyNestedInput
+  financeCloseWorkpapers?: Prisma.FinanceCloseWorkpaperUpdateManyWithoutCompanyNestedInput
+  financeBudgetVersions?: Prisma.FinanceBudgetVersionUpdateManyWithoutCompanyNestedInput
+  financeStatementSourcePackages?: Prisma.FinanceStatementSourcePackageUpdateManyWithoutCompanyNestedInput
+  financeConsolidationParentBatches?: Prisma.FinanceConsolidationBatchUpdateManyWithoutParentCompanyNestedInput
+  financeConsolidationEntities?: Prisma.FinanceConsolidationEntitySnapshotUpdateManyWithoutCompanyNestedInput
+  financeConsolidationChildEntities?: Prisma.FinanceConsolidationEntitySnapshotUpdateManyWithoutDirectParentCompanyNestedInput
+  financeConsolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCompanyNestedInput
+  financeConsolidationCounterparties?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCounterpartyCompanyNestedInput
+  financeConsolidationParentScopes?: Prisma.FinanceConsolidationScopeSelectionUpdateManyWithoutParentCompanyNestedInput
+  financeConsolidationCompanyScopes?: Prisma.FinanceConsolidationScopeSelectionUpdateManyWithoutCompanyNestedInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCompanyNestedInput
+  employmentRecords?: Prisma.EmploymentUpdateManyWithoutCompanyNestedInput
+  financeAccountBalances?: Prisma.FinanceAccountBalanceUpdateManyWithoutCompanyNestedInput
+  financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutCompanyNestedInput
+  financeAssetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutCompanyNestedInput
+  financeAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutCompanyNestedInput
+  financeAssetAcquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateManyWithoutCompanyNestedInput
+  financeAssetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutCompanyNestedInput
+  financeAssetDisposals?: Prisma.FinanceAssetDisposalUpdateManyWithoutCompanyNestedInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUpdateManyWithoutCompanyNestedInput
+  financeAssetImportBatches?: Prisma.FinanceAssetImportBatchUpdateManyWithoutCompanyNestedInput
+  financeAuxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutCompanyNestedInput
+  financeBalanceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutCompanyNestedInput
+  financeBalanceReclassAdjustmentHistories?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutCompanyNestedInput
+  financeBalanceSnapshots?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutCompanyNestedInput
+  financeCashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCompanyNestedInput
+  financeCashFlowAllocationAdjustments?: Prisma.FinanceCashFlowAllocationAdjustmentUpdateManyWithoutCompanyNestedInput
+  financeCashFlowItems?: Prisma.FinanceCashFlowItemUpdateManyWithoutCompanyNestedInput
+  financeCurrencies?: Prisma.FinanceCurrencyUpdateManyWithoutCompanyNestedInput
+  originFinanceGroupAccounts?: Prisma.FinanceGroupAccountUpdateManyWithoutOriginCompanyNestedInput
+  financeGroupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutCompanyNestedInput
+  financeLedgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutCompanyNestedInput
+  financeOpenItems?: Prisma.FinanceOpenItemUpdateManyWithoutCompanyNestedInput
+  financePeriods?: Prisma.FinancePeriodUpdateManyWithoutCompanyNestedInput
+  financeReclassItemRules?: Prisma.FinanceReclassItemRuleUpdateManyWithoutCompanyNestedInput
+  financeSourceAccountBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutCompanyNestedInput
+  financeSourceLedgerMappings?: Prisma.FinanceSourceLedgerMappingUpdateManyWithoutCompanyNestedInput
+  financeStatementVoucherExclusions?: Prisma.FinanceStatementVoucherExclusionUpdateManyWithoutCompanyNestedInput
+  financeStatementWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutCompanyNestedInput
+  financeVouchers?: Prisma.FinanceVoucherUpdateManyWithoutCompanyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  inventoryImportBatches?: Prisma.InventoryImportBatchUpdateManyWithoutCompanyNestedInput
+  inventoryLedgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutCompanyNestedInput
+  inventoryPeriodCloses?: Prisma.InventoryPeriodCloseUpdateManyWithoutCompanyNestedInput
+  inventoryStocktakes?: Prisma.InventoryStocktakeUpdateManyWithoutCompanyNestedInput
+  inventoryWarehouses?: Prisma.InventoryWarehouseUpdateManyWithoutCompanyNestedInput
+  stockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutCompanyNestedInput
+  stockPackagings?: Prisma.StockPackagingUpdateManyWithoutCompanyNestedInput
+  stockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutInvestorDueDiligenceRecordsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  partyId?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
+  shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
+  registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
+  reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
+  ownedFinanceAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutCompanyNestedInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutLinkedCompanyNestedInput
+  sourceFinanceVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutSourceCompanyNestedInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
+  financeBankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+  financeLoans?: Prisma.FinanceLoanUncheckedUpdateManyWithoutCompanyNestedInput
+  financeTaxRegistrations?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutCompanyNestedInput
+  financeTaxPayments?: Prisma.FinanceTaxPaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCloseRuns?: Prisma.FinanceCloseRunUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCloseWorkpapers?: Prisma.FinanceCloseWorkpaperUncheckedUpdateManyWithoutCompanyNestedInput
+  financeBudgetVersions?: Prisma.FinanceBudgetVersionUncheckedUpdateManyWithoutCompanyNestedInput
+  financeStatementSourcePackages?: Prisma.FinanceStatementSourcePackageUncheckedUpdateManyWithoutCompanyNestedInput
+  financeConsolidationParentBatches?: Prisma.FinanceConsolidationBatchUncheckedUpdateManyWithoutParentCompanyNestedInput
+  financeConsolidationEntities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateManyWithoutCompanyNestedInput
+  financeConsolidationChildEntities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateManyWithoutDirectParentCompanyNestedInput
+  financeConsolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCompanyNestedInput
+  financeConsolidationCounterparties?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyCompanyNestedInput
+  financeConsolidationParentScopes?: Prisma.FinanceConsolidationScopeSelectionUncheckedUpdateManyWithoutParentCompanyNestedInput
+  financeConsolidationCompanyScopes?: Prisma.FinanceConsolidationScopeSelectionUncheckedUpdateManyWithoutCompanyNestedInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+  socialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
+  employmentRecords?: Prisma.EmploymentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAccountBalances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetAcquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetDisposals?: Prisma.FinanceAssetDisposalUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAssetImportBatches?: Prisma.FinanceAssetImportBatchUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAuxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutCompanyNestedInput
+  financeBalanceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeBalanceReclassAdjustmentHistories?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutCompanyNestedInput
+  financeBalanceSnapshots?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCashFlowAllocationAdjustments?: Prisma.FinanceCashFlowAllocationAdjustmentUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCashFlowItems?: Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutCompanyNestedInput
+  financeCurrencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutCompanyNestedInput
+  originFinanceGroupAccounts?: Prisma.FinanceGroupAccountUncheckedUpdateManyWithoutOriginCompanyNestedInput
+  financeGroupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutCompanyNestedInput
+  financeLedgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutCompanyNestedInput
+  financeOpenItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutCompanyNestedInput
+  financePeriods?: Prisma.FinancePeriodUncheckedUpdateManyWithoutCompanyNestedInput
+  financeReclassItemRules?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutCompanyNestedInput
+  financeSourceAccountBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutCompanyNestedInput
+  financeSourceLedgerMappings?: Prisma.FinanceSourceLedgerMappingUncheckedUpdateManyWithoutCompanyNestedInput
+  financeStatementVoucherExclusions?: Prisma.FinanceStatementVoucherExclusionUncheckedUpdateManyWithoutCompanyNestedInput
+  financeStatementWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutCompanyNestedInput
+  financeVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryImportBatches?: Prisma.InventoryImportBatchUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryLedgerEntries?: Prisma.InventoryLedgerEntryUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryPeriodCloses?: Prisma.InventoryPeriodCloseUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryStocktakes?: Prisma.InventoryStocktakeUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryWarehouses?: Prisma.InventoryWarehouseUncheckedUpdateManyWithoutCompanyNestedInput
+  stockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutCompanyNestedInput
+  stockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutCompanyNestedInput
+  stockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
 export type CompanyCreateWithoutIssuedOwnershipsInput = {
   code: string
   description?: string | null
@@ -2245,6 +3442,9 @@ export type CompanyCreateWithoutIssuedOwnershipsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -2333,6 +3533,9 @@ export type CompanyUncheckedCreateWithoutIssuedOwnershipsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -2436,6 +3639,9 @@ export type CompanyUpdateWithoutIssuedOwnershipsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -2524,6 +3730,9 @@ export type CompanyUncheckedUpdateWithoutIssuedOwnershipsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -2611,6 +3820,9 @@ export type CompanyCreateWithoutOwnershipProjectionRunsInput = {
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -2699,6 +3911,9 @@ export type CompanyUncheckedCreateWithoutOwnershipProjectionRunsInput = {
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -2802,6 +4017,9 @@ export type CompanyUpdateWithoutOwnershipProjectionRunsInput = {
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -2890,6 +4108,9 @@ export type CompanyUncheckedUpdateWithoutOwnershipProjectionRunsInput = {
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -2978,6 +4199,9 @@ export type CompanyCreateWithoutRegistryChangesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
   financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
@@ -3066,6 +4290,9 @@ export type CompanyUncheckedCreateWithoutRegistryChangesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
   financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
@@ -3169,6 +4396,9 @@ export type CompanyUpdateWithoutRegistryChangesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
   financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
@@ -3257,6 +4487,9 @@ export type CompanyUncheckedUpdateWithoutRegistryChangesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
   financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
@@ -3343,6 +4576,9 @@ export type CompanyCreateWithoutShareCapitalEventsInput = {
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -3431,6 +4667,9 @@ export type CompanyUncheckedCreateWithoutShareCapitalEventsInput = {
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -3534,6 +4773,9 @@ export type CompanyUpdateWithoutShareCapitalEventsInput = {
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -3622,6 +4864,9 @@ export type CompanyUncheckedUpdateWithoutShareCapitalEventsInput = {
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -3709,6 +4954,9 @@ export type CompanyCreateWithoutShareholderGroupsInput = {
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -3797,6 +5045,9 @@ export type CompanyUncheckedCreateWithoutShareholderGroupsInput = {
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -3900,6 +5151,9 @@ export type CompanyUpdateWithoutShareholderGroupsInput = {
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -3988,6 +5242,9 @@ export type CompanyUncheckedUpdateWithoutShareholderGroupsInput = {
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -4076,6 +5333,9 @@ export type CompanyCreateWithoutOwnedContractsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -4164,6 +5424,9 @@ export type CompanyUncheckedCreateWithoutOwnedContractsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -4267,6 +5530,9 @@ export type CompanyUpdateWithoutOwnedContractsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -4355,6 +5621,9 @@ export type CompanyUncheckedUpdateWithoutOwnedContractsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -4441,6 +5710,9 @@ export type CompanyCreateWithoutPartyInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -4529,6 +5801,9 @@ export type CompanyUncheckedCreateWithoutPartyInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -4632,6 +5907,9 @@ export type CompanyUpdateWithoutPartyInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -4720,6 +5998,9 @@ export type CompanyUncheckedUpdateWithoutPartyInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -4808,6 +6089,9 @@ export type CompanyCreateWithoutExternalPartySourceMappingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -4896,6 +6180,9 @@ export type CompanyUncheckedCreateWithoutExternalPartySourceMappingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -4999,6 +6286,9 @@ export type CompanyUpdateWithoutExternalPartySourceMappingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -5087,6 +6377,9 @@ export type CompanyUncheckedUpdateWithoutExternalPartySourceMappingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -5174,6 +6467,9 @@ export type CompanyCreateWithoutFinanceAssetCategoryPoliciesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -5262,6 +6558,9 @@ export type CompanyUncheckedCreateWithoutFinanceAssetCategoryPoliciesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -5365,6 +6664,9 @@ export type CompanyUpdateWithoutFinanceAssetCategoryPoliciesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -5453,6 +6755,9 @@ export type CompanyUncheckedUpdateWithoutFinanceAssetCategoryPoliciesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -5540,6 +6845,9 @@ export type CompanyCreateWithoutFinanceAssetCardsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -5628,6 +6936,9 @@ export type CompanyUncheckedCreateWithoutFinanceAssetCardsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -5731,6 +7042,9 @@ export type CompanyUpdateWithoutFinanceAssetCardsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -5819,6 +7133,9 @@ export type CompanyUncheckedUpdateWithoutFinanceAssetCardsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -5906,6 +7223,9 @@ export type CompanyCreateWithoutFinanceAssetAcquisitionEvidenceInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -5994,6 +7314,9 @@ export type CompanyUncheckedCreateWithoutFinanceAssetAcquisitionEvidenceInput = 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -6097,6 +7420,9 @@ export type CompanyUpdateWithoutFinanceAssetAcquisitionEvidenceInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -6185,6 +7511,9 @@ export type CompanyUncheckedUpdateWithoutFinanceAssetAcquisitionEvidenceInput = 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -6272,6 +7601,9 @@ export type CompanyCreateWithoutFinanceAssetImportBatchesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -6360,6 +7692,9 @@ export type CompanyUncheckedCreateWithoutFinanceAssetImportBatchesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -6463,6 +7798,9 @@ export type CompanyUpdateWithoutFinanceAssetImportBatchesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -6551,6 +7889,9 @@ export type CompanyUncheckedUpdateWithoutFinanceAssetImportBatchesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -6638,6 +7979,9 @@ export type CompanyCreateWithoutFinanceAssetAdjustmentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -6726,6 +8070,9 @@ export type CompanyUncheckedCreateWithoutFinanceAssetAdjustmentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -6829,6 +8176,9 @@ export type CompanyUpdateWithoutFinanceAssetAdjustmentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -6917,6 +8267,9 @@ export type CompanyUncheckedUpdateWithoutFinanceAssetAdjustmentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -7004,6 +8357,9 @@ export type CompanyCreateWithoutFinanceAssetImpairmentAssessmentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -7092,6 +8448,9 @@ export type CompanyUncheckedCreateWithoutFinanceAssetImpairmentAssessmentsInput 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -7195,6 +8554,9 @@ export type CompanyUpdateWithoutFinanceAssetImpairmentAssessmentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -7283,6 +8645,9 @@ export type CompanyUncheckedUpdateWithoutFinanceAssetImpairmentAssessmentsInput 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -7370,6 +8735,9 @@ export type CompanyCreateWithoutFinanceAssetDisposalsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -7458,6 +8826,9 @@ export type CompanyUncheckedCreateWithoutFinanceAssetDisposalsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -7561,6 +8932,9 @@ export type CompanyUpdateWithoutFinanceAssetDisposalsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -7649,6 +9023,9 @@ export type CompanyUncheckedUpdateWithoutFinanceAssetDisposalsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -7736,6 +9113,9 @@ export type CompanyCreateWithoutFinanceBudgetVersionsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -7824,6 +9204,9 @@ export type CompanyUncheckedCreateWithoutFinanceBudgetVersionsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -7927,6 +9310,9 @@ export type CompanyUpdateWithoutFinanceBudgetVersionsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -8015,6 +9401,9 @@ export type CompanyUncheckedUpdateWithoutFinanceBudgetVersionsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -8102,6 +9491,9 @@ export type CompanyCreateWithoutFinanceCashFlowItemsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -8190,6 +9582,9 @@ export type CompanyUncheckedCreateWithoutFinanceCashFlowItemsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -8293,6 +9688,9 @@ export type CompanyUpdateWithoutFinanceCashFlowItemsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -8381,6 +9779,9 @@ export type CompanyUncheckedUpdateWithoutFinanceCashFlowItemsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -8468,6 +9869,9 @@ export type CompanyCreateWithoutFinanceCashFlowAllocationsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -8556,6 +9960,9 @@ export type CompanyUncheckedCreateWithoutFinanceCashFlowAllocationsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -8659,6 +10066,9 @@ export type CompanyUpdateWithoutFinanceCashFlowAllocationsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -8747,6 +10157,9 @@ export type CompanyUncheckedUpdateWithoutFinanceCashFlowAllocationsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -8834,6 +10247,9 @@ export type CompanyCreateWithoutFinanceCashFlowAllocationAdjustmentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -8922,6 +10338,9 @@ export type CompanyUncheckedCreateWithoutFinanceCashFlowAllocationAdjustmentsInp
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -9025,6 +10444,9 @@ export type CompanyUpdateWithoutFinanceCashFlowAllocationAdjustmentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -9113,6 +10535,9 @@ export type CompanyUncheckedUpdateWithoutFinanceCashFlowAllocationAdjustmentsInp
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -9200,6 +10625,9 @@ export type CompanyCreateWithoutFinanceCloseRunsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -9288,6 +10716,9 @@ export type CompanyUncheckedCreateWithoutFinanceCloseRunsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -9391,6 +10822,9 @@ export type CompanyUpdateWithoutFinanceCloseRunsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -9479,6 +10913,9 @@ export type CompanyUncheckedUpdateWithoutFinanceCloseRunsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -9566,6 +11003,9 @@ export type CompanyCreateWithoutFinanceCloseWorkpapersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -9654,6 +11094,9 @@ export type CompanyUncheckedCreateWithoutFinanceCloseWorkpapersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -9757,6 +11200,9 @@ export type CompanyUpdateWithoutFinanceCloseWorkpapersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -9845,6 +11291,9 @@ export type CompanyUncheckedUpdateWithoutFinanceCloseWorkpapersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -9932,6 +11381,9 @@ export type CompanyCreateWithoutFinanceConsolidationEntryLinesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -10020,6 +11472,9 @@ export type CompanyUncheckedCreateWithoutFinanceConsolidationEntryLinesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -10112,6 +11567,9 @@ export type CompanyCreateWithoutFinanceConsolidationCounterpartiesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -10200,6 +11658,9 @@ export type CompanyUncheckedCreateWithoutFinanceConsolidationCounterpartiesInput
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -10303,6 +11764,9 @@ export type CompanyUpdateWithoutFinanceConsolidationEntryLinesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -10391,6 +11855,9 @@ export type CompanyUncheckedUpdateWithoutFinanceConsolidationEntryLinesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -10489,6 +11956,9 @@ export type CompanyUpdateWithoutFinanceConsolidationCounterpartiesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -10577,6 +12047,9 @@ export type CompanyUncheckedUpdateWithoutFinanceConsolidationCounterpartiesInput
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -10664,6 +12137,9 @@ export type CompanyCreateWithoutSourceFinanceVoucherCompanyMappingRulesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -10752,6 +12228,9 @@ export type CompanyUncheckedCreateWithoutSourceFinanceVoucherCompanyMappingRules
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -10844,6 +12323,9 @@ export type CompanyCreateWithoutFinanceVoucherCompanyMappingRulesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -10932,6 +12414,9 @@ export type CompanyUncheckedCreateWithoutFinanceVoucherCompanyMappingRulesInput 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -11035,6 +12520,9 @@ export type CompanyUpdateWithoutSourceFinanceVoucherCompanyMappingRulesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -11123,6 +12611,9 @@ export type CompanyUncheckedUpdateWithoutSourceFinanceVoucherCompanyMappingRules
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -11221,6 +12712,9 @@ export type CompanyUpdateWithoutFinanceVoucherCompanyMappingRulesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -11309,6 +12803,9 @@ export type CompanyUncheckedUpdateWithoutFinanceVoucherCompanyMappingRulesInput 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -11396,6 +12893,9 @@ export type CompanyCreateWithoutFinanceCurrencyPolicyInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -11484,6 +12984,9 @@ export type CompanyUncheckedCreateWithoutFinanceCurrencyPolicyInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -11587,6 +13090,9 @@ export type CompanyUpdateWithoutFinanceCurrencyPolicyInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -11675,6 +13181,9 @@ export type CompanyUncheckedUpdateWithoutFinanceCurrencyPolicyInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -11762,6 +13271,9 @@ export type CompanyCreateWithoutFinanceConsolidationParentScopesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -11850,6 +13362,9 @@ export type CompanyUncheckedCreateWithoutFinanceConsolidationParentScopesInput =
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -11942,6 +13457,9 @@ export type CompanyCreateWithoutFinanceConsolidationCompanyScopesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -12030,6 +13548,9 @@ export type CompanyUncheckedCreateWithoutFinanceConsolidationCompanyScopesInput 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -12133,6 +13654,9 @@ export type CompanyUpdateWithoutFinanceConsolidationParentScopesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -12221,6 +13745,9 @@ export type CompanyUncheckedUpdateWithoutFinanceConsolidationParentScopesInput =
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -12319,6 +13846,9 @@ export type CompanyUpdateWithoutFinanceConsolidationCompanyScopesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -12407,6 +13937,9 @@ export type CompanyUncheckedUpdateWithoutFinanceConsolidationCompanyScopesInput 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -12494,6 +14027,9 @@ export type CompanyCreateWithoutFinanceConsolidationParentBatchesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -12582,6 +14118,9 @@ export type CompanyUncheckedCreateWithoutFinanceConsolidationParentBatchesInput 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -12685,6 +14224,9 @@ export type CompanyUpdateWithoutFinanceConsolidationParentBatchesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -12773,6 +14315,9 @@ export type CompanyUncheckedUpdateWithoutFinanceConsolidationParentBatchesInput 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -12860,6 +14405,9 @@ export type CompanyCreateWithoutFinanceConsolidationEntitiesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -12948,6 +14496,9 @@ export type CompanyUncheckedCreateWithoutFinanceConsolidationEntitiesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -13040,6 +14591,9 @@ export type CompanyCreateWithoutFinanceConsolidationChildEntitiesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -13128,6 +14682,9 @@ export type CompanyUncheckedCreateWithoutFinanceConsolidationChildEntitiesInput 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -13231,6 +14788,9 @@ export type CompanyUpdateWithoutFinanceConsolidationEntitiesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -13319,6 +14879,9 @@ export type CompanyUncheckedUpdateWithoutFinanceConsolidationEntitiesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -13417,6 +14980,9 @@ export type CompanyUpdateWithoutFinanceConsolidationChildEntitiesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -13505,6 +15071,9 @@ export type CompanyUncheckedUpdateWithoutFinanceConsolidationChildEntitiesInput 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -13592,6 +15161,9 @@ export type CompanyCreateWithoutOwnedFinanceAuxiliaryMembersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -13680,6 +15252,9 @@ export type CompanyUncheckedCreateWithoutOwnedFinanceAuxiliaryMembersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -13772,6 +15347,9 @@ export type CompanyCreateWithoutFinanceAuxiliaryMembersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -13860,6 +15438,9 @@ export type CompanyUncheckedCreateWithoutFinanceAuxiliaryMembersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -13963,6 +15544,9 @@ export type CompanyUpdateWithoutOwnedFinanceAuxiliaryMembersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -14051,6 +15635,9 @@ export type CompanyUncheckedUpdateWithoutOwnedFinanceAuxiliaryMembersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -14149,6 +15736,9 @@ export type CompanyUpdateWithoutFinanceAuxiliaryMembersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -14237,6 +15827,9 @@ export type CompanyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -14324,6 +15917,9 @@ export type CompanyCreateWithoutFinanceAuxiliaryBalancesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -14412,6 +16008,9 @@ export type CompanyUncheckedCreateWithoutFinanceAuxiliaryBalancesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -14515,6 +16114,9 @@ export type CompanyUpdateWithoutFinanceAuxiliaryBalancesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -14603,6 +16205,9 @@ export type CompanyUncheckedUpdateWithoutFinanceAuxiliaryBalancesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -14690,6 +16295,9 @@ export type CompanyCreateWithoutFinanceOpenItemsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -14778,6 +16386,9 @@ export type CompanyUncheckedCreateWithoutFinanceOpenItemsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -14881,6 +16492,9 @@ export type CompanyUpdateWithoutFinanceOpenItemsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -14969,6 +16583,9 @@ export type CompanyUncheckedUpdateWithoutFinanceOpenItemsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -15056,6 +16673,9 @@ export type CompanyCreateWithoutOriginFinanceGroupAccountsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -15144,6 +16764,9 @@ export type CompanyUncheckedCreateWithoutOriginFinanceGroupAccountsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -15247,6 +16870,9 @@ export type CompanyUpdateWithoutOriginFinanceGroupAccountsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -15335,6 +16961,9 @@ export type CompanyUncheckedUpdateWithoutOriginFinanceGroupAccountsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -15422,6 +17051,9 @@ export type CompanyCreateWithoutFinanceGroupAccountMappingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -15510,6 +17142,9 @@ export type CompanyUncheckedCreateWithoutFinanceGroupAccountMappingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -15613,6 +17248,9 @@ export type CompanyUpdateWithoutFinanceGroupAccountMappingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -15701,6 +17339,9 @@ export type CompanyUncheckedUpdateWithoutFinanceGroupAccountMappingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -15788,6 +17429,9 @@ export type CompanyCreateWithoutFinanceSourceLedgerMappingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -15876,6 +17520,9 @@ export type CompanyUncheckedCreateWithoutFinanceSourceLedgerMappingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -15979,6 +17626,9 @@ export type CompanyUpdateWithoutFinanceSourceLedgerMappingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -16067,6 +17717,9 @@ export type CompanyUncheckedUpdateWithoutFinanceSourceLedgerMappingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -16154,6 +17807,9 @@ export type CompanyCreateWithoutFinanceLedgerImportsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -16242,6 +17898,9 @@ export type CompanyUncheckedCreateWithoutFinanceLedgerImportsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -16345,6 +18004,9 @@ export type CompanyUpdateWithoutFinanceLedgerImportsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -16433,6 +18095,9 @@ export type CompanyUncheckedUpdateWithoutFinanceLedgerImportsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -16520,6 +18185,9 @@ export type CompanyCreateWithoutFinanceSourceAccountBalancesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -16608,6 +18276,9 @@ export type CompanyUncheckedCreateWithoutFinanceSourceAccountBalancesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -16711,6 +18382,9 @@ export type CompanyUpdateWithoutFinanceSourceAccountBalancesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -16799,6 +18473,9 @@ export type CompanyUncheckedUpdateWithoutFinanceSourceAccountBalancesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -16886,6 +18563,9 @@ export type CompanyCreateWithoutFinanceBalanceSnapshotsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -16974,6 +18654,9 @@ export type CompanyUncheckedCreateWithoutFinanceBalanceSnapshotsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -17077,6 +18760,9 @@ export type CompanyUpdateWithoutFinanceBalanceSnapshotsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -17165,6 +18851,9 @@ export type CompanyUncheckedUpdateWithoutFinanceBalanceSnapshotsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -17252,6 +18941,9 @@ export type CompanyCreateWithoutFinanceAccountsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -17340,6 +19032,9 @@ export type CompanyUncheckedCreateWithoutFinanceAccountsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -17443,6 +19138,9 @@ export type CompanyUpdateWithoutFinanceAccountsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -17531,6 +19229,9 @@ export type CompanyUncheckedUpdateWithoutFinanceAccountsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -17618,6 +19319,9 @@ export type CompanyCreateWithoutFinancePeriodsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -17706,6 +19410,9 @@ export type CompanyUncheckedCreateWithoutFinancePeriodsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -17809,6 +19516,9 @@ export type CompanyUpdateWithoutFinancePeriodsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -17897,6 +19607,9 @@ export type CompanyUncheckedUpdateWithoutFinancePeriodsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -17984,6 +19697,9 @@ export type CompanyCreateWithoutFinanceVouchersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -18072,6 +19788,9 @@ export type CompanyUncheckedCreateWithoutFinanceVouchersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -18175,6 +19894,9 @@ export type CompanyUpdateWithoutFinanceVouchersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -18263,6 +19985,9 @@ export type CompanyUncheckedUpdateWithoutFinanceVouchersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -18350,6 +20075,9 @@ export type CompanyCreateWithoutFinanceAccountBalancesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -18438,6 +20166,9 @@ export type CompanyUncheckedCreateWithoutFinanceAccountBalancesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -18541,6 +20272,9 @@ export type CompanyUpdateWithoutFinanceAccountBalancesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -18629,6 +20363,9 @@ export type CompanyUncheckedUpdateWithoutFinanceAccountBalancesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -18716,6 +20453,9 @@ export type CompanyCreateWithoutFinanceReclassItemRulesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -18804,6 +20544,9 @@ export type CompanyUncheckedCreateWithoutFinanceReclassItemRulesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -18907,6 +20650,9 @@ export type CompanyUpdateWithoutFinanceReclassItemRulesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -18995,6 +20741,9 @@ export type CompanyUncheckedUpdateWithoutFinanceReclassItemRulesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -19082,6 +20831,9 @@ export type CompanyCreateWithoutFinanceBalanceReclassAdjustmentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -19170,6 +20922,9 @@ export type CompanyUncheckedCreateWithoutFinanceBalanceReclassAdjustmentsInput =
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -19273,6 +21028,9 @@ export type CompanyUpdateWithoutFinanceBalanceReclassAdjustmentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -19361,6 +21119,9 @@ export type CompanyUncheckedUpdateWithoutFinanceBalanceReclassAdjustmentsInput =
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -19448,6 +21209,9 @@ export type CompanyCreateWithoutFinanceBalanceReclassAdjustmentHistoriesInput = 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -19536,6 +21300,9 @@ export type CompanyUncheckedCreateWithoutFinanceBalanceReclassAdjustmentHistorie
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -19639,6 +21406,9 @@ export type CompanyUpdateWithoutFinanceBalanceReclassAdjustmentHistoriesInput = 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -19727,6 +21497,9 @@ export type CompanyUncheckedUpdateWithoutFinanceBalanceReclassAdjustmentHistorie
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -19814,6 +21587,9 @@ export type CompanyCreateWithoutFinanceStatementVoucherExclusionsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -19902,6 +21678,9 @@ export type CompanyUncheckedCreateWithoutFinanceStatementVoucherExclusionsInput 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -20005,6 +21784,9 @@ export type CompanyUpdateWithoutFinanceStatementVoucherExclusionsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -20093,6 +21875,9 @@ export type CompanyUncheckedUpdateWithoutFinanceStatementVoucherExclusionsInput 
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -20180,6 +21965,9 @@ export type CompanyCreateWithoutFinanceStatementSourcePackagesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -20268,6 +22056,9 @@ export type CompanyUncheckedCreateWithoutFinanceStatementSourcePackagesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -20371,6 +22162,9 @@ export type CompanyUpdateWithoutFinanceStatementSourcePackagesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -20459,6 +22253,9 @@ export type CompanyUncheckedUpdateWithoutFinanceStatementSourcePackagesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -20546,6 +22343,9 @@ export type CompanyCreateWithoutFinanceStatementWorkpapersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -20634,6 +22434,9 @@ export type CompanyUncheckedCreateWithoutFinanceStatementWorkpapersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -20737,6 +22540,9 @@ export type CompanyUpdateWithoutFinanceStatementWorkpapersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -20825,6 +22631,9 @@ export type CompanyUncheckedUpdateWithoutFinanceStatementWorkpapersInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -20912,6 +22721,9 @@ export type CompanyCreateWithoutFinanceTaxPaymentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -21000,6 +22812,9 @@ export type CompanyUncheckedCreateWithoutFinanceTaxPaymentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -21103,6 +22918,9 @@ export type CompanyUpdateWithoutFinanceTaxPaymentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -21191,6 +23009,9 @@ export type CompanyUncheckedUpdateWithoutFinanceTaxPaymentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -21278,6 +23099,9 @@ export type CompanyCreateWithoutFinanceTaxRegistrationsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -21366,6 +23190,9 @@ export type CompanyUncheckedCreateWithoutFinanceTaxRegistrationsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -21469,6 +23296,9 @@ export type CompanyUpdateWithoutFinanceTaxRegistrationsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -21557,6 +23387,9 @@ export type CompanyUncheckedUpdateWithoutFinanceTaxRegistrationsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -21644,6 +23477,9 @@ export type CompanyCreateWithoutFinanceCurrenciesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -21732,6 +23568,9 @@ export type CompanyUncheckedCreateWithoutFinanceCurrenciesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -21835,6 +23674,9 @@ export type CompanyUpdateWithoutFinanceCurrenciesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -21923,6 +23765,9 @@ export type CompanyUncheckedUpdateWithoutFinanceCurrenciesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -22010,6 +23855,9 @@ export type CompanyCreateWithoutFinanceBankAccountsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -22098,6 +23946,9 @@ export type CompanyUncheckedCreateWithoutFinanceBankAccountsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -22201,6 +24052,9 @@ export type CompanyUpdateWithoutFinanceBankAccountsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -22289,6 +24143,9 @@ export type CompanyUncheckedUpdateWithoutFinanceBankAccountsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -22376,6 +24233,9 @@ export type CompanyCreateWithoutFinanceLoansInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -22464,6 +24324,9 @@ export type CompanyUncheckedCreateWithoutFinanceLoansInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -22567,6 +24430,9 @@ export type CompanyUpdateWithoutFinanceLoansInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -22655,6 +24521,9 @@ export type CompanyUncheckedUpdateWithoutFinanceLoansInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -22742,6 +24611,9 @@ export type CompanyCreateWithoutEmploymentRecordsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -22830,6 +24702,9 @@ export type CompanyUncheckedCreateWithoutEmploymentRecordsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -22933,6 +24808,9 @@ export type CompanyUpdateWithoutEmploymentRecordsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -23021,6 +24899,9 @@ export type CompanyUncheckedUpdateWithoutEmploymentRecordsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -23108,6 +24989,9 @@ export type CompanyCreateWithoutSocialInsurancePeriodsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -23196,6 +25080,9 @@ export type CompanyUncheckedCreateWithoutSocialInsurancePeriodsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -23299,6 +25186,9 @@ export type CompanyUpdateWithoutSocialInsurancePeriodsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -23387,6 +25277,9 @@ export type CompanyUncheckedUpdateWithoutSocialInsurancePeriodsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -23474,6 +25367,9 @@ export type CompanyCreateWithoutReportingEdpsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
@@ -23562,6 +25458,9 @@ export type CompanyUncheckedCreateWithoutReportingEdpsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
@@ -23665,6 +25564,9 @@ export type CompanyUpdateWithoutReportingEdpsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
@@ -23753,6 +25655,9 @@ export type CompanyUncheckedUpdateWithoutReportingEdpsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
@@ -23840,6 +25745,9 @@ export type CompanyCreateWithoutPositionReportOverridesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
   financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
@@ -23928,6 +25836,9 @@ export type CompanyUncheckedCreateWithoutPositionReportOverridesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
   financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
@@ -24031,6 +25942,9 @@ export type CompanyUpdateWithoutPositionReportOverridesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
   financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
@@ -24119,6 +26033,9 @@ export type CompanyUncheckedUpdateWithoutPositionReportOverridesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
   financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
@@ -24206,6 +26123,9 @@ export type CompanyCreateWithoutInventoryItemsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -24294,6 +26214,9 @@ export type CompanyUncheckedCreateWithoutInventoryItemsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -24397,6 +26320,9 @@ export type CompanyUpdateWithoutInventoryItemsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -24485,6 +26411,9 @@ export type CompanyUncheckedUpdateWithoutInventoryItemsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -24572,6 +26501,9 @@ export type CompanyCreateWithoutInventoryWarehousesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -24660,6 +26592,9 @@ export type CompanyUncheckedCreateWithoutInventoryWarehousesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -24763,6 +26698,9 @@ export type CompanyUpdateWithoutInventoryWarehousesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -24851,6 +26789,9 @@ export type CompanyUncheckedUpdateWithoutInventoryWarehousesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -24938,6 +26879,9 @@ export type CompanyCreateWithoutInventoryDocumentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -25026,6 +26970,9 @@ export type CompanyUncheckedCreateWithoutInventoryDocumentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -25129,6 +27076,9 @@ export type CompanyUpdateWithoutInventoryDocumentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -25217,6 +27167,9 @@ export type CompanyUncheckedUpdateWithoutInventoryDocumentsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -25304,6 +27257,9 @@ export type CompanyCreateWithoutInventoryLedgerEntriesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -25392,6 +27348,9 @@ export type CompanyUncheckedCreateWithoutInventoryLedgerEntriesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -25495,6 +27454,9 @@ export type CompanyUpdateWithoutInventoryLedgerEntriesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -25583,6 +27545,9 @@ export type CompanyUncheckedUpdateWithoutInventoryLedgerEntriesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -25670,6 +27635,9 @@ export type CompanyCreateWithoutInventoryStocktakesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -25758,6 +27726,9 @@ export type CompanyUncheckedCreateWithoutInventoryStocktakesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -25861,6 +27832,9 @@ export type CompanyUpdateWithoutInventoryStocktakesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -25949,6 +27923,9 @@ export type CompanyUncheckedUpdateWithoutInventoryStocktakesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -26036,6 +28013,9 @@ export type CompanyCreateWithoutInventoryPeriodClosesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -26124,6 +28104,9 @@ export type CompanyUncheckedCreateWithoutInventoryPeriodClosesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -26227,6 +28210,9 @@ export type CompanyUpdateWithoutInventoryPeriodClosesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -26315,6 +28301,9 @@ export type CompanyUncheckedUpdateWithoutInventoryPeriodClosesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -26402,6 +28391,9 @@ export type CompanyCreateWithoutInventoryImportBatchesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -26490,6 +28482,9 @@ export type CompanyUncheckedCreateWithoutInventoryImportBatchesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -26593,6 +28588,9 @@ export type CompanyUpdateWithoutInventoryImportBatchesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -26681,6 +28679,9 @@ export type CompanyUncheckedUpdateWithoutInventoryImportBatchesInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -26768,6 +28769,9 @@ export type CompanyCreateWithoutStockRawMaterialsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -26856,6 +28860,9 @@ export type CompanyUncheckedCreateWithoutStockRawMaterialsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -26959,6 +28966,9 @@ export type CompanyUpdateWithoutStockRawMaterialsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -27047,6 +29057,9 @@ export type CompanyUncheckedUpdateWithoutStockRawMaterialsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -27134,6 +29147,9 @@ export type CompanyCreateWithoutStockPackagingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -27222,6 +29238,9 @@ export type CompanyUncheckedCreateWithoutStockPackagingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -27325,6 +29344,9 @@ export type CompanyUpdateWithoutStockPackagingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -27413,6 +29435,9 @@ export type CompanyUncheckedUpdateWithoutStockPackagingsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -27500,6 +29525,9 @@ export type CompanyCreateWithoutStockFinishedGoodsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
@@ -27588,6 +29616,9 @@ export type CompanyUncheckedCreateWithoutStockFinishedGoodsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedCreateNestedManyWithoutIssuerInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedCreateNestedManyWithoutIssuerInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedCreateNestedOneWithoutCompanyInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
@@ -27691,6 +29722,9 @@ export type CompanyUpdateWithoutStockFinishedGoodsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
@@ -27779,6 +29813,9 @@ export type CompanyUncheckedUpdateWithoutStockFinishedGoodsInput = {
   ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  investorShareholderProfiles?: Prisma.InvestorShareholderProfileUncheckedUpdateManyWithoutIssuerNestedInput
+  investorDueDiligenceRecords?: Prisma.InvestorDueDiligenceRecordUncheckedUpdateManyWithoutIssuerNestedInput
+  investmentEnterpriseProfile?: Prisma.InvestmentEnterpriseProfileUncheckedUpdateOneWithoutCompanyNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
@@ -27855,6 +29892,8 @@ export type CompanyCountOutputType = {
   ownershipProjectionRuns: number
   shareCapitalEvents: number
   shareholderGroups: number
+  investorShareholderProfiles: number
+  investorDueDiligenceRecords: number
   registryChanges: number
   positionReportOverrides: number
   reportingEdps: number
@@ -27926,6 +29965,8 @@ export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   ownershipProjectionRuns?: boolean | CompanyCountOutputTypeCountOwnershipProjectionRunsArgs
   shareCapitalEvents?: boolean | CompanyCountOutputTypeCountShareCapitalEventsArgs
   shareholderGroups?: boolean | CompanyCountOutputTypeCountShareholderGroupsArgs
+  investorShareholderProfiles?: boolean | CompanyCountOutputTypeCountInvestorShareholderProfilesArgs
+  investorDueDiligenceRecords?: boolean | CompanyCountOutputTypeCountInvestorDueDiligenceRecordsArgs
   registryChanges?: boolean | CompanyCountOutputTypeCountRegistryChangesArgs
   positionReportOverrides?: boolean | CompanyCountOutputTypeCountPositionReportOverridesArgs
   reportingEdps?: boolean | CompanyCountOutputTypeCountReportingEdpsArgs
@@ -28028,6 +30069,20 @@ export type CompanyCountOutputTypeCountShareCapitalEventsArgs<ExtArgs extends ru
  */
 export type CompanyCountOutputTypeCountShareholderGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ShareholderGroupWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountInvestorShareholderProfilesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InvestorShareholderProfileWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountInvestorDueDiligenceRecordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InvestorDueDiligenceRecordWhereInput
 }
 
 /**
@@ -28502,6 +30557,9 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   ownershipProjectionRuns?: boolean | Prisma.Company$ownershipProjectionRunsArgs<ExtArgs>
   shareCapitalEvents?: boolean | Prisma.Company$shareCapitalEventsArgs<ExtArgs>
   shareholderGroups?: boolean | Prisma.Company$shareholderGroupsArgs<ExtArgs>
+  investorShareholderProfiles?: boolean | Prisma.Company$investorShareholderProfilesArgs<ExtArgs>
+  investorDueDiligenceRecords?: boolean | Prisma.Company$investorDueDiligenceRecordsArgs<ExtArgs>
+  investmentEnterpriseProfile?: boolean | Prisma.Company$investmentEnterpriseProfileArgs<ExtArgs>
   registryChanges?: boolean | Prisma.Company$registryChangesArgs<ExtArgs>
   positionReportOverrides?: boolean | Prisma.Company$positionReportOverridesArgs<ExtArgs>
   reportingEdps?: boolean | Prisma.Company$reportingEdpsArgs<ExtArgs>
@@ -28639,6 +30697,9 @@ export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   ownershipProjectionRuns?: boolean | Prisma.Company$ownershipProjectionRunsArgs<ExtArgs>
   shareCapitalEvents?: boolean | Prisma.Company$shareCapitalEventsArgs<ExtArgs>
   shareholderGroups?: boolean | Prisma.Company$shareholderGroupsArgs<ExtArgs>
+  investorShareholderProfiles?: boolean | Prisma.Company$investorShareholderProfilesArgs<ExtArgs>
+  investorDueDiligenceRecords?: boolean | Prisma.Company$investorDueDiligenceRecordsArgs<ExtArgs>
+  investmentEnterpriseProfile?: boolean | Prisma.Company$investmentEnterpriseProfileArgs<ExtArgs>
   registryChanges?: boolean | Prisma.Company$registryChangesArgs<ExtArgs>
   positionReportOverrides?: boolean | Prisma.Company$positionReportOverridesArgs<ExtArgs>
   reportingEdps?: boolean | Prisma.Company$reportingEdpsArgs<ExtArgs>
@@ -28721,6 +30782,9 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     ownershipProjectionRuns: Prisma.$OwnershipProjectionRunPayload<ExtArgs>[]
     shareCapitalEvents: Prisma.$ShareCapitalEventPayload<ExtArgs>[]
     shareholderGroups: Prisma.$ShareholderGroupPayload<ExtArgs>[]
+    investorShareholderProfiles: Prisma.$InvestorShareholderProfilePayload<ExtArgs>[]
+    investorDueDiligenceRecords: Prisma.$InvestorDueDiligenceRecordPayload<ExtArgs>[]
+    investmentEnterpriseProfile: Prisma.$InvestmentEnterpriseProfilePayload<ExtArgs> | null
     registryChanges: Prisma.$CompanyRegistryChangePayload<ExtArgs>[]
     positionReportOverrides: Prisma.$PositionReportOverridePayload<ExtArgs>[]
     reportingEdps: Prisma.$EDPPayload<ExtArgs>[]
@@ -29204,6 +31268,9 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
   ownershipProjectionRuns<T extends Prisma.Company$ownershipProjectionRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$ownershipProjectionRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OwnershipProjectionRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shareCapitalEvents<T extends Prisma.Company$shareCapitalEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$shareCapitalEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShareCapitalEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shareholderGroups<T extends Prisma.Company$shareholderGroupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$shareholderGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShareholderGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  investorShareholderProfiles<T extends Prisma.Company$investorShareholderProfilesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$investorShareholderProfilesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvestorShareholderProfilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  investorDueDiligenceRecords<T extends Prisma.Company$investorDueDiligenceRecordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$investorDueDiligenceRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvestorDueDiligenceRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  investmentEnterpriseProfile<T extends Prisma.Company$investmentEnterpriseProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$investmentEnterpriseProfileArgs<ExtArgs>>): Prisma.Prisma__InvestmentEnterpriseProfileClient<runtime.Types.Result.GetResult<Prisma.$InvestmentEnterpriseProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   registryChanges<T extends Prisma.Company$registryChangesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$registryChangesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompanyRegistryChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   positionReportOverrides<T extends Prisma.Company$positionReportOverridesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$positionReportOverridesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionReportOverridePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reportingEdps<T extends Prisma.Company$reportingEdpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$reportingEdpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EDPPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -29809,6 +31876,73 @@ export type Company$shareholderGroupsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.ShareholderGroupScalarFieldEnum | Prisma.ShareholderGroupScalarFieldEnum[]
+}
+
+/**
+ * Company.investorShareholderProfiles
+ */
+export type Company$investorShareholderProfilesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InvestorShareholderProfile
+   */
+  select?: Prisma.InvestorShareholderProfileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InvestorShareholderProfile
+   */
+  omit?: Prisma.InvestorShareholderProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InvestorShareholderProfileInclude<ExtArgs> | null
+  where?: Prisma.InvestorShareholderProfileWhereInput
+  orderBy?: Prisma.InvestorShareholderProfileOrderByWithRelationInput | Prisma.InvestorShareholderProfileOrderByWithRelationInput[]
+  cursor?: Prisma.InvestorShareholderProfileWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InvestorShareholderProfileScalarFieldEnum | Prisma.InvestorShareholderProfileScalarFieldEnum[]
+}
+
+/**
+ * Company.investorDueDiligenceRecords
+ */
+export type Company$investorDueDiligenceRecordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InvestorDueDiligenceRecord
+   */
+  select?: Prisma.InvestorDueDiligenceRecordSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InvestorDueDiligenceRecord
+   */
+  omit?: Prisma.InvestorDueDiligenceRecordOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InvestorDueDiligenceRecordInclude<ExtArgs> | null
+  where?: Prisma.InvestorDueDiligenceRecordWhereInput
+  orderBy?: Prisma.InvestorDueDiligenceRecordOrderByWithRelationInput | Prisma.InvestorDueDiligenceRecordOrderByWithRelationInput[]
+  cursor?: Prisma.InvestorDueDiligenceRecordWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InvestorDueDiligenceRecordScalarFieldEnum | Prisma.InvestorDueDiligenceRecordScalarFieldEnum[]
+}
+
+/**
+ * Company.investmentEnterpriseProfile
+ */
+export type Company$investmentEnterpriseProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InvestmentEnterpriseProfile
+   */
+  select?: Prisma.InvestmentEnterpriseProfileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InvestmentEnterpriseProfile
+   */
+  omit?: Prisma.InvestmentEnterpriseProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InvestmentEnterpriseProfileInclude<ExtArgs> | null
+  where?: Prisma.InvestmentEnterpriseProfileWhereInput
 }
 
 /**

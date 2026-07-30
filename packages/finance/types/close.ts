@@ -144,3 +144,5 @@ export type RefreshFinanceCloseInput = {
   expectedVersion: number;
   idempotencyKey: string;
 };
+
+export type CompleteFinanceCloseInput = RefreshFinanceCloseInput;

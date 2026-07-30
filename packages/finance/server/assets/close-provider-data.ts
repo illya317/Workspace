@@ -25,11 +25,13 @@ export function buildFinanceAssetCloseProviders(inspect: {
     const applicability = await loadAssetApplicability(scope, period?.id ?? null, cards);
     if (!period) return inspect.depreciation(scope, { period, cards, ...applicability, entries: [], adjustments: [], priorEntries: [], priorAdjustments: [], priorImpairments: [], ledgerByAccount: [] });
     const accountCodes = [...new Set(applicability.policies.map((policy) => policy.accumulatedAccountCode ?? policy.assetAccountCode))];
-    const [entries, adjustments, priorEntries, priorAdjustments, priorImpairments, balances] = await Promise.all([
+    const accountCodeFilters = accountCodes.map((code) => ({ code: { startsWith: code } }));
+    const [entries, adjustments, priorEntries, priorAdjustments, priorImpairments, balances, ledgerVouchers] = await Promise.all([
       loadCurrentEntries(scope, period.id), loadCurrentAdjustments(scope, period.id), loadPriorEntries(scope), loadPriorAdjustments(scope), loadPriorImpairments(scope),
       prisma.financeAccountBalance.findMany({ where: { periodId: period.id, companyCode: scope.companyCode, account: { code: { in: accountCodes } } }, select: { currentDebit: true, currentCredit: true, account: { select: { code: true } } } }),
+      prisma.financeVoucher.findMany({ where: { periodId: period.id, companyCode: scope.companyCode, status: "posted", items: { some: { account: { OR: accountCodeFilters } } } }, select: { id: true }, orderBy: { id: "asc" } }),
     ]);
-    return inspect.depreciation(scope, { period, cards, ...applicability, entries, adjustments, priorEntries, priorAdjustments, priorImpairments, ledgerByAccount: balances.map((row) => ({ accountCode: row.account.code, amount: money(row.currentCredit - row.currentDebit) })) });
+    return inspect.depreciation(scope, { period, cards, ...applicability, entries, adjustments, priorEntries, priorAdjustments, priorImpairments, ledgerByAccount: balances.map((row) => ({ accountCode: row.account.code, amount: money(row.currentCredit - row.currentDebit) })), ledgerVoucherIds: ledgerVouchers.map((row) => row.id) });
   } };
   const impairment: FinanceCloseProvider = { inspectPeriodClose: async (scope) => {
     const period = await periodFor(scope);
@@ -47,7 +49,7 @@ export function buildFinanceAssetCloseProviders(inspect: {
 }
 
 function periodFor(scope: FinanceCloseScope) {
-  return prisma.financePeriod.findUnique({ where: { companyCode_year_month: scope }, select: { id: true } });
+  return prisma.financePeriod.findUnique({ where: { companyCode_year_month: scope }, select: { id: true, sourceClosed: true } });
 }
 
 async function resolveClosePolicies(scope: FinanceCloseScope, cards: Array<{ categoryId: number }>) {

@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { BodySurfaceSectionSpec } from "../../BodySurface.types";
+import type { BodySurfaceSectionProps, BodySurfaceSectionSpec } from "../../BodySurface.types";
 import {
+  bodySurfaceRootOwnsFrame,
   resolveBodySurfaceSectionChrome,
   resolveBodySurfaceSectionStackPosition,
 } from "./body-surface-section-chrome";
@@ -14,6 +15,21 @@ function section(input: Partial<BodySurfaceSectionSpec>): BodySurfaceSectionSpec
     ...input,
   };
 }
+
+function rootSection(input: Partial<BodySurfaceSectionProps>): BodySurfaceSectionProps {
+  return { kind: "section", ...input } as BodySurfaceSectionProps;
+}
+
+test("top-level root sections with a title or actions own the standard frame", () => {
+  assert.equal(bodySurfaceRootOwnsFrame(rootSection({ title: "页面内容" })), true);
+  assert.equal(bodySurfaceRootOwnsFrame(rootSection({ commands: [{ key: "refresh", label: "刷新" }] })), true);
+});
+
+test("structural, split, and already nested root sections stay transparent", () => {
+  assert.equal(bodySurfaceRootOwnsFrame(rootSection({ sections: [] })), false);
+  assert.equal(bodySurfaceRootOwnsFrame(rootSection({ layout: "split" } as Partial<BodySurfaceSectionProps>)), false);
+  assert.equal(bodySurfaceRootOwnsFrame(rootSection({ title: "内层标题" }), 1), false);
+});
 
 test("top-level titled sections own the standard frame", () => {
   assert.equal(resolveBodySurfaceSectionChrome(section({

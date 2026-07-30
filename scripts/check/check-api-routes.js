@@ -11,7 +11,8 @@
 
 const fs = require("fs");
 const path = require("path");
-const { collectApiContracts, collectModuleDefs } = require("./module-registry-reader");
+const { collectApiContracts, collectModuleDefs, collectResourceDefs } = require("./module-registry-reader");
+const { usesVerifiedApiRouteFactory } = require("./verified-api-route-factories");
 
 const WORKSPACE_ROOT = path.resolve(__dirname, "../..");
 const ROOT = path.join(WORKSPACE_ROOT, "app/api");
@@ -41,6 +42,7 @@ const KNOWN_PREFIXES = [
 ];
 
 const MODULE_DEFS = collectModuleDefs();
+const RESOURCE_DEFS = collectResourceDefs();
 const KNOWN_MODULES = new Set(MODULE_DEFS.filter((moduleDef) => !moduleDef.parentKey).map((moduleDef) => moduleDef.key));
 const MODULES_WITH_CHILDREN = new Set(MODULE_DEFS.filter((moduleDef) => moduleDef.parentKey).map((moduleDef) => moduleDef.parentKey));
 function canonicalL2ApiBase(moduleDef) {
@@ -49,10 +51,28 @@ function canonicalL2ApiBase(moduleDef) {
   const segment = childKey.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
   return `/api/modules/${moduleDef.parentKey}/${segment}`;
 }
+function canonicalResourceL2ApiBase(resourceDef) {
+  const [moduleKey, capabilityKey] = resourceDef.key.split(".");
+  if (!moduleKey || !capabilityKey) return null;
+  const segment = capabilityKey.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+  return `/api/modules/${moduleKey}/${segment}`;
+}
+function l2ApiBaseFromPrefix(pathPrefix) {
+  const parts = pathPrefix.split("/").filter(Boolean);
+  return parts[0] === "api" && parts[1] === "modules" && parts[2] && parts[3]
+    ? `/api/modules/${parts[2]}/${parts[3]}`
+    : null;
+}
 const REGISTERED_L2_API_BASES = new Set(
-  MODULE_DEFS
-    .filter((moduleDef) => moduleDef.parentKey)
-    .flatMap((moduleDef) => [canonicalL2ApiBase(moduleDef), ...(moduleDef.apiPrefixes || [])].filter(Boolean)),
+  [
+    ...MODULE_DEFS
+      .filter((moduleDef) => moduleDef.parentKey)
+      .flatMap((moduleDef) => [canonicalL2ApiBase(moduleDef), ...(moduleDef.apiPrefixes || [])]),
+    ...RESOURCE_DEFS.flatMap((resourceDef) => [
+      canonicalResourceL2ApiBase(resourceDef),
+      ...(resourceDef.apiPrefixes || []).map(l2ApiBaseFromPrefix),
+    ]),
+  ].filter(Boolean),
 );
 const REGISTERED_L1_ONLY_API_BASES = new Set(
   collectApiContracts()
@@ -77,7 +97,6 @@ const REGISTERED_API_CONTRACTS = collectApiContracts()
   .filter((contract) => HTTP_METHODS.includes(contract.method));
 const PUBLIC_OR_DEV_API_ROUTES = new Set([
   "auth/dev-login/route.ts",
-  "auth/dev-login-bypass/route.ts",
   "auth/gateway-check/route.ts",
   "auth/me/route.ts",
   "auth/wecom/callback/route.ts",
@@ -163,7 +182,7 @@ function usesApiRouteHelperGate(content) {
   ) || (
     hasNamedImport(content, "createCommandRoute", [API_ROUTE_HELPER_IMPORT]) &&
     /\bcreateCommandRoute\s*\(/.test(content)
-  );
+  ) || usesVerifiedApiRouteFactory(content);
 }
 
 function usesInternalApiRouteHelper(content) {
@@ -176,7 +195,7 @@ function usesInternalApiRouteHelper(content) {
   ) || (
     hasNamedImport(content, "createWorkspaceAnalysisSourceRpcHandler", ["@workspace/platform/server/workspace-analysis-source-rpc"]) &&
     /\bcreateWorkspaceAnalysisSourceRpcHandler\s*\(/.test(content)
-  );
+  ) || usesVerifiedApiRouteFactory(content);
 }
 
 function usesImportedAdminApiGate(content) {

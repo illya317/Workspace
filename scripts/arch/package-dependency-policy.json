@@ -1,127 +1,25 @@
 {
   "schemaVersion": 1,
   "tiers": [
-    {
-      "name": "product",
-      "order": 1
-    },
-    {
-      "name": "platform",
-      "order": 2
-    },
-    {
-      "name": "foundation",
-      "order": 3
-    }
+    { "name": "product", "order": 1 },
+    { "name": "platform", "order": 2 },
+    { "name": "foundation", "order": 3 }
   ],
   "packages": [
-    {
-      "name": "core",
-      "tier": "foundation",
-      "allowedDependencies": []
-    },
-    {
-      "name": "platform",
-      "tier": "platform",
-      "allowedDependencies": [
-        "core"
-      ]
-    },
-    {
-      "name": "administration",
-      "tier": "product",
-      "allowedDependencies": [
-        "core",
-        "platform"
-      ]
-    },
-    {
-      "name": "agent",
-      "tier": "product",
-      "allowedDependencies": [
-        "core",
-        "platform"
-      ]
-    },
-    {
-      "name": "capital-securities",
-      "tier": "product",
-      "allowedDependencies": [
-        "core",
-        "platform"
-      ]
-    },
-    {
-      "name": "docs",
-      "tier": "product",
-      "allowedDependencies": [
-        "core",
-        "platform"
-      ]
-    },
-    {
-      "name": "external",
-      "tier": "product",
-      "allowedDependencies": [
-        "core",
-        "platform"
-      ]
-    },
-    {
-      "name": "finance",
-      "tier": "product",
-      "allowedDependencies": [
-        "core",
-        "platform"
-      ]
-    },
-    {
-      "name": "hr",
-      "tier": "product",
-      "allowedDependencies": [
-        "core",
-        "platform"
-      ]
-    },
-    {
-      "name": "inventory",
-      "tier": "product",
-      "allowedDependencies": [
-        "core",
-        "platform"
-      ]
-    },
-    {
-      "name": "library",
-      "tier": "product",
-      "allowedDependencies": [
-        "core",
-        "platform"
-      ]
-    },
-    {
-      "name": "production",
-      "tier": "product",
-      "allowedDependencies": [
-        "core",
-        "platform"
-      ]
-    },
-    {
-      "name": "settings",
-      "tier": "product",
-      "allowedDependencies": [
-        "core",
-        "platform"
-      ]
-    },
-    {
-      "name": "work",
-      "tier": "product",
-      "allowedDependencies": [
-        "core",
-        "platform"
-      ]
-    }
+    { "name": "core", "tier": "foundation", "allowedDependencies": [] },
+    { "name": "platform", "tier": "platform", "allowedDependencies": ["core"] },
+    { "name": "administration", "tier": "product", "allowedDependencies": ["core", "platform"] },
+    { "name": "agent", "tier": "product", "allowedDependencies": ["core", "platform"] },
+    { "name": "capital-securities", "tier": "product", "allowedDependencies": ["core", "platform"] },
+    { "name": "docs", "tier": "product", "allowedDependencies": ["core", "platform"] },
+    { "name": "external", "tier": "product", "allowedDependencies": ["core", "platform"] },
+    { "name": "finance", "tier": "product", "allowedDependencies": ["core", "platform"] },
+    { "name": "hr", "tier": "product", "allowedDependencies": ["core", "platform"] },
+    { "name": "inventory", "tier": "product", "allowedDependencies": ["core", "platform"] },
+    { "name": "library", "tier": "product", "allowedDependencies": ["core", "platform"] },
+    { "name": "news", "tier": "product", "allowedDependencies": ["core", "platform"] },
+    { "name": "production", "tier": "product", "allowedDependencies": ["core", "platform"] },
+    { "name": "settings", "tier": "product", "allowedDependencies": ["core", "platform"] },
+    { "name": "work", "tier": "product", "allowedDependencies": ["core", "platform"] }
   ]
 }

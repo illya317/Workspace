@@ -180,3 +180,4 @@ export function firstDirectModule(modules: readonly DatabaseSchemaModule[]): Dat
   }
   return null;
 }
+

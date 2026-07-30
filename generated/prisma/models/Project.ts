@@ -447,6 +447,11 @@ export type ProjectWhereInput = {
   planPhases?: Prisma.ProjectPlanPhaseListRelationFilter
   planDependencies?: Prisma.ProjectPlanDependencyListRelationFilter
   planBaselines?: Prisma.ProjectPlanBaselineListRelationFilter
+  notificationRules?: Prisma.ProjectNotificationRuleListRelationFilter
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationListRelationFilter
+  notificationSignals?: Prisma.ProjectNotificationSignalListRelationFilter
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentListRelationFilter
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventListRelationFilter
   workAssignees?: Prisma.ProjectWorkAssigneeListRelationFilter
   linkedWorkItems?: Prisma.WorkItemListRelationFilter
   linkedWorkPlans?: Prisma.WorkPlanListRelationFilter
@@ -491,6 +496,11 @@ export type ProjectOrderByWithRelationInput = {
   planPhases?: Prisma.ProjectPlanPhaseOrderByRelationAggregateInput
   planDependencies?: Prisma.ProjectPlanDependencyOrderByRelationAggregateInput
   planBaselines?: Prisma.ProjectPlanBaselineOrderByRelationAggregateInput
+  notificationRules?: Prisma.ProjectNotificationRuleOrderByRelationAggregateInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationOrderByRelationAggregateInput
+  notificationSignals?: Prisma.ProjectNotificationSignalOrderByRelationAggregateInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentOrderByRelationAggregateInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventOrderByRelationAggregateInput
   workAssignees?: Prisma.ProjectWorkAssigneeOrderByRelationAggregateInput
   linkedWorkItems?: Prisma.WorkItemOrderByRelationAggregateInput
   linkedWorkPlans?: Prisma.WorkPlanOrderByRelationAggregateInput
@@ -538,6 +548,11 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   planPhases?: Prisma.ProjectPlanPhaseListRelationFilter
   planDependencies?: Prisma.ProjectPlanDependencyListRelationFilter
   planBaselines?: Prisma.ProjectPlanBaselineListRelationFilter
+  notificationRules?: Prisma.ProjectNotificationRuleListRelationFilter
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationListRelationFilter
+  notificationSignals?: Prisma.ProjectNotificationSignalListRelationFilter
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentListRelationFilter
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventListRelationFilter
   workAssignees?: Prisma.ProjectWorkAssigneeListRelationFilter
   linkedWorkItems?: Prisma.WorkItemListRelationFilter
   linkedWorkPlans?: Prisma.WorkPlanListRelationFilter
@@ -654,6 +669,11 @@ export type ProjectCreateInput = {
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
@@ -697,6 +717,11 @@ export type ProjectUncheckedCreateInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
@@ -739,6 +764,11 @@ export type ProjectUpdateInput = {
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
@@ -782,6 +812,11 @@ export type ProjectUncheckedUpdateInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
@@ -898,6 +933,11 @@ export type ProjectListRelationFilter = {
 
 export type ProjectOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type ProjectScalarRelationFilter = {
+  is?: Prisma.ProjectWhereInput
+  isNot?: Prisma.ProjectWhereInput
 }
 
 export type ProjectCountOrderByAggregateInput = {
@@ -1019,11 +1059,6 @@ export type ProjectSumOrderByAggregateInput = {
   version?: Prisma.SortOrder
 }
 
-export type ProjectScalarRelationFilter = {
-  is?: Prisma.ProjectWhereInput
-  isNot?: Prisma.ProjectWhereInput
-}
-
 export type ProjectCreateNestedOneWithoutFinanceBudgetRowsInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutFinanceBudgetRowsInput, Prisma.ProjectUncheckedCreateWithoutFinanceBudgetRowsInput>
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutFinanceBudgetRowsInput
@@ -1080,6 +1115,76 @@ export type ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput = {
   update?: Prisma.ProjectUpdateWithWhereUniqueWithoutLeadingDepartmentInput | Prisma.ProjectUpdateWithWhereUniqueWithoutLeadingDepartmentInput[]
   updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutLeadingDepartmentInput | Prisma.ProjectUpdateManyWithWhereWithoutLeadingDepartmentInput[]
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectCreateNestedOneWithoutNotificationRulesInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationRulesInput, Prisma.ProjectUncheckedCreateWithoutNotificationRulesInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutNotificationRulesInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutNotificationRulesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationRulesInput, Prisma.ProjectUncheckedCreateWithoutNotificationRulesInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutNotificationRulesInput
+  upsert?: Prisma.ProjectUpsertWithoutNotificationRulesInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutNotificationRulesInput, Prisma.ProjectUpdateWithoutNotificationRulesInput>, Prisma.ProjectUncheckedUpdateWithoutNotificationRulesInput>
+}
+
+export type ProjectCreateNestedOneWithoutNotificationEvaluationsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationEvaluationsInput, Prisma.ProjectUncheckedCreateWithoutNotificationEvaluationsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutNotificationEvaluationsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutNotificationEvaluationsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationEvaluationsInput, Prisma.ProjectUncheckedCreateWithoutNotificationEvaluationsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutNotificationEvaluationsInput
+  upsert?: Prisma.ProjectUpsertWithoutNotificationEvaluationsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutNotificationEvaluationsInput, Prisma.ProjectUpdateWithoutNotificationEvaluationsInput>, Prisma.ProjectUncheckedUpdateWithoutNotificationEvaluationsInput>
+}
+
+export type ProjectCreateNestedOneWithoutNotificationPublicationIntentsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationPublicationIntentsInput, Prisma.ProjectUncheckedCreateWithoutNotificationPublicationIntentsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutNotificationPublicationIntentsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutNotificationPublicationIntentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationPublicationIntentsInput, Prisma.ProjectUncheckedCreateWithoutNotificationPublicationIntentsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutNotificationPublicationIntentsInput
+  upsert?: Prisma.ProjectUpsertWithoutNotificationPublicationIntentsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutNotificationPublicationIntentsInput, Prisma.ProjectUpdateWithoutNotificationPublicationIntentsInput>, Prisma.ProjectUncheckedUpdateWithoutNotificationPublicationIntentsInput>
+}
+
+export type ProjectCreateNestedOneWithoutNotificationSignalsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationSignalsInput, Prisma.ProjectUncheckedCreateWithoutNotificationSignalsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutNotificationSignalsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutNotificationSignalsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationSignalsInput, Prisma.ProjectUncheckedCreateWithoutNotificationSignalsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutNotificationSignalsInput
+  upsert?: Prisma.ProjectUpsertWithoutNotificationSignalsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutNotificationSignalsInput, Prisma.ProjectUpdateWithoutNotificationSignalsInput>, Prisma.ProjectUncheckedUpdateWithoutNotificationSignalsInput>
+}
+
+export type ProjectCreateNestedOneWithoutNotificationSignalRedriveEventsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationSignalRedriveEventsInput, Prisma.ProjectUncheckedCreateWithoutNotificationSignalRedriveEventsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutNotificationSignalRedriveEventsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutNotificationSignalRedriveEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationSignalRedriveEventsInput, Prisma.ProjectUncheckedCreateWithoutNotificationSignalRedriveEventsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutNotificationSignalRedriveEventsInput
+  upsert?: Prisma.ProjectUpsertWithoutNotificationSignalRedriveEventsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutNotificationSignalRedriveEventsInput, Prisma.ProjectUpdateWithoutNotificationSignalRedriveEventsInput>, Prisma.ProjectUncheckedUpdateWithoutNotificationSignalRedriveEventsInput>
 }
 
 export type ProjectCreateNestedOneWithoutEnablingDepartmentsInput = {
@@ -1248,6 +1353,11 @@ export type ProjectCreateWithoutFinanceBudgetRowsInput = {
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
@@ -1290,6 +1400,11 @@ export type ProjectUncheckedCreateWithoutFinanceBudgetRowsInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
@@ -1347,6 +1462,11 @@ export type ProjectUpdateWithoutFinanceBudgetRowsInput = {
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
@@ -1389,6 +1509,11 @@ export type ProjectUncheckedUpdateWithoutFinanceBudgetRowsInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
@@ -1429,6 +1554,11 @@ export type ProjectCreateWithoutLeadingDepartmentInput = {
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
@@ -1471,6 +1601,11 @@ export type ProjectUncheckedCreateWithoutLeadingDepartmentInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
@@ -1539,6 +1674,1016 @@ export type ProjectScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
 }
 
+export type ProjectCreateWithoutNotificationRulesInput = {
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  status?: string
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  workspaceEnabled?: boolean
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
+  employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
+  membershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutProjectInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
+}
+
+export type ProjectUncheckedCreateWithoutNotificationRulesInput = {
+  id?: number
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  status?: string
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  leadingDepartmentId?: number | null
+  workspaceEnabled?: boolean
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employees?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutProjectInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutProjectInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
+}
+
+export type ProjectCreateOrConnectWithoutNotificationRulesInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationRulesInput, Prisma.ProjectUncheckedCreateWithoutNotificationRulesInput>
+}
+
+export type ProjectUpsertWithoutNotificationRulesInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutNotificationRulesInput, Prisma.ProjectUncheckedUpdateWithoutNotificationRulesInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationRulesInput, Prisma.ProjectUncheckedCreateWithoutNotificationRulesInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutNotificationRulesInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutNotificationRulesInput, Prisma.ProjectUncheckedUpdateWithoutNotificationRulesInput>
+}
+
+export type ProjectUpdateWithoutNotificationRulesInput = {
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
+  employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutProjectNestedInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutNotificationRulesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employees?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutProjectNestedInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutProjectNestedInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
+}
+
+export type ProjectCreateWithoutNotificationEvaluationsInput = {
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  status?: string
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  workspaceEnabled?: boolean
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
+  employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
+  membershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutProjectInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
+}
+
+export type ProjectUncheckedCreateWithoutNotificationEvaluationsInput = {
+  id?: number
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  status?: string
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  leadingDepartmentId?: number | null
+  workspaceEnabled?: boolean
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employees?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutProjectInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutProjectInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
+}
+
+export type ProjectCreateOrConnectWithoutNotificationEvaluationsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationEvaluationsInput, Prisma.ProjectUncheckedCreateWithoutNotificationEvaluationsInput>
+}
+
+export type ProjectUpsertWithoutNotificationEvaluationsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutNotificationEvaluationsInput, Prisma.ProjectUncheckedUpdateWithoutNotificationEvaluationsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationEvaluationsInput, Prisma.ProjectUncheckedCreateWithoutNotificationEvaluationsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutNotificationEvaluationsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutNotificationEvaluationsInput, Prisma.ProjectUncheckedUpdateWithoutNotificationEvaluationsInput>
+}
+
+export type ProjectUpdateWithoutNotificationEvaluationsInput = {
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
+  employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutProjectNestedInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutNotificationEvaluationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employees?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutProjectNestedInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutProjectNestedInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
+}
+
+export type ProjectCreateWithoutNotificationPublicationIntentsInput = {
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  status?: string
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  workspaceEnabled?: boolean
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
+  employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
+  membershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutProjectInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
+}
+
+export type ProjectUncheckedCreateWithoutNotificationPublicationIntentsInput = {
+  id?: number
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  status?: string
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  leadingDepartmentId?: number | null
+  workspaceEnabled?: boolean
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employees?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutProjectInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutProjectInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
+}
+
+export type ProjectCreateOrConnectWithoutNotificationPublicationIntentsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationPublicationIntentsInput, Prisma.ProjectUncheckedCreateWithoutNotificationPublicationIntentsInput>
+}
+
+export type ProjectUpsertWithoutNotificationPublicationIntentsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutNotificationPublicationIntentsInput, Prisma.ProjectUncheckedUpdateWithoutNotificationPublicationIntentsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationPublicationIntentsInput, Prisma.ProjectUncheckedCreateWithoutNotificationPublicationIntentsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutNotificationPublicationIntentsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutNotificationPublicationIntentsInput, Prisma.ProjectUncheckedUpdateWithoutNotificationPublicationIntentsInput>
+}
+
+export type ProjectUpdateWithoutNotificationPublicationIntentsInput = {
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
+  employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutProjectNestedInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutNotificationPublicationIntentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employees?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutProjectNestedInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutProjectNestedInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
+}
+
+export type ProjectCreateWithoutNotificationSignalsInput = {
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  status?: string
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  workspaceEnabled?: boolean
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
+  employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
+  membershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutProjectInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
+}
+
+export type ProjectUncheckedCreateWithoutNotificationSignalsInput = {
+  id?: number
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  status?: string
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  leadingDepartmentId?: number | null
+  workspaceEnabled?: boolean
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employees?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutProjectInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutProjectInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
+}
+
+export type ProjectCreateOrConnectWithoutNotificationSignalsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationSignalsInput, Prisma.ProjectUncheckedCreateWithoutNotificationSignalsInput>
+}
+
+export type ProjectUpsertWithoutNotificationSignalsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutNotificationSignalsInput, Prisma.ProjectUncheckedUpdateWithoutNotificationSignalsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationSignalsInput, Prisma.ProjectUncheckedCreateWithoutNotificationSignalsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutNotificationSignalsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutNotificationSignalsInput, Prisma.ProjectUncheckedUpdateWithoutNotificationSignalsInput>
+}
+
+export type ProjectUpdateWithoutNotificationSignalsInput = {
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
+  employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutProjectNestedInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutNotificationSignalsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employees?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutProjectNestedInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutProjectNestedInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
+}
+
+export type ProjectCreateWithoutNotificationSignalRedriveEventsInput = {
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  status?: string
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  workspaceEnabled?: boolean
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
+  employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
+  membershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutProjectInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
+}
+
+export type ProjectUncheckedCreateWithoutNotificationSignalRedriveEventsInput = {
+  id?: number
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  status?: string
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  leadingDepartmentId?: number | null
+  workspaceEnabled?: boolean
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employees?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutProjectInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutProjectInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
+}
+
+export type ProjectCreateOrConnectWithoutNotificationSignalRedriveEventsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationSignalRedriveEventsInput, Prisma.ProjectUncheckedCreateWithoutNotificationSignalRedriveEventsInput>
+}
+
+export type ProjectUpsertWithoutNotificationSignalRedriveEventsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutNotificationSignalRedriveEventsInput, Prisma.ProjectUncheckedUpdateWithoutNotificationSignalRedriveEventsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutNotificationSignalRedriveEventsInput, Prisma.ProjectUncheckedCreateWithoutNotificationSignalRedriveEventsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutNotificationSignalRedriveEventsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutNotificationSignalRedriveEventsInput, Prisma.ProjectUncheckedUpdateWithoutNotificationSignalRedriveEventsInput>
+}
+
+export type ProjectUpdateWithoutNotificationSignalRedriveEventsInput = {
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
+  employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutProjectNestedInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutNotificationSignalRedriveEventsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employees?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutProjectNestedInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutProjectNestedInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
+}
+
 export type ProjectCreateWithoutEnablingDepartmentsInput = {
   code?: string | null
   name: string
@@ -1574,6 +2719,11 @@ export type ProjectCreateWithoutEnablingDepartmentsInput = {
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
@@ -1616,6 +2766,11 @@ export type ProjectUncheckedCreateWithoutEnablingDepartmentsInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
@@ -1673,6 +2828,11 @@ export type ProjectUpdateWithoutEnablingDepartmentsInput = {
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
@@ -1715,6 +2875,11 @@ export type ProjectUncheckedUpdateWithoutEnablingDepartmentsInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
@@ -1756,6 +2921,11 @@ export type ProjectCreateWithoutEmployeesInput = {
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
@@ -1798,6 +2968,11 @@ export type ProjectUncheckedCreateWithoutEmployeesInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
@@ -1855,6 +3030,11 @@ export type ProjectUpdateWithoutEmployeesInput = {
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
@@ -1897,6 +3077,11 @@ export type ProjectUncheckedUpdateWithoutEmployeesInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
@@ -1938,6 +3123,11 @@ export type ProjectCreateWithoutMembershipChangesInput = {
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
@@ -1980,6 +3170,11 @@ export type ProjectUncheckedCreateWithoutMembershipChangesInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
@@ -2037,6 +3232,11 @@ export type ProjectUpdateWithoutMembershipChangesInput = {
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
@@ -2079,6 +3279,11 @@ export type ProjectUncheckedUpdateWithoutMembershipChangesInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
@@ -2120,6 +3325,11 @@ export type ProjectCreateWithoutPlanPhasesInput = {
   enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
@@ -2162,6 +3372,11 @@ export type ProjectUncheckedCreateWithoutPlanPhasesInput = {
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
@@ -2219,6 +3434,11 @@ export type ProjectUpdateWithoutPlanPhasesInput = {
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
@@ -2261,6 +3481,11 @@ export type ProjectUncheckedUpdateWithoutPlanPhasesInput = {
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
@@ -2302,6 +3527,11 @@ export type ProjectCreateWithoutPlanDependenciesInput = {
   enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
@@ -2344,6 +3574,11 @@ export type ProjectUncheckedCreateWithoutPlanDependenciesInput = {
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
@@ -2401,6 +3636,11 @@ export type ProjectUpdateWithoutPlanDependenciesInput = {
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
@@ -2443,6 +3683,11 @@ export type ProjectUncheckedUpdateWithoutPlanDependenciesInput = {
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
@@ -2484,6 +3729,11 @@ export type ProjectCreateWithoutPlanBaselinesInput = {
   enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
@@ -2526,6 +3776,11 @@ export type ProjectUncheckedCreateWithoutPlanBaselinesInput = {
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
@@ -2583,6 +3838,11 @@ export type ProjectUpdateWithoutPlanBaselinesInput = {
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
@@ -2625,6 +3885,11 @@ export type ProjectUncheckedUpdateWithoutPlanBaselinesInput = {
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
@@ -2667,6 +3932,11 @@ export type ProjectCreateWithoutLinkedWorkPlansInput = {
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
@@ -2709,6 +3979,11 @@ export type ProjectUncheckedCreateWithoutLinkedWorkPlansInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
@@ -2766,6 +4041,11 @@ export type ProjectUpdateWithoutLinkedWorkPlansInput = {
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
@@ -2808,6 +4088,11 @@ export type ProjectUncheckedUpdateWithoutLinkedWorkPlansInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
@@ -2849,6 +4134,11 @@ export type ProjectCreateWithoutLinkedWorkItemsInput = {
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
   financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
@@ -2891,6 +4181,11 @@ export type ProjectUncheckedCreateWithoutLinkedWorkItemsInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
   financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
@@ -2948,6 +4243,11 @@ export type ProjectUpdateWithoutLinkedWorkItemsInput = {
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
   financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
@@ -2990,6 +4290,11 @@ export type ProjectUncheckedUpdateWithoutLinkedWorkItemsInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
   financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
@@ -3031,6 +4336,11 @@ export type ProjectCreateWithoutWorkAssigneesInput = {
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
   financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
@@ -3073,6 +4383,11 @@ export type ProjectUncheckedCreateWithoutWorkAssigneesInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedCreateNestedManyWithoutProjectInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedCreateNestedManyWithoutProjectInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedCreateNestedManyWithoutProjectInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
   financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
@@ -3130,6 +4445,11 @@ export type ProjectUpdateWithoutWorkAssigneesInput = {
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
   financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
@@ -3172,6 +4492,11 @@ export type ProjectUncheckedUpdateWithoutWorkAssigneesInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
   financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
@@ -3244,6 +4569,11 @@ export type ProjectUpdateWithoutLeadingDepartmentInput = {
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
@@ -3286,6 +4616,11 @@ export type ProjectUncheckedUpdateWithoutLeadingDepartmentInput = {
   planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  notificationRules?: Prisma.ProjectNotificationRuleUncheckedUpdateManyWithoutProjectNestedInput
+  notificationEvaluations?: Prisma.ProjectNotificationEvaluationUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignals?: Prisma.ProjectNotificationSignalUncheckedUpdateManyWithoutProjectNestedInput
+  notificationPublicationIntents?: Prisma.ProjectNotificationPublicationIntentUncheckedUpdateManyWithoutProjectNestedInput
+  notificationSignalRedriveEvents?: Prisma.ProjectNotificationSignalRedriveEventUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
@@ -3336,6 +4671,11 @@ export type ProjectCountOutputType = {
   planPhases: number
   planDependencies: number
   planBaselines: number
+  notificationRules: number
+  notificationEvaluations: number
+  notificationSignals: number
+  notificationPublicationIntents: number
+  notificationSignalRedriveEvents: number
   workAssignees: number
   linkedWorkItems: number
   linkedWorkPlans: number
@@ -3349,6 +4689,11 @@ export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   planPhases?: boolean | ProjectCountOutputTypeCountPlanPhasesArgs
   planDependencies?: boolean | ProjectCountOutputTypeCountPlanDependenciesArgs
   planBaselines?: boolean | ProjectCountOutputTypeCountPlanBaselinesArgs
+  notificationRules?: boolean | ProjectCountOutputTypeCountNotificationRulesArgs
+  notificationEvaluations?: boolean | ProjectCountOutputTypeCountNotificationEvaluationsArgs
+  notificationSignals?: boolean | ProjectCountOutputTypeCountNotificationSignalsArgs
+  notificationPublicationIntents?: boolean | ProjectCountOutputTypeCountNotificationPublicationIntentsArgs
+  notificationSignalRedriveEvents?: boolean | ProjectCountOutputTypeCountNotificationSignalRedriveEventsArgs
   workAssignees?: boolean | ProjectCountOutputTypeCountWorkAssigneesArgs
   linkedWorkItems?: boolean | ProjectCountOutputTypeCountLinkedWorkItemsArgs
   linkedWorkPlans?: boolean | ProjectCountOutputTypeCountLinkedWorkPlansArgs
@@ -3405,6 +4750,41 @@ export type ProjectCountOutputTypeCountPlanDependenciesArgs<ExtArgs extends runt
  */
 export type ProjectCountOutputTypeCountPlanBaselinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProjectPlanBaselineWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountNotificationRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectNotificationRuleWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountNotificationEvaluationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectNotificationEvaluationWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountNotificationSignalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectNotificationSignalWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountNotificationPublicationIntentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectNotificationPublicationIntentWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountNotificationSignalRedriveEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectNotificationSignalRedriveEventWhereInput
 }
 
 /**
@@ -3474,6 +4854,11 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   planPhases?: boolean | Prisma.Project$planPhasesArgs<ExtArgs>
   planDependencies?: boolean | Prisma.Project$planDependenciesArgs<ExtArgs>
   planBaselines?: boolean | Prisma.Project$planBaselinesArgs<ExtArgs>
+  notificationRules?: boolean | Prisma.Project$notificationRulesArgs<ExtArgs>
+  notificationEvaluations?: boolean | Prisma.Project$notificationEvaluationsArgs<ExtArgs>
+  notificationSignals?: boolean | Prisma.Project$notificationSignalsArgs<ExtArgs>
+  notificationPublicationIntents?: boolean | Prisma.Project$notificationPublicationIntentsArgs<ExtArgs>
+  notificationSignalRedriveEvents?: boolean | Prisma.Project$notificationSignalRedriveEventsArgs<ExtArgs>
   workAssignees?: boolean | Prisma.Project$workAssigneesArgs<ExtArgs>
   linkedWorkItems?: boolean | Prisma.Project$linkedWorkItemsArgs<ExtArgs>
   linkedWorkPlans?: boolean | Prisma.Project$linkedWorkPlansArgs<ExtArgs>
@@ -3591,6 +4976,11 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   planPhases?: boolean | Prisma.Project$planPhasesArgs<ExtArgs>
   planDependencies?: boolean | Prisma.Project$planDependenciesArgs<ExtArgs>
   planBaselines?: boolean | Prisma.Project$planBaselinesArgs<ExtArgs>
+  notificationRules?: boolean | Prisma.Project$notificationRulesArgs<ExtArgs>
+  notificationEvaluations?: boolean | Prisma.Project$notificationEvaluationsArgs<ExtArgs>
+  notificationSignals?: boolean | Prisma.Project$notificationSignalsArgs<ExtArgs>
+  notificationPublicationIntents?: boolean | Prisma.Project$notificationPublicationIntentsArgs<ExtArgs>
+  notificationSignalRedriveEvents?: boolean | Prisma.Project$notificationSignalRedriveEventsArgs<ExtArgs>
   workAssignees?: boolean | Prisma.Project$workAssigneesArgs<ExtArgs>
   linkedWorkItems?: boolean | Prisma.Project$linkedWorkItemsArgs<ExtArgs>
   linkedWorkPlans?: boolean | Prisma.Project$linkedWorkPlansArgs<ExtArgs>
@@ -3614,6 +5004,11 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     planPhases: Prisma.$ProjectPlanPhasePayload<ExtArgs>[]
     planDependencies: Prisma.$ProjectPlanDependencyPayload<ExtArgs>[]
     planBaselines: Prisma.$ProjectPlanBaselinePayload<ExtArgs>[]
+    notificationRules: Prisma.$ProjectNotificationRulePayload<ExtArgs>[]
+    notificationEvaluations: Prisma.$ProjectNotificationEvaluationPayload<ExtArgs>[]
+    notificationSignals: Prisma.$ProjectNotificationSignalPayload<ExtArgs>[]
+    notificationPublicationIntents: Prisma.$ProjectNotificationPublicationIntentPayload<ExtArgs>[]
+    notificationSignalRedriveEvents: Prisma.$ProjectNotificationSignalRedriveEventPayload<ExtArgs>[]
     workAssignees: Prisma.$ProjectWorkAssigneePayload<ExtArgs>[]
     linkedWorkItems: Prisma.$WorkItemPayload<ExtArgs>[]
     linkedWorkPlans: Prisma.$WorkPlanPayload<ExtArgs>[]
@@ -4051,6 +5446,11 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   planPhases<T extends Prisma.Project$planPhasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$planPhasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPlanPhasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   planDependencies<T extends Prisma.Project$planDependenciesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$planDependenciesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPlanDependencyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   planBaselines<T extends Prisma.Project$planBaselinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$planBaselinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPlanBaselinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notificationRules<T extends Prisma.Project$notificationRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$notificationRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectNotificationRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notificationEvaluations<T extends Prisma.Project$notificationEvaluationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$notificationEvaluationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectNotificationEvaluationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notificationSignals<T extends Prisma.Project$notificationSignalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$notificationSignalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectNotificationSignalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notificationPublicationIntents<T extends Prisma.Project$notificationPublicationIntentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$notificationPublicationIntentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectNotificationPublicationIntentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notificationSignalRedriveEvents<T extends Prisma.Project$notificationSignalRedriveEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$notificationSignalRedriveEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectNotificationSignalRedriveEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workAssignees<T extends Prisma.Project$workAssigneesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$workAssigneesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectWorkAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   linkedWorkItems<T extends Prisma.Project$linkedWorkItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$linkedWorkItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   linkedWorkPlans<T extends Prisma.Project$linkedWorkPlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$linkedWorkPlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4675,6 +6075,126 @@ export type Project$planBaselinesArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.ProjectPlanBaselineScalarFieldEnum | Prisma.ProjectPlanBaselineScalarFieldEnum[]
+}
+
+/**
+ * Project.notificationRules
+ */
+export type Project$notificationRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectNotificationRule
+   */
+  select?: Prisma.ProjectNotificationRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectNotificationRule
+   */
+  omit?: Prisma.ProjectNotificationRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectNotificationRuleInclude<ExtArgs> | null
+  where?: Prisma.ProjectNotificationRuleWhereInput
+  orderBy?: Prisma.ProjectNotificationRuleOrderByWithRelationInput | Prisma.ProjectNotificationRuleOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectNotificationRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectNotificationRuleScalarFieldEnum | Prisma.ProjectNotificationRuleScalarFieldEnum[]
+}
+
+/**
+ * Project.notificationEvaluations
+ */
+export type Project$notificationEvaluationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectNotificationEvaluation
+   */
+  select?: Prisma.ProjectNotificationEvaluationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectNotificationEvaluation
+   */
+  omit?: Prisma.ProjectNotificationEvaluationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectNotificationEvaluationInclude<ExtArgs> | null
+  where?: Prisma.ProjectNotificationEvaluationWhereInput
+  orderBy?: Prisma.ProjectNotificationEvaluationOrderByWithRelationInput | Prisma.ProjectNotificationEvaluationOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectNotificationEvaluationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectNotificationEvaluationScalarFieldEnum | Prisma.ProjectNotificationEvaluationScalarFieldEnum[]
+}
+
+/**
+ * Project.notificationSignals
+ */
+export type Project$notificationSignalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectNotificationSignal
+   */
+  select?: Prisma.ProjectNotificationSignalSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectNotificationSignal
+   */
+  omit?: Prisma.ProjectNotificationSignalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectNotificationSignalInclude<ExtArgs> | null
+  where?: Prisma.ProjectNotificationSignalWhereInput
+  orderBy?: Prisma.ProjectNotificationSignalOrderByWithRelationInput | Prisma.ProjectNotificationSignalOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectNotificationSignalWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectNotificationSignalScalarFieldEnum | Prisma.ProjectNotificationSignalScalarFieldEnum[]
+}
+
+/**
+ * Project.notificationPublicationIntents
+ */
+export type Project$notificationPublicationIntentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectNotificationPublicationIntent
+   */
+  select?: Prisma.ProjectNotificationPublicationIntentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectNotificationPublicationIntent
+   */
+  omit?: Prisma.ProjectNotificationPublicationIntentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectNotificationPublicationIntentInclude<ExtArgs> | null
+  where?: Prisma.ProjectNotificationPublicationIntentWhereInput
+  orderBy?: Prisma.ProjectNotificationPublicationIntentOrderByWithRelationInput | Prisma.ProjectNotificationPublicationIntentOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectNotificationPublicationIntentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectNotificationPublicationIntentScalarFieldEnum | Prisma.ProjectNotificationPublicationIntentScalarFieldEnum[]
+}
+
+/**
+ * Project.notificationSignalRedriveEvents
+ */
+export type Project$notificationSignalRedriveEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectNotificationSignalRedriveEvent
+   */
+  select?: Prisma.ProjectNotificationSignalRedriveEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectNotificationSignalRedriveEvent
+   */
+  omit?: Prisma.ProjectNotificationSignalRedriveEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectNotificationSignalRedriveEventInclude<ExtArgs> | null
+  where?: Prisma.ProjectNotificationSignalRedriveEventWhereInput
+  orderBy?: Prisma.ProjectNotificationSignalRedriveEventOrderByWithRelationInput | Prisma.ProjectNotificationSignalRedriveEventOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectNotificationSignalRedriveEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectNotificationSignalRedriveEventScalarFieldEnum | Prisma.ProjectNotificationSignalRedriveEventScalarFieldEnum[]
 }
 
 /**

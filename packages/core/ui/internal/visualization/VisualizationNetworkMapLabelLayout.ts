@@ -33,11 +33,18 @@ interface LayoutInput {
   width: number;
   height: number;
   reservedRects?: readonly ScreenRect[];
+  measureText?: MapLabelTextMeasurer;
 }
+
+export type MapLabelTextMeasurer = (line: string, primary: boolean) => number;
 
 const LABEL_GAP = 8;
 const VIEWPORT_INSET = 6;
 const COLLISION_PADDING = 3;
+const LABEL_HORIZONTAL_PADDING = 12;
+const LABEL_MEASUREMENT_SAFETY = 2;
+const PRIMARY_LABEL_MAX_WIDTH = 144;
+const RELATED_LABEL_MAX_WIDTH = 132;
 
 export function layoutMapNetworkLabels({
   nodes,
@@ -45,6 +52,7 @@ export function layoutMapNetworkLabels({
   width,
   height,
   reservedRects = [],
+  measureText,
 }: LayoutInput) {
   const nodeByKey = new Map(nodes.map((node) => [node.key, node]));
   const root = nodeByKey.get(selection.rootNodeKey);
@@ -58,8 +66,8 @@ export function layoutMapNetworkLabels({
   const layouts: MapNetworkLabelLayout[] = [];
 
   for (const candidate of candidates) {
-    const label = compactMapNodeLabel(candidate.node.label);
-    const size = mapLabelSize(label, candidate.primary);
+    const label = wrapMapNodeLabel(compactMapNodeLabel(candidate.node.label), candidate.primary, measureText);
+    const size = mapLabelSize(label, candidate.primary, measureText);
     const directions = candidate.primary
       ? PRIMARY_DIRECTIONS
       : radialDirections(root, candidate.node);
@@ -95,14 +103,45 @@ export function compactMapNodeLabel(label: string) {
   return `${label.slice(0, splitAt)}\n${label.slice(splitAt)}`;
 }
 
-function mapLabelSize(label: string, primary: boolean) {
-  const fontSize = primary ? MAP_PRIMARY_LABEL_FONT_SIZE : MAP_RELATED_LABEL_FONT_SIZE;
-  const lines = label.split("\n").slice(0, 2);
-  const contentWidth = Math.max(...lines.map((line) => estimatedLineWidth(line, fontSize)));
+function wrapMapNodeLabel(label: string, primary: boolean, measureText?: MapLabelTextMeasurer) {
+  const maxContentWidth = labelMaxWidth(primary) - LABEL_HORIZONTAL_PADDING - LABEL_MEASUREMENT_SAFETY;
+  return label.split("\n").flatMap((sourceLine) => {
+    if (!sourceLine || measureLabelLine(sourceLine, primary, measureText) <= maxContentWidth) return [sourceLine];
+    const wrapped: string[] = [];
+    let line = "";
+    for (const character of [...sourceLine]) {
+      const candidate = `${line}${character}`;
+      if (line && measureLabelLine(candidate, primary, measureText) > maxContentWidth) {
+        wrapped.push(line);
+        line = character;
+      } else {
+        line = candidate;
+      }
+    }
+    if (line) wrapped.push(line);
+    return wrapped;
+  }).join("\n");
+}
+
+function mapLabelSize(label: string, primary: boolean, measureText?: MapLabelTextMeasurer) {
+  const lines = label.split("\n");
+  const contentWidth = Math.max(...lines.map((line) => measureLabelLine(line, primary, measureText)));
   return {
-    width: Math.min(primary ? 144 : 132, Math.max(42, Math.ceil(contentWidth + 12))),
+    width: Math.min(
+      labelMaxWidth(primary),
+      Math.max(42, Math.ceil(contentWidth + LABEL_HORIZONTAL_PADDING + LABEL_MEASUREMENT_SAFETY)),
+    ),
     height: lines.length * (primary ? 18 : 16) + 4,
   };
+}
+
+function labelMaxWidth(primary: boolean) {
+  return primary ? PRIMARY_LABEL_MAX_WIDTH : RELATED_LABEL_MAX_WIDTH;
+}
+
+function measureLabelLine(line: string, primary: boolean, measureText?: MapLabelTextMeasurer) {
+  return measureText?.(line, primary)
+    ?? estimatedLineWidth(line, primary ? MAP_PRIMARY_LABEL_FONT_SIZE : MAP_RELATED_LABEL_FONT_SIZE);
 }
 
 function estimatedLineWidth(line: string, fontSize: number) {

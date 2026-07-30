@@ -27,17 +27,6 @@ test("Tax voucher reference requires its company and business-period scope", () 
 });
 
 test("Tax reference service projects only standard remote reference fields", async () => {
-  const party = await executeTaxReferenceOptionsCommand({
-    fkKey: "finance.tax.authorityParty",
-    keyword: "税务局",
-  }, {
-    searchOptions: async (input) => {
-      assert.equal(input.fkKey, "finance.tax.authorityParty");
-      return [{ id: 7, name: "税务局", subtitle: "机构", lifecycleStatus: "active", secret: "no" }];
-    },
-  });
-  assert.deepEqual(party, { items: [{ id: 7, name: "税务局", subtitle: "机构" }] });
-
   const voucher = await executeTaxReferenceOptionsCommand({
     fkKey: "finance.tax.accrualVoucherItem",
     keyword: "2221",

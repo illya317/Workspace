@@ -15,7 +15,15 @@ export {
 } from "../service-result";
 
 export function domainIssueToResponse(issue: DomainValidationIssue) {
-  return jsonErrorResponse(issue.message, issue.status ?? 400, issue.field ? { field: issue.field } : undefined);
+  const details = {
+    ...issue.details,
+    ...(issue.field ? { field: issue.field } : {}),
+  };
+  return jsonErrorResponse(
+    issue.message,
+    issue.status ?? 400,
+    Object.keys(details).length > 0 ? details : undefined,
+  );
 }
 
 export function toServiceErrorResponse(result: { error: string; status?: number; details?: Record<string, unknown> }) {

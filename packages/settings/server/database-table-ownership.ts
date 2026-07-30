@@ -16,6 +16,7 @@ const TABLE_OWNER_RULES: readonly DatabaseTableOwnerRule[] = [
 
   { resourceKey: "administration.erpDiligence", matches: (name) => name.startsWith("ErpDueDiligence") },
   { resourceKey: "administration.contracts", matches: (name) => name.startsWith("Contract") },
+  { resourceKey: "capitalSecurities.investments", matches: (name) => name.startsWith("InvestmentEnterprise") },
   { resourceKey: "capitalSecurities.governance", matches: (name) => name.startsWith("CompanyRegistry") },
   { resourceKey: "capitalSecurities.investors", matches: (name) => startsWithAny(name, ["Investor", "Ownership", "Share"]) },
   { resourceKey: "external", matches: (name) => startsWithAny(name, ["Party", "External"]) || name === "EmployeePartyIdentityLink" },

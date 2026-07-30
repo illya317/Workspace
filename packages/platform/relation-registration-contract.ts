@@ -3,7 +3,7 @@ import type { PermissionRegistryActionKey } from "./action-registry";
 export type RelationTargetKind =
   | "company" | "department" | "employee" | "employeePosition" | "employeeProject"
   | "financeAccount" | "financeAssetCategory" | "financeGroupAccount" | "financeVoucherItem"
-  | "financeConsolidationEntrySource" | "meeting" | "meetingActionCandidate" | "meetingDecision"
+  | "financeConsolidationEntrySource" | "investmentEnterpriseProfile" | "meeting" | "meetingActionCandidate" | "meetingDecision"
   | "party" | "position" | "positionDescription" | "positionDescriptionRevision"
   | "positionResponsibilityNode" | "project" | "projectMembershipChange" | "projectPlanPhase"
   | "user" | "departmentCollaboration" | "workItem" | "workKpiAssignment" | "workPlan" | "workOkrCycle";
@@ -11,6 +11,16 @@ export type RelationTargetKind =
 export type RelationPolicyPreset = "block" | "confirm_unlink" | "confirm_cascade" | "confirm_unlink_or_cascade" | "auto_cascade_owned" | "retain" | "exempt_with_reason";
 export type RelationLifecycleField = "targetDelete" | "targetArchive" | "targetRestore" | "sourceRelationChange";
 export type BusinessRequiredPolicy = "required" | "optional";
+
+export const RELATION_POLICY_PRESETS = [
+  "block",
+  "confirm_unlink",
+  "confirm_cascade",
+  "confirm_unlink_or_cascade",
+  "auto_cascade_owned",
+  "retain",
+  "exempt_with_reason",
+] as const satisfies readonly RelationPolicyPreset[];
 
 export interface RelationRegistrationContract {
   key: string;

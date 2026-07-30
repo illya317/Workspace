@@ -75,17 +75,17 @@ function validateRegistry() {
     throw new Error("编码管理页面不得维护平行的编码对象选项列表");
   }
   if (!applicationsSource.includes('title: "关联编码对象"')
-    || !applicationsSource.includes('kind: "selectionGrid"')
+    || !applicationsSource.includes("createCategoryDirectItemSection({")
     || settingsSource.includes('key: "business-code-view"')) {
     throw new Error("编码对象关系必须以模板详情关联卡片呈现，不得保留独立编码视图");
   }
   if (!settingsSource.includes('presentation: "block"') || settingsSource.includes('presentation: "modal"')) {
     throw new Error("编码模板新增必须使用页面内 block，不得使用弹窗");
   }
-  if (!settingsSource.includes("createMasterDetailBody({")
-    || !settingsSource.includes('presentation: "compact"')
+  if (!settingsSource.includes("createCategoryItemDetailBody({")
+    || !settingsSource.includes('label: "编码模板"')
     || !settingsSource.includes('desktop: { ratio: [1, 2] }')) {
-    throw new Error("编码模板维护必须使用 Core 主从分栏和紧凑左侧选择区");
+    throw new Error("编码模板维护必须使用 Platform 分类/直属子项/详情工作台");
   }
   if (settingsSource.includes("createPageActionsSection(")) {
     throw new Error("编码管理不得使用底部动作堆，保存和编辑动作必须进入 FormSurface 根动作区");

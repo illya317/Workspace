@@ -21,8 +21,8 @@ import {
   projectNotificationSignalFailurePlan,
   projectNotificationSignalFingerprint,
   projectNotificationSignalReplayMatches,
-  type ClaimedProjectNotificationSignal,
-} from "./project-notification-signal-contract";
+} from "./project-notification-signal-runtime";
+import type { ClaimedProjectNotificationSignal } from "./project-notification-signal-contract";
 
 test("keeps each delayed project signal bound to its own immutable version snapshot", () => {
   const occurredAt = new Date("2026-07-31T03:00:00.000Z");

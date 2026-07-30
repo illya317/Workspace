@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -19,10 +18,11 @@ const BUSINESS_MODULE_IDS = new Set([
   "hr",
   "inventory",
   "library",
+  "news",
   "production",
   "work",
 ]);
-const BUSINESS_UI_PREFIX_PATTERN = /^packages\/(?:administration|capital-securities|external|finance|hr|inventory|library|production|work)\/ui\//;
+const BUSINESS_UI_PREFIX_PATTERN = /^packages\/(?:administration|capital-securities|external|finance|hr|inventory|library|news|production|work)\/ui\//;
 const SOURCE_EXTENSION_PATTERN = /\.(?:cjs|css|cts|js|jsx|less|mjs|mts|prisma|sass|scss|ts|tsx)$/i;
 const TEST_PATH_PATTERN = /(?:^e2e\/|(?:^|\/)(?:__tests__|test|tests|fixtures)\/|\.(?:spec|test)\.[cm]?[jt]sx?$)/i;
 const ROOT_DOCUMENT_FILES = new Set([

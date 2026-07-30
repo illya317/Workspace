@@ -4,8 +4,8 @@ import { Prisma, prisma } from "@workspace/platform/server/prisma";
 
 import {
   ProjectNotificationSignalProcessingError,
-  type ClaimedProjectNotificationSignal,
-} from "./project-notification-signal-contract";
+} from "./project-notification-signal-runtime";
+import type { ClaimedProjectNotificationSignal } from "./project-notification-signal-contract";
 
 export const PROJECT_NOTIFICATION_SIGNAL_LEASE_SECONDS = 120;
 

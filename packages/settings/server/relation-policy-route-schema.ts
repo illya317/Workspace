@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { RELATION_POLICY_PRESETS } from "@workspace/platform/server/relation-policy-config";
+import { RELATION_POLICY_PRESETS } from "@workspace/platform/relation-registration-contract";
 
 const relationPolicySettingsSchema = z.object({
   targetDelete: z.enum(RELATION_POLICY_PRESETS).optional(),

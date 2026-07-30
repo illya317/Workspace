@@ -1,7 +1,7 @@
 import type {
-  NotificationPublicationSource,
+  NotificationPublicationSourceKind,
   NotificationResponseMode,
-} from "./notification-definition-dsl";
+} from "./notification-definition-contract";
 
 export const RECIPIENTS_PER_SOURCE_PER_MINUTE = 500;
 
@@ -46,7 +46,7 @@ export type NotificationPublicationSummaryDto = {
   id: string;
   definitionKey: string;
   revision: number;
-  sourceKind: NotificationPublicationSource["kind"];
+  sourceKind: NotificationPublicationSourceKind;
   sourceId: string;
   sourceLabel: string;
   status: "committed" | "processing" | "partial" | "failed" | "delivered";

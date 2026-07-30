@@ -34,9 +34,6 @@ test("development governance owns the remaining scripts, e2e, and engineering co
   assert.deepEqual(declaredModuleKeys("e2e/settings/module-management.spec.ts"), ["tooling"]);
   assert.deepEqual(declaredModuleKeys("next.config.ts"), ["tooling"]);
   assert.deepEqual(declaredModuleKeys("playwright.config.ts"), ["tooling"]);
-});
-
-test("dependency policy configuration belongs to development governance", () => {
   assert.deepEqual(declaredModuleKeys("dependency-cruiser.config.cjs"), ["tooling"]);
 });
 

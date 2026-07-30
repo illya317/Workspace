@@ -30,7 +30,6 @@ export type FinanceTaxRegistrationAvgAggregateOutputType = {
   id: number | null
   companyId: number | null
   taxTypeId: number | null
-  authorityPartyId: number | null
   sourceRow: number | null
   version: number | null
 }
@@ -39,7 +38,6 @@ export type FinanceTaxRegistrationSumAggregateOutputType = {
   id: number | null
   companyId: number | null
   taxTypeId: number | null
-  authorityPartyId: number | null
   sourceRow: number | null
   version: number | null
 }
@@ -48,7 +46,7 @@ export type FinanceTaxRegistrationMinAggregateOutputType = {
   id: number | null
   companyId: number | null
   taxTypeId: number | null
-  authorityPartyId: number | null
+  authorityName: string | null
   registrationNo: string | null
   jurisdiction: string | null
   filingFrequency: string | null
@@ -72,7 +70,7 @@ export type FinanceTaxRegistrationMaxAggregateOutputType = {
   id: number | null
   companyId: number | null
   taxTypeId: number | null
-  authorityPartyId: number | null
+  authorityName: string | null
   registrationNo: string | null
   jurisdiction: string | null
   filingFrequency: string | null
@@ -96,7 +94,7 @@ export type FinanceTaxRegistrationCountAggregateOutputType = {
   id: number
   companyId: number
   taxTypeId: number
-  authorityPartyId: number
+  authorityName: number
   registrationNo: number
   jurisdiction: number
   filingFrequency: number
@@ -122,7 +120,6 @@ export type FinanceTaxRegistrationAvgAggregateInputType = {
   id?: true
   companyId?: true
   taxTypeId?: true
-  authorityPartyId?: true
   sourceRow?: true
   version?: true
 }
@@ -131,7 +128,6 @@ export type FinanceTaxRegistrationSumAggregateInputType = {
   id?: true
   companyId?: true
   taxTypeId?: true
-  authorityPartyId?: true
   sourceRow?: true
   version?: true
 }
@@ -140,7 +136,7 @@ export type FinanceTaxRegistrationMinAggregateInputType = {
   id?: true
   companyId?: true
   taxTypeId?: true
-  authorityPartyId?: true
+  authorityName?: true
   registrationNo?: true
   jurisdiction?: true
   filingFrequency?: true
@@ -164,7 +160,7 @@ export type FinanceTaxRegistrationMaxAggregateInputType = {
   id?: true
   companyId?: true
   taxTypeId?: true
-  authorityPartyId?: true
+  authorityName?: true
   registrationNo?: true
   jurisdiction?: true
   filingFrequency?: true
@@ -188,7 +184,7 @@ export type FinanceTaxRegistrationCountAggregateInputType = {
   id?: true
   companyId?: true
   taxTypeId?: true
-  authorityPartyId?: true
+  authorityName?: true
   registrationNo?: true
   jurisdiction?: true
   filingFrequency?: true
@@ -299,7 +295,7 @@ export type FinanceTaxRegistrationGroupByOutputType = {
   id: number
   companyId: number
   taxTypeId: number
-  authorityPartyId: number | null
+  authorityName: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -346,7 +342,7 @@ export type FinanceTaxRegistrationWhereInput = {
   id?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
   companyId?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
   taxTypeId?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
-  authorityPartyId?: Prisma.IntNullableFilter<"FinanceTaxRegistration"> | number | null
+  authorityName?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
   registrationNo?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
   jurisdiction?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
   filingFrequency?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
@@ -366,7 +362,6 @@ export type FinanceTaxRegistrationWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FinanceTaxRegistration"> | Date | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   taxType?: Prisma.XOR<Prisma.FinanceTaxTypeScalarRelationFilter, Prisma.FinanceTaxTypeWhereInput>
-  authorityParty?: Prisma.XOR<Prisma.PartyNullableScalarRelationFilter, Prisma.PartyWhereInput> | null
   workpapers?: Prisma.FinanceTaxWorkpaperListRelationFilter
   filings?: Prisma.FinanceTaxFilingListRelationFilter
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotListRelationFilter
@@ -376,7 +371,7 @@ export type FinanceTaxRegistrationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   taxTypeId?: Prisma.SortOrder
-  authorityPartyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  authorityName?: Prisma.SortOrderInput | Prisma.SortOrder
   registrationNo?: Prisma.SortOrder
   jurisdiction?: Prisma.SortOrder
   filingFrequency?: Prisma.SortOrder
@@ -396,7 +391,6 @@ export type FinanceTaxRegistrationOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   company?: Prisma.CompanyOrderByWithRelationInput
   taxType?: Prisma.FinanceTaxTypeOrderByWithRelationInput
-  authorityParty?: Prisma.PartyOrderByWithRelationInput
   workpapers?: Prisma.FinanceTaxWorkpaperOrderByRelationAggregateInput
   filings?: Prisma.FinanceTaxFilingOrderByRelationAggregateInput
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotOrderByRelationAggregateInput
@@ -411,7 +405,7 @@ export type FinanceTaxRegistrationWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FinanceTaxRegistrationWhereInput | Prisma.FinanceTaxRegistrationWhereInput[]
   companyId?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
   taxTypeId?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
-  authorityPartyId?: Prisma.IntNullableFilter<"FinanceTaxRegistration"> | number | null
+  authorityName?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
   registrationNo?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
   jurisdiction?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
   filingFrequency?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
@@ -431,7 +425,6 @@ export type FinanceTaxRegistrationWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"FinanceTaxRegistration"> | Date | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   taxType?: Prisma.XOR<Prisma.FinanceTaxTypeScalarRelationFilter, Prisma.FinanceTaxTypeWhereInput>
-  authorityParty?: Prisma.XOR<Prisma.PartyNullableScalarRelationFilter, Prisma.PartyWhereInput> | null
   workpapers?: Prisma.FinanceTaxWorkpaperListRelationFilter
   filings?: Prisma.FinanceTaxFilingListRelationFilter
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotListRelationFilter
@@ -441,7 +434,7 @@ export type FinanceTaxRegistrationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   taxTypeId?: Prisma.SortOrder
-  authorityPartyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  authorityName?: Prisma.SortOrderInput | Prisma.SortOrder
   registrationNo?: Prisma.SortOrder
   jurisdiction?: Prisma.SortOrder
   filingFrequency?: Prisma.SortOrder
@@ -473,7 +466,7 @@ export type FinanceTaxRegistrationScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"FinanceTaxRegistration"> | number
   companyId?: Prisma.IntWithAggregatesFilter<"FinanceTaxRegistration"> | number
   taxTypeId?: Prisma.IntWithAggregatesFilter<"FinanceTaxRegistration"> | number
-  authorityPartyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceTaxRegistration"> | number | null
+  authorityName?: Prisma.StringNullableWithAggregatesFilter<"FinanceTaxRegistration"> | string | null
   registrationNo?: Prisma.StringWithAggregatesFilter<"FinanceTaxRegistration"> | string
   jurisdiction?: Prisma.StringWithAggregatesFilter<"FinanceTaxRegistration"> | string
   filingFrequency?: Prisma.StringWithAggregatesFilter<"FinanceTaxRegistration"> | string
@@ -494,6 +487,7 @@ export type FinanceTaxRegistrationScalarWhereWithAggregatesInput = {
 }
 
 export type FinanceTaxRegistrationCreateInput = {
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -513,7 +507,6 @@ export type FinanceTaxRegistrationCreateInput = {
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutFinanceTaxRegistrationsInput
   taxType: Prisma.FinanceTaxTypeCreateNestedOneWithoutRegistrationsInput
-  authorityParty?: Prisma.PartyCreateNestedOneWithoutFinanceTaxAuthoritiesInput
   workpapers?: Prisma.FinanceTaxWorkpaperCreateNestedManyWithoutRegistrationInput
   filings?: Prisma.FinanceTaxFilingCreateNestedManyWithoutRegistrationInput
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotCreateNestedManyWithoutRegistrationInput
@@ -523,7 +516,7 @@ export type FinanceTaxRegistrationUncheckedCreateInput = {
   id?: number
   companyId: number
   taxTypeId: number
-  authorityPartyId?: number | null
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -547,6 +540,7 @@ export type FinanceTaxRegistrationUncheckedCreateInput = {
 }
 
 export type FinanceTaxRegistrationUpdateInput = {
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -566,7 +560,6 @@ export type FinanceTaxRegistrationUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutFinanceTaxRegistrationsNestedInput
   taxType?: Prisma.FinanceTaxTypeUpdateOneRequiredWithoutRegistrationsNestedInput
-  authorityParty?: Prisma.PartyUpdateOneWithoutFinanceTaxAuthoritiesNestedInput
   workpapers?: Prisma.FinanceTaxWorkpaperUpdateManyWithoutRegistrationNestedInput
   filings?: Prisma.FinanceTaxFilingUpdateManyWithoutRegistrationNestedInput
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotUpdateManyWithoutRegistrationNestedInput
@@ -576,7 +569,7 @@ export type FinanceTaxRegistrationUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyId?: Prisma.IntFieldUpdateOperationsInput | number
   taxTypeId?: Prisma.IntFieldUpdateOperationsInput | number
-  authorityPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -603,7 +596,7 @@ export type FinanceTaxRegistrationCreateManyInput = {
   id?: number
   companyId: number
   taxTypeId: number
-  authorityPartyId?: number | null
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -624,6 +617,7 @@ export type FinanceTaxRegistrationCreateManyInput = {
 }
 
 export type FinanceTaxRegistrationUpdateManyMutationInput = {
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -647,7 +641,7 @@ export type FinanceTaxRegistrationUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyId?: Prisma.IntFieldUpdateOperationsInput | number
   taxTypeId?: Prisma.IntFieldUpdateOperationsInput | number
-  authorityPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -667,6 +661,11 @@ export type FinanceTaxRegistrationUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type FinanceTaxRegistrationScalarRelationFilter = {
+  is?: Prisma.FinanceTaxRegistrationWhereInput
+  isNot?: Prisma.FinanceTaxRegistrationWhereInput
+}
+
 export type FinanceTaxRegistrationListRelationFilter = {
   every?: Prisma.FinanceTaxRegistrationWhereInput
   some?: Prisma.FinanceTaxRegistrationWhereInput
@@ -675,11 +674,6 @@ export type FinanceTaxRegistrationListRelationFilter = {
 
 export type FinanceTaxRegistrationOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type FinanceTaxRegistrationScalarRelationFilter = {
-  is?: Prisma.FinanceTaxRegistrationWhereInput
-  isNot?: Prisma.FinanceTaxRegistrationWhereInput
 }
 
 export type FinanceTaxRegistrationCompanyIdTaxTypeIdRegistrationNoCompoundUniqueInput = {
@@ -697,7 +691,7 @@ export type FinanceTaxRegistrationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   taxTypeId?: Prisma.SortOrder
-  authorityPartyId?: Prisma.SortOrder
+  authorityName?: Prisma.SortOrder
   registrationNo?: Prisma.SortOrder
   jurisdiction?: Prisma.SortOrder
   filingFrequency?: Prisma.SortOrder
@@ -721,7 +715,6 @@ export type FinanceTaxRegistrationAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   taxTypeId?: Prisma.SortOrder
-  authorityPartyId?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -730,7 +723,7 @@ export type FinanceTaxRegistrationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   taxTypeId?: Prisma.SortOrder
-  authorityPartyId?: Prisma.SortOrder
+  authorityName?: Prisma.SortOrder
   registrationNo?: Prisma.SortOrder
   jurisdiction?: Prisma.SortOrder
   filingFrequency?: Prisma.SortOrder
@@ -754,7 +747,7 @@ export type FinanceTaxRegistrationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   taxTypeId?: Prisma.SortOrder
-  authorityPartyId?: Prisma.SortOrder
+  authorityName?: Prisma.SortOrder
   registrationNo?: Prisma.SortOrder
   jurisdiction?: Prisma.SortOrder
   filingFrequency?: Prisma.SortOrder
@@ -778,51 +771,8 @@ export type FinanceTaxRegistrationSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   taxTypeId?: Prisma.SortOrder
-  authorityPartyId?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
   version?: Prisma.SortOrder
-}
-
-export type FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput = {
-  create?: Prisma.XOR<Prisma.FinanceTaxRegistrationCreateWithoutAuthorityPartyInput, Prisma.FinanceTaxRegistrationUncheckedCreateWithoutAuthorityPartyInput> | Prisma.FinanceTaxRegistrationCreateWithoutAuthorityPartyInput[] | Prisma.FinanceTaxRegistrationUncheckedCreateWithoutAuthorityPartyInput[]
-  connectOrCreate?: Prisma.FinanceTaxRegistrationCreateOrConnectWithoutAuthorityPartyInput | Prisma.FinanceTaxRegistrationCreateOrConnectWithoutAuthorityPartyInput[]
-  createMany?: Prisma.FinanceTaxRegistrationCreateManyAuthorityPartyInputEnvelope
-  connect?: Prisma.FinanceTaxRegistrationWhereUniqueInput | Prisma.FinanceTaxRegistrationWhereUniqueInput[]
-}
-
-export type FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput = {
-  create?: Prisma.XOR<Prisma.FinanceTaxRegistrationCreateWithoutAuthorityPartyInput, Prisma.FinanceTaxRegistrationUncheckedCreateWithoutAuthorityPartyInput> | Prisma.FinanceTaxRegistrationCreateWithoutAuthorityPartyInput[] | Prisma.FinanceTaxRegistrationUncheckedCreateWithoutAuthorityPartyInput[]
-  connectOrCreate?: Prisma.FinanceTaxRegistrationCreateOrConnectWithoutAuthorityPartyInput | Prisma.FinanceTaxRegistrationCreateOrConnectWithoutAuthorityPartyInput[]
-  createMany?: Prisma.FinanceTaxRegistrationCreateManyAuthorityPartyInputEnvelope
-  connect?: Prisma.FinanceTaxRegistrationWhereUniqueInput | Prisma.FinanceTaxRegistrationWhereUniqueInput[]
-}
-
-export type FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput = {
-  create?: Prisma.XOR<Prisma.FinanceTaxRegistrationCreateWithoutAuthorityPartyInput, Prisma.FinanceTaxRegistrationUncheckedCreateWithoutAuthorityPartyInput> | Prisma.FinanceTaxRegistrationCreateWithoutAuthorityPartyInput[] | Prisma.FinanceTaxRegistrationUncheckedCreateWithoutAuthorityPartyInput[]
-  connectOrCreate?: Prisma.FinanceTaxRegistrationCreateOrConnectWithoutAuthorityPartyInput | Prisma.FinanceTaxRegistrationCreateOrConnectWithoutAuthorityPartyInput[]
-  upsert?: Prisma.FinanceTaxRegistrationUpsertWithWhereUniqueWithoutAuthorityPartyInput | Prisma.FinanceTaxRegistrationUpsertWithWhereUniqueWithoutAuthorityPartyInput[]
-  createMany?: Prisma.FinanceTaxRegistrationCreateManyAuthorityPartyInputEnvelope
-  set?: Prisma.FinanceTaxRegistrationWhereUniqueInput | Prisma.FinanceTaxRegistrationWhereUniqueInput[]
-  disconnect?: Prisma.FinanceTaxRegistrationWhereUniqueInput | Prisma.FinanceTaxRegistrationWhereUniqueInput[]
-  delete?: Prisma.FinanceTaxRegistrationWhereUniqueInput | Prisma.FinanceTaxRegistrationWhereUniqueInput[]
-  connect?: Prisma.FinanceTaxRegistrationWhereUniqueInput | Prisma.FinanceTaxRegistrationWhereUniqueInput[]
-  update?: Prisma.FinanceTaxRegistrationUpdateWithWhereUniqueWithoutAuthorityPartyInput | Prisma.FinanceTaxRegistrationUpdateWithWhereUniqueWithoutAuthorityPartyInput[]
-  updateMany?: Prisma.FinanceTaxRegistrationUpdateManyWithWhereWithoutAuthorityPartyInput | Prisma.FinanceTaxRegistrationUpdateManyWithWhereWithoutAuthorityPartyInput[]
-  deleteMany?: Prisma.FinanceTaxRegistrationScalarWhereInput | Prisma.FinanceTaxRegistrationScalarWhereInput[]
-}
-
-export type FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput = {
-  create?: Prisma.XOR<Prisma.FinanceTaxRegistrationCreateWithoutAuthorityPartyInput, Prisma.FinanceTaxRegistrationUncheckedCreateWithoutAuthorityPartyInput> | Prisma.FinanceTaxRegistrationCreateWithoutAuthorityPartyInput[] | Prisma.FinanceTaxRegistrationUncheckedCreateWithoutAuthorityPartyInput[]
-  connectOrCreate?: Prisma.FinanceTaxRegistrationCreateOrConnectWithoutAuthorityPartyInput | Prisma.FinanceTaxRegistrationCreateOrConnectWithoutAuthorityPartyInput[]
-  upsert?: Prisma.FinanceTaxRegistrationUpsertWithWhereUniqueWithoutAuthorityPartyInput | Prisma.FinanceTaxRegistrationUpsertWithWhereUniqueWithoutAuthorityPartyInput[]
-  createMany?: Prisma.FinanceTaxRegistrationCreateManyAuthorityPartyInputEnvelope
-  set?: Prisma.FinanceTaxRegistrationWhereUniqueInput | Prisma.FinanceTaxRegistrationWhereUniqueInput[]
-  disconnect?: Prisma.FinanceTaxRegistrationWhereUniqueInput | Prisma.FinanceTaxRegistrationWhereUniqueInput[]
-  delete?: Prisma.FinanceTaxRegistrationWhereUniqueInput | Prisma.FinanceTaxRegistrationWhereUniqueInput[]
-  connect?: Prisma.FinanceTaxRegistrationWhereUniqueInput | Prisma.FinanceTaxRegistrationWhereUniqueInput[]
-  update?: Prisma.FinanceTaxRegistrationUpdateWithWhereUniqueWithoutAuthorityPartyInput | Prisma.FinanceTaxRegistrationUpdateWithWhereUniqueWithoutAuthorityPartyInput[]
-  updateMany?: Prisma.FinanceTaxRegistrationUpdateManyWithWhereWithoutAuthorityPartyInput | Prisma.FinanceTaxRegistrationUpdateManyWithWhereWithoutAuthorityPartyInput[]
-  deleteMany?: Prisma.FinanceTaxRegistrationScalarWhereInput | Prisma.FinanceTaxRegistrationScalarWhereInput[]
 }
 
 export type FinanceTaxRegistrationCreateNestedOneWithoutFilingsInput = {
@@ -951,111 +901,8 @@ export type FinanceTaxRegistrationUncheckedUpdateManyWithoutCompanyNestedInput =
   deleteMany?: Prisma.FinanceTaxRegistrationScalarWhereInput | Prisma.FinanceTaxRegistrationScalarWhereInput[]
 }
 
-export type FinanceTaxRegistrationCreateWithoutAuthorityPartyInput = {
-  registrationNo: string
-  jurisdiction: string
-  filingFrequency: string
-  effectiveFrom: Date | string
-  effectiveThrough?: Date | string | null
-  status?: string
-  sourceKind?: string | null
-  sourceReleaseId?: string | null
-  sourceSha256?: string | null
-  sourceFile?: string | null
-  sourceSheet?: string | null
-  sourceRow?: number | null
-  sourceRange?: string | null
-  sourceKey?: string | null
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutFinanceTaxRegistrationsInput
-  taxType: Prisma.FinanceTaxTypeCreateNestedOneWithoutRegistrationsInput
-  workpapers?: Prisma.FinanceTaxWorkpaperCreateNestedManyWithoutRegistrationInput
-  filings?: Prisma.FinanceTaxFilingCreateNestedManyWithoutRegistrationInput
-  snapshots?: Prisma.FinanceTaxReconciliationSnapshotCreateNestedManyWithoutRegistrationInput
-}
-
-export type FinanceTaxRegistrationUncheckedCreateWithoutAuthorityPartyInput = {
-  id?: number
-  companyId: number
-  taxTypeId: number
-  registrationNo: string
-  jurisdiction: string
-  filingFrequency: string
-  effectiveFrom: Date | string
-  effectiveThrough?: Date | string | null
-  status?: string
-  sourceKind?: string | null
-  sourceReleaseId?: string | null
-  sourceSha256?: string | null
-  sourceFile?: string | null
-  sourceSheet?: string | null
-  sourceRow?: number | null
-  sourceRange?: string | null
-  sourceKey?: string | null
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  workpapers?: Prisma.FinanceTaxWorkpaperUncheckedCreateNestedManyWithoutRegistrationInput
-  filings?: Prisma.FinanceTaxFilingUncheckedCreateNestedManyWithoutRegistrationInput
-  snapshots?: Prisma.FinanceTaxReconciliationSnapshotUncheckedCreateNestedManyWithoutRegistrationInput
-}
-
-export type FinanceTaxRegistrationCreateOrConnectWithoutAuthorityPartyInput = {
-  where: Prisma.FinanceTaxRegistrationWhereUniqueInput
-  create: Prisma.XOR<Prisma.FinanceTaxRegistrationCreateWithoutAuthorityPartyInput, Prisma.FinanceTaxRegistrationUncheckedCreateWithoutAuthorityPartyInput>
-}
-
-export type FinanceTaxRegistrationCreateManyAuthorityPartyInputEnvelope = {
-  data: Prisma.FinanceTaxRegistrationCreateManyAuthorityPartyInput | Prisma.FinanceTaxRegistrationCreateManyAuthorityPartyInput[]
-  skipDuplicates?: boolean
-}
-
-export type FinanceTaxRegistrationUpsertWithWhereUniqueWithoutAuthorityPartyInput = {
-  where: Prisma.FinanceTaxRegistrationWhereUniqueInput
-  update: Prisma.XOR<Prisma.FinanceTaxRegistrationUpdateWithoutAuthorityPartyInput, Prisma.FinanceTaxRegistrationUncheckedUpdateWithoutAuthorityPartyInput>
-  create: Prisma.XOR<Prisma.FinanceTaxRegistrationCreateWithoutAuthorityPartyInput, Prisma.FinanceTaxRegistrationUncheckedCreateWithoutAuthorityPartyInput>
-}
-
-export type FinanceTaxRegistrationUpdateWithWhereUniqueWithoutAuthorityPartyInput = {
-  where: Prisma.FinanceTaxRegistrationWhereUniqueInput
-  data: Prisma.XOR<Prisma.FinanceTaxRegistrationUpdateWithoutAuthorityPartyInput, Prisma.FinanceTaxRegistrationUncheckedUpdateWithoutAuthorityPartyInput>
-}
-
-export type FinanceTaxRegistrationUpdateManyWithWhereWithoutAuthorityPartyInput = {
-  where: Prisma.FinanceTaxRegistrationScalarWhereInput
-  data: Prisma.XOR<Prisma.FinanceTaxRegistrationUpdateManyMutationInput, Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyInput>
-}
-
-export type FinanceTaxRegistrationScalarWhereInput = {
-  AND?: Prisma.FinanceTaxRegistrationScalarWhereInput | Prisma.FinanceTaxRegistrationScalarWhereInput[]
-  OR?: Prisma.FinanceTaxRegistrationScalarWhereInput[]
-  NOT?: Prisma.FinanceTaxRegistrationScalarWhereInput | Prisma.FinanceTaxRegistrationScalarWhereInput[]
-  id?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
-  companyId?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
-  taxTypeId?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
-  authorityPartyId?: Prisma.IntNullableFilter<"FinanceTaxRegistration"> | number | null
-  registrationNo?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
-  jurisdiction?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
-  filingFrequency?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
-  effectiveFrom?: Prisma.DateTimeFilter<"FinanceTaxRegistration"> | Date | string
-  effectiveThrough?: Prisma.DateTimeNullableFilter<"FinanceTaxRegistration"> | Date | string | null
-  status?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
-  sourceKind?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
-  sourceReleaseId?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
-  sourceSha256?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
-  sourceFile?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
-  sourceSheet?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
-  sourceRow?: Prisma.IntNullableFilter<"FinanceTaxRegistration"> | number | null
-  sourceRange?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
-  sourceKey?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
-  version?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
-  createdAt?: Prisma.DateTimeFilter<"FinanceTaxRegistration"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"FinanceTaxRegistration"> | Date | string
-}
-
 export type FinanceTaxRegistrationCreateWithoutFilingsInput = {
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -1075,7 +922,6 @@ export type FinanceTaxRegistrationCreateWithoutFilingsInput = {
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutFinanceTaxRegistrationsInput
   taxType: Prisma.FinanceTaxTypeCreateNestedOneWithoutRegistrationsInput
-  authorityParty?: Prisma.PartyCreateNestedOneWithoutFinanceTaxAuthoritiesInput
   workpapers?: Prisma.FinanceTaxWorkpaperCreateNestedManyWithoutRegistrationInput
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotCreateNestedManyWithoutRegistrationInput
 }
@@ -1084,7 +930,7 @@ export type FinanceTaxRegistrationUncheckedCreateWithoutFilingsInput = {
   id?: number
   companyId: number
   taxTypeId: number
-  authorityPartyId?: number | null
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -1123,6 +969,7 @@ export type FinanceTaxRegistrationUpdateToOneWithWhereWithoutFilingsInput = {
 }
 
 export type FinanceTaxRegistrationUpdateWithoutFilingsInput = {
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1142,7 +989,6 @@ export type FinanceTaxRegistrationUpdateWithoutFilingsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutFinanceTaxRegistrationsNestedInput
   taxType?: Prisma.FinanceTaxTypeUpdateOneRequiredWithoutRegistrationsNestedInput
-  authorityParty?: Prisma.PartyUpdateOneWithoutFinanceTaxAuthoritiesNestedInput
   workpapers?: Prisma.FinanceTaxWorkpaperUpdateManyWithoutRegistrationNestedInput
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotUpdateManyWithoutRegistrationNestedInput
 }
@@ -1151,7 +997,7 @@ export type FinanceTaxRegistrationUncheckedUpdateWithoutFilingsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyId?: Prisma.IntFieldUpdateOperationsInput | number
   taxTypeId?: Prisma.IntFieldUpdateOperationsInput | number
-  authorityPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1174,6 +1020,7 @@ export type FinanceTaxRegistrationUncheckedUpdateWithoutFilingsInput = {
 }
 
 export type FinanceTaxRegistrationCreateWithoutSnapshotsInput = {
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -1193,7 +1040,6 @@ export type FinanceTaxRegistrationCreateWithoutSnapshotsInput = {
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutFinanceTaxRegistrationsInput
   taxType: Prisma.FinanceTaxTypeCreateNestedOneWithoutRegistrationsInput
-  authorityParty?: Prisma.PartyCreateNestedOneWithoutFinanceTaxAuthoritiesInput
   workpapers?: Prisma.FinanceTaxWorkpaperCreateNestedManyWithoutRegistrationInput
   filings?: Prisma.FinanceTaxFilingCreateNestedManyWithoutRegistrationInput
 }
@@ -1202,7 +1048,7 @@ export type FinanceTaxRegistrationUncheckedCreateWithoutSnapshotsInput = {
   id?: number
   companyId: number
   taxTypeId: number
-  authorityPartyId?: number | null
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -1241,6 +1087,7 @@ export type FinanceTaxRegistrationUpdateToOneWithWhereWithoutSnapshotsInput = {
 }
 
 export type FinanceTaxRegistrationUpdateWithoutSnapshotsInput = {
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1260,7 +1107,6 @@ export type FinanceTaxRegistrationUpdateWithoutSnapshotsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutFinanceTaxRegistrationsNestedInput
   taxType?: Prisma.FinanceTaxTypeUpdateOneRequiredWithoutRegistrationsNestedInput
-  authorityParty?: Prisma.PartyUpdateOneWithoutFinanceTaxAuthoritiesNestedInput
   workpapers?: Prisma.FinanceTaxWorkpaperUpdateManyWithoutRegistrationNestedInput
   filings?: Prisma.FinanceTaxFilingUpdateManyWithoutRegistrationNestedInput
 }
@@ -1269,7 +1115,7 @@ export type FinanceTaxRegistrationUncheckedUpdateWithoutSnapshotsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyId?: Prisma.IntFieldUpdateOperationsInput | number
   taxTypeId?: Prisma.IntFieldUpdateOperationsInput | number
-  authorityPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1292,6 +1138,7 @@ export type FinanceTaxRegistrationUncheckedUpdateWithoutSnapshotsInput = {
 }
 
 export type FinanceTaxRegistrationCreateWithoutTaxTypeInput = {
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -1310,7 +1157,6 @@ export type FinanceTaxRegistrationCreateWithoutTaxTypeInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutFinanceTaxRegistrationsInput
-  authorityParty?: Prisma.PartyCreateNestedOneWithoutFinanceTaxAuthoritiesInput
   workpapers?: Prisma.FinanceTaxWorkpaperCreateNestedManyWithoutRegistrationInput
   filings?: Prisma.FinanceTaxFilingCreateNestedManyWithoutRegistrationInput
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotCreateNestedManyWithoutRegistrationInput
@@ -1319,7 +1165,7 @@ export type FinanceTaxRegistrationCreateWithoutTaxTypeInput = {
 export type FinanceTaxRegistrationUncheckedCreateWithoutTaxTypeInput = {
   id?: number
   companyId: number
-  authorityPartyId?: number | null
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -1368,7 +1214,35 @@ export type FinanceTaxRegistrationUpdateManyWithWhereWithoutTaxTypeInput = {
   data: Prisma.XOR<Prisma.FinanceTaxRegistrationUpdateManyMutationInput, Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutTaxTypeInput>
 }
 
+export type FinanceTaxRegistrationScalarWhereInput = {
+  AND?: Prisma.FinanceTaxRegistrationScalarWhereInput | Prisma.FinanceTaxRegistrationScalarWhereInput[]
+  OR?: Prisma.FinanceTaxRegistrationScalarWhereInput[]
+  NOT?: Prisma.FinanceTaxRegistrationScalarWhereInput | Prisma.FinanceTaxRegistrationScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
+  companyId?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
+  taxTypeId?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
+  authorityName?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
+  registrationNo?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
+  jurisdiction?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
+  filingFrequency?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
+  effectiveFrom?: Prisma.DateTimeFilter<"FinanceTaxRegistration"> | Date | string
+  effectiveThrough?: Prisma.DateTimeNullableFilter<"FinanceTaxRegistration"> | Date | string | null
+  status?: Prisma.StringFilter<"FinanceTaxRegistration"> | string
+  sourceKind?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
+  sourceReleaseId?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
+  sourceSha256?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
+  sourceFile?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
+  sourceSheet?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
+  sourceRow?: Prisma.IntNullableFilter<"FinanceTaxRegistration"> | number | null
+  sourceRange?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
+  sourceKey?: Prisma.StringNullableFilter<"FinanceTaxRegistration"> | string | null
+  version?: Prisma.IntFilter<"FinanceTaxRegistration"> | number
+  createdAt?: Prisma.DateTimeFilter<"FinanceTaxRegistration"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FinanceTaxRegistration"> | Date | string
+}
+
 export type FinanceTaxRegistrationCreateWithoutWorkpapersInput = {
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -1388,7 +1262,6 @@ export type FinanceTaxRegistrationCreateWithoutWorkpapersInput = {
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutFinanceTaxRegistrationsInput
   taxType: Prisma.FinanceTaxTypeCreateNestedOneWithoutRegistrationsInput
-  authorityParty?: Prisma.PartyCreateNestedOneWithoutFinanceTaxAuthoritiesInput
   filings?: Prisma.FinanceTaxFilingCreateNestedManyWithoutRegistrationInput
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotCreateNestedManyWithoutRegistrationInput
 }
@@ -1397,7 +1270,7 @@ export type FinanceTaxRegistrationUncheckedCreateWithoutWorkpapersInput = {
   id?: number
   companyId: number
   taxTypeId: number
-  authorityPartyId?: number | null
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -1436,6 +1309,7 @@ export type FinanceTaxRegistrationUpdateToOneWithWhereWithoutWorkpapersInput = {
 }
 
 export type FinanceTaxRegistrationUpdateWithoutWorkpapersInput = {
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1455,7 +1329,6 @@ export type FinanceTaxRegistrationUpdateWithoutWorkpapersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutFinanceTaxRegistrationsNestedInput
   taxType?: Prisma.FinanceTaxTypeUpdateOneRequiredWithoutRegistrationsNestedInput
-  authorityParty?: Prisma.PartyUpdateOneWithoutFinanceTaxAuthoritiesNestedInput
   filings?: Prisma.FinanceTaxFilingUpdateManyWithoutRegistrationNestedInput
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotUpdateManyWithoutRegistrationNestedInput
 }
@@ -1464,7 +1337,7 @@ export type FinanceTaxRegistrationUncheckedUpdateWithoutWorkpapersInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyId?: Prisma.IntFieldUpdateOperationsInput | number
   taxTypeId?: Prisma.IntFieldUpdateOperationsInput | number
-  authorityPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1487,6 +1360,7 @@ export type FinanceTaxRegistrationUncheckedUpdateWithoutWorkpapersInput = {
 }
 
 export type FinanceTaxRegistrationCreateWithoutCompanyInput = {
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -1505,7 +1379,6 @@ export type FinanceTaxRegistrationCreateWithoutCompanyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   taxType: Prisma.FinanceTaxTypeCreateNestedOneWithoutRegistrationsInput
-  authorityParty?: Prisma.PartyCreateNestedOneWithoutFinanceTaxAuthoritiesInput
   workpapers?: Prisma.FinanceTaxWorkpaperCreateNestedManyWithoutRegistrationInput
   filings?: Prisma.FinanceTaxFilingCreateNestedManyWithoutRegistrationInput
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotCreateNestedManyWithoutRegistrationInput
@@ -1514,7 +1387,7 @@ export type FinanceTaxRegistrationCreateWithoutCompanyInput = {
 export type FinanceTaxRegistrationUncheckedCreateWithoutCompanyInput = {
   id?: number
   taxTypeId: number
-  authorityPartyId?: number | null
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -1563,107 +1436,10 @@ export type FinanceTaxRegistrationUpdateManyWithWhereWithoutCompanyInput = {
   data: Prisma.XOR<Prisma.FinanceTaxRegistrationUpdateManyMutationInput, Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutCompanyInput>
 }
 
-export type FinanceTaxRegistrationCreateManyAuthorityPartyInput = {
-  id?: number
-  companyId: number
-  taxTypeId: number
-  registrationNo: string
-  jurisdiction: string
-  filingFrequency: string
-  effectiveFrom: Date | string
-  effectiveThrough?: Date | string | null
-  status?: string
-  sourceKind?: string | null
-  sourceReleaseId?: string | null
-  sourceSha256?: string | null
-  sourceFile?: string | null
-  sourceSheet?: string | null
-  sourceRow?: number | null
-  sourceRange?: string | null
-  sourceKey?: string | null
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type FinanceTaxRegistrationUpdateWithoutAuthorityPartyInput = {
-  registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
-  jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
-  filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  effectiveThrough?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutFinanceTaxRegistrationsNestedInput
-  taxType?: Prisma.FinanceTaxTypeUpdateOneRequiredWithoutRegistrationsNestedInput
-  workpapers?: Prisma.FinanceTaxWorkpaperUpdateManyWithoutRegistrationNestedInput
-  filings?: Prisma.FinanceTaxFilingUpdateManyWithoutRegistrationNestedInput
-  snapshots?: Prisma.FinanceTaxReconciliationSnapshotUpdateManyWithoutRegistrationNestedInput
-}
-
-export type FinanceTaxRegistrationUncheckedUpdateWithoutAuthorityPartyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
-  taxTypeId?: Prisma.IntFieldUpdateOperationsInput | number
-  registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
-  jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
-  filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  effectiveThrough?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workpapers?: Prisma.FinanceTaxWorkpaperUncheckedUpdateManyWithoutRegistrationNestedInput
-  filings?: Prisma.FinanceTaxFilingUncheckedUpdateManyWithoutRegistrationNestedInput
-  snapshots?: Prisma.FinanceTaxReconciliationSnapshotUncheckedUpdateManyWithoutRegistrationNestedInput
-}
-
-export type FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
-  taxTypeId?: Prisma.IntFieldUpdateOperationsInput | number
-  registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
-  jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
-  filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
-  effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  effectiveThrough?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
 export type FinanceTaxRegistrationCreateManyTaxTypeInput = {
   id?: number
   companyId: number
-  authorityPartyId?: number | null
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -1684,6 +1460,7 @@ export type FinanceTaxRegistrationCreateManyTaxTypeInput = {
 }
 
 export type FinanceTaxRegistrationUpdateWithoutTaxTypeInput = {
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1702,7 +1479,6 @@ export type FinanceTaxRegistrationUpdateWithoutTaxTypeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutFinanceTaxRegistrationsNestedInput
-  authorityParty?: Prisma.PartyUpdateOneWithoutFinanceTaxAuthoritiesNestedInput
   workpapers?: Prisma.FinanceTaxWorkpaperUpdateManyWithoutRegistrationNestedInput
   filings?: Prisma.FinanceTaxFilingUpdateManyWithoutRegistrationNestedInput
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotUpdateManyWithoutRegistrationNestedInput
@@ -1711,7 +1487,7 @@ export type FinanceTaxRegistrationUpdateWithoutTaxTypeInput = {
 export type FinanceTaxRegistrationUncheckedUpdateWithoutTaxTypeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyId?: Prisma.IntFieldUpdateOperationsInput | number
-  authorityPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1737,7 +1513,7 @@ export type FinanceTaxRegistrationUncheckedUpdateWithoutTaxTypeInput = {
 export type FinanceTaxRegistrationUncheckedUpdateManyWithoutTaxTypeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyId?: Prisma.IntFieldUpdateOperationsInput | number
-  authorityPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1760,7 +1536,7 @@ export type FinanceTaxRegistrationUncheckedUpdateManyWithoutTaxTypeInput = {
 export type FinanceTaxRegistrationCreateManyCompanyInput = {
   id?: number
   taxTypeId: number
-  authorityPartyId?: number | null
+  authorityName?: string | null
   registrationNo: string
   jurisdiction: string
   filingFrequency: string
@@ -1781,6 +1557,7 @@ export type FinanceTaxRegistrationCreateManyCompanyInput = {
 }
 
 export type FinanceTaxRegistrationUpdateWithoutCompanyInput = {
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1799,7 +1576,6 @@ export type FinanceTaxRegistrationUpdateWithoutCompanyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   taxType?: Prisma.FinanceTaxTypeUpdateOneRequiredWithoutRegistrationsNestedInput
-  authorityParty?: Prisma.PartyUpdateOneWithoutFinanceTaxAuthoritiesNestedInput
   workpapers?: Prisma.FinanceTaxWorkpaperUpdateManyWithoutRegistrationNestedInput
   filings?: Prisma.FinanceTaxFilingUpdateManyWithoutRegistrationNestedInput
   snapshots?: Prisma.FinanceTaxReconciliationSnapshotUpdateManyWithoutRegistrationNestedInput
@@ -1808,7 +1584,7 @@ export type FinanceTaxRegistrationUpdateWithoutCompanyInput = {
 export type FinanceTaxRegistrationUncheckedUpdateWithoutCompanyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   taxTypeId?: Prisma.IntFieldUpdateOperationsInput | number
-  authorityPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1834,7 +1610,7 @@ export type FinanceTaxRegistrationUncheckedUpdateWithoutCompanyInput = {
 export type FinanceTaxRegistrationUncheckedUpdateManyWithoutCompanyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   taxTypeId?: Prisma.IntFieldUpdateOperationsInput | number
-  authorityPartyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registrationNo?: Prisma.StringFieldUpdateOperationsInput | string
   jurisdiction?: Prisma.StringFieldUpdateOperationsInput | string
   filingFrequency?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1907,7 +1683,7 @@ export type FinanceTaxRegistrationSelect<ExtArgs extends runtime.Types.Extension
   id?: boolean
   companyId?: boolean
   taxTypeId?: boolean
-  authorityPartyId?: boolean
+  authorityName?: boolean
   registrationNo?: boolean
   jurisdiction?: boolean
   filingFrequency?: boolean
@@ -1927,7 +1703,6 @@ export type FinanceTaxRegistrationSelect<ExtArgs extends runtime.Types.Extension
   updatedAt?: boolean
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   taxType?: boolean | Prisma.FinanceTaxTypeDefaultArgs<ExtArgs>
-  authorityParty?: boolean | Prisma.FinanceTaxRegistration$authorityPartyArgs<ExtArgs>
   workpapers?: boolean | Prisma.FinanceTaxRegistration$workpapersArgs<ExtArgs>
   filings?: boolean | Prisma.FinanceTaxRegistration$filingsArgs<ExtArgs>
   snapshots?: boolean | Prisma.FinanceTaxRegistration$snapshotsArgs<ExtArgs>
@@ -1938,7 +1713,7 @@ export type FinanceTaxRegistrationSelectCreateManyAndReturn<ExtArgs extends runt
   id?: boolean
   companyId?: boolean
   taxTypeId?: boolean
-  authorityPartyId?: boolean
+  authorityName?: boolean
   registrationNo?: boolean
   jurisdiction?: boolean
   filingFrequency?: boolean
@@ -1958,14 +1733,13 @@ export type FinanceTaxRegistrationSelectCreateManyAndReturn<ExtArgs extends runt
   updatedAt?: boolean
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   taxType?: boolean | Prisma.FinanceTaxTypeDefaultArgs<ExtArgs>
-  authorityParty?: boolean | Prisma.FinanceTaxRegistration$authorityPartyArgs<ExtArgs>
 }, ExtArgs["result"]["financeTaxRegistration"]>
 
 export type FinanceTaxRegistrationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyId?: boolean
   taxTypeId?: boolean
-  authorityPartyId?: boolean
+  authorityName?: boolean
   registrationNo?: boolean
   jurisdiction?: boolean
   filingFrequency?: boolean
@@ -1985,14 +1759,13 @@ export type FinanceTaxRegistrationSelectUpdateManyAndReturn<ExtArgs extends runt
   updatedAt?: boolean
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   taxType?: boolean | Prisma.FinanceTaxTypeDefaultArgs<ExtArgs>
-  authorityParty?: boolean | Prisma.FinanceTaxRegistration$authorityPartyArgs<ExtArgs>
 }, ExtArgs["result"]["financeTaxRegistration"]>
 
 export type FinanceTaxRegistrationSelectScalar = {
   id?: boolean
   companyId?: boolean
   taxTypeId?: boolean
-  authorityPartyId?: boolean
+  authorityName?: boolean
   registrationNo?: boolean
   jurisdiction?: boolean
   filingFrequency?: boolean
@@ -2012,11 +1785,10 @@ export type FinanceTaxRegistrationSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceTaxRegistrationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "taxTypeId" | "authorityPartyId" | "registrationNo" | "jurisdiction" | "filingFrequency" | "effectiveFrom" | "effectiveThrough" | "status" | "sourceKind" | "sourceReleaseId" | "sourceSha256" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceRange" | "sourceKey" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeTaxRegistration"]>
+export type FinanceTaxRegistrationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "taxTypeId" | "authorityName" | "registrationNo" | "jurisdiction" | "filingFrequency" | "effectiveFrom" | "effectiveThrough" | "status" | "sourceKind" | "sourceReleaseId" | "sourceSha256" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceRange" | "sourceKey" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeTaxRegistration"]>
 export type FinanceTaxRegistrationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   taxType?: boolean | Prisma.FinanceTaxTypeDefaultArgs<ExtArgs>
-  authorityParty?: boolean | Prisma.FinanceTaxRegistration$authorityPartyArgs<ExtArgs>
   workpapers?: boolean | Prisma.FinanceTaxRegistration$workpapersArgs<ExtArgs>
   filings?: boolean | Prisma.FinanceTaxRegistration$filingsArgs<ExtArgs>
   snapshots?: boolean | Prisma.FinanceTaxRegistration$snapshotsArgs<ExtArgs>
@@ -2025,12 +1797,10 @@ export type FinanceTaxRegistrationInclude<ExtArgs extends runtime.Types.Extensio
 export type FinanceTaxRegistrationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   taxType?: boolean | Prisma.FinanceTaxTypeDefaultArgs<ExtArgs>
-  authorityParty?: boolean | Prisma.FinanceTaxRegistration$authorityPartyArgs<ExtArgs>
 }
 export type FinanceTaxRegistrationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   taxType?: boolean | Prisma.FinanceTaxTypeDefaultArgs<ExtArgs>
-  authorityParty?: boolean | Prisma.FinanceTaxRegistration$authorityPartyArgs<ExtArgs>
 }
 
 export type $FinanceTaxRegistrationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2038,7 +1808,6 @@ export type $FinanceTaxRegistrationPayload<ExtArgs extends runtime.Types.Extensi
   objects: {
     company: Prisma.$CompanyPayload<ExtArgs>
     taxType: Prisma.$FinanceTaxTypePayload<ExtArgs>
-    authorityParty: Prisma.$PartyPayload<ExtArgs> | null
     workpapers: Prisma.$FinanceTaxWorkpaperPayload<ExtArgs>[]
     filings: Prisma.$FinanceTaxFilingPayload<ExtArgs>[]
     snapshots: Prisma.$FinanceTaxReconciliationSnapshotPayload<ExtArgs>[]
@@ -2047,7 +1816,7 @@ export type $FinanceTaxRegistrationPayload<ExtArgs extends runtime.Types.Extensi
     id: number
     companyId: number
     taxTypeId: number
-    authorityPartyId: number | null
+    authorityName: string | null
     registrationNo: string
     jurisdiction: string
     filingFrequency: string
@@ -2461,7 +2230,6 @@ export interface Prisma__FinanceTaxRegistrationClient<T, Null = never, ExtArgs e
   readonly [Symbol.toStringTag]: "PrismaPromise"
   company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   taxType<T extends Prisma.FinanceTaxTypeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceTaxTypeDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceTaxTypeClient<runtime.Types.Result.GetResult<Prisma.$FinanceTaxTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  authorityParty<T extends Prisma.FinanceTaxRegistration$authorityPartyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceTaxRegistration$authorityPartyArgs<ExtArgs>>): Prisma.Prisma__PartyClient<runtime.Types.Result.GetResult<Prisma.$PartyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   workpapers<T extends Prisma.FinanceTaxRegistration$workpapersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceTaxRegistration$workpapersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceTaxWorkpaperPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   filings<T extends Prisma.FinanceTaxRegistration$filingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceTaxRegistration$filingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceTaxFilingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   snapshots<T extends Prisma.FinanceTaxRegistration$snapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceTaxRegistration$snapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceTaxReconciliationSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2497,7 +2265,7 @@ export interface FinanceTaxRegistrationFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceTaxRegistration", 'Int'>
   readonly companyId: Prisma.FieldRef<"FinanceTaxRegistration", 'Int'>
   readonly taxTypeId: Prisma.FieldRef<"FinanceTaxRegistration", 'Int'>
-  readonly authorityPartyId: Prisma.FieldRef<"FinanceTaxRegistration", 'Int'>
+  readonly authorityName: Prisma.FieldRef<"FinanceTaxRegistration", 'String'>
   readonly registrationNo: Prisma.FieldRef<"FinanceTaxRegistration", 'String'>
   readonly jurisdiction: Prisma.FieldRef<"FinanceTaxRegistration", 'String'>
   readonly filingFrequency: Prisma.FieldRef<"FinanceTaxRegistration", 'String'>
@@ -2913,25 +2681,6 @@ export type FinanceTaxRegistrationDeleteManyArgs<ExtArgs extends runtime.Types.E
    * Limit how many FinanceTaxRegistrations to delete.
    */
   limit?: number
-}
-
-/**
- * FinanceTaxRegistration.authorityParty
- */
-export type FinanceTaxRegistration$authorityPartyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Party
-   */
-  select?: Prisma.PartySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Party
-   */
-  omit?: Prisma.PartyOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.PartyInclude<ExtArgs> | null
-  where?: Prisma.PartyWhereInput
 }
 
 /**

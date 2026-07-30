@@ -11,12 +11,14 @@ import { PROJECT_NOTIFICATION_SIGNAL_LEASE_SECONDS } from "./project-notificatio
 import {
   createStoredProjectNotificationSnapshot,
   parseClaimedProjectNotificationSnapshot,
-  PROJECT_NOTIFICATION_SIGNAL_MAX_ATTEMPTS,
   projectNotificationSignalFailurePlan,
   projectNotificationSignalFingerprint,
-  projectNotificationSignalInputSchema,
   projectNotificationSignalReplayMatches,
   ProjectNotificationSignalProcessingError,
+} from "./project-notification-signal-runtime";
+import {
+  PROJECT_NOTIFICATION_SIGNAL_MAX_ATTEMPTS,
+  projectNotificationSignalInputSchema,
   type ClaimedProjectNotificationSignal,
   type ProjectNotificationSignalProjectRow,
   type ProjectNotificationSignalKind,

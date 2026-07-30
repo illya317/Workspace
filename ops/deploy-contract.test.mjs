@@ -48,6 +48,22 @@ function runNode(program, env = {}) {
   });
 }
 
+function hardenedDatabaseUrl(role, { options, host = "127.0.0.1", port = "5432", database = "workspace" } = {}) {
+  const url = new URL(
+    "postgresql://" + role + ":contract-secret@" + host + ":" + port + "/" + database,
+  );
+  url.searchParams.set("sslmode", "verify-full");
+  url.searchParams.set("sslrootcert", "/etc/workspace/postgresql/ca.pem");
+  if (options !== undefined) url.searchParams.set("options", options);
+  return url.toString();
+}
+
+const runtimeDatabaseUrl = hardenedDatabaseUrl("workspace_runtime");
+const directDatabaseUrl = hardenedDatabaseUrl(
+  "workspace_migrator",
+  { options: "-c role=workspace_owner" },
+);
+
 test("deploy delegates all receipt reads and writes to one versioned helper", () => {
   assert.match(deploy, /REMOTE_RELEASE_RECEIPT_TOOL=.*release-receipt\.mjs/);
   assert.match(deploy, /release-receipt\.mjs[\s\S]*?node --check/);
@@ -60,6 +76,247 @@ test("deploy delegates all receipt reads and writes to one versioned helper", ()
   assert.doesNotMatch(deploy, /DEPLOYED_TRANSPORT/);
   const invocation = deploy.slice(deploy.indexOf('echo "==> 验证服务器连接..."'));
   assert.ok(invocation.indexOf("acquire_remote_deploy_lock") < invocation.indexOf("sync_remote_deploy_tools"));
+});
+
+test("hardened production runtime keeps PM2 and database credentials behind an explicit compatibility seam", () => {
+  assert.match(deploy, /WORKSPACE_RUNTIME_PM2_MODE="\$\{WORKSPACE_RUNTIME_PM2_MODE:-legacy\}"/);
+  assert.match(deploy, /WORKSPACE_RUNTIME_PM2_RUNNER="\$\{WORKSPACE_RUNTIME_PM2_RUNNER:-\/usr\/local\/sbin\/workspace-runtime-pm2\}"/);
+  assert.match(deploy, /WORKSPACE_RUNTIME_PM2_MODE" in\n\s+legacy\|hardened/);
+  assert.match(deploy, /hardened PM2 模式必须隔离 runtime env 与 control-plane env/);
+  assert.match(deploy, /hardened PM2 模式禁止通过 ENV_CONTENT 下发共享凭据/);
+
+  const sshShim = deploy.slice(deploy.indexOf("ssh_cmd()"), deploy.indexOf("start_ssh_master()"));
+  assert.match(sshShim, /pm2\(\)[\s\S]*?sudo -n -- \/usr\/bin\/env[\s\S]*?'\$WORKSPACE_RUNTIME_PM2_RUNNER'/);
+  assert.match(sshShim, /PORT HOSTNAME BUILD_VERSION NEXT_PUBLIC_BUILD_VERSION NEXT_PUBLIC_BASE_PATH PG_POOL_MAX PG_APPLICATION_NAME/);
+  assert.match(sshShim, /WORKSPACE_CONFIG_DIR/);
+  assert.match(sshShim, /PROJECT_NOTIFICATION_SCHEDULER_DISABLED/);
+  assert.match(sshShim, /WORKSPACE_DEPLOY_SLOT/);
+  assert.match(sshShim, /WORKSPACE_DEPLOY_CURRENT_STATE_FILE/);
+  assert.match(sshShim, /else\n\s+command pm2/);
+  assert.match(sshShim, /workspace_assert_managed_runtime_environment/);
+  assert.match(sshShim, /workspace-assistant-wecom-blue,workspace-assistant-wecom-green/);
+  assert.match(sshShim, /Bot runtime process/);
+  assert.match(sshShim, /'DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL'/);
+  assert.match(sshShim, /'PGPASSWORD', 'PGPASSFILE', 'PGSERVICE', 'PGSERVICEFILE', 'PGOPTIONS'/);
+  assert.match(sshShim, /workspace_source_env_file '\$REMOTE_RUNTIME_ENV_FILE'/);
+  assert.match(sshShim, /workspace_source_env_file '\$REMOTE_CONTROL_ENV_FILE'/);
+  assert.match(sshShim, /runtime_database_url=\\\$DATABASE_URL[\s\S]*?DATABASE_URL=\\\$runtime_database_url/);
+  assert.match(sshShim, /WORKSPACE_BACKUP_DATABASE_URL/);
+  assert.match(sshShim, /control-plane env must not be accessible by group or other users/);
+  assert.match(sshShim, /runtime env must not be group-writable\/executable or accessible by other users/);
+  assert.match(sshShim, /workspace_assert_hardened_database_url/);
+  assert.match(sshShim, /workspace_runtime 0 DATABASE_URL/);
+  assert.match(sshShim, /workspace_migrator 1 DIRECT_URL/);
+  assert.match(sshShim, /workspace_backup 0 WORKSPACE_BACKUP_DATABASE_URL/);
+  assert.match(sshShim, /workspace_monitor 0 WORKSPACE_MONITOR_DATABASE_URL/);
+  assertOrdered(deploy.slice(deploy.indexOf('echo "==> 验证服务器连接..."')), [
+    "start_ssh_master",
+    "verify_remote_runtime_pm2",
+    "acquire_remote_deploy_lock",
+    "reconcile_completed_deploy_markers",
+  ]);
+
+  const remoteDeploy = deploy.slice(
+    deploy.indexOf("deploy_remote_artifact()"),
+    deploy.indexOf("run_healthcheck()"),
+  );
+  assert.match(remoteDeploy, /ln -sfn [^\n]*REMOTE_RUNTIME_ENV_FILE[^\n]*release_dir\/\.env/);
+  assert.match(remoteDeploy, /release runtime \.env 包含 control-plane 数据库凭据/);
+  assert.match(remoteDeploy, /WORKSPACE_BACKUP_DATABASE_URL:-\\\$DIRECT_URL/);
+  assert.doesNotMatch(remoteDeploy, /\. \"\\\$release_dir\/\.env\"/);
+  assertOrdered(remoteDeploy, [
+    "load_control_environment",
+    "migrate deploy --schema=",
+    "seed-resources-runtime.mjs",
+    "PORT=3101 HOSTNAME=127.0.0.1 pm2 start",
+  ]);
+  assert.match(remoteDeploy, /bind_runtime_env_to_release[\s\S]*?pm2 start \\"\\\$old_release/);
+  assertOrdered(remoteDeploy, [
+    "export PROJECT_NOTIFICATION_SCHEDULER_DISABLED=1",
+    "PORT=3101 HOSTNAME=127.0.0.1 pm2 start",
+    "unset PROJECT_NOTIFICATION_SCHEDULER_DISABLED",
+    "PORT=3000 HOSTNAME=0.0.0.0 pm2 start",
+  ]);
+});
+
+test("legacy PM2 deployments remain outside the hardened credential contract", () => {
+  const verifier = deploy.slice(
+    deploy.indexOf("verify_remote_runtime_pm2()"),
+    deploy.indexOf("start_ssh_master()"),
+  );
+  assertOrdered(verifier, [
+    'if [ "$WORKSPACE_RUNTIME_PM2_MODE" != "hardened" ]',
+    "使用 legacy PM2 兼容模式",
+    "return 0",
+    "workspace_assert_hardened_database_url",
+  ]);
+
+  const sshShim = deploy.slice(deploy.indexOf("ssh_cmd()"), deploy.indexOf("verify_remote_runtime_pm2()"));
+  assert.match(sshShim, /if \[ '\$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' \][\s\S]*?else\n\s+command pm2/);
+  assert.match(
+    sshShim,
+    /if \[ '\$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' \]; then\n\s+test -n \\"\\\${WORKSPACE_BACKUP_DATABASE_URL:-}\\"/,
+  );
+});
+
+test("hardened deploy URL contract pins every database credential to its exact role, endpoint, and TLS CA", () => {
+  const programs = embeddedPrograms("node", "NODE");
+  const matches = programs.filter(
+    (program) => program.includes("EXPECTED_DATABASE_ROLE")
+      && program.includes("forbiddenConnectionOverrides"),
+  );
+  assert.equal(matches.length, 1);
+  const validator = matches[0];
+  const validate = (databaseUrl, role, requireOwnerRole = false) =>
+    runNode(validator, {
+      DATABASE_URL_VALUE: databaseUrl,
+      EXPECTED_DATABASE_ROLE: role,
+      REQUIRE_OWNER_ROLE: requireOwnerRole ? "1" : "0",
+      DATABASE_URL_LABEL: "test database URL",
+    });
+
+  for (const [role, databaseUrl, requireOwnerRole] of [
+    ["workspace_runtime", runtimeDatabaseUrl, false],
+    ["workspace_migrator", directDatabaseUrl, true],
+    ["workspace_backup", hardenedDatabaseUrl("workspace_backup"), false],
+    ["workspace_monitor", hardenedDatabaseUrl("workspace_monitor"), false],
+  ]) {
+    const result = validate(databaseUrl, role, requireOwnerRole);
+    assert.equal(result.status, 0, result.stderr);
+  }
+
+  const invalidContracts = [
+    {
+      label: "wrong role",
+      value: hardenedDatabaseUrl("workspace_backup"),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "localhost alias",
+      value: hardenedDatabaseUrl("workspace_runtime", { host: "localhost" }),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "missing explicit port",
+      value: runtimeDatabaseUrl.replace(":5432/", "/"),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "wrong database",
+      value: hardenedDatabaseUrl("workspace_runtime", { database: "postgres" }),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "TLS downgrade",
+      value: runtimeDatabaseUrl.replace("sslmode=verify-full", "sslmode=require"),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "wrong CA",
+      value: runtimeDatabaseUrl.replace(
+        encodeURIComponent("/etc/workspace/postgresql/ca.pem"),
+        encodeURIComponent("/tmp/ca.pem"),
+      ),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "connection query override",
+      value: runtimeDatabaseUrl + "&host=localhost",
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "duplicate TLS mode",
+      value: runtimeDatabaseUrl + "&sslmode=require",
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "runtime owner role option",
+      value: hardenedDatabaseUrl("workspace_runtime", { options: "-c role=workspace_owner" }),
+      role: "workspace_runtime",
+      owner: false,
+    },
+    {
+      label: "missing migrator owner role",
+      value: hardenedDatabaseUrl("workspace_migrator"),
+      role: "workspace_migrator",
+      owner: true,
+    },
+    {
+      label: "migrator owner role plus extra option",
+      value: hardenedDatabaseUrl(
+        "workspace_migrator",
+        { options: "-c role=workspace_owner -c search_path=public" },
+      ),
+      role: "workspace_migrator",
+      owner: true,
+    },
+  ];
+  for (const contract of invalidContracts) {
+    const result = validate(contract.value, contract.role, contract.owner);
+    assert.notEqual(result.status, 0, contract.label);
+    assert.doesNotMatch(result.stderr, /contract-secret/, contract.label);
+  }
+});
+
+test("hardened deploy verifies per-process Web and Bot credential boundaries", () => {
+  const programs = embeddedPrograms("node", "NODE");
+  const matches = programs.filter(
+    (program) => program.includes("MANAGED_PROCESSES")
+      && program.includes("runtimeDatabaseUrls"),
+  );
+  assert.equal(matches.length, 1);
+  const validator = matches[0];
+  const verify = (pm2Environment, name = "workspace") => runNode(validator, {
+    MANAGED_WEB_NAMES: "workspace-candidate,workspace",
+    MANAGED_BOT_NAMES:
+      "workspace-wecom-agent,workspace-assistant-wecom-blue,workspace-assistant-wecom-green",
+    MANAGED_PROCESSES: JSON.stringify([{ name, pm2_env: pm2Environment }]),
+  });
+
+  assert.equal(verify({ DATABASE_URL: runtimeDatabaseUrl }).status, 0);
+  assert.equal(verify({ env: { DATABASE_URL: runtimeDatabaseUrl } }).status, 0);
+  assert.equal(
+    verify({ DATABASE_URL: runtimeDatabaseUrl, env: { DATABASE_URL: runtimeDatabaseUrl } }).status,
+    0,
+  );
+
+  for (const [label, environment] of [
+    ["wrong role", { DATABASE_URL: hardenedDatabaseUrl("workspace_backup") }],
+    ["TLS downgrade", { DATABASE_URL: runtimeDatabaseUrl.replace("verify-full", "require") }],
+    ["wrong CA", { DATABASE_URL: runtimeDatabaseUrl.replace("ca.pem", "other-ca.pem") }],
+    ["query override", { DATABASE_URL: runtimeDatabaseUrl + "&host=localhost" }],
+    ["nested control credential", {
+      DATABASE_URL: runtimeDatabaseUrl,
+      env: { DATABASE_URL: runtimeDatabaseUrl, DIRECT_URL: directDatabaseUrl },
+    }],
+    ["ambiguous PM2 snapshots", {
+      DATABASE_URL: runtimeDatabaseUrl,
+      env: { DATABASE_URL: hardenedDatabaseUrl("workspace_backup") },
+    }],
+  ]) {
+    const result = verify(environment);
+    assert.notEqual(result.status, 0, label);
+    assert.doesNotMatch(result.stderr, /contract-secret/, label);
+  }
+
+  assert.equal(verify({
+    WECHAT_BOT_ID: "bot-id",
+    WECHAT_BOT_SECRET: "bot-secret",
+    WECOM_WORKER_BRIDGE_SECRET: "worker-secret",
+  }, "workspace-assistant-wecom-blue").status, 0);
+  for (const forbidden of ["DATABASE_URL", "NEXTAUTH_SECRET", "ONLYOFFICE_JWT_SECRET"]) {
+    const result = verify({ [forbidden]: "must-not-reach-bot" }, "workspace-assistant-wecom-blue");
+    assert.notEqual(result.status, 0, forbidden);
+    assert.doesNotMatch(result.stderr, /must-not-reach-bot/, forbidden);
+  }
 });
 
 test("legacy local receipt repair revalidates the frozen production identity under the deploy lock", () => {
@@ -76,13 +333,44 @@ test("Full cutover atomically revokes every independent Gateway override", () =>
   assert.match(deploy, /create-fallback/);
   assert.match(deploy, /routeMap\.activeUnits\.length !== 0/);
   assert.match(deploy, /routeMap\.routes\.length !== 0/);
-  assertOrdered(deploy, [
+  const cutover = deploy.slice(deploy.indexOf(
+    "assert_release_version 'http://127.0.0.1:3000/workspace/api/settings/version' 'public'",
+  ));
+  assertOrdered(cutover, [
     "assert_release_version 'http://127.0.0.1:3000/workspace/api/settings/version' 'public'",
     'atomic_switch_current \\"\\$release_dir\\"',
+    "begin_full_wecom_handoff",
     "reset_gateway_overrides_to_full",
+    "workspace_sidecar_wait_absent '$PM2_WECOM_BOT_NAME'",
+    'start_wecom_bot_for_release "\\$release_dir" \'新 release\'',
     "'$REMOTE_RELEASE_RECEIPT_TOOL' write",
     "release_committed=1",
+    "full_wecom_handoff_committed=1",
   ]);
+  assert.match(deploy, /workspace_stop_deploy_unit_sidecar assistant/);
+});
+
+test("Full deploy preserves Assistant ownership until fallback commit and restores it on pre-commit failure", () => {
+  assert.match(deploy, /source '\$REMOTE_DEPLOY_TOOL_DIR\/deploy-unit-sidecar\.sh'/);
+  assert.match(deploy, /workspace_capture_gateway_assistant_owner '\$REMOTE_GATEWAY_ROOT'/);
+  assert.match(
+    deploy,
+    /start_wecom_bot_for_release\(\)[\s\S]*?workspace_capture_gateway_assistant_owner[\s\S]*?保持 Assistant unit 企业微信 Bot owner/,
+  );
+  const restore = deploy.slice(
+    deploy.indexOf("restore_full_wecom_handoff()"),
+    deploy.indexOf("reset_gateway_overrides_to_full()"),
+  );
+  assertOrdered(restore, [
+    "pm2 delete '$PM2_WECOM_BOT_NAME'",
+    "full_wecom_previous_gateway_target",
+    "workspace_start_deploy_unit_sidecar",
+  ]);
+  const rollback = deploy.slice(deploy.indexOf("rollback_cutover()"));
+  assert.ok(
+    rollback.indexOf("restore_full_wecom_handoff")
+      < rollback.indexOf("上一 PostgreSQL release 回滚"),
+  );
 });
 
 test("inner Full deploy never publishes the final success notification", () => {
@@ -167,6 +455,44 @@ test("database replacement keeps the shared gate and performs a fail-closed atom
   assert.match(replaceProductionDatabase, /database OID 不一致，拒绝猜测恢复/);
 });
 
+test("WeCom notification upgrade validates the new secret before writer cutover and keeps old-release rollback compatible", () => {
+  assert.match(
+    deploy,
+    /wecom_bridge_secret_is_valid\(\)[\s\S]*?WECOM_WORKER_BRIDGE_SECRET[\s\S]*?trim\(\)\.length >= 32/,
+  );
+  assert.match(
+    deploy,
+    /wecom_release_requires_bridge_secret\(\)[\s\S]*?grep -q 'WECOM_WORKER_BRIDGE_SECRET'[\s\S]*?wecom-agent-bot\.mjs/,
+  );
+  assert.match(
+    deploy,
+    /start_wecom_bot_for_release\(\)[\s\S]*?wecom_release_requires_bridge_secret[\s\S]*?pm2 start/,
+  );
+  assert.match(
+    deploy,
+    /if \[ '\$DEPLOY_EXECUTION_MODE' != 'control-plane-only' \]; then\n\s+assert_new_wecom_release_ready\n\s+fi/,
+  );
+  assertOrdered(deploy, [
+    "assert_new_wecom_release_ready",
+    "trap rollback_cutover EXIT",
+    "begin_remote_timing_stage migration.provision",
+    "pm2 delete '$PM2_WECOM_BOT_NAME'",
+    'start_wecom_bot_for_release "\\$release_dir" \'新 release\'',
+  ]);
+  assert.match(
+    deploy,
+    /start_wecom_bot_for_release \\"\\\$old_release\\" '旧 SQLite release 回滚'/,
+  );
+  assert.match(
+    deploy,
+    /start_wecom_bot_for_release \\"\\\$old_release\\" '上一 PostgreSQL release 回滚'/,
+  );
+  assert.doesNotMatch(
+    deploy,
+    /old_release\/scripts\/runtime\/wecom-agent-bot\.mjs[\s\S]{0,250}WECOM_WORKER_BRIDGE_SECRET/,
+  );
+});
+
 test("a second maintenance attempt keeps old rollback disabled and reuses the verified pre-migration dump", () => {
   assert.equal((deploy.match(/maintenance_migration_started=0/g) ?? []).length, 1);
   assert.match(deploy, /if \[ -f \\"\\\$maintenance_marker_path\\" \]; then[\s\S]*?maintenance_marker_present=1[\s\S]*?maintenance_migration_started=1/);
@@ -190,11 +516,11 @@ test("a second maintenance attempt keeps old rollback disabled and reuses the ve
   assert.match(deploy, /maintenance_backup_sha\\" != 'pending'[\s\S]*?digest 不匹配/);
   assert.match(
     deploy,
-    /if \[ ! -f '\$REMOTE_WORKSPACE_CONFIG_DIR\/maintenance-deploy' \]; then\n\s+rm -rf '\$REMOTE_BACKUP_DIR\/maintenance-pinned'/,
+    /if \[ ! -f '\$REMOTE_WORKSPACE_CONFIG_DIR\/maintenance-deploy' \]; then\n\s+workspace_privileged rm -rf '\$REMOTE_BACKUP_DIR\/maintenance-pinned'/,
   );
   assert.match(
     deploy,
-    /release_committed=1\n\s+commit_database_replacement_state\n\s+finish_remote_timing_stage passed 0\n\s+rm -f '\$REMOTE_WORKSPACE_CONFIG_DIR\/maintenance-deploy'/,
+    /release_committed=1\n\s+full_wecom_handoff_committed=1\n\s+commit_database_replacement_state\n\s+finish_remote_timing_stage passed 0\n\s+rm -f '\$REMOTE_WORKSPACE_CONFIG_DIR\/maintenance-deploy'/,
   );
 });
 

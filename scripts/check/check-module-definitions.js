@@ -11,6 +11,7 @@ const DOMAIN_PACKAGES = [
   "finance",
   "hr",
   "library",
+  "news",
   "production",
   "settings",
   "work",

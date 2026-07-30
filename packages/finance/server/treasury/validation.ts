@@ -12,7 +12,12 @@ import type {
   TreasuryCreateInput,
   TreasuryUpdateInput,
 } from "../../types/treasury";
-import { calculateBankReconciliation, calculateInterestWorkpaper, TREASURY_CALCULATION_VERSION } from "./calculations";
+import {
+  calculateBankReconciliation,
+  calculateInterestDayCount,
+  calculateInterestWorkpaper,
+  TREASURY_CALCULATION_VERSION,
+} from "./calculations";
 import { resolveUniqueLoanDayCountConvention } from "./conventions";
 import type {
   CompanyReference,
@@ -264,11 +269,15 @@ async function validateLoan(
 }
 
 function interestCalculation(input: InterestWorkpaperWriteInput) {
+  const normalizedLines = input.lines.map((line) => ({
+    ...line,
+    dayCount: calculateInterestDayCount(line.accrualFrom, line.accrualThrough, input.dayCountConvention),
+  }));
   const canonical = {
     loanId: input.loanId,
     periodId: input.periodId,
     dayCountConvention: input.dayCountConvention,
-    lines: [...input.lines].sort((left, right) => left.lineNo - right.lineNo).map((line) => ({
+    lines: normalizedLines.sort((left, right) => left.lineNo - right.lineNo).map((line) => ({
       lineNo: line.lineNo,
       accrualFrom: line.accrualFrom,
       accrualThrough: line.accrualThrough,
@@ -287,15 +296,6 @@ function interestCalculation(input: InterestWorkpaperWriteInput) {
     calculationVersion: TREASURY_CALCULATION_VERSION,
     inputFingerprint: createHash("sha256").update(JSON.stringify(canonical)).digest("hex"),
   };
-}
-
-function expectedDayCount(from: string, through: string, convention: DayCountConvention) {
-  if (convention === "30_360") {
-    const [fromYear, fromMonth, fromDay] = from.split("-").map(Number);
-    const [toYear, toMonth, toDay] = through.split("-").map(Number);
-    return (toYear - fromYear) * 360 + (toMonth - fromMonth) * 30 + Math.max(0, Math.min(30, toDay) - Math.min(30, fromDay)) + 1;
-  }
-  return Math.round((Date.parse(`${through}T00:00:00.000Z`) - Date.parse(`${from}T00:00:00.000Z`)) / 86_400_000) + 1;
 }
 
 async function validatePrincipalEvent(
@@ -391,7 +391,8 @@ async function validateInterestWorkpaper(
     }
     if (!Number.isFinite(line.principalBasis) || line.principalBasis < 0) return failCommand("计息本金无效", 400, "principalBasis");
     if (!validRate(line.annualRate)) return failCommand("计息年利率必须在 0 到 1 之间", 400, "annualRate");
-    if (line.dayCount !== expectedDayCount(line.accrualFrom, line.accrualThrough, input.dayCountConvention)) {
+    const derivedDayCount = calculateInterestDayCount(line.accrualFrom, line.accrualThrough, input.dayCountConvention);
+    if (line.dayCount != null && line.dayCount !== derivedDayCount) {
       return failCommand("计息天数与起止日期及口径不一致", 400, "dayCount");
     }
   }
@@ -403,7 +404,13 @@ async function validateInterestWorkpaper(
   }
   const vouchers = await validateVoucherOwnership(input.voucherLinks.map((link) => link.voucherItemId), input.companyCode, input.periodId, deps);
   if (!vouchers.ok) return vouchers;
-  const calculation = calculateInterestWorkpaper(input);
+  const calculation = calculateInterestWorkpaper({
+    ...input,
+    lines: input.lines.map((line) => ({
+      ...line,
+      dayCount: calculateInterestDayCount(line.accrualFrom, line.accrualThrough, input.dayCountConvention),
+    })),
+  });
   if (input.status === "reconciled"
     && ((calculation.sourceDifference != null && Math.abs(calculation.sourceDifference) > 0.01)
       || Math.abs(calculation.voucherDifference) > 0.01)) {

@@ -35,6 +35,8 @@
       "@workspace/inventory/*": ["./packages/inventory/*"],
       "@workspace/library": ["./packages/library/index.ts"],
       "@workspace/library/*": ["./packages/library/*"],
+      "@workspace/news": ["./packages/news/index.ts"],
+      "@workspace/news/*": ["./packages/news/*"],
       "@workspace/production": ["./packages/production/index.ts"],
       "@workspace/production/*": ["./packages/production/*"],
       "@workspace/settings": ["./packages/settings/index.ts"],

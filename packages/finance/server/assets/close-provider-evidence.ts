@@ -1,5 +1,4 @@
-import type { AssetAccumulatedReplayInput } from "./accumulated-replay";
-import type { AssetScopeCard } from "./period-scope";
+import type { AssetAccumulatedReplayInput, AssetScopeCard } from "./close-calculation-contract";
 import {
   moneyEquals,
   moneyIsNonZero,
@@ -127,7 +126,7 @@ export type AssetImpairmentFact = {
 };
 
 export type AssetMovementCloseFacts = {
-  period: { id: number } | null;
+  period: { id: number; sourceClosed?: boolean } | null;
   cards: AssetCloseCard[];
   policies: AssetPolicyFact[];
   applicabilityEstablished: boolean;
@@ -141,6 +140,7 @@ export type AssetMovementCloseFacts = {
 
 export type AssetDepreciationCloseFacts = AssetMovementCloseFacts & {
   ledgerByAccount: Array<{ accountCode: string; amount: number }>;
+  ledgerVoucherIds?: number[];
 };
 
 export type AssetImpairmentCloseFacts = {

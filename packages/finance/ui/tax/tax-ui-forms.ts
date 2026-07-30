@@ -79,19 +79,7 @@ function registrationItems(
       choice("taxTypeId", "税种", draft.taxTypeId, input.workspace?.taxTypes.map((row) => ({
         value: String(row.id), label: row.name, subtitle: row.code, searchText: `${row.code} ${row.jurisdiction}`,
       })) ?? [], (value) => input.onChange("taxTypeId", value), true),
-      reference({
-        key: "authorityPartyId",
-        label: "税务机关",
-        value: draft.authorityPartyId,
-        displayValue: draft.authorityPartyName,
-        fkKey: "finance.tax.authorityParty",
-        lifecycleScope: "active",
-        placeholder: "搜索税务机关名称",
-        onChange: (value, name) => {
-          input.onChange("authorityPartyId", value);
-          input.onChange("authorityPartyName", name);
-        },
-      }),
+      text("authorityName", "税务机关", draft.authorityName, (value) => input.onChange("authorityName", value)),
       text("registrationNo", "登记号", draft.registrationNo, (value) => input.onChange("registrationNo", value), true),
       text("jurisdiction", "税辖区", draft.jurisdiction, (value) => input.onChange("jurisdiction", value), true),
       choice("filingFrequency", "申报频率", draft.filingFrequency, [

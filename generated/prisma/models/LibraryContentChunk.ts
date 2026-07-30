@@ -291,6 +291,7 @@ export type LibraryContentChunkWhereInput = {
   version?: Prisma.XOR<Prisma.LibraryDocumentVersionScalarRelationFilter, Prisma.LibraryDocumentVersionWhereInput>
   artifact?: Prisma.XOR<Prisma.LibraryArtifactNullableScalarRelationFilter, Prisma.LibraryArtifactWhereInput> | null
   entityMentions?: Prisma.LibraryEntityMentionListRelationFilter
+  embeddings?: Prisma.LibraryContentEmbeddingListRelationFilter
 }
 
 export type LibraryContentChunkOrderByWithRelationInput = {
@@ -309,6 +310,7 @@ export type LibraryContentChunkOrderByWithRelationInput = {
   version?: Prisma.LibraryDocumentVersionOrderByWithRelationInput
   artifact?: Prisma.LibraryArtifactOrderByWithRelationInput
   entityMentions?: Prisma.LibraryEntityMentionOrderByRelationAggregateInput
+  embeddings?: Prisma.LibraryContentEmbeddingOrderByRelationAggregateInput
 }
 
 export type LibraryContentChunkWhereUniqueInput = Prisma.AtLeast<{
@@ -331,6 +333,7 @@ export type LibraryContentChunkWhereUniqueInput = Prisma.AtLeast<{
   version?: Prisma.XOR<Prisma.LibraryDocumentVersionScalarRelationFilter, Prisma.LibraryDocumentVersionWhereInput>
   artifact?: Prisma.XOR<Prisma.LibraryArtifactNullableScalarRelationFilter, Prisma.LibraryArtifactWhereInput> | null
   entityMentions?: Prisma.LibraryEntityMentionListRelationFilter
+  embeddings?: Prisma.LibraryContentEmbeddingListRelationFilter
 }, "id" | "chunkUid" | "versionId_ordinal">
 
 export type LibraryContentChunkOrderByWithAggregationInput = {
@@ -384,6 +387,7 @@ export type LibraryContentChunkCreateInput = {
   version: Prisma.LibraryDocumentVersionCreateNestedOneWithoutChunksInput
   artifact?: Prisma.LibraryArtifactCreateNestedOneWithoutChunksInput
   entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutChunkInput
+  embeddings?: Prisma.LibraryContentEmbeddingCreateNestedManyWithoutChunkInput
 }
 
 export type LibraryContentChunkUncheckedCreateInput = {
@@ -400,6 +404,7 @@ export type LibraryContentChunkUncheckedCreateInput = {
   language?: string | null
   createdAt?: Date | string
   entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutChunkInput
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedCreateNestedManyWithoutChunkInput
 }
 
 export type LibraryContentChunkUpdateInput = {
@@ -415,6 +420,7 @@ export type LibraryContentChunkUpdateInput = {
   version?: Prisma.LibraryDocumentVersionUpdateOneRequiredWithoutChunksNestedInput
   artifact?: Prisma.LibraryArtifactUpdateOneWithoutChunksNestedInput
   entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutChunkNestedInput
+  embeddings?: Prisma.LibraryContentEmbeddingUpdateManyWithoutChunkNestedInput
 }
 
 export type LibraryContentChunkUncheckedUpdateInput = {
@@ -431,6 +437,7 @@ export type LibraryContentChunkUncheckedUpdateInput = {
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutChunkNestedInput
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedUpdateManyWithoutChunkNestedInput
 }
 
 export type LibraryContentChunkCreateManyInput = {
@@ -556,6 +563,11 @@ export type LibraryContentChunkSumOrderByAggregateInput = {
   tokenCount?: Prisma.SortOrder
 }
 
+export type LibraryContentChunkScalarRelationFilter = {
+  is?: Prisma.LibraryContentChunkWhereInput
+  isNot?: Prisma.LibraryContentChunkWhereInput
+}
+
 export type LibraryContentChunkCreateNestedOneWithoutEntityMentionsInput = {
   create?: Prisma.XOR<Prisma.LibraryContentChunkCreateWithoutEntityMentionsInput, Prisma.LibraryContentChunkUncheckedCreateWithoutEntityMentionsInput>
   connectOrCreate?: Prisma.LibraryContentChunkCreateOrConnectWithoutEntityMentionsInput
@@ -614,6 +626,20 @@ export type LibraryContentChunkUncheckedUpdateManyWithoutArtifactNestedInput = {
   deleteMany?: Prisma.LibraryContentChunkScalarWhereInput | Prisma.LibraryContentChunkScalarWhereInput[]
 }
 
+export type LibraryContentChunkCreateNestedOneWithoutEmbeddingsInput = {
+  create?: Prisma.XOR<Prisma.LibraryContentChunkCreateWithoutEmbeddingsInput, Prisma.LibraryContentChunkUncheckedCreateWithoutEmbeddingsInput>
+  connectOrCreate?: Prisma.LibraryContentChunkCreateOrConnectWithoutEmbeddingsInput
+  connect?: Prisma.LibraryContentChunkWhereUniqueInput
+}
+
+export type LibraryContentChunkUpdateOneRequiredWithoutEmbeddingsNestedInput = {
+  create?: Prisma.XOR<Prisma.LibraryContentChunkCreateWithoutEmbeddingsInput, Prisma.LibraryContentChunkUncheckedCreateWithoutEmbeddingsInput>
+  connectOrCreate?: Prisma.LibraryContentChunkCreateOrConnectWithoutEmbeddingsInput
+  upsert?: Prisma.LibraryContentChunkUpsertWithoutEmbeddingsInput
+  connect?: Prisma.LibraryContentChunkWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryContentChunkUpdateToOneWithWhereWithoutEmbeddingsInput, Prisma.LibraryContentChunkUpdateWithoutEmbeddingsInput>, Prisma.LibraryContentChunkUncheckedUpdateWithoutEmbeddingsInput>
+}
+
 export type LibraryContentChunkCreateNestedManyWithoutVersionInput = {
   create?: Prisma.XOR<Prisma.LibraryContentChunkCreateWithoutVersionInput, Prisma.LibraryContentChunkUncheckedCreateWithoutVersionInput> | Prisma.LibraryContentChunkCreateWithoutVersionInput[] | Prisma.LibraryContentChunkUncheckedCreateWithoutVersionInput[]
   connectOrCreate?: Prisma.LibraryContentChunkCreateOrConnectWithoutVersionInput | Prisma.LibraryContentChunkCreateOrConnectWithoutVersionInput[]
@@ -668,6 +694,7 @@ export type LibraryContentChunkCreateWithoutEntityMentionsInput = {
   createdAt?: Date | string
   version: Prisma.LibraryDocumentVersionCreateNestedOneWithoutChunksInput
   artifact?: Prisma.LibraryArtifactCreateNestedOneWithoutChunksInput
+  embeddings?: Prisma.LibraryContentEmbeddingCreateNestedManyWithoutChunkInput
 }
 
 export type LibraryContentChunkUncheckedCreateWithoutEntityMentionsInput = {
@@ -683,6 +710,7 @@ export type LibraryContentChunkUncheckedCreateWithoutEntityMentionsInput = {
   tokenCount?: number | null
   language?: string | null
   createdAt?: Date | string
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedCreateNestedManyWithoutChunkInput
 }
 
 export type LibraryContentChunkCreateOrConnectWithoutEntityMentionsInput = {
@@ -713,6 +741,7 @@ export type LibraryContentChunkUpdateWithoutEntityMentionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.LibraryDocumentVersionUpdateOneRequiredWithoutChunksNestedInput
   artifact?: Prisma.LibraryArtifactUpdateOneWithoutChunksNestedInput
+  embeddings?: Prisma.LibraryContentEmbeddingUpdateManyWithoutChunkNestedInput
 }
 
 export type LibraryContentChunkUncheckedUpdateWithoutEntityMentionsInput = {
@@ -728,6 +757,7 @@ export type LibraryContentChunkUncheckedUpdateWithoutEntityMentionsInput = {
   tokenCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedUpdateManyWithoutChunkNestedInput
 }
 
 export type LibraryContentChunkCreateWithoutArtifactInput = {
@@ -742,6 +772,7 @@ export type LibraryContentChunkCreateWithoutArtifactInput = {
   createdAt?: Date | string
   version: Prisma.LibraryDocumentVersionCreateNestedOneWithoutChunksInput
   entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutChunkInput
+  embeddings?: Prisma.LibraryContentEmbeddingCreateNestedManyWithoutChunkInput
 }
 
 export type LibraryContentChunkUncheckedCreateWithoutArtifactInput = {
@@ -757,6 +788,7 @@ export type LibraryContentChunkUncheckedCreateWithoutArtifactInput = {
   language?: string | null
   createdAt?: Date | string
   entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutChunkInput
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedCreateNestedManyWithoutChunkInput
 }
 
 export type LibraryContentChunkCreateOrConnectWithoutArtifactInput = {
@@ -803,6 +835,84 @@ export type LibraryContentChunkScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"LibraryContentChunk"> | Date | string
 }
 
+export type LibraryContentChunkCreateWithoutEmbeddingsInput = {
+  chunkUid?: string
+  ordinal: number
+  content: string
+  contentSha256: string
+  locatorJson: string
+  headingPathJson?: string | null
+  tokenCount?: number | null
+  language?: string | null
+  createdAt?: Date | string
+  version: Prisma.LibraryDocumentVersionCreateNestedOneWithoutChunksInput
+  artifact?: Prisma.LibraryArtifactCreateNestedOneWithoutChunksInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutChunkInput
+}
+
+export type LibraryContentChunkUncheckedCreateWithoutEmbeddingsInput = {
+  id?: number
+  chunkUid?: string
+  versionId: number
+  artifactId?: number | null
+  ordinal: number
+  content: string
+  contentSha256: string
+  locatorJson: string
+  headingPathJson?: string | null
+  tokenCount?: number | null
+  language?: string | null
+  createdAt?: Date | string
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutChunkInput
+}
+
+export type LibraryContentChunkCreateOrConnectWithoutEmbeddingsInput = {
+  where: Prisma.LibraryContentChunkWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibraryContentChunkCreateWithoutEmbeddingsInput, Prisma.LibraryContentChunkUncheckedCreateWithoutEmbeddingsInput>
+}
+
+export type LibraryContentChunkUpsertWithoutEmbeddingsInput = {
+  update: Prisma.XOR<Prisma.LibraryContentChunkUpdateWithoutEmbeddingsInput, Prisma.LibraryContentChunkUncheckedUpdateWithoutEmbeddingsInput>
+  create: Prisma.XOR<Prisma.LibraryContentChunkCreateWithoutEmbeddingsInput, Prisma.LibraryContentChunkUncheckedCreateWithoutEmbeddingsInput>
+  where?: Prisma.LibraryContentChunkWhereInput
+}
+
+export type LibraryContentChunkUpdateToOneWithWhereWithoutEmbeddingsInput = {
+  where?: Prisma.LibraryContentChunkWhereInput
+  data: Prisma.XOR<Prisma.LibraryContentChunkUpdateWithoutEmbeddingsInput, Prisma.LibraryContentChunkUncheckedUpdateWithoutEmbeddingsInput>
+}
+
+export type LibraryContentChunkUpdateWithoutEmbeddingsInput = {
+  chunkUid?: Prisma.StringFieldUpdateOperationsInput | string
+  ordinal?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  locatorJson?: Prisma.StringFieldUpdateOperationsInput | string
+  headingPathJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.LibraryDocumentVersionUpdateOneRequiredWithoutChunksNestedInput
+  artifact?: Prisma.LibraryArtifactUpdateOneWithoutChunksNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutChunkNestedInput
+}
+
+export type LibraryContentChunkUncheckedUpdateWithoutEmbeddingsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  chunkUid?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.IntFieldUpdateOperationsInput | number
+  artifactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ordinal?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  locatorJson?: Prisma.StringFieldUpdateOperationsInput | string
+  headingPathJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutChunkNestedInput
+}
+
 export type LibraryContentChunkCreateWithoutVersionInput = {
   chunkUid?: string
   ordinal: number
@@ -815,6 +925,7 @@ export type LibraryContentChunkCreateWithoutVersionInput = {
   createdAt?: Date | string
   artifact?: Prisma.LibraryArtifactCreateNestedOneWithoutChunksInput
   entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutChunkInput
+  embeddings?: Prisma.LibraryContentEmbeddingCreateNestedManyWithoutChunkInput
 }
 
 export type LibraryContentChunkUncheckedCreateWithoutVersionInput = {
@@ -830,6 +941,7 @@ export type LibraryContentChunkUncheckedCreateWithoutVersionInput = {
   language?: string | null
   createdAt?: Date | string
   entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutChunkInput
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedCreateNestedManyWithoutChunkInput
 }
 
 export type LibraryContentChunkCreateOrConnectWithoutVersionInput = {
@@ -884,6 +996,7 @@ export type LibraryContentChunkUpdateWithoutArtifactInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.LibraryDocumentVersionUpdateOneRequiredWithoutChunksNestedInput
   entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutChunkNestedInput
+  embeddings?: Prisma.LibraryContentEmbeddingUpdateManyWithoutChunkNestedInput
 }
 
 export type LibraryContentChunkUncheckedUpdateWithoutArtifactInput = {
@@ -899,6 +1012,7 @@ export type LibraryContentChunkUncheckedUpdateWithoutArtifactInput = {
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutChunkNestedInput
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedUpdateManyWithoutChunkNestedInput
 }
 
 export type LibraryContentChunkUncheckedUpdateManyWithoutArtifactInput = {
@@ -941,6 +1055,7 @@ export type LibraryContentChunkUpdateWithoutVersionInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artifact?: Prisma.LibraryArtifactUpdateOneWithoutChunksNestedInput
   entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutChunkNestedInput
+  embeddings?: Prisma.LibraryContentEmbeddingUpdateManyWithoutChunkNestedInput
 }
 
 export type LibraryContentChunkUncheckedUpdateWithoutVersionInput = {
@@ -956,6 +1071,7 @@ export type LibraryContentChunkUncheckedUpdateWithoutVersionInput = {
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutChunkNestedInput
+  embeddings?: Prisma.LibraryContentEmbeddingUncheckedUpdateManyWithoutChunkNestedInput
 }
 
 export type LibraryContentChunkUncheckedUpdateManyWithoutVersionInput = {
@@ -979,10 +1095,12 @@ export type LibraryContentChunkUncheckedUpdateManyWithoutVersionInput = {
 
 export type LibraryContentChunkCountOutputType = {
   entityMentions: number
+  embeddings: number
 }
 
 export type LibraryContentChunkCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   entityMentions?: boolean | LibraryContentChunkCountOutputTypeCountEntityMentionsArgs
+  embeddings?: boolean | LibraryContentChunkCountOutputTypeCountEmbeddingsArgs
 }
 
 /**
@@ -1002,6 +1120,13 @@ export type LibraryContentChunkCountOutputTypeCountEntityMentionsArgs<ExtArgs ex
   where?: Prisma.LibraryEntityMentionWhereInput
 }
 
+/**
+ * LibraryContentChunkCountOutputType without action
+ */
+export type LibraryContentChunkCountOutputTypeCountEmbeddingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryContentEmbeddingWhereInput
+}
+
 
 export type LibraryContentChunkSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1019,6 +1144,7 @@ export type LibraryContentChunkSelect<ExtArgs extends runtime.Types.Extensions.I
   version?: boolean | Prisma.LibraryDocumentVersionDefaultArgs<ExtArgs>
   artifact?: boolean | Prisma.LibraryContentChunk$artifactArgs<ExtArgs>
   entityMentions?: boolean | Prisma.LibraryContentChunk$entityMentionsArgs<ExtArgs>
+  embeddings?: boolean | Prisma.LibraryContentChunk$embeddingsArgs<ExtArgs>
   _count?: boolean | Prisma.LibraryContentChunkCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["libraryContentChunk"]>
 
@@ -1076,6 +1202,7 @@ export type LibraryContentChunkInclude<ExtArgs extends runtime.Types.Extensions.
   version?: boolean | Prisma.LibraryDocumentVersionDefaultArgs<ExtArgs>
   artifact?: boolean | Prisma.LibraryContentChunk$artifactArgs<ExtArgs>
   entityMentions?: boolean | Prisma.LibraryContentChunk$entityMentionsArgs<ExtArgs>
+  embeddings?: boolean | Prisma.LibraryContentChunk$embeddingsArgs<ExtArgs>
   _count?: boolean | Prisma.LibraryContentChunkCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LibraryContentChunkIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1093,6 +1220,7 @@ export type $LibraryContentChunkPayload<ExtArgs extends runtime.Types.Extensions
     version: Prisma.$LibraryDocumentVersionPayload<ExtArgs>
     artifact: Prisma.$LibraryArtifactPayload<ExtArgs> | null
     entityMentions: Prisma.$LibraryEntityMentionPayload<ExtArgs>[]
+    embeddings: Prisma.$LibraryContentEmbeddingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1504,6 +1632,7 @@ export interface Prisma__LibraryContentChunkClient<T, Null = never, ExtArgs exte
   version<T extends Prisma.LibraryDocumentVersionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersionDefaultArgs<ExtArgs>>): Prisma.Prisma__LibraryDocumentVersionClient<runtime.Types.Result.GetResult<Prisma.$LibraryDocumentVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   artifact<T extends Prisma.LibraryContentChunk$artifactArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryContentChunk$artifactArgs<ExtArgs>>): Prisma.Prisma__LibraryArtifactClient<runtime.Types.Result.GetResult<Prisma.$LibraryArtifactPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   entityMentions<T extends Prisma.LibraryContentChunk$entityMentionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryContentChunk$entityMentionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryEntityMentionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  embeddings<T extends Prisma.LibraryContentChunk$embeddingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryContentChunk$embeddingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryContentEmbeddingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1986,6 +2115,30 @@ export type LibraryContentChunk$entityMentionsArgs<ExtArgs extends runtime.Types
   take?: number
   skip?: number
   distinct?: Prisma.LibraryEntityMentionScalarFieldEnum | Prisma.LibraryEntityMentionScalarFieldEnum[]
+}
+
+/**
+ * LibraryContentChunk.embeddings
+ */
+export type LibraryContentChunk$embeddingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryContentEmbedding
+   */
+  select?: Prisma.LibraryContentEmbeddingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryContentEmbedding
+   */
+  omit?: Prisma.LibraryContentEmbeddingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryContentEmbeddingInclude<ExtArgs> | null
+  where?: Prisma.LibraryContentEmbeddingWhereInput
+  orderBy?: Prisma.LibraryContentEmbeddingOrderByWithRelationInput | Prisma.LibraryContentEmbeddingOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryContentEmbeddingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryContentEmbeddingScalarFieldEnum | Prisma.LibraryContentEmbeddingScalarFieldEnum[]
 }
 
 /**

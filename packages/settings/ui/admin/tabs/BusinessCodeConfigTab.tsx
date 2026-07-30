@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from "react";
 import {
   createEmptySection,
   createFieldsSection,
-  createMasterDetailBody,
   createPageBody,
   createStatusSection,
   useFeedback,
@@ -29,6 +28,10 @@ import {
   defaultBusinessCodeTemplateSettings,
 } from "@workspace/platform/business-code-template";
 import { putJson, requestJson } from "@workspace/platform/ui/api-client";
+import {
+  createCategoryDirectItemSection,
+  createCategoryItemDetailBody,
+} from "@workspace/platform/ui";
 import {
   businessCodeTemplateDraftError,
   businessCodeTemplateEditorItems,
@@ -225,6 +228,13 @@ export function useBusinessCodeConfigTab({
   };
 
   const detailSections: BodySurfaceSectionSpec[] = [];
+  let directItemsSection = createCategoryDirectItemSection({
+    key: "business-code-template-applications",
+    title: "关联编码对象",
+    ariaLabel: "关联编码对象",
+    options: [],
+    emptyText: selectedTemplate ? "当前正在新增模板" : "先从左侧选择模板",
+  });
 
   if (createOpen) {
     // The block editor owns the detail pane while creating; do not stack the selected template below it.
@@ -249,14 +259,14 @@ export function useBusinessCodeConfigTab({
         showToast(error instanceof Error ? error.message : "更新模板失败", "error");
       }
     };
-    detailSections.push(createBusinessCodeTemplateApplicationsSection({
+    directItemsSection = createBusinessCodeTemplateApplicationsSection({
       config: draft,
       templateKey: selectedTemplate.key,
       editor: applicationEditor,
       saving,
       onEditorChange: setApplicationEditor,
       onSubmit: saveTemplateAssignment,
-    }));
+    });
     detailSections.push(createFieldsSection(
       "business-code-template-detail",
       businessCodeTemplateEditorItems({
@@ -342,13 +352,13 @@ export function useBusinessCodeConfigTab({
   return {
     toolbarItems,
     create: createTemplateSurface,
-    body: createMasterDetailBody({
-      master: {
+    body: createCategoryItemDetailBody({
+      category: {
         label: "编码模板",
-        presentation: "compact",
-        body: { kind: "selector", selector },
+        selector,
       },
-      detail: createPageBody(detailSections),
+      directItems: directItemsSection,
+      detailSections,
       desktop: { ratio: [1, 2] },
       mobile: {
         detailActive: templateDetailOpen,

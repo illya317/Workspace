@@ -5,17 +5,12 @@ import type {
   RelationLifecyclePolicies,
   RelationPolicyPreset,
 } from "./relation-registry";
-import type { BusinessRequiredPolicy } from "../relation-registration-contract";
+import {
+  RELATION_POLICY_PRESETS,
+  type BusinessRequiredPolicy,
+} from "../relation-registration-contract";
 
-export const RELATION_POLICY_PRESETS = [
-  "block",
-  "confirm_unlink",
-  "confirm_cascade",
-  "confirm_unlink_or_cascade",
-  "auto_cascade_owned",
-  "retain",
-  "exempt_with_reason",
-] as const satisfies readonly RelationPolicyPreset[];
+export { RELATION_POLICY_PRESETS } from "../relation-registration-contract";
 
 export const RELATION_POLICY_LIFECYCLE_KEYS = [
   "targetDelete",

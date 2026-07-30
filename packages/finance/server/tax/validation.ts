@@ -116,9 +116,6 @@ export async function validateTaxRegistration(
   }
   const taxType = await dependencies.findTaxType(input.taxTypeId);
   if (!taxType?.isActive) return failCommand("税种不存在或未启用", 400, "taxTypeId");
-  if (input.authorityPartyId && !(await dependencies.partyExists(input.authorityPartyId))) {
-    return failCommand("税务机关主体不存在", 400, "authorityPartyId");
-  }
   if (!isIsoDate(input.effectiveFrom)) return failCommand("生效日期必须为有效的 YYYY-MM-DD 日期", 400, "effectiveFrom");
   if (input.effectiveThrough && !isIsoDate(input.effectiveThrough)) {
     return failCommand("失效日期必须为有效的 YYYY-MM-DD 日期", 400, "effectiveThrough");

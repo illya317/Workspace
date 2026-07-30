@@ -63,7 +63,7 @@ export async function loadFinanceGeneralWorkspaceAnalysisSourcePage(input: {
   if (sourceKey.startsWith("finance.analysis.fund-flow.")) {
     const result = await getFundFlowAnalysis(analysisScope(parameters, sourceKey));
     if (sourceKey === "finance.analysis.fund-flow.summary-facts") {
-      const { companyCodes: _companyCodes, availableYears: _availableYears, ...scope } = result.scope;
+      const { companyCodes: _companyCodes, availableYears: _availableYears, availableMonths: _availableMonths, ...scope } = result.scope;
       return boundedInMemoryPage(sourceKey, analysisScalarFacts({ scope, metrics: result.metrics, evidence: result.evidence }), page, pageSize);
     }
     if (sourceKey === "finance.analysis.fund-flow.scope-values") {

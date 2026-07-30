@@ -42,6 +42,7 @@ function splitPageToolbarItems(body: BodySurfaceProps | undefined, runtime: Body
       key: "desktop-side-toggle",
       icon: runtime.open ? "panel-close" : "panel-open",
       label: `${runtime.open ? "隐藏" : "显示"}${split.master.label}`,
+      disabled: runtime.disabled,
       onClick: () => runtime.onOpenChange(!runtime.open),
       variant: runtime.open ? "primary" : "secondary",
       visibility: "desktop",
@@ -62,6 +63,10 @@ export function bodySurfaceHasLoginForm(body?: BodySurfaceProps) {
 
 export function bodySurfaceHasSplit(body?: BodySurfaceProps) {
   return visitBodySurface(body, (node) => node.kind === "section" && node.layout === "split");
+}
+
+export function bodySurfacePageCreatePlacement(body?: BodySurfaceProps): "page" | "split-detail" {
+  return bodySurfaceHasSplit(body) ? "split-detail" : "page";
 }
 
 export function bodySurfaceHasDirectoryContent(body?: BodySurfaceProps) {

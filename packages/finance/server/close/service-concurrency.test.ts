@@ -2,13 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { FinanceCloseWorkspaceDto } from "../../types/close";
 import { sha256CanonicalJson } from "./canonical-json";
+import { FINANCE_CLOSE_TASK_CATALOG } from "./catalog";
 import { buildFinanceCloseProviderRegistry } from "./providers";
 import {
+  completeFinanceClose,
   openFinanceClose,
   refreshFinanceClose,
   type FinanceCloseServiceDependencies,
 } from "./service";
-import type { OpenFinanceCloseCommand, RefreshFinanceCloseCommand } from "./validation";
+import type { CompleteFinanceCloseCommand, OpenFinanceCloseCommand, RefreshFinanceCloseCommand } from "./validation";
 
 const workspace = { marker: "committed workspace" } as unknown as FinanceCloseWorkspaceDto;
 const scope = {
@@ -32,6 +34,14 @@ const refreshCommand: RefreshFinanceCloseCommand = {
   }),
   idempotentRunId: null,
 };
+const completeCommand: CompleteFinanceCloseCommand = {
+  ...scope, runId: 41, expectedVersion: 1, actorUserId: 7,
+  idempotencyKey: "complete-race-1",
+  requestFingerprint: sha256CanonicalJson({
+    kind: "finance_close_complete", runId: 41, expectedVersion: 1, actorUserId: 7,
+  }),
+  idempotentRunId: null,
+};
 const emptyRegistry = buildFinanceCloseProviderRegistry({});
 
 type ReplayEvent = Awaited<ReturnType<FinanceCloseServiceDependencies["findEvent"]>>;
@@ -45,7 +55,7 @@ function uniqueRaceDependencies(event: ReplayEvent): FinanceCloseServiceDependen
 }
 
 function event(
-  eventKind: "opened" | "refreshed",
+  eventKind: "opened" | "refreshed" | "completed",
   requestFingerprint: string,
   runId: number,
   overrides: Partial<{ companyId: number; periodId: number }> = {},
@@ -98,4 +108,58 @@ test("non-unique close persistence errors are not converted into idempotency con
 
   await assert.rejects(openFinanceClose(openCommand, deps), /database unavailable/u);
   assert.equal(eventReads, 0);
+});
+
+test("completion atomically claims the run, closes the period and appends an event", async () => {
+  const calls: string[] = [];
+  const tx = {
+    financeCloseEvent: {
+      findUnique: async () => null,
+      create: async () => { calls.push("event"); return {}; },
+    },
+    financeCloseTask: {
+      findMany: async () => FINANCE_CLOSE_TASK_CATALOG.map((task) => ({ taskKey: task.taskKey, status: "ready" })),
+    },
+    financeCloseRun: {
+      updateMany: async () => { calls.push("run"); return { count: 1 }; },
+    },
+    financePeriod: {
+      updateMany: async () => { calls.push("period"); return { count: 1 }; },
+    },
+  };
+  const deps = {
+    transaction: async (operation: (client: typeof tx) => Promise<unknown>) => operation(tx),
+    findEvent: async () => null,
+    loadWorkspace: async () => workspace,
+  } as unknown as FinanceCloseServiceDependencies;
+
+  const result = await completeFinanceClose(completeCommand, deps);
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(calls, ["run", "period", "event"]);
+});
+
+test("completion fails closed when any catalog task is not ready", async () => {
+  let claimed = false;
+  const tx = {
+    financeCloseEvent: { findUnique: async () => null },
+    financeCloseTask: {
+      findMany: async () => FINANCE_CLOSE_TASK_CATALOG.map((task, index) => ({
+        taskKey: task.taskKey,
+        status: index === 0 ? "blocked" : "ready",
+      })),
+    },
+    financeCloseRun: { updateMany: async () => { claimed = true; return { count: 1 }; } },
+    financePeriod: { updateMany: async () => ({ count: 1 }) },
+  };
+  const deps = {
+    transaction: async (operation: (client: typeof tx) => Promise<unknown>) => operation(tx),
+    findEvent: async () => null,
+    loadWorkspace: async () => workspace,
+  } as unknown as FinanceCloseServiceDependencies;
+
+  const result = await completeFinanceClose(completeCommand, deps);
+
+  assert.equal(result.ok, false);
+  assert.equal(claimed, false);
 });

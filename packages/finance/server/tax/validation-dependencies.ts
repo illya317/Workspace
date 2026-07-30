@@ -40,7 +40,6 @@ export interface TaxValidationDependencies {
   findCompanyByCode(code: string): Promise<{ id: number; code: string; isActive: boolean } | null>;
   findPeriod(id: number): Promise<{ id: number; companyCode: string; year: number; month: number; isClosed: boolean } | null>;
   findTaxType(id: number): Promise<{ id: number; isActive: boolean } | null>;
-  partyExists(id: number): Promise<boolean>;
   findRegistration(id: number): Promise<TaxRegistrationFact | null>;
   findWorkpaper(id: number): Promise<TaxOwnedFact | null>;
   findFiling(id: number): Promise<TaxOwnedFact | null>;

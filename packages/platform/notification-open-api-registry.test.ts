@@ -2,11 +2,21 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { registeredModuleDefinitions } from "./module-registry";
-import { findOpenApiEndpoint, getOpenApiScope } from "./open-api-registry";
+import { findOpenApiEndpoint, getOpenApiRegistrations, getOpenApiScope } from "./open-api-registry";
 import { resolvePermissionApiActionPolicy } from "./permission-api-action-policy";
 import { getPermissionResourceActionPolicy } from "./permission-resource-policy";
 
 test("notification publishing registries keep ingress permissions explicit", () => {
+  const notificationRegistration = getOpenApiRegistrations()
+    .find((registration) => registration.key === "workspace.notifications");
+  assert.equal(notificationRegistration?.consoleHref, "/settings/api");
+  assert.equal(notificationRegistration?.consoleTab, "notifications");
+  assert.equal(
+    registeredModuleDefinitions
+      .flatMap((definition) => "routes" in definition ? definition.routes ?? [] : [])
+      .some((route) => typeof route === "string" && route.startsWith("/settings/api/")),
+    false,
+  );
   assert.equal(
     getOpenApiScope("workspace.notifications.definitions.read")?.scope.key,
     "workspace.notifications.definitions.read",

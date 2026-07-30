@@ -9,12 +9,14 @@ import {
   bodySurfaceHasDirectoryContent,
   bodySurfaceHasLoginForm,
   bodySurfaceHasSplit,
+  bodySurfacePageCreatePlacement,
   bodySurfacePageToolbarItems,
   renderBodySurfaceDirectory,
   renderBodySurfaceLoginForm,
 } from "./internal/body/BodySurfacePageIntegration";
 import { DatabasePageFrame } from "./internal/page/PageFrames";
 import { BodySurfaceSplitProvider } from "./internal/body/BodySurfaceSplitContext";
+import { BodySurfacePageCreateProvider } from "./internal/body/BodySurfacePageCreateContext";
 import NavigationSurface from "./NavigationSurface";
 import Pagination from "./internal/common/Pagination";
 import { Toolbar } from "./Toolbar";
@@ -203,10 +205,12 @@ function renderLoginBody(props: PageSurfaceProps) {
 
 export default function PageSurface(props: PageSurfaceProps) {
   const [splitOpen, setSplitOpen] = useState(true);
-  const hasSplit = bodySurfaceHasSplit(props.body);
+  const pageCreatePlacement = bodySurfacePageCreatePlacement(props.body);
+  const hasSplit = pageCreatePlacement === "split-detail";
+  const splitCreateOpen = hasSplit && Boolean(props.create?.open);
   const splitRuntime = useMemo(
-    () => hasSplit ? { open: splitOpen, onOpenChange: setSplitOpen } : null,
-    [hasSplit, splitOpen],
+    () => hasSplit ? { open: splitCreateOpen || splitOpen, disabled: splitCreateOpen, onOpenChange: setSplitOpen } : null,
+    [hasSplit, splitCreateOpen, splitOpen],
   );
   const { enabled: pageAssistantEnabled, setCurrentContext: setPageAssistantCurrentContext } = usePageAssistant();
   const pageAssistantDefault = defaultAssistantForPage(props);
@@ -255,15 +259,17 @@ export default function PageSurface(props: PageSurfaceProps) {
   }
 
   return (
-    <BodySurfaceSplitProvider runtime={splitRuntime}>
-      <DatabasePageFrame
-        navigation={renderTabBar(props.tabbar)}
-        toolbar={renderPageToolbar(props, splitRuntime)}
-        afterToolbar={renderPageCreate(props.create)}
-        footer={renderFooter(props.footer)}
-      >
-        {props.body ? <BodySurface {...props.body} /> : null}
-      </DatabasePageFrame>
-    </BodySurfaceSplitProvider>
+    <BodySurfacePageCreateProvider create={hasSplit ? props.create : undefined}>
+      <BodySurfaceSplitProvider runtime={splitRuntime}>
+        <DatabasePageFrame
+          navigation={renderTabBar(props.tabbar)}
+          toolbar={renderPageToolbar(props, splitRuntime)}
+          afterToolbar={pageCreatePlacement === "page" ? renderPageCreate(props.create) : null}
+          footer={renderFooter(props.footer)}
+        >
+          {props.body ? <BodySurface {...props.body} /> : null}
+        </DatabasePageFrame>
+      </BodySurfaceSplitProvider>
+    </BodySurfacePageCreateProvider>
   );
 }
