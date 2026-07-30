@@ -53,10 +53,16 @@ model WorkResponsibilityReference {
   updatedAt                            DateTime                    @default(now()) @updatedAt
   workItem                             WorkItem                    @relation(fields: [workItemId], references: [id], onDelete: Cascade)
   responsibilityNode                   PositionResponsibilityNode? @relation(fields: [responsibilityNodeId], references: [id], onDelete: SetNull)
+  lockedEmployee                       Employee                    @relation("WorkResponsibilityLockedEmployee", fields: [lockedEmployeeId], references: [id], onDelete: Restrict)
+  lockedPosition                       Position?                   @relation("WorkResponsibilityLockedPosition", fields: [lockedPositionId], references: [id], onDelete: Restrict)
+  lockedEmployeePosition               EDP?                        @relation("WorkResponsibilityLockedEmployeePosition", fields: [lockedEmployeePositionId], references: [id], onDelete: Restrict)
+  positionDescription                  PositionDescription         @relation("WorkResponsibilityPositionDescription", fields: [positionDescriptionId], references: [id], onDelete: Restrict)
 
   @@index([targetKind, referenceRole])
   @@index([workItemId, referenceRole])
   @@index([lockedEmployeeId])
+  @@index([lockedPositionId])
+  @@index([lockedEmployeePositionId])
   @@index([positionDescriptionId])
   @@index([responsibilityNodeId])
 }

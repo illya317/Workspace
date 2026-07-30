@@ -4,6 +4,7 @@
 
 ## 总原则
 
+- 给人的 UI 是模块 interface，必须遵守 `docs/engineering/deep-module-design.md`。后端字段、完整生命周期、状态转换、内部 action 和权限矩阵不得机械展开成前端选项；页面只呈现当前上下文中合法且确实需要人决定的业务意图。
 - Core 负责通用交互契约：下拉、筛选、搜索、日期、确认弹窗、表格、字段展示、tag 输入。
 - Platform 负责登录后平台壳：导航、模块首页、Portal、用户菜单、审计日志、资源注册聚合。
 - Apps 只写业务语义：HR、Finance、Production、Work、Administration、Library 只负责把业务字段、选项、校验、DTO 接到 Core/Platform 组件上。
@@ -26,14 +27,14 @@
 | 表单正文 | `BodySurface kind="form"` 或局部 `InputSurface` | fields、filters、modal、inline、detail、login 表单正文，由 fields spec / InputSurface spec 驱动；根表单通过 `header/actions` 固定承载自身标题与生命周期动作 | 业务页直接 import internal form renderer、重复手写字段网格、筛选条和弹窗表单结构，把页面级 toolbar 放进 FormSurface，或把表单保存/取消放在父 Section |
 | 新建正文 | `BodySurface kind="create"` / `CreateSurface` | Agent 分别选择 `trigger: toolbar/surface`、`presentation: inline/block/modal`、可选 block anchor 和 typed form/sections；section header 的局部 block create 由 Core 自动紧贴 header、置于 body 前，表格场景即位于列头上方；直接追加可编辑行时使用 section header 的 `presentation: row` 变种 | 业务直接 import 内部 create renderer，传 className/宽度/按钮顺序，自行拼新建动作区，或为 section header create 手工放 anchor/加号 |
 | 数据正文 | `BodySurface kind="data"` | table、structured、records、metrics 数据正文，由 row/column/display spec 驱动 | 业务页直接 import internal data renderer、直接拼表格外壳、记录卡、指标卡和 raw 展示组合，或把页面级 toolbar/pagination 放进 DataSurface |
-| 可视化正文 | `BodySurface kind="visualization"` | chart、gantt、timeline、tree 等可视化和复杂图形正文；关系图通过 `VisualizationSurface kind="network"` 声明节点、边、分组和语义化布局：`converging` 用于上游汇流后继续向下展开，`hierarchy` 用于从焦点直接展开；宽层级可声明 `nodeAspect="adaptive"` 由 Core 选择合适的节点纵横形态 | 把图表塞进 `DataSurface.kind="visual"`，用 `FormSurface.note` / `moduleView` 承载甘特图，或在业务包手写节点坐标、宽高、折线、母线和画布尺寸 |
+| 可视化正文 | `BodySurface kind="visualization"` | chart、gantt、timeline、tree 等可视化和复杂图形正文；关系图通过 `VisualizationSurface kind="network"` 声明节点、边、分组和语义化布局：`converging` 用于上游汇流后继续向下展开，`hierarchy` 用于从焦点直接展开，`presentation="map"` 用于大规模拓扑探索，并由 Core 统一处理社区发现、圆形装箱、外围圆环、碰撞、方向悬停、局部返回和最小缩放；宽层级可声明 `nodeAspect="adaptive"` 由 Core 选择合适的节点纵横形态 | 把图表塞进 `DataSurface.kind="visual"`，用 `FormSurface.note` / `moduleView` 承载甘特图，或在业务包手写节点坐标、宽高、斥力、社区、圆环、状态颜色、折线、母线和画布尺寸 |
 | 通用正文编排 | `BodySurface kind="section"` | section tree、grid/split/disclosure、局部 commands/empty/modals、通用正文容器；长表单/长详情用 `mobilePresentation: "drilldown"` 形成移动端章节目录；同一业务状态确需不同信息架构时可用 section `visibility: mobile/desktop`，但共享数据与动作协议；主从分栏统一用 `createMasterDetailBody`，桌面折叠状态和按钮由 PageSurface 持有，移动端自动从主列表全屏推进到详情；模块槽位预览可用 `moduleGrid.columns: 3 / 4 / 5` 固定结构列数；同层 disclosure 共用 active key 可组合互斥折叠组 | 用正文 tabs 形成第二套 tabbar、在业务层手写 `<details>`/折叠按钮、重复声明 split/drawer 状态、用旧 page block 展开业务协议，或用 `moduleView` 包普通容器 |
 | 移动端产品边界 | `MobileExperienceBoundary`、L2 `mobileExperience` | 页面级 native / landscape / unavailable；DataSurface 普通表格连续列表、矩阵横屏；具体策略和 31 个 L2 审计见 `mobile-experience.md` | 在业务页用宽度判断复制 UI 状态，或把桌面矩阵硬拆成卡片 |
 | 导航细节 | `PageSurface.tabbar` / `PageSurface.footer.pagination` / `createMasterDetailBody().master.footer.pagination` / `BodySurfaceModalSpec.pagination` / `SelectorSurface` | 页面 tabs、全宽页面分页、split 主列表分页、弹窗分页和输入型实体 selector；底层 `NavigationSurface` 只由 Core 调度；L1/L2 模块入口由 route/module 层或模块入口卡片承载 | 业务页新增二级导航组件、直接 import `NavigationSurface` / `TabBar` / `Pagination`，把同级 L2 模块塞进 `TabBar`，或临时拼流程链接 |
 | 页面反馈 | `@workspace/core/ui` 的 `useFeedback` | 保存成功、失败、校验提示、删除/覆盖确认、未保存离开提示 | 页面直接用 `Toast`、`ConfirmModal`、`useToast`、`useConfirm`、`useConfirmDelete`、`useUnsavedChangesPrompt` |
 | 字段/选择/日期能力 | `InputSurface` 或 `BodySurface` form section 的 field/filter spec | 状态、阶段、固定枚举、FK、日期、tag、只读字段等；日期上下限通过 `validation.minDate/maxDate` 声明；普通选项自动 autocomplete，分组选项自动二段式 autocomplete | 业务直接 import `SearchableOptionInput`、`SearchInput`、`FkFieldInput`、`CalendarDateInput` 等 internal renderer |
 | 工具栏/动作能力 | `PageSurface.toolbar` / `CreateSurface` / 正文 Surface action spec | 页面级搜索、筛选、列显隐、新建入口、批量与数据动作进入 Toolbar；局部标准新建走 CreateSurface；普通表单的保存/提交/取消/归档/批准/拒绝进入根 `FormSurface.actions` | 业务直接 import `Toolbar` / `ActionButton`、自绘 SVG、自排按钮顺序，让页面新建入口拼接表单动作，或一页出现多个 toolbar |
-| 表格/记录/指标能力 | `BodySurface` data/metrics/record spec | 标准列表、批量表格、记录卡、指标卡；普通短字段清单随页面自然展开，矩阵、不可压缩列或固定视窗长表才显式声明滚动；Core 统一约束文字和动作组不得越出单元格 | 业务直接 import `DataSurface`、`DataTable`、`StructuredTable`、`MetricCard`、`NumberCell`、`AmountCell`，手搓表格 DOM，或给普通清单默认套横向/纵向内滚动 |
+| 表格/记录/指标能力 | `BodySurface` data/metrics/record spec | 标准列表、批量表格、记录卡、指标卡；普通表格由 Core 按内容与剩余空间自适应列宽并随页面自然展开，矩阵、不可压缩列或固定视窗长表才显式声明滚动；Core 统一约束文字和动作组不得越出单元格 | 业务直接 import `DataSurface`、`DataTable`、`StructuredTable`、`MetricCard`、`NumberCell`、`AmountCell`，手搓表格 DOM，或给普通清单默认套横向/纵向内滚动 |
 | 导航/选择区能力 | `PageSurface.tabbar` / `PageSurface.footer.pagination` / `createMasterDetailBody().master.footer.pagination` / `BodySurfaceModalSpec.pagination` / `SelectorSurface` | 页面 Tab、全宽/主列表/弹窗分页，以及实体 list/tree selector；AppShell header 上下文切换由 Platform 声明 | 业务直接 import `NavigationSurface`、`TabBar`、`Pagination`、`PanelCard + SelectorCard`，或手搓流程 nav |
 | 页面内容/分栏能力 | `createMasterDetailBody` 与 `BodySurface` section/disclosure spec | 页面内容留白、卡片、章节、空态、折叠面板、主列表 + 详情分栏；实体选择主栏声明 `master.presentation: "compact"`，桌面把完整选择卡投影为身份、状态和一个辅助事实，未声明比例时使用稳定侧栏，主列表翻页可声明为 `master.footer.pagination`，移动端仍显示完整字段；折叠和移动端推进由 Core 统一管理 | 业务直接 import `PageShell`、`PageContent`、`PanelCard`、`SectionCard`、`WorkspaceSplitPage`，或在业务层手写分栏、卡片字段裁剪、drawer、折叠状态和按钮 |
 | 纸面/报告能力 | `BodySurface kind="document"` / Core `DocumentSurface` | A4 文档、检验记录纸面、报告预览、多页纸面容器 | 用 `moduleView` 或普通卡片承载纸面文档、重复手写纸面宿主宽度和字体 |
@@ -45,6 +46,7 @@
 
 - Toolbar 的动作按钮必须来自 `ActionGlyph` 封闭集合。`ActionButton` 是纯图标按钮，只接 `kind + label`，不接 children；业务不再新增文字型 toolbar `button` item。
 - 非 Toolbar 的 icon-only cell/action 也必须复用 `ActionGlyph`，新增 SVG 先注册到 `ACTION_GLYPH_KINDS` 等元数据，不在业务/平台文件里手写 `<svg>`。
+- 可排序重复项统一使用 `move-up` / `move-down` SVG 动作；不得退回“上移 / 下移”大号文字按钮，也不得在业务层手画箭头。
 - 新增动作 icon 时必须同时维护四处元数据：`ACTION_GLYPH_KINDS`、`ACTION_GLYPH_GROUPS`、`ACTION_GLYPH_TOOLBAR_GROUPS`、`ACTION_GLYPH_ORDER`。`ACTION_GLYPH_ORDER` 的字段固定为 `icon / group / subgroup / order`，order 使用大间距预留插入空间。
 - Toolbar action spec 选择受控动作语义或 icon；根 `FormSurfaceActionSpec` 只声明 `key / action / label / disabled / onClick`，不允许声明 icon、variant、size、位置和排序。两者都不 runtime import `Toolbar` / `ActionButton`，也不手排顺序和分组；Core 按 `ACTION_GLYPH_ORDER.order` 自动排序。
 - 非默认动作默认从 `edit` 区开始，和编辑动作混排。`view/search/filter/meta` 只承载视图切换、搜索、筛选、字段、列显隐和计数等默认控件。

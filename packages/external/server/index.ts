@@ -12,10 +12,22 @@ export {
 export {
   ExternalPartyCreateSchema,
   ExternalPartyQuerySchema,
+  ExternalRelatedPartyCreateSchema,
+  ExternalRelatedPartyQuerySchema,
   ExternalPartyRoleAvailabilityCommandSchema,
   ExternalPartyRoleEndSchema,
   ExternalPartyUpdateSchema,
 } from "./schemas";
+export {
+  commitCreateExternalRelatedPartyCommand,
+  commitDeleteExternalRelatedPartyCommand,
+  listExternalRelatedParties,
+  listExternalRelatedPartyCandidates,
+} from "./related-parties";
+export {
+  executeCreateExternalRelatedPartyCommand,
+  executeDeleteExternalRelatedPartyCommand,
+} from "./related-party-commands";
 export {
   appendExternalPartyRoleAvailabilityInTransaction,
   commitExternalPartyRoleAvailabilityCommand,
@@ -31,6 +43,7 @@ export {
   recordPartyLegalFactInTransaction,
 } from "./legal-fact-service";
 export type { PartyLegalFactSource, RecordPartyLegalFactInput } from "./legal-fact-service";
+export { externalDirectCommandId, externalDirectRoleEndInput } from "./direct-command-meta";
 export * from "./workspace-analysis-sources";
 export * from "./workspace-analysis-source-access";
 export * from "./workspace-analysis-source-executor";

@@ -1,4 +1,10 @@
 import * as XLSX from "xlsx";
+import {
+  formulaFromVisibleCalculation,
+  formulaAwareSheet,
+  workbookFormula,
+  type FinanceWorkbookCell,
+} from "../workbook-formula-contract";
 
 import type {
   ConsolidatedOutputEntityAmount,
@@ -6,6 +12,7 @@ import type {
   ConsolidatedReportOutputPackage,
   ConsolidatedStatementOutput,
 } from "@workspace/finance/types";
+import { statementLineFormula } from "./statement-workbook-formulas";
 
 const SHEET_ORDER = ["balanceSheet", "incomeStatement", "cashFlow"] as const;
 const SHEET_NAMES = ["资产负债表底稿", "利润表底稿", "现金流量表底稿"] as const;
@@ -44,6 +51,27 @@ function combinedEntityAmounts(lines: readonly ConsolidatedOutputLine[]) {
 }
 
 function workpaperLines(statement: ConsolidatedStatementOutput) {
+  if (statement.reportType === "incomeStatement") {
+    const netProfit = statement.lines.find((line) => line.lineCode === "netProfit");
+    const parent = statement.lines.find((line) => line.lineCode === "netProfitAttributableToParent");
+    const nci = statement.lines.find((line) => line.lineCode === "netProfitAttributableToNci");
+    if (netProfit?.entityAmounts && parent && nci) {
+      return statement.lines.map((line) => {
+        if (line === parent) return { ...line, entityAmounts: netProfit.entityAmounts?.map((entity) => ({ ...entity })) };
+        if (line === nci) return {
+          ...line,
+          entityAmounts: netProfit.entityAmounts?.map((entity) => ({
+            ...entity,
+            amount: 0,
+            previousAmount: 0,
+            ...(entity.currentMonthAmount === undefined ? {} : { currentMonthAmount: 0 }),
+          })),
+        };
+        return line;
+      });
+    }
+    return statement.lines;
+  }
   if (statement.reportType !== "balanceSheet" || statement.lines.some((line) => line.lineCode === "totalLiabilitiesAndEquity")) {
     return statement.lines;
   }
@@ -87,7 +115,19 @@ function buildSheet(
   entityColumns: ConsolidatedOutputEntityAmount[],
 ) {
   const columnCount = entityColumns.length + 5;
-  const rows: Array<Array<string | number>> = [
+  const lines = workpaperLines(statement);
+  const rowByCode = new Map(lines.map((line, index) => [line.lineCode, index + 4]));
+  const sourceColumn = XLSX.utils.encode_col(entityColumns.length + 1);
+  const debitColumn = XLSX.utils.encode_col(entityColumns.length + 2);
+  const creditColumn = XLSX.utils.encode_col(entityColumns.length + 3);
+  const entityValuesByCode = new Map(entityColumns.map((entity) => [
+    entity.entitySnapshotId,
+    new Map(lines.map((line) => [
+      line.lineCode,
+      line.entityAmounts?.find((amount) => amount.entitySnapshotId === entity.entitySnapshotId)?.amount ?? 0,
+    ])),
+  ]));
+  const rows: FinanceWorkbookCell[][] = [
     [`合并${statement.label}工作底稿`, ...Array.from({ length: columnCount - 1 }, () => "")],
     [
       `编制单位：${report.batch.parentCompanyName}`,
@@ -103,21 +143,68 @@ function buildSheet(
       "抵销贷方",
       "合并数",
     ],
-    ...workpaperLines(statement).map((line) => {
+    ...lines.map((line, index) => {
+      const excelRow = index + 4;
       const adjustment = adjustmentAmounts(line);
+      const entityAmounts = entityColumns.map((entity, entityIndex) => {
+        const valuesByCode = entityValuesByCode.get(entity.entitySnapshotId)!;
+        const amount = line.entityAmounts?.find((candidate) => (
+          candidate.entitySnapshotId === entity.entitySnapshotId
+        ))?.amount ?? 0;
+        const formula = statementLineFormula({
+          reportType: statement.reportType,
+          line,
+          lines,
+          rowByCode,
+          valueByCode: valuesByCode,
+          cachedValue: amount,
+          column: XLSX.utils.encode_col(entityIndex + 1),
+          consolidated: true,
+        });
+        return formula ? workbookFormula(formula, amount) : amount;
+      });
+      const visibleEntityTotal = money(entityAmounts.reduce<number>((sum, amount) => (
+        sum + (typeof amount === "number" ? amount : amount.cachedValue)
+      ), 0));
+      const sourceAmount = !line.isHeader
+        && entityColumns.length > 0
+        ? workbookFormula(
+          formulaFromVisibleCalculation(
+            `SUM(B${excelRow}:${XLSX.utils.encode_col(entityColumns.length)}${excelRow})`,
+            visibleEntityTotal,
+            line.sourceAmount,
+            `${statement.label}“${line.label}”个别报表合计`,
+          ),
+          line.sourceAmount,
+        )
+        : line.sourceAmount;
+      const visibleCombinedAmount = money(line.side === "credit"
+        ? line.sourceAmount - adjustment.debit + adjustment.credit
+        : line.sourceAmount + adjustment.debit - adjustment.credit);
+      const combinedExpression = line.side === "credit"
+        ? `${sourceColumn}${excelRow}-${debitColumn}${excelRow}+${creditColumn}${excelRow}`
+        : `${sourceColumn}${excelRow}+${debitColumn}${excelRow}-${creditColumn}${excelRow}`;
       return [
         line.label,
-        ...entityColumns.map((entity) => (
-          line.entityAmounts?.find((amount) => amount.entitySnapshotId === entity.entitySnapshotId)?.amount ?? 0
-        )),
-        line.sourceAmount,
+        ...entityAmounts,
+        sourceAmount,
         adjustment.debit,
         adjustment.credit,
-        line.amount,
+        line.isHeader
+          ? line.amount
+          : workbookFormula(
+            formulaFromVisibleCalculation(
+              combinedExpression,
+              visibleCombinedAmount,
+              line.amount,
+              `${statement.label}“${line.label}”合并数`,
+            ),
+            line.amount,
+          ),
       ];
     }),
   ];
-  const worksheet = XLSX.utils.aoa_to_sheet(rows);
+  const worksheet = formulaAwareSheet(rows);
   worksheet["!merges"] = [XLSX.utils.decode_range(`A1:${XLSX.utils.encode_col(columnCount - 1)}1`)];
   worksheet["!cols"] = [
     { wch: 38 },

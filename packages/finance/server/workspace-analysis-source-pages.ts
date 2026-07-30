@@ -1,7 +1,6 @@
 import "server-only";
 
 import { WorkspaceAnalysisRuntimeError } from "@workspace/platform/server/workspace-analysis-runtime";
-
 import { listFinanceAssetWorkspace } from "./assets/service";
 import { getFundFlowAnalysis } from "./analysis/fund-flow-analysis";
 import { getManagementAnalysis } from "./analysis/management-analysis";
@@ -11,12 +10,13 @@ import { listBudgetVersions } from "./budget/budget-version";
 import { listFinanceAccounts } from "./ledger/accounts";
 import { listFinanceBalances } from "./ledger/balance-api";
 import { listCounterpartyBalances } from "./ledger/counterparty-balances";
+import { counterpartyPeriodScope } from "./ledger/counterparty-period";
 import { listFinanceGroupAccounts } from "./ledger/group-accounts";
 import { listFinanceGroupAccountMappedLocalAccounts } from "./ledger/group-accounts/mapped-local-accounts";
 import { listFinancePeriods } from "./ledger/periods";
 import { listReclassResults } from "./ledger/reclass-results/list";
 import { scanCandidates } from "./ledger/reclass-rules";
-import { listVouchers } from "./ledger/voucher-service";
+import { listVouchers, type StandardVoucherListRow } from "./ledger/voucher-service";
 import { computeReclassification } from "./schedules/reclassify";
 import { generateFinanceReport } from "./statements/report-generator";
 import { generateDirectStatementReport } from "./statements/reports/direct";
@@ -236,11 +236,14 @@ export async function loadFinanceGeneralWorkspaceAnalysisSourcePage(input: {
     }));
   }
   if (sourceKey === "finance.ledger.counterparty-balances") {
+    const periodScope = counterpartyPeriodScope(parameters);
+    if (!periodScope.ok) throw unavailable(sourceKey, periodScope.error);
     return asDataPage(await listCounterpartyBalances({
       companyCode: requiredText(parameters.companyCode, "companyCode", sourceKey),
-      year: requiredInteger(parameters.year, "year", sourceKey),
-      month: requiredInteger(parameters.month, "month", sourceKey),
+      ...periodScope.data,
       category: counterpartyCategory(parameters.category, sourceKey),
+      relationScope: counterpartyRelationScope(parameters.relationScope, sourceKey),
+      objectType: counterpartyObjectType(parameters.objectType, sourceKey),
       keyword: text(parameters.keyword),
       page,
       pageSize,
@@ -285,15 +288,14 @@ export async function loadFinanceGeneralWorkspaceAnalysisSourcePage(input: {
     });
     return inMemoryPage(result.rows, page, pageSize);
   }
-  if (sourceKey.startsWith("finance.ledger.asset-")) {
+  if (sourceKey.startsWith("finance.assets.")) {
     const companyCode = requiredText(parameters.companyCode, "companyCode", sourceKey);
     const year = requiredInteger(parameters.year, "year", sourceKey);
     const month = requiredInteger(parameters.month, "month", sourceKey);
     const result = await listFinanceAssetWorkspace({ companyCode, year, month });
-    if (sourceKey === "finance.ledger.asset-cards") return inMemoryPage(result.cards, page, pageSize);
-    if (sourceKey === "finance.ledger.asset-periods") return inMemoryPage(result.periodRows, page, pageSize);
-    if (sourceKey === "finance.ledger.asset-adjustments") return inMemoryPage(result.adjustments, page, pageSize);
-    if (sourceKey === "finance.ledger.asset-reconciliation") return inMemoryPage(result.reconciliation, page, pageSize);
+    if (sourceKey === "finance.assets.cards") return inMemoryPage(result.cards, page, pageSize);
+    if (sourceKey === "finance.assets.periods") return inMemoryPage(result.periodRows, page, pageSize);
+    if (sourceKey === "finance.assets.adjustments") return inMemoryPage(result.adjustments, page, pageSize);
     const metric: FinanceAssetMetricRow = {
       ...result.scope,
       ...result.metrics,
@@ -400,7 +402,7 @@ async function loadAllVouchers(
   sourceKey: string,
   parameters: Readonly<Record<string, string | number | boolean>>,
 ) {
-  return loadAllPages(sourceKey, (parentPage, parentPageSize) => listVouchers({
+  return loadAllPages<StandardVoucherListRow>(sourceKey, (parentPage, parentPageSize) => listVouchers({
     periodId: integer(parameters.periodId), companyCode: text(parameters.companyCode), year: integer(parameters.year), month: integer(parameters.month),
     status: text(parameters.status), keyword: text(parameters.keyword), page: parentPage, pageSize: parentPageSize,
   }).then((result) => ({ rows: result.data, total: result.total })));
@@ -519,6 +521,23 @@ function reclassStatus(value: string | number | boolean | undefined) {
 function counterpartyCategory(value: string | number | boolean | undefined, sourceKey: string) {
   if (value === "ar" || value === "ap" || value === "otherAr" || value === "otherAp") return value;
   throw unavailable(sourceKey, "category 必须是 ar、ap、otherAr 或 otherAp");
+}
+
+function counterpartyRelationScope(value: string | number | boolean | undefined, sourceKey: string) {
+  if (value === undefined || value === "all" || value === "related" || value === "other" || value === "unrelated" || value === "unmatched") return value ?? "all";
+  throw unavailable(sourceKey, "relationScope 必须是 all、related、other、unrelated 或 unmatched");
+}
+
+function counterpartyObjectType(value: string | number | boolean | undefined, sourceKey: string) {
+  if (value === undefined
+    || value === "all"
+    || value === "groupCompany"
+    || value === "customer"
+    || value === "supplier"
+    || value === "employee"
+    || value === "department"
+    || value === "other") return value ?? "all";
+  throw unavailable(sourceKey, "objectType 必须是 all、groupCompany、customer、supplier、employee、department 或 other");
 }
 
 function unavailable(sourceKey: string, message: string) {

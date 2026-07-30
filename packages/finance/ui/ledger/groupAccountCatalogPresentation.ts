@@ -99,10 +99,10 @@ export function groupAccountDetailFields(
       ),
       readOnlyDetail("movementType", "默认取数口径", movementTypeLabel(row.movementType)),
       readOnlyDetail(
-        "statutoryTranslationPolicy",
-        "法定折算口径",
+        "translationRateType",
+        "集团报表折算方法",
         translationRateTypeLabel(row.translationRateType),
-        "由报表项目性质自动确定，不可手工覆盖。",
+        "不用于单体账外币重估；单体账漏记的汇兑损益应作为主体调整并回写源账。",
       ),
     ] : []),
     readOnlyDetail("reviewStatus", "复核状态", groupReviewStatusLabel(row.reviewStatus)),
@@ -126,13 +126,7 @@ function movementTypeLabel(value: FinanceGroupAccountCatalogRow["movementType"])
 }
 
 function translationRateTypeLabel(value: FinanceGroupAccountCatalogRow["translationRateType"]) {
-  return ({
-    closing: "期末汇率",
-    average: "逐月月平均汇率",
-    historical: "发生日历史汇率",
-    retainedEarningsRollforward: "人民币滚动",
-    translationDifference: "折算差额计入其他综合收益",
-  } as const)[value];
+  return ({ closing: "期末日汇率", average: "期间平均汇率", historical: "原始确认日汇率", transactionDate: "每笔交易日汇率" } as const)[value];
 }
 
 export function groupAccountParentDescription(row: FinanceGroupAccountCatalogRow) {

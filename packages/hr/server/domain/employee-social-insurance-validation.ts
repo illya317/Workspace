@@ -20,7 +20,7 @@ export function buildEmployeeSocialInsuranceCommand(
 ): DomainValidationResult<EmployeeSocialInsuranceCommand> {
   if (!input || typeof input !== "object" || Array.isArray(input)) return failCommand("社会保险命令无效");
   const raw = input as Record<string, unknown>;
-  if (raw.kind !== "register" && raw.kind !== "transfer" && raw.kind !== "stop" && raw.kind !== "supplement-missing") {
+  if (raw.kind !== "register" && raw.kind !== "transfer" && raw.kind !== "stop" && raw.kind !== "supplement-missing" && raw.kind !== "correct-existing") {
     return failCommand("社会保险命令类型无效", 400, "kind");
   }
   const kind = raw.kind;
@@ -59,6 +59,13 @@ export function buildEmployeeSocialInsuranceCommand(
     if (!reason) return failCommand("请填写补充说明", 400, "reason");
     return okCommand({ kind, periodUid, expectedVersion, patch: patch.data, reason });
   }
+  if (kind === "correct-existing") {
+    const patch = correctionPatch(raw.patch);
+    if (!patch.ok) return patch;
+    const reason = typeof raw.reason === "string" ? raw.reason.trim() : "";
+    if (!reason) return failCommand("请填写修正说明", 400, "reason");
+    return okCommand({ kind, periodUid, expectedVersion, patch: patch.data, reason });
+  }
   if (kind === "transfer") {
     const companyId = positiveInteger(raw.companyId);
     if (!companyId) return failCommand("参保公司无效", 400, "companyId");
@@ -73,6 +80,44 @@ export function buildEmployeeSocialInsuranceCommand(
   const stopReason = SOCIAL_INSURANCE_STOP_REASONS.find((reason) => reason === raw.stopReason) ?? null;
   if (!stopReason) return failCommand("请选择停保原因", 400, "stopReason");
   return okCommand({ kind, periodUid, expectedVersion, endMonth, stopReason, note });
+}
+
+function correctionPatch(value: unknown): DomainValidationResult<Extract<EmployeeSocialInsuranceCommand, { kind: "correct-existing" }>["patch"]> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return failCommand("修正资料无效", 400, "patch");
+  const raw = value as Record<string, unknown>;
+  const allowed = new Set(["insuranceStatus", "companyId", "startMonth", "endMonth", "stopReason", "note"]);
+  const keys = Object.keys(raw);
+  if (keys.length === 0 || keys.some((key) => !allowed.has(key))) return failCommand("请填写至少一项修正", 400, "patch");
+  const patch: Record<string, unknown> = {};
+  if (Object.hasOwn(raw, "insuranceStatus")) {
+    const status = EMPLOYEE_SOCIAL_INSURANCE_STATUSES.find((item) => item === raw.insuranceStatus);
+    if (!status) return failCommand("社保状态无效", 400, "insuranceStatus");
+    patch.insuranceStatus = status;
+  }
+  if (Object.hasOwn(raw, "companyId")) {
+    if (raw.companyId == null || raw.companyId === "") patch.companyId = null;
+    else {
+      const companyId = positiveInteger(raw.companyId);
+      if (!companyId) return failCommand("参保公司无效", 400, "companyId");
+      patch.companyId = companyId;
+    }
+  }
+  for (const field of ["startMonth", "endMonth"] as const) {
+    if (!Object.hasOwn(raw, field)) continue;
+    if (raw[field] == null || raw[field] === "") patch[field] = null;
+    else if (typeof raw[field] === "string" && validMonth(raw[field])) patch[field] = raw[field];
+    else return failCommand(field === "startMonth" ? "参保月份无效" : "停保月份无效", 400, field);
+  }
+  if (Object.hasOwn(raw, "stopReason")) {
+    if (raw.stopReason == null || raw.stopReason === "") patch.stopReason = null;
+    else {
+      const reason = SOCIAL_INSURANCE_STOP_REASONS.find((item) => item === raw.stopReason);
+      if (!reason) return failCommand("停保原因无效", 400, "stopReason");
+      patch.stopReason = reason;
+    }
+  }
+  if (Object.hasOwn(raw, "note")) patch.note = typeof raw.note === "string" ? raw.note.trim() || null : null;
+  return okCommand(patch as Extract<EmployeeSocialInsuranceCommand, { kind: "correct-existing" }>["patch"]);
 }
 
 function supplementPatch(value: unknown): DomainValidationResult<Partial<{

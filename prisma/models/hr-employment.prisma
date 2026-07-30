@@ -1,0 +1,28 @@
+/// 员工雇佣信息（在职状态、入职/离职日期等事实字段）
+model Employment {
+  id             Int       @id @default(autoincrement())
+  employeeId     Int
+  isActive       Boolean   @default(true)
+  currentCompany String?
+  companyId Int?
+  joinDate       String?
+  leaveDate      String?
+  leaveReason    String?
+  leaveNote      String?
+  officeLocation String?
+  attendanceType String?
+  personnelType  String?
+  rank           String?
+  title          String?
+  contracts      String?
+  editedBy       Int?
+  editedAt       DateTime?
+  version        Int       @default(1)
+  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  agreements     EmploymentAgreement[]
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@index([employeeId])
+  @@index([isActive])
+  @@index([companyId])
+}

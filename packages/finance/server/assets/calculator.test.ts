@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { calculateStraightLinePeriod } from "./calculator";
+import { calculateFinanceAssetPeriod, calculateStraightLinePeriod } from "./calculator";
 
 test("calculates fixed-asset straight-line depreciation with residual value", () => {
   const result = calculateStraightLinePeriod({
@@ -56,4 +56,12 @@ test("caps the final period and leaves manual adjustments outside the formula", 
   assert.equal(result.periodAmount, 323.33);
   assert.equal(result.accumulatedAfter, 970);
   assert.equal(result.netBookValue, 30);
+});
+
+test("uses asset-kind-specific disposal-month semantics", () => {
+  const input = { originalCost: 1200, residualRate: 0, usefulLifeMonths: 12, accumulatedBefore: 500, depreciationStartDate: "2026-01-01", year: 2026, month: 6, disposalDate: "2026-06-20" };
+  assert.equal(calculateFinanceAssetPeriod({ ...input, assetKind: "fixed_asset" }).periodAmount, 100);
+  assert.equal(calculateFinanceAssetPeriod({ ...input, assetKind: "intangible" }).periodAmount, 0);
+  assert.equal(calculateFinanceAssetPeriod({ ...input, assetKind: "prepaid" }).lifecycleBlocker, "asset_termination_policy_missing");
+  assert.equal(calculateFinanceAssetPeriod({ ...input, assetKind: "long_term_deferred" }).lifecycleBlocker, "asset_termination_policy_missing");
 });

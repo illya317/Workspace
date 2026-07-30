@@ -156,60 +156,21 @@ const validLocalTiming = localTiming
   && !Number.isNaN(Date.parse(localTiming.releaseProcessStartedAt))
   && Number.isSafeInteger(localTiming.tenantSyncSeconds)
   && localTiming.tenantSyncSeconds >= 0;
-const target = metadata.deployment?.target;
-const gate = metadata.localReleaseGate;
-const validGateBase = gate?.kind === 'workspace-local-release-gate'
-  && gate.status === 'passed'
-  && gate.command === 'ops/local-release-gate.sh'
-  && gate.sourceSha === sha
-  && gate.treeSha === tree
-  && Number.isFinite(Date.parse(gate.completedAt ?? ''));
-const validFullGate = target?.kind === 'monolith'
-  && gate?.schemaVersion === 2
-  && gate.scope === undefined
-  && JSON.stringify(gate.checks) === JSON.stringify([
-    'full-ci',
-    'disposable-postgresql-migrations',
-    'resource-seed',
-    'playwright-e2e',
-  ])
-  && gate.fullCi?.schemaVersion === 1
-  && gate.fullCi?.kind === 'workspace-local-full-ci'
-  && gate.fullCi?.status === 'passed'
-  && gate.fullCi?.command === 'npm run check:ci'
-  && gate.fullCi?.treeSha === tree;
-const validUnitGate = target?.kind === 'unit'
-  && gate?.schemaVersion === 3
-  && gate.scope?.kind === 'unit'
-  && gate.scope?.unitId === target.unitId
-  && JSON.stringify(gate.checks) === JSON.stringify([
-    'release-unit-base',
-    'deploy-unit-typecheck',
-    'deploy-unit-production-build',
-    'disposable-postgresql-migrations',
-    'resource-seed',
-    'deploy-unit-runtime-smoke',
-    'deploy-unit-e2e',
-  ])
-  && gate.unit?.id === target.unitId
-  && /^[0-9a-f]{64}$/.test(gate.unit?.contractSha256 ?? '')
-  && /^[0-9a-f]{64}$/.test(gate.unit?.graphSha256 ?? '')
-  && /^[0-9a-f]{64}$/.test(gate.unit?.artifactSha256 ?? '')
-  && Array.isArray(gate.unit?.typecheckScopes)
-  && gate.unit.typecheckScopes.length > 0
-  && Array.isArray(gate.unit?.e2eSuites)
-  && gate.unitCi?.schemaVersion === 1
-  && gate.unitCi?.kind === 'workspace-local-unit-ci'
-  && gate.unitCi?.status === 'passed'
-  && gate.unitCi?.command === 'scripts/check/run-check-suite.mjs release-unit'
-  && gate.unitCi?.unitId === target.unitId
-  && gate.unitCi?.sourceSha === sha
-  && gate.unitCi?.treeSha === tree;
 if (metadata.schemaVersion !== 1
   || metadata.source?.commitSha !== sha
   || metadata.source?.treeSha !== tree
-  || !validGateBase
-  || (!validFullGate && !validUnitGate)
+  || metadata.releaseCandidate?.schemaVersion !== 1
+  || metadata.releaseCandidate?.kind !== 'workspace-release-candidate'
+  || metadata.releaseCandidate?.status !== 'prepared'
+  || metadata.releaseCandidate?.command !== 'ops/publish.sh prepare'
+  || metadata.releaseCandidate?.sourceSha !== sha
+  || metadata.releaseCandidate?.treeSha !== tree
+  || JSON.stringify(metadata.releaseCandidate?.checks) !== JSON.stringify([
+    'cnb-release-config',
+    'tenant-config-dry-run',
+    'tenant-permission-docs',
+  ])
+  || !Number.isFinite(Date.parse(metadata.releaseCandidate?.completedAt ?? ''))
   || metadata.cnb?.repository !== repository
   || metadata.cnb?.sourceBranch !== branch
   || !Number.isSafeInteger(metadata.deployment?.startedAtEpochSeconds)
@@ -217,6 +178,7 @@ if (metadata.schemaVersion !== 1
   || !validLocalTiming) {
   throw new Error('CNB release metadata does not match local source');
 }
+const target = metadata.deployment?.target;
 if (!target || !['monolith', 'unit'].includes(target.kind)) {
   throw new Error('CNB release metadata target is invalid');
 }
@@ -228,7 +190,33 @@ if (target.kind === 'monolith') {
   throw new Error('unit target must bind one shadow or activate deploy unit');
 }
 const genesis = metadata.deploymentGenesis;
+const databaseReplacement = metadata.databaseReplacement;
 if (metadata.deploymentBootstrap && genesis) throw new Error('bootstrap and genesis metadata are mutually exclusive');
+if (databaseReplacement) {
+  const replacementKeys = Object.keys(databaseReplacement).sort().join(',');
+  const sourceKeys = Object.keys(databaseReplacement.source ?? {}).sort().join(',');
+  const dumpKeys = Object.keys(databaseReplacement.dump ?? {}).sort().join(',');
+  const databaseKeys = Object.keys(databaseReplacement.database ?? {}).sort().join(',');
+  if (target.kind !== 'monolith' || metadata.deploymentBootstrap || genesis
+    || replacementKeys !== 'database,dump,kind,preparedAt,schemaVersion,source,status'
+    || databaseReplacement.schemaVersion !== 1
+    || databaseReplacement.kind !== 'workspace-database-replacement'
+    || databaseReplacement.status !== 'prepared'
+    || sourceKeys !== 'commitSha,treeSha'
+    || databaseReplacement.source.commitSha !== sha
+    || databaseReplacement.source.treeSha !== tree
+    || dumpKeys !== 'format,remoteArtifact,sha256,sizeBytes'
+    || databaseReplacement.dump.format !== 'postgresql-custom'
+    || !/^[0-9a-f]{64}$/.test(databaseReplacement.dump.sha256 ?? '')
+    || databaseReplacement.dump.remoteArtifact !== `${sha}/${databaseReplacement.dump.sha256}/workspace-postgresql.dump`
+    || !Number.isSafeInteger(databaseReplacement.dump.sizeBytes) || databaseReplacement.dump.sizeBytes < 1
+    || databaseKeys !== 'migrationCount,migrationSetSha256'
+    || !Number.isSafeInteger(databaseReplacement.database.migrationCount) || databaseReplacement.database.migrationCount < 1
+    || !/^[0-9a-f]{64}$/.test(databaseReplacement.database.migrationSetSha256 ?? '')
+    || !Number.isFinite(Date.parse(databaseReplacement.preparedAt ?? ''))) {
+    throw new Error('database replacement metadata is invalid');
+  }
+}
 if (genesis) {
   if (target.kind !== 'monolith'
     || Object.keys(genesis).sort().join(',') !== 'baselineChecksum,baselineMigration,fromSourceSha,legacyMigrationCount,legacyMigrationSetSha256'

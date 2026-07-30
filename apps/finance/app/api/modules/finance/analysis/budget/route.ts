@@ -5,7 +5,7 @@ import { executeBudgetAnalysisCommand } from "@workspace/finance/server/route-co
 import { createCommandRoute } from "@workspace/platform/server/api-route";import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const budgetAnalysisQuerySchema = z.object({
-  year: z.coerce.number().int().catch(2026),
+  year: z.coerce.number().int().min(2000).max(2099),
   companyCode: z.string().optional(),
 });
 

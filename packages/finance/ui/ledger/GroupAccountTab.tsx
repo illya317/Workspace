@@ -18,6 +18,7 @@ import type {
 import type {
   FinanceGroupAccountCatalogResponse,
   FinanceGroupAccountCatalogRow,
+  FinanceGroupAccountReviewStatus,
   FinanceGroupAccountUsage,
   FinanceGroupAccountMappedLocalAccountRow,
   FinanceGroupAccountMappedLocalAccountsResponse,
@@ -42,26 +43,21 @@ import {
   initialExpandedTreeIds,
   mappedAccountSections,
 } from "./groupAccountCatalogPresentation";
-import { GROUP_ACCOUNT_USAGE_FILTER_OPTIONS, REVIEW_STATUS_FILTER_OPTIONS, versionCreatedDate } from "./groupAccountMappingPresentation";
+import { versionCreatedDate } from "./groupAccountMappingPresentation";
+import { groupAccountFilterPanelItem } from "./groupAccountToolbarItems";
 import {
   groupAccountConsolidationRuleSections,
   groupAccountDraftDirtyParts,
   groupAccountMasterFields,
 } from "./groupAccountConsolidationRule";
 import { groupAccountReclassSections, useGroupAccountReclassRule } from "./useGroupAccountReclassRule";
-
+import { useLedgerExportAction } from "./useLedgerExportAction";
 export default function GroupAccountTab({
-  navigation,
-  lifecycleBlocks = [],
-  canRevise,
-  canDelete,
-  canApprove,
+  navigation, lifecycleBlocks = [], canRevise, canDelete, canApprove, canExport,
 }: {
   navigation?: PageSurfaceTabBarSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
-  canRevise: boolean;
-  canDelete: boolean;
-  canApprove: boolean;
+  canRevise: boolean; canDelete: boolean; canApprove: boolean; canExport: boolean;
 }) {
   const businessTimeZone = useTenantConfig().localization.businessTimeZone;
   const [response, setResponse] = useState<FinanceGroupAccountCatalogResponse | null>(null);
@@ -70,7 +66,7 @@ export default function GroupAccountTab({
   const [versionFilter, setVersionFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [accountUsageFilter, setAccountUsageFilter] = useState<"" | FinanceGroupAccountUsage>("");
-  const [reviewStatusFilter, setReviewStatusFilter] = useState("");
+  const [reviewStatusFilter, setReviewStatusFilter] = useState<"" | FinanceGroupAccountReviewStatus>("");
   const [keyword, setKeyword] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [treeExpandedIds, setTreeExpandedIds] = useState<Set<number>>(() => new Set());
@@ -101,6 +97,11 @@ export default function GroupAccountTab({
   const groupAccountDirty = groupAccountDirtyParts.master || groupAccountDirtyParts.consolidation;
   const editDirty = groupAccountDirty || reclassRuleDirty;
   const feedback = useFeedback({ unsavedChanges: editDirty });
+  const exportAction = useLedgerExportAction({
+    canExport, view: "groupAccounts", policyVersionId: String(response?.selectedPolicyVersionId ?? ""), keyword,
+    accountCategory: categoryFilter, accountUsage: accountUsageFilter, reviewStatus: reviewStatusFilter,
+    fallbackFilename: `${response?.policyVersions.find((version) => version.id === response.selectedPolicyVersionId)?.code ?? "当前版本"}-集团科目.xlsx`,
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -282,41 +283,20 @@ export default function GroupAccountTab({
       })),
       onChange: setVersionFilter,
     },
-    {
-      kind: "select",
-      key: "category",
-      label: "科目类型",
-      value: categoryFilter,
-      placeholder: "全部",
-      options: [
-        { value: "asset", label: "资产" },
-        { value: "liability", label: "负债" },
-        { value: "common", label: "共同" },
-        { value: "equity", label: "权益" },
-        { value: "cost", label: "成本" },
-        { value: "revenue", label: "收入" },
-        { value: "expense", label: "费用" },
-      ],
-      onChange: setCategoryFilter,
-    },
-    {
-      kind: "select",
-      key: "account-usage",
-      label: "科目范围",
-      value: accountUsageFilter,
-      placeholder: "全部科目",
-      options: [...GROUP_ACCOUNT_USAGE_FILTER_OPTIONS],
-      onChange: (value) => setAccountUsageFilter(value as typeof accountUsageFilter),
-    },
-    {
-      kind: "select",
-      key: "review-status",
-      label: "复核状态",
-      value: reviewStatusFilter,
-      placeholder: "全部",
-      options: [...REVIEW_STATUS_FILTER_OPTIONS],
-      onChange: setReviewStatusFilter,
-    },
+    groupAccountFilterPanelItem({
+      category: categoryFilter,
+      accountUsage: accountUsageFilter,
+      reviewStatus: reviewStatusFilter,
+      onCategoryChange: setCategoryFilter,
+      onAccountUsageChange: setAccountUsageFilter,
+      onReviewStatusChange: setReviewStatusFilter,
+      onReset: () => {
+        setCategoryFilter("");
+        setAccountUsageFilter("");
+        setReviewStatusFilter("");
+      },
+    }),
+    ...(exportAction ? [exportAction] : []),
   ];
   const toolbarItems = useFinanceFilterToolbarItems({
     keyword,

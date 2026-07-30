@@ -5,15 +5,10 @@ import type {
   StatementReportType,
 } from "@workspace/finance/types";
 import { getCompanyNameByCode } from "@workspace/platform/server/company-directory";
-import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
-import { prisma } from "@workspace/platform/server/prisma";
 
 import { loadConsolidatedReportOutput } from "./consolidated-output-service";
 import { generateFinanceReport } from "./report-generator";
 import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
-import { CONSOLIDATION_BATCH_INCLUDE, consolidationBatchSnapshot } from "./consolidation-dto";
-import { buildConsolidationPreviewPackage, type ConsolidationReplayPackage } from "./consolidation-replay";
-import { frozenPayloadLines, translateFrozenSourceLines } from "./consolidated-output-translation";
 
 export type StatementPageSource = "system" | "empty" | "consolidated";
 
@@ -188,75 +183,6 @@ function consolidatedStatement(statement: ConsolidatedStatementOutput): Statemen
   };
 }
 
-export function buildTranslatedStandaloneStatementsFromReplay(
-  replay: ConsolidationReplayPackage,
-  entitySnapshotId: number,
-  functionalCurrency: string,
-): DomainValidationResult<StatementPageStatement[]> {
-  const statements: StatementPageStatement[] = [];
-  for (const reportType of ["balanceSheet", "incomeStatement", "cashFlow"] as const) {
-    const sources = replay.sources.filter((source) => (
-      source.entitySnapshotId === entitySnapshotId && source.reportType === reportType
-    ));
-    if (sources.length !== 1) {
-      return failCommand(`加拿大人民币单体${REPORT_LABELS[reportType]}必须且只能命中一份冻结来源`, 409, "sources");
-    }
-    const source = sources[0]!;
-    const rows = frozenPayloadLines(reportType, source.reportPayload);
-    if (!rows) return failCommand(`${REPORT_LABELS[reportType]}冻结来源不可重放`, 409, "reportPayload");
-    const translated = translateFrozenSourceLines(
-      replay,
-      entitySnapshotId,
-      functionalCurrency,
-      reportType,
-      rows,
-      source.reportPayload,
-    );
-    if (!translated.ok) return translated;
-    const lines = translated.data.map(normalizeConsolidatedLine);
-    statements.push({
-      reportType,
-      label: REPORT_LABELS[reportType],
-      source: "system",
-      diagnostics: [],
-      lines,
-      totals: statementTotals(lines),
-    });
-  }
-  return okCommand(statements);
-}
-
-async function loadTranslatedCadStandaloneStatements(input: {
-  companyCode: string;
-  year: number;
-  month: number;
-  periodKind: StatementPeriodKind;
-}) {
-  const batch = await prisma.financeConsolidationBatch.findFirst({
-    where: {
-      year: input.year,
-      month: input.month,
-      periodKind: input.periodKind,
-      entities: { some: { companyCode: input.companyCode, functionalCurrency: "CAD" } },
-    },
-    orderBy: [{ version: "desc" }, { id: "desc" }],
-    include: CONSOLIDATION_BATCH_INCLUDE,
-  });
-  if (!batch) {
-    throw new StatementPageDataError("加拿大人民币单体报表缺少同期间合并批次冻结来源，请先生成或刷新合并批次", 409);
-  }
-  const snapshot = consolidationBatchSnapshot(batch);
-  const entity = snapshot.entities.find((candidate) => candidate.companyCode === input.companyCode);
-  if (!entity) throw new StatementPageDataError("合并批次未冻结加拿大主体", 409);
-  const translated = buildTranslatedStandaloneStatementsFromReplay(
-    buildConsolidationPreviewPackage(snapshot),
-    entity.id,
-    entity.functionalCurrency ?? "",
-  );
-  if (!translated.ok) throw new StatementPageDataError(translated.issue.message, translated.issue.status);
-  return translated.data;
-}
-
 async function readReportResponse(response: Response): Promise<StandaloneReportPayload> {
   const body = await response.json().catch(() => null) as (StandaloneReportPayload & { error?: unknown }) | null;
   if (!response.ok) {
@@ -277,29 +203,6 @@ export async function loadStandaloneStatementPageData(input: {
 }): Promise<StatementPageData> {
   const companyCode = input.companyCode.trim();
   const periodKind = input.periodKind ?? "month";
-  const currencyPolicy = await prisma.company.findUnique({
-    where: { code: companyCode },
-    select: { financeCurrencyPolicy: { select: { functionalCurrency: true } } },
-  });
-  if (currencyPolicy?.financeCurrencyPolicy?.functionalCurrency.trim().toUpperCase() === "CAD") {
-    const [companyName, statements] = await Promise.all([
-      getCompanyNameByCode(companyCode),
-      loadTranslatedCadStandaloneStatements({ ...input, companyCode, periodKind }),
-    ]);
-    return {
-      mode: "standalone",
-      scope: {
-        companyCode,
-        companyName,
-        year: input.year,
-        month: input.month,
-        periodKind,
-        batchId: null,
-        batchStatus: null,
-      },
-      statements,
-    };
-  }
   const [companyName, balance, income, cashFlow] = await Promise.all([
     getCompanyNameByCode(companyCode),
     generateFinanceReport({ ...input, companyCode, periodKind, reportType: "balance" }).then(readReportResponse),

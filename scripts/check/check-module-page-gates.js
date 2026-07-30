@@ -15,7 +15,7 @@ const { hasModuleHomePage, hasRouteAccessGate } = require("./module-page-gate-de
 
 const APP_DIR = path.join(ROOT, "app");
 const VALID_PAGE_ACCESS = new Set(["resource", "adminManage", "authenticated", "public"]);
-const CUSTOM_L1_HOME_MODULES = new Set(["work"]);
+const CUSTOM_L1_HOME_MODULES = new Set(["agent", "work"]);
 
 function normalizeRoute(route) {
   return route.replace(/\/+/g, "/").replace(/\/$/g, "") || "/";

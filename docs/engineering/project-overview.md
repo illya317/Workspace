@@ -32,7 +32,7 @@ sourceOfTruth:
   - docs/engineering/schema-governance.md
   - docs/engineering/core-ui-governance.md
   - app/**/page.tsx
-  - app/(docs)/docs/ARCHITECTURE.md
+  - app/(modules)/docs/ARCHITECTURE.md
   - app/(modules)/*/ARCHITECTURE.md
   - app/(modules)/*/*/ARCHITECTURE.md
   - app/(modules)/*/MODULE.md
@@ -51,8 +51,8 @@ This document is the project map for agents. Read it after `AGENTS.md` and befor
 Git is still the history source, but agents should not guess freshness from `git log` alone. First read the metadata above. If unsure, check:
 
 ```bash
-git diff --name-only a2050662..HEAD -- AGENTS.md docs/README.md docs/OWNERS.md docs/roles docs/generated/README.md docs/planning/README.md docs/reference/README.md package.json tsconfig.base.json tsconfig.json tsconfig.app.json tsconfig.prisma-client.json tsconfig.tooling.json 'packages/*/tsconfig.json' 'apps/*/next.config.ts' 'apps/*/tsconfig.json' packages/platform/module-registry.ts scripts/deploy/deploy-unit-spec.ts scripts/deploy/deploy-unit-app-generator.ts docs/engineering/architecture-governance.md docs/engineering/checks.md docs/engineering/ops/deploy-units.md docs/engineering/security/rbac.md docs/engineering/schema-governance.md docs/engineering/core-ui-governance.md 'app/**/page.tsx' 'app/(docs)/docs/ARCHITECTURE.md' 'app/(modules)/*/ARCHITECTURE.md' 'app/(modules)/*/*/ARCHITECTURE.md' 'app/(modules)/*/MODULE.md' 'app/(system)/*/ARCHITECTURE.md' 'app/(system)/*/*/ARCHITECTURE.md'
-git status --short -- AGENTS.md docs/README.md docs/OWNERS.md docs/roles docs/generated/README.md docs/planning/README.md docs/reference/README.md package.json tsconfig.base.json tsconfig.json tsconfig.app.json tsconfig.prisma-client.json tsconfig.tooling.json 'packages/*/tsconfig.json' 'apps/*/next.config.ts' 'apps/*/tsconfig.json' packages/platform/module-registry.ts scripts/deploy/deploy-unit-spec.ts scripts/deploy/deploy-unit-app-generator.ts docs/engineering/architecture-governance.md docs/engineering/checks.md docs/engineering/ops/deploy-units.md docs/engineering/security/rbac.md docs/engineering/schema-governance.md docs/engineering/core-ui-governance.md 'app/**/page.tsx' 'app/(docs)/docs/ARCHITECTURE.md' 'app/(modules)/*/ARCHITECTURE.md' 'app/(modules)/*/*/ARCHITECTURE.md' 'app/(modules)/*/MODULE.md' 'app/(system)/*/ARCHITECTURE.md' 'app/(system)/*/*/ARCHITECTURE.md'
+git diff --name-only a2050662..HEAD -- AGENTS.md docs/README.md docs/OWNERS.md docs/roles docs/generated/README.md docs/planning/README.md docs/reference/README.md package.json tsconfig.base.json tsconfig.json tsconfig.app.json tsconfig.prisma-client.json tsconfig.tooling.json 'packages/*/tsconfig.json' 'apps/*/next.config.ts' 'apps/*/tsconfig.json' packages/platform/module-registry.ts scripts/deploy/deploy-unit-spec.ts scripts/deploy/deploy-unit-app-generator.ts docs/engineering/architecture-governance.md docs/engineering/checks.md docs/engineering/ops/deploy-units.md docs/engineering/security/rbac.md docs/engineering/schema-governance.md docs/engineering/core-ui-governance.md 'app/**/page.tsx' 'app/(modules)/docs/ARCHITECTURE.md' 'app/(modules)/*/ARCHITECTURE.md' 'app/(modules)/*/*/ARCHITECTURE.md' 'app/(modules)/*/MODULE.md' 'app/(system)/*/ARCHITECTURE.md' 'app/(system)/*/*/ARCHITECTURE.md'
+git status --short -- AGENTS.md docs/README.md docs/OWNERS.md docs/roles docs/generated/README.md docs/planning/README.md docs/reference/README.md package.json tsconfig.base.json tsconfig.json tsconfig.app.json tsconfig.prisma-client.json tsconfig.tooling.json 'packages/*/tsconfig.json' 'apps/*/next.config.ts' 'apps/*/tsconfig.json' packages/platform/module-registry.ts scripts/deploy/deploy-unit-spec.ts scripts/deploy/deploy-unit-app-generator.ts docs/engineering/architecture-governance.md docs/engineering/checks.md docs/engineering/ops/deploy-units.md docs/engineering/security/rbac.md docs/engineering/schema-governance.md docs/engineering/core-ui-governance.md 'app/**/page.tsx' 'app/(modules)/docs/ARCHITECTURE.md' 'app/(modules)/*/ARCHITECTURE.md' 'app/(modules)/*/*/ARCHITECTURE.md' 'app/(modules)/*/MODULE.md' 'app/(system)/*/ARCHITECTURE.md' 'app/(system)/*/*/ARCHITECTURE.md'
 ```
 
 If a source-of-truth file is dirty, treat the related section here as possibly stale and inspect that file directly. Do not update this metadata to cover uncommitted facts unless the owning agent has explicitly confirmed that the dirty file is the intended source of truth.
@@ -61,7 +61,7 @@ If a source-of-truth file is dirty, treat the related section here as possibly s
 
 Workspace is an internal management system. It is not a single HR app; it is a modular platform for HR, finance, work/project management, product/QC, inventory, administration contracts, capital and external relationships, library/documents, user-facing docs, settings, and governed Agent runtimes. HR virtual-employee records describe organizational identity; only an explicit runtime binding makes that identity executable on Workspace, local Codex, CI, or servers.
 
-The repository now has two distinct application views. The canonical `app/` tree remains the editable route/API shell source and the local monolith compatibility app. Generated `apps/*` roots are independent Next standalone application projects for the deploy-unit graph. Core and Platform are shared compilation inputs, not implicit runtimes or deploy units; Platform-owned Portal, Settings, Auth, and System pages run in the explicit `workspace-shell` unit.
+The repository now has two distinct application views. The canonical `app/` tree remains the editable route/API shell source and the local monolith compatibility app. Generated `apps/*` roots are independent Next standalone application projects for the deploy-unit graph. Core and Platform are shared compilation inputs, not implicit runtimes or deploy units; Platform-owned Portal/Auth/System pages and the independent Settings L1 run in the explicit `workspace-shell` unit.
 
 The current product modules are registered in `packages/platform/module-registry.ts`. That registry is the source of truth for module keys, labels, routes, resource keys, API prefixes, headless modules, and module disable behavior.
 
@@ -75,7 +75,7 @@ The current product modules are registered in `packages/platform/module-registry
 | Auth | JWT Cookie sessions for web; Open API Bearer clients for `/api/open/v1/**` |
 | Runtime config | `.env` and workspace runtime paths such as `WORKSPACE_CONFIG_DIR` |
 | App topology | Editable canonical `app/`; generated standalone Next roots under `apps/*`; local development remains the single port-3000 compatibility app |
-| Deploy topology | 12 declared units: 9 domain L1 units, Docs, `workspace-shell`, and headless `assistant`; route/API ownership is derived rather than copied |
+| Deploy topology | 12 declared units for 12 normal L1 packages; Settings is hosted by `workspace-shell` and Agent by `assistant`; route/API ownership is derived rather than copied |
 | Checks | npm scripts in `package.json`, with TypeScript project references and heavy checks serialized through `scripts/check/with-check-lock.js` |
 
 Do not rely on framework memory for Next.js details. `AGENTS.md` requires reading the relevant Next.js guide from `node_modules/next/dist/docs/` before writing code that depends on changed framework behavior.
@@ -87,11 +87,11 @@ packages/core
   generic UI, fields, surfaces, tables, filters, search, dates, confirmation and pure helpers
 
 packages/platform
-  login, auth, RBAC, registry, navigation, audit, Portal/Settings contracts and shared runtime seams
+  login, auth, RBAC, registry, navigation, audit, Portal contracts and shared runtime seams
 
-packages/<domain>
-  Apps/business layer: HR, Finance, Work, Inventory, Production, Administration,
-  Capital Securities, Library and External UI/server/types/import
+packages/<l1>
+  Apps/business layer: Agent, Docs, Settings, HR, Finance, Work, Inventory, Production,
+  Administration, Capital Securities, Library and External UI/server/types/import
 
 app/*
   canonical editable Next route/API shells: auth, permission, prefetch, mount package UI, return DTO
@@ -113,7 +113,7 @@ Dependency direction is one-way:
 
 ```txt
 canonical or generated app shell
-  -> owning domain package or Platform-owned L1
+  -> owning L1 package
   -> packages/platform
   -> packages/core
 ```
@@ -148,15 +148,15 @@ The table below records exact current L1/L2 hrefs and deploy ownership. It is a 
 | Work `work` -> `/work` | `@workspace/work` domain | `work.tasks` -> `/work/me`; `work.projects` -> `/work/project`; `work.meetings` -> `/work/meeting` | `work` | task, project, and meeting APIs remain under their plural `/api/modules/work/*` prefixes |
 | HR `hr` -> `/hr` | `@workspace/hr` domain | `hr.roster` -> `/hr/roster`; `hr.performance` -> `/hr/performance`; `hr.analytics` -> `/hr/analytics` | `hr` | roster and performance have APIs; analytics is derived from roster DTOs and has no independent prefix |
 | Administration `administration` -> `/administration` | `@workspace/administration` domain | `administration.contracts` -> `/administration/contracts`; `administration.erpDiligence` -> `/administration/erp-diligence` | `administration` | contracts and ERP diligence module APIs |
-| Finance `finance` -> `/finance` | `@workspace/finance` domain | `finance.ledger` -> `/finance/ledger`; `finance.statements` -> `/finance/statements`; `finance.analysis` -> `/finance/analysis`; `finance.budget` -> `/finance/budget`; `finance.cost` -> `/finance/cost` | `finance` | ledger, statements, analysis, budget and cost own module APIs; governed import scripts remain internal and do not expose an L2 page |
+| Finance `finance` -> `/finance` | `@workspace/finance` domain | `finance.ledger` -> `/finance/ledger`; `finance.assets` -> `/finance/assets`; `finance.statements` -> `/finance/statements`; `finance.analysis` -> `/finance/analysis`; `finance.budget` -> `/finance/budget`; `finance.cost` -> `/finance/cost` | `finance` | ledger, assets, statements, analysis, budget and cost own module APIs; governed import scripts remain internal and do not expose an L2 page |
 | Production `production` -> `/production` | `@workspace/production` domain | `production.products` -> `/production/products`; `production.qc` -> `/production/qc` | `production` | Products owns product/SKU/source-mapping maintenance; QC owns execution while Docs Editor owns template authoring |
 | Inventory `inventory` -> `/inventory` | `@workspace/inventory` domain | `inventory.operations` -> `/inventory/operations`; `inventory.receipts` -> `/inventory/receipts` | `inventory` | Operations owns stock facts; Receipts owns finished-goods declarations and review before formal posting |
-| External `external` -> `/external` | `@workspace/external` domain | `external.customers` -> `/external/customers`; `external.suppliers` -> `/external/suppliers` | `external` | shared Party identity plus role-specific customer/supplier CRUD for organizations and individuals |
+| External `external` -> `/external` | `@workspace/external` domain | `external.customers` -> `/external/customers`; `external.suppliers` -> `/external/suppliers`; `external.relatedParties` -> `/external/related-parties` | `external` | shared Party identity plus role-specific customer/supplier CRUD; related parties are classified only from existing readable customer/supplier Party FKs |
 | Capital Securities `capitalSecurities` -> `/capital-securities` | `@workspace/capital-securities` domain | `capitalSecurities.investors` -> `/capital-securities/investors`; `capitalSecurities.governance` -> `/capital-securities/governance` | `capital-securities` | governance and investor APIs still use the legacy camel-case module URL pending migration |
-| Docs `docs` -> `/docs` | Platform docs L1 | `docs.company` -> `/docs/company`; `docs.editor` -> `/docs/editor` | `docs` | company product docs and governed template/QC document authoring |
+| Docs `docs` -> `/docs` | `@workspace/docs` domain | `docs.company` -> `/docs/company`; `docs.editor` -> `/docs/editor` | `docs` | company product docs and governed template/QC document authoring |
 | Library `library` -> `/library` | `@workspace/library` domain | `library.basicInfo` -> `/library/basic-info` | `library` | basic-info document and directory APIs |
-| Settings `settings` -> `/settings` | Platform | `settings.account` -> `/settings/account`; `settings.admin` -> `/settings/admin`; `settings.api` -> `/settings/api`; `settings.ui` -> `/settings/ui` | `workspace-shell` | account owns inbox plus the end-to-end notification catalog and permission-scoped personal subscriptions; admin owns permissions, workflow, audit, and module governance; API has Platform APIs; UI registry is page-only |
-| Agent `agent` (headless) | Platform | none | `assistant` | `/api/agent` and toolbar use `agent.assistant`; the model receives only three generic protected-business-API connectors |
+| Settings `settings` -> `/settings` | `@workspace/settings` domain | `settings.account` -> `/settings/account`; `settings.admin` -> `/settings/admin`; `settings.api` -> `/settings/api`; `settings.ui` -> `/settings/ui` | `workspace-shell` | account owns inbox plus the end-to-end notification catalog and permission-scoped personal subscriptions; admin owns permissions, workflow, audit, and module governance; API uses Platform contracts; UI registry is page-only |
+| Agent `agent` -> `/agent` | `@workspace/agent` domain | none | `assistant` | `/agent`, `/api/agent` and toolbar use `agent.assistant`; the model receives only three generic protected-business-API connectors |
 
 At this refresh, the Docs row intentionally follows the owner-confirmed dirty working-tree removal of `docs.expense`; committed HEAD `a2050662` still contains that L2. The metadata therefore remains anchored to HEAD while the status command above correctly reports this overview and the affected source files as dirty until the removal is committed together.
 
@@ -166,13 +166,13 @@ Product and receipt ownership is also split deliberately. Production `products` 
 
 Capital ownership facts no longer originate from a directly editable relationship table. `ShareCapitalEvent` plus transaction/snapshot positions are the canonical equity ledger; `OwnershipInterest` is a replayed effective-period projection used by governance, relationship graphs, and downstream consolidation. Corrections must change or append upstream events and rebuild projections rather than patching `OwnershipInterest` directly.
 
-Agent is headless and has no `/agent` L1 management page. The toolbar assistant uses the `agent.assistant` capability, owned by `settings.account` and runtime-coupled to the headless `agent` module. Its model-facing surface is fixed to `workspace.api.discover`, `workspace.api.read`, and `workspace.api.proposeMutation`; all business behavior stays behind registered `/api/modules/**` contracts. Source code, files, Prisma/database access, internal RPC, arbitrary network, credentials, direct commits, and deployment are outside Workspace conversations. Global Agent action limits remain an additional deny-only ceiling.
+Agent is a normal L1 with a `/agent` conversation page and an independently owned `@workspace/agent` package. The toolbar assistant uses the same `agent.assistant` capability, owned by `settings.account` and runtime-coupled to the `agent` module. Its model-facing surface is fixed to `workspace.api.discover`, `workspace.api.read`, and `workspace.api.proposeMutation`; all business behavior stays behind registered `/api/modules/**` contracts. Source code, files, Prisma/database access, internal RPC, arbitrary network, credentials, direct commits, and deployment are outside Workspace conversations. Global Agent action limits remain an additional deny-only ceiling.
 
 Important capability resources include `work.tasks.cycleFlow`, `hr.roster.generated`, `settings.account.apiAccess`, `settings.api.manage`, and `agent.assistant`. `work.tasks.cycleFlow.configure` controls the Work cycle/flow settings entry, API access, and persistence; it is assigned through the permission matrix rather than inferred from an IT or business role. Check the registry and `docs/engineering/security/rbac.md` before changing capability semantics.
 
 ## 6. Development Rules That Usually Matter
 
-API routes only do authentication, authorization, Zod/request-shape validation, call package service, and return DTO. Complex queries, Prisma writes, business rules, imports, and derived fields belong in `packages/<domain>/server`.
+API routes only do authentication, authorization, Zod/request-shape validation, call package service, and return DTO. Complex queries, Prisma writes, business rules, imports, and derived fields belong in `packages/<l1>/server`.
 
 Writes must keep the three-step chain:
 
@@ -217,7 +217,6 @@ Company-specific facts such as identity, company names/codes, management systems
 | Inspect one generated app or explicitly refresh it | `npm run deploy:unit:app -- --unit <id>`; add `--write` only to regenerate |
 | Full local CI authority | `npm run check:ci` |
 | Prepare one exact-tree production candidate locally | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare` |
-| Prepare one clean deploy-unit candidate with graph-scoped build/E2E | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare --deploy-unit <unit>` |
 | Deploy only a prepared candidate through CNB | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy` |
 | Strict historical debt patrol | `npm run check:hygiene` |
 | Non-blocking hygiene signal | `npm run check:hygiene:warn` |
@@ -249,7 +248,7 @@ Small execution agents usually do not run full npm checks during multi-agent wor
 
 ## 9. User Docs Are Product Docs
 
-The `/docs` route is a product module for end users. It currently includes company management docs and the template editor. Do not confuse `app/(docs)/docs/*` with agent/developer documentation under repository `docs/`.
+The `/docs` route is a product module for end users. It currently includes company management docs and the template editor. Do not confuse `app/(modules)/docs/*` with agent/developer documentation under repository `docs/`.
 
 When adding user-facing instructions, treat them as product content and route/UI work. When adding agent/developer rules, put them under repository `docs/` and update `docs/README.md`.
 

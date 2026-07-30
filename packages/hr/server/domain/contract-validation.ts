@@ -4,8 +4,8 @@ import {
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
-import { prisma } from "@workspace/platform/server/prisma";
 import { isValidCompanyName, isValidDateValue, validateContractOption } from "../field-validation";
+import { listEmployeeEmploymentReferences } from "../contract-reference-adapter";
 import {
   ALLOWED_CONTRACT_FIELDS,
   CONTRACT_DATE_FIELDS,
@@ -122,11 +122,7 @@ export async function buildEmployeeProfileContractsCommand(
   if (!Number.isInteger(employeeId) || employeeId <= 0) return failCommand("员工ID无效");
   if (!Array.isArray(rows)) return failCommand("请求体无效");
 
-  const employments = await prisma.employment.findMany({
-    where: { employeeId },
-    orderBy: { id: "desc" },
-    select: { id: true, isActive: true, joinDate: true, leaveDate: true },
-  });
+  const employments = await listEmployeeEmploymentReferences(employeeId);
   if (employments.length === 0) return failCommand("该员工无雇佣记录", 404);
 
   const employmentIds = new Set(employments.map((row) => row.id));

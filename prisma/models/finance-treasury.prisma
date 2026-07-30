@@ -2,6 +2,7 @@
 model FinanceCurrency {
   id             Int                  @id @default(autoincrement())
   companyCode    String
+  companyId Int?
   sourceSystem   String
   sourceLedger   String
   sourceCode     String
@@ -13,32 +14,144 @@ model FinanceCurrency {
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @default(now()) @updatedAt
   latestImport   FinanceLedgerImport? @relation(fields: [latestImportId], references: [id])
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([companyCode, sourceSystem, sourceLedger, sourceCode])
   @@index([latestImportId])
+  @@index([companyId])
 }
 
-/// ERP 银行账户来源主数据
+/// 银行账户主档（事实表，来源于 ERP readable 或受治理的 Workspace 维护）
 model FinanceBankAccount {
-  id             Int                  @id @default(autoincrement())
-  companyCode    String
-  accountId      Int?
-  sourceSystem   String
-  sourceLedger   String
-  sourceKey      String
-  sourceCode     String?
-  sourceName     String
-  accountNo      String?
-  bankName       String?
-  currencyCode   String?
-  isActive       Boolean              @default(true)
-  latestImportId Int?
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @default(now()) @updatedAt
-  account        FinanceAccount?      @relation(fields: [accountId], references: [id])
-  latestImport   FinanceLedgerImport? @relation(fields: [latestImportId], references: [id])
+  id              Int                         @id @default(autoincrement())
+  companyId       Int?
+  identityKey     String?                     @unique
+  companyCode     String
+  accountId       Int?
+  sourceSystem    String
+  sourceLedger    String
+  sourceKey       String
+  sourceCode      String?
+  sourceName      String
+  accountNo       String?
+  bankName        String?
+  currencyCode    String?
+  openedOn        DateTime?                   @db.Date
+  closedOn        DateTime?                   @db.Date
+  isActive        Boolean                     @default(true)
+  latestImportId  Int?
+  sourceKind      String?
+  sourceReleaseId String?
+  sourceSha256    String?
+  sourceFile      String?
+  sourceSheet     String?
+  sourceRow       Int?
+  sourceRange     String?
+  version         Int                         @default(1)
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @default(now()) @updatedAt
+  company         Company?                    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  account         FinanceAccount?             @relation(fields: [accountId], references: [id])
+  latestImport    FinanceLedgerImport?        @relation(fields: [latestImportId], references: [id])
+  reconciliations FinanceBankReconciliation[]
 
   @@unique([companyCode, sourceSystem, sourceLedger, sourceKey])
+  @@index([companyId, isActive])
   @@index([accountId])
   @@index([latestImportId])
+}
+
+/// 借款合同主档（事实表，来源于 Workspace 手工维护或受治理底稿导入）
+model FinanceLoan {
+  id                      Int                        @id @default(autoincrement())
+  companyId               Int
+  lenderPartyId           Int
+  identityKey             String                     @unique
+  loanNo                  String
+  name                    String
+  currencyCode            String                     @db.VarChar(3)
+  contractPrincipalAmount Decimal                    @db.Decimal(20, 2)
+  startOn                 DateTime                   @db.Date
+  endOn                   DateTime?                  @db.Date
+  status                  String                     @default("active")
+  note                    String?
+  sourceKind              String?
+  sourceReleaseId         String?
+  sourceSha256            String?
+  sourceFile              String?
+  sourceSheet             String?
+  sourceRow               Int?
+  sourceRange             String?
+  sourceKey               String?
+  version                 Int                        @default(1)
+  createdAt               DateTime                   @default(now())
+  updatedAt               DateTime                   @default(now()) @updatedAt
+  company                 Company                    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  lenderParty             Party                      @relation(fields: [lenderPartyId], references: [id], onDelete: Restrict)
+  rateTerms               FinanceLoanRateTerm[]
+  principalEvents         FinanceLoanPrincipalEvent[]
+  interestWorkpapers      FinanceInterestWorkpaper[]
+
+  @@unique([companyId, loanNo])
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([companyId, status, endOn])
+  @@index([lenderPartyId])
+}
+
+/// 借款分段利率条款（事实表，来源于合同条款手工维护或受治理底稿导入）
+model FinanceLoanRateTerm {
+  id                 Int         @id @default(autoincrement())
+  loanId             Int
+  effectiveFrom      DateTime    @db.Date
+  effectiveThrough   DateTime?   @db.Date
+  annualRate         Decimal     @db.Decimal(18, 10)
+  spreadRate         Decimal?    @db.Decimal(18, 10)
+  rateKind           String      @default("fixed")
+  benchmark          String?
+  dayCountConvention String      @default("actual_365")
+  sourceKind         String?
+  sourceReleaseId    String?
+  sourceSha256       String?
+  sourceFile         String?
+  sourceSheet        String?
+  sourceRow          Int?
+  sourceRange        String?
+  sourceKey          String?
+  createdAt          DateTime    @default(now())
+  loan               FinanceLoan @relation(fields: [loanId], references: [id], onDelete: Restrict)
+
+  @@unique([loanId, effectiveFrom])
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([loanId, effectiveThrough])
+}
+
+/// 借款本金变动追加事件（事实表，来源于实际放款、还本或其冲销记录）
+model FinanceLoanPrincipalEvent {
+  id                 Int                         @id @default(autoincrement())
+  loanId             Int
+  voucherItemId      Int?
+  eventKind          String
+  occurredOn         DateTime                    @db.Date
+  amount             Decimal                     @db.Decimal(20, 2)
+  referenceNo        String?
+  note               String?
+  reversesEventId    Int?                        @unique
+  idempotencyKey     String                      @unique
+  sourceKind         String?
+  sourceReleaseId    String?
+  sourceSha256       String?
+  sourceFile         String?
+  sourceSheet        String?
+  sourceRow          Int?
+  sourceRange        String?
+  sourceKey          String?
+  recordedAt         DateTime                    @default(now())
+  loan               FinanceLoan                 @relation(fields: [loanId], references: [id], onDelete: Restrict)
+  voucherItem        FinanceVoucherItem?         @relation(fields: [voucherItemId], references: [id], onDelete: Restrict)
+  reversesEvent      FinanceLoanPrincipalEvent?  @relation("FinanceLoanPrincipalEventReversal", fields: [reversesEventId], references: [id], onDelete: Restrict)
+  reversedByEvent    FinanceLoanPrincipalEvent?  @relation("FinanceLoanPrincipalEventReversal")
+
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([loanId, occurredOn, recordedAt])
+  @@index([voucherItemId])
 }

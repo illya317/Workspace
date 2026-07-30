@@ -62,14 +62,16 @@ export const page_api_registry_entries = [
         children: [
           {
             name: "table",
-            description: "行列数据表；桌面长表锁定表头并支持矩阵首列锚定，移动端统一转为主次分明、可展开和可操作的记录卡片。",
+            description: "行列数据表；桌面普通表按内容和可用空间自适应列宽，矩阵保持固定列宽并支持首列锚定，移动端统一转为主次分明、可展开和可操作的记录卡片。",
             children: [
               { name: "rows", description: "表格数据行。" },
-              { name: "columns", description: "表格列和单元格声明。" },
+              { name: "columns", description: "表格列和单元格声明；单元格可用 meter 声明 value、max 和 label；横向展开组只声明 disclosure 的 trigger/detail、groupKey 和 expanded，Core 统一渲染视觉层级与展开边界。" },
+              { name: "cellState", description: "单元格关系状态；调用方只声明 muted、info、warning、success、danger 等语义，Core 统一渲染背景和文字。" },
+              { name: "cellSelected", description: "当前选择单元格；Core 使用独立中性描边，可与 info、warning、success 等关系状态叠加。" },
               { name: "scroll", description: "复杂表格的显式滚动边界；普通短字段清单默认随页面自然展开，不制造横向或纵向内滚动。只有矩阵、不可压缩列或固定视窗长表才声明滚动。" },
               { name: "disclosure", description: "可展开行的结构化标题、展开状态和层级缩进；箭头与间距由 DataSurface 统一渲染。" },
               { name: "link", description: "表格内语义链接；声明 label、href 与是否外部打开，不允许业务手写 anchor 样式。" },
-              { name: "expandedRow", description: "结构化展开行；返回 DataSurface cell/data/form 声明，不接收 JSX。" },
+              { name: "expandedRow", description: "结构化展开行；返回 DataSurface cell/data/form 声明，不接收 JSX；Core 自动高亮纵向展开触发行和详情区域。" },
               { name: "embedded", description: "单元格或展开区内嵌 data/form Surface 声明。" },
               { name: "interactive", description: "可激活单元格；声明 content、onClick 与 ariaLabel，交互壳由 DataSurface 渲染。" },
               { name: "rowKey", description: "行主键解析。" },

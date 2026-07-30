@@ -11,6 +11,21 @@ import {
 
 const PROFIT_ATTRIBUTION_LINE_CODES = new Set(["netProfitAttributableToParent", "netProfitAttributableToNci"]);
 
+function alignProfitAttributionEntityAmounts(
+  netProfit: ConsolidatedOutputLine,
+  parent: ConsolidatedOutputLine,
+  nci: ConsolidatedOutputLine,
+) {
+  if (!netProfit.entityAmounts) return;
+  parent.entityAmounts = netProfit.entityAmounts.map((entity) => ({ ...entity }));
+  nci.entityAmounts = netProfit.entityAmounts.map((entity) => ({
+    ...entity,
+    amount: 0,
+    previousAmount: 0,
+    ...(entity.currentMonthAmount === undefined ? {} : { currentMonthAmount: 0 }),
+  }));
+}
+
 export function recomputeConsolidatedIncome(lines: ConsolidatedOutputLine[]): DomainValidationResult<true> {
   let amount = 0;
   let currentMonthAmount = 0;
@@ -61,6 +76,7 @@ export function recomputeConsolidatedIncome(lines: ConsolidatedOutputLine[]): Do
       parent.currentMonthSourceAmount = netProfit.currentMonthSourceAmount ?? netProfit.currentMonthAmount;
     }
     parent.previousSourceAmount = netProfit.previousSourceAmount ?? netProfit.previousAmount;
+    alignProfitAttributionEntityAmounts(netProfit, parent, nci);
     setDerivedLineAmounts(
       parent,
       netProfit.amount - nci.amount,

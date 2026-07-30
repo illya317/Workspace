@@ -5,6 +5,7 @@ import { WORK_GOAL_ACTION_DESCRIPTORS } from "./work-goal-action-descriptors";
 import { INVENTORY_RECEIPT_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-inventory-receipts";
 import { PRODUCTION_PRODUCTS_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-production-products";
 import { SETTINGS_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-settings";
+import { FINANCE_OPERATIONS_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-finance-operations";
 
 const PERMISSION_ONLY = { eligibility: "permission_only" } as const;
 const OPTIONAL_APPROVAL_AUTO = {
@@ -104,6 +105,7 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   ...OPERATIONAL_BUSINESS_ACTION_REGISTRATIONS,
   ...AGENT_BUSINESS_ACTION_REGISTRATIONS,
   ...SETTINGS_BUSINESS_ACTION_REGISTRATIONS,
+  ...FINANCE_OPERATIONS_BUSINESS_ACTION_REGISTRATIONS,
   {
     ...HR_PERFORMANCE,
     eligibility: "workflow_optional",
@@ -481,10 +483,10 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.reclassAdjustment.save", label: "保存重分类调整", writeKind: "save", targetKind: "FinanceBalanceReclassAdjustment", directPermissionAction: "revise", apiRoutes: [route("PUT", "/api/modules/finance/ledger/reclass-adjustments")] },
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.reclassResult.generate", label: "生成重分类结果", writeKind: "update", targetKind: "ReclassResult", directPermissionAction: "revise", apiRoutes: [route("POST", "/api/modules/finance/ledger/reclass-results")] },
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.reclassResult.adjust", label: "调整重分类结果", writeKind: "update", targetKind: "ReclassResult", directPermissionAction: "revise", apiRoutes: [route("PATCH", "/api/modules/finance/ledger/reclass-results/:id")] },
-  { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.asset.create", label: "创建资产卡片", writeKind: "create", targetKind: "FinanceAssetCard", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/ledger/assets")] },
-  { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.asset.update", label: "更新资产卡片", writeKind: "update", targetKind: "FinanceAssetCard", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/finance/ledger/assets")] },
-  { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.assetAdjustment.create", label: "补录折旧摊销调整", writeKind: "revise", targetKind: "FinanceAssetAdjustment", directPermissionAction: "revise", apiRoutes: [route("POST", "/api/modules/finance/ledger/asset-adjustments")] },
-  { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.assetPeriod.recalculate", label: "重算折旧摊销期间", writeKind: "revise", targetKind: "FinanceAssetPeriodEntry", directPermissionAction: "revise", apiRoutes: [route("POST", "/api/modules/finance/ledger/asset-periods/recalculate")] },
+  { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.close.open", label: "开启关账工作台", writeKind: "create", targetKind: "FinanceCloseRun", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/ledger/closing")] },
+  { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.close.refresh", label: "刷新关账工作台", writeKind: "update", targetKind: "FinanceCloseRun", directPermissionAction: "update", apiRoutes: [route("POST", "/api/modules/finance/ledger/closing/refresh")] },
+  { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.close.workpaper.save", label: "保存关账底稿", writeKind: "update", targetKind: "FinanceCloseWorkpaper", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/finance/ledger/closing/workpapers")] },
+  { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.close.workpaper.review", label: "复核关账底稿", writeKind: "approve", targetKind: "FinanceCloseWorkpaper", directPermissionAction: "approve", apiRoutes: [route("POST", "/api/modules/finance/ledger/closing/workpapers/review")] },
   { ...FINANCE_STATEMENTS, ...PERMISSION_ONLY, key: "finance.statements.report.export", label: "下载财务三表", writeKind: "export", targetKind: "FinanceStatementWorkbook", directPermissionAction: "export", apiRoutes: [route("GET", "/api/modules/finance/statements/reports/export", "GET export is permission-only and generates no business record."), route("GET", "/api/modules/finance/statements/consolidation/batches/:batchId/report/export", "GET export is permission-only and generates no business record.")] },
   { ...FINANCE_STATEMENTS, ...PERMISSION_ONLY, key: "finance.statements.exchangeRate.save", label: "刷新报表汇率", writeKind: "update", targetKind: "FinanceStatementExchangeRate", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/statements/consolidation/exchange-rates")] },
   { ...FINANCE_STATEMENTS, ...PERMISSION_ONLY, key: "finance.statements.consolidationScope.save", label: "选择本次合并报表主体", writeKind: "save", targetKind: "FinanceConsolidationScopeSelection", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/finance/statements/consolidation/scope-selections")] },
@@ -503,7 +505,6 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   { ...FINANCE_STATEMENTS, ...PERMISSION_ONLY, key: "finance.statements.consolidationBatch.review", label: "独立复核合并批次", writeKind: "approve", targetKind: "FinanceConsolidationBatch", directPermissionAction: "approve", apiRoutes: [route("POST", "/api/modules/finance/statements/consolidation/batches/:batchId/review")] },
   { ...FINANCE_STATEMENTS, ...PERMISSION_ONLY, key: "finance.statements.consolidationBatch.lock", label: "锁定合并批次", writeKind: "approve", targetKind: "FinanceConsolidationBatch", directPermissionAction: "lock", apiRoutes: [route("POST", "/api/modules/finance/statements/consolidation/batches/:batchId/lock")] },
   { ...FINANCE_STATEMENTS, ...PERMISSION_ONLY, key: "finance.statements.consolidationBatch.publish", label: "发布合并报表", writeKind: "approve", targetKind: "FinanceConsolidationBatch", directPermissionAction: "approve", apiRoutes: [route("POST", "/api/modules/finance/statements/consolidation/batches/:batchId/publish")] },
-  { ...FINANCE_BUDGET, ...PERMISSION_ONLY, key: "finance.budget.import", label: "导入预算数据", writeKind: "import", targetKind: "FinanceBudgetImport", directPermissionAction: "import", apiRoutes: [route("POST", "/api/modules/finance/budget")] },
   { ...FINANCE_BUDGET, ...PERMISSION_ONLY, key: "finance.budget.version.create", label: "创建预算版本", writeKind: "create", targetKind: "BudgetVersion", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/budget/versions")] },
   { ...FINANCE_BUDGET, ...PERMISSION_ONLY, key: "finance.budget.version.activate", label: "启用预算版本", writeKind: "approve", targetKind: "BudgetVersion", directPermissionAction: "approve", apiRoutes: [route("POST", "/api/modules/finance/budget/versions/:id/activate")] },
   { ...FINANCE_COST, ...PERMISSION_ONLY, key: "finance.cost.import.delete", label: "删除成本导入批次", writeKind: "delete", targetKind: "FinanceCostImport", directPermissionAction: "delete", apiRoutes: [route("DELETE", "/api/modules/finance/cost/imports/:id")] },

@@ -97,7 +97,7 @@ export function useEmployeeAgreementAttachmentItems(input: {
         hint: "支持 PDF、Word 和图片；PDF 自动生成压缩版，原件保持不变",
         accept: ".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp",
         span: "wide",
-        spec: { valueType: "file", control: "file", state: busy === "upload" ? "disabled" : "required" },
+        spec: { valueType: "file", control: "file", state: busy === "upload" ? "disabled" : "normal" },
         onChange: (value) => setFile(value instanceof File ? value : null),
       },
       {

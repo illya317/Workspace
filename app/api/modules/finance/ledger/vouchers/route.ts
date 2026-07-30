@@ -2,11 +2,13 @@ import { z } from "zod";
 
 import {
   buildCreateVoucherCommand,
+  buildListVouchersCommand,
   executeCreateVoucherCommand,
   executeListVouchersCommand,
 } from "@workspace/finance/server/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { okCommand } from "@workspace/platform/server/domain-validation";const optionalPositiveInt = z.preprocess(
+
+const optionalPositiveInt = z.preprocess(
   (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
   z.number().int().positive().optional(),
 );
@@ -25,11 +27,14 @@ const listVouchersSchema = z.object({
   companyCode: z.string().optional(),
   year: optionalYear,
   month: optionalMonth,
+  periodKind: z.enum(["year", "quarter", "month"]).default("month"),
   keyword: z.string().default(""),
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().positive().max(200).default(50),
   voucherKind: z.enum(["standard", "group"]).default("standard"),
-  documentType: z.enum(["groupAdjustment", "elimination", "reclassification"]).optional(),
+  voucherPeriodScope: z.enum(["current", "history"]).default("current"),
+  sourceTraceLineId: optionalPositiveInt,
+  documentType: z.enum(["groupAdjustment", "elimination", "reclassification", "allocation"]).optional(),
   origin: z.enum(["manual", "system"]).optional(),
 });
 
@@ -52,7 +57,7 @@ const createVoucherSchema = z.object({
 export const GET = createCommandRoute({
   querySchema: listVouchersSchema,
   queryError: "参数无效",
-  buildCommand: ({ query }) => okCommand(query),
+  buildCommand: ({ query }) => buildListVouchersCommand(query),
   action: executeListVouchersCommand,
 });
 

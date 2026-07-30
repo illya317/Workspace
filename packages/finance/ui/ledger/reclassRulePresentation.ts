@@ -1,6 +1,7 @@
 import { matchText } from "@workspace/core/search";
 import type {
   FormSurfaceFieldSpec,
+  InputOption,
   SelectorSurfaceStatusSpec,
   SelectorSurfaceStructuredTreeItemSpec,
 } from "@workspace/core/ui";
@@ -11,7 +12,7 @@ import type {
 } from "@workspace/finance/types";
 
 import { balanceDirectionLabel, categoryLabel } from "./groupAccountMappingPresentation";
-import { reclassBasisLabel, type GroupRuleStatusFilter, type ReclassTargetOption } from "./reclassWorkbench";
+import { reclassBasisLabel, type GroupRuleStatusFilter } from "./reclassWorkbench";
 
 /** 左树节点负载：目录行提供层级与类别，候选提供规则状态。 */
 export interface RuleAccountTreeValue {
@@ -183,7 +184,7 @@ export function reclassRuleReadOnlyItems(candidate: RuleCandidate, targetLabel: 
 export function reclassRuleFormItems(input: {
   candidate: RuleCandidate;
   draft: ReclassRuleFormDraft;
-  targetOptions: ReclassTargetOption[];
+  targetOptions: InputOption[];
   onChange: (change: Partial<ReclassRuleFormDraft>) => void;
 }): FormSurfaceFieldSpec[] {
   const { candidate, draft } = input;

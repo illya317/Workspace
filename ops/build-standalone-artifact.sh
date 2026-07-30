@@ -233,6 +233,7 @@ copy_data_release_files() {
   echo "==> 打包私有数据发布执行器与生产回执门禁..."
   test -f ops/data-release.mjs
   test -f ops/apply-data-release.mjs
+  test -f ops/replace-production-database.sh
   test -f ops/prisma-genesis-cutover.mjs
   rm -rf .next/standalone/ops/data-releases
   mkdir -p .next/standalone/ops
@@ -240,6 +241,8 @@ copy_data_release_files() {
   cp ops/apply-data-release.mjs .next/standalone/ops/apply-data-release.mjs
   cp ops/data-release-handlers.mjs .next/standalone/ops/data-release-handlers.mjs
   cp ops/data-release-transfer.mjs .next/standalone/ops/data-release-transfer.mjs
+  cp ops/replace-production-database.sh .next/standalone/ops/replace-production-database.sh
+  chmod 755 .next/standalone/ops/replace-production-database.sh
   cp ops/prisma-genesis-cutover.mjs .next/standalone/ops/prisma-genesis-cutover.mjs
   cp tsconfig.json tsconfig.base.json .next/standalone/
   if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
@@ -255,10 +258,13 @@ copy_data_release_files() {
   test -f .next/standalone/ops/apply-data-release.mjs
   test -f .next/standalone/ops/data-release-handlers.mjs
   test -f .next/standalone/ops/data-release-transfer.mjs
+  test -x .next/standalone/ops/replace-production-database.sh
   test -f .next/standalone/ops/prisma-genesis-cutover.mjs
   test -f .next/standalone/tsconfig.json
   test -f .next/standalone/tsconfig.base.json
+  test -f .next/standalone/scripts/repair/repair-finance-consolidation-voucher.mjs
   test -f .next/standalone/scripts/repair/repair-hr-lifecycle-compatibility.mjs
+  test -f .next/standalone/scripts/repair/repair-hr-organization-baseline-compatibility.mjs
   test -f .next/standalone/scripts/repair/repair-hr-employment-agreement-baseline.mjs
   if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
     cmp .cnb-release.json .next/standalone/.cnb-release.json
@@ -283,6 +289,12 @@ else
     npm run build
 fi
 
+if [ ! -f .cache/source-code-analysis/snapshot.json ]; then
+  if ! npm run source-code-analysis:snapshot:optional; then
+    echo "[警告] 源码分析 snapshot 未生成；继续 standalone 打包" >&2
+  fi
+fi
+
 if [ ! -f .next/BUILD_ID ] || [ "$(cat .next/BUILD_ID)" != "$SOURCE_SHA" ]; then
   echo "[错误] .next/BUILD_ID 与 canonical source SHA 不一致；禁止打包错误构建"
   exit 1
@@ -304,6 +316,15 @@ mkdir -p "$standalone_app_dir/.next"
 cp -r .next/static "$standalone_app_dir/.next/static"
 rm -rf "$standalone_app_dir/public"
 cp -R public "$standalone_app_dir/public"
+if [ -f .cache/source-code-analysis/snapshot.json ]; then
+  if ! {
+    mkdir -p "$standalone_app_dir/.workspace/source-code-analysis" &&
+      cp .cache/source-code-analysis/snapshot.json "$standalone_app_dir/.workspace/source-code-analysis/snapshot.json"
+  }; then
+    echo "[警告] 源码分析 snapshot 未写入 standalone 产物；业务产物继续生成" >&2
+    rm -f "$standalone_app_dir/.workspace/source-code-analysis/snapshot.json" || true
+  fi
+fi
 # Runtime branding and avatar links point outside the repository. They must never enter the
 # portable standalone artifact; production relinks them from REMOTE_WORKSPACE_CONFIG_DIR after extract.
 for runtime_asset in \

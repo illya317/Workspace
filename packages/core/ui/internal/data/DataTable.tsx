@@ -4,14 +4,24 @@ import { Fragment, type KeyboardEvent, type MouseEvent } from "react";
 import { ActionButton } from "../action/ActionControls";
 import { ACTION_GLYPH_ACTION_BY_KEY } from "../action/ActionGlyphs";
 import { createDataTableEditActions } from "./DataTableActions";
+import {
+  DesktopTableCellValue,
+  MobileTableFact,
+  MobileTableValue,
+} from "./DataTableCells";
+import {
+  DataTableDisclosureHeaderCell,
+  disclosureColumnClass,
+} from "./DataTableDisclosure";
 import type { DataTableColumn, DataTableProps, DataTableRowAction } from "./DataTable.types";
-import { FieldContextProvider, type FieldContextValue } from "../input/field-context";
-import { textOverflowTitle } from "../common/text-overflow";
 import {
   resolveDataTableLayoutClass,
   resolveStandardTableColumnWidths,
   resolveStandardTableMinWidth,
+  resolveTableCellSelectionClass,
+  resolveTableCellStateClass,
   resolveTableColumnClass,
+  resolveTableDisclosureClass,
   resolveTablePresentation,
   resolveTableRowStateClass,
 } from "./table-presentation";
@@ -218,20 +228,21 @@ export default function DataTable<T>({
       <thead className={tablePresentation.head}>
         <tr>
           {visible.map((col, columnIndex) => (
-            <th
+            <DataTableDisclosureHeaderCell
               key={col.key}
-              title={textOverflowTitle(col.label)}
-              onClick={col.onHeaderClick}
-              className={`${tablePresentation.headerCell} ${resolveTableColumnClass(col)} ${matrixPinnedColumnClass(columnIndex, true, matrix)} ${col.onHeaderClick ? "cursor-pointer select-none" : ""}`}
-            >
-              {col.label}
-            </th>
+              column={col}
+              columnIndex={columnIndex}
+              columns={visible}
+              headerCellClassName={tablePresentation.headerCell}
+              pinnedClassName={matrixPinnedColumnClass(columnIndex, true, matrix)}
+            />
           ))}
         </tr>
       </thead>
       <tbody className={tablePresentation.body}>
         {rows.map((row, index) => {
           const key = rowKey(row, index);
+          const state = rowState?.(row) ?? "normal";
           const isExpanded =
             (expandedRowKey != null && expandedRowKey === key)
             || (expandedRowKeys instanceof Set
@@ -240,25 +251,35 @@ export default function DataTable<T>({
           return (
             <Fragment key={key}>
               <tr
-                className={`group ${matrix ? "bg-white" : ""} ${tablePresentation.getRowClassName(index)} ${resolveTableRowStateClass(rowState?.(row))}`}
+                data-disclosure-axis={isExpanded ? "row" : undefined}
+                data-disclosure-role={isExpanded ? "trigger" : undefined}
+                data-disclosure-expanded={isExpanded || undefined}
+                className={`group ${matrix && state === "normal" ? "bg-white" : ""} ${tablePresentation.getRowClassName(index)} ${resolveTableRowStateClass(state)} ${isExpanded ? resolveTableDisclosureClass({ axis: "row", role: "trigger", expanded: true }) : ""}`}
                 onClick={() => onRowClick?.(row)}
               >
                 {visible.map((col, columnIndex) => (
-                  <td
-                    key={col.key}
-                    className={`${tablePresentation.cell} ${resolveTableColumnClass(col)} ${matrixPinnedColumnClass(columnIndex, false, matrix)}`}
-                  >
-                    <DesktopTableCellValue
-                      column={col}
-                      row={row}
-                      fieldContext={fieldContext}
-                      className={tablePresentation.cellContent}
-                    />
-                  </td>
+                    <td
+                      key={col.key}
+                      data-disclosure-axis={col.disclosure ? "column" : undefined}
+                      data-disclosure-role={col.disclosure?.role}
+                      data-disclosure-group={col.disclosure?.groupKey}
+                      className={`${tablePresentation.cell} ${resolveTableColumnClass(col)} ${matrixPinnedColumnClass(columnIndex, false, matrix)} ${disclosureColumnClass(visible, columnIndex, "body")} ${resolveTableCellStateClass(col.cellState?.(row))} ${resolveTableCellSelectionClass(col.cellSelected?.(row))}`}
+                    >
+                      <DesktopTableCellValue
+                        column={col}
+                        row={row}
+                        fieldContext={fieldContext}
+                        className={tablePresentation.cellContent}
+                      />
+                    </td>
                 ))}
               </tr>
               {isExpanded && renderExpandedRow && (
-                <tr className={tablePresentation.expandedRow}>
+                <tr
+                  data-disclosure-axis="row"
+                  data-disclosure-role="detail"
+                  className={`${tablePresentation.expandedRow} ${resolveTableDisclosureClass({ axis: "row", role: "detail" })}`}
+                >
                   <td colSpan={visible.length} className={tablePresentation.cell}>
                     {renderExpandedRow(row)}
                   </td>
@@ -296,7 +317,10 @@ export default function DataTable<T>({
             <article
               key={key}
               role="listitem"
-              className={`relative px-4 py-4 ${stateClassName} ${onRowClick ? "cursor-pointer transition active:bg-emerald-50" : ""}`}
+              data-disclosure-axis={isExpanded ? "row" : undefined}
+              data-disclosure-role={isExpanded ? "trigger" : undefined}
+              data-disclosure-expanded={isExpanded || undefined}
+              className={`relative px-4 py-4 ${stateClassName} ${isExpanded ? resolveTableDisclosureClass({ axis: "row", role: "trigger", expanded: true }) : ""} ${onRowClick ? "cursor-pointer transition active:bg-emerald-50" : ""}`}
               tabIndex={onRowClick ? 0 : undefined}
               onClick={onRowClick ? (event) => activateDataRowFromClick(event, row, onRowClick) : undefined}
               onKeyDown={onRowClick ? (event) => activateDataRowFromKeyboard(event, row, onRowClick) : undefined}
@@ -343,7 +367,11 @@ export default function DataTable<T>({
                 </div>
               ) : null}
               {isExpanded && renderExpandedRow ? (
-                <div className="mt-3 border-t border-slate-100 pt-3">
+                <div
+                  data-disclosure-axis="row"
+                  data-disclosure-role="detail"
+                  className={`-mx-4 mb-[-1rem] mt-3 border-t border-emerald-100 px-4 pb-4 pt-3 ${resolveTableDisclosureClass({ axis: "row", role: "detail" })}`}
+                >
                   {renderExpandedRow(row)}
                 </div>
               ) : null}
@@ -383,58 +411,6 @@ function activateDataRowFromKeyboard<T>(
 function isNestedInteractiveTarget(target: EventTarget | null, row: Element) {
   if (!(target instanceof Element) || target === row) return false;
   return Boolean(target.closest("a,button,input,select,textarea,summary,details,[role='button'],[role='link'],[contenteditable='true'],[data-row-interaction-stop]"));
-}
-
-function MobileTableFact<T>({
-  column,
-  row,
-  fieldContext,
-  detail = false,
-}: {
-  column: DataTableColumn<T>;
-  row: T;
-  fieldContext: FieldContextValue;
-  detail?: boolean;
-}) {
-  return (
-    <div className={detail ? "grid grid-cols-[5rem_minmax(0,1fr)] gap-3" : "min-w-0"}>
-      <dt className="min-w-0 break-words text-xs font-semibold leading-5 text-slate-400">{column.label}</dt>
-      <dd className={`${detail ? "" : "mt-0.5"} ${resolveTableColumnClass(column)} !w-auto !max-w-none min-w-0 whitespace-normal break-words text-sm leading-5 text-slate-700`}>
-        <MobileTableValue column={column} row={row} fieldContext={fieldContext} />
-      </dd>
-    </div>
-  );
-}
-
-function MobileTableValue<T>({
-  column,
-  row,
-  fieldContext,
-}: {
-  column: DataTableColumn<T>;
-  row: T;
-  fieldContext: FieldContextValue;
-}) {
-  return <FieldContextProvider value={fieldContext}>{column.render(row)}</FieldContextProvider>;
-}
-
-function DesktopTableCellValue<T>({
-  column,
-  row,
-  fieldContext,
-  className,
-}: {
-  column: DataTableColumn<T>;
-  row: T;
-  fieldContext: FieldContextValue;
-  className: string;
-}) {
-  const content = column.render(row);
-  return (
-    <div className={className} title={textOverflowTitle(content)}>
-      <FieldContextProvider value={fieldContext}>{content}</FieldContextProvider>
-    </div>
-  );
 }
 
 function matrixPinnedColumnClass(columnIndex: number, header: boolean, matrix: boolean) {

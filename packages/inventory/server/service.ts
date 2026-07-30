@@ -25,9 +25,15 @@ export async function createInventoryDocument(input: CreateInventoryDocumentInpu
   if (items.length !== new Set(input.lines.map((line) => line.itemId)).size) throw new Error("物料不存在或不属于当前公司");
   if (warehouses.length !== new Set(input.lines.map((line) => line.warehouseId)).size) throw new Error("仓库不存在或不属于当前公司");
   if (close?.status === "closed") throw new Error("存货期间已关闭，不能新增单据");
+  const counterparty = input.counterpartyPartyId
+    ? await prisma.party.findUnique({ where: { id: input.counterpartyPartyId }, select: { id: true, name: true } })
+    : input.counterparty
+      ? await prisma.party.findMany({ where: { name: input.counterparty }, select: { id: true, name: true }, take: 2 }).then((rows) => rows.length === 1 ? rows[0] : null)
+      : null;
+  if ((input.counterpartyPartyId || input.counterparty) && !counterparty) throw new Error("往来单位必须唯一命中法定主体主数据");
   return prisma.inventoryDocument.create({
     data: {
-      companyCode: input.companyCode, documentNo: input.documentNo, documentType: input.documentType, documentDate: input.documentDate, counterparty: input.counterparty || null, referenceNo: input.referenceNo || null, note: input.note || null, createdBy: userId,
+      companyCode: input.companyCode, documentNo: input.documentNo, documentType: input.documentType, documentDate: input.documentDate, counterparty: counterparty?.name ?? null, counterpartyPartyId: counterparty?.id ?? null, referenceNo: input.referenceNo || null, note: input.note || null, createdBy: userId,
       lines: { create: input.lines.map((line, index) => ({ itemId: line.itemId, warehouseId: line.warehouseId, batchId: line.batchId || null, quantity: line.quantity, unit: line.unit, unitFactor: line.unitFactor ?? 1, unitPrice: line.unitPrice ?? null, sourceKey: `manual:${index + 1}` })) },
     },
     include: { lines: true },
@@ -95,7 +101,7 @@ async function reverseDocument(document: Awaited<ReturnType<typeof loadDocument>
   const originalEntries = await prisma.inventoryLedgerEntry.findMany({ where: { documentLineId: { in: document.lines.map((line) => line.id) } } });
   return prisma.$transaction(async (tx) => {
     const reversal = await tx.inventoryDocument.create({
-      data: { companyCode: document.companyCode, documentNo: `${document.documentNo}-R`, documentType: document.documentType, documentDate: document.documentDate, status: "posted", referenceNo: document.documentNo, note: `冲销 ${document.documentNo}`, createdBy: userId, postedBy: userId, postedAt: new Date(), lines: { create: document.lines.map((line, index) => ({ itemId: line.itemId, warehouseId: line.warehouseId, batchId: line.batchId, quantity: line.quantity, unit: line.unit, unitFactor: line.unitFactor, unitPrice: line.unitPrice, sourceKey: `reversal:${index + 1}` })) } },
+      data: { companyCode: document.companyCode, documentNo: `${document.documentNo}-R`, documentType: document.documentType, documentDate: document.documentDate, status: "posted", counterparty: document.counterparty, counterpartyPartyId: document.counterpartyPartyId, referenceNo: document.documentNo, note: `冲销 ${document.documentNo}`, createdBy: userId, postedBy: userId, postedAt: new Date(), lines: { create: document.lines.map((line, index) => ({ itemId: line.itemId, warehouseId: line.warehouseId, batchId: line.batchId, quantity: line.quantity, unit: line.unit, unitFactor: line.unitFactor, unitPrice: line.unitPrice, sourceKey: `reversal:${index + 1}` })) } },
       include: { lines: true },
     });
     for (let index = 0; index < reversal.lines.length; index += 1) {

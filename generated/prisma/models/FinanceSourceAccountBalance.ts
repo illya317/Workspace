@@ -31,6 +31,7 @@ export type FinanceSourceAccountBalanceAvgAggregateOutputType = {
   importId: number | null
   periodId: number | null
   accountId: number | null
+  companyId: number | null
   openingDebit: runtime.Decimal | null
   openingCredit: runtime.Decimal | null
   currentDebit: runtime.Decimal | null
@@ -44,6 +45,7 @@ export type FinanceSourceAccountBalanceSumAggregateOutputType = {
   importId: number | null
   periodId: number | null
   accountId: number | null
+  companyId: number | null
   openingDebit: runtime.Decimal | null
   openingCredit: runtime.Decimal | null
   currentDebit: runtime.Decimal | null
@@ -58,6 +60,7 @@ export type FinanceSourceAccountBalanceMinAggregateOutputType = {
   periodId: number | null
   accountId: number | null
   companyCode: string | null
+  companyId: number | null
   sourceSystem: string | null
   sourceDatabase: string | null
   sourceKey: string | null
@@ -77,6 +80,7 @@ export type FinanceSourceAccountBalanceMaxAggregateOutputType = {
   periodId: number | null
   accountId: number | null
   companyCode: string | null
+  companyId: number | null
   sourceSystem: string | null
   sourceDatabase: string | null
   sourceKey: string | null
@@ -96,6 +100,7 @@ export type FinanceSourceAccountBalanceCountAggregateOutputType = {
   periodId: number
   accountId: number
   companyCode: number
+  companyId: number
   sourceSystem: number
   sourceDatabase: number
   sourceKey: number
@@ -116,6 +121,7 @@ export type FinanceSourceAccountBalanceAvgAggregateInputType = {
   importId?: true
   periodId?: true
   accountId?: true
+  companyId?: true
   openingDebit?: true
   openingCredit?: true
   currentDebit?: true
@@ -129,6 +135,7 @@ export type FinanceSourceAccountBalanceSumAggregateInputType = {
   importId?: true
   periodId?: true
   accountId?: true
+  companyId?: true
   openingDebit?: true
   openingCredit?: true
   currentDebit?: true
@@ -143,6 +150,7 @@ export type FinanceSourceAccountBalanceMinAggregateInputType = {
   periodId?: true
   accountId?: true
   companyCode?: true
+  companyId?: true
   sourceSystem?: true
   sourceDatabase?: true
   sourceKey?: true
@@ -162,6 +170,7 @@ export type FinanceSourceAccountBalanceMaxAggregateInputType = {
   periodId?: true
   accountId?: true
   companyCode?: true
+  companyId?: true
   sourceSystem?: true
   sourceDatabase?: true
   sourceKey?: true
@@ -181,6 +190,7 @@ export type FinanceSourceAccountBalanceCountAggregateInputType = {
   periodId?: true
   accountId?: true
   companyCode?: true
+  companyId?: true
   sourceSystem?: true
   sourceDatabase?: true
   sourceKey?: true
@@ -287,6 +297,7 @@ export type FinanceSourceAccountBalanceGroupByOutputType = {
   periodId: number
   accountId: number
   companyCode: string
+  companyId: number | null
   sourceSystem: string
   sourceDatabase: string
   sourceKey: string
@@ -329,6 +340,7 @@ export type FinanceSourceAccountBalanceWhereInput = {
   periodId?: Prisma.IntFilter<"FinanceSourceAccountBalance"> | number
   accountId?: Prisma.IntFilter<"FinanceSourceAccountBalance"> | number
   companyCode?: Prisma.StringFilter<"FinanceSourceAccountBalance"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceSourceAccountBalance"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceSourceAccountBalance"> | string
   sourceDatabase?: Prisma.StringFilter<"FinanceSourceAccountBalance"> | string
   sourceKey?: Prisma.StringFilter<"FinanceSourceAccountBalance"> | string
@@ -343,6 +355,7 @@ export type FinanceSourceAccountBalanceWhereInput = {
   import?: Prisma.XOR<Prisma.FinanceLedgerImportScalarRelationFilter, Prisma.FinanceLedgerImportWhereInput>
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceSourceAccountBalanceOrderByWithRelationInput = {
@@ -351,6 +364,7 @@ export type FinanceSourceAccountBalanceOrderByWithRelationInput = {
   periodId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrder
   sourceKey?: Prisma.SortOrder
@@ -365,6 +379,7 @@ export type FinanceSourceAccountBalanceOrderByWithRelationInput = {
   import?: Prisma.FinanceLedgerImportOrderByWithRelationInput
   period?: Prisma.FinancePeriodOrderByWithRelationInput
   account?: Prisma.FinanceAccountOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceSourceAccountBalanceWhereUniqueInput = Prisma.AtLeast<{
@@ -377,6 +392,7 @@ export type FinanceSourceAccountBalanceWhereUniqueInput = Prisma.AtLeast<{
   periodId?: Prisma.IntFilter<"FinanceSourceAccountBalance"> | number
   accountId?: Prisma.IntFilter<"FinanceSourceAccountBalance"> | number
   companyCode?: Prisma.StringFilter<"FinanceSourceAccountBalance"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceSourceAccountBalance"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceSourceAccountBalance"> | string
   sourceDatabase?: Prisma.StringFilter<"FinanceSourceAccountBalance"> | string
   sourceKey?: Prisma.StringFilter<"FinanceSourceAccountBalance"> | string
@@ -391,6 +407,7 @@ export type FinanceSourceAccountBalanceWhereUniqueInput = Prisma.AtLeast<{
   import?: Prisma.XOR<Prisma.FinanceLedgerImportScalarRelationFilter, Prisma.FinanceLedgerImportWhereInput>
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "sourceSystem_sourceDatabase_sourceKey">
 
 export type FinanceSourceAccountBalanceOrderByWithAggregationInput = {
@@ -399,6 +416,7 @@ export type FinanceSourceAccountBalanceOrderByWithAggregationInput = {
   periodId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrder
   sourceKey?: Prisma.SortOrder
@@ -426,6 +444,7 @@ export type FinanceSourceAccountBalanceScalarWhereWithAggregatesInput = {
   periodId?: Prisma.IntWithAggregatesFilter<"FinanceSourceAccountBalance"> | number
   accountId?: Prisma.IntWithAggregatesFilter<"FinanceSourceAccountBalance"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceSourceAccountBalance"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceSourceAccountBalance"> | number | null
   sourceSystem?: Prisma.StringWithAggregatesFilter<"FinanceSourceAccountBalance"> | string
   sourceDatabase?: Prisma.StringWithAggregatesFilter<"FinanceSourceAccountBalance"> | string
   sourceKey?: Prisma.StringWithAggregatesFilter<"FinanceSourceAccountBalance"> | string
@@ -455,6 +474,7 @@ export type FinanceSourceAccountBalanceCreateInput = {
   import: Prisma.FinanceLedgerImportCreateNestedOneWithoutSourceBalancesInput
   period: Prisma.FinancePeriodCreateNestedOneWithoutSourceBalancesInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutSourceBalancesInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceSourceAccountBalancesInput
 }
 
 export type FinanceSourceAccountBalanceUncheckedCreateInput = {
@@ -463,6 +483,7 @@ export type FinanceSourceAccountBalanceUncheckedCreateInput = {
   periodId: number
   accountId: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceDatabase: string
   sourceKey: string
@@ -492,6 +513,7 @@ export type FinanceSourceAccountBalanceUpdateInput = {
   import?: Prisma.FinanceLedgerImportUpdateOneRequiredWithoutSourceBalancesNestedInput
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutSourceBalancesNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutSourceBalancesNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceSourceAccountBalancesNestedInput
 }
 
 export type FinanceSourceAccountBalanceUncheckedUpdateInput = {
@@ -500,6 +522,7 @@ export type FinanceSourceAccountBalanceUncheckedUpdateInput = {
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -519,6 +542,7 @@ export type FinanceSourceAccountBalanceCreateManyInput = {
   periodId: number
   accountId: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceDatabase: string
   sourceKey: string
@@ -553,6 +577,7 @@ export type FinanceSourceAccountBalanceUncheckedUpdateManyInput = {
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -588,6 +613,7 @@ export type FinanceSourceAccountBalanceCountOrderByAggregateInput = {
   periodId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrder
   sourceKey?: Prisma.SortOrder
@@ -606,6 +632,7 @@ export type FinanceSourceAccountBalanceAvgOrderByAggregateInput = {
   importId?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   openingDebit?: Prisma.SortOrder
   openingCredit?: Prisma.SortOrder
   currentDebit?: Prisma.SortOrder
@@ -620,6 +647,7 @@ export type FinanceSourceAccountBalanceMaxOrderByAggregateInput = {
   periodId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrder
   sourceKey?: Prisma.SortOrder
@@ -639,6 +667,7 @@ export type FinanceSourceAccountBalanceMinOrderByAggregateInput = {
   periodId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrder
   sourceKey?: Prisma.SortOrder
@@ -657,6 +686,7 @@ export type FinanceSourceAccountBalanceSumOrderByAggregateInput = {
   importId?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   openingDebit?: Prisma.SortOrder
   openingCredit?: Prisma.SortOrder
   currentDebit?: Prisma.SortOrder
@@ -791,6 +821,48 @@ export type FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInp
   deleteMany?: Prisma.FinanceSourceAccountBalanceScalarWhereInput | Prisma.FinanceSourceAccountBalanceScalarWhereInput[]
 }
 
+export type FinanceSourceAccountBalanceCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceSourceAccountBalanceCreateWithoutCompanyInput, Prisma.FinanceSourceAccountBalanceUncheckedCreateWithoutCompanyInput> | Prisma.FinanceSourceAccountBalanceCreateWithoutCompanyInput[] | Prisma.FinanceSourceAccountBalanceUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceSourceAccountBalanceCreateOrConnectWithoutCompanyInput | Prisma.FinanceSourceAccountBalanceCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceSourceAccountBalanceCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceSourceAccountBalanceWhereUniqueInput | Prisma.FinanceSourceAccountBalanceWhereUniqueInput[]
+}
+
+export type FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceSourceAccountBalanceCreateWithoutCompanyInput, Prisma.FinanceSourceAccountBalanceUncheckedCreateWithoutCompanyInput> | Prisma.FinanceSourceAccountBalanceCreateWithoutCompanyInput[] | Prisma.FinanceSourceAccountBalanceUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceSourceAccountBalanceCreateOrConnectWithoutCompanyInput | Prisma.FinanceSourceAccountBalanceCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceSourceAccountBalanceCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceSourceAccountBalanceWhereUniqueInput | Prisma.FinanceSourceAccountBalanceWhereUniqueInput[]
+}
+
+export type FinanceSourceAccountBalanceUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceSourceAccountBalanceCreateWithoutCompanyInput, Prisma.FinanceSourceAccountBalanceUncheckedCreateWithoutCompanyInput> | Prisma.FinanceSourceAccountBalanceCreateWithoutCompanyInput[] | Prisma.FinanceSourceAccountBalanceUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceSourceAccountBalanceCreateOrConnectWithoutCompanyInput | Prisma.FinanceSourceAccountBalanceCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceSourceAccountBalanceUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceSourceAccountBalanceUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceSourceAccountBalanceCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceSourceAccountBalanceWhereUniqueInput | Prisma.FinanceSourceAccountBalanceWhereUniqueInput[]
+  disconnect?: Prisma.FinanceSourceAccountBalanceWhereUniqueInput | Prisma.FinanceSourceAccountBalanceWhereUniqueInput[]
+  delete?: Prisma.FinanceSourceAccountBalanceWhereUniqueInput | Prisma.FinanceSourceAccountBalanceWhereUniqueInput[]
+  connect?: Prisma.FinanceSourceAccountBalanceWhereUniqueInput | Prisma.FinanceSourceAccountBalanceWhereUniqueInput[]
+  update?: Prisma.FinanceSourceAccountBalanceUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceSourceAccountBalanceUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceSourceAccountBalanceUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceSourceAccountBalanceUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceSourceAccountBalanceScalarWhereInput | Prisma.FinanceSourceAccountBalanceScalarWhereInput[]
+}
+
+export type FinanceSourceAccountBalanceUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceSourceAccountBalanceCreateWithoutCompanyInput, Prisma.FinanceSourceAccountBalanceUncheckedCreateWithoutCompanyInput> | Prisma.FinanceSourceAccountBalanceCreateWithoutCompanyInput[] | Prisma.FinanceSourceAccountBalanceUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceSourceAccountBalanceCreateOrConnectWithoutCompanyInput | Prisma.FinanceSourceAccountBalanceCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceSourceAccountBalanceUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceSourceAccountBalanceUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceSourceAccountBalanceCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceSourceAccountBalanceWhereUniqueInput | Prisma.FinanceSourceAccountBalanceWhereUniqueInput[]
+  disconnect?: Prisma.FinanceSourceAccountBalanceWhereUniqueInput | Prisma.FinanceSourceAccountBalanceWhereUniqueInput[]
+  delete?: Prisma.FinanceSourceAccountBalanceWhereUniqueInput | Prisma.FinanceSourceAccountBalanceWhereUniqueInput[]
+  connect?: Prisma.FinanceSourceAccountBalanceWhereUniqueInput | Prisma.FinanceSourceAccountBalanceWhereUniqueInput[]
+  update?: Prisma.FinanceSourceAccountBalanceUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceSourceAccountBalanceUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceSourceAccountBalanceUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceSourceAccountBalanceUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceSourceAccountBalanceScalarWhereInput | Prisma.FinanceSourceAccountBalanceScalarWhereInput[]
+}
+
 export type FinanceSourceAccountBalanceCreateWithoutImportInput = {
   companyCode: string
   sourceSystem: string
@@ -806,6 +878,7 @@ export type FinanceSourceAccountBalanceCreateWithoutImportInput = {
   updatedAt?: Date | string
   period: Prisma.FinancePeriodCreateNestedOneWithoutSourceBalancesInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutSourceBalancesInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceSourceAccountBalancesInput
 }
 
 export type FinanceSourceAccountBalanceUncheckedCreateWithoutImportInput = {
@@ -813,6 +886,7 @@ export type FinanceSourceAccountBalanceUncheckedCreateWithoutImportInput = {
   periodId: number
   accountId: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceDatabase: string
   sourceKey: string
@@ -861,6 +935,7 @@ export type FinanceSourceAccountBalanceScalarWhereInput = {
   periodId?: Prisma.IntFilter<"FinanceSourceAccountBalance"> | number
   accountId?: Prisma.IntFilter<"FinanceSourceAccountBalance"> | number
   companyCode?: Prisma.StringFilter<"FinanceSourceAccountBalance"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceSourceAccountBalance"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceSourceAccountBalance"> | string
   sourceDatabase?: Prisma.StringFilter<"FinanceSourceAccountBalance"> | string
   sourceKey?: Prisma.StringFilter<"FinanceSourceAccountBalance"> | string
@@ -889,6 +964,7 @@ export type FinanceSourceAccountBalanceCreateWithoutAccountInput = {
   updatedAt?: Date | string
   import: Prisma.FinanceLedgerImportCreateNestedOneWithoutSourceBalancesInput
   period: Prisma.FinancePeriodCreateNestedOneWithoutSourceBalancesInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceSourceAccountBalancesInput
 }
 
 export type FinanceSourceAccountBalanceUncheckedCreateWithoutAccountInput = {
@@ -896,6 +972,7 @@ export type FinanceSourceAccountBalanceUncheckedCreateWithoutAccountInput = {
   importId: number
   periodId: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceDatabase: string
   sourceKey: string
@@ -950,6 +1027,7 @@ export type FinanceSourceAccountBalanceCreateWithoutPeriodInput = {
   updatedAt?: Date | string
   import: Prisma.FinanceLedgerImportCreateNestedOneWithoutSourceBalancesInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutSourceBalancesInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceSourceAccountBalancesInput
 }
 
 export type FinanceSourceAccountBalanceUncheckedCreateWithoutPeriodInput = {
@@ -957,6 +1035,7 @@ export type FinanceSourceAccountBalanceUncheckedCreateWithoutPeriodInput = {
   importId: number
   accountId: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceDatabase: string
   sourceKey: string
@@ -996,11 +1075,75 @@ export type FinanceSourceAccountBalanceUpdateManyWithWhereWithoutPeriodInput = {
   data: Prisma.XOR<Prisma.FinanceSourceAccountBalanceUpdateManyMutationInput, Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodInput>
 }
 
+export type FinanceSourceAccountBalanceCreateWithoutCompanyInput = {
+  companyCode: string
+  sourceSystem: string
+  sourceDatabase: string
+  sourceKey: string
+  openingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  import: Prisma.FinanceLedgerImportCreateNestedOneWithoutSourceBalancesInput
+  period: Prisma.FinancePeriodCreateNestedOneWithoutSourceBalancesInput
+  account: Prisma.FinanceAccountCreateNestedOneWithoutSourceBalancesInput
+}
+
+export type FinanceSourceAccountBalanceUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  importId: number
+  periodId: number
+  accountId: number
+  companyCode: string
+  sourceSystem: string
+  sourceDatabase: string
+  sourceKey: string
+  openingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceSourceAccountBalanceCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceSourceAccountBalanceWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceSourceAccountBalanceCreateWithoutCompanyInput, Prisma.FinanceSourceAccountBalanceUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceSourceAccountBalanceCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceSourceAccountBalanceCreateManyCompanyInput | Prisma.FinanceSourceAccountBalanceCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceSourceAccountBalanceUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceSourceAccountBalanceWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceSourceAccountBalanceUpdateWithoutCompanyInput, Prisma.FinanceSourceAccountBalanceUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceSourceAccountBalanceCreateWithoutCompanyInput, Prisma.FinanceSourceAccountBalanceUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceSourceAccountBalanceUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceSourceAccountBalanceWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceSourceAccountBalanceUpdateWithoutCompanyInput, Prisma.FinanceSourceAccountBalanceUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceSourceAccountBalanceUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceSourceAccountBalanceScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceSourceAccountBalanceUpdateManyMutationInput, Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutCompanyInput>
+}
+
 export type FinanceSourceAccountBalanceCreateManyImportInput = {
   id?: number
   periodId: number
   accountId: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceDatabase: string
   sourceKey: string
@@ -1029,6 +1172,7 @@ export type FinanceSourceAccountBalanceUpdateWithoutImportInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutSourceBalancesNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutSourceBalancesNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceSourceAccountBalancesNestedInput
 }
 
 export type FinanceSourceAccountBalanceUncheckedUpdateWithoutImportInput = {
@@ -1036,6 +1180,7 @@ export type FinanceSourceAccountBalanceUncheckedUpdateWithoutImportInput = {
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1054,6 +1199,7 @@ export type FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportInput = {
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1072,6 +1218,7 @@ export type FinanceSourceAccountBalanceCreateManyAccountInput = {
   importId: number
   periodId: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceDatabase: string
   sourceKey: string
@@ -1100,6 +1247,7 @@ export type FinanceSourceAccountBalanceUpdateWithoutAccountInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   import?: Prisma.FinanceLedgerImportUpdateOneRequiredWithoutSourceBalancesNestedInput
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutSourceBalancesNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceSourceAccountBalancesNestedInput
 }
 
 export type FinanceSourceAccountBalanceUncheckedUpdateWithoutAccountInput = {
@@ -1107,6 +1255,7 @@ export type FinanceSourceAccountBalanceUncheckedUpdateWithoutAccountInput = {
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1125,6 +1274,7 @@ export type FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountInput = 
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1143,6 +1293,7 @@ export type FinanceSourceAccountBalanceCreateManyPeriodInput = {
   importId: number
   accountId: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceDatabase: string
   sourceKey: string
@@ -1171,6 +1322,7 @@ export type FinanceSourceAccountBalanceUpdateWithoutPeriodInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   import?: Prisma.FinanceLedgerImportUpdateOneRequiredWithoutSourceBalancesNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutSourceBalancesNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceSourceAccountBalancesNestedInput
 }
 
 export type FinanceSourceAccountBalanceUncheckedUpdateWithoutPeriodInput = {
@@ -1178,6 +1330,7 @@ export type FinanceSourceAccountBalanceUncheckedUpdateWithoutPeriodInput = {
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1194,6 +1347,82 @@ export type FinanceSourceAccountBalanceUncheckedUpdateWithoutPeriodInput = {
 export type FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   importId?: Prisma.IntFieldUpdateOperationsInput | number
+  accountId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  openingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceSourceAccountBalanceCreateManyCompanyInput = {
+  id?: number
+  importId: number
+  periodId: number
+  accountId: number
+  companyCode: string
+  sourceSystem: string
+  sourceDatabase: string
+  sourceKey: string
+  openingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceSourceAccountBalanceUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  openingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  import?: Prisma.FinanceLedgerImportUpdateOneRequiredWithoutSourceBalancesNestedInput
+  period?: Prisma.FinancePeriodUpdateOneRequiredWithoutSourceBalancesNestedInput
+  account?: Prisma.FinanceAccountUpdateOneRequiredWithoutSourceBalancesNestedInput
+}
+
+export type FinanceSourceAccountBalanceUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  importId?: Prisma.IntFieldUpdateOperationsInput | number
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  accountId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  openingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  closingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceSourceAccountBalanceUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  importId?: Prisma.IntFieldUpdateOperationsInput | number
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1217,6 +1446,7 @@ export type FinanceSourceAccountBalanceSelect<ExtArgs extends runtime.Types.Exte
   periodId?: boolean
   accountId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceDatabase?: boolean
   sourceKey?: boolean
@@ -1231,6 +1461,7 @@ export type FinanceSourceAccountBalanceSelect<ExtArgs extends runtime.Types.Exte
   import?: boolean | Prisma.FinanceLedgerImportDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceSourceAccountBalance$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeSourceAccountBalance"]>
 
 export type FinanceSourceAccountBalanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1239,6 +1470,7 @@ export type FinanceSourceAccountBalanceSelectCreateManyAndReturn<ExtArgs extends
   periodId?: boolean
   accountId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceDatabase?: boolean
   sourceKey?: boolean
@@ -1253,6 +1485,7 @@ export type FinanceSourceAccountBalanceSelectCreateManyAndReturn<ExtArgs extends
   import?: boolean | Prisma.FinanceLedgerImportDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceSourceAccountBalance$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeSourceAccountBalance"]>
 
 export type FinanceSourceAccountBalanceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1261,6 +1494,7 @@ export type FinanceSourceAccountBalanceSelectUpdateManyAndReturn<ExtArgs extends
   periodId?: boolean
   accountId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceDatabase?: boolean
   sourceKey?: boolean
@@ -1275,6 +1509,7 @@ export type FinanceSourceAccountBalanceSelectUpdateManyAndReturn<ExtArgs extends
   import?: boolean | Prisma.FinanceLedgerImportDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceSourceAccountBalance$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeSourceAccountBalance"]>
 
 export type FinanceSourceAccountBalanceSelectScalar = {
@@ -1283,6 +1518,7 @@ export type FinanceSourceAccountBalanceSelectScalar = {
   periodId?: boolean
   accountId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceDatabase?: boolean
   sourceKey?: boolean
@@ -1296,21 +1532,24 @@ export type FinanceSourceAccountBalanceSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceSourceAccountBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importId" | "periodId" | "accountId" | "companyCode" | "sourceSystem" | "sourceDatabase" | "sourceKey" | "openingDebit" | "openingCredit" | "currentDebit" | "currentCredit" | "closingDebit" | "closingCredit" | "createdAt" | "updatedAt", ExtArgs["result"]["financeSourceAccountBalance"]>
+export type FinanceSourceAccountBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importId" | "periodId" | "accountId" | "companyCode" | "companyId" | "sourceSystem" | "sourceDatabase" | "sourceKey" | "openingDebit" | "openingCredit" | "currentDebit" | "currentCredit" | "closingDebit" | "closingCredit" | "createdAt" | "updatedAt", ExtArgs["result"]["financeSourceAccountBalance"]>
 export type FinanceSourceAccountBalanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   import?: boolean | Prisma.FinanceLedgerImportDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceSourceAccountBalance$companyArgs<ExtArgs>
 }
 export type FinanceSourceAccountBalanceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   import?: boolean | Prisma.FinanceLedgerImportDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceSourceAccountBalance$companyArgs<ExtArgs>
 }
 export type FinanceSourceAccountBalanceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   import?: boolean | Prisma.FinanceLedgerImportDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceSourceAccountBalance$companyArgs<ExtArgs>
 }
 
 export type $FinanceSourceAccountBalancePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1319,6 +1558,7 @@ export type $FinanceSourceAccountBalancePayload<ExtArgs extends runtime.Types.Ex
     import: Prisma.$FinanceLedgerImportPayload<ExtArgs>
     period: Prisma.$FinancePeriodPayload<ExtArgs>
     account: Prisma.$FinanceAccountPayload<ExtArgs>
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1326,6 +1566,7 @@ export type $FinanceSourceAccountBalancePayload<ExtArgs extends runtime.Types.Ex
     periodId: number
     accountId: number
     companyCode: string
+    companyId: number | null
     sourceSystem: string
     sourceDatabase: string
     sourceKey: string
@@ -1734,6 +1975,7 @@ export interface Prisma__FinanceSourceAccountBalanceClient<T, Null = never, ExtA
   import<T extends Prisma.FinanceLedgerImportDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImportDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceLedgerImportClient<runtime.Types.Result.GetResult<Prisma.$FinanceLedgerImportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   period<T extends Prisma.FinancePeriodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriodDefaultArgs<ExtArgs>>): Prisma.Prisma__FinancePeriodClient<runtime.Types.Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   account<T extends Prisma.FinanceAccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.FinanceSourceAccountBalance$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceSourceAccountBalance$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1768,6 +2010,7 @@ export interface FinanceSourceAccountBalanceFieldRefs {
   readonly periodId: Prisma.FieldRef<"FinanceSourceAccountBalance", 'Int'>
   readonly accountId: Prisma.FieldRef<"FinanceSourceAccountBalance", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceSourceAccountBalance", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceSourceAccountBalance", 'Int'>
   readonly sourceSystem: Prisma.FieldRef<"FinanceSourceAccountBalance", 'String'>
   readonly sourceDatabase: Prisma.FieldRef<"FinanceSourceAccountBalance", 'String'>
   readonly sourceKey: Prisma.FieldRef<"FinanceSourceAccountBalance", 'String'>
@@ -2177,6 +2420,25 @@ export type FinanceSourceAccountBalanceDeleteManyArgs<ExtArgs extends runtime.Ty
    * Limit how many FinanceSourceAccountBalances to delete.
    */
   limit?: number
+}
+
+/**
+ * FinanceSourceAccountBalance.company
+ */
+export type FinanceSourceAccountBalance$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

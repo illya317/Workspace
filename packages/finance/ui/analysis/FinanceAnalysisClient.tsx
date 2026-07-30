@@ -86,7 +86,7 @@ export default function FinanceAnalysisClient({ user: _user }: { user: SessionUs
     { value: defaultScope, label: "合并口径" },
     ...selectedCompanyOptions,
   ];
-  const availableYears = data?.fundFlow.scope.availableYears.length ? data.fundFlow.scope.availableYears : [2026, 2025, 2024];
+  const availableYears = data?.fundFlow.scope.availableYears.length ? data.fundFlow.scope.availableYears : [year];
   const yearOptions = availableYears.map((value) => ({ value: String(value), label: String(value) }));
   const toolbarItems: SurfaceToolbarItems = [
     { kind: "select", key: "scope", label: "分析范围", options: scopeOptions, value: scope, onChange: setScope },

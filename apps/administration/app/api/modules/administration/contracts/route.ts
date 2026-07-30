@@ -2,6 +2,7 @@
 import { z } from "zod";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { directCommandId } from "@workspace/platform/server/direct-command-meta";
 import { ContractCreateSchema, executeCreateContractCommand, listContracts } from "@workspace/administration/server";
 
 const optionalText = z.preprocess(
@@ -32,6 +33,10 @@ export const GET = createCommandRoute({
 
 export const POST = createCommandRoute({
   bodySchema: ContractCreateSchema,
-  buildCommand: ({ body, user }) => okCommand({ body, userId: user.userId }),
+  buildCommand: ({ body, user, request }) => okCommand({
+    body,
+    userId: user.userId,
+    idempotencyKey: directCommandId(request),
+  }),
   action: executeCreateContractCommand,
 });

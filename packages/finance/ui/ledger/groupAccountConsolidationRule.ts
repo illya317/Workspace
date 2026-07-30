@@ -1,5 +1,5 @@
 import { createFieldsSection } from "@workspace/core/ui";
-import type { BodySurfaceSectionSpec, FormSurfaceFieldSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, FormSurfaceFieldSpec, FormSurfaceItemSpec } from "@workspace/core/ui";
 
 import type { GroupAccountCatalogEditDraft } from "./groupAccountCatalogCreate";
 
@@ -7,15 +7,17 @@ const CONSOLIDATION_FIELD_KEYS = new Set([
   "consolidationRole",
   "counterpartyRequirement",
   "movementType",
-  "statutoryTranslationPolicy",
+  "translationRateType",
 ]);
 
-export function groupAccountMasterFields(fields: FormSurfaceFieldSpec[]) {
+type GroupAccountFormItem = FormSurfaceItemSpec<FormSurfaceFieldSpec>;
+
+export function groupAccountMasterFields(fields: GroupAccountFormItem[]) {
   return fields.filter((field) => !CONSOLIDATION_FIELD_KEYS.has(field.key));
 }
 
 export function groupAccountConsolidationRuleSections(input: {
-  fields: FormSurfaceFieldSpec[];
+  fields: GroupAccountFormItem[];
   editable: boolean;
   dirty: boolean;
 }): BodySurfaceSectionSpec[] {
@@ -47,6 +49,7 @@ export function groupAccountDraftDirtyParts(
       || left.parentGroupAccountId !== right.parentGroupAccountId,
     consolidation: left.consolidationRole !== right.consolidationRole
       || left.counterpartyRequirement !== right.counterpartyRequirement
-      || left.movementType !== right.movementType,
+      || left.movementType !== right.movementType
+      || left.translationRateType !== right.translationRateType,
   };
 }

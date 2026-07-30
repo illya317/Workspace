@@ -1,0 +1,241 @@
+/// 资产分类主数据（系统受控目录，承载资产类型下的分类与默认计算政策）
+model FinanceAssetCategory {
+  id                       Int                          @id @default(autoincrement())
+  code                     String                       @unique
+  name                     String
+  assetKind                String
+  defaultUsefulLifeMonths  Int?
+  defaultResidualRate      Decimal?                     @db.Decimal(10, 6)
+  defaultMethod            String                       @default("straight_line")
+  depreciable              Boolean                      @default(true)
+  reviewStatus             String                       @default("confirmed")
+  isActive                 Boolean                      @default(true)
+  sortOrder                Int                          @default(0)
+  version                  Int                          @default(1)
+  createdAt                DateTime                     @default(now())
+  updatedAt                DateTime                     @default(now()) @updatedAt
+  cards                    FinanceAssetCard[]
+  accountPolicies          FinanceAssetCategoryPolicy[]
+
+  @@unique([assetKind, name])
+  @@index([assetKind, isActive, sortOrder])
+  @@index([reviewStatus])
+}
+
+/// 公司年度资产分类会计政策（分类判断、默认计算参数与真实科目 FK）
+model FinanceAssetCategoryPolicy {
+  id                       Int                  @id @default(autoincrement())
+  categoryId               Int
+  companyCode              String
+  companyId Int?
+  year                     Int
+  assetAccountId           Int
+  accumulatedAccountId     Int?
+  expenseAccountId         Int?
+  impairmentLossAccountId  Int?
+  impairmentAllowanceAccountId Int?
+  disposalGainLossAccountId Int?
+  defaultUsefulLifeMonths  Int?
+  defaultResidualRate      Decimal              @db.Decimal(10, 6)
+  defaultMethod            String               @default("straight_line")
+  usefulLifeMode           String               @default("required")
+  minimumUsefulLifeMonths  Int?
+  maximumUsefulLifeMonths  Int?
+  reviewRequired           Boolean              @default(false)
+  classificationRule       String               @db.Text
+  version                  Int                  @default(1)
+  createdAt                DateTime             @default(now())
+  updatedAt                DateTime             @default(now()) @updatedAt
+  category                 FinanceAssetCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  assetAccount             FinanceAccount       @relation("FinanceAssetPolicyAssetAccount", fields: [assetAccountId], references: [id], onDelete: Restrict)
+  accumulatedAccount       FinanceAccount?      @relation("FinanceAssetPolicyAccumulatedAccount", fields: [accumulatedAccountId], references: [id], onDelete: Restrict)
+  expenseAccount           FinanceAccount?      @relation("FinanceAssetPolicyExpenseAccount", fields: [expenseAccountId], references: [id], onDelete: Restrict)
+  impairmentLossAccount    FinanceAccount?      @relation("FinanceAssetPolicyImpairmentLossAccount", fields: [impairmentLossAccountId], references: [id], onDelete: Restrict)
+  impairmentAllowanceAccount FinanceAccount?    @relation("FinanceAssetPolicyImpairmentAllowanceAccount", fields: [impairmentAllowanceAccountId], references: [id], onDelete: Restrict)
+  disposalGainLossAccount   FinanceAccount?      @relation("FinanceAssetPolicyDisposalGainLossAccount", fields: [disposalGainLossAccountId], references: [id], onDelete: Restrict)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@unique([companyCode, year, categoryId])
+  @@index([categoryId])
+  @@index([assetAccountId])
+  @@index([accumulatedAccountId])
+  @@index([expenseAccountId])
+  @@index([impairmentLossAccountId])
+  @@index([impairmentAllowanceAccountId])
+  @@index([disposalGainLossAccountId])
+  @@index([companyId])
+}
+
+/// 可折旧/摊销资产卡片（事实表，来源于手工新建或独立资产底稿导入）
+model FinanceAssetCard {
+  id                       Int                             @id @default(autoincrement())
+  companyCode              String
+  companyId Int?
+  assetCode                String
+  name                     String
+  assetKind                String
+  categoryId               Int
+  sourceCategory           String?
+  assetAccountCode         String
+  accumulatedAccountCode   String?
+  assetAccountId           Int?
+  accumulatedAccountId     Int?
+  acquisitionDate          String?
+  depreciationStartDate    String?
+  originalCost             Decimal                         @db.Decimal(20, 2)
+  residualRate             Decimal                         @default(0) @db.Decimal(10, 6)
+  usefulLifeMonths         Int?
+  method                   String                          @default("straight_line")
+  initializationMode       String                          @default("standard")
+  openingAccumulatedAmount Decimal                         @default(0) @db.Decimal(20, 2)
+  openingImpairmentAmount  Decimal                         @default(0) @db.Decimal(20, 2)
+  openingNetBookValue      Decimal?                        @db.Decimal(20, 2)
+  openingAsOfDate          String?
+  cutoverDate              String?
+  remainingUsefulLifeMonthsAtCutover Int?
+  cutoverResidualValue     Decimal?                        @db.Decimal(20, 2)
+  cutoverAllocationStatus  String?
+  cutoverReconciliationFingerprint String?
+  cutoverPeriodId          Int?
+  cutoverAssetBalanceId    Int?
+  cutoverAccumulatedBalanceId Int?
+  cutoverImpairmentBalanceId Int?
+  status                   String                          @default("active")
+  nonAmortizationReason    String?
+  note                     String?
+  sourceFile               String?
+  sourceSheet              String?
+  sourceRow                Int?
+  sourceKey                String?
+  editedBy                 Int?
+  version                  Int                             @default(1)
+  createdAt                DateTime                        @default(now())
+  updatedAt                DateTime                        @default(now()) @updatedAt
+  category                 FinanceAssetCategory            @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  assetAccount             FinanceAccount?                 @relation("FinanceAssetCardAssetAccount", fields: [assetAccountId], references: [id], onDelete: Restrict)
+  accumulatedAccount       FinanceAccount?                 @relation("FinanceAssetCardAccumulatedAccount", fields: [accumulatedAccountId], references: [id], onDelete: Restrict)
+  cutoverPeriod            FinancePeriod?                  @relation("FinanceAssetCardCutoverPeriod", fields: [cutoverPeriodId], references: [id], onDelete: Restrict)
+  cutoverAssetBalance      FinanceAccountBalance?          @relation("FinanceAssetCardCutoverAssetBalance", fields: [cutoverAssetBalanceId], references: [id], onDelete: Restrict)
+  cutoverAccumulatedBalance FinanceAccountBalance?         @relation("FinanceAssetCardCutoverAccumulatedBalance", fields: [cutoverAccumulatedBalanceId], references: [id], onDelete: Restrict)
+  cutoverImpairmentBalance FinanceAccountBalance?          @relation("FinanceAssetCardCutoverImpairmentBalance", fields: [cutoverImpairmentBalanceId], references: [id], onDelete: Restrict)
+  costLines                FinanceAssetCostLine[]
+  allocations              FinanceAssetExpenseAllocation[]
+  periodEntries            FinanceAssetPeriodEntry[]
+  adjustments              FinanceAssetAdjustment[]
+  disposal                 FinanceAssetDisposal?
+  acquisitionEvidence      FinanceAssetAcquisitionEvidence?
+  impairmentAllocations    FinanceAssetImpairmentAllocation[]
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@unique([companyCode, assetCode])
+  @@index([assetAccountId])
+  @@index([accumulatedAccountId])
+  @@index([cutoverPeriodId])
+  @@index([cutoverAssetBalanceId])
+  @@index([cutoverAccumulatedBalanceId])
+  @@index([cutoverImpairmentBalanceId])
+  @@unique([companyCode, sourceKey])
+  @@index([companyCode, status, assetKind])
+  @@index([categoryId])
+  @@index([companyId])
+}
+
+/// 资产取得入账证据（显式确认事实，锁定取得期间、专用凭证和入账金额）
+model FinanceAssetAcquisitionEvidence {
+  id           Int              @id @default(autoincrement())
+  companyCode  String
+  companyId    Int?
+  periodId     Int
+  assetId      Int              @unique
+  voucherItemId Int?
+  importBatchId Int?
+  sourceChecksum String?
+  amount       Decimal          @db.Decimal(20, 2)
+  evidenceRef  String           @db.Text
+  confirmedBy  Int?
+  version      Int              @default(1)
+  confirmedAt  DateTime         @default(now())
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @default(now()) @updatedAt
+  period       FinancePeriod    @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  asset        FinanceAssetCard @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  voucherItem  FinanceVoucherItem? @relation("FinanceAssetAcquisitionVoucherItem", fields: [voucherItemId], references: [id], onDelete: Restrict)
+  importBatch  FinanceAssetImportBatch? @relation(fields: [importBatchId], references: [id], onDelete: Restrict)
+  confirmer    User?            @relation("FinanceAssetAcquisitionConfirmer", fields: [confirmedBy], references: [id], onDelete: Restrict)
+  company      Company?         @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@unique([companyCode, periodId, assetId])
+  @@index([periodId])
+  @@unique([voucherItemId])
+  @@index([importBatchId])
+  @@index([confirmedBy])
+  @@index([companyId])
+}
+
+/// 资产成本组成行（事实表，保留发票、免除和其他纳入/扣减依据）
+model FinanceAssetCostLine {
+  id            Int              @id @default(autoincrement())
+  assetId       Int
+  lineType      String           @default("invoice")
+  treatment     String           @default("included")
+  referenceNo   String?
+  referenceDate String?
+  amount        Decimal          @db.Decimal(20, 2)
+  reason        String?
+  sourceFile    String?
+  sourceSheet   String?
+  sourceRow     Int?
+  sourceKey     String?
+  createdAt     DateTime         @default(now())
+  asset         FinanceAssetCard @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, sourceKey])
+  @@index([assetId, treatment])
+}
+
+/// 资产费用分摊规则（事实表，来源于凭证映射或人工配置）
+model FinanceAssetExpenseAllocation {
+  id                 Int              @id @default(autoincrement())
+  assetId            Int
+  expenseAccountCode String
+  expenseAccountId   Int?
+  allocationRate     Decimal          @db.Decimal(10, 6)
+  note               String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @default(now()) @updatedAt
+  asset              FinanceAssetCard @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  expenseAccount     FinanceAccount?   @relation(fields: [expenseAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([assetId, expenseAccountCode])
+  @@index([expenseAccountId])
+}
+
+/// 资产导入批次（审计事实，一份源文件的一次确认导入）
+model FinanceAssetImportBatch {
+  id            Int      @id @default(autoincrement())
+  companyCode   String
+  companyId Int?
+  sourceFile    String
+  checksum      String
+  status        String   @default("confirmed")
+  cardCount     Int      @default(0)
+  costLineCount Int      @default(0)
+  warningCount  Int      @default(0)
+  importedBy    Int?
+  importedAt    DateTime @default(now())
+  note          String?
+  cutoverDate   String?
+  cutoverPeriodId Int?
+  ledgerReconciliationFingerprint String?
+  ledgerNetBookValue Decimal? @db.Decimal(20, 2)
+  importedNetBookValue Decimal? @db.Decimal(20, 2)
+  unallocatedNetBookValue Decimal? @db.Decimal(20, 2)
+  reconciliationStatus String?
+  acquisitionEvidence FinanceAssetAcquisitionEvidence[]
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  cutoverPeriod FinancePeriod? @relation("FinanceAssetImportBatchCutoverPeriod", fields: [cutoverPeriodId], references: [id], onDelete: Restrict)
+
+  @@unique([companyCode, checksum])
+  @@index([companyId])
+  @@index([cutoverPeriodId])
+}

@@ -71,7 +71,6 @@ async function userSnapshot(client: LedgerClient, userId: number): Promise<Snaps
     select: {
       id: true,
       username: true,
-      employeeId: true,
       employees: { select: { employeeId: true, name: true }, take: 1 },
     },
   });
@@ -83,7 +82,7 @@ async function userSnapshot(client: LedgerClient, userId: number): Promise<Snaps
     data: {
       id: user.id,
       username: user.username,
-      employeeId: employee?.employeeId ?? user.employeeId,
+      employeeId: employee?.employeeId ?? null,
       name: employee?.name ?? null,
     },
   };

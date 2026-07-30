@@ -35,6 +35,7 @@ export const EXTERNAL_PARTY_RELATED_PARTY_LABELS: Record<ExternalPartyRelatedPar
 interface ExternalPartyFormOptions {
   readOnly?: boolean;
   subjectReadOnly?: boolean;
+  autoGenerateCode?: boolean;
   existingCandidates?: ExternalParty[];
   candidatesLoading?: boolean;
   candidatesError?: string | null;
@@ -65,10 +66,6 @@ export function emptyExternalPartyDraft(): ExternalPartyDraft {
     creditDays: null,
     taxRate: null,
     remark: null,
-    availabilityFrom: null,
-    availabilityThrough: null,
-    effectiveOn: "",
-    legalFactReason: null,
   };
 }
 
@@ -77,12 +74,13 @@ function textField(
   label: string,
   draft: ExternalPartyDraft,
   onChange: (field: DraftField, value: ExternalPartyDraftValue) => void,
-  options: { required?: boolean; multiline?: boolean; readOnly?: boolean; span?: 2; type?: "email" | "tel" } = {},
+  options: { required?: boolean; multiline?: boolean; readOnly?: boolean; span?: 2; type?: "email" | "tel"; hint?: string; placeholder?: string } = {},
 ): FormSurfaceFieldSpec {
   return {
     key,
     label,
     required: options.required,
+    hint: options.hint,
     span: options.span,
     spec: {
       valueType: "string",
@@ -91,6 +89,7 @@ function textField(
       validation: options.required ? { required: true } : undefined,
     },
     value: String(draft[key] ?? ""),
+    placeholder: options.placeholder,
     onChange: (value) => onChange(key, String(value ?? "")),
     type: options.type,
     readOnly: options.readOnly,
@@ -216,7 +215,12 @@ export function externalPartyFormSections(
             );
           },
         },
-        textField("code", `${singular}编码`, draft, onChange, { required: true, readOnly }),
+        textField("code", `${singular}编码`, draft, onChange, {
+          required: !options.autoGenerateCode,
+          readOnly,
+          hint: options.autoGenerateCode ? "留空时按系统编码配置自动生成" : undefined,
+          placeholder: options.autoGenerateCode ? "自动生成" : undefined,
+        }),
         textField("name", individual ? "姓名" : "简称", draft, onChange, { required: true, readOnly: subjectReadOnly }),
         ...(!individual ? [textField("fullName", "全称", draft, onChange, { readOnly: subjectReadOnly })] : []),
         textField("identityNumber", individual ? "证件号码" : "统一代码", draft, onChange, {
@@ -224,30 +228,7 @@ export function externalPartyFormSections(
           readOnly: subjectReadOnly,
         }),
         ...(!individual ? [textField("legalRepresentative", "法定代表人", draft, onChange, { readOnly: subjectReadOnly })] : []),
-        ...(draft.id ? [{
-          key: "effectiveOn",
-          label: "法定事实生效日",
-          spec: { valueType: "date" as const, control: "temporal" as const, precision: "date" as const },
-          value: draft.effectiveOn || "",
-          disabled: subjectReadOnly,
-          onChange: (value: unknown) => onChange("effectiveOn", String(value || "")),
-        }, textField("legalFactReason", "变更原因", draft, onChange, { readOnly: subjectReadOnly })] : []),
         textField("classification", "业务分类", draft, onChange, { readOnly }),
-        ...(!draft.id ? [{
-          key: "availabilityFrom",
-          label: "角色启用日",
-          spec: { valueType: "date" as const, control: "temporal" as const, precision: "date" as const },
-          value: draft.availabilityFrom || "",
-          disabled: readOnly,
-          onChange: (value: unknown) => onChange("availabilityFrom", String(value || "") || null),
-        }, {
-          key: "availabilityThrough",
-          label: "角色结束日",
-          spec: { valueType: "date" as const, control: "temporal" as const, precision: "date" as const },
-          value: draft.availabilityThrough || "",
-          disabled: readOnly,
-          onChange: (value: unknown) => onChange("availabilityThrough", String(value || "") || null),
-        }] : []),
       ],
     },
     {

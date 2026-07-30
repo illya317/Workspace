@@ -89,6 +89,7 @@ test("statement workbook exports exactly the three statutory statements in order
   assert.equal(balance.C4?.v, 100);
   assert.equal(balance.E6?.v, 100);
   assert.equal(balance.E7?.v, 120);
+  assert.equal(balance.E7?.f, "ROUND(SUM(E5,E6),2)");
   assert.equal(balance.B3?.v, "期末余额");
   assert.equal(balance.C3?.v, "上年年末余额");
   assert.equal(balance.E3?.v, "期末余额");
@@ -108,7 +109,9 @@ test("statement workbook exports exactly the three statutory statements in order
   assert.equal(cashFlow.B3?.v, "本期金额");
   assert.equal(cashFlow.C3?.v, "上期金额");
   assert.equal(cashFlow.B4?.v, 120);
+  assert.equal(cashFlow.B4?.f, undefined);
   assert.equal(cashFlow.C4?.v, 100);
+  assert.equal(cashFlow.C4?.f, undefined);
   assert.ok((income["!cols"]?.[0]?.wch ?? 0) >= 50);
   assert.ok((income["!cols"]?.[1]?.wch ?? 0) >= 18);
   assert.equal(statementWorkbookFilename(data), "示例集团有限公司-2025.12-财务报表.xlsx");

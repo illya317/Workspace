@@ -126,3 +126,48 @@ export interface ExternalPartyListResponse {
   asOfDate: string;
   businessDate: string;
 }
+
+export interface ExternalRelatedParty {
+  id: number;
+  targetKind: "party" | "employee";
+  version: number;
+  subjectType: ExternalPartySubjectType;
+  relatedPartyType: Exclude<ExternalPartyRelatedPartyType, "unrelated">;
+  name: string;
+  fullName: string | null;
+  identityNumber: string | null;
+  legalRepresentative: string | null;
+  roles: ExternalPartyCategory[];
+  systemConfigured: boolean;
+  systemConfiguredReason: string | null;
+  asOfDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ExternalRelatedPartyListResponse {
+  items: ExternalRelatedParty[];
+  total: number;
+  page: number;
+  pageSize: number;
+  asOfDate: string;
+}
+
+export interface ExternalRelatedPartyCandidate {
+  id: number;
+  version: number;
+  subjectType: ExternalPartySubjectType;
+  name: string;
+  fullName: string | null;
+  identityNumber: string;
+  roles: ExternalPartyCategory[];
+  asOfDate: string;
+}
+
+export interface ExternalRelatedPartyCandidateListResponse {
+  items: ExternalRelatedPartyCandidate[];
+  total: number;
+  page: number;
+  pageSize: number;
+  asOfDate: string;
+}

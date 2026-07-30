@@ -29,6 +29,7 @@ export type AggregateInventoryItem = {
 export type InventoryItemAvgAggregateOutputType = {
   id: number | null
   productMasterId: number | null
+  companyId: number | null
   unitsPerPackage: runtime.Decimal | null
   packagesPerCase: runtime.Decimal | null
   editedBy: number | null
@@ -38,6 +39,7 @@ export type InventoryItemAvgAggregateOutputType = {
 export type InventoryItemSumAggregateOutputType = {
   id: number | null
   productMasterId: number | null
+  companyId: number | null
   unitsPerPackage: runtime.Decimal | null
   packagesPerCase: runtime.Decimal | null
   editedBy: number | null
@@ -48,6 +50,7 @@ export type InventoryItemMinAggregateOutputType = {
   id: number | null
   productMasterId: number | null
   companyCode: string | null
+  companyId: number | null
   code: string | null
   name: string | null
   itemType: string | null
@@ -72,6 +75,7 @@ export type InventoryItemMaxAggregateOutputType = {
   id: number | null
   productMasterId: number | null
   companyCode: string | null
+  companyId: number | null
   code: string | null
   name: string | null
   itemType: string | null
@@ -96,6 +100,7 @@ export type InventoryItemCountAggregateOutputType = {
   id: number
   productMasterId: number
   companyCode: number
+  companyId: number
   code: number
   name: number
   itemType: number
@@ -121,6 +126,7 @@ export type InventoryItemCountAggregateOutputType = {
 export type InventoryItemAvgAggregateInputType = {
   id?: true
   productMasterId?: true
+  companyId?: true
   unitsPerPackage?: true
   packagesPerCase?: true
   editedBy?: true
@@ -130,6 +136,7 @@ export type InventoryItemAvgAggregateInputType = {
 export type InventoryItemSumAggregateInputType = {
   id?: true
   productMasterId?: true
+  companyId?: true
   unitsPerPackage?: true
   packagesPerCase?: true
   editedBy?: true
@@ -140,6 +147,7 @@ export type InventoryItemMinAggregateInputType = {
   id?: true
   productMasterId?: true
   companyCode?: true
+  companyId?: true
   code?: true
   name?: true
   itemType?: true
@@ -164,6 +172,7 @@ export type InventoryItemMaxAggregateInputType = {
   id?: true
   productMasterId?: true
   companyCode?: true
+  companyId?: true
   code?: true
   name?: true
   itemType?: true
@@ -188,6 +197,7 @@ export type InventoryItemCountAggregateInputType = {
   id?: true
   productMasterId?: true
   companyCode?: true
+  companyId?: true
   code?: true
   name?: true
   itemType?: true
@@ -299,6 +309,7 @@ export type InventoryItemGroupByOutputType = {
   id: number
   productMasterId: number | null
   companyCode: string
+  companyId: number | null
   code: string
   name: string
   itemType: string
@@ -346,6 +357,7 @@ export type InventoryItemWhereInput = {
   id?: Prisma.IntFilter<"InventoryItem"> | number
   productMasterId?: Prisma.IntNullableFilter<"InventoryItem"> | number | null
   companyCode?: Prisma.StringFilter<"InventoryItem"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryItem"> | number | null
   code?: Prisma.StringFilter<"InventoryItem"> | string
   name?: Prisma.StringFilter<"InventoryItem"> | string
   itemType?: Prisma.StringFilter<"InventoryItem"> | string
@@ -370,6 +382,7 @@ export type InventoryItemWhereInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryListRelationFilter
   stocktakeLines?: Prisma.InventoryStocktakeLineListRelationFilter
   productMaster?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   productSourceMappings?: Prisma.ProductSourceMappingListRelationFilter
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputListRelationFilter
   financeCostStructureRows?: Prisma.FinanceCostStructureRowListRelationFilter
@@ -380,6 +393,7 @@ export type InventoryItemOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   productMasterId?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   itemType?: Prisma.SortOrder
@@ -404,6 +418,7 @@ export type InventoryItemOrderByWithRelationInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryOrderByRelationAggregateInput
   stocktakeLines?: Prisma.InventoryStocktakeLineOrderByRelationAggregateInput
   productMaster?: Prisma.ProductOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
   productSourceMappings?: Prisma.ProductSourceMappingOrderByRelationAggregateInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputOrderByRelationAggregateInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowOrderByRelationAggregateInput
@@ -419,6 +434,7 @@ export type InventoryItemWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.InventoryItemWhereInput | Prisma.InventoryItemWhereInput[]
   productMasterId?: Prisma.IntNullableFilter<"InventoryItem"> | number | null
   companyCode?: Prisma.StringFilter<"InventoryItem"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryItem"> | number | null
   code?: Prisma.StringFilter<"InventoryItem"> | string
   name?: Prisma.StringFilter<"InventoryItem"> | string
   itemType?: Prisma.StringFilter<"InventoryItem"> | string
@@ -443,6 +459,7 @@ export type InventoryItemWhereUniqueInput = Prisma.AtLeast<{
   ledgerEntries?: Prisma.InventoryLedgerEntryListRelationFilter
   stocktakeLines?: Prisma.InventoryStocktakeLineListRelationFilter
   productMaster?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   productSourceMappings?: Prisma.ProductSourceMappingListRelationFilter
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputListRelationFilter
   financeCostStructureRows?: Prisma.FinanceCostStructureRowListRelationFilter
@@ -453,6 +470,7 @@ export type InventoryItemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   productMasterId?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   itemType?: Prisma.SortOrder
@@ -485,6 +503,7 @@ export type InventoryItemScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"InventoryItem"> | number
   productMasterId?: Prisma.IntNullableWithAggregatesFilter<"InventoryItem"> | number | null
   companyCode?: Prisma.StringWithAggregatesFilter<"InventoryItem"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"InventoryItem"> | number | null
   code?: Prisma.StringWithAggregatesFilter<"InventoryItem"> | string
   name?: Prisma.StringWithAggregatesFilter<"InventoryItem"> | string
   itemType?: Prisma.StringWithAggregatesFilter<"InventoryItem"> | string
@@ -531,6 +550,7 @@ export type InventoryItemCreateInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutItemInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutItemInput
   productMaster?: Prisma.ProductCreateNestedOneWithoutSkusInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryItemsInput
   productSourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductSkuInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputCreateNestedManyWithoutProductSkuInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutProductInput
@@ -541,6 +561,7 @@ export type InventoryItemUncheckedCreateInput = {
   id?: number
   productMasterId?: number | null
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -596,6 +617,7 @@ export type InventoryItemUpdateInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutItemNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutItemNestedInput
   productMaster?: Prisma.ProductUpdateOneWithoutSkusNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryItemsNestedInput
   productSourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductSkuNestedInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUpdateManyWithoutProductSkuNestedInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutProductNestedInput
@@ -606,6 +628,7 @@ export type InventoryItemUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -639,6 +662,7 @@ export type InventoryItemCreateManyInput = {
   id?: number
   productMasterId?: number | null
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -685,6 +709,7 @@ export type InventoryItemUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -710,6 +735,16 @@ export type InventoryItemNullableScalarRelationFilter = {
   isNot?: Prisma.InventoryItemWhereInput | null
 }
 
+export type InventoryItemListRelationFilter = {
+  every?: Prisma.InventoryItemWhereInput
+  some?: Prisma.InventoryItemWhereInput
+  none?: Prisma.InventoryItemWhereInput
+}
+
+export type InventoryItemOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type InventoryItemCompanyCodeCodeCompoundUniqueInput = {
   companyCode: string
   code: string
@@ -724,6 +759,7 @@ export type InventoryItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   productMasterId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   itemType?: Prisma.SortOrder
@@ -747,6 +783,7 @@ export type InventoryItemCountOrderByAggregateInput = {
 export type InventoryItemAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   productMasterId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   packagesPerCase?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -757,6 +794,7 @@ export type InventoryItemMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   productMasterId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   itemType?: Prisma.SortOrder
@@ -781,6 +819,7 @@ export type InventoryItemMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   productMasterId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   itemType?: Prisma.SortOrder
@@ -804,6 +843,7 @@ export type InventoryItemMinOrderByAggregateInput = {
 export type InventoryItemSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   productMasterId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   packagesPerCase?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -813,16 +853,6 @@ export type InventoryItemSumOrderByAggregateInput = {
 export type InventoryItemScalarRelationFilter = {
   is?: Prisma.InventoryItemWhereInput
   isNot?: Prisma.InventoryItemWhereInput
-}
-
-export type InventoryItemListRelationFilter = {
-  every?: Prisma.InventoryItemWhereInput
-  some?: Prisma.InventoryItemWhereInput
-  none?: Prisma.InventoryItemWhereInput
-}
-
-export type InventoryItemOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
 }
 
 export type InventoryItemCreateNestedOneWithoutFinanceShipmentsInput = {
@@ -855,6 +885,48 @@ export type InventoryItemUpdateOneWithoutFinanceCostStructureRowsNestedInput = {
   delete?: Prisma.InventoryItemWhereInput | boolean
   connect?: Prisma.InventoryItemWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.InventoryItemUpdateToOneWithWhereWithoutFinanceCostStructureRowsInput, Prisma.InventoryItemUpdateWithoutFinanceCostStructureRowsInput>, Prisma.InventoryItemUncheckedUpdateWithoutFinanceCostStructureRowsInput>
+}
+
+export type InventoryItemCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.InventoryItemCreateWithoutCompanyInput, Prisma.InventoryItemUncheckedCreateWithoutCompanyInput> | Prisma.InventoryItemCreateWithoutCompanyInput[] | Prisma.InventoryItemUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryItemCreateOrConnectWithoutCompanyInput | Prisma.InventoryItemCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.InventoryItemCreateManyCompanyInputEnvelope
+  connect?: Prisma.InventoryItemWhereUniqueInput | Prisma.InventoryItemWhereUniqueInput[]
+}
+
+export type InventoryItemUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.InventoryItemCreateWithoutCompanyInput, Prisma.InventoryItemUncheckedCreateWithoutCompanyInput> | Prisma.InventoryItemCreateWithoutCompanyInput[] | Prisma.InventoryItemUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryItemCreateOrConnectWithoutCompanyInput | Prisma.InventoryItemCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.InventoryItemCreateManyCompanyInputEnvelope
+  connect?: Prisma.InventoryItemWhereUniqueInput | Prisma.InventoryItemWhereUniqueInput[]
+}
+
+export type InventoryItemUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryItemCreateWithoutCompanyInput, Prisma.InventoryItemUncheckedCreateWithoutCompanyInput> | Prisma.InventoryItemCreateWithoutCompanyInput[] | Prisma.InventoryItemUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryItemCreateOrConnectWithoutCompanyInput | Prisma.InventoryItemCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.InventoryItemUpsertWithWhereUniqueWithoutCompanyInput | Prisma.InventoryItemUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.InventoryItemCreateManyCompanyInputEnvelope
+  set?: Prisma.InventoryItemWhereUniqueInput | Prisma.InventoryItemWhereUniqueInput[]
+  disconnect?: Prisma.InventoryItemWhereUniqueInput | Prisma.InventoryItemWhereUniqueInput[]
+  delete?: Prisma.InventoryItemWhereUniqueInput | Prisma.InventoryItemWhereUniqueInput[]
+  connect?: Prisma.InventoryItemWhereUniqueInput | Prisma.InventoryItemWhereUniqueInput[]
+  update?: Prisma.InventoryItemUpdateWithWhereUniqueWithoutCompanyInput | Prisma.InventoryItemUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.InventoryItemUpdateManyWithWhereWithoutCompanyInput | Prisma.InventoryItemUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.InventoryItemScalarWhereInput | Prisma.InventoryItemScalarWhereInput[]
+}
+
+export type InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryItemCreateWithoutCompanyInput, Prisma.InventoryItemUncheckedCreateWithoutCompanyInput> | Prisma.InventoryItemCreateWithoutCompanyInput[] | Prisma.InventoryItemUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.InventoryItemCreateOrConnectWithoutCompanyInput | Prisma.InventoryItemCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.InventoryItemUpsertWithWhereUniqueWithoutCompanyInput | Prisma.InventoryItemUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.InventoryItemCreateManyCompanyInputEnvelope
+  set?: Prisma.InventoryItemWhereUniqueInput | Prisma.InventoryItemWhereUniqueInput[]
+  disconnect?: Prisma.InventoryItemWhereUniqueInput | Prisma.InventoryItemWhereUniqueInput[]
+  delete?: Prisma.InventoryItemWhereUniqueInput | Prisma.InventoryItemWhereUniqueInput[]
+  connect?: Prisma.InventoryItemWhereUniqueInput | Prisma.InventoryItemWhereUniqueInput[]
+  update?: Prisma.InventoryItemUpdateWithWhereUniqueWithoutCompanyInput | Prisma.InventoryItemUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.InventoryItemUpdateManyWithWhereWithoutCompanyInput | Prisma.InventoryItemUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.InventoryItemScalarWhereInput | Prisma.InventoryItemScalarWhereInput[]
 }
 
 export type InventoryItemCreateNestedOneWithoutConversionsInput = {
@@ -1027,6 +1099,7 @@ export type InventoryItemCreateWithoutFinanceShipmentsInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutItemInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutItemInput
   productMaster?: Prisma.ProductCreateNestedOneWithoutSkusInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryItemsInput
   productSourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductSkuInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputCreateNestedManyWithoutProductSkuInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutProductInput
@@ -1036,6 +1109,7 @@ export type InventoryItemUncheckedCreateWithoutFinanceShipmentsInput = {
   id?: number
   productMasterId?: number | null
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -1106,6 +1180,7 @@ export type InventoryItemUpdateWithoutFinanceShipmentsInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutItemNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutItemNestedInput
   productMaster?: Prisma.ProductUpdateOneWithoutSkusNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryItemsNestedInput
   productSourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductSkuNestedInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUpdateManyWithoutProductSkuNestedInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutProductNestedInput
@@ -1115,6 +1190,7 @@ export type InventoryItemUncheckedUpdateWithoutFinanceShipmentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1169,6 +1245,7 @@ export type InventoryItemCreateWithoutFinanceCostStructureRowsInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutItemInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutItemInput
   productMaster?: Prisma.ProductCreateNestedOneWithoutSkusInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryItemsInput
   productSourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductSkuInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputCreateNestedManyWithoutProductSkuInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutProductInput
@@ -1178,6 +1255,7 @@ export type InventoryItemUncheckedCreateWithoutFinanceCostStructureRowsInput = {
   id?: number
   productMasterId?: number | null
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -1248,6 +1326,7 @@ export type InventoryItemUpdateWithoutFinanceCostStructureRowsInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutItemNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutItemNestedInput
   productMaster?: Prisma.ProductUpdateOneWithoutSkusNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryItemsNestedInput
   productSourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductSkuNestedInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUpdateManyWithoutProductSkuNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutProductNestedInput
@@ -1257,6 +1336,7 @@ export type InventoryItemUncheckedUpdateWithoutFinanceCostStructureRowsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1285,6 +1365,125 @@ export type InventoryItemUncheckedUpdateWithoutFinanceCostStructureRowsInput = {
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutProductNestedInput
 }
 
+export type InventoryItemCreateWithoutCompanyInput = {
+  companyCode: string
+  code: string
+  name: string
+  itemType?: string
+  specification?: string | null
+  baseUnit: string
+  contentUnit?: string | null
+  unitsPerPackage?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packagesPerCase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  barcode?: string | null
+  status?: string
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  conversions?: Prisma.InventoryUnitConversionCreateNestedManyWithoutItemInput
+  batches?: Prisma.InventoryBatchCreateNestedManyWithoutItemInput
+  documentLines?: Prisma.InventoryDocumentLineCreateNestedManyWithoutItemInput
+  ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutItemInput
+  stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutItemInput
+  productMaster?: Prisma.ProductCreateNestedOneWithoutSkusInput
+  productSourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductSkuInput
+  inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputCreateNestedManyWithoutProductSkuInput
+  financeCostStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutProductInput
+  financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutProductInput
+}
+
+export type InventoryItemUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  productMasterId?: number | null
+  companyCode: string
+  code: string
+  name: string
+  itemType?: string
+  specification?: string | null
+  baseUnit: string
+  contentUnit?: string | null
+  unitsPerPackage?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packagesPerCase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  barcode?: string | null
+  status?: string
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  conversions?: Prisma.InventoryUnitConversionUncheckedCreateNestedManyWithoutItemInput
+  batches?: Prisma.InventoryBatchUncheckedCreateNestedManyWithoutItemInput
+  documentLines?: Prisma.InventoryDocumentLineUncheckedCreateNestedManyWithoutItemInput
+  ledgerEntries?: Prisma.InventoryLedgerEntryUncheckedCreateNestedManyWithoutItemInput
+  stocktakeLines?: Prisma.InventoryStocktakeLineUncheckedCreateNestedManyWithoutItemInput
+  productSourceMappings?: Prisma.ProductSourceMappingUncheckedCreateNestedManyWithoutProductSkuInput
+  inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUncheckedCreateNestedManyWithoutProductSkuInput
+  financeCostStructureRows?: Prisma.FinanceCostStructureRowUncheckedCreateNestedManyWithoutProductInput
+  financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type InventoryItemCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.InventoryItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.InventoryItemCreateWithoutCompanyInput, Prisma.InventoryItemUncheckedCreateWithoutCompanyInput>
+}
+
+export type InventoryItemCreateManyCompanyInputEnvelope = {
+  data: Prisma.InventoryItemCreateManyCompanyInput | Prisma.InventoryItemCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type InventoryItemUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.InventoryItemWhereUniqueInput
+  update: Prisma.XOR<Prisma.InventoryItemUpdateWithoutCompanyInput, Prisma.InventoryItemUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.InventoryItemCreateWithoutCompanyInput, Prisma.InventoryItemUncheckedCreateWithoutCompanyInput>
+}
+
+export type InventoryItemUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.InventoryItemWhereUniqueInput
+  data: Prisma.XOR<Prisma.InventoryItemUpdateWithoutCompanyInput, Prisma.InventoryItemUncheckedUpdateWithoutCompanyInput>
+}
+
+export type InventoryItemUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.InventoryItemScalarWhereInput
+  data: Prisma.XOR<Prisma.InventoryItemUpdateManyMutationInput, Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type InventoryItemScalarWhereInput = {
+  AND?: Prisma.InventoryItemScalarWhereInput | Prisma.InventoryItemScalarWhereInput[]
+  OR?: Prisma.InventoryItemScalarWhereInput[]
+  NOT?: Prisma.InventoryItemScalarWhereInput | Prisma.InventoryItemScalarWhereInput[]
+  id?: Prisma.IntFilter<"InventoryItem"> | number
+  productMasterId?: Prisma.IntNullableFilter<"InventoryItem"> | number | null
+  companyCode?: Prisma.StringFilter<"InventoryItem"> | string
+  companyId?: Prisma.IntNullableFilter<"InventoryItem"> | number | null
+  code?: Prisma.StringFilter<"InventoryItem"> | string
+  name?: Prisma.StringFilter<"InventoryItem"> | string
+  itemType?: Prisma.StringFilter<"InventoryItem"> | string
+  specification?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
+  baseUnit?: Prisma.StringFilter<"InventoryItem"> | string
+  contentUnit?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
+  unitsPerPackage?: Prisma.DecimalNullableFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packagesPerCase?: Prisma.DecimalNullableFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  barcode?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
+  status?: Prisma.StringFilter<"InventoryItem"> | string
+  note?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
+  sourceFile?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
+  sourceSheet?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
+  sourceKey?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
+  editedBy?: Prisma.IntNullableFilter<"InventoryItem"> | number | null
+  version?: Prisma.IntFilter<"InventoryItem"> | number
+  createdAt?: Prisma.DateTimeFilter<"InventoryItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InventoryItem"> | Date | string
+}
+
 export type InventoryItemCreateWithoutConversionsInput = {
   companyCode: string
   code: string
@@ -1310,6 +1509,7 @@ export type InventoryItemCreateWithoutConversionsInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutItemInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutItemInput
   productMaster?: Prisma.ProductCreateNestedOneWithoutSkusInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryItemsInput
   productSourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductSkuInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputCreateNestedManyWithoutProductSkuInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutProductInput
@@ -1320,6 +1520,7 @@ export type InventoryItemUncheckedCreateWithoutConversionsInput = {
   id?: number
   productMasterId?: number | null
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -1389,6 +1590,7 @@ export type InventoryItemUpdateWithoutConversionsInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutItemNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutItemNestedInput
   productMaster?: Prisma.ProductUpdateOneWithoutSkusNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryItemsNestedInput
   productSourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductSkuNestedInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUpdateManyWithoutProductSkuNestedInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutProductNestedInput
@@ -1399,6 +1601,7 @@ export type InventoryItemUncheckedUpdateWithoutConversionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1452,6 +1655,7 @@ export type InventoryItemCreateWithoutBatchesInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutItemInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutItemInput
   productMaster?: Prisma.ProductCreateNestedOneWithoutSkusInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryItemsInput
   productSourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductSkuInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputCreateNestedManyWithoutProductSkuInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutProductInput
@@ -1462,6 +1666,7 @@ export type InventoryItemUncheckedCreateWithoutBatchesInput = {
   id?: number
   productMasterId?: number | null
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -1531,6 +1736,7 @@ export type InventoryItemUpdateWithoutBatchesInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutItemNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutItemNestedInput
   productMaster?: Prisma.ProductUpdateOneWithoutSkusNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryItemsNestedInput
   productSourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductSkuNestedInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUpdateManyWithoutProductSkuNestedInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutProductNestedInput
@@ -1541,6 +1747,7 @@ export type InventoryItemUncheckedUpdateWithoutBatchesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1594,6 +1801,7 @@ export type InventoryItemCreateWithoutDocumentLinesInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutItemInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutItemInput
   productMaster?: Prisma.ProductCreateNestedOneWithoutSkusInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryItemsInput
   productSourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductSkuInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputCreateNestedManyWithoutProductSkuInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutProductInput
@@ -1604,6 +1812,7 @@ export type InventoryItemUncheckedCreateWithoutDocumentLinesInput = {
   id?: number
   productMasterId?: number | null
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -1673,6 +1882,7 @@ export type InventoryItemUpdateWithoutDocumentLinesInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutItemNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutItemNestedInput
   productMaster?: Prisma.ProductUpdateOneWithoutSkusNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryItemsNestedInput
   productSourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductSkuNestedInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUpdateManyWithoutProductSkuNestedInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutProductNestedInput
@@ -1683,6 +1893,7 @@ export type InventoryItemUncheckedUpdateWithoutDocumentLinesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1736,6 +1947,7 @@ export type InventoryItemCreateWithoutLedgerEntriesInput = {
   documentLines?: Prisma.InventoryDocumentLineCreateNestedManyWithoutItemInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutItemInput
   productMaster?: Prisma.ProductCreateNestedOneWithoutSkusInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryItemsInput
   productSourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductSkuInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputCreateNestedManyWithoutProductSkuInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutProductInput
@@ -1746,6 +1958,7 @@ export type InventoryItemUncheckedCreateWithoutLedgerEntriesInput = {
   id?: number
   productMasterId?: number | null
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -1815,6 +2028,7 @@ export type InventoryItemUpdateWithoutLedgerEntriesInput = {
   documentLines?: Prisma.InventoryDocumentLineUpdateManyWithoutItemNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutItemNestedInput
   productMaster?: Prisma.ProductUpdateOneWithoutSkusNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryItemsNestedInput
   productSourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductSkuNestedInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUpdateManyWithoutProductSkuNestedInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutProductNestedInput
@@ -1825,6 +2039,7 @@ export type InventoryItemUncheckedUpdateWithoutLedgerEntriesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1878,6 +2093,7 @@ export type InventoryItemCreateWithoutStocktakeLinesInput = {
   documentLines?: Prisma.InventoryDocumentLineCreateNestedManyWithoutItemInput
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutItemInput
   productMaster?: Prisma.ProductCreateNestedOneWithoutSkusInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryItemsInput
   productSourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductSkuInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputCreateNestedManyWithoutProductSkuInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutProductInput
@@ -1888,6 +2104,7 @@ export type InventoryItemUncheckedCreateWithoutStocktakeLinesInput = {
   id?: number
   productMasterId?: number | null
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -1957,6 +2174,7 @@ export type InventoryItemUpdateWithoutStocktakeLinesInput = {
   documentLines?: Prisma.InventoryDocumentLineUpdateManyWithoutItemNestedInput
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutItemNestedInput
   productMaster?: Prisma.ProductUpdateOneWithoutSkusNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryItemsNestedInput
   productSourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductSkuNestedInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUpdateManyWithoutProductSkuNestedInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutProductNestedInput
@@ -1967,6 +2185,7 @@ export type InventoryItemUncheckedUpdateWithoutStocktakeLinesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2021,6 +2240,7 @@ export type InventoryItemCreateWithoutInventoryReceiptOutputsInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutItemInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutItemInput
   productMaster?: Prisma.ProductCreateNestedOneWithoutSkusInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryItemsInput
   productSourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductSkuInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutProductInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutProductInput
@@ -2030,6 +2250,7 @@ export type InventoryItemUncheckedCreateWithoutInventoryReceiptOutputsInput = {
   id?: number
   productMasterId?: number | null
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -2100,6 +2321,7 @@ export type InventoryItemUpdateWithoutInventoryReceiptOutputsInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutItemNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutItemNestedInput
   productMaster?: Prisma.ProductUpdateOneWithoutSkusNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryItemsNestedInput
   productSourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductSkuNestedInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutProductNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutProductNestedInput
@@ -2109,6 +2331,7 @@ export type InventoryItemUncheckedUpdateWithoutInventoryReceiptOutputsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2162,6 +2385,7 @@ export type InventoryItemCreateWithoutProductMasterInput = {
   documentLines?: Prisma.InventoryDocumentLineCreateNestedManyWithoutItemInput
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutItemInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryItemsInput
   productSourceMappings?: Prisma.ProductSourceMappingCreateNestedManyWithoutProductSkuInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputCreateNestedManyWithoutProductSkuInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutProductInput
@@ -2171,6 +2395,7 @@ export type InventoryItemCreateWithoutProductMasterInput = {
 export type InventoryItemUncheckedCreateWithoutProductMasterInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -2226,33 +2451,6 @@ export type InventoryItemUpdateManyWithWhereWithoutProductMasterInput = {
   data: Prisma.XOR<Prisma.InventoryItemUpdateManyMutationInput, Prisma.InventoryItemUncheckedUpdateManyWithoutProductMasterInput>
 }
 
-export type InventoryItemScalarWhereInput = {
-  AND?: Prisma.InventoryItemScalarWhereInput | Prisma.InventoryItemScalarWhereInput[]
-  OR?: Prisma.InventoryItemScalarWhereInput[]
-  NOT?: Prisma.InventoryItemScalarWhereInput | Prisma.InventoryItemScalarWhereInput[]
-  id?: Prisma.IntFilter<"InventoryItem"> | number
-  productMasterId?: Prisma.IntNullableFilter<"InventoryItem"> | number | null
-  companyCode?: Prisma.StringFilter<"InventoryItem"> | string
-  code?: Prisma.StringFilter<"InventoryItem"> | string
-  name?: Prisma.StringFilter<"InventoryItem"> | string
-  itemType?: Prisma.StringFilter<"InventoryItem"> | string
-  specification?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
-  baseUnit?: Prisma.StringFilter<"InventoryItem"> | string
-  contentUnit?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
-  unitsPerPackage?: Prisma.DecimalNullableFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  packagesPerCase?: Prisma.DecimalNullableFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  barcode?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
-  status?: Prisma.StringFilter<"InventoryItem"> | string
-  note?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
-  sourceFile?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
-  sourceSheet?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
-  sourceKey?: Prisma.StringNullableFilter<"InventoryItem"> | string | null
-  editedBy?: Prisma.IntNullableFilter<"InventoryItem"> | number | null
-  version?: Prisma.IntFilter<"InventoryItem"> | number
-  createdAt?: Prisma.DateTimeFilter<"InventoryItem"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"InventoryItem"> | Date | string
-}
-
 export type InventoryItemCreateWithoutProductSourceMappingsInput = {
   companyCode: string
   code: string
@@ -2279,6 +2477,7 @@ export type InventoryItemCreateWithoutProductSourceMappingsInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryCreateNestedManyWithoutItemInput
   stocktakeLines?: Prisma.InventoryStocktakeLineCreateNestedManyWithoutItemInput
   productMaster?: Prisma.ProductCreateNestedOneWithoutSkusInput
+  company?: Prisma.CompanyCreateNestedOneWithoutInventoryItemsInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputCreateNestedManyWithoutProductSkuInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutProductInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutProductInput
@@ -2288,6 +2487,7 @@ export type InventoryItemUncheckedCreateWithoutProductSourceMappingsInput = {
   id?: number
   productMasterId?: number | null
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -2358,6 +2558,7 @@ export type InventoryItemUpdateWithoutProductSourceMappingsInput = {
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutItemNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutItemNestedInput
   productMaster?: Prisma.ProductUpdateOneWithoutSkusNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryItemsNestedInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUpdateManyWithoutProductSkuNestedInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutProductNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutProductNestedInput
@@ -2367,6 +2568,7 @@ export type InventoryItemUncheckedUpdateWithoutProductSourceMappingsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2395,9 +2597,123 @@ export type InventoryItemUncheckedUpdateWithoutProductSourceMappingsInput = {
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutProductNestedInput
 }
 
+export type InventoryItemCreateManyCompanyInput = {
+  id?: number
+  productMasterId?: number | null
+  companyCode: string
+  code: string
+  name: string
+  itemType?: string
+  specification?: string | null
+  baseUnit: string
+  contentUnit?: string | null
+  unitsPerPackage?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packagesPerCase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  barcode?: string | null
+  status?: string
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InventoryItemUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  itemType?: Prisma.StringFieldUpdateOperationsInput | string
+  specification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  contentUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unitsPerPackage?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packagesPerCase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  conversions?: Prisma.InventoryUnitConversionUpdateManyWithoutItemNestedInput
+  batches?: Prisma.InventoryBatchUpdateManyWithoutItemNestedInput
+  documentLines?: Prisma.InventoryDocumentLineUpdateManyWithoutItemNestedInput
+  ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutItemNestedInput
+  stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutItemNestedInput
+  productMaster?: Prisma.ProductUpdateOneWithoutSkusNestedInput
+  productSourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductSkuNestedInput
+  inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUpdateManyWithoutProductSkuNestedInput
+  financeCostStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutProductNestedInput
+  financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutProductNestedInput
+}
+
+export type InventoryItemUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  itemType?: Prisma.StringFieldUpdateOperationsInput | string
+  specification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  contentUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unitsPerPackage?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packagesPerCase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  conversions?: Prisma.InventoryUnitConversionUncheckedUpdateManyWithoutItemNestedInput
+  batches?: Prisma.InventoryBatchUncheckedUpdateManyWithoutItemNestedInput
+  documentLines?: Prisma.InventoryDocumentLineUncheckedUpdateManyWithoutItemNestedInput
+  ledgerEntries?: Prisma.InventoryLedgerEntryUncheckedUpdateManyWithoutItemNestedInput
+  stocktakeLines?: Prisma.InventoryStocktakeLineUncheckedUpdateManyWithoutItemNestedInput
+  productSourceMappings?: Prisma.ProductSourceMappingUncheckedUpdateManyWithoutProductSkuNestedInput
+  inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUncheckedUpdateManyWithoutProductSkuNestedInput
+  financeCostStructureRows?: Prisma.FinanceCostStructureRowUncheckedUpdateManyWithoutProductNestedInput
+  financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type InventoryItemUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  productMasterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  itemType?: Prisma.StringFieldUpdateOperationsInput | string
+  specification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  contentUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unitsPerPackage?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packagesPerCase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type InventoryItemCreateManyProductMasterInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   code: string
   name: string
   itemType?: string
@@ -2443,6 +2759,7 @@ export type InventoryItemUpdateWithoutProductMasterInput = {
   documentLines?: Prisma.InventoryDocumentLineUpdateManyWithoutItemNestedInput
   ledgerEntries?: Prisma.InventoryLedgerEntryUpdateManyWithoutItemNestedInput
   stocktakeLines?: Prisma.InventoryStocktakeLineUpdateManyWithoutItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutInventoryItemsNestedInput
   productSourceMappings?: Prisma.ProductSourceMappingUpdateManyWithoutProductSkuNestedInput
   inventoryReceiptOutputs?: Prisma.InventoryReceiptOutputUpdateManyWithoutProductSkuNestedInput
   financeCostStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutProductNestedInput
@@ -2452,6 +2769,7 @@ export type InventoryItemUpdateWithoutProductMasterInput = {
 export type InventoryItemUncheckedUpdateWithoutProductMasterInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2484,6 +2802,7 @@ export type InventoryItemUncheckedUpdateWithoutProductMasterInput = {
 export type InventoryItemUncheckedUpdateManyWithoutProductMasterInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   itemType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2611,6 +2930,7 @@ export type InventoryItemSelect<ExtArgs extends runtime.Types.Extensions.Interna
   id?: boolean
   productMasterId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   code?: boolean
   name?: boolean
   itemType?: boolean
@@ -2635,6 +2955,7 @@ export type InventoryItemSelect<ExtArgs extends runtime.Types.Extensions.Interna
   ledgerEntries?: boolean | Prisma.InventoryItem$ledgerEntriesArgs<ExtArgs>
   stocktakeLines?: boolean | Prisma.InventoryItem$stocktakeLinesArgs<ExtArgs>
   productMaster?: boolean | Prisma.InventoryItem$productMasterArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryItem$companyArgs<ExtArgs>
   productSourceMappings?: boolean | Prisma.InventoryItem$productSourceMappingsArgs<ExtArgs>
   inventoryReceiptOutputs?: boolean | Prisma.InventoryItem$inventoryReceiptOutputsArgs<ExtArgs>
   financeCostStructureRows?: boolean | Prisma.InventoryItem$financeCostStructureRowsArgs<ExtArgs>
@@ -2646,6 +2967,7 @@ export type InventoryItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   id?: boolean
   productMasterId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   code?: boolean
   name?: boolean
   itemType?: boolean
@@ -2665,12 +2987,14 @@ export type InventoryItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   createdAt?: boolean
   updatedAt?: boolean
   productMaster?: boolean | Prisma.InventoryItem$productMasterArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryItem$companyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryItem"]>
 
 export type InventoryItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   productMasterId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   code?: boolean
   name?: boolean
   itemType?: boolean
@@ -2690,12 +3014,14 @@ export type InventoryItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   createdAt?: boolean
   updatedAt?: boolean
   productMaster?: boolean | Prisma.InventoryItem$productMasterArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryItem$companyArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryItem"]>
 
 export type InventoryItemSelectScalar = {
   id?: boolean
   productMasterId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   code?: boolean
   name?: boolean
   itemType?: boolean
@@ -2716,7 +3042,7 @@ export type InventoryItemSelectScalar = {
   updatedAt?: boolean
 }
 
-export type InventoryItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productMasterId" | "companyCode" | "code" | "name" | "itemType" | "specification" | "baseUnit" | "contentUnit" | "unitsPerPackage" | "packagesPerCase" | "barcode" | "status" | "note" | "sourceFile" | "sourceSheet" | "sourceKey" | "editedBy" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryItem"]>
+export type InventoryItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productMasterId" | "companyCode" | "companyId" | "code" | "name" | "itemType" | "specification" | "baseUnit" | "contentUnit" | "unitsPerPackage" | "packagesPerCase" | "barcode" | "status" | "note" | "sourceFile" | "sourceSheet" | "sourceKey" | "editedBy" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryItem"]>
 export type InventoryItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   conversions?: boolean | Prisma.InventoryItem$conversionsArgs<ExtArgs>
   batches?: boolean | Prisma.InventoryItem$batchesArgs<ExtArgs>
@@ -2724,6 +3050,7 @@ export type InventoryItemInclude<ExtArgs extends runtime.Types.Extensions.Intern
   ledgerEntries?: boolean | Prisma.InventoryItem$ledgerEntriesArgs<ExtArgs>
   stocktakeLines?: boolean | Prisma.InventoryItem$stocktakeLinesArgs<ExtArgs>
   productMaster?: boolean | Prisma.InventoryItem$productMasterArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryItem$companyArgs<ExtArgs>
   productSourceMappings?: boolean | Prisma.InventoryItem$productSourceMappingsArgs<ExtArgs>
   inventoryReceiptOutputs?: boolean | Prisma.InventoryItem$inventoryReceiptOutputsArgs<ExtArgs>
   financeCostStructureRows?: boolean | Prisma.InventoryItem$financeCostStructureRowsArgs<ExtArgs>
@@ -2732,9 +3059,11 @@ export type InventoryItemInclude<ExtArgs extends runtime.Types.Extensions.Intern
 }
 export type InventoryItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   productMaster?: boolean | Prisma.InventoryItem$productMasterArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryItem$companyArgs<ExtArgs>
 }
 export type InventoryItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   productMaster?: boolean | Prisma.InventoryItem$productMasterArgs<ExtArgs>
+  company?: boolean | Prisma.InventoryItem$companyArgs<ExtArgs>
 }
 
 export type $InventoryItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2746,6 +3075,7 @@ export type $InventoryItemPayload<ExtArgs extends runtime.Types.Extensions.Inter
     ledgerEntries: Prisma.$InventoryLedgerEntryPayload<ExtArgs>[]
     stocktakeLines: Prisma.$InventoryStocktakeLinePayload<ExtArgs>[]
     productMaster: Prisma.$ProductPayload<ExtArgs> | null
+    company: Prisma.$CompanyPayload<ExtArgs> | null
     productSourceMappings: Prisma.$ProductSourceMappingPayload<ExtArgs>[]
     inventoryReceiptOutputs: Prisma.$InventoryReceiptOutputPayload<ExtArgs>[]
     financeCostStructureRows: Prisma.$FinanceCostStructureRowPayload<ExtArgs>[]
@@ -2755,6 +3085,7 @@ export type $InventoryItemPayload<ExtArgs extends runtime.Types.Extensions.Inter
     id: number
     productMasterId: number | null
     companyCode: string
+    companyId: number | null
     code: string
     name: string
     itemType: string
@@ -3173,6 +3504,7 @@ export interface Prisma__InventoryItemClient<T, Null = never, ExtArgs extends ru
   ledgerEntries<T extends Prisma.InventoryItem$ledgerEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryItem$ledgerEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryLedgerEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   stocktakeLines<T extends Prisma.InventoryItem$stocktakeLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryItem$stocktakeLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryStocktakeLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productMaster<T extends Prisma.InventoryItem$productMasterArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryItem$productMasterArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.InventoryItem$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryItem$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   productSourceMappings<T extends Prisma.InventoryItem$productSourceMappingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryItem$productSourceMappingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductSourceMappingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   inventoryReceiptOutputs<T extends Prisma.InventoryItem$inventoryReceiptOutputsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryItem$inventoryReceiptOutputsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryReceiptOutputPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   financeCostStructureRows<T extends Prisma.InventoryItem$financeCostStructureRowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryItem$financeCostStructureRowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceCostStructureRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3209,6 +3541,7 @@ export interface InventoryItemFieldRefs {
   readonly id: Prisma.FieldRef<"InventoryItem", 'Int'>
   readonly productMasterId: Prisma.FieldRef<"InventoryItem", 'Int'>
   readonly companyCode: Prisma.FieldRef<"InventoryItem", 'String'>
+  readonly companyId: Prisma.FieldRef<"InventoryItem", 'Int'>
   readonly code: Prisma.FieldRef<"InventoryItem", 'String'>
   readonly name: Prisma.FieldRef<"InventoryItem", 'String'>
   readonly itemType: Prisma.FieldRef<"InventoryItem", 'String'>
@@ -3764,6 +4097,25 @@ export type InventoryItem$productMasterArgs<ExtArgs extends runtime.Types.Extens
    */
   include?: Prisma.ProductInclude<ExtArgs> | null
   where?: Prisma.ProductWhereInput
+}
+
+/**
+ * InventoryItem.company
+ */
+export type InventoryItem$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

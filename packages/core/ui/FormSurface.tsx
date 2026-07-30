@@ -19,6 +19,7 @@ export type {
   FormSurfaceFilterContentSpec,
   FormSurfaceFilterLayoutSpec,
   FormSurfaceFieldsProps,
+  FormSurfaceFieldLayout,
   FormSurfaceFiltersProps,
   FormSurfaceGroupTitleSpec,
   FormSurfaceHeaderSpec,

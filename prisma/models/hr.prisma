@@ -34,72 +34,18 @@ model Employee {
   ownedWorkItems         WorkItem[]                  @relation("WorkItemOwner")
   ownedWorkPlans         WorkPlan[]                  @relation("WorkPlanOwner")
   employments            Employment[]
+  partyIdentityLink      EmployeePartyIdentityLink?
+  financeAuxiliaryMembers FinanceAuxiliaryMember[]   @relation("FinanceAuxiliaryMemberLinkedEmployee")
   financeSalesSalaries   FinanceSalesSalary[]
   financeShipments       FinanceShipment[]
   financeWorkshopReports FinanceWorkshopReport[]
   performanceReviews     HrPerformanceReview[]
   ownedKpiAssignments    WorkKpiAssignment[]
   handledContracts       Contract[]                  @relation("ContractHandlerEmployee")
-}
-/// 员工雇佣信息（在职状态、入职/离职日期等事实字段）
-model Employment {
-  id             Int       @id @default(autoincrement())
-  employeeId     Int
-  isActive       Boolean   @default(true)
-  currentCompany String?
-  joinDate       String?
-  leaveDate      String?
-  leaveReason    String?
-  leaveNote      String?
-  officeLocation String?
-  attendanceType String?
-  personnelType  String?
-  rank           String?
-  title          String?
-  contracts      String?
-  editedBy       Int?
-  editedAt       DateTime?
-  version        Int       @default(1)
-  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  agreements     EmploymentAgreement[]
-
-  @@index([employeeId])
-  @@index([isActive])
-}
-
-/// 内部法律公司角色；法定身份由 Party 统一维护
-model Company {
-  id                                Int                                @id @default(autoincrement())
-  partyId                           Int                                @unique
-  code                              String                             @unique
-  description                       String?
-  registeredCapital                 String?
-  bankName                          String?
-  registeredAddress                 String?
-  registeredDate                    String?
-  managementGroup                   String
-  codePoolCode                      String?
-  isActive                          Boolean                            @default(true)
-  sortOrder                         Int                                @default(0)
-  editedBy                          Int?
-  editedAt                          DateTime?
-  version                           Int                                @default(1)
-  createdAt                         DateTime                           @default(now())
-  updatedAt                         DateTime                           @default(now()) @updatedAt
-  party                             Party                              @relation(fields: [partyId], references: [id], onDelete: Restrict)
-  issuedOwnerships                  OwnershipInterest[]
-  ownershipProjectionRuns           OwnershipProjectionRun[]
-  shareCapitalEvents                ShareCapitalEvent[]
-  shareholderGroups                 ShareholderGroup[]
-  registryChanges                   CompanyRegistryChange[]
-  positionReportOverrides           PositionReportOverride[]
-  reportingEdps                     EDP[]                              @relation("EDPReportingCompany")
-  financeAuxiliaryMembers           FinanceAuxiliaryMember[]           @relation("FinanceAuxiliaryMemberLinkedCompany")
-  financeVoucherCompanyMappingRules FinanceVoucherCompanyMappingRule[]
-  financeCurrencyPolicy             FinanceCompanyCurrencyPolicy?
-  externalPartySourceMappings       ExternalPartySourceMapping[]
-  ownedContracts                    Contract[]                         @relation("ContractOwningCompany")
-  socialInsurancePeriods            EmployeeSocialInsurancePeriod[]
+  financeCloseTasksAssigned FinanceCloseTask[]
+  workResponsibilityReferences WorkResponsibilityReference[] @relation("WorkResponsibilityLockedEmployee")
+  productionQcSignatures ProductionQcSignature[] @relation("ProductionQcSignatureSignerEmployee")
+  productionQcAuditEvents ProductionQcAuditEvent[] @relation("ProductionQcAuditActorEmployee")
 }
 /// 组织单元树（兼容名 Department；含 G/M 层级关系与负责人岗位）
 model Department {
@@ -134,10 +80,12 @@ model Department {
   positionReportOverrides   PositionReportOverride[]
   ownedKpiDefinitions       WorkKpiDefinition[]
   ownedContracts            Contract[]                        @relation("ContractOwnerDepartment")
+  financeBudgetRows         FinanceBudgetDept[]
   effectiveVersions         DepartmentEffectiveVersion[]      @relation("DepartmentEffectiveVersionAggregate")
   effectiveChildVersions    DepartmentEffectiveVersion[]      @relation("DepartmentEffectiveVersionParent")
   positionEffectiveVersions PositionEffectiveVersion[]        @relation("PositionEffectiveVersionDepartment")
   overrideEffectiveVersions PositionReportOverrideEffectiveVersion[] @relation("PositionReportOverrideVersionDepartment")
+  erpDueDiligenceSubmissions ErpDueDiligenceSubmission[]
 
   @@index([code])
   @@index([name])
@@ -172,6 +120,7 @@ model Position {
   reportOverrides         PositionReportOverride[]          @relation("PositionReportOverrideSource")
   reportedReportOverrides PositionReportOverride[]          @relation("PositionReportOverrideReportTo")
   collaborationPositions  DepartmentCollaborationPosition[]
+  workResponsibilityReferences WorkResponsibilityReference[] @relation("WorkResponsibilityLockedPosition")
   effectiveVersions       PositionEffectiveVersion[]          @relation("PositionEffectiveVersionAggregate")
   effectiveReportees      PositionEffectiveVersion[]          @relation("PositionEffectiveVersionReportTo")
   effectiveManagedDepartments DepartmentEffectiveVersion[]    @relation("DepartmentEffectiveVersionManagerPosition")
@@ -208,6 +157,7 @@ model EDP {
   employee                   Employee                    @relation("EmployeePositions", fields: [employeeId], references: [id], onDelete: Cascade)
   reportToPosition           Position?                   @relation("EDPReportToPosition", fields: [reportToPositionId], references: [id], onDelete: SetNull)
   erpDueDiligenceSubmissions ErpDueDiligenceSubmission[] @relation("ErpDueDiligencePositionAssignment")
+  workResponsibilityReferences WorkResponsibilityReference[] @relation("WorkResponsibilityLockedEmployeePosition")
 
   @@index([employeeId])
   @@index([reportingCompanyId])
@@ -245,19 +195,4 @@ model PositionReportOverride {
   @@index([departmentId])
   @@index([reportToPositionId])
   @@index([isActive])
-}
-
-/// 实体编辑历史（版本快照）
-model EditHistory {
-  id         Int      @id @default(autoincrement())
-  entityType String
-  entityId   String
-  version    Int
-  dataJson   String
-  editedBy   Int
-  createdAt  DateTime @default(now())
-  tag        String?
-  editor     User     @relation("EditHistoryEditor", fields: [editedBy], references: [id])
-
-  @@unique([entityType, entityId, version, tag])
 }

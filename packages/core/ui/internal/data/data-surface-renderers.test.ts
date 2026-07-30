@@ -10,3 +10,10 @@ test("DataSurface number and amount displays own right alignment", () => {
 
   assert.equal(alignedFinancialDisplays?.length, 2);
 });
+
+test("DataSurface truncated text accepts a character width and retains the full hover title", () => {
+  const source = readFileSync(new URL("./DataSurface.renderers.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /maxWidth: `\$\{maxChars\}ch`/);
+  assert.match(source, /value\.wrap === "truncate" \? textOverflowTitle\(value\.value\)/);
+});

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDebouncedEffect } from "@workspace/core/hooks";
 import { workspacePath } from "@workspace/core/routing";
 import type { ExternalParty, ExternalPartyDraft, ExternalPartyListResponse } from "@workspace/external/types";
+import { directCommandFetch } from "@workspace/platform/ui/api-client";
 
 function errorMessage(value: unknown, fallback: string) {
   return value && typeof value === "object" && "error" in value && typeof value.error === "string"
@@ -20,8 +21,6 @@ export function useExternalParties(apiPath: string) {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [asOfDate, setAsOfDate] = useState("");
-  const [businessDate, setBusinessDate] = useState("");
   const pageSize = 50;
 
   const syncQuery = useCallback(() => {
@@ -36,15 +35,12 @@ export function useExternalParties(apiPath: string) {
     try {
       const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
       if (query) params.set("keyword", query);
-      if (asOfDate) params.set("asOfDate", asOfDate);
       const response = await fetch(`${endpoint}?${params.toString()}`);
       const data = await response.json().catch(() => null) as ExternalPartyListResponse | { error?: string } | null;
       if (!response.ok) throw new Error(errorMessage(data, `加载失败 (${response.status})`));
       const result = data as ExternalPartyListResponse;
       setItems(result.items);
       setTotal(result.total);
-      setAsOfDate(result.asOfDate);
-      setBusinessDate(result.businessDate);
     } catch (caught) {
       setItems([]);
       setTotal(0);
@@ -52,17 +48,16 @@ export function useExternalParties(apiPath: string) {
     } finally {
       setLoading(false);
     }
-  }, [asOfDate, endpoint, page, query]);
+  }, [endpoint, page, query]);
 
   useEffect(() => { void load(); }, [load]);
 
   const save = useCallback(async (draft: ExternalPartyDraft) => {
     const editing = Boolean(draft.id);
-    const response = await fetch(editing ? `${endpoint}/${draft.id}` : endpoint, {
+    const response = await directCommandFetch(editing ? `${endpoint}/${draft.id}` : endpoint, {
       method: editing ? "PATCH" : "POST",
       headers: {
         "Content-Type": "application/json",
-        "Idempotency-Key": `external-party:${editing ? "update" : "create"}:${crypto.randomUUID()}`,
         ...(editing && draft.version ? { "If-Match": String(draft.version) } : {}),
       },
       body: JSON.stringify({
@@ -88,13 +83,6 @@ export function useExternalParties(apiPath: string) {
         creditDays: draft.creditDays,
         taxRate: draft.taxRate,
         remark: draft.remark,
-        ...(!editing ? {
-          availabilityFrom: draft.availabilityFrom || undefined,
-          availabilityThrough: draft.availabilityThrough || undefined,
-        } : {}),
-        legalFactRevision: draft.legalFactRevision,
-        effectiveOn: draft.effectiveOn || undefined,
-        legalFactReason: draft.legalFactReason,
       }),
     });
     const data = await response.json().catch(() => null) as { record?: ExternalParty; error?: string } | null;
@@ -103,40 +91,13 @@ export function useExternalParties(apiPath: string) {
     return { ok: true as const, record: data?.record ?? null };
   }, [endpoint, load]);
 
-  const remove = useCallback(async (item: ExternalParty, effectiveOn: string, reason: string) => {
-    const response = await fetch(`${endpoint}/${item.id}`, {
+  const remove = useCallback(async (item: ExternalParty) => {
+    const response = await directCommandFetch(`${endpoint}/${item.id}`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        "Idempotency-Key": `external-party:end:${crypto.randomUUID()}`,
-        "If-Match": String(item.version),
-      },
-      body: JSON.stringify({ effectiveOn, reason }),
+      headers: { "If-Match": String(item.version) },
     });
     const data = await response.json().catch(() => null);
-    if (!response.ok) return { ok: false as const, error: errorMessage(data, `删除失败 (${response.status})`) };
-    await load();
-    return { ok: true as const };
-  }, [endpoint, load]);
-
-  const changeAvailability = useCallback(async (
-    item: ExternalParty,
-    command:
-      | { kind: "schedule"; validFrom: string | null; validThrough: string | null; reason?: string | null }
-      | { kind: "correct"; periodId: number; validFrom: string | null; validThrough: string | null; reason: string }
-      | { kind: "cancel-future"; periodId: number; reason: string },
-  ) => {
-    const response = await fetch(`${endpoint}/${item.id}/availability`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Idempotency-Key": `external-party:availability:${crypto.randomUUID()}`,
-        "If-Match": String(item.version),
-      },
-      body: JSON.stringify(command),
-    });
-    const result = await response.json().catch(() => null);
-    if (!response.ok) return { ok: false as const, error: errorMessage(result, `登记可用期间失败 (${response.status})`) };
+    if (!response.ok) return { ok: false as const, error: errorMessage(data, `结束失败 (${response.status})`) };
     await load();
     return { ok: true as const };
   }, [endpoint, load]);
@@ -151,13 +112,9 @@ export function useExternalParties(apiPath: string) {
     totalPages: Math.max(1, Math.ceil(total / pageSize)),
     loading,
     error,
-    asOfDate,
-    businessDate,
-    setAsOfDate,
     load,
     save,
     remove,
-    changeAvailability,
   };
 }
 

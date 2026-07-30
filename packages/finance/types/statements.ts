@@ -1,8 +1,12 @@
-import type { StatementReportType } from "./statement-shared";
+import type {
+  ConsolidationEntryType,
+  FinanceGroupVoucherDocumentType,
+  StatementReportType,
+} from "./statement-shared";
 import type { ConsolidationAdjustmentComparison } from "./consolidation-adjustment";
 import type { StatementPeriodKind } from "./statement-period";
 
-export type { StatementReportType } from "./statement-shared";
+export type { ConsolidationEntryType, StatementReportType } from "./statement-shared";
 export type * from "./consolidated-output";
 
 export type ConsolidationReadinessStatus = "ready" | "attention" | "blocked";
@@ -15,15 +19,6 @@ export type ConsolidationBatchEventAction = ConsolidationBatchLifecycleAction
   | "entry.delete"
   | "taxEffect.delete";
 export type ConsolidationEntryStatus = "draft" | "submitted" | "approved" | "reversed";
-export type ConsolidationEntryType =
-  | "investmentEquity"
-  | "reclassification"
-  | "nonControllingInterest"
-  | "intercompanyBalance"
-  | "internalTrading"
-  | "internalLongTermAsset"
-  | "incomeDividend"
-  | "cashFlow";
 export type ConsolidationControlKey =
   | "scope"
   | "ownership"
@@ -32,7 +27,7 @@ export type ConsolidationControlKey =
   | "tax"
   | `elimination:${ConsolidationEntryType}`;
 export type StatementSourceKind = "workpaper" | "system" | "missing";
-export type StatementExchangeRateKind = "centralParity" | "closing" | "historicalInvestment" | "monthlyAverage";
+export type StatementExchangeRateKind = "centralParity" | "monthlyAverage" | "closing" | "historicalInvestment";
 
 export interface ConsolidationPeriodOption {
   year: number;
@@ -203,14 +198,14 @@ export interface ConsolidationEntitySnapshot {
 }
 
 export interface ConsolidationRateApplicationSnapshot {
-  applicationType: "closing" | "historicalInvestment" | "historicalCapital" | "historicalEquity" | "monthlyAverage";
+  applicationType: "closing" | "flowAverage" | "cashPoint" | "historicalInvestment" | "historicalCapital";
   periodBasis: "current" | "comparative";
   entitySnapshotId: number;
   voucherItemId: number | null;
   targetDate: string;
   evidence: string;
   capitalOriginalAmount?: number | null;
-  equityLineCode?: string | null;
+  capitalLineCode?: "paidInCapital" | "capitalReserve" | null;
   voucher: {
     companyCode: string;
     voucherNo: string;
@@ -220,6 +215,8 @@ export interface ConsolidationRateApplicationSnapshot {
     bookedAmountCny: number;
     currencyCode: string | null;
     originalAmount: number | null;
+    matchingLineCode?: "paidInCapital" | "capitalReserve" | null;
+    matchingLabel?: string | null;
   } | null;
 }
 
@@ -297,7 +294,7 @@ export interface ConsolidationEntrySnapshot {
   id: number;
   entryNo: string;
   postingDate: string;
-  documentType: "groupAdjustment" | "elimination" | "reclassification";
+  documentType: FinanceGroupVoucherDocumentType;
   postingLevel: "10" | "20" | "30";
   entryType: ConsolidationEntryType;
   title: string;
@@ -435,7 +432,7 @@ export interface SaveConsolidationEntryInput {
   entryId?: number | null;
   entryNo: string;
   postingDate?: string;
-  documentType?: ConsolidationEntrySnapshot["documentType"];
+  documentType?: Exclude<ConsolidationEntrySnapshot["documentType"], "allocation">;
   postingLevel?: ConsolidationEntrySnapshot["postingLevel"];
   entryType: ConsolidationEntryType;
   title: string;

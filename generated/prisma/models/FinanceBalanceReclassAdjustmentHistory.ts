@@ -33,7 +33,10 @@ export type FinanceBalanceReclassAdjustmentHistoryAvgAggregateOutputType = {
   sourceGroupAccountIdSnapshot: number | null
   targetGroupAccountIdSnapshot: number | null
   periodId: number | null
+  companyId: number | null
   year: number | null
+  sourceAccountId: number | null
+  targetAccountId: number | null
   amount: number | null
   ruleIdSnapshot: number | null
   adjustedBySnapshot: number | null
@@ -47,7 +50,10 @@ export type FinanceBalanceReclassAdjustmentHistorySumAggregateOutputType = {
   sourceGroupAccountIdSnapshot: number | null
   targetGroupAccountIdSnapshot: number | null
   periodId: number | null
+  companyId: number | null
   year: number | null
+  sourceAccountId: number | null
+  targetAccountId: number | null
   amount: number | null
   ruleIdSnapshot: number | null
   adjustedBySnapshot: number | null
@@ -62,9 +68,12 @@ export type FinanceBalanceReclassAdjustmentHistoryMinAggregateOutputType = {
   targetGroupAccountIdSnapshot: number | null
   periodId: number | null
   companyCode: string | null
+  companyId: number | null
   year: number | null
   sourceAccountCode: string | null
+  sourceAccountId: number | null
   targetAccountCode: string | null
+  targetAccountId: number | null
   amount: number | null
   decision: string | null
   sourceType: string | null
@@ -86,9 +95,12 @@ export type FinanceBalanceReclassAdjustmentHistoryMaxAggregateOutputType = {
   targetGroupAccountIdSnapshot: number | null
   periodId: number | null
   companyCode: string | null
+  companyId: number | null
   year: number | null
   sourceAccountCode: string | null
+  sourceAccountId: number | null
   targetAccountCode: string | null
+  targetAccountId: number | null
   amount: number | null
   decision: string | null
   sourceType: string | null
@@ -110,9 +122,12 @@ export type FinanceBalanceReclassAdjustmentHistoryCountAggregateOutputType = {
   targetGroupAccountIdSnapshot: number
   periodId: number
   companyCode: number
+  companyId: number
   year: number
   sourceAccountCode: number
+  sourceAccountId: number
   targetAccountCode: number
+  targetAccountId: number
   amount: number
   decision: number
   sourceType: number
@@ -135,7 +150,10 @@ export type FinanceBalanceReclassAdjustmentHistoryAvgAggregateInputType = {
   sourceGroupAccountIdSnapshot?: true
   targetGroupAccountIdSnapshot?: true
   periodId?: true
+  companyId?: true
   year?: true
+  sourceAccountId?: true
+  targetAccountId?: true
   amount?: true
   ruleIdSnapshot?: true
   adjustedBySnapshot?: true
@@ -149,7 +167,10 @@ export type FinanceBalanceReclassAdjustmentHistorySumAggregateInputType = {
   sourceGroupAccountIdSnapshot?: true
   targetGroupAccountIdSnapshot?: true
   periodId?: true
+  companyId?: true
   year?: true
+  sourceAccountId?: true
+  targetAccountId?: true
   amount?: true
   ruleIdSnapshot?: true
   adjustedBySnapshot?: true
@@ -164,9 +185,12 @@ export type FinanceBalanceReclassAdjustmentHistoryMinAggregateInputType = {
   targetGroupAccountIdSnapshot?: true
   periodId?: true
   companyCode?: true
+  companyId?: true
   year?: true
   sourceAccountCode?: true
+  sourceAccountId?: true
   targetAccountCode?: true
+  targetAccountId?: true
   amount?: true
   decision?: true
   sourceType?: true
@@ -188,9 +212,12 @@ export type FinanceBalanceReclassAdjustmentHistoryMaxAggregateInputType = {
   targetGroupAccountIdSnapshot?: true
   periodId?: true
   companyCode?: true
+  companyId?: true
   year?: true
   sourceAccountCode?: true
+  sourceAccountId?: true
   targetAccountCode?: true
+  targetAccountId?: true
   amount?: true
   decision?: true
   sourceType?: true
@@ -212,9 +239,12 @@ export type FinanceBalanceReclassAdjustmentHistoryCountAggregateInputType = {
   targetGroupAccountIdSnapshot?: true
   periodId?: true
   companyCode?: true
+  companyId?: true
   year?: true
   sourceAccountCode?: true
+  sourceAccountId?: true
   targetAccountCode?: true
+  targetAccountId?: true
   amount?: true
   decision?: true
   sourceType?: true
@@ -323,9 +353,12 @@ export type FinanceBalanceReclassAdjustmentHistoryGroupByOutputType = {
   targetGroupAccountIdSnapshot: number | null
   periodId: number
   companyCode: string
+  companyId: number | null
   year: number
   sourceAccountCode: string
+  sourceAccountId: number | null
   targetAccountCode: string | null
+  targetAccountId: number | null
   amount: number
   decision: string
   sourceType: string
@@ -370,9 +403,12 @@ export type FinanceBalanceReclassAdjustmentHistoryWhereInput = {
   targetGroupAccountIdSnapshot?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   periodId?: Prisma.IntFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
   companyCode?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   year?: Prisma.IntFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
   sourceAccountCode?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
+  sourceAccountId?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   targetAccountCode?: Prisma.StringNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | string | null
+  targetAccountId?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   amount?: Prisma.FloatFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
   decision?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
   sourceType?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
@@ -384,6 +420,9 @@ export type FinanceBalanceReclassAdjustmentHistoryWhereInput = {
   archiveReason?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
   archivedBy?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   archivedAt?: Prisma.DateTimeFilter<"FinanceBalanceReclassAdjustmentHistory"> | Date | string
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  sourceAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  targetAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
 }
 
 export type FinanceBalanceReclassAdjustmentHistoryOrderByWithRelationInput = {
@@ -394,9 +433,12 @@ export type FinanceBalanceReclassAdjustmentHistoryOrderByWithRelationInput = {
   targetGroupAccountIdSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   periodId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrder
   decision?: Prisma.SortOrder
   sourceType?: Prisma.SortOrder
@@ -408,6 +450,9 @@ export type FinanceBalanceReclassAdjustmentHistoryOrderByWithRelationInput = {
   archiveReason?: Prisma.SortOrder
   archivedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  company?: Prisma.CompanyOrderByWithRelationInput
+  sourceAccount?: Prisma.FinanceAccountOrderByWithRelationInput
+  targetAccount?: Prisma.FinanceAccountOrderByWithRelationInput
 }
 
 export type FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput = Prisma.AtLeast<{
@@ -421,9 +466,12 @@ export type FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput = Prisma.AtLe
   targetGroupAccountIdSnapshot?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   periodId?: Prisma.IntFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
   companyCode?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   year?: Prisma.IntFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
   sourceAccountCode?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
+  sourceAccountId?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   targetAccountCode?: Prisma.StringNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | string | null
+  targetAccountId?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   amount?: Prisma.FloatFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
   decision?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
   sourceType?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
@@ -435,6 +483,9 @@ export type FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput = Prisma.AtLe
   archiveReason?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
   archivedBy?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   archivedAt?: Prisma.DateTimeFilter<"FinanceBalanceReclassAdjustmentHistory"> | Date | string
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  sourceAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  targetAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
 }, "id">
 
 export type FinanceBalanceReclassAdjustmentHistoryOrderByWithAggregationInput = {
@@ -445,9 +496,12 @@ export type FinanceBalanceReclassAdjustmentHistoryOrderByWithAggregationInput = 
   targetGroupAccountIdSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   periodId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrder
   decision?: Prisma.SortOrder
   sourceType?: Prisma.SortOrder
@@ -477,9 +531,12 @@ export type FinanceBalanceReclassAdjustmentHistoryScalarWhereWithAggregatesInput
   targetGroupAccountIdSnapshot?: Prisma.IntNullableWithAggregatesFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   periodId?: Prisma.IntWithAggregatesFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   year?: Prisma.IntWithAggregatesFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
   sourceAccountCode?: Prisma.StringWithAggregatesFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
+  sourceAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   targetAccountCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceBalanceReclassAdjustmentHistory"> | string | null
+  targetAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
   amount?: Prisma.FloatWithAggregatesFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
   decision?: Prisma.StringWithAggregatesFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
   sourceType?: Prisma.StringWithAggregatesFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
@@ -514,6 +571,9 @@ export type FinanceBalanceReclassAdjustmentHistoryCreateInput = {
   archiveReason: string
   archivedBy?: number | null
   archivedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceBalanceReclassAdjustmentHistoriesInput
+  sourceAccount?: Prisma.FinanceAccountCreateNestedOneWithoutReclassHistorySourcesInput
+  targetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutReclassHistoryTargetsInput
 }
 
 export type FinanceBalanceReclassAdjustmentHistoryUncheckedCreateInput = {
@@ -524,9 +584,12 @@ export type FinanceBalanceReclassAdjustmentHistoryUncheckedCreateInput = {
   targetGroupAccountIdSnapshot?: number | null
   periodId: number
   companyCode: string
+  companyId?: number | null
   year: number
   sourceAccountCode: string
+  sourceAccountId?: number | null
   targetAccountCode?: string | null
+  targetAccountId?: number | null
   amount: number
   decision: string
   sourceType: string
@@ -561,6 +624,9 @@ export type FinanceBalanceReclassAdjustmentHistoryUpdateInput = {
   archiveReason?: Prisma.StringFieldUpdateOperationsInput | string
   archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceBalanceReclassAdjustmentHistoriesNestedInput
+  sourceAccount?: Prisma.FinanceAccountUpdateOneWithoutReclassHistorySourcesNestedInput
+  targetAccount?: Prisma.FinanceAccountUpdateOneWithoutReclassHistoryTargetsNestedInput
 }
 
 export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateInput = {
@@ -571,9 +637,12 @@ export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateInput = {
   targetGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   decision?: Prisma.StringFieldUpdateOperationsInput | string
   sourceType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -595,9 +664,12 @@ export type FinanceBalanceReclassAdjustmentHistoryCreateManyInput = {
   targetGroupAccountIdSnapshot?: number | null
   periodId: number
   companyCode: string
+  companyId?: number | null
   year: number
   sourceAccountCode: string
+  sourceAccountId?: number | null
   targetAccountCode?: string | null
+  targetAccountId?: number | null
   amount: number
   decision: string
   sourceType: string
@@ -642,9 +714,12 @@ export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyInput = {
   targetGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   decision?: Prisma.StringFieldUpdateOperationsInput | string
   sourceType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -658,6 +733,16 @@ export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyInput = {
   archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type FinanceBalanceReclassAdjustmentHistoryListRelationFilter = {
+  every?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereInput
+  some?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereInput
+  none?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereInput
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type FinanceBalanceReclassAdjustmentHistoryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   adjustmentIdSnapshot?: Prisma.SortOrder
@@ -666,9 +751,12 @@ export type FinanceBalanceReclassAdjustmentHistoryCountOrderByAggregateInput = {
   targetGroupAccountIdSnapshot?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   decision?: Prisma.SortOrder
   sourceType?: Prisma.SortOrder
@@ -689,7 +777,10 @@ export type FinanceBalanceReclassAdjustmentHistoryAvgOrderByAggregateInput = {
   sourceGroupAccountIdSnapshot?: Prisma.SortOrder
   targetGroupAccountIdSnapshot?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   ruleIdSnapshot?: Prisma.SortOrder
   adjustedBySnapshot?: Prisma.SortOrder
@@ -704,9 +795,12 @@ export type FinanceBalanceReclassAdjustmentHistoryMaxOrderByAggregateInput = {
   targetGroupAccountIdSnapshot?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   decision?: Prisma.SortOrder
   sourceType?: Prisma.SortOrder
@@ -728,9 +822,12 @@ export type FinanceBalanceReclassAdjustmentHistoryMinOrderByAggregateInput = {
   targetGroupAccountIdSnapshot?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   decision?: Prisma.SortOrder
   sourceType?: Prisma.SortOrder
@@ -751,11 +848,710 @@ export type FinanceBalanceReclassAdjustmentHistorySumOrderByAggregateInput = {
   sourceGroupAccountIdSnapshot?: Prisma.SortOrder
   targetGroupAccountIdSnapshot?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   ruleIdSnapshot?: Prisma.SortOrder
   adjustedBySnapshot?: Prisma.SortOrder
   archivedBy?: Prisma.SortOrder
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutSourceAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutSourceAccountInput> | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutSourceAccountInput[] | Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutSourceAccountInput[]
+  connectOrCreate?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutSourceAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutSourceAccountInput[]
+  createMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManySourceAccountInputEnvelope
+  connect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutTargetAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutTargetAccountInput> | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutTargetAccountInput[] | Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutTargetAccountInput[]
+  connectOrCreate?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutTargetAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutTargetAccountInput[]
+  createMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyTargetAccountInputEnvelope
+  connect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutSourceAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutSourceAccountInput> | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutSourceAccountInput[] | Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutSourceAccountInput[]
+  connectOrCreate?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutSourceAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutSourceAccountInput[]
+  createMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManySourceAccountInputEnvelope
+  connect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutTargetAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutTargetAccountInput> | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutTargetAccountInput[] | Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutTargetAccountInput[]
+  connectOrCreate?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutTargetAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutTargetAccountInput[]
+  createMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyTargetAccountInputEnvelope
+  connect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutSourceAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutSourceAccountInput> | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutSourceAccountInput[] | Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutSourceAccountInput[]
+  connectOrCreate?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutSourceAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutSourceAccountInput[]
+  upsert?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutSourceAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutSourceAccountInput[]
+  createMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManySourceAccountInputEnvelope
+  set?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  delete?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  connect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  update?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutSourceAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutSourceAccountInput[]
+  updateMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutSourceAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutSourceAccountInput[]
+  deleteMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput | Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput[]
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutTargetAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutTargetAccountInput> | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutTargetAccountInput[] | Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutTargetAccountInput[]
+  connectOrCreate?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutTargetAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutTargetAccountInput[]
+  upsert?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutTargetAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutTargetAccountInput[]
+  createMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyTargetAccountInputEnvelope
+  set?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  delete?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  connect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  update?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutTargetAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutTargetAccountInput[]
+  updateMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutTargetAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutTargetAccountInput[]
+  deleteMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput | Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput[]
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutSourceAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutSourceAccountInput> | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutSourceAccountInput[] | Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutSourceAccountInput[]
+  connectOrCreate?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutSourceAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutSourceAccountInput[]
+  upsert?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutSourceAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutSourceAccountInput[]
+  createMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManySourceAccountInputEnvelope
+  set?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  delete?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  connect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  update?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutSourceAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutSourceAccountInput[]
+  updateMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutSourceAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutSourceAccountInput[]
+  deleteMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput | Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput[]
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutTargetAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutTargetAccountInput> | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutTargetAccountInput[] | Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutTargetAccountInput[]
+  connectOrCreate?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutTargetAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutTargetAccountInput[]
+  upsert?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutTargetAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutTargetAccountInput[]
+  createMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyTargetAccountInputEnvelope
+  set?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  delete?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  connect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  update?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutTargetAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutTargetAccountInput[]
+  updateMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutTargetAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutTargetAccountInput[]
+  deleteMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput | Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput[]
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutCompanyInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutCompanyInput> | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutCompanyInput[] | Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutCompanyInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutCompanyInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutCompanyInput> | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutCompanyInput[] | Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutCompanyInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutCompanyInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutCompanyInput> | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutCompanyInput[] | Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutCompanyInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  delete?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  connect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  update?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput | Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput[]
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutCompanyInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutCompanyInput> | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutCompanyInput[] | Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutCompanyInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  delete?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  connect?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput | Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput[]
+  update?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput | Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput[]
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateWithoutSourceAccountInput = {
+  adjustmentIdSnapshot: number
+  policyVersionIdSnapshot?: number | null
+  sourceGroupAccountIdSnapshot?: number | null
+  targetGroupAccountIdSnapshot?: number | null
+  periodId: number
+  companyCode: string
+  year: number
+  sourceAccountCode: string
+  targetAccountCode?: string | null
+  amount: number
+  decision: string
+  sourceType: string
+  status: string
+  ruleIdSnapshot?: number | null
+  adjustedBySnapshot?: number | null
+  adjustedAtSnapshot?: Date | string | null
+  note?: string | null
+  archiveReason: string
+  archivedBy?: number | null
+  archivedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceBalanceReclassAdjustmentHistoriesInput
+  targetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutReclassHistoryTargetsInput
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutSourceAccountInput = {
+  id?: number
+  adjustmentIdSnapshot: number
+  policyVersionIdSnapshot?: number | null
+  sourceGroupAccountIdSnapshot?: number | null
+  targetGroupAccountIdSnapshot?: number | null
+  periodId: number
+  companyCode: string
+  companyId?: number | null
+  year: number
+  sourceAccountCode: string
+  targetAccountCode?: string | null
+  targetAccountId?: number | null
+  amount: number
+  decision: string
+  sourceType: string
+  status: string
+  ruleIdSnapshot?: number | null
+  adjustedBySnapshot?: number | null
+  adjustedAtSnapshot?: Date | string | null
+  note?: string | null
+  archiveReason: string
+  archivedBy?: number | null
+  archivedAt?: Date | string
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutSourceAccountInput = {
+  where: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutSourceAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutSourceAccountInput>
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateManySourceAccountInputEnvelope = {
+  data: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManySourceAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManySourceAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateWithoutTargetAccountInput = {
+  adjustmentIdSnapshot: number
+  policyVersionIdSnapshot?: number | null
+  sourceGroupAccountIdSnapshot?: number | null
+  targetGroupAccountIdSnapshot?: number | null
+  periodId: number
+  companyCode: string
+  year: number
+  sourceAccountCode: string
+  targetAccountCode?: string | null
+  amount: number
+  decision: string
+  sourceType: string
+  status: string
+  ruleIdSnapshot?: number | null
+  adjustedBySnapshot?: number | null
+  adjustedAtSnapshot?: Date | string | null
+  note?: string | null
+  archiveReason: string
+  archivedBy?: number | null
+  archivedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceBalanceReclassAdjustmentHistoriesInput
+  sourceAccount?: Prisma.FinanceAccountCreateNestedOneWithoutReclassHistorySourcesInput
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutTargetAccountInput = {
+  id?: number
+  adjustmentIdSnapshot: number
+  policyVersionIdSnapshot?: number | null
+  sourceGroupAccountIdSnapshot?: number | null
+  targetGroupAccountIdSnapshot?: number | null
+  periodId: number
+  companyCode: string
+  companyId?: number | null
+  year: number
+  sourceAccountCode: string
+  sourceAccountId?: number | null
+  targetAccountCode?: string | null
+  amount: number
+  decision: string
+  sourceType: string
+  status: string
+  ruleIdSnapshot?: number | null
+  adjustedBySnapshot?: number | null
+  adjustedAtSnapshot?: Date | string | null
+  note?: string | null
+  archiveReason: string
+  archivedBy?: number | null
+  archivedAt?: Date | string
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutTargetAccountInput = {
+  where: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutTargetAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutTargetAccountInput>
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateManyTargetAccountInputEnvelope = {
+  data: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyTargetAccountInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyTargetAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutSourceAccountInput = {
+  where: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithoutSourceAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateWithoutSourceAccountInput>
+  create: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutSourceAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutSourceAccountInput>
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutSourceAccountInput = {
+  where: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithoutSourceAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateWithoutSourceAccountInput>
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutSourceAccountInput = {
+  where: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyMutationInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountInput>
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryScalarWhereInput = {
+  AND?: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput | Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput[]
+  OR?: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput[]
+  NOT?: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput | Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
+  adjustmentIdSnapshot?: Prisma.IntFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
+  policyVersionIdSnapshot?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
+  sourceGroupAccountIdSnapshot?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
+  targetGroupAccountIdSnapshot?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
+  periodId?: Prisma.IntFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
+  companyCode?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
+  year?: Prisma.IntFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
+  sourceAccountCode?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
+  sourceAccountId?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
+  targetAccountCode?: Prisma.StringNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | string | null
+  targetAccountId?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
+  amount?: Prisma.FloatFilter<"FinanceBalanceReclassAdjustmentHistory"> | number
+  decision?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
+  sourceType?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
+  status?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
+  ruleIdSnapshot?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
+  adjustedBySnapshot?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
+  adjustedAtSnapshot?: Prisma.DateTimeNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | Date | string | null
+  note?: Prisma.StringNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | string | null
+  archiveReason?: Prisma.StringFilter<"FinanceBalanceReclassAdjustmentHistory"> | string
+  archivedBy?: Prisma.IntNullableFilter<"FinanceBalanceReclassAdjustmentHistory"> | number | null
+  archivedAt?: Prisma.DateTimeFilter<"FinanceBalanceReclassAdjustmentHistory"> | Date | string
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutTargetAccountInput = {
+  where: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithoutTargetAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateWithoutTargetAccountInput>
+  create: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutTargetAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutTargetAccountInput>
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutTargetAccountInput = {
+  where: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithoutTargetAccountInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateWithoutTargetAccountInput>
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutTargetAccountInput = {
+  where: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyMutationInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountInput>
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateWithoutCompanyInput = {
+  adjustmentIdSnapshot: number
+  policyVersionIdSnapshot?: number | null
+  sourceGroupAccountIdSnapshot?: number | null
+  targetGroupAccountIdSnapshot?: number | null
+  periodId: number
+  companyCode: string
+  year: number
+  sourceAccountCode: string
+  targetAccountCode?: string | null
+  amount: number
+  decision: string
+  sourceType: string
+  status: string
+  ruleIdSnapshot?: number | null
+  adjustedBySnapshot?: number | null
+  adjustedAtSnapshot?: Date | string | null
+  note?: string | null
+  archiveReason: string
+  archivedBy?: number | null
+  archivedAt?: Date | string
+  sourceAccount?: Prisma.FinanceAccountCreateNestedOneWithoutReclassHistorySourcesInput
+  targetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutReclassHistoryTargetsInput
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  adjustmentIdSnapshot: number
+  policyVersionIdSnapshot?: number | null
+  sourceGroupAccountIdSnapshot?: number | null
+  targetGroupAccountIdSnapshot?: number | null
+  periodId: number
+  companyCode: string
+  year: number
+  sourceAccountCode: string
+  sourceAccountId?: number | null
+  targetAccountCode?: string | null
+  targetAccountId?: number | null
+  amount: number
+  decision: string
+  sourceType: string
+  status: string
+  ruleIdSnapshot?: number | null
+  adjustedBySnapshot?: number | null
+  adjustedAtSnapshot?: Date | string | null
+  note?: string | null
+  archiveReason: string
+  archivedBy?: number | null
+  archivedAt?: Date | string
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutCompanyInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyCompanyInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithoutCompanyInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateWithoutCompanyInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateWithoutCompanyInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyMutationInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateManySourceAccountInput = {
+  id?: number
+  adjustmentIdSnapshot: number
+  policyVersionIdSnapshot?: number | null
+  sourceGroupAccountIdSnapshot?: number | null
+  targetGroupAccountIdSnapshot?: number | null
+  periodId: number
+  companyCode: string
+  companyId?: number | null
+  year: number
+  sourceAccountCode: string
+  targetAccountCode?: string | null
+  targetAccountId?: number | null
+  amount: number
+  decision: string
+  sourceType: string
+  status: string
+  ruleIdSnapshot?: number | null
+  adjustedBySnapshot?: number | null
+  adjustedAtSnapshot?: Date | string | null
+  note?: string | null
+  archiveReason: string
+  archivedBy?: number | null
+  archivedAt?: Date | string
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateManyTargetAccountInput = {
+  id?: number
+  adjustmentIdSnapshot: number
+  policyVersionIdSnapshot?: number | null
+  sourceGroupAccountIdSnapshot?: number | null
+  targetGroupAccountIdSnapshot?: number | null
+  periodId: number
+  companyCode: string
+  companyId?: number | null
+  year: number
+  sourceAccountCode: string
+  sourceAccountId?: number | null
+  targetAccountCode?: string | null
+  amount: number
+  decision: string
+  sourceType: string
+  status: string
+  ruleIdSnapshot?: number | null
+  adjustedBySnapshot?: number | null
+  adjustedAtSnapshot?: Date | string | null
+  note?: string | null
+  archiveReason: string
+  archivedBy?: number | null
+  archivedAt?: Date | string
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpdateWithoutSourceAccountInput = {
+  adjustmentIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedBySnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  archiveReason?: Prisma.StringFieldUpdateOperationsInput | string
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceBalanceReclassAdjustmentHistoriesNestedInput
+  targetAccount?: Prisma.FinanceAccountUpdateOneWithoutReclassHistoryTargetsNestedInput
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateWithoutSourceAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  adjustmentIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedBySnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  archiveReason?: Prisma.StringFieldUpdateOperationsInput | string
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  adjustmentIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedBySnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  archiveReason?: Prisma.StringFieldUpdateOperationsInput | string
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpdateWithoutTargetAccountInput = {
+  adjustmentIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedBySnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  archiveReason?: Prisma.StringFieldUpdateOperationsInput | string
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceBalanceReclassAdjustmentHistoriesNestedInput
+  sourceAccount?: Prisma.FinanceAccountUpdateOneWithoutReclassHistorySourcesNestedInput
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateWithoutTargetAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  adjustmentIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedBySnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  archiveReason?: Prisma.StringFieldUpdateOperationsInput | string
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  adjustmentIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedBySnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  archiveReason?: Prisma.StringFieldUpdateOperationsInput | string
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryCreateManyCompanyInput = {
+  id?: number
+  adjustmentIdSnapshot: number
+  policyVersionIdSnapshot?: number | null
+  sourceGroupAccountIdSnapshot?: number | null
+  targetGroupAccountIdSnapshot?: number | null
+  periodId: number
+  companyCode: string
+  year: number
+  sourceAccountCode: string
+  sourceAccountId?: number | null
+  targetAccountCode?: string | null
+  targetAccountId?: number | null
+  amount: number
+  decision: string
+  sourceType: string
+  status: string
+  ruleIdSnapshot?: number | null
+  adjustedBySnapshot?: number | null
+  adjustedAtSnapshot?: Date | string | null
+  note?: string | null
+  archiveReason: string
+  archivedBy?: number | null
+  archivedAt?: Date | string
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUpdateWithoutCompanyInput = {
+  adjustmentIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedBySnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  archiveReason?: Prisma.StringFieldUpdateOperationsInput | string
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceAccount?: Prisma.FinanceAccountUpdateOneWithoutReclassHistorySourcesNestedInput
+  targetAccount?: Prisma.FinanceAccountUpdateOneWithoutReclassHistoryTargetsNestedInput
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  adjustmentIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedBySnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  archiveReason?: Prisma.StringFieldUpdateOperationsInput | string
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  adjustmentIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetGroupAccountIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedBySnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adjustedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  archiveReason?: Prisma.StringFieldUpdateOperationsInput | string
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -768,9 +1564,12 @@ export type FinanceBalanceReclassAdjustmentHistorySelect<ExtArgs extends runtime
   targetGroupAccountIdSnapshot?: boolean
   periodId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   sourceAccountCode?: boolean
+  sourceAccountId?: boolean
   targetAccountCode?: boolean
+  targetAccountId?: boolean
   amount?: boolean
   decision?: boolean
   sourceType?: boolean
@@ -782,6 +1581,9 @@ export type FinanceBalanceReclassAdjustmentHistorySelect<ExtArgs extends runtime
   archiveReason?: boolean
   archivedBy?: boolean
   archivedAt?: boolean
+  company?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$companyArgs<ExtArgs>
+  sourceAccount?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$sourceAccountArgs<ExtArgs>
+  targetAccount?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$targetAccountArgs<ExtArgs>
 }, ExtArgs["result"]["financeBalanceReclassAdjustmentHistory"]>
 
 export type FinanceBalanceReclassAdjustmentHistorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -792,9 +1594,12 @@ export type FinanceBalanceReclassAdjustmentHistorySelectCreateManyAndReturn<ExtA
   targetGroupAccountIdSnapshot?: boolean
   periodId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   sourceAccountCode?: boolean
+  sourceAccountId?: boolean
   targetAccountCode?: boolean
+  targetAccountId?: boolean
   amount?: boolean
   decision?: boolean
   sourceType?: boolean
@@ -806,6 +1611,9 @@ export type FinanceBalanceReclassAdjustmentHistorySelectCreateManyAndReturn<ExtA
   archiveReason?: boolean
   archivedBy?: boolean
   archivedAt?: boolean
+  company?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$companyArgs<ExtArgs>
+  sourceAccount?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$sourceAccountArgs<ExtArgs>
+  targetAccount?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$targetAccountArgs<ExtArgs>
 }, ExtArgs["result"]["financeBalanceReclassAdjustmentHistory"]>
 
 export type FinanceBalanceReclassAdjustmentHistorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -816,9 +1624,12 @@ export type FinanceBalanceReclassAdjustmentHistorySelectUpdateManyAndReturn<ExtA
   targetGroupAccountIdSnapshot?: boolean
   periodId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   sourceAccountCode?: boolean
+  sourceAccountId?: boolean
   targetAccountCode?: boolean
+  targetAccountId?: boolean
   amount?: boolean
   decision?: boolean
   sourceType?: boolean
@@ -830,6 +1641,9 @@ export type FinanceBalanceReclassAdjustmentHistorySelectUpdateManyAndReturn<ExtA
   archiveReason?: boolean
   archivedBy?: boolean
   archivedAt?: boolean
+  company?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$companyArgs<ExtArgs>
+  sourceAccount?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$sourceAccountArgs<ExtArgs>
+  targetAccount?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$targetAccountArgs<ExtArgs>
 }, ExtArgs["result"]["financeBalanceReclassAdjustmentHistory"]>
 
 export type FinanceBalanceReclassAdjustmentHistorySelectScalar = {
@@ -840,9 +1654,12 @@ export type FinanceBalanceReclassAdjustmentHistorySelectScalar = {
   targetGroupAccountIdSnapshot?: boolean
   periodId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   sourceAccountCode?: boolean
+  sourceAccountId?: boolean
   targetAccountCode?: boolean
+  targetAccountId?: boolean
   amount?: boolean
   decision?: boolean
   sourceType?: boolean
@@ -856,11 +1673,30 @@ export type FinanceBalanceReclassAdjustmentHistorySelectScalar = {
   archivedAt?: boolean
 }
 
-export type FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "adjustmentIdSnapshot" | "policyVersionIdSnapshot" | "sourceGroupAccountIdSnapshot" | "targetGroupAccountIdSnapshot" | "periodId" | "companyCode" | "year" | "sourceAccountCode" | "targetAccountCode" | "amount" | "decision" | "sourceType" | "status" | "ruleIdSnapshot" | "adjustedBySnapshot" | "adjustedAtSnapshot" | "note" | "archiveReason" | "archivedBy" | "archivedAt", ExtArgs["result"]["financeBalanceReclassAdjustmentHistory"]>
+export type FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "adjustmentIdSnapshot" | "policyVersionIdSnapshot" | "sourceGroupAccountIdSnapshot" | "targetGroupAccountIdSnapshot" | "periodId" | "companyCode" | "companyId" | "year" | "sourceAccountCode" | "sourceAccountId" | "targetAccountCode" | "targetAccountId" | "amount" | "decision" | "sourceType" | "status" | "ruleIdSnapshot" | "adjustedBySnapshot" | "adjustedAtSnapshot" | "note" | "archiveReason" | "archivedBy" | "archivedAt", ExtArgs["result"]["financeBalanceReclassAdjustmentHistory"]>
+export type FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$companyArgs<ExtArgs>
+  sourceAccount?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$sourceAccountArgs<ExtArgs>
+  targetAccount?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$targetAccountArgs<ExtArgs>
+}
+export type FinanceBalanceReclassAdjustmentHistoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$companyArgs<ExtArgs>
+  sourceAccount?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$sourceAccountArgs<ExtArgs>
+  targetAccount?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$targetAccountArgs<ExtArgs>
+}
+export type FinanceBalanceReclassAdjustmentHistoryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$companyArgs<ExtArgs>
+  sourceAccount?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$sourceAccountArgs<ExtArgs>
+  targetAccount?: boolean | Prisma.FinanceBalanceReclassAdjustmentHistory$targetAccountArgs<ExtArgs>
+}
 
 export type $FinanceBalanceReclassAdjustmentHistoryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceBalanceReclassAdjustmentHistory"
-  objects: {}
+  objects: {
+    company: Prisma.$CompanyPayload<ExtArgs> | null
+    sourceAccount: Prisma.$FinanceAccountPayload<ExtArgs> | null
+    targetAccount: Prisma.$FinanceAccountPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     adjustmentIdSnapshot: number
@@ -869,9 +1705,12 @@ export type $FinanceBalanceReclassAdjustmentHistoryPayload<ExtArgs extends runti
     targetGroupAccountIdSnapshot: number | null
     periodId: number
     companyCode: string
+    companyId: number | null
     year: number
     sourceAccountCode: string
+    sourceAccountId: number | null
     targetAccountCode: string | null
+    targetAccountId: number | null
     amount: number
     decision: string
     sourceType: string
@@ -1277,6 +2116,9 @@ readonly fields: FinanceBalanceReclassAdjustmentHistoryFieldRefs;
  */
 export interface Prisma__FinanceBalanceReclassAdjustmentHistoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  company<T extends Prisma.FinanceBalanceReclassAdjustmentHistory$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBalanceReclassAdjustmentHistory$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sourceAccount<T extends Prisma.FinanceBalanceReclassAdjustmentHistory$sourceAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBalanceReclassAdjustmentHistory$sourceAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  targetAccount<T extends Prisma.FinanceBalanceReclassAdjustmentHistory$targetAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBalanceReclassAdjustmentHistory$targetAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1313,9 +2155,12 @@ export interface FinanceBalanceReclassAdjustmentHistoryFieldRefs {
   readonly targetGroupAccountIdSnapshot: Prisma.FieldRef<"FinanceBalanceReclassAdjustmentHistory", 'Int'>
   readonly periodId: Prisma.FieldRef<"FinanceBalanceReclassAdjustmentHistory", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceBalanceReclassAdjustmentHistory", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceBalanceReclassAdjustmentHistory", 'Int'>
   readonly year: Prisma.FieldRef<"FinanceBalanceReclassAdjustmentHistory", 'Int'>
   readonly sourceAccountCode: Prisma.FieldRef<"FinanceBalanceReclassAdjustmentHistory", 'String'>
+  readonly sourceAccountId: Prisma.FieldRef<"FinanceBalanceReclassAdjustmentHistory", 'Int'>
   readonly targetAccountCode: Prisma.FieldRef<"FinanceBalanceReclassAdjustmentHistory", 'String'>
+  readonly targetAccountId: Prisma.FieldRef<"FinanceBalanceReclassAdjustmentHistory", 'Int'>
   readonly amount: Prisma.FieldRef<"FinanceBalanceReclassAdjustmentHistory", 'Float'>
   readonly decision: Prisma.FieldRef<"FinanceBalanceReclassAdjustmentHistory", 'String'>
   readonly sourceType: Prisma.FieldRef<"FinanceBalanceReclassAdjustmentHistory", 'String'>
@@ -1344,6 +2189,10 @@ export type FinanceBalanceReclassAdjustmentHistoryFindUniqueArgs<ExtArgs extends
    */
   omit?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs> | null
+  /**
    * Filter, which FinanceBalanceReclassAdjustmentHistory to fetch.
    */
   where: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
@@ -1362,6 +2211,10 @@ export type FinanceBalanceReclassAdjustmentHistoryFindUniqueOrThrowArgs<ExtArgs 
    */
   omit?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs> | null
+  /**
    * Filter, which FinanceBalanceReclassAdjustmentHistory to fetch.
    */
   where: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
@@ -1379,6 +2232,10 @@ export type FinanceBalanceReclassAdjustmentHistoryFindFirstArgs<ExtArgs extends 
    * Omit specific fields from the FinanceBalanceReclassAdjustmentHistory
    */
   omit?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs> | null
   /**
    * Filter, which FinanceBalanceReclassAdjustmentHistory to fetch.
    */
@@ -1428,6 +2285,10 @@ export type FinanceBalanceReclassAdjustmentHistoryFindFirstOrThrowArgs<ExtArgs e
    */
   omit?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs> | null
+  /**
    * Filter, which FinanceBalanceReclassAdjustmentHistory to fetch.
    */
   where?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereInput
@@ -1475,6 +2336,10 @@ export type FinanceBalanceReclassAdjustmentHistoryFindManyArgs<ExtArgs extends r
    * Omit specific fields from the FinanceBalanceReclassAdjustmentHistory
    */
   omit?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs> | null
   /**
    * Filter, which FinanceBalanceReclassAdjustmentHistories to fetch.
    */
@@ -1524,6 +2389,10 @@ export type FinanceBalanceReclassAdjustmentHistoryCreateArgs<ExtArgs extends run
    */
   omit?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs> | null
+  /**
    * The data needed to create a FinanceBalanceReclassAdjustmentHistory.
    */
   data: Prisma.XOR<Prisma.FinanceBalanceReclassAdjustmentHistoryCreateInput, Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateInput>
@@ -1557,6 +2426,10 @@ export type FinanceBalanceReclassAdjustmentHistoryCreateManyAndReturnArgs<ExtArg
    */
   data: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyInput | Prisma.FinanceBalanceReclassAdjustmentHistoryCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1571,6 +2444,10 @@ export type FinanceBalanceReclassAdjustmentHistoryUpdateArgs<ExtArgs extends run
    * Omit specific fields from the FinanceBalanceReclassAdjustmentHistory
    */
   omit?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs> | null
   /**
    * The data needed to update a FinanceBalanceReclassAdjustmentHistory.
    */
@@ -1623,6 +2500,10 @@ export type FinanceBalanceReclassAdjustmentHistoryUpdateManyAndReturnArgs<ExtArg
    * Limit how many FinanceBalanceReclassAdjustmentHistories to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1637,6 +2518,10 @@ export type FinanceBalanceReclassAdjustmentHistoryUpsertArgs<ExtArgs extends run
    * Omit specific fields from the FinanceBalanceReclassAdjustmentHistory
    */
   omit?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs> | null
   /**
    * The filter to search for the FinanceBalanceReclassAdjustmentHistory to update in case it exists.
    */
@@ -1664,6 +2549,10 @@ export type FinanceBalanceReclassAdjustmentHistoryDeleteArgs<ExtArgs extends run
    */
   omit?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs> | null
+  /**
    * Filter which FinanceBalanceReclassAdjustmentHistory to delete.
    */
   where: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
@@ -1684,6 +2573,63 @@ export type FinanceBalanceReclassAdjustmentHistoryDeleteManyArgs<ExtArgs extends
 }
 
 /**
+ * FinanceBalanceReclassAdjustmentHistory.company
+ */
+export type FinanceBalanceReclassAdjustmentHistory$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
+}
+
+/**
+ * FinanceBalanceReclassAdjustmentHistory.sourceAccount
+ */
+export type FinanceBalanceReclassAdjustmentHistory$sourceAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccount
+   */
+  select?: Prisma.FinanceAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccount
+   */
+  omit?: Prisma.FinanceAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+/**
+ * FinanceBalanceReclassAdjustmentHistory.targetAccount
+ */
+export type FinanceBalanceReclassAdjustmentHistory$targetAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccount
+   */
+  select?: Prisma.FinanceAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccount
+   */
+  omit?: Prisma.FinanceAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+/**
  * FinanceBalanceReclassAdjustmentHistory without action
  */
 export type FinanceBalanceReclassAdjustmentHistoryDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1695,4 +2641,8 @@ export type FinanceBalanceReclassAdjustmentHistoryDefaultArgs<ExtArgs extends ru
    * Omit specific fields from the FinanceBalanceReclassAdjustmentHistory
    */
   omit?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs> | null
 }

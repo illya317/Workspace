@@ -1,11 +1,17 @@
 import assert from "node:assert/strict";
-import { copyFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 
 const repositoryRoot = path.resolve(import.meta.dirname, "..");
+
+test("canonical packager embeds the source code analysis snapshot beside the runtime entry", () => {
+  const source = readFileSync(path.join(repositoryRoot, "ops/build-standalone-artifact.sh"), "utf8");
+  assert.match(source, /source-code-analysis\/snapshot\.json/);
+  assert.match(source, /standalone_app_dir\/\.workspace\/source-code-analysis/);
+});
 
 test("canonical packager refuses to reuse a build whose BUILD_ID is not the source SHA", () => {
   const root = mkdtempSync(path.join(tmpdir(), "standalone-packager-test-"));

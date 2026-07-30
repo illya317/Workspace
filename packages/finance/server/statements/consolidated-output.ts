@@ -5,31 +5,55 @@ import type {
   StatementReportType,
 } from "@workspace/finance/types";
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
-
+import { recomputeConsolidatedIncome } from "./consolidation-nci-allocation";
+import { applyConsolidationTaxAdjustments } from "./consolidation-tax-adjustments";
+import { ensureLiabilityGrandTotal, recomputeBalance } from "./consolidated-output-balance-lines";
+import { translateSourceLines } from "./consolidated-output-translation";
+import type { ConsolidationReplayPackage } from "./consolidation-replay";
 import {
   applyCurrentMonthAdjustment,
   consolidatedMoney as money,
   mergeCurrentMonthAmounts,
+  setDerivedLineAmounts,
+  sumLineAmounts,
 } from "./consolidated-line-amounts";
-import { ensureLiabilityGrandTotal } from "./consolidated-output-balance-lines";
-import {
-  recomputeConsolidatedBalance,
-  recomputeConsolidatedCashFlow,
-} from "./consolidated-output-derivations";
-import {
-  frozenPayloadLines,
-  translateFrozenSourceLines,
-} from "./consolidated-output-translation";
-import { recomputeConsolidatedIncome } from "./consolidation-nci-allocation";
-import type { ConsolidationReplayPackage } from "./consolidation-replay";
-import { applyConsolidationTaxAdjustments } from "./consolidation-tax-adjustments";
 
 const REPORT_LABELS: Record<StatementReportType, string> = {
   balanceSheet: "合并资产负债表",
   incomeStatement: "合并利润表",
   cashFlow: "合并现金流量表",
 };
+
 const CNY_CODES = new Set(["CNY", "RMB", "人民币"]);
+
+function record(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function finiteNumber(value: unknown) {
+  if ((typeof value !== "number" && typeof value !== "string") || (typeof value === "string" && !value.trim())) {
+    return null;
+  }
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function payloadLines(reportType: StatementReportType, reportPayload: unknown): unknown[] | null {
+  const envelope = record(reportPayload);
+  if (!envelope) return null;
+  const status = finiteNumber(envelope.httpStatus);
+  if (status !== null && (status < 200 || status >= 300)) return null;
+  const payload = record(envelope.payload) ?? envelope;
+  if (reportType === "balanceSheet") {
+    const assets = Array.isArray(payload.assets) ? payload.assets : [];
+    const liabilities = Array.isArray(payload.liabilities) ? payload.liabilities : [];
+    const equity = Array.isArray(payload.equity) ? payload.equity : [];
+    return [...assets, ...liabilities, ...equity];
+  }
+  return Array.isArray(payload.lines) ? payload.lines : null;
+}
 
 function sameLineDefinition(left: ConsolidatedOutputLine, right: ConsolidatedOutputLine) {
   return left.label === right.label
@@ -40,6 +64,40 @@ function sameLineDefinition(left: ConsolidatedOutputLine, right: ConsolidatedOut
     && left.isHeader === right.isHeader
     && left.isTotal === right.isTotal
     && left.isGrandTotal === right.isGrandTotal;
+}
+
+
+const CASH_FLOW_DERIVATIONS: Record<string, { add: string[]; subtract?: string[] }> = {
+  operatingInSubtotal: { add: ["salesReceipt", "taxRefund", "otherOpIn"] },
+  operatingOutSubtotal: { add: ["purchasePayment", "staffPayment", "taxPayment", "otherOpOut"] },
+  operatingNet: { add: ["operatingInSubtotal"], subtract: ["operatingOutSubtotal"] },
+  investingInSubtotal: { add: ["investRecovery", "investIncome", "fixedAssetDisposal", "subsidiaryDisposal", "otherInvIn"] },
+  investingOutSubtotal: { add: ["fixedAssetPurchase", "investPayment", "subsidiaryAcquisition", "otherInvOut"] },
+  investingNet: { add: ["investingInSubtotal"], subtract: ["investingOutSubtotal"] },
+  financingInSubtotal: { add: ["capitalInjection", "loanReceipt", "otherFinIn"] },
+  financingOutSubtotal: { add: ["loanRepayment", "dividendPayment", "otherFinOut"] },
+  financingNet: { add: ["financingInSubtotal"], subtract: ["financingOutSubtotal"] },
+  netIncrease: { add: ["operatingNet", "investingNet", "financingNet", "fxEffect"] },
+  endingCash: { add: ["openingCash", "netIncrease"] },
+};
+
+function recomputeCashFlow(lines: ConsolidatedOutputLine[]) {
+  const byCode = new Map(lines.map((line) => [line.lineCode, line]));
+  for (const [lineCode, derivation] of Object.entries(CASH_FLOW_DERIVATIONS)) {
+    const line = byCode.get(lineCode);
+    if (!line) continue;
+    const add = sumLineAmounts(lines, (candidate) => derivation.add.includes(candidate.lineCode));
+    const subtract = sumLineAmounts(lines, (candidate) => derivation.subtract?.includes(candidate.lineCode) ?? false);
+    const currentMonthAmount = add.currentMonthAmount === undefined && subtract.currentMonthAmount === undefined
+      ? undefined
+      : (add.currentMonthAmount ?? 0) - (subtract.currentMonthAmount ?? 0);
+    setDerivedLineAmounts(
+      line,
+      add.amount - subtract.amount,
+      add.previousAmount - subtract.previousAmount,
+      currentMonthAmount,
+    );
+  }
 }
 
 function outputTotals(
@@ -114,16 +172,9 @@ export function buildConsolidatedReportOutput(
       if (!currency) return failCommand("合并范围快照缺少本位币", 409, "functionalCurrency");
       const entity = entityBySnapshotId.get(source.entitySnapshotId);
       if (!entity) return failCommand("个别报表来源引用了范围外主体", 409, "sources");
-      const rows = frozenPayloadLines(reportType, source.reportPayload);
+      const rows = payloadLines(reportType, source.reportPayload);
       if (!rows) return failCommand(`${REPORT_LABELS[reportType]}来源快照不可重放`, 409, "reportPayload");
-      const translated = translateFrozenSourceLines(
-        replay,
-        source.entitySnapshotId,
-        currency,
-        reportType,
-        rows,
-        source.reportPayload,
-      );
+      const translated = translateSourceLines(replay, source.entitySnapshotId, currency, reportType, source.reportPayload, rows);
       if (!translated.ok) return translated;
       for (const translatedLine of translated.data) {
         const entityAmount = {
@@ -189,13 +240,12 @@ export function buildConsolidatedReportOutput(
     });
     if (!tax.ok) return tax;
     if (reportType === "balanceSheet") {
-      recomputeConsolidatedBalance(lines);
+      recomputeBalance(lines);
     } else if (reportType === "incomeStatement") {
       const recomputed = recomputeConsolidatedIncome(lines);
       if (!recomputed.ok) return recomputed;
-    } else {
-      recomputeConsolidatedCashFlow(lines);
     }
+    else recomputeCashFlow(lines);
     if (reportType === "balanceSheet") {
       const balanced = validateBalanceEquation(lines);
       if (!balanced.ok) return balanced;

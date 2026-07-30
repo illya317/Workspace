@@ -14,9 +14,8 @@ import { prisma } from "./prisma";
 import {
   approvalActionKeysForNotifications,
   listOriginatedWorkflowRequestItems,
-  toNotificationDto,
-  toProviderWorkflowTodoDto,
 } from "./workflow-inbox-records";
+import { toNotificationDto, toProviderWorkflowTodoDto } from "./workflow-inbox-projection";
 import {
   isWorkflowTodoProviderHandled,
   listWorkflowTodoProviderItems,

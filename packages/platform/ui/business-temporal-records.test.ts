@@ -71,10 +71,10 @@ test("record sections standardize selection, detail and configured baseline comp
   });
   assert.deepEqual(sections.map((section) => section.key), ["example-period-records"]);
   const tableBody = sections[0].body;
-  if (tableBody.kind !== "section" || tableBody.layout === "split") {
-    assert.fail("expected a composed section body");
-  }
-  const table = tableBody.sections?.[0].body;
+  assert.equal(tableBody.kind, "section");
+  const table = tableBody.kind === "section" && "sections" in tableBody
+    ? tableBody.sections?.[0].body
+    : undefined;
   assert.equal(table?.kind, "data");
   if (table?.kind === "data" && table.data.kind === "table") {
     assert.equal(table.data.rowState?.(rows[1]), "selected");
@@ -133,10 +133,10 @@ test("record sections keep supplemental history inside the selected row", () => 
     },
   });
   const body = sections[0].body;
-  if (body.kind !== "section" || body.layout === "split") {
-    assert.fail("expected a composed section body");
-  }
-  const table = body.sections?.[0].body;
+  assert.equal(body.kind, "section");
+  const table = body.kind === "section" && "sections" in body
+    ? body.sections?.[0].body
+    : undefined;
   assert.equal(table?.kind, "data");
   if (table?.kind === "data" && table.data.kind === "table") {
     const expanded = table.data.expandedRow?.(rows[0]);

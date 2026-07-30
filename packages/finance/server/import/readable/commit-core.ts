@@ -164,7 +164,7 @@ export async function upsertVouchers(
   return result;
 }
 
-export async function markVouchersOutsideSourceInvalid(
+export async function markLegacyVouchersOutsideSourceInvalid(
   tx: Prisma.TransactionClient,
   batch: NormalizedReadableBatch,
   periods: Map<number, number>,
@@ -175,10 +175,7 @@ export async function markVouchersOutsideSourceInvalid(
   const existing = await tx.financeVoucher.findMany({
     where: {
       companyCode: batch.spec.companyCode, periodId: { in: [...periods.values()] },
-      OR: [
-        { sourceSystem: null },
-        { sourceSystem: batch.spec.sourceSystem, sourceDatabase: batch.spec.sourceDatabase },
-      ],
+      sourceSystem: null,
     },
     select: { id: true },
   });
@@ -252,7 +249,7 @@ export async function commitReadableCore(
   const periods = await upsertPeriods(tx, batch);
   const accounts = await upsertAccounts(tx, batch);
   const vouchers = await upsertVouchers(tx, batch, importId, periods);
-  await markVouchersOutsideSourceInvalid(tx, batch, periods, vouchers);
+  await markLegacyVouchersOutsideSourceInvalid(tx, batch, periods, vouchers);
   const itemResult = await upsertVoucherItems(tx, batch, importId, accounts, vouchers);
   await removeLegacyItemsOutsideSource(tx, vouchers, itemResult.itemIds);
   return { periods, accounts, vouchers, ...itemResult };

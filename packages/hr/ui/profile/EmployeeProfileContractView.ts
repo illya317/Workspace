@@ -3,15 +3,6 @@ import type {
   EmploymentAgreementRevisionRow,
   EmploymentAgreementTermRow,
 } from "@workspace/hr/types";
-import {
-  agreementTermDurationKind,
-  agreementTermExpiryLabel,
-  agreementTermStageKind,
-  contractPeriodLabel,
-  preferredAgreementTerm,
-} from "@workspace/hr/agreement-term-semantics";
-
-export { contractPeriodLabel } from "@workspace/hr/agreement-term-semantics";
 
 export function agreementRevisionItem(
   row: ContractRow,
@@ -38,11 +29,9 @@ function agreementRevisionKindLabel(kind: EmploymentAgreementRevisionRow["change
 }
 
 export function agreementTermItem(term: EmploymentAgreementTermRow) {
-  const stage = agreementTermStageKind(term) === "initial" ? "首期" : "续期";
-  const duration = agreementTermDurationKind(term) === "indefinite" ? "无固定期限" : "固定期限";
   return {
     key: term.termUid,
-    title: `第 ${term.sequence} 期 · ${stage} · ${duration}`,
+    title: `${term.termKind === "initial" ? "首签" : term.termKind === "renewal" ? "续签" : term.termKind === "permanent" ? "无固定期限" : "旧期限"} · 第 ${term.sequence} 期`,
     description: term.changeKind === "legacy" ? undefined : term.reason || undefined,
     validFrom: term.effectiveFrom,
     validThrough: term.effectiveThrough,
@@ -51,23 +40,27 @@ export function agreementTermItem(term: EmploymentAgreementTermRow) {
   } as const;
 }
 
+export function contractPeriodLabel(term: EmploymentAgreementTermRow) {
+  return `${term.effectiveFrom || "开始日期待补"} — ${term.effectiveThrough || "长期"}`;
+}
+
 export function uniqueContractMissingLabels(fields: ContractRow["missingFields"]): string[] {
   return [...new Set(fields.map((field) => field.label))];
 }
 
 type AgreementChoiceRow = Pick<ContractRow, "company" | "contractType" | "expiryDate"> & {
-  terms: ReadonlyArray<Pick<EmploymentAgreementTermRow, "sequence" | "recordState" | "termKind" | "effectiveFrom" | "effectiveThrough" | "temporalState">>;
+  terms: ReadonlyArray<Pick<EmploymentAgreementTermRow, "recordState" | "termKind" | "effectiveThrough">>;
 };
 
 export function agreementChoiceLabel(row: AgreementChoiceRow): string {
-  const preferred = preferredAgreementTerm(row.terms.filter((term) => term.recordState === "confirmed"));
-  const expiry = preferred ? agreementTermExpiryLabel(preferred) : row.expiryDate ?? "未设置";
-  const expiryLabel = expiry === "无固定期限" || expiry === "到期日期待补充"
-    ? expiry
-    : `到期日期 ${expiry}`;
+  const confirmedTerms = row.terms.filter((term) => term.recordState === "confirmed");
+  const latestConfirmedTerm = confirmedTerms.at(-1);
+  const expiry = latestConfirmedTerm?.termKind === "permanent" && !latestConfirmedTerm.effectiveThrough
+    ? "无固定期限"
+    : row.expiryDate ?? "未设置";
   return [
     row.company || "未设置公司",
     row.contractType || "未设置类型",
-    expiryLabel,
+    `到期日期 ${expiry}`,
   ].filter(Boolean).join(" · ");
 }

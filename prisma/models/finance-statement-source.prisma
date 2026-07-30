@@ -26,6 +26,7 @@ model FinanceStatementSourcePackage {
   rejectionReason   String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @default(now()) @updatedAt
+  company           Company  @relation("FinanceStatementSourcePackageCompany", fields: [companyId], references: [id], onDelete: Restrict)
   sheets            FinanceStatementSourceSheet[]
   workpapers         FinanceStatementWorkpaper[]
 

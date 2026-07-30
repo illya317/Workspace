@@ -3,7 +3,9 @@ import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { prisma } from "@workspace/platform/server/prisma";
 import {
+  buildMonthlyAverageExchangeRateCommand,
   buildRefreshStatementExchangeRateCommand,
+  buildVoucherHistoricalInvestmentRateCommand,
   type RefreshStatementExchangeRateCommand,
 } from "../domain/statement-exchange-rate-validation";
 import {
@@ -126,68 +128,89 @@ export async function ensureChinaMoneyCentralParityRate(input: {
 
 export async function ensureChinaMoneyMonthlyAverageRate(input: {
   currencyCode: string;
-  targetDate: string;
+  year: number;
+  month: number;
   userId: number;
-  forceRefresh?: boolean;
 }) {
-  const validated = buildRefreshStatementExchangeRateCommand(input, input.userId);
+  const validated = buildMonthlyAverageExchangeRateCommand(input, input.userId);
   if (!validated.ok) throw new ChinaMoneyRateError(validated.issue.message, validated.issue.status);
-  const { input: normalizedInput, userId } = validated.data;
-  if (!input.forceRefresh) {
-    const cached = await prisma.financeStatementExchangeRate.findFirst({
-      where: {
-        baseCurrency: normalizedInput.currencyCode,
-        quoteCurrency: "CNY",
-        rateKind: "monthlyAverage",
-        rateDate: normalizedInput.targetDate,
-        sourceUrl: { contains: `endDate=${normalizedInput.targetDate}` },
-      },
-      orderBy: [{ capturedAt: "desc" }, { id: "desc" }],
-    });
-    if (cached && chinaMoneyHistorySourceCoversTargetDate(cached.sourceUrl, normalizedInput.targetDate)) return cached;
-  }
-  const quote = await fetchChinaMoneyMonthlyAverage(normalizedInput);
-  return prisma.$transaction(async (tx) => {
-    const existing = await tx.financeStatementExchangeRate.findMany({
-      where: {
-        baseCurrency: quote.baseCurrency,
-        quoteCurrency: quote.quoteCurrency,
-        rateKind: "monthlyAverage",
-        rateDate: quote.rateDate,
-      },
-      orderBy: [{ capturedAt: "desc" }, { id: "desc" }],
-    });
-    const evidence = {
+  const command = validated.data;
+  const rateDate = new Date(Date.UTC(command.year, command.month, 0)).toISOString().slice(0, 10);
+  const cached = await prisma.financeStatementExchangeRate.findFirst({
+    where: {
+      baseCurrency: command.currencyCode,
+      quoteCurrency: "CNY",
       rateKind: "monthlyAverage",
+      rateDate,
+    },
+    orderBy: [{ version: "desc" }, { capturedAt: "desc" }, { id: "desc" }],
+  });
+  if (cached) return cached;
+  const quote = await fetchChinaMoneyMonthlyAverage({
+    currencyCode: command.currencyCode,
+    year: command.year,
+    month: command.month,
+  });
+  return prisma.financeStatementExchangeRate.create({
+    data: {
+      baseCurrency: quote.baseCurrency,
+      quoteCurrency: quote.quoteCurrency,
+      rateKind: "monthlyAverage",
+      rateDate: quote.rateDate,
       rate: quote.rate,
       sourceName: "中国外汇交易中心",
-      sourceField: `${quote.sourcePair} 月平均人民币汇率中间价（每 ${quote.sourceUnit} ${quote.baseCurrency}）`,
+      sourceField: `${quote.sourcePair} 人民币汇率中间价月度算术平均（每 ${quote.sourceUnit} ${quote.baseCurrency}）`,
       sourceUrl: quote.sourceUrl,
-      publishedAt: new Date(`${quote.lastRateDate}T09:15:00+08:00`),
-      note: `${quote.periodStartDate}至${quote.periodEndDate}共${quote.observationCount}个工作日中间价算术平均；首个牌价日${quote.firstRateDate}，末个牌价日${quote.lastRateDate}；系统归一化为1 ${quote.baseCurrency}=${quote.rate} CNY`,
-    };
-    if (existing[0] && isSameChinaMoneyRateEvidence(existing[0], evidence)) {
-      if (existing.length > 1) {
-        await tx.financeStatementExchangeRate.deleteMany({ where: { id: { in: existing.slice(1).map((item) => item.id) } } });
-      }
-      return existing[0];
-    }
-    const data = { ...evidence, capturedAt: new Date(), version: 1, updatedBy: userId };
-    if (existing[0]) {
-      const row = await tx.financeStatementExchangeRate.update({ where: { id: existing[0].id }, data });
-      if (existing.length > 1) {
-        await tx.financeStatementExchangeRate.deleteMany({ where: { id: { in: existing.slice(1).map((item) => item.id) } } });
-      }
-      return row;
-    }
-    return tx.financeStatementExchangeRate.create({
-      data: {
-        baseCurrency: quote.baseCurrency,
-        quoteCurrency: quote.quoteCurrency,
-        rateDate: quote.rateDate,
-        ...data,
-      },
-    });
+      publishedAt: null,
+      capturedAt: new Date(),
+      note: JSON.stringify({
+        month: quote.month,
+        observationCount: quote.observations.length,
+        observations: quote.observations,
+      }),
+      version: 1,
+      updatedBy: command.userId,
+    },
+  });
+}
+
+export async function ensureVoucherHistoricalInvestmentRate(input: {
+  voucherItemId: number;
+  voucherDate: string;
+  rate: number;
+  matchingLabel: string;
+  userId: number;
+}) {
+  const validated = buildVoucherHistoricalInvestmentRateCommand(input, input.userId);
+  if (!validated.ok) throw new ChinaMoneyRateError(validated.issue.message, validated.issue.status);
+  const command = validated.data;
+  const existing = await prisma.financeStatementExchangeRate.findMany({
+    where: {
+      baseCurrency: "CAD",
+      quoteCurrency: "CNY",
+      rateKind: "historicalInvestment",
+      rateDate: command.voucherDate,
+    },
+    orderBy: [{ version: "desc" }, { id: "desc" }],
+  });
+  const sameRate = existing.find((row) => Number(row.rate) === command.rate);
+  if (sameRate) return sameRate;
+  return prisma.financeStatementExchangeRate.create({
+    data: {
+      baseCurrency: "CAD",
+      quoteCurrency: "CNY",
+      rateKind: "historicalInvestment",
+      rateDate: command.voucherDate,
+      rate: command.rate,
+      sourceName: "Workspace 合并凭证",
+      sourceField: "凭证匹配历史折算率",
+      sourceUrl: `workspace://finance/voucher-items/${command.voucherItemId}`,
+      publishedAt: null,
+      capturedAt: new Date(),
+      note: `匹配：${command.matchingLabel}`,
+      version: (existing[0]?.version ?? 0) + 1,
+      updatedBy: command.userId,
+    },
   });
 }
 

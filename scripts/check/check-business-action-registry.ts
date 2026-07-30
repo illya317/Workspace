@@ -81,6 +81,7 @@ const EXPLICIT_NON_BUSINESS_WRITE_ROUTES = new Map<string, NonBusinessWriteRoute
   ["POST /api/modules/external/internal/workspace-analysis-sources", { kind: "internal_rpc", reason: "Signed read-only transport exposes authorized External analysis sources without mutating business facts." }],
   ["POST /api/modules/hr/internal/workspace-analysis-sources", { kind: "internal_rpc", reason: "Signed read-only transport exposes authorized HR analysis sources without mutating business facts." }],
   ["POST /api/modules/inventory/internal/workspace-analysis-sources", { kind: "internal_rpc", reason: "Signed read-only transport exposes authorized Inventory analysis sources without mutating business facts." }],
+  ["POST /api/modules/inventory/internal/closing-inspection", { kind: "internal_rpc", reason: "Signed read-only transport returns Inventory-owned period closing inspections to Finance without mutating business facts." }],
   ["POST /api/modules/library/internal/workspace-analysis-sources", { kind: "internal_rpc", reason: "Signed read-only transport exposes authorized Library analysis sources without mutating business facts." }],
   ["POST /api/modules/production/internal/workspace-analysis-sources", { kind: "internal_rpc", reason: "Signed read-only transport exposes authorized Production analysis sources without mutating business facts." }],
   ["POST /api/modules/work/internal/workspace-analysis-sources", { kind: "internal_rpc", reason: "Signed read-only transport exposes authorized Work analysis sources without mutating business facts." }],

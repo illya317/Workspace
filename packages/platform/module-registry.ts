@@ -43,7 +43,11 @@ const WORK_RELATION_REGISTRATIONS = [
   { key: "work.projects.work-assignee.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectWorkAssignee", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
   { key: "work.tasks.owner.employee", scope: "work", source: { entity: "WorkItem", field: "ownerEmployeeId" }, target: "employee", targetLabel: "负责人", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.collaboration", scope: "work", source: { entity: "Any", field: "collaborationId" }, target: "departmentCollaboration", targetLabel: "部门协作", nullable: true, targetArchivePolicy: "block", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.owner.position", scope: "work", source: { entity: "WorkResponsibilityReference", field: "lockedPositionId" }, target: "position", targetLabel: "关联岗位", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.responsibility-node.revision", scope: "work", usage: "governance", semantics: "snapshot", source: { entity: "PositionResponsibilityNode", field: "positionDescriptionRevisionId" }, target: "positionDescriptionRevision", targetLabel: "岗位说明书版本", nullable: false, lifecycle: { targetDelete: "exempt_with_reason", targetArchive: "exempt_with_reason", targetRestore: "exempt_with_reason", sourceRelationChange: "exempt_with_reason" }, exemptionReason: "职责节点是 HR 岗位说明书版本的只读投影；跨模块生命周期由 HR 管理，数据库 Restrict 负责保护已引用版本。", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.responsibility.locked-employee", scope: "work", usage: "governance", semantics: "snapshot", source: { entity: "WorkResponsibilityReference", field: "lockedEmployeeId" }, target: "employee", targetLabel: "快照员工", nullable: false, lifecycle: { targetDelete: "exempt_with_reason", targetArchive: "exempt_with_reason", targetRestore: "exempt_with_reason", sourceRelationChange: "exempt_with_reason" }, exemptionReason: "工作职责保存的是 HR 主数据引用和文本快照；跨模块生命周期由 HR 管理，数据库 Restrict 负责保护引用完整性。", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.owner.position", scope: "work", usage: "both", semantics: "snapshot", source: { entity: "WorkResponsibilityReference", field: "lockedPositionId" }, target: "position", targetLabel: "关联岗位", nullable: true, lifecycle: { targetDelete: "exempt_with_reason", targetArchive: "exempt_with_reason", targetRestore: "exempt_with_reason", sourceRelationChange: "exempt_with_reason" }, exemptionReason: "工作职责保存的是 HR 主数据引用和文本快照；跨模块生命周期由 HR 管理，数据库 Restrict 负责保护引用完整性。", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.responsibility.locked-employee-position", scope: "work", usage: "governance", semantics: "snapshot", source: { entity: "WorkResponsibilityReference", field: "lockedEmployeePositionId" }, target: "employeePosition", targetLabel: "快照任职", nullable: true, lifecycle: { targetDelete: "exempt_with_reason", targetArchive: "exempt_with_reason", targetRestore: "exempt_with_reason", sourceRelationChange: "exempt_with_reason" }, exemptionReason: "工作职责保存的是 HR 主数据引用和文本快照；跨模块生命周期由 HR 管理，数据库 Restrict 负责保护引用完整性。", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.responsibility.position-description", scope: "work", usage: "governance", semantics: "snapshot", source: { entity: "WorkResponsibilityReference", field: "positionDescriptionId" }, target: "positionDescription", targetLabel: "快照岗位说明书", nullable: false, lifecycle: { targetDelete: "exempt_with_reason", targetArchive: "exempt_with_reason", targetRestore: "exempt_with_reason", sourceRelationChange: "exempt_with_reason" }, exemptionReason: "工作职责保存的是 HR 主数据引用和文本快照；跨模块生命周期由 HR 管理，数据库 Restrict 负责保护引用完整性。", permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.item.responsibility-group", scope: "work", source: { entity: "WorkItem", field: "responsibilityNodeId" }, target: "positionResponsibilityNode", targetLabel: "职责大类", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.item.responsibility", scope: "work", source: { entity: "WorkItem", field: "responsibilityNodeId" }, target: "positionResponsibilityNode", targetLabel: "关联职责", nullable: false, permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.linked.project", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkItem", field: "linkedProjectId" }, target: "project", targetLabel: "关联项目", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.linked.project", permission: { resourceKey: "work.tasks", action: "entry" } },
@@ -71,7 +75,8 @@ const ADMINISTRATION_RELATION_REGISTRATIONS = [
   { key: "administration.contracts.party.b", scope: "administration", usage: "both", semantics: "reference", source: { entity: "Contract", field: "partyBId" }, target: "party", targetLabel: "乙方主体", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "administration.contracts.party.b", permission: { resourceKey: "administration.contracts", action: "read" } },
   { key: "administration.contracts.handler.employee", scope: "administration", usage: "both", semantics: "reference", source: { entity: "Contract", field: "handlerEmployeeId" }, target: "employee", targetLabel: "经办人", nullable: true, defaultLifecycleScope: "all", lifecycle: { targetDelete: "block", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "administration.contracts.handler.employee", permission: { resourceKey: "administration.contracts", action: "read" } },
 ] satisfies RelationRegistration[];
-const FINANCE_RELATION_REGISTRATIONS = [{ key: "finance.accounts.parent", scope: "finance", source: { entity: "FinanceAccount", field: "parentId" }, target: "financeAccount", targetLabel: "上级科目", nullable: true, permission: { resourceKey: "finance.ledger", action: "read" } }, { key: "finance.groupAccount.parent", scope: "finance", source: { entity: "FinanceGroupAccountRevision", field: "parentGroupAccountId" }, target: "financeGroupAccount", targetLabel: "上级集团科目", nullable: true, permission: { resourceKey: "finance.ledger", action: "read" } }, { key: "finance.statements.consolidation.entrySource", scope: "finance", source: { entity: "FinanceConsolidationEntryLine", field: "sourceRecordId", valueKind: "semantic" }, target: "financeConsolidationEntrySource", targetLabel: "抵销业务来源", nullable: true, permission: { resourceKey: "finance.statements", action: "read" } }] satisfies RelationRegistration[];
+const FINANCE_RELATION_REGISTRATIONS = [{ key: "finance.accounts.parent", scope: "finance", source: { entity: "FinanceAccount", field: "parentId" }, target: "financeAccount", targetLabel: "上级科目", nullable: true, permission: { resourceKey: "finance.ledger", action: "read" } }, { key: "finance.groupAccount.parent", scope: "finance", source: { entity: "FinanceGroupAccountRevision", field: "parentGroupAccountId" }, target: "financeGroupAccount", targetLabel: "上级集团科目", nullable: true, permission: { resourceKey: "finance.ledger", action: "read" } }, { key: "finance.assets.category", scope: "finance", source: { entity: "FinanceAssetCard", field: "categoryId" }, target: "financeAssetCategory", targetLabel: "资产分类", nullable: false, permission: { resourceKey: "finance.assets", action: "read" } }, { key: "finance.assets.assetAccount", scope: "finance", source: { entity: "FinanceAssetCard", field: "assetAccountId" }, target: "financeAccount", targetLabel: "资产科目", nullable: true, permission: { resourceKey: "finance.assets", action: "read" } }, { key: "finance.assets.accumulatedAccount", scope: "finance", source: { entity: "FinanceAssetCard", field: "accumulatedAccountId" }, target: "financeAccount", targetLabel: "累计折旧/摊销科目", nullable: true, permission: { resourceKey: "finance.assets", action: "read" } }, { key: "finance.assets.adjustmentAccount", scope: "finance", source: { entity: "FinanceAssetAdjustment", field: "accountId" }, target: "financeAccount", targetLabel: "调整科目", nullable: true, permission: { resourceKey: "finance.assets", action: "read" } }, { key: "finance.assets.expenseAccount", scope: "finance", source: { entity: "FinanceAssetExpenseAllocation", field: "expenseAccountId" }, target: "financeAccount", targetLabel: "费用科目", nullable: true, permission: { resourceKey: "finance.assets", action: "read" } }, { key: "finance.tax.authorityParty", scope: "finance", source: { entity: "FinanceTaxRegistration", field: "authorityPartyId" }, target: "party", targetLabel: "税务机关", nullable: true, permission: { resourceKey: "finance.tax", action: "read" } }, { key: "finance.tax.accrualVoucherItem", scope: "finance", source: { entity: "FinanceTaxAccrualLine", field: "voucherItemId" }, target: "financeVoucherItem", targetLabel: "计提凭证明细", nullable: true, permission: { resourceKey: "finance.tax", action: "read" } }, { key: "finance.tax.paymentVoucherItem", scope: "finance", source: { entity: "FinanceTaxPaymentAllocation", field: "voucherItemId" }, target: "financeVoucherItem", targetLabel: "缴款凭证明细", nullable: true, permission: { resourceKey: "finance.tax", action: "read" } }, { key: "finance.treasury.lenderParty", scope: "finance", source: { entity: "FinanceLoan", field: "lenderPartyId" }, target: "party", targetLabel: "贷款方主体", nullable: false, permission: { resourceKey: "finance.treasury", action: "read" } }, { key: "finance.treasury.bankAccount.financeAccount", scope: "finance", source: { entity: "FinanceBankAccount", field: "accountId" }, target: "financeAccount", targetLabel: "银行科目", nullable: true, permission: { resourceKey: "finance.treasury", action: "read" } }, { key: "finance.treasury.voucherItem", scope: "finance", source: { entity: "Any", field: "voucherItemId" }, target: "financeVoucherItem", targetLabel: "凭证明细", nullable: true, permission: { resourceKey: "finance.treasury", action: "read" } }, { key: "finance.statements.consolidation.entrySource", scope: "finance", source: { entity: "FinanceConsolidationEntryLine", field: "sourceRecordId", valueKind: "semantic" }, target: "financeConsolidationEntrySource", targetLabel: "抵销业务来源", nullable: true, permission: { resourceKey: "finance.statements", action: "read" } }] satisfies RelationRegistration[];
+const INVENTORY_RELATION_REGISTRATIONS = [{ key: "inventory.document.counterparty", scope: "inventory", usage: "both", semantics: "reference", source: { entity: "InventoryDocument", field: "counterpartyPartyId" }, target: "party", targetLabel: "往来主体", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, permission: { resourceKey: "inventory.operations", action: "read" } }] satisfies RelationRegistration[];
 const EXTERNAL_RELATION_REGISTRATIONS = [{ key: "external.role.party", scope: "external", source: { entity: "ExternalPartyRole", field: "partyId" }, target: "party", targetLabel: "法定主体", nullable: false, permission: { resourceKey: "party.identity", action: "read" } }] satisfies RelationRegistration[];
 const CAPITAL_SECURITIES_RELATION_REGISTRATIONS = [{ key: "capitalSecurities.company.party", scope: "capitalSecurities", source: { entity: "Company", field: "partyId" }, target: "party", targetLabel: "法定主体", nullable: false, permission: { resourceKey: "capitalSecurities.governance", action: "read" } }, { key: "capitalSecurities.ownership.owner", scope: "capitalSecurities", source: { entity: "OwnershipInterest", field: "ownerPartyId" }, target: "party", targetLabel: "持股方", nullable: false, permission: { resourceKey: "capitalSecurities.governance", action: "read" } }, { key: "capitalSecurities.ownership.issuer", scope: "capitalSecurities", source: { entity: "OwnershipInterest", field: "issuerCompanyId" }, target: "company", targetLabel: "被持股方", nullable: false, permission: { resourceKey: "capitalSecurities.governance", action: "read" } }] satisfies RelationRegistration[];
 const DOCS_RELATION_REGISTRATIONS = [] satisfies RelationRegistration[];
@@ -245,12 +250,11 @@ export const registeredModuleDefinitions = [
     layer: "domain",
     ...FINANCE_MODULE_REGISTRY_FRAGMENT,
     relationRegistrations: FINANCE_RELATION_REGISTRATIONS,
-    apiRoutes: [
-      ...FINANCE_MODULE_REGISTRY_FRAGMENT.apiRoutes,
-      { method: "POST", pathPrefix: "/api/modules/finance/internal/library-source", access: "internal", notes: "Signed caller-bound Finance authoritative snapshot transport; only the Library caller unit is accepted." },
-    ],
+    apiRoutes: [...FINANCE_MODULE_REGISTRY_FRAGMENT.apiRoutes, { method: "POST", pathPrefix: "/api/modules/finance/internal/library-source", access: "internal", notes: "Signed caller-bound Finance authoritative snapshot transport; only the Library caller unit is accepted." }],
     apiGuards: [
-      ...apiResourceGuards("/api/modules/finance/ledger"),
+      ...apiResourceGuards("/api/modules/finance/ledger"), ...apiResourceGuards("/api/modules/finance/assets", ["GET", "POST", "PUT"]),
+      ...apiResourceGuards("/api/modules/finance/assets/policies", ["DELETE"]),
+      ...apiResourceGuards("/api/modules/finance/treasury", ["GET", "POST", "PUT"]), ...apiResourceGuards("/api/modules/finance/tax", ["GET", "POST", "PUT"]),
       ...apiResourceGuards("/api/modules/finance/statements"),
       ...apiResourceGuards("/api/modules/finance/budget", ["GET", "POST"]),
       ...apiResourceGuards("/api/modules/finance/analysis", ["GET"]),
@@ -288,6 +292,7 @@ export const registeredModuleDefinitions = [
   {
     packageName: "@workspace/inventory",
     layer: "domain",
+    relationRegistrations: INVENTORY_RELATION_REGISTRATIONS,
     moduleDef: {
       key: "inventory",
       label: "存货管理",
@@ -307,17 +312,17 @@ export const registeredModuleDefinitions = [
       ...apiResourceGuards("/api/modules/inventory/receipts", ["GET", "POST", "PATCH", "DELETE"]),
     ],
     apiRoutes: [
+      { method: "POST", pathPrefix: "/api/modules/inventory/internal/closing-inspection", access: "internal", notes: "Signed read-only Inventory closing inspection; only the Finance caller unit is accepted." },
       { method: "POST", pathPrefix: "/api/modules/inventory/internal/workspace-analysis-sources", access: "internal", notes: "Signed internal RPC with requester authorization; only the Finance caller unit is accepted." },
     ],
   },
   {
     packageName: "@workspace/external",
-    layer: "domain",
-    relationRegistrations: EXTERNAL_RELATION_REGISTRATIONS,
+    layer: "domain", relationRegistrations: EXTERNAL_RELATION_REGISTRATIONS,
     moduleDef: {
       key: "external",
       label: "外部关系",
-      desc: "客户与供应商往来主数据",
+      desc: "客户、供应商与关联方主数据",
       href: "/external",
       iconKey: "customers",
       color: "orange",
@@ -327,11 +332,12 @@ export const registeredModuleDefinitions = [
       children: [
         { key: "customers", label: "客户管理", desc: "单位与个人客户的主体、联系和结算信息", href: "/external/customers", iconKey: "users", color: "orange", resourceKey: "external.customers", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/customers"] },
         { key: "suppliers", label: "供应商管理", desc: "单位与个人供应商的主体、联系和结算信息", href: "/external/suppliers", iconKey: "suppliers", color: "orange", resourceKey: "external.suppliers", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/suppliers"] },
+        { key: "relatedParties", label: "关联方", desc: "从客户和供应商中登记关联方并维护披露关系性质", href: "/external/related-parties", iconKey: "investors", color: "orange", resourceKey: "external.relatedParties", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/related-parties"] },
       ],
     },
     apiGuards: [
       ...apiResourceGuards("/api/modules/external/customers", ["GET", "POST", "PATCH", "DELETE"]),
-      ...apiResourceGuards("/api/modules/external/suppliers", ["GET", "POST", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/modules/external/suppliers", ["GET", "POST", "PATCH", "DELETE"]), ...apiResourceGuards("/api/modules/external/related-parties", ["GET", "POST", "DELETE"]),
     ],
     apiRoutes: [
       { method: "POST", pathPrefix: "/api/modules/external/internal/workspace-analysis-sources", access: "internal", notes: "Signed internal RPC with requester authorization; only the Finance caller unit is accepted." },
@@ -368,8 +374,8 @@ export const registeredModuleDefinitions = [
     ],
   },
   {
-    packageName: "@workspace/platform:docs",
-    layer: "platform",
+    packageName: "@workspace/docs",
+    layer: "domain",
     moduleDef: {
       key: "docs",
       label: "文档中心",
@@ -454,8 +460,8 @@ export const registeredModuleDefinitions = [
     ],
   },
   {
-    packageName: "@workspace/platform:settings",
-    layer: "platform",
+    packageName: "@workspace/settings",
+    layer: "domain",
     moduleDef: {
       key: "settings",
       label: "设置",
@@ -503,8 +509,8 @@ export const registeredModuleDefinitions = [
     ],
   },
   {
-    packageName: "@workspace/platform:agent",
-    layer: "platform",
+    packageName: "@workspace/agent",
+    layer: "domain",
     moduleDef: {
       key: "agent",
       label: "智能体",
@@ -512,8 +518,6 @@ export const registeredModuleDefinitions = [
       href: "/agent",
       iconKey: "assistant",
       color: "purple",
-      presentation: "headless",
-      noPageReason: "不再提供独立 Agent 管理页面，仅保留工具栏助手与 API 能力",
       resourceKey: "agent",
       resourceSortOrder: 90,
     },
@@ -534,17 +538,13 @@ export const registeredModuleDefinitions = [
     apiRoutes: systemApiRoutes(),
   },
 ] satisfies RelationAwareWorkspacePackageRegistration[];
-export const registeredModules = registeredModuleDefinitions
-  .map((definition) => definition.moduleDef?.key)
+export const registeredModules = registeredModuleDefinitions.map((definition) => definition.moduleDef?.key)
   .filter((key): key is string => Boolean(key));
 validateModuleRegistry(registeredModuleDefinitions, registeredModules);
-export const registeredDomainPackageNames = registeredModuleDefinitions
-  .filter((definition) => definition.layer === "domain")
+export const registeredDomainPackageNames = registeredModuleDefinitions.filter((definition) => definition.layer === "domain")
   .map((definition) => definition.packageName);
 export function getRegisteredModuleDefinition(packageName: string): RelationAwareWorkspacePackageRegistration {
   const definition = registeredModuleDefinitions.find((item) => item.packageName === packageName);
-  if (!definition) {
-    throw new Error(`Module package is not registered: ${packageName}`);
-  }
+  if (!definition) throw new Error(`Module package is not registered: ${packageName}`);
   return definition;
 }

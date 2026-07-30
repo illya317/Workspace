@@ -32,7 +32,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 - `PageSurface.moduleView` 和旧 `kind="content"` React 正文逃生口都不是新增页面 API。存量 `moduleView` 已迁完，`businessModuleViewUsages` baseline 当前为 0；旧 content escape 已迁完，`pageSurfaceLayoutProtocolWarnings` baseline 当前为 0。`gate:ui` / `arch:surface-boundaries` 会阻止 Core UI 以外源码重新新增 `moduleView`、`DataSurface.raw`、旧 `DataSurface kind="visual"`。
 - 纸面/A4/报告类内容使用 `BodySurface kind="document"`，由 Core `DocumentSurface` 管理文档宿主、宽度、字体和多页容器；图表、甘特、时间轴、组织图等复杂图形使用 `BodySurface kind="visualization"`；通用 section/panel/message/empty/actions 使用 `BodySurface kind="section"`。业务不得再用 `moduleView` 或 `FormSurface.note` 承载复杂正文。
 - 正文 Surface 的 `kind` 必须是一级 discriminant。选择 `DocumentSurface kind="pages"` 后，纸面列表只写入 `pages.items`；选择 `kind="viewer"` 后，阅读器只声明 `viewer.src/title`，由 Core 提供自适应的内嵌文档宿主。PDF、ONLYOFFICE 等提供方的鉴权、签名、配置、回调和权限映射留在 Platform 或业务适配层，不进入 Core 协议。选择 `VisualizationSurface kind="chart"` 后，图表声明只写入 `chart.visual`，选择 `kind="gantt"` 后，甘特声明只写入 `gantt.timeline`。标题、外框、空态等细节进入对应 kind 的 payload，不再作为 Surface 顶层共享可选字段。
-- `VisualizationSurface kind="network"` 只接受节点、边、分组和语义化布局声明。未声明 `layout` 时保持汇流布局；`layout.kind="converging"` 表示上游分组/节点先汇入焦点，再展开下游树；`layout.kind="hierarchy"` 表示从焦点直接向下展开，不生成上游汇流区。`layout.nodeAspect="adaptive"` 只授权 Core 在宽层级中把适合的短标题节点改为纵向形态，不允许业务传节点宽高、坐标或折线。`layoutOrder` 只保存真实来源顺序；未声明顺序的节点由 Core 按占用空间居中安排。
+- `VisualizationSurface kind="network"` 只接受节点、边、分组和语义化布局声明。未声明 `layout` 时保持汇流布局；`layout.kind="converging"` 表示上游分组/节点先汇入焦点，再展开下游树；`layout.kind="hierarchy"` 表示从焦点直接向下展开，不生成上游汇流区。`presentation="map"` 表示用于大规模拓扑探索的力导向地图：Core 自动按连接数决定圆点大小和默认标签，悬停/选中时强调一跳关系并弱化无关元素，调用方只可接收节点选择事件，不得声明斥力、坐标、节点直径或状态颜色。`layout.nodeAspect="adaptive"` 只授权 Core 在宽层级中把适合的短标题节点改为纵向形态，不允许业务传节点宽高、坐标或折线。`layoutOrder` 只保存真实来源顺序；未声明顺序的节点由 Core 按占用空间居中安排。
 - 发现现有 Page API 不够用时，先停下来写清缺口；由 Architecture/Core UI 任务补公开接口，再回业务页替换。
 - Platform runtime 使用 Core UI 时同样只能走公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent L1 使用公开的 `PageSurface` / `BodySurface` contract，不建立专用 Core kind。
 - 纯数据 helper 不拥有可见 UI 或流程决策。UI agent 可以维护显式类型的结构声明函数：它可以一次声明完整的 section、表单组、表格、selector、展开工作区或深模块 cell，并拥有该结构内的语义文案、状态与动作；非标准返回类型用 `@ui-structural-declaration` 标明。禁止把声明细碎化成单个字段、普通单元格、单个 label/icon，也禁止声明颜色、间距、圆角、阴影、renderer 或动作位置/排序。结构声明不得执行 fetch/toast/confirm/router/history 等构造期副作用；事件回调中的业务动作不算构造期副作用。
@@ -89,8 +89,9 @@ Core UI 的 layout 规则分为“内容规则”和“外观规则”。业务�
 
 - Toolbar 声明子控件处于 `intrinsic`。
 - 表格、批量录入、纸面表单声明子控件处于 `parentLocked`。
-- 详情页字段区声明子控件跟随详情页字段 context，并在同一区域内保持一致。
+- 详情页字段区声明子控件跟随详情页字段 context，并在同一区域内保持一致。FieldGrid 的 `columns` 和 `fieldLayout: "inline" | "stack"` 都是 section 级声明，单字段不得覆盖：`inline` 由 Core 从 `5rem` 最小标签轨道开始按本 section 最长标签整体扩张，并在保留 `8rem` 最小输入轨道后统一省略溢出标签、hover 展示全文；`stack` 让本 section 全部字段统一改为标签在上、输入在下，并按本 section 最高标签统一标签区高度。业务不声明 rem、字段宽度、截断或单字段布局，Core 也不因标签长度改变声明列数。
 - 详情页字段区需要承载头像、图片等高内容时，字段项使用 `rowSpan: 2 | 3` 让该单元格跨行；不要在业务页用局部缩小、绝对定位或额外手写网格修补行高。
+- `multiline` 文本字段由 FormSurface 自动横跨整个字段网格，不受 section 列数影响；Textarea 默认显示 1 行，只有确实需要较大初始编辑区时才显式声明 `rows`。
 - 系统反馈组件才允许 `selfLocked`。
 - 页面级全局组件使用自身稳定规格；正文 context 不影响它们，引用方只选语义档位。
 
@@ -173,7 +174,15 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 
 `FormSurface` 的必填状态由 Core 统一归一：字段 `required`、`InputSurface.validation.required` 或 `state: "required"` 任一声明，都必须同时生成必填星号、输入必填语义和保存/提交前校验；业务不得另外手写星号或只依赖服务端报错。
 
-普通表格默认随页面自然展开，不创建横向或纵向内滚动。短名称、状态、比例、日期、来源等可压缩字段即使表头随页面滚出视口，仍应优先保持连续阅读；不要仅因行数多或担心表头消失就声明 `scroll`。只有二维矩阵、列内容确实不可压缩，或交互明确需要固定高度视窗时才声明滚动；固定高度视窗必须同时声明 `maxHeight`，由 Core 锁定表头。
+普通表格默认随页面自然展开，不创建横向或纵向内滚动。桌面普通表格由 Core 按表头、单元格内容和容器剩余空间自适应列宽；业务声明的 `width` 是紧凑列或重点列的宽度提示，不得导致其他内容列在仍有空白时被固定等分截断。矩阵继续使用固定列宽。短名称、状态、比例、日期、来源等可压缩字段即使表头随页面滚出视口，仍应优先保持连续阅读；不要仅因行数多或担心表头消失就声明 `scroll`。只有二维矩阵、列内容确实不可压缩，或交互明确需要固定高度视窗时才声明滚动；固定高度视窗必须同时声明 `maxHeight`，由 Core 锁定表头。
+
+DataSurface 的展开范围由 Core 统一表达。纵向展开沿用 `expandedRowKey(s) + expandedRow`，Core 自动高亮触发行与详情行；横向展开列通过 `column.disclosure` 声明同一 `groupKey` 下的 `trigger/detail`，触发列同时声明 `expanded`。Core 根据可见列自动推导连续范围、首尾边界、表头与内容染色及键盘展开语义。业务不得声明颜色、边框、阴影或自行给展开单元格拼 class；未展开的 trigger 不着色，detail 只在真实展开时进入可见列。
+
+表格需要表达格子级关系时使用 `column.cellState(row)`，只返回 `muted / info / warning / success / danger` 等语义；Core 统一决定单元格背景和文字，并让关系状态覆盖横向展开的普通底色。当前格另用 `column.cellSelected(row)` 声明，Core 叠加独立的中性描边，因此选中标记不会占用或覆盖关系色。格子激活继续使用结构化 `DataSurfaceCellSpec kind="interactive"`，业务不得返回颜色、class 或手写可点击单元格。
+
+需要在表格数值后表达相对规模时，使用 `DataSurfaceDisplaySpec kind="meter"`，只声明 `value / max / label`。Core 统一计算长度并渲染底纹；业务不得用字符条、渐变字符串、内联宽度或自定义颜色复刻。meter 只辅助扫描，`label` 仍是可复制、可核对的权威显示值。
+
+表格或记录中的系统编码、文件名等可截断文本使用 `DataSurfaceDisplaySpec kind="text" + wrap="truncate"`；需要与同列常规编码保持稳定长度时可声明 `maxChars`。Core 统一按字符宽度显示省略号，并把完整文本写入悬停标题；业务不得先截断 `value`、拼接 `...` 或丢失可复制的完整值。
 
 业务状态类 Boolean 必须用 `control: "choice"` + 静态产品文案选项表达，并在回调边界还原为 `boolean`；`control: "boolean"` + `presentation: "checkbox"` 只用于明确的勾选/确认语义。Core 不提供 `switch` presentation，业务不得自行复刻开关 renderer。
 
@@ -270,6 +279,21 @@ Platform Core UI direct import 按以下 recipe 清：
 3. `packages/core/ui/registry/component-registry-data-*.ts`
 4. 必要时更新 `docs/engineering/core-ui-governance.md` 或 `docs/engineering/reusable-components.md`
 
+### Core 授权改动同轮闭环
+
+用户明确授权修改 Core，表示当前 agent 可以进入 UI-system 范围，不表示可以只改 implementation。任何 Core UI 公共能力新增、删除或语义变化，都必须由实施者在同一轮、同一工作区快照内完成以下闭环后再交还任务，不能留给下一位 agent，也不能把 CI 当作首次发现遗漏的工具：
+
+1. **声明**：同步 Surface/type interface、公开行为和必要的可访问性语义；业务只声明意图，不新增颜色、间距、阴影、renderer 等视觉参数。
+2. **实现**：更新所属公开 UI implementation；需要拆分时放入 `packages/core/ui/internal/**` 的 Private Impl，不为私有文件制造公共入口。
+3. **导出**：公共类型、helper 或 runtime 入口同步 `packages/core/ui/<Surface>.tsx` 与 `packages/core/ui/index.ts`；删除时反向清理，不保留 stale export。
+4. **注册**：公共能力同步 component registry 的中文 `description`、`declares`、`composes`；Private Impl 不单独注册。可见能力变化同时更新 `/settings/ui` 所消费的声明关系或现有展示入口。
+5. **生成**：凡 Surface contract 变化，立即运行 `npm run core-ui:contracts` 写回生成 contract，并运行 `npm run core-ui:contracts:check`；不得手改生成文件，也不得等 CI 报漂移。
+6. **文档**：更新本规范、`reusable-components.md` 或所属模块 `ARCHITECTURE.md` 中受影响的 interface、调用约束和迁移口径。
+7. **验证**：补齐通过公开 interface 的行为测试，运行本任务文件 ESLint；直接修改 Core TypeScript contract 时串行运行一次 `npm run typecheck:scope -- core`；用 `CORE_UI_CHANGE=1 npm run gate:ui` 验证结构门禁，并按任务需要完成真实页面或静态渲染检查。
+8. **交接**：交还前列出已经同步的声明、registry、生成物和验证结果。若共享工作区的无关改动阻断总门禁或页面运行，必须给出精确文件与失败项，同时保留本任务专项检查通过证据；不得把本任务尚未完成的同步项包装成“等 CI 再看”。
+
+这套闭环同样适用于修改已有 Surface 的新声明字段；“没有新增组件”不是跳过 registry、生成 contract 或治理文档的理由。
+
 新增会进入 `/settings/ui` 的封装组件必须有明确 `declares`；若声明项过多或高度耦合，应拆新的 Surface。基础/私有实现不得作为业务 import。
 
 新增或迁移 registry entry 时必须填写中文 `description`，公共声明入口补 `declares`，内部组合关系写 `composes`。`arch:surface-boundaries` 会 warning：声明项过厚或跨声明分类组合异常。结构性 UI 项进入 `gate:ui`，简单清扫项进入 `check:hygiene`；不能为了消警把 domain shared shell 注册成 Core/Page API。
@@ -328,7 +352,7 @@ Foundation 改造规则：
 4. 业务页不得直接 import Foundation。
 5. 发现业务直引 Foundation 时，补 Page API 或扩已有 Page API，再替换业务调用点。
 
-例外：`ActionGlyph` 是全局唯一的 SVG/action icon 封闭表。动作、状态、权限来源这类 UI 图标必须先注册到 `ActionGlyph`，再由页面 API、Surface spec、平台 wrapper 或少数 icon-only cell 使用；不得在业务/平台文件里手写新的 `<svg>`。`ActionGlyph` 允许作为图标基础入口直接 import，但它不是业务 Surface/helper/service 入口，不允许借它绕开 Toolbar/PageSurface 的动作协议。
+例外：`ActionGlyph` 是全局唯一的 SVG/action icon 封闭表。动作、状态、权限来源这类 UI 图标必须先注册到 `ActionGlyph`，再由页面 API、Surface spec、平台 wrapper 或少数 icon-only cell 使用；不得在业务/平台文件里手写新的 `<svg>`。重复项顺序调整统一使用 `move-up` / `move-down`。`ActionGlyph` 允许作为图标基础入口直接 import，但它不是业务 Surface/helper/service 入口，不允许借它绕开 Toolbar/PageSurface 的动作协议。
 
 ## 8. Private Impl
 

@@ -263,37 +263,32 @@ async function ensurePosition(client, runtime, foundation, spec) {
 async function loadUserCandidates(client, runtime, spec, employee) {
   const lock = runtime.lockRows ? " FOR UPDATE" : "";
   const byUsername = requireAtMostOne((await client.query(
-    `SELECT id, username, "employeeId", "canLogin", "sessionVersion"
+    `SELECT id, username, "canLogin", "sessionVersion"
      FROM "User" WHERE username = $1${lock}`,
     [spec.username],
   )).rows, `user username ${spec.username}`);
-  const byEmployeeId = requireAtMostOne((await client.query(
-    `SELECT id, username, "employeeId", "canLogin", "sessionVersion"
-     FROM "User" WHERE "employeeId" = $1${lock}`,
-    [spec.employeeId],
-  )).rows, `user employeeId ${spec.employeeId}`);
   const linked = employee?.userId == null
     ? null
     : requireExactlyOne((await client.query(
-      `SELECT id, username, "employeeId", "canLogin", "sessionVersion"
+      `SELECT id, username, "canLogin", "sessionVersion"
        FROM "User" WHERE id = $1${lock}`,
       [employee.userId],
     )).rows, `linked user for employee ${spec.employeeId}`);
 
   const candidateIds = new Set(
-    [byUsername, byEmployeeId, linked]
+    [byUsername, linked]
       .filter(Boolean)
       .map((candidate) => numericId(candidate.id)),
   );
   if (candidateIds.size > 1) {
     throw new ProvisioningError(`employee ${spec.employeeId} resolves to conflicting Workspace users`);
   }
-  if (byUsername && !byEmployeeId && !linked) {
+  if (byUsername && !linked) {
     throw new ProvisioningError(
       `username ${spec.username} already exists without the canonical ${spec.employeeId} binding; refusing to repurpose it`,
     );
   }
-  return linked ?? byEmployeeId ?? byUsername ?? null;
+  return linked ?? byUsername ?? null;
 }
 
 async function ensureIdentity(client, runtime, foundation, spec) {
@@ -305,9 +300,6 @@ async function ensureIdentity(client, runtime, foundation, spec) {
   )).rows, `employee ${spec.employeeId}`);
   let user = await loadUserCandidates(client, runtime, spec, employee);
 
-  if (!employee && user && user.employeeId && user.employeeId !== spec.employeeId) {
-    throw new ProvisioningError(`username ${spec.username} belongs to another employee identity`);
-  }
   if (user) {
     const linkedEmployees = (await client.query(
       `SELECT id, "employeeId" FROM "Employee"
@@ -320,20 +312,19 @@ async function ensureIdentity(client, runtime, foundation, spec) {
   }
 
   if (!user) {
-    addAction(runtime.actions, "create", "User", spec.username, ["employeeId", "canLogin=false"]);
+    addAction(runtime.actions, "create", "User", spec.username, ["canLogin=false"]);
     if (runtime.apply) {
       const created = await client.query(
-        `INSERT INTO "User" (username, "employeeId", "canLogin")
-         VALUES ($1, $2, FALSE)
-         RETURNING id, username, "employeeId", "canLogin", "sessionVersion"`,
-        [spec.username, spec.employeeId],
+        `INSERT INTO "User" (username, "canLogin")
+         VALUES ($1, FALSE)
+         RETURNING id, username, "canLogin", "sessionVersion"`,
+        [spec.username],
       );
       user = created.rows[0];
     }
   } else {
     const changed = [];
     if (user.username !== spec.username) changed.push("username");
-    if (user.employeeId !== spec.employeeId) changed.push("employeeId");
     if (user.canLogin !== false) changed.push("canLogin=false");
     if (changed.length > 0) {
       addAction(runtime.actions, "update", "User", spec.username, changed);
@@ -341,13 +332,12 @@ async function ensureIdentity(client, runtime, foundation, spec) {
         await client.query(
           `UPDATE "User"
            SET username = $2,
-               "employeeId" = $3,
                "canLogin" = FALSE,
                "sessionVersion" = "sessionVersion" + CASE WHEN "canLogin" IS TRUE THEN 1 ELSE 0 END
            WHERE id = $1`,
-          [user.id, spec.username, spec.employeeId],
+          [user.id, spec.username],
         );
-        user = { ...user, username: spec.username, employeeId: spec.employeeId, canLogin: false };
+        user = { ...user, username: spec.username, canLogin: false };
       }
     }
   }
@@ -365,6 +355,13 @@ async function ensureIdentity(client, runtime, foundation, spec) {
     return { employeeId: numericId(created.rows[0].id), userId: numericId(user.id) };
   }
 
+  if (user && employee.userId == null) {
+    addAction(runtime.actions, "update", "Employee", spec.employeeId, ["userId"]);
+    if (runtime.apply) {
+      await client.query(`UPDATE "Employee" SET "userId" = $2 WHERE id = $1 AND "userId" IS NULL`, [employee.id, user.id]);
+      employee.userId = user.id;
+    }
+  }
   if (!user || !sameId(employee.userId, user.id)) {
     throw new ProvisioningError(
       `employee ${spec.employeeId} no longer matches its canonical non-login user binding; refusing to overwrite HR facts`,

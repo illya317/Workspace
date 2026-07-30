@@ -8,6 +8,7 @@ test("push suite flattens blockers and changed checks without repeating contract
   const ids = plan.tasks.map((task) => task.id);
 
   assert.equal(ids.filter((id) => id === "api-response-format").length, 1);
+  assert.equal(ids.filter((id) => id === "business-code-hardcoding").length, 1);
   assert.equal(ids.filter((id) => id === "history-policy").length, 1);
   assert.equal(ids.filter((id) => id === "business-temporal").length, 1);
   assert.equal(ids.filter((id) => id === "deploy-graph").length, 1);
@@ -18,7 +19,7 @@ test("push suite flattens blockers and changed checks without repeating contract
   assert.equal(ids.includes("domain-changed"), true);
   assert.equal(ids.includes("domain-architecture"), true);
   assert.equal(new Set(ids).size, ids.length);
-  assert.equal(plan.duplicateReferences, 8);
+  assert.equal(plan.duplicateReferences, 10);
   assert.equal(plan.coveredTaskReferences, 0);
 });
 
@@ -127,24 +128,6 @@ test("ci keeps warning checks visible but removes work already covered by the UI
   assert.equal(plan.coveredTaskReferences, 1);
 });
 
-test("release unit suite keeps Full-grade shared evidence but delegates type and build to the unit builder", () => {
-  const plan = resolveCheckPlan(["release-unit"]);
-  const ids = plan.tasks.map((task) => task.id);
-
-  for (const required of [
-    "deploy-graph",
-    "deploy-unit-apps",
-    "db-migration-check",
-    "lint-full",
-    "test-node",
-    "playwright-processes",
-  ]) {
-    assert.equal(ids.includes(required), true, required);
-  }
-  assert.equal(ids.includes("typecheck-full"), false);
-  assert.equal(ids.includes("build-next"), false);
-});
-
 test("warning-only tasks do not block the suite and timings are reported", () => {
   const calls = [];
   const output = [];
@@ -192,7 +175,9 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "playwright-lifecycle",
     "lint-changed",
     "api-response-format",
+    "business-code-hardcoding",
     "history-policy",
+    "import-reference",
     "business-temporal",
     "deploy-graph",
     "deploy-unit-apps",
@@ -207,7 +192,9 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "playwright-lifecycle",
     "lint-changed",
     "api-response-format",
+    "business-code-hardcoding",
     "history-policy",
+    "import-reference",
     "business-temporal",
     "deploy-graph",
     "deploy-unit-apps",
@@ -223,7 +210,9 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "test-focus",
     "business-identity",
     "api-response-format",
+    "business-code-hardcoding",
     "history-policy",
+    "import-reference",
     "business-temporal",
     "deploy-graph",
     "deploy-unit-apps",
@@ -248,6 +237,15 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
   ]);
   assert.equal(resolveCheckPlan(["refactor"]).tasks.some((task) => task.id === "typecheck-quick"), false);
   assert.equal(resolveCheckPlan(["ci"]).tasks.some((task) => task.id === "typecheck-full"), true);
+});
+
+test("CI runs the authoritative full typecheck before a Next build that skips only the duplicate traversal", () => {
+  const tasks = resolveCheckPlan(["ci"]).tasks;
+  const typecheckIndex = tasks.findIndex((task) => task.id === "typecheck-full");
+  const buildIndex = tasks.findIndex((task) => task.id === "build-next");
+  assert.ok(typecheckIndex >= 0);
+  assert.ok(buildIndex > typecheckIndex);
+  assert.deepEqual(tasks[buildIndex]?.args, ["run", "build:next:after-typecheck"]);
 });
 
 test("unknown suites fail before any command can run", () => {

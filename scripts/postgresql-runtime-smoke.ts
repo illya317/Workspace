@@ -11,7 +11,7 @@ import {
   appendAgentSessionMessage,
   prepareAgentSession,
   readAgentSessionMessages,
-} from "@workspace/platform/server/agent/sessions";
+} from "@workspace/agent/server/sessions";
 import { createNotification, listUserNotifications } from "@workspace/platform/server/notifications";
 import { prisma } from "@workspace/platform/server/prisma";
 import type { SessionUser } from "@workspace/platform/types";

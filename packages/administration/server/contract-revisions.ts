@@ -9,6 +9,7 @@ import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { buildContractRecordAccessWhere, canOwnContractScope } from "./contract-access";
 import {
   buildContractLegalSnapshot,
+  CONTRACT_LEGAL_SNAPSHOT_SCHEMA_VERSION,
   contractMutationResult,
   contractSnapshotProjection,
   contractTimelineWithClient,
@@ -21,6 +22,7 @@ import {
   parseContractLegalSnapshot,
 } from "./contract-lifecycle-records";
 import {
+  assertDirectContractRevisionInput,
   assertInitialContractRevisionInput,
   type ContractRevisionCreateCommand,
   type ContractRevisionPublishCommand,
@@ -39,6 +41,7 @@ export async function createInitialContractDraftRevision(
       revisionNo: 1,
       recordState: "draft",
       changeKind: "initial",
+      snapshotSchemaVersion: CONTRACT_LEGAL_SNAPSHOT_SCHEMA_VERSION,
       effectiveOn: contract.signedOn ?? contract.createdAt,
       snapshotJson: buildContractLegalSnapshot(contract) as unknown as Prisma.InputJsonObject,
       reason: "initial draft",
@@ -61,10 +64,125 @@ export async function refreshInitialContractDraftRevision(
     where: { id: revision.id },
     data: {
       effectiveOn: contract.signedOn ?? contract.createdAt,
+      snapshotSchemaVersion: CONTRACT_LEGAL_SNAPSHOT_SCHEMA_VERSION,
       snapshotJson: buildContractLegalSnapshot(contract) as unknown as Prisma.InputJsonObject,
     },
   });
   return true;
+}
+
+export async function createConfirmedInitialContractRevision(
+  tx: Prisma.TransactionClient,
+  input: {
+    contractId: number;
+    effectiveOn: Date;
+    snapshot: ReturnType<typeof buildContractLegalSnapshot>;
+    userId: number;
+    commandId: string;
+    requestFingerprint: string;
+  },
+) {
+  assertDirectContractRevisionInput(input);
+  const revision = await tx.contractRevision.create({
+    data: {
+      contractId: input.contractId,
+      revisionNo: 1,
+      recordState: "confirmed",
+      changeKind: "initial",
+      snapshotSchemaVersion: CONTRACT_LEGAL_SNAPSHOT_SCHEMA_VERSION,
+      effectiveOn: input.effectiveOn,
+      snapshotJson: input.snapshot as unknown as Prisma.InputJsonObject,
+      reason: "创建合同并记录初始版本",
+      createdBy: input.userId,
+      confirmedBy: input.userId,
+      confirmedAt: new Date(),
+      createIdempotencyKey: input.commandId,
+      createRequestFingerprint: input.requestFingerprint,
+      publishIdempotencyKey: `${input.commandId}:confirm`,
+      publishRequestFingerprint: input.requestFingerprint,
+    },
+  });
+  await tx.contractStateEvent.createMany({
+    data: [
+      directBaselineStateEvent(input, revision.id, "lifecycle", "active"),
+      directBaselineStateEvent(input, revision.id, "signature", "unknown"),
+      directBaselineStateEvent(input, revision.id, "performance", "not_started"),
+    ],
+  });
+  return revision;
+}
+
+export async function createConfirmedContractCorrection(
+  tx: Prisma.TransactionClient,
+  input: {
+    contractId: number;
+    previous: { id: number; effectiveOn: Date; effectiveThrough: Date | null };
+    effectiveOn: Date;
+    snapshot: ReturnType<typeof buildContractLegalSnapshot>;
+    userId: number;
+    commandId: string;
+    requestFingerprint: string;
+  },
+) {
+  assertDirectContractRevisionInput(input);
+  const maxRevision = await tx.contractRevision.aggregate({
+    where: { contractId: input.contractId },
+    _max: { revisionNo: true },
+  });
+  const revision = await tx.contractRevision.create({
+    data: {
+      contractId: input.contractId,
+      revisionNo: (maxRevision._max.revisionNo ?? 0) + 1,
+      recordState: "confirmed",
+      changeKind: "correction",
+      snapshotSchemaVersion: CONTRACT_LEGAL_SNAPSHOT_SCHEMA_VERSION,
+      effectiveOn: input.effectiveOn,
+      effectiveThrough: input.previous.effectiveThrough,
+      snapshotJson: input.snapshot as unknown as Prisma.InputJsonObject,
+      reason: "直接编辑合同并记录当前修订",
+      sourceRevisionId: input.previous.id,
+      createdBy: input.userId,
+      confirmedBy: input.userId,
+      confirmedAt: new Date(),
+      createIdempotencyKey: input.commandId,
+      createRequestFingerprint: input.requestFingerprint,
+      publishIdempotencyKey: `${input.commandId}:confirm`,
+      publishRequestFingerprint: input.requestFingerprint,
+    },
+  });
+  const effectiveThrough = input.previous.effectiveOn < input.effectiveOn
+    ? previousBusinessDate(isoContractDate(input.effectiveOn)!)
+    : null;
+  await tx.contractRevision.update({
+    where: { id: input.previous.id },
+    data: {
+      recordState: "superseded",
+      effectiveThrough: effectiveThrough
+        ? new Date(`${effectiveThrough}T00:00:00.000Z`)
+        : input.previous.effectiveThrough,
+      supersededByRevisionId: revision.id,
+    },
+  });
+  return revision;
+}
+
+function directBaselineStateEvent(
+  input: { contractId: number; effectiveOn: Date; userId: number },
+  sourceRevisionId: number,
+  axis: string,
+  toState: string,
+) {
+  return {
+    contractId: input.contractId,
+    axis,
+    eventKind: "baseline",
+    fromState: null,
+    toState,
+    effectiveOn: input.effectiveOn,
+    reason: "创建合同并记录初始版本",
+    sourceRevisionId,
+    createdBy: input.userId,
+  };
 }
 
 export async function commitCreateContractRevision(command: ContractRevisionCreateCommand) {
@@ -119,6 +237,7 @@ export async function commitCreateContractRevision(command: ContractRevisionCrea
           revisionNo: (maxRevision._max.revisionNo ?? 0) + 1,
           recordState: "draft",
           changeKind: "revision",
+          snapshotSchemaVersion: CONTRACT_LEGAL_SNAPSHOT_SCHEMA_VERSION,
           effectiveOn: command.effectiveOn,
           snapshotJson: snapshot as unknown as Prisma.InputJsonObject,
           reason: command.reason,

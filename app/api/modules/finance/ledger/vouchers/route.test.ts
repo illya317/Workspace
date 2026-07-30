@@ -8,6 +8,7 @@ let listCommand: Record<string, unknown> | null = null;
 
 mockModule("@workspace/finance/server/route-commands", {
   namedExports: {
+    buildListVouchersCommand: (input: Record<string, unknown>) => ({ ok: true, data: input }),
     buildCreateVoucherCommand: () => ({ ok: true, data: {} }),
     executeCreateVoucherCommand: async () => ({}),
     executeListVouchersCommand: async (command: Record<string, unknown>) => {
@@ -48,7 +49,50 @@ test("voucher details accept accounting years before 2020", async () => {
   ));
 
   assert.equal(response.status, 200);
-  assert.equal(listCommand?.year, 2016);
-  assert.equal(listCommand?.month, 12);
-  assert.equal(listCommand?.companyCode, "ZX01");
+  const received = listCommand as unknown as Record<string, unknown>;
+  assert.equal(received.year, 2016);
+  assert.equal(received.month, 12);
+  assert.equal(received.companyCode, "ZX01");
+});
+
+test("group voucher audit drill-through accepts one source line id", async () => {
+  const { GET } = await import("./route");
+  listCommand = null;
+
+  const response = await GET(new Request(
+    "http://localhost/api/modules/finance/ledger/vouchers?voucherKind=group&sourceTraceLineId=15269",
+  ));
+
+  assert.equal(response.status, 200);
+  const received = listCommand as unknown as Record<string, unknown>;
+  assert.equal(received.voucherKind, "group");
+  assert.equal(received.sourceTraceLineId, 15269);
+});
+
+test("voucher details accept the shared annual and quarterly period filter", async () => {
+  const { GET } = await import("./route");
+  listCommand = null;
+
+  const response = await GET(new Request(
+    "http://localhost/api/modules/finance/ledger/vouchers?voucherKind=group&year=2026&month=6&periodKind=quarter",
+  ));
+
+  assert.equal(response.status, 200);
+  const received = listCommand as unknown as Record<string, unknown>;
+  assert.equal(received.year, 2026);
+  assert.equal(received.month, 6);
+  assert.equal(received.periodKind, "quarter");
+});
+
+test("group voucher details accept a history-through-period scope", async () => {
+  const { GET } = await import("./route");
+  listCommand = null;
+
+  const response = await GET(new Request(
+    "http://localhost/api/modules/finance/ledger/vouchers?voucherKind=group&year=2026&month=6&voucherPeriodScope=history",
+  ));
+
+  assert.equal(response.status, 200);
+  const received = listCommand as unknown as Record<string, unknown>;
+  assert.equal(received.voucherPeriodScope, "history");
 });

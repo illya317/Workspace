@@ -9,7 +9,7 @@ import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { canUseDepartmentAsParentForHierarchy, departmentDescendantIds, rebaseDepartmentCodeForParentChange, splitAliasText } from "./utils";
 import { useDepartmentDescriptionsSection } from "./department-descriptions-panel";
 import { createDirectPositionPanelSection } from "./navigation-panels";
-import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, DescriptionDraft, Position, Selection } from "./types";
+import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, DescriptionDraft, OrganizationCodeConfig, Position, Selection } from "./types";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 
 type DepartmentDetailPaneProps = {
@@ -30,6 +30,7 @@ type DepartmentDetailPaneProps = {
   createPositionDepartment: Department | undefined;
   createPositionDraft: CreatePositionDraft;
   departmentById: Map<number, Department>;
+  codeConfig: OrganizationCodeConfig | null;
   departmentDirty: boolean;
   departmentDescriptionDirty: boolean;
   saving: boolean;
@@ -64,6 +65,7 @@ export function useDepartmentDetailPaneSection({
   createPositionDepartment,
   createPositionDraft,
   departmentById,
+  codeConfig,
   departmentDirty,
   departmentDescriptionDirty,
   saving,
@@ -113,7 +115,7 @@ export function useDepartmentDetailPaneSection({
       spec: {
         valueType: "string",
         control: "text",
-        mask: { kind: "editableSegment", ...departmentCodeEditableSegment(departmentDraft.level, departmentDraft.hierarchyKind) },
+        mask: { kind: "editableSegment", ...departmentCodeEditableSegment(departmentDraft.level, departmentDraft.hierarchyKind, codeConfig) },
         state: !canEditDepartmentDraft ? "disabled" : "normal",
       },
       value: departmentDraft.code,
@@ -138,6 +140,7 @@ export function useDepartmentDetailPaneSection({
       value: departmentDraft.parentId == null ? "" : String(departmentDraft.parentId),
       placeholder: "无",
       onChange: next => {
+        if (!codeConfig) return;
         const nextParentId = next === "" ? null : Number(next);
         const parent = nextParentId == null ? undefined : departmentById.get(nextParentId);
         const nextLevel = parent && parent.hierarchyKind === departmentDraft.hierarchyKind
@@ -153,6 +156,7 @@ export function useDepartmentDetailPaneSection({
           level: nextLevel,
           parentId: nextParentId,
           departments,
+          codeConfig,
         }));
       },
     },
@@ -210,44 +214,8 @@ export function useDepartmentDetailPaneSection({
       kind: "readonly",
       label: "组织负责人",
       span: "wide",
-      value: departmentDraft.managerName || "负责人岗位当前无在岗员工",
+      value: departmentDraft.managerEmployeeNames.join("、") || "暂无在岗负责人",
     },
-    {
-      key: "effectiveOn",
-      label: "生效日",
-      spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditDepartmentDraft ? "disabled" : "normal" },
-      value: departmentDraft.effectiveOn,
-      onChange: (value) => onUpdateDepartmentDraft("effectiveOn", String(value ?? "")),
-    },
-    {
-      key: "changeKind",
-      label: "变更类型",
-      spec: {
-        valueType: "string",
-        control: "choice",
-        state: !canEditDepartmentDraft ? "disabled" : "normal",
-        options: { source: "static", items: [
-          { value: "schedule", label: "正常变更" },
-          { value: "correct", label: "历史纠错" },
-        ] },
-      },
-      value: departmentDraft.changeKind,
-      onChange: (value) => onUpdateDepartmentDraft("changeKind", value === "correct" ? "correct" : "schedule"),
-    },
-    ...(departmentDraft.changeKind === "correct" ? [{
-      key: "changeReason",
-      label: "纠错原因",
-      required: true,
-      span: "wide" as const,
-      spec: { valueType: "string" as const, control: "text" as const, state: !canEditDepartmentDraft ? "disabled" as const : "normal" as const },
-      value: departmentDraft.changeReason,
-      onChange: (value: unknown) => onUpdateDepartmentDraft("changeReason", String(value ?? "")),
-    }] : []),
-    ...(selectedDepartment ? [{
-      kind: "note" as const,
-      key: "temporalTimeline",
-      content: organizationTimelineSummary(selectedDepartment),
-    }] : []),
   ] : [];
   const departmentDescriptionsSection = useDepartmentDescriptionsSection({
     drafts: departmentDescriptionDrafts,
@@ -334,19 +302,6 @@ export function useDepartmentDetailPaneSection({
   return createPanelSection("department-detail", {
       sections: detailSections,
     });
-}
-
-function organizationTimelineSummary(department: Department) {
-  const current = department.temporal.current;
-  const lines = [
-    `基准日 ${department.asOfDate}`,
-    current
-      ? `当前 #${current.sequence} · ${current.validFrom || "历史起点未知"} 至 ${current.validToExclusive || "长期"} · ${current.recordState}`
-      : "当前：无有效版本",
-    ...department.temporal.upcoming.map((item) => `待生效 #${item.sequence} · ${item.validFrom || "未定"} · ${item.payload.name}`),
-    ...department.temporal.history.slice(0, 5).map((item) => `历史 #${item.sequence} · ${item.validFrom || "起点未知"} 至 ${item.validToExclusive || "长期"} · ${item.changeKind}${item.reason ? ` · ${item.reason}` : ""}`),
-  ];
-  return lines.join("\n");
 }
 
 export function DepartmentDetailPane(props: DepartmentDetailPaneProps) {

@@ -105,6 +105,16 @@ function positiveInt(value: number | undefined, field: string) {
     : failCommand(`${field} 无效`, 400, field);
 }
 
+export function assertExternalPartyAggregateTouchInput(input: {
+  partyId: number;
+  expectedVersion: number;
+  userId: number;
+}) {
+  for (const [field, value] of Object.entries(input)) {
+    if (!Number.isInteger(value) || value < 1) throw new Error(`${field} 必须是正整数`);
+  }
+}
+
 function nullableText(value: string | null | undefined) {
   if (value === undefined) return undefined;
   return value?.trim() || null;
@@ -157,7 +167,6 @@ export function buildExternalPartyCreateCommand(
 ): DomainValidationResult<ExternalPartyCreateCommand> {
   const validUserId = positiveInt(userId, "userId");
   if (!validUserId.ok) return validUserId;
-  if (!input.code.trim()) return failCommand("编码必填", 400, "code");
   if (!idempotencyKey.trim()) return failCommand("缺少 Idempotency-Key 请求头", 400);
   if (!input.name.trim()) return failCommand("名称必填", 400, "name");
   const identityNumber = normalizedIdentity(input.identityNumber);
@@ -179,7 +188,7 @@ export function buildExternalPartyCreateCommand(
     },
     roleData: {
       ...normalizeRoleData(input),
-      code: input.code.trim(),
+      code: input.code?.trim() ?? "",
     },
     availabilityFrom: input.availabilityFrom?.trim() || null,
     availabilityThrough: input.availabilityThrough?.trim() || null,

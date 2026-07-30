@@ -18,6 +18,7 @@ sourceOfTruth:
   - prisma/models/inventory-operations.prisma
   - prisma/models/inventory-receipts.prisma
   - packages/platform/contracts/inventory-accounting.ts
+  - packages/platform/contracts/inventory-closing.ts
 ```
 
 ## Boundary
@@ -72,6 +73,12 @@ Inventory owner 将现有受保护 GET 的公开读模型拆为 11 个版本化 
 Historical workbook H/I conversion cells are audit evidence only. Formal package and ten-thousand-unit totals are recalculated from case quantity, optional package tail and the parsed packaging structure. The history importer is `scripts/data/import-inventory-receipt-history.ts`; it is idempotent by source key and must not fabricate reviewer identities or approved states when the source review fields are empty.
 
 Finance cost rows may link read-only through `FinanceCostStructureRow.receiptReportId`. Matching requires the same year/month and a unique product identity; Finance cost must never mutate the declaration through that relation.
+
+## 关账只读 contract
+
+Inventory 通过 `InventoryClosingContract` 暴露两个互不混用的期间检查：`records` 检查本期草稿、已过账单据与不可变流水完整性、计价成本、期间结转和关联凭证逐科目金额；`count_differences` 按期末非零的 `item + warehouse + batch` 维度要求正式盘点行覆盖，并逐行核对显式引用盘点单号的已过账调整证据。相反方向的调整不得相互抵消后冒充闭环，盘点差异总额为零也不能覆盖未闭环的单行差异。
+
+Finance 不导入 Inventory package，Platform runtime 也不调用业务 API。Platform 只拥有 `InventoryClosingContract` 与通用签名 RPC primitive；Inventory 拥有 adapter 和 `/api/modules/inventory/internal/closing-inspection` 内部 route。Finance refresh 的 app composition root 用通用 primitive 组装具体 RPC client，再把 contract 注入 Finance service；独立 Finance app 使用同一组合壳。未注入 contract 时两个存货任务都 fail-closed。该内部接口只接受 `finance` caller，返回只读状态、阻断项、证据引用和 payload，不提供库存写入能力。没有物料、单据或期末库存事实的公司以 `applicable: false` 明示不适用，不伪造盘点或结转记录。
 
 ## Workbook import
 

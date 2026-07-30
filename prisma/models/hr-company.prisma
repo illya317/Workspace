@@ -1,0 +1,90 @@
+/// 内部法律公司角色；法定身份由 Party 统一维护
+model Company {
+  id                                Int                                @id @default(autoincrement())
+  partyId                           Int                                @unique
+  code                              String                             @unique
+  description                       String?
+  registeredCapital                 String?
+  bankName                          String?
+  registeredAddress                 String?
+  registeredDate                    String?
+  managementGroup                   String
+  codePoolCode                      String?
+  isActive                          Boolean                            @default(true)
+  sortOrder                         Int                                @default(0)
+  editedBy                          Int?
+  editedAt                          DateTime?
+  version                           Int                                @default(1)
+  createdAt                         DateTime                           @default(now())
+  updatedAt                         DateTime                           @default(now()) @updatedAt
+  party                             Party                              @relation(fields: [partyId], references: [id], onDelete: Restrict)
+  issuedOwnerships                  OwnershipInterest[]
+  ownershipProjectionRuns           OwnershipProjectionRun[]
+  shareCapitalEvents                ShareCapitalEvent[]
+  shareholderGroups                 ShareholderGroup[]
+  registryChanges                   CompanyRegistryChange[]
+  positionReportOverrides           PositionReportOverride[]
+  reportingEdps                     EDP[]                              @relation("EDPReportingCompany")
+  financeAuxiliaryMembers           FinanceAuxiliaryMember[]           @relation("FinanceAuxiliaryMemberLinkedCompany")
+  ownedFinanceAuxiliaryMembers      FinanceAuxiliaryMember[]           @relation("FinanceAuxiliaryMemberOwnerCompany")
+  financeVoucherCompanyMappingRules FinanceVoucherCompanyMappingRule[]
+  sourceFinanceVoucherCompanyMappingRules FinanceVoucherCompanyMappingRule[] @relation("FinanceVoucherCompanyMappingRuleSourceCompany")
+  financeCurrencyPolicy             FinanceCompanyCurrencyPolicy?
+  financeBankAccounts               FinanceBankAccount[]
+  financeLoans                      FinanceLoan[]
+  financeTaxRegistrations           FinanceTaxRegistration[]
+  financeTaxPayments                FinanceTaxPayment[]
+  financeCloseRuns                  FinanceCloseRun[]
+  financeCloseWorkpapers            FinanceCloseWorkpaper[]
+  financeBudgetVersions             FinanceBudgetVersion[]
+  financeStatementSourcePackages    FinanceStatementSourcePackage[]       @relation("FinanceStatementSourcePackageCompany")
+  financeConsolidationParentBatches FinanceConsolidationBatch[]           @relation("FinanceConsolidationBatchParentCompany")
+  financeConsolidationEntities      FinanceConsolidationEntitySnapshot[]  @relation("FinanceConsolidationEntityCompany")
+  financeConsolidationChildEntities FinanceConsolidationEntitySnapshot[]  @relation("FinanceConsolidationEntityDirectParentCompany")
+  financeConsolidationEntryLines    FinanceConsolidationEntryLine[]       @relation("FinanceConsolidationEntryLineCompany")
+  financeConsolidationCounterparties FinanceConsolidationEntryLine[]      @relation("FinanceConsolidationEntryLineCounterpartyCompany")
+  financeConsolidationParentScopes  FinanceConsolidationScopeSelection[]  @relation("FinanceConsolidationScopeParentCompany")
+  financeConsolidationCompanyScopes FinanceConsolidationScopeSelection[]  @relation("FinanceConsolidationScopeCompany")
+  externalPartySourceMappings       ExternalPartySourceMapping[]
+  ownedContracts                    Contract[]                         @relation("ContractOwningCompany")
+  socialInsurancePeriods            EmployeeSocialInsurancePeriod[]
+  employmentRecords Employment[]
+  financeAccountBalances FinanceAccountBalance[]
+  financeAccounts FinanceAccount[]
+  financeAssetAdjustments FinanceAssetAdjustment[]
+  financeAssetCards FinanceAssetCard[]
+  financeAssetAcquisitionEvidence FinanceAssetAcquisitionEvidence[]
+  financeAssetCategoryPolicies FinanceAssetCategoryPolicy[]
+  financeAssetDisposals FinanceAssetDisposal[]
+  financeAssetImpairmentAssessments FinanceAssetImpairmentAssessment[]
+  financeAssetImportBatches FinanceAssetImportBatch[]
+  financeAuxiliaryBalances FinanceAuxiliaryBalance[]
+  financeBalanceReclassAdjustments FinanceBalanceReclassAdjustment[]
+  financeBalanceReclassAdjustmentHistories FinanceBalanceReclassAdjustmentHistory[]
+  financeBalanceSnapshots FinanceBalanceSnapshot[]
+  financeCashFlowAllocations FinanceCashFlowAllocation[]
+  financeCashFlowAllocationAdjustments FinanceCashFlowAllocationAdjustment[]
+  financeCashFlowItems FinanceCashFlowItem[]
+  financeCurrencies FinanceCurrency[]
+  originFinanceGroupAccounts FinanceGroupAccount[]
+  financeGroupAccountMappings FinanceGroupAccountMapping[]
+  financeLedgerImports FinanceLedgerImport[]
+  financeOpenItems FinanceOpenItem[]
+  financePeriods FinancePeriod[]
+  financeReclassItemRules FinanceReclassItemRule[]
+  financeSourceAccountBalances FinanceSourceAccountBalance[]
+  financeSourceLedgerMappings FinanceSourceLedgerMapping[]
+  financeStatementVoucherExclusions FinanceStatementVoucherExclusion[]
+  financeStatementWorkpapers FinanceStatementWorkpaper[]
+  financeVouchers FinanceVoucher[]
+  inventoryDocuments InventoryDocument[]
+  inventoryItems InventoryItem[]
+  inventoryImportBatches InventoryImportBatch[]
+  inventoryLedgerEntries InventoryLedgerEntry[]
+  inventoryPeriodCloses InventoryPeriodClose[]
+  inventoryStocktakes InventoryStocktake[]
+  inventoryWarehouses InventoryWarehouse[]
+  stockFinishedGoods StockFinishedGoods[]
+  stockPackagings StockPackaging[]
+  stockRawMaterials StockRawMaterial[]
+}

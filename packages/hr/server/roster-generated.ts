@@ -11,7 +11,7 @@ import type {
   RosterGeneratedVariant,
 } from "@workspace/hr/types";
 import { buildContractRows, type RosterContractRow } from "./contract-records";
-import { primaryContractCompany } from "./employments";
+import { employmentCompanyName } from "./employments";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { currentEmploymentDateWhere, currentOpenEndedDateWhere, employmentIsActiveOnDate } from "@workspace/platform/server/relation-registry";
@@ -157,6 +157,7 @@ async function loadRosterEmployees() {
     where: rosterEmployeeWhere(),
     include: {
       employments: {
+        include: { company: { select: { party: { select: { name: true } } } } },
         orderBy: [{ isActive: "desc" }, { id: "desc" }],
       },
       positions: {
@@ -200,6 +201,7 @@ async function loadRosterEmployeePage(input: {
       where,
       include: {
         employments: {
+          include: { company: { select: { party: { select: { name: true } } } } },
           orderBy: [{ isActive: "desc" }, { id: "desc" }],
         },
         positions: {
@@ -246,7 +248,7 @@ function filterEmployees(
     const searchable = {
       employeeId: employee.employeeId,
       name: employee.name,
-      currentCompany: primaryEmployment ? primaryContractCompany(primaryEmployment.contracts, primaryEmployment.currentCompany) : "",
+      currentCompany: primaryEmployment ? employmentCompanyName(primaryEmployment.contracts, primaryEmployment.currentCompany, primaryEmployment.company?.party.name) : "",
       departmentName: departmentNameFor(primaryPosition),
       positionName: primaryPosition?.position?.name ?? "",
       education: employee.education ?? "",
@@ -277,7 +279,7 @@ function buildGroup(employee: RosterEmployeeRecord, variant: RosterGeneratedVari
     employeeCells: {
       employeeId: employee.employeeId,
       name: employee.name,
-      currentCompany: primaryEmployment ? primaryContractCompany(primaryEmployment.contracts, primaryEmployment.currentCompany) ?? "" : "",
+      currentCompany: primaryEmployment ? employmentCompanyName(primaryEmployment.contracts, primaryEmployment.currentCompany, primaryEmployment.company?.party.name) ?? "" : "",
       gender: genderLabel(employee.gender),
       education: employee.education ?? "",
       phone: variant === "management" ? employee.phone ?? "" : "",

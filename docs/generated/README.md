@@ -15,6 +15,7 @@ Data owns schema/table/generated-docs facts. Operations owns generator runtime i
 | `tables.md`, `tables.html` | `node --import tsx scripts/generate/generate-docs.ts`; `prisma/models/*.prisma` | Data |
 | `action-contracts.md` | `npm run docs:action-contracts`; ActionContract registry | Architecture |
 | `permission-actions.md` | `npm run docs:permission-actions`; action/resource/business registries | Architecture |
+| `business-code-registry.md` | `npm run business-code:docs`; business-code object and system-template registries | Architecture / Feature |
 
 ## Rules
 

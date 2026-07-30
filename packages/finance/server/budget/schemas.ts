@@ -6,18 +6,13 @@ const optionalString = z.preprocess(
 );
 
 export const budgetQuerySchema = z.object({
-  year: z.coerce.number().int().positive().default(2026),
+  year: z.coerce.number().int().min(2000).max(2099),
   companyCode: optionalString,
   versionId: z.coerce.number().int().positive().optional(),
 });
 
-export const createBudgetImportSchema = z.object({
-  year: z.coerce.number().int().positive(),
-  companyCode: optionalString,
-});
-
 export const budgetVersionQuerySchema = z.object({
-  year: z.coerce.number().int().positive().default(2026),
+  year: z.coerce.number().int().min(2000).max(2099),
   companyCode: optionalString,
 });
 

@@ -5,7 +5,7 @@ import { evaluatePermissionAction } from "../rbac/action-grants";
 import {
   AGENT_API_DELEGATION_HEADER,
   verifyAgentApiDelegation,
-} from "../agent/api-delegation";
+} from "../agent-api-delegation";
 
 function getPersonalApiKey(request: Request) {
   return request.headers.get("x-api-key")?.trim() || null;

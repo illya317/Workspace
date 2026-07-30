@@ -386,7 +386,6 @@ assertApiActions("DELETE", "/api/modules/administration/contracts/123", ["delete
 assertApiActions("GET", "/api/modules/capitalSecurities/governance/organizations", ["read"]);
 assertApiActions("POST", "/api/modules/capitalSecurities/governance/organizations", ["create"]);
 assertApiActions("PUT", "/api/modules/capitalSecurities/governance/organizations", ["update"]);
-assertApiActions("POST", "/api/modules/finance/budget", ["import"]);
 assertApiActions("POST", "/api/modules/finance/budget/versions", ["create"]);
 assertApiActions("POST", "/api/modules/finance/budget/versions/123/activate", ["approve"]);
 assertApiActions("GET", "/api/modules/finance/cost/operational-analytics/shipments", ["read"]);
@@ -652,12 +651,12 @@ assert.equal(departmentManagerSpaceRecord.actionStates.grant.has, false, "depart
 const systemPriorityRecord = buildPermissionRecords({
   subjects: [{ id: 1, name: "Test", extra: { positionIds: [10] } }],
   subjectType: "user",
-  selectedResource: "finance.budget",
+  selectedResource: "finance.cost",
   ancestorResourceKeys: [],
   directActionGrants: [],
-  positionActionGrants: [{ subjectId: 10, resourceKey: "finance.budget", actionKey: "export", resourceId: 1, scopeId: null }],
+  positionActionGrants: [{ subjectId: 10, resourceKey: "finance.cost", actionKey: "export", resourceId: 1, scopeId: null }],
   departmentActionGrants: [],
-  implicitActionGrants: [{ subjectId: 1, resourceKey: "finance.budget", actionKey: "import", resourceId: 0, scopeId: null, source: "system" }],
+  implicitActionGrants: [{ subjectId: 1, resourceKey: "finance.cost", actionKey: "import", resourceId: 0, scopeId: null, source: "system" }],
 })[1];
 assert.equal(systemPriorityRecord.exchangeSummary?.source, "system", "summary source priority should be direct > system > organization > ancestor > entry");
 assert.equal(permissionSourceTone(systemPriorityRecord.exchangeSummary?.source ?? null), "orange", "system source should be orange");

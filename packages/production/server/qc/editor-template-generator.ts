@@ -1,6 +1,6 @@
 import path from "path";
 import { access, mkdir, readdir, readFile, rm, writeFile } from "fs/promises";
-import { normalizeDocumentTemplatePayload } from "@workspace/platform/server/docs-editor";
+import { normalizeDocumentTemplatePayload } from "@workspace/platform/document-editor/document-template-validation";
 import { convertQcTemplateToEditorDocument } from "./editor-adapter";
 import type {
   QcEditorImportAudit,

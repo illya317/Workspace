@@ -1,0 +1,10 @@
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { buildRecalculateFinanceAssetPeriodRouteCommand, executeRecalculateFinanceAssetPeriodCommand } from "@workspace/finance/server/assets/route-commands";
+import { financeAssetScopeSchema } from "@workspace/finance/server/assets/schemas";
+
+export const POST = createCommandRoute({
+  bodySchema: financeAssetScopeSchema,
+  bodyError: "资产期间参数无效",
+  buildCommand: ({ body }) => buildRecalculateFinanceAssetPeriodRouteCommand(body),
+  action: executeRecalculateFinanceAssetPeriodCommand,
+});

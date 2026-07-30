@@ -2,14 +2,17 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const generatedPaths = [
+  "../../generated/prisma/internal/class.ts",
   "../../generated/prisma/internal/prismaNamespace.ts",
   "../../generated/prisma/models/MutationImpactBatch.ts",
   "../../generated/prisma/models/MutationImpactEffect.ts",
   "../../generated/prisma/models/FinanceBalanceReclassAdjustmentHistory.ts",
   "../../generated/prisma/models/FinanceAccountingPolicyVersion.ts",
+  "../../generated/prisma/models/FinanceCashFlowAllocationAdjustment.ts",
   "../../generated/prisma/models/FinanceGroupAccount.ts",
   "../../generated/prisma/models/FinanceGroupAccountMapping.ts",
   "../../generated/prisma/models/FinanceGroupAccountRevision.ts",
+  "../../generated/prisma/models/FinanceStatementVoucherExclusion.ts",
   "../../generated/prisma/models/FinanceConsolidationScopeSelection.ts",
   "../../generated/prisma/models/DataQualityCheckState.ts",
   "../../generated/prisma/models/DataQualityEvaluationRequest.ts",
@@ -17,6 +20,7 @@ const generatedPaths = [
   "../../generated/prisma/models/DataQualityNotificationDelivery.ts",
   "../../generated/prisma/models/DataQualityRun.ts",
   "../../generated/prisma/models/EmployeeLifecycleEvent.ts",
+  "../../generated/prisma/models/EmployeePartyIdentityLink.ts",
   "../../generated/prisma/models/CompanyRegistryChange.ts",
   "../../generated/prisma/models/CompanyRegistryOwnershipParticipant.ts",
   "../../generated/prisma/models/FinanceCounterpartyClassification.ts",

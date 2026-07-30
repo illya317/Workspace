@@ -19,7 +19,6 @@ import type { RosterSurfaceTabBarProps } from "../roster-surface";
 import {
   buildGenericTabCreateBody,
   buildGenericTabDeleteRequest,
-  canEditGenericTabRows,
   emptyGenericTabCreateDraft,
   genericTabCreateFields,
   isGenericTabCreateReady,
@@ -92,7 +91,6 @@ export default function GenericTableTab({
     () => fieldsWithCompanyOptions(config.fields, companyOptions),
     [companyOptions, config.fields],
   );
-  const canEditRows = canEditGenericTabRows(tableFields, canEdit);
   const createFields = useMemo(() => genericTabCreateFields(tableFields), [tableFields]);
 
   const defaultVisibleColumns = useMemo(() => defaultVisibleColumnKeys(tableFields), [tableFields]);
@@ -144,7 +142,7 @@ export default function GenericTableTab({
   }
 
   function handleStartEdit(item: Record<string, unknown>, field: FieldConfig) {
-    if (!canEditRows || !editMode || !field.editable || !isEditableHrTableCell(item, field, config, virtualPersonnelType)) return;
+    if (!canEdit || !editMode || !field.editable || !isEditableHrTableCell(item, field, config, virtualPersonnelType)) return;
     const itemId = item.id as number;
     if (editingCell?.id === itemId && editingCell?.field === field.key) return;
     let initVal: string | boolean | number | unknown;
@@ -283,7 +281,6 @@ export default function GenericTableTab({
         load();
       },
     },
-    history: canEdit ? { onClick: () => setShowHistory(true) } : undefined,
     editGroup: canEdit
       ? {
           editMode,
@@ -291,8 +288,9 @@ export default function GenericTableTab({
           onStartEdit: startPageEdit,
           onSave: handleSave,
           onCancel: cancelPageEdit,
-          canEdit: canEditRows,
+          canEdit,
           saving,
+          onShowHistory: () => setShowHistory(true),
           onDownload: handleDownload,
           downloading,
         }
@@ -320,7 +318,7 @@ export default function GenericTableTab({
     config,
     editingCell,
     editMode,
-    canEdit: canEditRows,
+    canEdit,
     renderEditInput: (fieldKey) => editingField ? createGenericEditInputSpec({
       field: editingField,
       value: editValue,

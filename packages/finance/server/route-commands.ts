@@ -1,4 +1,9 @@
 import { serviceError, serviceOk, serviceResponse, type ServiceResult } from "@workspace/platform/server/api";
+import {
+  isStatementPeriodEnd,
+  STATEMENT_PERIOD_KINDS,
+  type StatementPeriodKind,
+} from "@workspace/finance/types/statement-period";
 import { z } from "zod";
 import {
   failCommand,
@@ -41,6 +46,7 @@ import {
 import { saveReclassRuleChangeSet, scanCandidates } from "./ledger/reclass-rules";
 import { saveBalanceReclassAdjustmentChangeSet } from "./ledger/balance-reclass";
 import { createVoucher, deleteVoucher, listVouchers, updateVoucher } from "./ledger/voucher-service";
+import { voucherPeriodValidationIssue } from "./ledger/voucher-period";
 import { generateFinanceReport, type GenerateFinanceReportInput } from "./statements/report-generator";
 
 type FinanceReportType = GenerateFinanceReportInput["reportType"];
@@ -201,14 +207,22 @@ export function buildListCounterpartyBalancesCommand(input: {
   companyCode: string;
   year: number;
   month: number;
+  periodKind?: string;
   category: string;
   page: number;
   pageSize: number;
   keyword?: string;
+  relationScope?: string;
+  objectType?: string;
 }): DomainValidationResult<ListCounterpartyBalancesInput> {
   const scope = buildFinancePeriodScopeCommand(input);
   if (!scope.ok) return scope;
   if (scope.data.month === undefined) return failCommand("month 为必填", 400, "month");
+  const periodKind = input.periodKind ?? "month";
+  if (!isStatementPeriodKind(periodKind)) return failCommand("期间粒度无效", 400, "periodKind");
+  if (!isStatementPeriodEnd({ year: scope.data.year, month: scope.data.month }, periodKind)) {
+    return failCommand(periodKind === "year" ? "年度必须选择12月作为期末" : "季度必须选择季度末月份", 400, "month");
+  }
   if (!isCounterpartyBalanceCategory(input.category)) {
     return failCommand("往来余额类型无效", 400, "category");
   }
@@ -216,14 +230,23 @@ export function buildListCounterpartyBalancesCommand(input: {
   if (!Number.isInteger(input.pageSize) || input.pageSize <= 0 || input.pageSize > 200) {
     return failCommand("pageSize 必须为 1..200", 400, "pageSize");
   }
+  if (input.relationScope !== undefined && !isCounterpartyRelationScope(input.relationScope)) {
+    return failCommand("关联范围无效", 400, "relationScope");
+  }
+  if (input.objectType !== undefined && !isCounterpartyObjectType(input.objectType)) {
+    return failCommand("往来对象类型无效", 400, "objectType");
+  }
   return okCommand({
     companyCode: scope.data.companyCode,
     year: scope.data.year,
     month: scope.data.month,
+    periodKind,
     category: input.category,
     page: input.page,
     pageSize: input.pageSize,
     keyword: input.keyword?.trim() || undefined,
+    relationScope: input.relationScope ?? "all",
+    objectType: input.objectType ?? "all",
   });
 }
 
@@ -239,6 +262,28 @@ function isCounterpartyBalanceCategory(
   value: string,
 ): value is ListCounterpartyBalancesInput["category"] {
   return value === "ar" || value === "ap" || value === "otherAr" || value === "otherAp";
+}
+
+function isStatementPeriodKind(value: string): value is StatementPeriodKind {
+  return (STATEMENT_PERIOD_KINDS as readonly string[]).includes(value);
+}
+
+function isCounterpartyRelationScope(
+  value: string,
+): value is NonNullable<ListCounterpartyBalancesInput["relationScope"]> {
+  return value === "all" || value === "related" || value === "other" || value === "unrelated" || value === "unmatched";
+}
+
+function isCounterpartyObjectType(
+  value: string,
+): value is NonNullable<ListCounterpartyBalancesInput["objectType"]> {
+  return value === "all"
+    || value === "groupCompany"
+    || value === "customer"
+    || value === "supplier"
+    || value === "employee"
+    || value === "department"
+    || value === "other";
 }
 
 export function buildInitializeFinanceDefaultsCommand(input: Parameters<typeof initializeFinanceDefaults>[0], userId: number) {
@@ -410,8 +455,17 @@ export function executeSaveBalanceReclassAdjustmentChangeSetRouteCommand(command
   return saveBalanceReclassAdjustmentChangeSet(command.input);
 }
 
-export function executeListVouchersCommand(command: Parameters<typeof listVouchers>[0]) {
-  return listVouchers(command);
+export async function executeListVouchersCommand(command: Parameters<typeof listVouchers>[0]) {
+  return await listVouchers(command);
+}
+
+export function buildListVouchersCommand(
+  input: Parameters<typeof listVouchers>[0],
+): DomainValidationResult<Parameters<typeof listVouchers>[0]> {
+  const periodKind = input.periodKind ?? "month";
+  const issue = voucherPeriodValidationIssue(input);
+  if (issue) return failCommand(issue.error, 400, issue.field);
+  return okCommand({ ...input, periodKind });
 }
 
 export function buildCreateVoucherCommand(body: Parameters<typeof createVoucher>[0], userId: number) {

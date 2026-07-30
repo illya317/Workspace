@@ -13,12 +13,14 @@ test("CNB Builder pins Node Bookworm by digest and removes apt metadata", () => 
   );
   assert.match(dockerfile, /openssh-client/);
   assert.match(dockerfile, /rsync/);
+  assert.match(dockerfile, /ripgrep/);
   assert.match(dockerfile, /rm -rf \/var\/lib\/apt\/lists\/\*/);
+  assert.match(dockerfile, /postgresql/);
 });
 
 test("Builder smoke enforces repository Node and every release tool", () => {
   assert.match(verifyBuilder, /\.node-version/);
-  for (const command of ["node", "npm", "ssh", "rsync", "git", "tar", "python3", "make", "g++"]) {
+  for (const command of ["node", "npm", "ssh", "rsync", "git", "tar", "python3", "make", "g++", "rg", "psql", "pg_ctlcluster", "createdb", "runuser"]) {
     assert.ok(verifyBuilder.includes(command), `missing Builder smoke command: ${command}`);
   }
   assert.match(verifyBuilder, /uname -s/);

@@ -10,6 +10,10 @@ const groupMappingsByAccountId = new Map<number, {
   category: string;
   balanceDirection: string;
   parentId: number | null;
+  consolidationRole: string;
+  counterpartyRequirement: string;
+  movementType: string;
+  translationRateType: string;
 }>();
 let applicableRulesByPeriod = new Map<number, unknown[]>();
 const adjustmentDeletes: number[] = [];
@@ -171,6 +175,10 @@ test("import keeps automatic rows of account-net rules while removing stale auxi
     category: "liability",
     balanceDirection: "credit",
     parentId: null,
+    consolidationRole: "none",
+    counterpartyRequirement: "none",
+    movementType: "closingBalance",
+    translationRateType: "closing",
   });
   const netBasisRule = {
     id: 8,
@@ -274,6 +282,10 @@ function groupMap(entries: Array<[string, number, number | null, string]>) {
     category: "asset",
     balanceDirection,
     parentId,
+    consolidationRole: "none",
+    counterpartyRequirement: "none",
+    movementType: "closingBalance",
+    translationRateType: "closing",
   }]));
 }
 

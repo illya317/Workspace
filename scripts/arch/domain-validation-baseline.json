@@ -1,5 +1,19 @@
 {
-  "missingDomainValidatorImport": [],
+  "missingDomainValidatorImport": [
+    "missingDomainValidatorImport: packages/agent/server/execution.ts: write service does not import a domain validator",
+    "missingDomainValidatorImport: packages/agent/server/model-image.ts: write service does not import a domain validator",
+    "missingDomainValidatorImport: packages/agent/server/proposal-execution-lease.ts: write service does not import a domain validator",
+    "missingDomainValidatorImport: packages/agent/server/proposal-view.ts: write service does not import a domain validator",
+    "missingDomainValidatorImport: packages/agent/server/proposals.ts: write service does not import a domain validator",
+    "missingDomainValidatorImport: packages/agent/server/run-audit.ts: write service does not import a domain validator",
+    "missingDomainValidatorImport: packages/agent/server/runtime/default-runtime.ts: write service does not import a domain validator",
+    "missingDomainValidatorImport: packages/agent/server/runtime/kimi-runtime.ts: write service does not import a domain validator",
+    "missingDomainValidatorImport: packages/agent/server/runtime/turn-telemetry.ts: write service does not import a domain validator",
+    "missingDomainValidatorImport: packages/agent/server/sessions.ts: write service does not import a domain validator",
+    "missingDomainValidatorImport: packages/docs/server/content-store.ts: write service does not import a domain validator",
+    "missingDomainValidatorImport: packages/docs/server/facade.ts: write service does not import a domain validator",
+    "missingDomainValidatorImport: packages/docs/server/generated-qc.ts: write entry syncGeneratedQcTemplates does not call a domain validator"
+  ],
   "serviceUsesLowLevelRule": [],
   "routeImportsDomainValidator": [],
   "serverRootReexportsDomainValidator": [],

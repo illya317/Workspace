@@ -4,8 +4,14 @@ import { workspacePath } from "@workspace/core/routing";
 import { useFeedback, type SurfaceToolbarItems } from "@workspace/core/ui";
 import type {
   FinanceCounterpartyBalanceCategory,
+  FinanceCounterpartyObjectType,
+  FinanceCounterpartyRelationScope,
+  FinanceGroupVoucherDocumentType,
+  FinanceLedgerExportMode,
   FinanceLedgerExportView,
+  FinanceVoucherPeriodScope,
 } from "../../types/ledger";
+import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 import { useCallback, useState } from "react";
 import { downloadFinanceWorkbook } from "../components/downloadFinanceWorkbook";
 
@@ -15,10 +21,22 @@ interface LedgerExportActionInput {
   companyCode?: string;
   year?: string;
   month?: string;
+  periodKind?: StatementPeriodKind;
   keyword?: string;
   subjectLevel?: string;
   scope?: string;
   category?: FinanceCounterpartyBalanceCategory;
+  relationScope?: FinanceCounterpartyRelationScope;
+  objectType?: FinanceCounterpartyObjectType;
+  voucherKind?: "standard" | "group";
+  documentType?: FinanceGroupVoucherDocumentType;
+  origin?: "manual" | "system";
+  exportMode?: FinanceLedgerExportMode;
+  voucherPeriodScope?: FinanceVoucherPeriodScope;
+  policyVersionId?: string;
+  accountCategory?: string;
+  accountUsage?: string;
+  reviewStatus?: string;
   disabled?: boolean;
   fallbackFilename: string;
 }
@@ -34,10 +52,22 @@ export function useLedgerExportAction(input: LedgerExportActionInput): SurfaceTo
       setQuery(query, "companyCode", input.companyCode);
       setQuery(query, "year", input.year);
       setQuery(query, "month", input.month);
+      setQuery(query, "periodKind", input.periodKind);
       setQuery(query, "keyword", input.keyword?.trim());
       setQuery(query, "subjectLevel", input.subjectLevel);
       setQuery(query, "scope", input.scope);
       setQuery(query, "category", input.category);
+      setQuery(query, "relationScope", input.relationScope);
+      setQuery(query, "objectType", input.objectType);
+      setQuery(query, "voucherKind", input.voucherKind);
+      setQuery(query, "documentType", input.documentType);
+      setQuery(query, "origin", input.origin);
+      setQuery(query, "exportMode", input.exportMode);
+      setQuery(query, "voucherPeriodScope", input.voucherPeriodScope);
+      setQuery(query, "policyVersionId", input.policyVersionId);
+      setQuery(query, "accountCategory", input.accountCategory);
+      setQuery(query, "accountUsage", input.accountUsage);
+      setQuery(query, "reviewStatus", input.reviewStatus);
       await downloadFinanceWorkbook(
         workspacePath(`/api/modules/finance/ledger/export?${query.toString()}`),
         input.fallbackFilename,

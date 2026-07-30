@@ -3,14 +3,20 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
-import { prisma } from "@workspace/platform/server/prisma";
 import { validatePositionInOrganizationScope } from "../position-organization-scope";
+import {
+  findActivePositionReportOverride,
+  findAssignmentPositionReference,
+  findCompanyActivationReference,
+  findManagementDepartmentReference,
+  findReportOverrideSourcePosition,
+  listPositionReportOverrideReferences,
+} from "../position-report-override-reference-adapter";
 import {
   parseOrganizationLifecycleMeta,
   type OrganizationLifecycleMeta,
 } from "./organization-effective-version";
-
-export const FUNCTIONAL_DEPARTMENT_CODE_PREFIX = "FUN";
+import { getBusinessCodeConfig } from "@workspace/platform/server/system-config";
 
 export interface PositionReportOverrideInput {
   id?: number | null;
@@ -53,61 +59,42 @@ type AssignmentInput = {
   positionReportOverrideId?: number | null;
 };
 
-export function isFunctionalDepartmentCode(code: string | null | undefined) {
-  return Boolean(code?.toUpperCase().startsWith(FUNCTIONAL_DEPARTMENT_CODE_PREFIX));
+export function isFunctionalDepartmentCode(
+  code: string | null | undefined,
+  functionalPrefix: string,
+) {
+  return Boolean(code?.toUpperCase().startsWith(functionalPrefix.toUpperCase()));
 }
 
 export function isFunctionalPosition(position: {
   isArchived: boolean;
   department: { code: string | null; hierarchyKind?: string; isArchived: boolean } | null;
-}) {
+}, functionalPrefix: string) {
   return !position.isArchived
     && Boolean(position.department)
-    && isFunctionalDepartmentCode(position.department?.code)
+    && isFunctionalDepartmentCode(position.department?.code, functionalPrefix)
     && !position.department?.isArchived;
 }
 
 export async function validateActiveCompanyId(companyId: number) {
-  const company = await prisma.company.findUnique({
-    where: { id: companyId },
-    select: { id: true, isActive: true },
-  });
+  const company = await findCompanyActivationReference(companyId);
   if (!company) return failCommand("适用公司不存在", 404);
   if (!company.isActive) return failCommand("停用公司不能作为适用公司");
   return okCommand(company.id);
 }
 
 export async function validateActiveManagementDepartmentId(departmentId: number) {
-  const department = await prisma.department.findUnique({
-    where: { id: departmentId },
-    select: {
-      id: true,
-      code: true,
-      name: true,
-      hierarchyKind: true,
-      isArchived: true,
-      parent: { select: { code: true, name: true, parent: { select: { code: true, name: true } } } },
-    },
-  });
+  const department = await findManagementDepartmentReference(departmentId);
   if (!department) return failCommand("适用组织不存在", 404);
   if (department.isArchived) return failCommand("归档组织不能作为适用组织");
   return okCommand(department);
 }
 
 export async function validateReportOverrideSourcePosition(positionId: number, options: { strict: boolean }) {
-  const position = await prisma.position.findUnique({
-    where: { id: positionId },
-    select: {
-      id: true,
-      code: true,
-      name: true,
-      isArchived: true,
-      departmentId: true,
-      department: { select: { id: true, code: true, name: true, hierarchyKind: true, isArchived: true } },
-    },
-  });
+  const position = await findReportOverrideSourcePosition(positionId);
   if (!position) return failCommand("岗位不存在", 404);
-  const functional = isFunctionalPosition(position);
+  const functionalPrefix = (await getBusinessCodeConfig()).department.functionalPrefix;
+  const functional = isFunctionalPosition(position, functionalPrefix);
   if (options.strict && position.isArchived) return failCommand("归档岗位不能维护特殊汇报");
   return okCommand({ position, functional });
 }
@@ -175,10 +162,7 @@ export async function buildPositionReportOverrideSaveCommand(input: {
   }
 
   const nextKeys = new Set(overrides.map((override) => `${override.companyId}:${override.departmentId}`));
-  const existing = await prisma.positionReportOverride.findMany({
-    where: { positionId: input.positionId },
-    select: { id: true, companyId: true, departmentId: true, version: true, _count: { select: { edps: true } } },
-  });
+  const existing = await listPositionReportOverrideReferences(input.positionId);
   const protectedPlacements = existing.filter((placement) => !nextKeys.has(`${placement.companyId}:${placement.departmentId}`) && placement._count.edps > 0);
   if (protectedPlacements.length > 0) {
     return failCommand("已有员工任职引用的适用配置不能删除，请先调整员工任职", 409);
@@ -214,33 +198,22 @@ export async function buildPositionReportOverrideSaveCommand(input: {
 }
 
 export async function resolveEdpPositionAssignment(input: AssignmentInput): Promise<DomainValidationResult<EdpPositionAssignment>> {
+  const functionalPrefix = (await getBusinessCodeConfig()).department.functionalPrefix;
   if (input.reportingCompanyId !== null && input.reportingCompanyId !== undefined) {
     const company = await validateActiveCompanyId(input.reportingCompanyId);
     if (!company.ok) return company;
   }
 
-  const position = await prisma.position.findUnique({
-    where: { id: input.positionId },
-    select: {
-      id: true,
-      departmentId: true,
-      isArchived: true,
-      department: { select: { id: true, code: true, hierarchyKind: true, isArchived: true } },
-    },
-  });
+  const position = await findAssignmentPositionReference(input.positionId);
   if (!position) return failCommand("岗位不存在", 404);
   if (position.isArchived) return failCommand("岗位已归档或不再现用，不能选择");
 
   const activeOverride = input.departmentId && input.reportingCompanyId
-    ? await prisma.positionReportOverride.findFirst({
-        where: {
-          ...(input.positionReportOverrideId ? { id: input.positionReportOverrideId } : {}),
-          positionId: input.positionId,
-          companyId: input.reportingCompanyId,
-          departmentId: input.departmentId,
-          isActive: true,
-        },
-        select: { id: true, companyId: true, departmentId: true },
+    ? await findActivePositionReportOverride({
+        id: input.positionReportOverrideId,
+        positionId: input.positionId,
+        companyId: input.reportingCompanyId,
+        departmentId: input.departmentId,
       })
     : null;
   if (input.positionReportOverrideId && !activeOverride) return failCommand("特殊汇报配置无效");
@@ -250,7 +223,7 @@ export async function resolveEdpPositionAssignment(input: AssignmentInput): Prom
       departmentId: activeOverride.departmentId,
       reportingCompanyId: activeOverride.companyId,
       positionReportOverrideId: activeOverride.id,
-      isFunctionalPosition: isFunctionalPosition(position),
+      isFunctionalPosition: isFunctionalPosition(position, functionalPrefix),
     });
   }
 
@@ -259,11 +232,11 @@ export async function resolveEdpPositionAssignment(input: AssignmentInput): Prom
       departmentId: position.departmentId,
       reportingCompanyId: input.reportingCompanyId ?? null,
       positionReportOverrideId: null,
-      isFunctionalPosition: isFunctionalPosition(position),
+      isFunctionalPosition: isFunctionalPosition(position, functionalPrefix),
     });
   }
 
-  if (!isFunctionalPosition(position)) {
+  if (!isFunctionalPosition(position, functionalPrefix)) {
     if (input.departmentId && position.departmentId && input.departmentId !== position.departmentId) {
       return failCommand("普通岗位只能选择其所属部门");
     }
@@ -275,8 +248,8 @@ export async function resolveEdpPositionAssignment(input: AssignmentInput): Prom
     });
   }
 
-  if (!input.departmentId) return failCommand("选择 FUN 岗位前请先选择实际部门");
-  if (!input.reportingCompanyId) return failCommand("选择 FUN 岗位前请先选择汇报公司");
+  if (!input.departmentId) return failCommand(`选择 ${functionalPrefix} 岗位前请先选择实际部门`);
+  if (!input.reportingCompanyId) return failCommand(`选择 ${functionalPrefix} 岗位前请先选择汇报公司`);
   const department = await validateActiveManagementDepartmentId(input.departmentId);
   if (!department.ok) return department;
 

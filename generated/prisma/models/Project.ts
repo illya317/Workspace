@@ -450,6 +450,7 @@ export type ProjectWhereInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeListRelationFilter
   linkedWorkItems?: Prisma.WorkItemListRelationFilter
   linkedWorkPlans?: Prisma.WorkPlanListRelationFilter
+  financeBudgetRows?: Prisma.FinanceBudgetRdListRelationFilter
 }
 
 export type ProjectOrderByWithRelationInput = {
@@ -493,6 +494,7 @@ export type ProjectOrderByWithRelationInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeOrderByRelationAggregateInput
   linkedWorkItems?: Prisma.WorkItemOrderByRelationAggregateInput
   linkedWorkPlans?: Prisma.WorkPlanOrderByRelationAggregateInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdOrderByRelationAggregateInput
 }
 
 export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -539,6 +541,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   workAssignees?: Prisma.ProjectWorkAssigneeListRelationFilter
   linkedWorkItems?: Prisma.WorkItemListRelationFilter
   linkedWorkPlans?: Prisma.WorkPlanListRelationFilter
+  financeBudgetRows?: Prisma.FinanceBudgetRdListRelationFilter
 }, "id" | "code">
 
 export type ProjectOrderByWithAggregationInput = {
@@ -654,6 +657,7 @@ export type ProjectCreateInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectUncheckedCreateInput = {
@@ -696,6 +700,7 @@ export type ProjectUncheckedCreateInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectUpdateInput = {
@@ -737,6 +742,7 @@ export type ProjectUpdateInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectUncheckedUpdateInput = {
@@ -779,6 +785,7 @@ export type ProjectUncheckedUpdateInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectCreateManyInput = {
@@ -876,6 +883,11 @@ export type ProjectUncheckedUpdateManyInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProjectNullableScalarRelationFilter = {
+  is?: Prisma.ProjectWhereInput | null
+  isNot?: Prisma.ProjectWhereInput | null
 }
 
 export type ProjectListRelationFilter = {
@@ -1012,9 +1024,20 @@ export type ProjectScalarRelationFilter = {
   isNot?: Prisma.ProjectWhereInput
 }
 
-export type ProjectNullableScalarRelationFilter = {
-  is?: Prisma.ProjectWhereInput | null
-  isNot?: Prisma.ProjectWhereInput | null
+export type ProjectCreateNestedOneWithoutFinanceBudgetRowsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutFinanceBudgetRowsInput, Prisma.ProjectUncheckedCreateWithoutFinanceBudgetRowsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutFinanceBudgetRowsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneWithoutFinanceBudgetRowsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutFinanceBudgetRowsInput, Prisma.ProjectUncheckedCreateWithoutFinanceBudgetRowsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutFinanceBudgetRowsInput
+  upsert?: Prisma.ProjectUpsertWithoutFinanceBudgetRowsInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutFinanceBudgetRowsInput, Prisma.ProjectUpdateWithoutFinanceBudgetRowsInput>, Prisma.ProjectUncheckedUpdateWithoutFinanceBudgetRowsInput>
 }
 
 export type ProjectCreateNestedManyWithoutLeadingDepartmentInput = {
@@ -1189,6 +1212,188 @@ export type ProjectUpdateOneRequiredWithoutWorkAssigneesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutWorkAssigneesInput, Prisma.ProjectUpdateWithoutWorkAssigneesInput>, Prisma.ProjectUncheckedUpdateWithoutWorkAssigneesInput>
 }
 
+export type ProjectCreateWithoutFinanceBudgetRowsInput = {
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  status?: string
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  workspaceEnabled?: boolean
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
+  employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
+  membershipChanges?: Prisma.ProjectMembershipChangeCreateNestedManyWithoutProjectInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutFinanceBudgetRowsInput = {
+  id?: number
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  status?: string
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  leadingDepartmentId?: number | null
+  workspaceEnabled?: boolean
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employees?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutProjectInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUncheckedCreateNestedManyWithoutProjectInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutFinanceBudgetRowsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutFinanceBudgetRowsInput, Prisma.ProjectUncheckedCreateWithoutFinanceBudgetRowsInput>
+}
+
+export type ProjectUpsertWithoutFinanceBudgetRowsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutFinanceBudgetRowsInput, Prisma.ProjectUncheckedUpdateWithoutFinanceBudgetRowsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutFinanceBudgetRowsInput, Prisma.ProjectUncheckedCreateWithoutFinanceBudgetRowsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutFinanceBudgetRowsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutFinanceBudgetRowsInput, Prisma.ProjectUncheckedUpdateWithoutFinanceBudgetRowsInput>
+}
+
+export type ProjectUpdateWithoutFinanceBudgetRowsInput = {
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
+  employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUpdateManyWithoutProjectNestedInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutFinanceBudgetRowsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employees?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutProjectNestedInput
+  membershipChanges?: Prisma.ProjectMembershipChangeUncheckedUpdateManyWithoutProjectNestedInput
+  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+}
+
 export type ProjectCreateWithoutLeadingDepartmentInput = {
   code?: string | null
   name: string
@@ -1227,6 +1432,7 @@ export type ProjectCreateWithoutLeadingDepartmentInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectUncheckedCreateWithoutLeadingDepartmentInput = {
@@ -1268,6 +1474,7 @@ export type ProjectUncheckedCreateWithoutLeadingDepartmentInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectCreateOrConnectWithoutLeadingDepartmentInput = {
@@ -1370,6 +1577,7 @@ export type ProjectCreateWithoutEnablingDepartmentsInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectUncheckedCreateWithoutEnablingDepartmentsInput = {
@@ -1411,6 +1619,7 @@ export type ProjectUncheckedCreateWithoutEnablingDepartmentsInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectCreateOrConnectWithoutEnablingDepartmentsInput = {
@@ -1467,6 +1676,7 @@ export type ProjectUpdateWithoutEnablingDepartmentsInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutEnablingDepartmentsInput = {
@@ -1508,6 +1718,7 @@ export type ProjectUncheckedUpdateWithoutEnablingDepartmentsInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectCreateWithoutEmployeesInput = {
@@ -1548,6 +1759,7 @@ export type ProjectCreateWithoutEmployeesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectUncheckedCreateWithoutEmployeesInput = {
@@ -1589,6 +1801,7 @@ export type ProjectUncheckedCreateWithoutEmployeesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectCreateOrConnectWithoutEmployeesInput = {
@@ -1645,6 +1858,7 @@ export type ProjectUpdateWithoutEmployeesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutEmployeesInput = {
@@ -1686,6 +1900,7 @@ export type ProjectUncheckedUpdateWithoutEmployeesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectCreateWithoutMembershipChangesInput = {
@@ -1726,6 +1941,7 @@ export type ProjectCreateWithoutMembershipChangesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectUncheckedCreateWithoutMembershipChangesInput = {
@@ -1767,6 +1983,7 @@ export type ProjectUncheckedCreateWithoutMembershipChangesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectCreateOrConnectWithoutMembershipChangesInput = {
@@ -1823,6 +2040,7 @@ export type ProjectUpdateWithoutMembershipChangesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutMembershipChangesInput = {
@@ -1864,6 +2082,7 @@ export type ProjectUncheckedUpdateWithoutMembershipChangesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectCreateWithoutPlanPhasesInput = {
@@ -1904,6 +2123,7 @@ export type ProjectCreateWithoutPlanPhasesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectUncheckedCreateWithoutPlanPhasesInput = {
@@ -1945,6 +2165,7 @@ export type ProjectUncheckedCreateWithoutPlanPhasesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectCreateOrConnectWithoutPlanPhasesInput = {
@@ -2001,6 +2222,7 @@ export type ProjectUpdateWithoutPlanPhasesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutPlanPhasesInput = {
@@ -2042,6 +2264,7 @@ export type ProjectUncheckedUpdateWithoutPlanPhasesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectCreateWithoutPlanDependenciesInput = {
@@ -2082,6 +2305,7 @@ export type ProjectCreateWithoutPlanDependenciesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectUncheckedCreateWithoutPlanDependenciesInput = {
@@ -2123,6 +2347,7 @@ export type ProjectUncheckedCreateWithoutPlanDependenciesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectCreateOrConnectWithoutPlanDependenciesInput = {
@@ -2179,6 +2404,7 @@ export type ProjectUpdateWithoutPlanDependenciesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutPlanDependenciesInput = {
@@ -2220,6 +2446,7 @@ export type ProjectUncheckedUpdateWithoutPlanDependenciesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectCreateWithoutPlanBaselinesInput = {
@@ -2260,6 +2487,7 @@ export type ProjectCreateWithoutPlanBaselinesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectUncheckedCreateWithoutPlanBaselinesInput = {
@@ -2301,6 +2529,7 @@ export type ProjectUncheckedCreateWithoutPlanBaselinesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectCreateOrConnectWithoutPlanBaselinesInput = {
@@ -2357,6 +2586,7 @@ export type ProjectUpdateWithoutPlanBaselinesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutPlanBaselinesInput = {
@@ -2398,6 +2628,7 @@ export type ProjectUncheckedUpdateWithoutPlanBaselinesInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectCreateWithoutLinkedWorkPlansInput = {
@@ -2438,6 +2669,7 @@ export type ProjectCreateWithoutLinkedWorkPlansInput = {
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectUncheckedCreateWithoutLinkedWorkPlansInput = {
@@ -2479,6 +2711,7 @@ export type ProjectUncheckedCreateWithoutLinkedWorkPlansInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectCreateOrConnectWithoutLinkedWorkPlansInput = {
@@ -2535,6 +2768,7 @@ export type ProjectUpdateWithoutLinkedWorkPlansInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutLinkedWorkPlansInput = {
@@ -2576,6 +2810,7 @@ export type ProjectUncheckedUpdateWithoutLinkedWorkPlansInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectCreateWithoutLinkedWorkItemsInput = {
@@ -2616,6 +2851,7 @@ export type ProjectCreateWithoutLinkedWorkItemsInput = {
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectUncheckedCreateWithoutLinkedWorkItemsInput = {
@@ -2657,6 +2893,7 @@ export type ProjectUncheckedCreateWithoutLinkedWorkItemsInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectCreateOrConnectWithoutLinkedWorkItemsInput = {
@@ -2713,6 +2950,7 @@ export type ProjectUpdateWithoutLinkedWorkItemsInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutLinkedWorkItemsInput = {
@@ -2754,6 +2992,7 @@ export type ProjectUncheckedUpdateWithoutLinkedWorkItemsInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectCreateWithoutWorkAssigneesInput = {
@@ -2794,6 +3033,7 @@ export type ProjectCreateWithoutWorkAssigneesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectUncheckedCreateWithoutWorkAssigneesInput = {
@@ -2835,6 +3075,7 @@ export type ProjectUncheckedCreateWithoutWorkAssigneesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput
 }
 
 export type ProjectCreateOrConnectWithoutWorkAssigneesInput = {
@@ -2891,6 +3132,7 @@ export type ProjectUpdateWithoutWorkAssigneesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutWorkAssigneesInput = {
@@ -2932,6 +3174,7 @@ export type ProjectUncheckedUpdateWithoutWorkAssigneesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectCreateManyLeadingDepartmentInput = {
@@ -3004,6 +3247,7 @@ export type ProjectUpdateWithoutLeadingDepartmentInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutLeadingDepartmentInput = {
@@ -3045,6 +3289,7 @@ export type ProjectUncheckedUpdateWithoutLeadingDepartmentInput = {
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
   linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  financeBudgetRows?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutLeadingDepartmentInput = {
@@ -3094,6 +3339,7 @@ export type ProjectCountOutputType = {
   workAssignees: number
   linkedWorkItems: number
   linkedWorkPlans: number
+  financeBudgetRows: number
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3106,6 +3352,7 @@ export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   workAssignees?: boolean | ProjectCountOutputTypeCountWorkAssigneesArgs
   linkedWorkItems?: boolean | ProjectCountOutputTypeCountLinkedWorkItemsArgs
   linkedWorkPlans?: boolean | ProjectCountOutputTypeCountLinkedWorkPlansArgs
+  financeBudgetRows?: boolean | ProjectCountOutputTypeCountFinanceBudgetRowsArgs
 }
 
 /**
@@ -3181,6 +3428,13 @@ export type ProjectCountOutputTypeCountLinkedWorkPlansArgs<ExtArgs extends runti
   where?: Prisma.WorkPlanWhereInput
 }
 
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountFinanceBudgetRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceBudgetRdWhereInput
+}
+
 
 export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3223,6 +3477,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   workAssignees?: boolean | Prisma.Project$workAssigneesArgs<ExtArgs>
   linkedWorkItems?: boolean | Prisma.Project$linkedWorkItemsArgs<ExtArgs>
   linkedWorkPlans?: boolean | Prisma.Project$linkedWorkPlansArgs<ExtArgs>
+  financeBudgetRows?: boolean | Prisma.Project$financeBudgetRowsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -3339,6 +3594,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   workAssignees?: boolean | Prisma.Project$workAssigneesArgs<ExtArgs>
   linkedWorkItems?: boolean | Prisma.Project$linkedWorkItemsArgs<ExtArgs>
   linkedWorkPlans?: boolean | Prisma.Project$linkedWorkPlansArgs<ExtArgs>
+  financeBudgetRows?: boolean | Prisma.Project$financeBudgetRowsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3361,6 +3617,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     workAssignees: Prisma.$ProjectWorkAssigneePayload<ExtArgs>[]
     linkedWorkItems: Prisma.$WorkItemPayload<ExtArgs>[]
     linkedWorkPlans: Prisma.$WorkPlanPayload<ExtArgs>[]
+    financeBudgetRows: Prisma.$FinanceBudgetRdPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -3797,6 +4054,7 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   workAssignees<T extends Prisma.Project$workAssigneesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$workAssigneesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectWorkAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   linkedWorkItems<T extends Prisma.Project$linkedWorkItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$linkedWorkItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   linkedWorkPlans<T extends Prisma.Project$linkedWorkPlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$linkedWorkPlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  financeBudgetRows<T extends Prisma.Project$financeBudgetRowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$financeBudgetRowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBudgetRdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4489,6 +4747,30 @@ export type Project$linkedWorkPlansArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.WorkPlanScalarFieldEnum | Prisma.WorkPlanScalarFieldEnum[]
+}
+
+/**
+ * Project.financeBudgetRows
+ */
+export type Project$financeBudgetRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceBudgetRd
+   */
+  select?: Prisma.FinanceBudgetRdSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceBudgetRd
+   */
+  omit?: Prisma.FinanceBudgetRdOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBudgetRdInclude<ExtArgs> | null
+  where?: Prisma.FinanceBudgetRdWhereInput
+  orderBy?: Prisma.FinanceBudgetRdOrderByWithRelationInput | Prisma.FinanceBudgetRdOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceBudgetRdWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceBudgetRdScalarFieldEnum | Prisma.FinanceBudgetRdScalarFieldEnum[]
 }
 
 /**

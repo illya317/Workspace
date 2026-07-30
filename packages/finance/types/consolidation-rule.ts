@@ -1,4 +1,4 @@
-import type { FinanceConsolidationRole, FinanceTranslationRateType } from "./group-account";
+import type { FinanceConsolidationRole } from "./group-account";
 
 export type FinanceConsolidationRuleType =
   | "intercompanyBalance"
@@ -26,7 +26,7 @@ export interface FinanceConsolidationRuleSelectorRow {
     consolidationRole: FinanceConsolidationRole;
     counterpartyRequirement: "none" | "optional" | "required";
     movementType: "closingBalance" | "periodMovement" | "transaction";
-    translationRateType: FinanceTranslationRateType;
+    translationRateType: "closing" | "average" | "historical" | "transactionDate";
   }>;
 }
 

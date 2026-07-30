@@ -7,6 +7,7 @@ model ErpDueDiligenceSubmission {
   positionAssignmentId Int?
   respondentName       String
   departmentName       String
+  departmentId         Int?
   roleTitle            String
   primaryArea          String
   status               String    @default("draft")
@@ -19,12 +20,14 @@ model ErpDueDiligenceSubmission {
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @default(now()) @updatedAt
   respondent           User      @relation("ErpDueDiligenceRespondent", fields: [respondentUserId], references: [id], onDelete: Cascade)
+  department           Department? @relation(fields: [departmentId], references: [id], onDelete: Restrict)
   positionAssignment   EDP?      @relation("ErpDueDiligencePositionAssignment", fields: [positionAssignmentId], references: [id], onDelete: SetNull)
   evidenceAttachments  ErpDueDiligenceEvidenceAttachment[]
 
   @@unique([campaignKey, respondentUserId])
   @@index([campaignKey, status, updatedAt])
   @@index([positionAssignmentId])
+  @@index([departmentId])
   @@index([departmentName, primaryArea])
 }
 

@@ -4,6 +4,7 @@ model FinanceLedgerImport {
   batchKey            String?                       @unique
   type                String
   companyCode         String
+  companyId Int?
   year                Int
   sourceSystem        String?
   sourceLedger        String?
@@ -47,12 +48,14 @@ model FinanceLedgerImport {
   periodStatuses      FinanceSourcePeriodStatus[]
   subsystemStatuses   FinanceSourceSubsystemStatus[]
   accountLineages     FinanceAccountLineage[]
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@index([companyCode, year, type])
   @@index([sourceSystem, sourceLedger, year])
   @@index([sourceFile])
   @@index([sourcePackageId])
   @@index([sourceLedgerMappingId])
+  @@index([companyId])
 }
 
 /// ERP 原生科目余额控制事实（与系统计算的 FinanceAccountBalance 展示缓存分离）
@@ -62,6 +65,7 @@ model FinanceSourceAccountBalance {
   periodId       Int
   accountId      Int
   companyCode    String
+  companyId Int?
   sourceSystem   String
   sourceDatabase String
   sourceKey      String
@@ -76,8 +80,10 @@ model FinanceSourceAccountBalance {
   import         FinanceLedgerImport @relation(fields: [importId], references: [id], onDelete: Cascade)
   period         FinancePeriod       @relation(fields: [periodId], references: [id])
   account        FinanceAccount      @relation(fields: [accountId], references: [id])
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([sourceSystem, sourceDatabase, sourceKey])
   @@index([importId])
   @@index([companyCode, periodId, accountId])
+  @@index([companyId])
 }

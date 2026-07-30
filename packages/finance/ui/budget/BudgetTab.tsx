@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { PageSurface, createPageBody, createPageTabBar } from "@workspace/core/ui";
+import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 import type { SessionUser } from "@workspace/platform/types";
 import { useBudgetData } from "./hooks/useBudgetData";
 import { useBudgetFilters } from "./hooks/useBudgetFilters";
@@ -12,8 +13,9 @@ import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components
 type BudgetView = "dept" | "rd";
 
 export default function BudgetTab({ user: _user }: { user: SessionUser }) {
+  const tenant = useTenantConfig();
   const [view, setView] = useState<BudgetView>("dept");
-  const { data, versions, activeVersionId, setActiveVersionId, loading } = useBudgetData(2026);
+  const { data, versions, activeVersionId, setActiveVersionId, loading } = useBudgetData(tenant.finance.defaultAnalysisYear);
   const filters = useBudgetFilters(data);
   const activeChildTabs = useMemo(() => getFinancePageViewTabs("budget", _user), [_user]);
   const navigation = activeChildTabs.length > 1 ? createPageTabBar({

@@ -18,6 +18,7 @@ cnb-release:
           - workspace-release-next-units-v1:./.cache/next-units:copy-on-write
           - workspace-release-types-v1:./.cache/types:copy-on-write
           - workspace-release-tsbuild-v1:./.cache/tsbuild:copy-on-write
+          - workspace-release-playwright-v1:./.cache/release-check/playwright:copy-on-write
           - workspace-release-artifacts-v1:./.cache/release-artifacts:read-write
       env:
         RUN_LOCAL_CHECKS: "0"
@@ -31,6 +32,15 @@ cnb-release:
         - name: install-dependencies
           script: |
             bash ./ops/run-cnb-release-stage.sh dependencies.install -- bash ./ops/install-cnb-release-dependencies.sh
+        - name: release-gate
+          env:
+            CI: "true"
+            NEXTAUTH_SECRET: cnb-build-only-secret-2026
+            DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
+            DIRECT_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
+            SHADOW_DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci_shadow
+          script: |
+            bash ./ops/run-cnb-release-stage.sh release.gate -- bash ./ops/run-cnb-release-gate.sh
         - name: build-release-target
           env:
             CI: "true"

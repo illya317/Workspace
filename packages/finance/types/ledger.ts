@@ -1,3 +1,13 @@
+import type {
+  ConsolidationEntryType,
+  FinanceGroupVoucherDocumentType,
+} from "./statement-shared";
+
+export type { FinanceGroupVoucherDocumentType } from "./statement-shared";
+
+export type FinanceLedgerExportMode = "summary" | "detail";
+export type FinanceVoucherPeriodScope = "current" | "history";
+
 export interface Account {
   id: number;
   code: string;
@@ -5,7 +15,46 @@ export interface Account {
 }
 
 export const WORKSPACE_VOUCHER_SOURCE_SYSTEM = "WORKSPACE";
-export const SUPPLEMENTAL_VOUCHER_TYPE_NAME = "补录凭证";
+export const CONSOLIDATION_VOUCHER_TYPE_NAME = "合并凭证";
+
+export interface GroupVoucherSourceTrace {
+  key: string;
+  sourceType:
+    | "openingBalance"
+    | "historicalVoucher"
+    | "untracedOpeningBalance"
+    | "voucher"
+    | "untracedMovement"
+    | "closingBalance";
+  sourceLabel: string;
+  date: string | null;
+  voucherNo: string | null;
+  accountCode: string;
+  accountName: string;
+  description: string | null;
+  debit: number;
+  credit: number;
+  reclassifiedToAccountCode?: string | null;
+  reclassificationStatus?: string | null;
+}
+
+export interface GroupVoucherReclassificationTrace {
+  sourceAccountCode: string;
+  sourceAccountName: string;
+  targetAccountCode: string;
+  targetAccountName: string;
+  basis: string;
+  sourceType: string;
+  status: string;
+}
+
+export interface GroupVoucherBalanceCheck {
+  openingNet: number;
+  currentMovementNet: number;
+  closingNet: number;
+  openingUntracedNet: number;
+  currentUntracedNet: number;
+}
 
 export interface VoucherItem {
   id: number;
@@ -13,7 +62,7 @@ export interface VoucherItem {
   account: Account;
   debit: number;
   credit: number;
-  description: string;
+  description: string | null;
   sortOrder: number;
   relatedEntity?: string | null;
   entityName?: string | null;
@@ -24,12 +73,17 @@ export interface VoucherItem {
   lineCode?: string;
   accountCode?: string | null;
   groupAccountId?: number | null;
-  currencyCode?: string;
+  currencyCode?: string | null;
   periodBasis?: "current" | "comparative";
   note?: string | null;
   matchSide?: "left" | "right" | null;
   sourceKind?: "auxiliaryBalance" | "openItem" | "cashFlowAllocation" | "workpaper" | "voucher" | null;
   sourceRecordId?: number | null;
+  sourceDate?: string | null;
+  sourceTrace?: GroupVoucherSourceTrace[];
+  sourceReclassification?: GroupVoucherReclassificationTrace | null;
+  sourceBalanceCheck?: GroupVoucherBalanceCheck | null;
+  presentationAccount?: Account | null;
   counterpartyEntitySnapshotId?: number | null;
   counterpartyCompanyId?: number | null;
 }
@@ -58,7 +112,7 @@ export interface Voucher {
   date: string;
   periodId: number;
   period: Period;
-  description: string;
+  description: string | null;
   totalDebit: number;
   totalCredit: number;
   status: string;
@@ -66,17 +120,18 @@ export interface Voucher {
   sourceSystem?: string | null;
   voucherTypeCode?: string | null;
   voucherTypeName?: string | null;
+  matchingLabel?: string | null;
   isAdjustment?: boolean;
   items: VoucherItem[];
   cashFlowAllocations?: VoucherCashFlowAllocation[];
   voucherKind?: "standard" | "group";
-  documentType?: "groupAdjustment" | "elimination" | "reclassification";
+  documentType?: FinanceGroupVoucherDocumentType;
   postingLevel?: "10" | "20" | "30";
   origin?: "manual" | "system";
   batchId?: number;
   batchRevision?: number;
   reviewBlockReason?: string | null;
-  entryType?: import("./statements").ConsolidationEntryType;
+  entryType?: ConsolidationEntryType;
   title?: string;
   entryDescription?: string | null;
   evidence?: string;
@@ -90,7 +145,27 @@ export interface VoucherResponse {
 }
 
 export type FinanceCounterpartyBalanceCategory = "ar" | "ap" | "otherAr" | "otherAp";
-export type FinanceLedgerExportView = "accounts" | "vouchers" | "balances" | "counterparty";
+export type FinanceCounterpartyRelationScope = "all" | "related" | "other" | "unrelated" | "unmatched";
+export type FinanceCounterpartyObjectKind =
+  | "groupCompany"
+  | "customer"
+  | "supplier"
+  | "employee"
+  | "department"
+  | "other";
+export type FinanceCounterpartyObjectType = "all" | FinanceCounterpartyObjectKind;
+export type FinanceCounterpartyRelatedPartyType =
+  | "group"
+  | "joint_venture_associate"
+  | "investor_influence"
+  | "key_management_related"
+  | "other_related";
+export type FinanceLedgerExportView =
+  | "accounts"
+  | "groupAccounts"
+  | "vouchers"
+  | "balances"
+  | "counterparty";
 
 export interface FinanceCounterpartyBalanceRow {
   id: string;
@@ -98,6 +173,9 @@ export interface FinanceCounterpartyBalanceRow {
   counterpartyName: string;
   counterpartyShortName: string | null;
   counterpartyType: string;
+  counterpartyObjectKind: FinanceCounterpartyObjectKind;
+  identityMatched: boolean;
+  relatedPartyType: FinanceCounterpartyRelatedPartyType | null;
   accountCode: string;
   accountName: string;
   openingDebit: number;

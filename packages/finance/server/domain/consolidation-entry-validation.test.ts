@@ -32,6 +32,29 @@ test("accepts balanced typed elimination lines", () => {
   assert.equal(result.data.input.lines.length, 2);
 });
 
+test("accepts a manually prepared group adjustment without bilateral matching facts", () => {
+  const result = buildSaveConsolidationEntryCommand(7, {
+    expectedRevision: 1,
+    entryNo: "2026-06-合-0013",
+    postingDate: "2026-06-30",
+    documentType: "groupAdjustment",
+    postingLevel: "30",
+    entryType: "groupAdjustment",
+    title: "在建工程历史集团调整",
+    description: "江苏欣晨建设工程有限公司在建工程款",
+    evidence: "人工底稿：借记在建工程，贷记其他应付款",
+    lines: [
+      { entitySnapshotId: 1, statementType: "balanceSheet", lineCode: "constructionInProgress", accountCode: "1604", debit: 94_191_934.71, credit: 0 },
+      { entitySnapshotId: 1, statementType: "balanceSheet", lineCode: "otherPayables", accountCode: "2241", debit: 0, credit: 94_191_934.71 },
+    ],
+  }, 9);
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.data.input.entryType, "groupAdjustment");
+  assert.equal(result.data.input.documentType, "groupAdjustment");
+  assert.equal(result.data.input.postingLevel, "30");
+});
+
 test("rejects an unbalanced elimination entry", () => {
   const result = buildSaveConsolidationEntryCommand(7, {
     ...balancedEntry,

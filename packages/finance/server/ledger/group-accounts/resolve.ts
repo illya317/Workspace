@@ -1,7 +1,6 @@
 import { prisma, type Prisma } from "@workspace/platform/server/prisma";
-import { deriveFinanceGroupAccountTranslationRateType } from "@workspace/finance/types/group-account";
 
-import { resolveFinanceAccountingPolicyVersionAtInTransaction } from "./policy-versions";
+import { resolveFinanceAccountingPolicyVersionAtInTransaction } from "./policy-version-service";
 import {
   financeAccountSourceScopeKey,
   financeGroupMappingKey,
@@ -174,7 +173,7 @@ async function loadVersionGroupAccounts(
     consolidationRole: revision.consolidationRole,
     counterpartyRequirement: revision.counterpartyRequirement,
     movementType: revision.movementType,
-    translationRateType: deriveFinanceGroupAccountTranslationRateType(revision),
+    translationRateType: revision.translationRateType,
   }]));
 }
 

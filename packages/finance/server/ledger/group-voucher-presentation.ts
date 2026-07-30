@@ -9,18 +9,74 @@ const GROUP_VOUCHER_ACCOUNT_NAMES = new Map([
 ].map((line) => [line.lineCode, simpleStatementLabel(line.label)]));
 
 export function groupVoucherCompanySummary(
-  lines: readonly { entityName: string | null; counterpartyName: string | null }[],
+  companies: readonly {
+    companyId: number;
+    companyCode: string;
+    companyName: string | null;
+    sortOrder: number;
+  }[],
 ) {
-  const names = [...new Set(lines.flatMap((line) => [
-    normalizedName(line.entityName),
-    normalizedName(line.counterpartyName),
-  ]).filter((name): name is string => Boolean(name)))];
+  const names = [...new Map(companies.flatMap((company) => {
+    const name = normalizedName(company.companyName);
+    return name ? [[company.companyId, { ...company, companyName: name }] as const] : [];
+  })).values()]
+    .sort((left, right) => left.sortOrder - right.sortOrder
+      || left.companyCode.localeCompare(right.companyCode, "zh-CN", { numeric: true }))
+    .map((company) => company.companyName);
   if (names.length >= 2) return `${names[0]} ↔ ${names[1]}`;
   return names[0] ?? "—";
 }
 
 export function groupVoucherAccountName(lineCode: string) {
   return GROUP_VOUCHER_ACCOUNT_NAMES.get(lineCode) ?? lineCode;
+}
+
+export function groupVoucherPresentationAccount(line: {
+  lineCode: string;
+  groupAccount?: { id: number; code: string; name: string } | null;
+}) {
+  return {
+    id: line.groupAccount?.id ?? 0,
+    code: line.groupAccount?.code || line.lineCode,
+    name: line.groupAccount?.name || groupVoucherAccountName(line.lineCode),
+  };
+}
+
+export function groupVoucherDirectSourceTrace(source: {
+  id: number;
+  debit: number;
+  credit: number;
+  description: string | null;
+  account: { code: string; name: string };
+  voucher: { voucherNo: string; date: string };
+} | null) {
+  return source ? [{
+    key: `voucher-item-${source.id}`,
+    sourceType: "voucher" as const,
+    sourceLabel: "原始凭证",
+    date: source.voucher.date,
+    voucherNo: source.voucher.voucherNo,
+    accountCode: source.account.code,
+    accountName: source.account.name,
+    description: source.description,
+    debit: source.debit,
+    credit: source.credit,
+  }] : [];
+}
+
+export function groupVoucherOccurrenceDate(source: {
+  voucherDate?: string | null;
+  openItemVoucherDate?: string | null;
+  openItemDocumentDate?: string | null;
+  cashFlowVoucherDate?: string | null;
+  postingDate?: string | null;
+}) {
+  return source.voucherDate
+    ?? source.openItemVoucherDate
+    ?? source.openItemDocumentDate
+    ?? source.cashFlowVoucherDate
+    ?? source.postingDate
+    ?? null;
 }
 
 function normalizedName(value: string | null) {

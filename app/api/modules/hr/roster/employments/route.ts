@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { buildHrRouteCommand, listEmployments, updateEmploymentPageDraft } from "@workspace/hr/server";
+import { buildHrRouteCommand, createEmploymentPeriod, listEmployments, updateEmploymentPageDraft } from "@workspace/hr/server";
 import { updateFieldsBodySchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
@@ -21,6 +21,25 @@ export const GET = createCommandRoute({
   queryError: "参数错误",
   buildCommand: ({ query }) => buildHrRouteCommand({ ...query, isActive: query.isActive ?? null }),
   action: listEmployments,
+});
+
+const createEmploymentSchema = z.object({
+  employeeId: z.number().int().positive(),
+  joinDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  leaveDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+  leaveReason: z.string().trim().nullable().optional(),
+  leaveNote: z.string().trim().nullable().optional(),
+  officeLocation: z.string().trim().nullable().optional(),
+  personnelType: z.string().trim().nullable().optional(),
+  rank: z.string().trim().nullable().optional(),
+  title: z.string().trim().nullable().optional(),
+}).strict();
+
+export const POST = createCommandRoute({
+  bodySchema: createEmploymentSchema,
+  bodyError: "雇佣期间内容无效",
+  buildCommand: ({ body, user }) => buildHrRouteCommand({ ...body, userId: user.userId }),
+  action: createEmploymentPeriod,
 });
 
 export const PUT = createCommandRoute({

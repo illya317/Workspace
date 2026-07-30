@@ -1,10 +1,23 @@
 "use client";
 
+import { ProfileFieldInput } from "./ProfileFormControls";
 import type { ContractRow, ProfileField } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
+import { normalizeValue } from "./EmployeeProfilePersistenceValues";
+export {
+  persistableEdpRows,
+  validateCurrentAssignments,
+} from "./EmployeeAssignmentDraftValidation";
+export {
+  isBlankNewContract,
+  normalizeContractRow,
+  normalizeValue,
+  persistableContractRows,
+  valuesEqual,
+} from "./EmployeeProfilePersistenceValues";
 
-export type EditableRecord = Record<string, unknown> & { id?: number; isNew?: boolean };
-export type RowBase = { id?: number; isNew?: boolean };
+export type EditableRecord = Record<string, unknown> & { id?: string | number; isNew?: boolean };
+export type RowBase = { id?: string | number; isNew?: boolean };
 export { createFieldRegionSection } from "./EmployeeProfileFieldRegion";
 export {
   createEmptyFormSection,
@@ -20,13 +33,20 @@ export function toInputDate(value: unknown) {
   return /^\d{4}-\d{2}-\d{2}/.test(text) ? text.slice(0, 10) : text;
 }
 
-export function normalizeValue(value: unknown) {
-  if (value === undefined || value === "") return null;
-  return value;
+export function todayText() {
+  return new Date().toISOString().slice(0, 10);
 }
 
-export function valuesEqual(left: unknown, right: unknown) {
-  return normalizeValue(left) === normalizeValue(right);
+export function isCurrentByEndDate(endDate: unknown) {
+  const value = normalizeValue(endDate);
+  return !value || String(value) >= todayText();
+}
+
+export function isCurrentByDateRange(startDate: unknown, endDate: unknown) {
+  const today = todayText();
+  const start = normalizeValue(startDate);
+  const end = normalizeValue(endDate);
+  return (!start || String(start) <= today) && (!end || String(end) >= today);
 }
 
 export function formatAlias(value: string | null) {
@@ -47,12 +67,51 @@ export function applyDateFields<T extends EditableRecord>(item: T, fields: Profi
   return next as T;
 }
 
+export function fieldGrid(
+  fields: ProfileField[],
+  record: EditableRecord,
+  disabled: boolean,
+  onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
+  isFieldDisabled?: (field: ProfileField, record: EditableRecord) => boolean,
+  gridClassName = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+) {
+  const defaultGrid = gridClassName === "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+  return (
+    <div className={`grid gap-3 ${gridClassName}`}>
+      {fields.map((field) => {
+        const disabledByStatus = record.isActive === true && (field.key === "leaveDate" || field.key === "leaveReason" || field.key === "leaveNote");
+        const disabledByRule = isFieldDisabled?.(field, record) ?? false;
+        const wide = field.span === "wide";
+        return (
+          <div
+            key={field.key}
+            className={wide && defaultGrid ? "sm:col-span-2 lg:col-span-3" : ""}
+          >
+            <div className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-500">
+              <span>{field.label}</span>
+              {field.required ? <span className="text-red-500">*</span> : null}
+            </div>
+            <ProfileFieldInput
+              field={field}
+              value={field.type === "lunarBirthday" ? record.birthDate : record[field.key]}
+              record={record}
+              displayValue={field.displayKey ? String(record[field.displayKey] || "") : undefined}
+              disabled={disabled || field.readOnly || disabledByStatus || disabledByRule}
+              onChange={onChange}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function normalizeForDirty(value: unknown): unknown {
   if (value === undefined || value === "") return null;
   if (Array.isArray(value)) return value.map((item) => normalizeForDirty(item));
   if (value && typeof value === "object") {
     const entries = Object.entries(value as Record<string, unknown>)
-      .filter(([key]) => !["departmentName", "departmentPath", "positionName", "employeeName", "projectName", "projectType", "temporalState", "isNew"].includes(key))
+      .filter(([key]) => !["departmentName", "departmentPath", "positionName", "employeeName", "projectName", "projectType", "isNew"].includes(key))
       .sort(([a], [b]) => a.localeCompare(b));
     return Object.fromEntries(entries.map(([key, item]) => [key, normalizeForDirty(item)]));
   }
@@ -69,10 +128,20 @@ export function pickFields(fields: ProfileField[], keys: string[]) {
     .filter(Boolean) as ProfileField[];
 }
 
-export function normalizeContractRow<T extends ContractRow>(row: T): T {
-  const periodEndDates = [row.firstContractEndDate, row.secondContractEndDate, row.thirdContractEndDate].filter(Boolean);
-  if (!row.endDate || (!row.permanentContractDate && !periodEndDates.includes(row.endDate))) return row;
-  return { ...row, endDate: null };
+export function contractPeriodEndDate(row: ContractRow) {
+  if (row.endDate) return row.endDate;
+  const periods = [
+    { start: row.firstContractStartDate, end: row.firstContractEndDate },
+    { start: row.secondContractStartDate, end: row.secondContractEndDate },
+    { start: row.thirdContractStartDate, end: row.thirdContractEndDate },
+  ];
+  for (let i = periods.length - 1; i >= 0; i--) {
+    const period = periods[i];
+    if (!period.start && !period.end) continue;
+    if (period.start && !period.end) return null;
+    return period.end;
+  }
+  return null;
 }
 
 export function updateProfileRow<T extends RowBase>(

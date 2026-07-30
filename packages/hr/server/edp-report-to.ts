@@ -16,6 +16,7 @@ import {
   searchPositionsInOrganizationScope,
   validatePositionInOrganizationScope,
 } from "./position-organization-scope";
+import { getBusinessCodeConfig } from "@workspace/platform/server/system-config";
 
 export type EdpReportingPlacement = {
   positionId: number | null;
@@ -34,16 +35,16 @@ function toParentPositionCandidate(position: {
   id: number;
   departmentId: number | null;
   department: { code: string | null } | null;
-} | null | undefined): ParentPositionCandidate | null {
+} | null | undefined, functionalPrefix: string): ParentPositionCandidate | null {
   if (!position) return null;
   return {
     id: position.id,
     departmentId: position.departmentId,
-    isFunctional: isFunctionalDepartmentCode(position.department?.code),
+    isFunctional: isFunctionalDepartmentCode(position.department?.code, functionalPrefix),
   };
 }
 
-async function parentPositionFor(positionId: number | null) {
+async function parentPositionFor(positionId: number | null, functionalPrefix: string) {
   if (!positionId) return null;
   const position = await prisma.position.findUnique({
     where: { id: positionId },
@@ -51,7 +52,7 @@ async function parentPositionFor(positionId: number | null) {
       reportToPosition: { select: { id: true, departmentId: true, department: { select: { code: true } } } },
     },
   });
-  return toParentPositionCandidate(position?.reportToPosition);
+  return toParentPositionCandidate(position?.reportToPosition, functionalPrefix);
 }
 
 async function parentOverridePositionFor({
@@ -59,13 +60,13 @@ async function parentOverridePositionFor({
   reportingCompanyId,
   departmentId,
   positionReportOverrideId,
-}: EdpReportingPlacement): Promise<ParentPositionCandidate | null | undefined> {
+}: EdpReportingPlacement, functionalPrefix: string): Promise<ParentPositionCandidate | null | undefined> {
   if (!positionId) return null;
   const position = await prisma.position.findUnique({
     where: { id: positionId },
     select: { departmentId: true, department: { select: { code: true } } },
   });
-  const isFunctional = isFunctionalDepartmentCode(position?.department?.code);
+  const isFunctional = isFunctionalDepartmentCode(position?.department?.code, functionalPrefix);
   const isOwnFunctionalDepartment = isFunctional
     && Boolean(departmentId)
     && Boolean(position?.departmentId)
@@ -89,14 +90,15 @@ async function parentOverridePositionFor({
     },
   });
   if (!override?.reportToPositionId) return isFunctional ? null : undefined;
-  return toParentPositionCandidate(override.reportToPosition);
+  return toParentPositionCandidate(override.reportToPosition, functionalPrefix);
 }
 
 /** Resolves the structural reporting position applied to a new assignment period. */
 export async function resolveDefaultEdpReportToPositionId(placement: EdpReportingPlacement) {
-  const overrideParent = await parentOverridePositionFor(placement);
+  const functionalPrefix = (await getBusinessCodeConfig()).department.functionalPrefix;
+  const overrideParent = await parentOverridePositionFor(placement, functionalPrefix);
   const parent = overrideParent === undefined
-    ? await parentPositionFor(placement.positionId)
+    ? await parentPositionFor(placement.positionId, functionalPrefix)
     : overrideParent;
   return parent?.id ?? null;
 }

@@ -3,7 +3,7 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 export const foundation_registry_entries = [
   {
     name: "ActionGlyph",
-    description: "通用动作图标",
+    description: "通用动作图标，包含顺序上移和下移等标准操作",
   },
   {
     name: "ACTION_GLYPH_KINDS",
@@ -54,7 +54,7 @@ export const foundation_registry_entries = [
   },
   {
     name: "getFieldGridMainRowClassName",
-    description: "字段网格主行样式",
+    description: "字段网格 inline/stack 统一主行与桌面标签轨道样式",
   },
   {
     name: "getFieldGridHelperRowClassName",
@@ -62,7 +62,7 @@ export const foundation_registry_entries = [
   },
   {
     name: "getFieldGridLabelClassName",
-    description: "字段网格标签样式",
+    description: "字段网格 section 级标签宽度、省略和堆叠文本样式",
   },
   {
     name: "getFieldGridValueClassName",

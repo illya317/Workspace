@@ -14,6 +14,7 @@ model FinanceGroupAccount {
   reviewedBy               Int?
   reviewedAt               DateTime?
   originCompanyCode        String?
+  originCompanyId Int?
   originSourceScopeKey     String?
   originLocalAccountCode   String?
   isActive                 Boolean                           @default(true)
@@ -30,9 +31,11 @@ model FinanceGroupAccount {
   targetReclassAdjustments FinanceBalanceReclassAdjustment[] @relation("FinanceBalanceReclassTargetGroupAccount")
   consolidationRuleSelectors FinanceConsolidationRuleSelector[]
   consolidationEntryLines    FinanceConsolidationEntryLine[]
+  originCompany Company? @relation(fields: [originCompanyId], references: [id], onDelete: Restrict)
 
   @@index([name])
   @@index([parentId])
+  @@index([originCompanyId])
 }
 
 /// 集团科目表版本（配置事实：半开生效区间 [effectiveFrom, effectiveTo)，V1 的起点为空并覆盖全部历史）
@@ -76,7 +79,7 @@ model FinanceGroupAccountRevision {
   consolidationRole      String                       @default("none") // none | intercompanyReceivable | intercompanyPayable | intercompanyRevenue | intercompanyExpense | investmentInSubsidiary | shareCapital | capitalReserve | dividendReceivable | dividendPayable | inventory | fixedAsset | cashFlow | difference
   counterpartyRequirement String                      @default("none") // none | optional | required
   movementType            String                      @default("closingBalance") // closingBalance | periodMovement | transaction
-  translationRateType     String                      @default("closing") // 后端派生：closing | average | historical | retainedEarningsRollforward | translationDifference
+  translationRateType     String                      @default("closing") // closing | average | historical | transactionDate
   createdAt            DateTime                       @default(now())
   updatedAt            DateTime                       @default(now()) @updatedAt
   policyVersion        FinanceAccountingPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)
@@ -143,12 +146,14 @@ model FinanceGroupAccountMapping {
   policyVersionId       Int
   groupAccountId        Int?
   companyCode           String
+  companyId Int?
   sourceScopeKey        String
   sourceSystem          String?
   sourceDatabase        String?
   sourceLedger          String?
   localAccountCode      String
   localAccountName      String
+  localAccountId        Int?
   localCategory         String
   localBalanceDirection String
   latestYear            Int?
@@ -157,8 +162,12 @@ model FinanceGroupAccountMapping {
   updatedAt             DateTime                       @default(now()) @updatedAt
   policyVersion         FinanceAccountingPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)
   groupAccount          FinanceGroupAccount?           @relation(fields: [groupAccountId], references: [id], onDelete: Restrict)
+  localAccount          FinanceAccount?                @relation(fields: [localAccountId], references: [id], onDelete: Restrict)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([policyVersionId, companyCode, sourceScopeKey, localAccountCode], map: "FinanceGroupAccountMapping_version_scope_local_key")
   @@index([groupAccountId])
+  @@index([localAccountId])
   @@index([companyCode, localAccountName])
+  @@index([companyId])
 }

@@ -5,7 +5,7 @@ import type { ProfileField } from "../types/profile";
 import { STANDARD_EMPLOYMENT_AGREEMENT_TYPES } from "./social-insurance";
 
 export const employeeFields: ProfileField[] = [
-  { key: "employeeId", label: "员工编号", required: true, readOnly: true },
+  { key: "employeeId", label: "员工编号", required: true },
   { key: "name", label: "姓名", required: true },
   { key: "alias", label: "别名", type: "tags" },
   { key: "gender", label: "性别", type: "boolean", booleanLabels: { true: "男", false: "女", unset: "未设置" } },
@@ -22,7 +22,7 @@ export const employeeFields: ProfileField[] = [
   { key: "workStartDate", label: "参加工作时间", type: "date" },
   { key: "idNumber", label: "身份证号", type: "chineseId" },
   { key: "otherId", label: "其他证件号" },
-  { key: "userId", label: "关联账号", type: "fk", entity: "user", fkKey: "platform.user", displayKey: "userName", readOnly: true },
+  { key: "userId", label: "关联账号", type: "fk", entity: "user", fkKey: "platform.user", displayKey: "userName" },
 ];
 
 export const employmentFields: ProfileField[] = [
@@ -31,9 +31,9 @@ export const employmentFields: ProfileField[] = [
   { key: "personnelType", label: "人员类型", type: "select" },
   { key: "rank", label: "职级", type: "select" },
   { key: "title", label: "职务", type: "select" },
-  { key: "joinDate", label: "入职日期", type: "date", readOnly: true },
+  { key: "joinDate", label: "入职日期", type: "date" },
   { key: "officeLocation", label: "办公地点", type: "select" },
-  { key: "leaveDate", label: "离职日期", type: "date", readOnly: true },
+  { key: "leaveDate", label: "离职日期", type: "date" },
   { key: "leaveReason", label: "离职原因", type: "select" },
   { key: "leaveNote", label: "补充说明", type: "textarea", span: "wide" },
 ];

@@ -1,7 +1,7 @@
 export type * from "./reclass";
 export type * from "./ledger";
 export {
-  SUPPLEMENTAL_VOUCHER_TYPE_NAME,
+  CONSOLIDATION_VOUCHER_TYPE_NAME,
   WORKSPACE_VOUCHER_SOURCE_SYSTEM,
 } from "./ledger";
 export type * from "./cost";

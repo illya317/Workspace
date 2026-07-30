@@ -517,11 +517,6 @@ export type PositionReportOverrideUncheckedUpdateManyInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
-export type PositionReportOverrideScalarRelationFilter = {
-  is?: Prisma.PositionReportOverrideWhereInput
-  isNot?: Prisma.PositionReportOverrideWhereInput
-}
-
 export type PositionReportOverrideListRelationFilter = {
   every?: Prisma.PositionReportOverrideWhereInput
   some?: Prisma.PositionReportOverrideWhereInput
@@ -530,6 +525,11 @@ export type PositionReportOverrideListRelationFilter = {
 
 export type PositionReportOverrideOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type PositionReportOverrideScalarRelationFilter = {
+  is?: Prisma.PositionReportOverrideWhereInput
+  isNot?: Prisma.PositionReportOverrideWhereInput
 }
 
 export type PositionReportOverrideNullableScalarRelationFilter = {
@@ -613,20 +613,6 @@ export type PositionReportOverrideSumOrderByAggregateInput = {
   version?: Prisma.SortOrder
 }
 
-export type PositionReportOverrideCreateNestedOneWithoutEffectiveVersionsInput = {
-  create?: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUncheckedCreateWithoutEffectiveVersionsInput>
-  connectOrCreate?: Prisma.PositionReportOverrideCreateOrConnectWithoutEffectiveVersionsInput
-  connect?: Prisma.PositionReportOverrideWhereUniqueInput
-}
-
-export type PositionReportOverrideUpdateOneRequiredWithoutEffectiveVersionsNestedInput = {
-  create?: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUncheckedCreateWithoutEffectiveVersionsInput>
-  connectOrCreate?: Prisma.PositionReportOverrideCreateOrConnectWithoutEffectiveVersionsInput
-  upsert?: Prisma.PositionReportOverrideUpsertWithoutEffectiveVersionsInput
-  connect?: Prisma.PositionReportOverrideWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.PositionReportOverrideUpdateToOneWithWhereWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUpdateWithoutEffectiveVersionsInput>, Prisma.PositionReportOverrideUncheckedUpdateWithoutEffectiveVersionsInput>
-}
-
 export type PositionReportOverrideCreateNestedManyWithoutCompanyInput = {
   create?: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutCompanyInput, Prisma.PositionReportOverrideUncheckedCreateWithoutCompanyInput> | Prisma.PositionReportOverrideCreateWithoutCompanyInput[] | Prisma.PositionReportOverrideUncheckedCreateWithoutCompanyInput[]
   connectOrCreate?: Prisma.PositionReportOverrideCreateOrConnectWithoutCompanyInput | Prisma.PositionReportOverrideCreateOrConnectWithoutCompanyInput[]
@@ -667,6 +653,20 @@ export type PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput =
   update?: Prisma.PositionReportOverrideUpdateWithWhereUniqueWithoutCompanyInput | Prisma.PositionReportOverrideUpdateWithWhereUniqueWithoutCompanyInput[]
   updateMany?: Prisma.PositionReportOverrideUpdateManyWithWhereWithoutCompanyInput | Prisma.PositionReportOverrideUpdateManyWithWhereWithoutCompanyInput[]
   deleteMany?: Prisma.PositionReportOverrideScalarWhereInput | Prisma.PositionReportOverrideScalarWhereInput[]
+}
+
+export type PositionReportOverrideCreateNestedOneWithoutEffectiveVersionsInput = {
+  create?: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUncheckedCreateWithoutEffectiveVersionsInput>
+  connectOrCreate?: Prisma.PositionReportOverrideCreateOrConnectWithoutEffectiveVersionsInput
+  connect?: Prisma.PositionReportOverrideWhereUniqueInput
+}
+
+export type PositionReportOverrideUpdateOneRequiredWithoutEffectiveVersionsNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUncheckedCreateWithoutEffectiveVersionsInput>
+  connectOrCreate?: Prisma.PositionReportOverrideCreateOrConnectWithoutEffectiveVersionsInput
+  upsert?: Prisma.PositionReportOverrideUpsertWithoutEffectiveVersionsInput
+  connect?: Prisma.PositionReportOverrideWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PositionReportOverrideUpdateToOneWithWhereWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUpdateWithoutEffectiveVersionsInput>, Prisma.PositionReportOverrideUncheckedUpdateWithoutEffectiveVersionsInput>
 }
 
 export type PositionReportOverrideCreateNestedManyWithoutDepartmentInput = {
@@ -811,6 +811,84 @@ export type PositionReportOverrideUpdateOneWithoutEdpsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PositionReportOverrideUpdateToOneWithWhereWithoutEdpsInput, Prisma.PositionReportOverrideUpdateWithoutEdpsInput>, Prisma.PositionReportOverrideUncheckedUpdateWithoutEdpsInput>
 }
 
+export type PositionReportOverrideCreateWithoutCompanyInput = {
+  headcount?: number | null
+  isActive?: boolean
+  remark?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  position: Prisma.PositionCreateNestedOneWithoutReportOverridesInput
+  department: Prisma.DepartmentCreateNestedOneWithoutPositionReportOverridesInput
+  reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedReportOverridesInput
+  edps?: Prisma.EDPCreateNestedManyWithoutPositionReportOverrideInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutPositionReportOverrideInput
+}
+
+export type PositionReportOverrideUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  positionId: number
+  departmentId: number
+  reportToPositionId?: number | null
+  headcount?: number | null
+  isActive?: boolean
+  remark?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionReportOverrideInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutPositionReportOverrideInput
+}
+
+export type PositionReportOverrideCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.PositionReportOverrideWhereUniqueInput
+  create: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutCompanyInput, Prisma.PositionReportOverrideUncheckedCreateWithoutCompanyInput>
+}
+
+export type PositionReportOverrideCreateManyCompanyInputEnvelope = {
+  data: Prisma.PositionReportOverrideCreateManyCompanyInput | Prisma.PositionReportOverrideCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type PositionReportOverrideUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.PositionReportOverrideWhereUniqueInput
+  update: Prisma.XOR<Prisma.PositionReportOverrideUpdateWithoutCompanyInput, Prisma.PositionReportOverrideUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutCompanyInput, Prisma.PositionReportOverrideUncheckedCreateWithoutCompanyInput>
+}
+
+export type PositionReportOverrideUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.PositionReportOverrideWhereUniqueInput
+  data: Prisma.XOR<Prisma.PositionReportOverrideUpdateWithoutCompanyInput, Prisma.PositionReportOverrideUncheckedUpdateWithoutCompanyInput>
+}
+
+export type PositionReportOverrideUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.PositionReportOverrideScalarWhereInput
+  data: Prisma.XOR<Prisma.PositionReportOverrideUpdateManyMutationInput, Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type PositionReportOverrideScalarWhereInput = {
+  AND?: Prisma.PositionReportOverrideScalarWhereInput | Prisma.PositionReportOverrideScalarWhereInput[]
+  OR?: Prisma.PositionReportOverrideScalarWhereInput[]
+  NOT?: Prisma.PositionReportOverrideScalarWhereInput | Prisma.PositionReportOverrideScalarWhereInput[]
+  id?: Prisma.IntFilter<"PositionReportOverride"> | number
+  positionId?: Prisma.IntFilter<"PositionReportOverride"> | number
+  companyId?: Prisma.IntFilter<"PositionReportOverride"> | number
+  departmentId?: Prisma.IntFilter<"PositionReportOverride"> | number
+  reportToPositionId?: Prisma.IntNullableFilter<"PositionReportOverride"> | number | null
+  headcount?: Prisma.IntNullableFilter<"PositionReportOverride"> | number | null
+  isActive?: Prisma.BoolFilter<"PositionReportOverride"> | boolean
+  remark?: Prisma.StringNullableFilter<"PositionReportOverride"> | string | null
+  editedBy?: Prisma.IntNullableFilter<"PositionReportOverride"> | number | null
+  editedAt?: Prisma.DateTimeNullableFilter<"PositionReportOverride"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"PositionReportOverride"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PositionReportOverride"> | Date | string
+  version?: Prisma.IntFilter<"PositionReportOverride"> | number
+}
+
 export type PositionReportOverrideCreateWithoutEffectiveVersionsInput = {
   headcount?: number | null
   isActive?: boolean
@@ -891,84 +969,6 @@ export type PositionReportOverrideUncheckedUpdateWithoutEffectiveVersionsInput =
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
-}
-
-export type PositionReportOverrideCreateWithoutCompanyInput = {
-  headcount?: number | null
-  isActive?: boolean
-  remark?: string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  version?: number
-  position: Prisma.PositionCreateNestedOneWithoutReportOverridesInput
-  department: Prisma.DepartmentCreateNestedOneWithoutPositionReportOverridesInput
-  reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedReportOverridesInput
-  edps?: Prisma.EDPCreateNestedManyWithoutPositionReportOverrideInput
-  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutPositionReportOverrideInput
-}
-
-export type PositionReportOverrideUncheckedCreateWithoutCompanyInput = {
-  id?: number
-  positionId: number
-  departmentId: number
-  reportToPositionId?: number | null
-  headcount?: number | null
-  isActive?: boolean
-  remark?: string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  version?: number
-  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionReportOverrideInput
-  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutPositionReportOverrideInput
-}
-
-export type PositionReportOverrideCreateOrConnectWithoutCompanyInput = {
-  where: Prisma.PositionReportOverrideWhereUniqueInput
-  create: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutCompanyInput, Prisma.PositionReportOverrideUncheckedCreateWithoutCompanyInput>
-}
-
-export type PositionReportOverrideCreateManyCompanyInputEnvelope = {
-  data: Prisma.PositionReportOverrideCreateManyCompanyInput | Prisma.PositionReportOverrideCreateManyCompanyInput[]
-  skipDuplicates?: boolean
-}
-
-export type PositionReportOverrideUpsertWithWhereUniqueWithoutCompanyInput = {
-  where: Prisma.PositionReportOverrideWhereUniqueInput
-  update: Prisma.XOR<Prisma.PositionReportOverrideUpdateWithoutCompanyInput, Prisma.PositionReportOverrideUncheckedUpdateWithoutCompanyInput>
-  create: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutCompanyInput, Prisma.PositionReportOverrideUncheckedCreateWithoutCompanyInput>
-}
-
-export type PositionReportOverrideUpdateWithWhereUniqueWithoutCompanyInput = {
-  where: Prisma.PositionReportOverrideWhereUniqueInput
-  data: Prisma.XOR<Prisma.PositionReportOverrideUpdateWithoutCompanyInput, Prisma.PositionReportOverrideUncheckedUpdateWithoutCompanyInput>
-}
-
-export type PositionReportOverrideUpdateManyWithWhereWithoutCompanyInput = {
-  where: Prisma.PositionReportOverrideScalarWhereInput
-  data: Prisma.XOR<Prisma.PositionReportOverrideUpdateManyMutationInput, Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyInput>
-}
-
-export type PositionReportOverrideScalarWhereInput = {
-  AND?: Prisma.PositionReportOverrideScalarWhereInput | Prisma.PositionReportOverrideScalarWhereInput[]
-  OR?: Prisma.PositionReportOverrideScalarWhereInput[]
-  NOT?: Prisma.PositionReportOverrideScalarWhereInput | Prisma.PositionReportOverrideScalarWhereInput[]
-  id?: Prisma.IntFilter<"PositionReportOverride"> | number
-  positionId?: Prisma.IntFilter<"PositionReportOverride"> | number
-  companyId?: Prisma.IntFilter<"PositionReportOverride"> | number
-  departmentId?: Prisma.IntFilter<"PositionReportOverride"> | number
-  reportToPositionId?: Prisma.IntNullableFilter<"PositionReportOverride"> | number | null
-  headcount?: Prisma.IntNullableFilter<"PositionReportOverride"> | number | null
-  isActive?: Prisma.BoolFilter<"PositionReportOverride"> | boolean
-  remark?: Prisma.StringNullableFilter<"PositionReportOverride"> | string | null
-  editedBy?: Prisma.IntNullableFilter<"PositionReportOverride"> | number | null
-  editedAt?: Prisma.DateTimeNullableFilter<"PositionReportOverride"> | Date | string | null
-  createdAt?: Prisma.DateTimeFilter<"PositionReportOverride"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"PositionReportOverride"> | Date | string
-  version?: Prisma.IntFilter<"PositionReportOverride"> | number
 }
 
 export type PositionReportOverrideCreateWithoutDepartmentInput = {

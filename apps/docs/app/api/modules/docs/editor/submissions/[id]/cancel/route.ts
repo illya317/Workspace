@@ -4,7 +4,7 @@ import { z } from "zod";
 import {
   buildDocsTemplateSubmissionActionRouteCommand,
   executeCancelDocsTemplateSubmissionRouteCommand,
-} from "@workspace/platform/server/docs-editor";
+} from "@workspace/docs/server";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { submissionParamsSchema } from "../../route-schemas";
 

@@ -24,9 +24,12 @@
 | 仅检查拆分质量 | `npm run complexity:split-quality` | 防止为过 `max-lines` 把大文件随便搬家。 |
 | 当前变更阻断项 | `npm run check:blockers` | 跑业务阻断和 UI 阻断；这些问题由当前改动 agent 自己修。 |
 | 业务阻断 | `npm run gate:domain` | API、route、resource、RBAC、domain validation、app route 和包边界。 |
+| 源码模块声明 | `npm run source-code-analysis:check` | 校验每个受治理源码文件唯一归属 declared module + role、模块 interface 路径存在、declared module 依赖图无环，并要求高置信度单文件混合职责为零；同一检查已进入 `gate:domain`。 |
+| 源码分析 snapshot | `npm run source-code-analysis:snapshot` / `npm run source-code-analysis:report` | 写入 `.cache/source-code-analysis/snapshot.json` 或输出 JSON；dev、build 和 deploy artifact 会尽力自动生成，但生成/读取失败不得阻断原功能。严格失败只在显式声明检查中发生。 |
 | UI 阻断 | `npm run gate:ui` | Core UI 唯一入口、PageSurface 协议、Toolbar/Input/Selector 等结构性 UI 边界。 |
 | 架构兼容入口 | `npm run check:arch` | 等价于 `npm run check:blockers`。`npm run arch:gate` 保留为兼容总入口。 |
 | Prisma schema、model、migration | `npm run check:data` | 跑 schema 合法性、schema governance 和 migration diff。 |
+| 导入主数据引用 | `npm run import-reference:check` | 要求每个受控 data-release handler 声明引用契约，并阻断新增“已有主数据却仍只存 code/name/裸 ID”的 schema 字段。 |
 | 所有 Node 行为/工具测试 | `npm test` / `npm run test:node` | 自动发现 `packages/`、`scripts/`、`app/`、`ops/` 下的 JS/TS `.test.*`，是 PR / CI 的标准 Node 测试入口。 |
 | 产品行为测试 | `npm run test:behavior` | 执行 `packages/`、`app/` 和 `scripts/runtime/` 下的行为测试；不包含扫描器自测。 |
 | 工程工具自测 | `npm run test:tooling` | 执行 `scripts/` 与 `ops/` 下的 checker/scanner、CI/CD contract fixture 与测试基础设施安全测试。 |
@@ -35,11 +38,11 @@
 | 可扩展性契约 | `npm run test:scalability-contract` | 用 mock/fixture 阻断全量读取、内存分页和调用次数爆炸；不把它当作真实延迟测试。 |
 | PostgreSQL integration | `npm run test:integration:postgresql` | 在一次性 `*_ci` 库执行真实 PostgreSQL runtime/constraint、并发通知读取与并发写入 capacity smoke。 |
 | 关键浏览器保存闭环 | `npm run test:e2e:critical` | 先拒绝非一次性数据库并 seed 身份，再执行页面操作 → 保存 → API/DB 回读 → 刷新保留；账户页暖重载超过 `10 s` 会阻断。 |
-| 本地全量/生产发布门禁 | `npm run check:ci` | 入口自动切换到 `.node-version` 的仓库 Node 主版本，串行执行去重后的静态门禁、全部 Node 测试、full type 和 production build；某个独立步骤失败后继续收集其余步骤，最后一次性汇总全部阻断项。成功步骤按精确 workspace snapshot/命令/检查环境复用；干净 HEAD 全部通过后原子记录 tree-bound 结果。 |
-| 单元生产发布门禁 | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare --deploy-unit <id>` | 在同一干净 release worktree 运行共享静态/data/Node 证据，再由 deploy graph 指定的 package + `app-<unit>` scopes、独立 Next artifact、一次性 PostgreSQL 和该 unit 的浏览器证据收口。回执和 `.cache/next-units/<unit>` 均按 unit 隔离；不能替代或复用 Full 回执。 |
+| 全量 CI / CNB 发布门禁核心 | `npm run check:ci` | 入口自动切换到 `.node-version` 的仓库 Node 主版本，串行执行去重后的静态门禁、全部 Node 测试、full type 和 production build；某个独立步骤失败后继续收集其余步骤，最后一次性汇总全部阻断项。日常可本地诊断，正式发布由 CNB 的目标无关 release-gate 调用，并在 build 可用时继续一次性 PostgreSQL migration/seed 与全量 E2E。 |
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
 | 周期性清债 | `npm run check:hygiene` | 强制巡检租户硬编码和简单 structure hygiene 债务；active baseline 固定为零，定时 CI 每晚 strict 执行，Hygiene 至少每周复查结果。 |
+| 业务编码治理 | `npm run business-code:check` | 校验编码对象/模板 registry、自动生成文档和页面唯一入口，并阻断未登记对象及 baseline 之外的新硬编码；所有权与 baseline 收缩见 `business-code-governance.md`。 |
 | Core UI surface 边界 | `npm run arch:surface-boundaries` | 输出完整 Surface 声明关系与业务侧 deprecated escape hatch 报告；声明 owner、允许路径和规模边界同时由 `gate:ui` 硬阻断。 |
 | Core UI 新建入口 | `npm run arch:create-surface-entry` | 禁止业务侧自行声明新建 `+`、旧 Toolbar create 或直接 import 旧 renderer；折叠、树展开和数值增减不在扫描范围。 |
 | 全项目保存/提交运行时 | `npm run arch:action-runtime-ui` | 禁止业务 UI 用权限布尔值手拼保存/提交、同时暴露两个持久化出口，或在 CreateSurface 硬编码提交；必须由 ActionRuntime 映射最终动作。 |
@@ -77,9 +80,9 @@
 
 `typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。Workspace 的根编译 solution 由 `tsconfig.json`、公共 `tsconfig.base.json`、各 `packages/*/tsconfig.json`、`tsconfig.app.json`、`tsconfig.prisma-client.json` 和 `tsconfig.tooling.json` 组成。根 solution 继承 base 供仓库 `tsx` 运行时解析 alias，但保持 `files: []`，不拥有源码。Core 没有 Workspace 上游；Platform 只引用 Core 和生成的 Prisma Client；每个业务 package 只引用 Core 和 Platform；App 与 tooling 引用全部 package。每个生成的 `apps/<unit>/tsconfig.json` 另形成 `app-<unit>` deploy scope，由 deploy contract/builder 显式消费，不手工并入根 solution。`typecheck:references:check` 锁定根工程图、源码 ownership 和缓存契约，禁止通过新增 reference 合法化反向或跨业务依赖，也禁止新增无人负责检查的 TS/TSX/MTS/CTS；生成 App 的文件精确性另由 `deploy:apps:check` 负责，已退出运行面的 `scripts/migrate/sqlite-legacy/` 是唯一显式源码排除。
 
-`npm run typecheck:scope -- production` 这类 scoped 检查只构建目标工程及其上游，适合单模块开发；`typecheck:quick` 从当前 staged/working-tree 变更选择直接 package/App scope，不检查反向下游，也绝不自动升级为全图；`typecheck:affected` 用于 CI 从可信 changed-files evidence 选择 owner unit 及反向消费者；`typecheck:full` 才构建根 solution，只作 CI/发布权威入口。这些入口共享 project-reference 增量产物：声明文件固定输出到 `.cache/types/`，build info 固定输出到 `.cache/tsbuild/`，不会写入源码目录或进入 Next 的 source include。CI 必须同时缓存两者，不能只恢复 build info 而缺少下游需要的声明输出。不要为了触发“干净检查”删除 `.cache`；入口都固定使用 `4096 MiB` Node old-space。
+`npm run typecheck:scope -- production` 这类 scoped 检查只构建目标工程及其上游，适合单模块开发；`typecheck:quick` 从当前 staged/working-tree 变更选择直接 package/App scope，不检查反向下游，也绝不自动升级为全图；`typecheck:affected` 用于 CI 从可信 changed-files evidence 选择 owner unit 及反向消费者；`typecheck:full` 才构建根 solution，只作 CI/发布权威入口。这些入口共享 project-reference 增量产物：声明文件固定输出到 `.cache/types/`，build info 固定输出到 `.cache/tsbuild/`，不会写入源码目录或进入 Next 的 source include。CI 必须同时缓存两者，不能只恢复 build info 而缺少下游需要的声明输出。不要为了触发“干净检查”删除 `.cache`；本地入口的 Node old-space 硬上限为 `4096 MiB`，不得通过提高内存重试。
 
-根 monolith 的 Next 通过 `next.config.ts#typescript.tsconfigPath` 使用 `tsconfig.app.json` 检查路由壳。当前 Next 16 会提示 project references 尚未完全支持，并尝试自己的 incremental build；因此 Next build 是 App/框架集成门禁，不能替代 `typecheck:full` 对完整工程图的权威检查。独立 unit builder 会先运行 deploy graph 派生的全部 package 与 `app-<unit>` scopes，生成的 unit Next config 才设置 `ignoreBuildErrors`，只跳过这次重复且不完整的 Next project-reference 类型遍历。
+根 monolith 的 Next 通过 `next.config.ts#typescript.tsconfigPath` 使用 `tsconfig.app.json` 检查路由壳。当前 Next 16 会提示 project references 尚未完全支持，并尝试自己的 incremental build；因此 Next build 不能替代 `typecheck:full` 对完整工程图的权威检查。CI/发布必须先通过 `typecheck:full`，随后使用 `build:next:after-typecheck` 显式设置外部类型权威标记，只跳过 Next 重复且不完整的 project-reference 类型遍历；普通 `build` 与 `build:next` 不设置该标记，仍保留 Next 自身检查。独立 unit builder 同样先运行 deploy graph 派生的全部 package 与 `app-<unit>` scopes，生成的 unit Next config 设置 `ignoreBuildErrors`，避免重复类型遍历。
 
 所有入口都必须经过 `scripts/check/with-check-lock.js -> scripts/check/run-typecheck.js`。专用 runner 会校验当前活锁及其 owner，直接执行 runner 会在加载编译器前失败；`typecheck:entrypoints:check` 同时扫描 package scripts、CI/ops/scripts 和现行 agent/工程文档，阻止裸 TypeScript CLI 命令重新进入仓库。锁包装器会把 `SIGINT`、`SIGTERM` 和终端挂断的 `SIGHUP` 转发到独立子进程组，等待子进程退出后才释放锁；宽限期后仍未退出则强制终止整个进程组。
 
@@ -103,6 +106,7 @@
 - 写入链路的 domain validation 收口。
 - 全局执行时间统一使用 `plannedStartDate / plannedEndDate / actualStartDate / actualEndDate`；实际日期输入必须设置今日上限，`actualEndDate` 只能在 `status=done` 时编辑。项目、WorkPlan、WorkItem 和周期拆解写入必须调用 Platform completion/date policy；Prisma 字段、公开 DTO/API 旧别名、UI 漏配和 domain 漏调用均由 `gate:domain` 阻断。
 - app route hierarchy、module gate、package boundary 和 auth chain。
+- 源码模块声明必须覆盖全部受治理文件且只能命中一次；声明的 interface 路径必须存在，模块级依赖循环直接阻断。非法包依赖继续由 package boundary gate 判定。
 - `app/(modules)` 页面只能挂对应 package/platform UI；直接 import Core UI、手写 DOM 或在 app page 里组合页面 UI 会失败。
 - 模块 API route 必须命中模块台账派生 contract，并使用 `createApiRouteHandler` / `requireApiAccess` / 已接入 `requireApiAccess` 的 `with-auth` wrapper。
 - 业务通知必须走 notification registry 的 `sendNotification(type + payload)`，不得在业务侧直接拼 `createNotification` 或直接写 `prisma.notification.create/createMany/upsert`。
@@ -137,7 +141,7 @@
 
 ### build
 
-`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 Next 生产构建，避免重复 generate。两个入口都固定给 Next 构建进程 `6144 MiB` Node old-space，覆盖 Turbopack 编译后仍需运行的完整 route/type graph 检查，避免在 `Running TypeScript` 阶段触顶旧的 `4096 MiB` 上限。Agent/企微路由不携带源码读取依赖；standalone 只能包含模型 runtime、会话存储和受保护业务 API connector 所需闭包。
+`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再生成源码分析 snapshot 并执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 snapshot + Next 生产构建，避免重复 generate。本地两个入口都固定给 Next 构建进程 `4096 MiB` Node old-space；检查锁会拒绝更高配置。若构建需要更多时间，只能提高 `CHECK_LOCK_TIMEOUT_MS` 或调用端等待时间，不能提高内存；在上限内仍无法完成时停止本地重试并交由 CI/发布门禁。Full 与 deploy-unit packager 会把 snapshot 复制到实际 `server.js` 入口旁，运行时不扫描源码。Agent/企微路由不携带源码读取依赖；standalone 只能包含模型 runtime、会话存储和受保护业务 API connector 所需闭包。
 
 ### tests
 
@@ -151,7 +155,7 @@
 
 GitHub Actions 先对完整 base/head diff 做 C0–C3 分类，再并行执行 static、Node、type、PostgreSQL 和 build。没有 E2E 且不要求整站 artifact 时，build job 生成受影响 unit 计划并构建对应独立 artifacts；需要 E2E 或显式整站 artifact 时才构建 canonical monolith，E2E 独立 job 只下载并启动同一个 canonical 产物。`CI / required` 最后验证哪些 job 必须成功、哪些必须跳过。详细分级、覆盖映射和同 SHA 发布契约见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
-生产发布不等待或查询 GitHub。Git hooks 与本地 `ops/publish*.sh` / `release-to-cnb.sh` 入口统一通过 `scripts/runtime/run-with-repo-node.sh` 选择 `.node-version` 指定的 Node；`npm run check:ci` 的可执行入口也会自举到同一 Node 主版本，并把 `TMPDIR` 固定到工作区忽略目录 `.cache/runtime-tmp`，避免调用方 PATH 漂移。通过记录只绑定 Git tree、检查命令、结果和完成时间，不绑定调用方 Node 完整小版本、平台或架构；生产 Linux runtime 由 CNB 对目标 artifact 的构建另行证明。仓库 TypeScript 脚本统一使用 `node --import tsx`，不启动受限环境会拒绝的 `tsx` CLI IPC server。Full 的 `ops/publish.sh prepare` 在干净 release worktree 聚合运行 `check:ci`，再复用同一个 production standalone build 完成一次性数据库 migration/seed 和全量 E2E，写入精确 source/tree 回执。单 unit 的 `prepare --deploy-unit <id>` 复用同一 clean-tree/snapshot/task-cache 基础，只把 full TypeScript、monolith Next 和浏览器范围替换为 deploy graph 派生的 unit closure、`.cache/next-units/<id>` 与目标 artifact E2E，并写入 source/tree/unit 三重绑定的独立回执。两种回执不可交叉消费；任何失败都留在本地修复/复查。`ops/publish.sh deploy` 只验证并消费与目标精确匹配的回执，缺失或过期时在连接 CNB 前退出，不隐式运行编译或测试。Library/Qwen/ONLYOFFICE runtime 快速路径都必须先通过 identity/version/health 复验。
+生产发布不等待或查询 GitHub。Git hooks 与本地 `ops/publish*.sh` / `release-to-cnb.sh` 入口统一通过 `scripts/runtime/run-with-repo-node.sh` 选择 `.node-version` 指定的 Node；`npm run check:ci` 的可执行入口也会自举到同一 Node 主版本，并把 `TMPDIR` 固定到工作区忽略目录 `.cache/runtime-tmp`，避免调用方 PATH 漂移。仓库 TypeScript 脚本统一使用 `node --import tsx`，不启动受限环境会拒绝的 `tsx` CLI IPC server。`ops/publish.sh prepare` 在干净 release worktree 只写入精确 source/tree 的候选回执；`ops/publish.sh deploy` 验证该回执后触发 CNB。CNB 对 Full/单模块调用同一个 collect-all release-gate，运行 `check:ci`，在 production build 可用时继续一次性数据库 migration/seed 与全量 E2E，全部通过才写 `full-and-unit` 门禁回执；目标 artifact builder 与 deploy adapter 都复验该回执。Library/Qwen/ONLYOFFICE runtime 快速路径仍必须先通过 identity/version/health 复验。
 
 ### scalability contract 与真实容量
 

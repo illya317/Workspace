@@ -3,17 +3,11 @@ import test from "node:test";
 
 import { buildConsolidatedReportOutput } from "./consolidated-output";
 import type { ConsolidationReplayPackage } from "./consolidation-replay";
-import { buildTranslatedStandaloneStatementsFromReplay } from "./statement-page-data";
-import { frozenPayloadLines, translateFrozenSourceLines } from "./consolidated-output-translation";
-
-type RateApplication = ConsolidationReplayPackage["exchangeRates"][number]["applications"][number];
 
 function line(
   lineCode: string,
   amount: number,
   input: Partial<{
-    previousAmount: number;
-    currentMonthAmount: number;
     section: string;
     side: "debit" | "credit";
     direction: "in" | "out" | "net";
@@ -26,8 +20,7 @@ function line(
     label: lineCode,
     code: lineCode,
     amount,
-    previousAmount: input.previousAmount ?? 0,
-    ...(input.currentMonthAmount === undefined ? {} : { currentMonthAmount: input.currentMonthAmount }),
+    previousAmount: 0,
     section: input.section ?? "operating",
     side: input.side ?? "debit",
     ...(input.direction ? { direction: input.direction } : {}),
@@ -58,11 +51,13 @@ function entity(id: number, companyCode: string) {
   };
 }
 
-function monthlyPeriods(linesByMonth: Array<Array<ReturnType<typeof line>>>, year: number) {
-  return linesByMonth.map((lines, index) => ({
-    year,
-    month: index + 1,
-    lines: lines.map((item) => ({ lineCode: item.lineCode, label: item.label, amount: item.currentMonthAmount ?? item.amount })),
+function monthlyFlowFacts(year: number, amounts: Record<string, number>) {
+  return Array.from({ length: 12 }, (_, index) => ({
+    periodEnd: new Date(Date.UTC(year, index + 1, 0)).toISOString().slice(0, 10),
+    lines: Object.entries(amounts).map(([lineCode, amount]) => ({
+      lineCode,
+      amount: index === 11 ? amount : 0,
+    })),
   }));
 }
 
@@ -88,32 +83,8 @@ function sourcePayloads(entitySnapshotId: number, idOffset: number) {
     fingerprint: "fingerprint",
     evidence: "已提交",
     selectedBy: 1,
-    selectedAt: "2026-03-01T00:00:00.000Z",
+    selectedAt: "2027-01-01T00:00:00.000Z",
   };
-  const incomeLines = [
-    line("revenue", 200, { side: "credit", currentMonthAmount: 100 }),
-    line("netProfit", 200, { currentMonthAmount: 100, isGrandTotal: true }),
-  ];
-  const incomeMonth = (amount: number) => [
-    line("revenue", amount, { side: "credit", currentMonthAmount: amount }),
-    line("netProfit", amount, { currentMonthAmount: amount, isGrandTotal: true }),
-  ];
-  const cashLines = [
-    line("salesReceipt", 0, { direction: "in", currentMonthAmount: 0 }),
-    line("operatingInSubtotal", 0, { direction: "net", currentMonthAmount: 0, isTotal: true }),
-    line("operatingOutSubtotal", 0, { direction: "net", currentMonthAmount: 0, isTotal: true }),
-    line("operatingNet", 0, { direction: "net", currentMonthAmount: 0, isTotal: true }),
-    line("investingInSubtotal", 0, { direction: "net", currentMonthAmount: 0, isTotal: true }),
-    line("investingOutSubtotal", 0, { direction: "net", currentMonthAmount: 0, isTotal: true }),
-    line("investingNet", 0, { direction: "net", currentMonthAmount: 0, isTotal: true }),
-    line("financingInSubtotal", 0, { direction: "net", currentMonthAmount: 0, isTotal: true }),
-    line("financingOutSubtotal", 0, { direction: "net", currentMonthAmount: 0, isTotal: true }),
-    line("financingNet", 0, { direction: "net", currentMonthAmount: 0, isTotal: true }),
-    line("fxEffect", 0, { direction: "net", currentMonthAmount: 0 }),
-    line("netIncrease", 0, { direction: "net", currentMonthAmount: 0, isGrandTotal: true }),
-    line("openingCash", 0, { direction: "in", currentMonthAmount: 0 }),
-    line("endingCash", 0, { direction: "net", currentMonthAmount: 0, isGrandTotal: true }),
-  ];
   return [
     {
       ...common,
@@ -145,11 +116,14 @@ function sourcePayloads(entitySnapshotId: number, idOffset: number) {
       workpaperId: idOffset + 2,
       reportPayload: {
         httpStatus: 200,
-        payload: { lines: incomeLines },
-        monthlyPeriods: {
-          current: monthlyPeriods([incomeMonth(100), incomeMonth(100)], 2026),
-          comparative: monthlyPeriods([incomeMonth(0), incomeMonth(0)], 2025),
-        },
+        payload: { lines: [
+          line("revenue", 200, { side: "credit" }),
+          line("netProfit", 200, { isGrandTotal: true }),
+        ] },
+        translationFacts: { monthlyFlows: {
+          current: monthlyFlowFacts(2026, { revenue: 200, netProfit: 200 }),
+          comparative: monthlyFlowFacts(2025, { revenue: 0, netProfit: 0 }),
+        } },
       },
     },
     {
@@ -159,32 +133,61 @@ function sourcePayloads(entitySnapshotId: number, idOffset: number) {
       workpaperId: idOffset + 3,
       reportPayload: {
         httpStatus: 200,
-        payload: { lines: cashLines },
-        monthlyPeriods: {
-          current: monthlyPeriods([cashLines, cashLines], 2026),
-          comparative: monthlyPeriods([cashLines, cashLines], 2025),
-        },
+        payload: { lines: [
+          line("salesReceipt", 100, { direction: "in" }),
+          line("operatingNet", 100, { direction: "net", isTotal: true }),
+          line("investingNet", 0, { direction: "net", isTotal: true }),
+          line("financingNet", 0, { direction: "net", isTotal: true }),
+          line("fxEffect", 0, { direction: "in" }),
+          line("netIncrease", 100, { direction: "net", isGrandTotal: true }),
+          line("openingCash", 0, { direction: "in" }),
+          line("endingCash", 100, { direction: "net", isGrandTotal: true }),
+        ] },
+        translationFacts: { monthlyFlows: {
+          current: monthlyFlowFacts(2026, { salesReceipt: 100, operatingNet: 100, investingNet: 0, financingNet: 0, fxEffect: 0, netIncrease: 100, openingCash: 0, endingCash: 100 }),
+          comparative: monthlyFlowFacts(2025, { salesReceipt: 0, operatingNet: 0, investingNet: 0, financingNet: 0, fxEffect: 0, netIncrease: 0, openingCash: 0, endingCash: 0 }),
+        } },
       },
     },
   ];
 }
 
-function application(input: Partial<RateApplication> & Pick<RateApplication, "applicationType" | "entitySnapshotId" | "targetDate">): RateApplication {
+function rateApplication(
+  applicationType: "closing" | "flowAverage" | "cashPoint" | "historicalInvestment",
+  entitySnapshotId: number,
+  voucherItemId?: number,
+  periodBasis: "current" | "comparative" = "current",
+  targetDate?: string,
+): ConsolidationReplayPackage["exchangeRates"][number]["applications"][number] {
+  const historical = applicationType === "historicalInvestment";
   return {
-    periodBasis: "current",
-    voucherItemId: null,
-    evidence: "冻结汇率证据",
-    voucher: null,
-    ...input,
+    applicationType,
+    periodBasis,
+    entitySnapshotId,
+    voucherItemId: voucherItemId ?? null,
+    targetDate: targetDate ?? (historical ? "2020-01-01" : "2026-12-31"),
+    evidence: historical ? "投资日凭证" : "期末折算",
+    voucher: historical ? {
+      companyCode: "ZX01",
+      voucherNo: `投-${voucherItemId}`,
+      voucherDate: "2020-01-01",
+      description: "对境外子公司出资",
+      accountCode: "1511",
+      bookedAmountCny: 350,
+      currencyCode: "CAD",
+      originalAmount: 70,
+    } : null,
   };
 }
 
-function frozenRate(
+function appliedRate(
   exchangeRateId: number,
-  rateKind: ConsolidationReplayPackage["exchangeRates"][number]["rateKind"],
-  rateDate: string,
+  rateKind: "centralParity" | "monthlyAverage",
   rate: number,
-  applications: RateApplication[],
+  entitySnapshotId: number,
+  applicationType: "closing" | "flowAverage" | "cashPoint",
+  periodBasis: "current" | "comparative",
+  targetDate: string,
 ): ConsolidationReplayPackage["exchangeRates"][number] {
   return {
     id: exchangeRateId + 100,
@@ -193,29 +196,96 @@ function frozenRate(
     baseCurrency: "CAD",
     quoteCurrency: "CNY",
     rateKind,
+    rateDate: targetDate,
+    rate,
+    sourceUrl: "https://www.chinamoney.com.cn/chinese/bkccpr/",
+    publishedAt: null,
+    recordedBy: 9,
+    recordedAt: "2027-01-02T00:00:00.000Z",
+    applications: [rateApplication(applicationType, entitySnapshotId, undefined, periodBasis, targetDate)],
+  };
+}
+
+function translationRates(entitySnapshotId: number, rate: number) {
+  let exchangeRateId = entitySnapshotId * 100;
+  const rates = [
+    appliedRate(exchangeRateId++, "centralParity", rate, entitySnapshotId, "closing", "current", "2026-12-31"),
+    appliedRate(exchangeRateId++, "centralParity", rate, entitySnapshotId, "closing", "comparative", "2025-12-31"),
+  ];
+  for (const [periodBasis, year] of [["current", 2026], ["comparative", 2025]] as const) {
+    for (let month = 1; month <= 12; month += 1) {
+      const targetDate = new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
+      rates.push(appliedRate(exchangeRateId++, "monthlyAverage", rate, entitySnapshotId, "flowAverage", periodBasis, targetDate));
+    }
+  }
+  for (const [periodBasis, dates] of [
+    ["current", ["2025-12-31", "2026-11-30"]],
+    ["comparative", ["2024-12-31", "2025-11-30"]],
+  ] as const) {
+    for (const targetDate of dates) {
+      rates.push(appliedRate(exchangeRateId++, "centralParity", rate, entitySnapshotId, "cashPoint", periodBasis, targetDate));
+    }
+  }
+  return rates;
+}
+
+function frozenRate(
+  exchangeRateId: number,
+  rateKind: "closing" | "historicalInvestment",
+  rate: number,
+  entitySnapshotId: number,
+): ConsolidationReplayPackage["exchangeRates"][number] {
+  return {
+    id: exchangeRateId + 100,
+    exchangeRateId,
+    exchangeRateVersion: 1,
+    baseCurrency: "CAD",
+    quoteCurrency: "CNY",
+    rateKind,
+    rateDate: rateKind === "closing" ? "2026-12-31" : "2020-01-01",
+    rate,
+    sourceUrl: "https://www.boc.cn/sourcedb/whpj/",
+    publishedAt: null,
+    recordedBy: 9,
+    recordedAt: "2027-01-02T00:00:00.000Z",
+    applications: [rateApplication(
+      rateKind,
+      entitySnapshotId,
+      rateKind === "historicalInvestment" ? exchangeRateId + 1_000 : undefined,
+    )],
+  };
+}
+
+function flowRate(
+  exchangeRateId: number,
+  rateDate: string,
+  rate: number,
+  entitySnapshotId: number,
+  periodBasis: "current" | "comparative",
+): ConsolidationReplayPackage["exchangeRates"][number] {
+  return {
+    id: exchangeRateId + 100,
+    exchangeRateId,
+    exchangeRateVersion: 1,
+    baseCurrency: "CAD",
+    quoteCurrency: "CNY",
+    rateKind: "monthlyAverage",
     rateDate,
     rate,
     sourceUrl: "https://www.chinamoney.com.cn/",
     publishedAt: null,
     recordedBy: 9,
-    recordedAt: "2026-03-01T00:00:00.000Z",
-    applications,
-  };
-}
-
-function entityRates(entitySnapshotId: number, januaryAverage = 5, februaryAverage = 6, closing = 5.32) {
-  return [
-    frozenRate(10 + entitySnapshotId, "centralParity", "2026-02-28", closing, [application({ applicationType: "closing", entitySnapshotId, targetDate: "2026-02-28" })]),
-    frozenRate(20 + entitySnapshotId, "monthlyAverage", "2026-01-31", januaryAverage, [application({ applicationType: "monthlyAverage", entitySnapshotId, targetDate: "2026-01-31" })]),
-    frozenRate(30 + entitySnapshotId, "monthlyAverage", "2026-02-28", februaryAverage, [application({ applicationType: "monthlyAverage", entitySnapshotId, targetDate: "2026-02-28" })]),
-    frozenRate(40 + entitySnapshotId, "centralParity", "2020-01-01", 4.8, [application({
-      applicationType: "historicalCapital",
+    recordedAt: "2027-01-02T00:00:00.000Z",
+    applications: [{
+      applicationType: "flowAverage",
+      periodBasis,
       entitySnapshotId,
-      targetDate: "2020-01-01",
-      capitalOriginalAmount: 70,
-      equityLineCode: "paidInCapital",
-    })]),
-  ];
+      voucherItemId: null,
+      targetDate: rateDate,
+      evidence: "月平均汇率",
+      voucher: null,
+    }],
+  };
 }
 
 function replayPackage(entityIds = [101]): ConsolidationReplayPackage {
@@ -227,7 +297,7 @@ function replayPackage(entityIds = [101]): ConsolidationReplayPackage {
       parentCompanyCode: "ZX01",
       parentCompanyName: "母公司",
       year: 2026,
-      month: 2,
+      month: 12,
       periodKind: "month",
       version: 1,
       revision: 4,
@@ -238,12 +308,12 @@ function replayPackage(entityIds = [101]): ConsolidationReplayPackage {
       rateFingerprint: "rates",
       createdBy: 1,
       submittedBy: 2,
-      submittedAt: "2026-03-02T00:00:00.000Z",
+      submittedAt: "2027-01-02T00:00:00.000Z",
       reviewedBy: 3,
-      reviewedAt: "2026-03-03T00:00:00.000Z",
+      reviewedAt: "2027-01-03T00:00:00.000Z",
       reviewNote: "同意",
       lockedBy: 3,
-      lockedAt: "2026-03-04T00:00:00.000Z",
+      lockedAt: "2027-01-04T00:00:00.000Z",
       publishedBy: null,
       publishedAt: null,
     },
@@ -261,220 +331,216 @@ function replayPackage(entityIds = [101]): ConsolidationReplayPackage {
   };
 }
 
-test("CAD uses closing rates, historical equity, and monthly accumulated income", () => {
+test("CAD uses entity closing rates, historical capital, and derives CTA in OCI", () => {
   const replay = replayPackage();
-  replay.exchangeRates = entityRates(101);
+  replay.exchangeRates = [
+    ...translationRates(101, 5.32),
+    frozenRate(7, "historicalInvestment", 4.8, 101),
+  ];
   const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
-  assert.equal(result.ok, true);
+  assert.equal(result.ok, true, result.ok ? undefined : JSON.stringify(result.issue));
   if (!result.ok) return;
   const balance = result.data.statements.find((item) => item.reportType === "balanceSheet")!;
   const income = result.data.statements.find((item) => item.reportType === "incomeStatement")!;
   assert.equal(balance.lines.find((item) => item.lineCode === "cash")?.amount, 798);
   assert.equal(balance.lines.find((item) => item.lineCode === "paidInCapital")?.amount, 336);
   assert.equal(balance.lines.find((item) => item.lineCode === "otherComprehensiveIncome")?.amount, 36.4);
-  assert.equal(income.lines.find((item) => item.lineCode === "revenue")?.amount, 1_100);
+  assert.equal(income.lines.find((item) => item.lineCode === "revenue")?.amount, 1_064);
 });
 
 test("CAD derives liabilities from section totals when source omits totalLiabilities", () => {
   const replay = replayPackage();
-  replay.exchangeRates = entityRates(101);
-  const payload = replay.sources[0]!.reportPayload as { payload: { liabilities: Array<{ lineCode: string }> } };
+  replay.exchangeRates = [
+    ...translationRates(101, 5.32),
+    frozenRate(7, "historicalInvestment", 4.8, 101),
+  ];
+  const payload = replay.sources[0]!.reportPayload as {
+    payload: { liabilities: Array<{ lineCode: string }> };
+  };
   payload.payload.liabilities = payload.payload.liabilities.filter((item) => item.lineCode !== "totalLiabilities");
   const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
-  assert.equal(result.ok, true);
+  assert.equal(result.ok, true, result.ok ? undefined : JSON.stringify(result.issue));
   if (!result.ok) return;
   const balance = result.data.statements.find((item) => item.reportType === "balanceSheet")!;
   assert.equal(balance.lines.find((item) => item.lineCode === "totalLiabilities")?.amount, 425.6);
 });
 
-test("two CAD entities use their own closing, monthly, and historical rates", () => {
+test("two CAD entities use their own closing and historical applications", () => {
   const replay = replayPackage([101, 102]);
-  replay.exchangeRates = [...entityRates(101), ...entityRates(102, 4, 5, 4.8)];
+  replay.exchangeRates = [
+    ...translationRates(101, 5.32),
+    frozenRate(13, "historicalInvestment", 4.8, 101),
+    ...translationRates(102, 4.8),
+    frozenRate(23, "historicalInvestment", 4.5, 102),
+  ];
   const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"], [102, "CAD"]]));
-  assert.equal(result.ok, true);
+  assert.equal(result.ok, true, result.ok ? undefined : JSON.stringify(result.issue));
   if (!result.ok) return;
   const balance = result.data.statements.find((item) => item.reportType === "balanceSheet")!;
   const income = result.data.statements.find((item) => item.reportType === "incomeStatement")!;
   assert.equal(balance.lines.find((item) => item.lineCode === "cash")?.amount, 1_518);
-  assert.equal(income.lines.find((item) => item.lineCode === "revenue")?.amount, 2_000);
+  assert.equal(income.lines.find((item) => item.lineCode === "revenue")?.amount, 2_024);
 });
 
 test("CAD output blocks without an entity closing application", () => {
   const replay = replayPackage();
-  replay.exchangeRates = entityRates(101).filter((rate) => rate.rateKind !== "centralParity" || rate.rateDate !== "2026-02-28");
+  replay.exchangeRates = [frozenRate(7, "historicalInvestment", 4.8, 101)];
   const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.issue.field, "rateApplications");
 });
 
-test("CAD retained earnings roll forward in CNY instead of using the closing rate", () => {
+test("CAD comparative numbers block until prior-period evidence is frozen", () => {
   const replay = replayPackage();
-  const balancePayload = replay.sources[0]!.reportPayload as {
-    payload: { equity: Array<ReturnType<typeof line>> };
-    equityRollforward?: unknown;
+  replay.exchangeRates = [
+    ...translationRates(101, 5.32).filter((rate) => !rate.applications.some((application) => (
+      application.applicationType === "closing" && application.periodBasis === "comparative"
+    ))),
+    frozenRate(7, "historicalInvestment", 4.8, 101),
+  ];
+  const payload = replay.sources[0]!.reportPayload as {
+    payload: { assets: Array<{ lineCode: string; previousAmount: number }> };
   };
-  balancePayload.payload.equity.find((item) => item.lineCode === "paidInCapital")!.amount = 60;
-  balancePayload.payload.equity.splice(1, 0, line("undistributedProfit", 30, {
-    previousAmount: 10,
+  payload.payload.assets.find((item) => item.lineCode === "cash")!.previousAmount = 10;
+  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.issue.field, "comparativeExchangeRates");
+});
+
+test("CAD retained earnings use the approved opening and monthly translated profit", () => {
+  const replay = replayPackage();
+  replay.exchangeRates = [
+    ...translationRates(101, 5.32),
+    frozenRate(7, "historicalInvestment", 4.8, 101),
+  ];
+  const payload = replay.sources[0]!.reportPayload as {
+    translationFacts?: { retainedEarningsOpening?: unknown };
+    payload: { equity: Array<ReturnType<typeof line>> };
+  };
+  payload.payload.equity.find((item) => item.lineCode === "paidInCapital")!.amount = 60;
+  payload.payload.equity.splice(1, 0, line("undistributedProfit", 200, {
     section: "equity",
     side: "credit",
   }));
-  const rates = entityRates(101);
-  const historicalCapital = rates.find((rate) => rate.rateDate === "2020-01-01")!;
-  historicalCapital.applications[0]!.capitalOriginalAmount = 60;
-  balancePayload.equityRollforward = {
-    seed: {
-      openingDate: "2025-12-31",
-      originalAmount: 10,
-      openingRetainedEarningsCny: 42,
-      evidence: "经财务负责人批准的2025年末人民币未分配利润",
-    },
-    periods: [
-      { year: 2026, month: 1, targetDate: "2026-01-31", closingOriginalAmount: 15, netProfitOriginalAmount: 5, otherAdjustmentOriginalAmount: 0 },
-      { year: 2026, month: 2, targetDate: "2026-02-28", closingOriginalAmount: 30, netProfitOriginalAmount: 15, otherAdjustmentOriginalAmount: 0 },
-    ],
-  };
-  rates.find((rate) => rate.rateDate === "2026-01-31")!.applications.push(application({
-    applicationType: "historicalEquity",
-    entitySnapshotId: 101,
-    targetDate: "2026-01-31",
-    capitalOriginalAmount: 5,
-    equityLineCode: "undistributedProfit",
-  }));
-  rates.find((rate) => rate.rateDate === "2026-02-28" && rate.rateKind === "monthlyAverage")!.applications.push(application({
-    applicationType: "historicalEquity",
-    entitySnapshotId: 101,
-    targetDate: "2026-02-28",
-    capitalOriginalAmount: 15,
-    equityLineCode: "undistributedProfit",
-  }));
-  replay.exchangeRates = rates;
+  payload.translationFacts = { retainedEarningsOpening: {
+    openingDate: "2025-12-31",
+    presentationCurrencyCode: "CNY",
+    openingAmount: 0,
+    evidence: "批准底稿",
+  } };
   const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
-  assert.equal(result.ok, true);
+  assert.equal(result.ok, true, result.ok ? undefined : JSON.stringify(result.issue));
   if (!result.ok) return;
   const balance = result.data.statements.find((statement) => statement.reportType === "balanceSheet")!;
-  assert.equal(balance.lines.find((item) => item.lineCode === "undistributedProfit")?.amount, 157);
-  assert.equal(balance.lines.find((item) => item.lineCode === "undistributedProfit")?.previousAmount, 42);
+  assert.equal(balance.lines.find((item) => item.lineCode === "undistributedProfit")?.amount, 1_064);
 });
 
-test("CAD uses the approved prior-year-end opening as its comparative amount", () => {
+test("CAD flow statements use monthly averages and retained earnings roll from the approved CNY opening", () => {
   const replay = replayPackage();
-  replay.batch.month = 6;
-  const source = replay.sources[0]!;
-  const balancePayload = source.reportPayload as {
-    payload: { equity: Array<ReturnType<typeof line>> };
-    equityRollforward?: unknown;
-  };
-  balancePayload.payload.equity.find((item) => item.lineCode === "paidInCapital")!.amount = 60;
-  balancePayload.payload.equity.splice(1, 0, line("undistributedProfit", 80, {
-    previousAmount: 20,
-    section: "equity",
-    side: "credit",
-  }));
-  balancePayload.equityRollforward = {
-    seed: {
-      openingDate: "2025-12-31",
-      originalAmount: 20,
-      openingRetainedEarningsCny: 100,
-      evidence: "经批准的2025年末人民币基准",
+  replay.batch.month = 2;
+  replay.exchangeRates = [
+    frozenRate(5, "closing", 4.8, 101),
+    frozenRate(7, "historicalInvestment", 4.8, 101),
+    flowRate(31, "2026-01-31", 5, 101, "current"),
+    flowRate(32, "2026-02-28", 4, 101, "current"),
+    flowRate(41, "2025-01-31", 5.2, 101, "comparative"),
+    flowRate(42, "2025-02-28", 5.1, 101, "comparative"),
+  ];
+  const income = replay.sources.find((source) => source.reportType === "incomeStatement")!;
+  income.reportPayload = {
+    ...(income.reportPayload as object),
+    translationFacts: {
+      monthlyFlows: {
+        current: [
+          { periodEnd: "2026-01-31", lines: [{ lineCode: "revenue", amount: 100 }, { lineCode: "netProfit", amount: 100 }] },
+          { periodEnd: "2026-02-28", lines: [{ lineCode: "revenue", amount: 100 }, { lineCode: "netProfit", amount: 100 }] },
+        ],
+        comparative: [
+          { periodEnd: "2025-01-31", lines: [{ lineCode: "revenue", amount: 0 }, { lineCode: "netProfit", amount: 0 }] },
+          { periodEnd: "2025-02-28", lines: [{ lineCode: "revenue", amount: 0 }, { lineCode: "netProfit", amount: 0 }] },
+        ],
+      },
     },
-    periods: ["2026-01-31", "2026-02-28", "2026-03-31", "2026-04-30", "2026-05-31", "2026-06-30"]
-      .map((targetDate, index) => ({
-        year: 2026,
-        month: index + 1,
-        targetDate,
-        closingOriginalAmount: 30 + index * 10,
-        netProfitOriginalAmount: 10,
-        otherAdjustmentOriginalAmount: 0,
-      })),
   };
-  replay.exchangeRates = [
-    frozenRate(701, "centralParity", "2026-06-30", 5.4, [application({
-      applicationType: "closing",
-      entitySnapshotId: 101,
-      targetDate: "2026-06-30",
-    })]),
-    ...["2026-01-31", "2026-02-28", "2026-03-31", "2026-04-30", "2026-05-31", "2026-06-30"]
-      .map((targetDate, index) => frozenRate(702 + index, "monthlyAverage", targetDate, index + 1, [
-        application({ applicationType: "monthlyAverage", entitySnapshotId: 101, targetDate }),
-        application({
-          applicationType: "historicalEquity",
-          entitySnapshotId: 101,
-          targetDate,
-          capitalOriginalAmount: 10,
-          equityLineCode: "undistributedProfit",
-        }),
-      ])),
-    frozenRate(799, "centralParity", "2020-01-01", 4.8, [application({
-      applicationType: "historicalCapital",
-      entitySnapshotId: 101,
-      targetDate: "2020-01-01",
-      capitalOriginalAmount: 60,
-      equityLineCode: "paidInCapital",
-    })]),
-  ];
-  const rows = frozenPayloadLines("balanceSheet", source.reportPayload)!;
-  const result = translateFrozenSourceLines(replay, 101, "CAD", "balanceSheet", rows, source.reportPayload);
-  assert.equal(result.ok, true);
-  if (!result.ok) return;
-  const retained = result.data.find((item) => item.lineCode === "undistributedProfit")!;
-  assert.equal(retained.amount, 310);
-  assert.equal(retained.previousAmount, 100);
-});
-
-test("CAD standalone and consolidated entity contribution share the same translated read model", () => {
-  const replay = replayPackage();
-  replay.exchangeRates = entityRates(101);
-  const standalone = buildTranslatedStandaloneStatementsFromReplay(replay, 101, "CAD");
-  const consolidated = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
-  assert.equal(standalone.ok, true);
-  assert.equal(consolidated.ok, true);
-  if (!standalone.ok || !consolidated.ok) return;
-  for (const statement of standalone.data) {
-    const consolidatedStatement = consolidated.data.statements.find((item) => item.reportType === statement.reportType)!;
-    for (const standaloneLine of statement.lines) {
-      const entityAmount = consolidatedStatement.lines
-        .find((line) => line.lineCode === standaloneLine.lineCode)
-        ?.entityAmounts?.find((item) => item.entitySnapshotId === 101);
-      assert.equal(entityAmount?.amount, standaloneLine.amount, `${statement.reportType}:${standaloneLine.lineCode}`);
-    }
-  }
-});
-
-test("CAD cash flow uses monthly averages, closing cash balances, and a reconciling FX effect", () => {
-  const replay = replayPackage();
-  const cashSource = replay.sources.find((source) => source.reportType === "cashFlow")!;
-  const payload = cashSource.reportPayload as {
-    payload: { lines: Array<ReturnType<typeof line>> };
-    monthlyPeriods: { current: Array<{ lines: Array<{ lineCode: string; label: string; amount: number }> }> };
+  const cashFlow = replay.sources.find((source) => source.reportType === "cashFlow")!;
+  delete (cashFlow.reportPayload as { translationFacts?: unknown }).translationFacts;
+  const balance = replay.sources.find((source) => source.reportType === "balanceSheet")!;
+  const balancePayload = balance.reportPayload as { payload: { equity: Array<ReturnType<typeof line>> } };
+  const retained = line("undistributedProfit", 100, { section: "equity", side: "credit" });
+  retained.previousAmount = -100;
+  balancePayload.payload.equity.splice(1, 0, retained);
+  balance.reportPayload = {
+    ...balancePayload,
+    translationFacts: {
+      retainedEarningsOpening: {
+        key: "approved-opening",
+        foreignCompanyCode: "02",
+        openingDate: "2025-12-31",
+        presentationCurrencyCode: "CNY",
+        openingAmount: -500,
+        evidence: "财务负责人批准",
+      },
+    },
   };
-  const amountsByMonth = [
-    { salesReceipt: 10, openingCash: 20, endingCash: 31 },
-    { salesReceipt: 20, openingCash: 31, endingCash: 53 },
-  ];
-  payload.monthlyPeriods.current.forEach((period, index) => {
-    for (const item of period.lines) item.amount = amountsByMonth[index]![item.lineCode as keyof typeof amountsByMonth[number]] ?? 0;
-  });
-  const currentLines = payload.payload.lines;
-  currentLines.find((item) => item.lineCode === "salesReceipt")!.amount = 30;
-  currentLines.find((item) => item.lineCode === "salesReceipt")!.currentMonthAmount = 20;
-  currentLines.find((item) => item.lineCode === "openingCash")!.amount = 20;
-  currentLines.find((item) => item.lineCode === "openingCash")!.currentMonthAmount = 31;
-  currentLines.find((item) => item.lineCode === "endingCash")!.amount = 53;
-  currentLines.find((item) => item.lineCode === "endingCash")!.currentMonthAmount = 53;
-  replay.exchangeRates = [
-    ...entityRates(101, 4.5, 5.5, 6),
-    frozenRate(601, "centralParity", "2025-12-31", 4, [application({ applicationType: "closing", entitySnapshotId: 101, targetDate: "2025-12-31" })]),
-    frozenRate(602, "centralParity", "2026-01-31", 5, [application({ applicationType: "closing", entitySnapshotId: 101, targetDate: "2026-01-31" })]),
-  ];
   const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
-  assert.equal(result.ok, true);
+  assert.equal(result.ok, true, result.ok ? undefined : JSON.stringify(result.issue));
   if (!result.ok) return;
-  const cash = result.data.statements.find((statement) => statement.reportType === "cashFlow")!;
-  assert.equal(cash.lines.find((item) => item.lineCode === "operatingNet")?.amount, 155);
-  assert.equal(cash.lines.find((item) => item.lineCode === "openingCash")?.amount, 80);
-  assert.equal(cash.lines.find((item) => item.lineCode === "endingCash")?.amount, 318);
-  assert.equal(cash.lines.find((item) => item.lineCode === "fxEffect")?.amount, 83);
-  assert.equal(cash.lines.find((item) => item.lineCode === "netIncrease")?.amount, 238);
-  assert.equal(cash.lines.find((item) => item.lineCode === "fxEffect")?.currentMonthAmount, 53);
+  const outputIncome = result.data.statements.find((statement) => statement.reportType === "incomeStatement")!;
+  const outputBalance = result.data.statements.find((statement) => statement.reportType === "balanceSheet")!;
+  assert.equal(outputIncome.lines.find((item) => item.lineCode === "revenue")?.amount, 900);
+  assert.equal(outputBalance.lines.find((item) => item.lineCode === "undistributedProfit")?.amount, 400);
+  assert.equal(outputBalance.lines.find((item) => item.lineCode === "undistributedProfit")?.previousAmount, -500);
+});
+
+function roundingCashFlowReplay() {
+  const replay = replayPackage();
+  replay.exchangeRates = [
+    ...translationRates(101, 1.5),
+    frozenRate(7, "historicalInvestment", 1.5, 101),
+  ];
+  const cashFlow = replay.sources.find((source) => source.reportType === "cashFlow")!;
+  const currentAmounts = {
+    salesReceipt: 0,
+    taxRefund: 0,
+    otherOpIn: 0,
+    operatingInSubtotal: 0,
+    purchasePayment: 3.33,
+    staffPayment: 3.33,
+    taxPayment: 0,
+    otherOpOut: 0,
+    operatingOutSubtotal: 6.66,
+    operatingNet: -6.66,
+    investingNet: 0,
+    financingNet: 0,
+    fxEffect: 0,
+    netIncrease: -6.66,
+    openingCash: 10,
+    endingCash: 3.34,
+  };
+  const cashLines = Object.entries(currentAmounts).map(([lineCode, amount]) => line(lineCode, amount, {
+    direction: lineCode.includes("Out") || lineCode.endsWith("Payment") ? "out" : lineCode.includes("Net") ? "net" : "in",
+    isTotal: lineCode.endsWith("Subtotal") || ["operatingNet", "investingNet", "financingNet"].includes(lineCode),
+    isGrandTotal: ["netIncrease", "endingCash"].includes(lineCode),
+  }));
+  cashFlow.reportPayload = {
+    httpStatus: 200,
+    payload: { lines: cashLines },
+    translationFacts: { monthlyFlows: {
+      current: monthlyFlowFacts(2026, currentAmounts),
+      comparative: monthlyFlowFacts(2025, Object.fromEntries(Object.keys(currentAmounts).map((code) => [code, 0]))),
+    } },
+  };
+  return replay;
+}
+
+test("CAD cash flow rejects a cent missing between monthly source facts and the cumulative source report", () => {
+  const replay = roundingCashFlowReplay();
+  const cashFlow = replay.sources.find((source) => source.reportType === "cashFlow")!;
+  const payload = cashFlow.reportPayload as {
+    payload: { lines: Array<{ lineCode: string; amount: number }> };
+  };
+  payload.payload.lines.find((item) => item.lineCode === "purchasePayment")!.amount = 3.32;
+  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.issue.field, "cashFlowSourceReconciliation");
 });

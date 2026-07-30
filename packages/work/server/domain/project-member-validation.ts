@@ -1,11 +1,16 @@
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 import { rejectInvalidDateField } from "@workspace/platform/server/api";
 import { validateFkValue } from "@workspace/platform/server/relation-registry";
-import { prisma } from "@workspace/platform/server/prisma";
 import { PROJECT_ROLES } from "../../constants/field-options";
 import { canManageProject, canUpdateProjectAction } from "../access";
 import { WORK_FK_REGISTRY } from "../fk-registry";
 import { employeesFitProjectMemberDepartmentScope } from "../project-member-department-scope";
+import {
+  findEmployeeIdByNumber,
+  findProjectEnablingDepartmentReference,
+  findProjectMemberDeleteReference,
+  findProjectMemberReference,
+} from "../project-member-reference-adapter";
 
 const DATE_FIELDS = ["startDate", "endDate"];
 const ENABLING_DEPARTMENT_ROLES = new Set(["负责人", "执行负责", "支持协作", "咨询参与"]);
@@ -42,13 +47,7 @@ function isEnablingDepartmentBoundRole(role: string) {
 }
 
 async function isEmployeeInProjectEnablingDepartment(projectId: number, employeeId: number, actorUserId: number) {
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-    select: {
-      projectType: true,
-      enablingDepartments: { select: { departmentId: true } },
-    },
-  });
+  const project = await findProjectEnablingDepartmentReference(projectId);
   if (!project) return false;
   const departmentIds = project.enablingDepartments.map((entry) => entry.departmentId);
   return employeesFitProjectMemberDepartmentScope({
@@ -102,10 +101,7 @@ export async function buildProjectMemberCreateCommand(
   if (!Number.isInteger(projectNumber) || projectNumber <= 0) return failCommand("项目无效");
   if (!(await canManageProject(userId, projectNumber)) || !(await canUpdateProjectAction(userId, projectNumber))) return failCommand("无权限", 403);
 
-  const employee = await prisma.employee.findUnique({
-    where: { employeeId: String(employeeNumber) },
-    select: { id: true },
-  });
+  const employee = await findEmployeeIdByNumber(String(employeeNumber));
   if (!employee) return failCommand("员工不存在");
 
   const employeeValidation = await validateFkValue(WORK_FK_REGISTRY, {
@@ -148,10 +144,7 @@ export async function buildProjectMemberFieldUpdateCommand(
   field: string,
   value: unknown,
 ): Promise<DomainValidationResult<ProjectMemberFieldUpdateCommand>> {
-  const existing = await prisma.employeeProject.findUnique({
-    where: { id: recordId },
-    select: { employeeId: true, projectId: true, role: true, recordState: true },
-  });
+  const existing = await findProjectMemberReference(recordId);
   if (!existing) return failCommand("记录不存在", 404);
   if (existing.recordState !== "confirmed") return failCommand("该项目成员版本已失效", 409);
   if (!(await canManageProject(userId, existing.projectId)) || !(await canUpdateProjectAction(userId, existing.projectId))) return failCommand("无权限", 403);
@@ -178,10 +171,7 @@ export async function validateProjectMemberDeleteCommand(
   userId: number,
   recordId: number,
 ): Promise<DomainValidationResult<ProjectMemberDeleteCommand>> {
-  const existing = await prisma.employeeProject.findUnique({
-    where: { id: recordId },
-    select: { projectId: true, recordState: true },
-  });
+  const existing = await findProjectMemberDeleteReference(recordId);
   if (!existing) return failCommand("记录不存在", 404);
   if (existing.recordState !== "confirmed") return failCommand("该项目成员版本已失效", 409);
   if (!(await canManageProject(userId, existing.projectId)) || !(await canUpdateProjectAction(userId, existing.projectId))) return failCommand("无权限", 403);

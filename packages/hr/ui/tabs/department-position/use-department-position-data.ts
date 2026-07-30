@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import type { Department, Position, Selection } from "./types";
+import type { Department, OrganizationCodeConfig, Position, Selection } from "./types";
 import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
+import { filterPositionsForLoadedDepartments } from "./department-position-data";
 
 export type HrDepartmentActionRuntimes = {
   create: ActionRuntime;
@@ -22,6 +23,7 @@ export function useDepartmentPositionData({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [departmentActionRuntimes, setDepartmentActionRuntimes] = useState<HrDepartmentActionRuntimes | null>(null);
+  const [codeConfig, setCodeConfig] = useState<OrganizationCodeConfig | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -37,9 +39,14 @@ export function useDepartmentPositionData({
       const [deptData, posData] = await Promise.all([deptRes.json(), posRes.json()]);
       const nextDepartments = ((deptData.departments || []) as Department[]);
       const visibleDepartmentIds = new Set(nextDepartments.map((department) => department.id));
-      const nextPositions = ((posData.positions || []) as Position[]).filter((position) => !position.departmentId || visibleDepartmentIds.has(position.departmentId));
+      const nextPositions = filterPositionsForLoadedDepartments(
+        (posData.positions || []) as Position[],
+        visibleDepartmentIds,
+        showArchived,
+      );
       setDepartments(nextDepartments);
       setDepartmentActionRuntimes(deptData.actionRuntimes ?? null);
+      setCodeConfig((deptData.codeConfig ?? null) as OrganizationCodeConfig | null);
       setPositions(nextPositions);
       if (!showArchived) {
         setSelection((prev) => {
@@ -62,6 +69,7 @@ export function useDepartmentPositionData({
   return {
     departments,
     departmentActionRuntimes,
+    codeConfig,
     error,
     loadData,
     loading,

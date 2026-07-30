@@ -1,8 +1,4 @@
-import {
-  deriveFinanceGroupAccountTranslationRateType,
-  type FinanceGroupAccountCatalogResponse,
-  type FinanceGroupAccountUsage,
-} from "@workspace/finance/types/group-account";
+import type { FinanceGroupAccountCatalogResponse, FinanceGroupAccountUsage } from "@workspace/finance/types";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 
@@ -153,7 +149,7 @@ export async function listFinanceGroupAccounts(
       consolidationRole: revision.consolidationRole as FinanceGroupAccountCatalogResponse["rows"][number]["consolidationRole"],
       counterpartyRequirement: revision.counterpartyRequirement as FinanceGroupAccountCatalogResponse["rows"][number]["counterpartyRequirement"],
       movementType: revision.movementType as FinanceGroupAccountCatalogResponse["rows"][number]["movementType"],
-      translationRateType: deriveFinanceGroupAccountTranslationRateType(revision),
+      translationRateType: revision.translationRateType as FinanceGroupAccountCatalogResponse["rows"][number]["translationRateType"],
       originCompanyCode: revision.groupAccount.originCompanyCode,
       mappingCount: mappingCountByGroup.get(revision.groupAccountId) ?? 0,
       years: yearsByGroup.get(revision.groupAccountId) ?? [],

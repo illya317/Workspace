@@ -1,6 +1,6 @@
 "use client";
 
-import { createEmptySection, createFieldsSection, createPageBody, createPanelSection, BodySurface, type FormSurfaceItemSpec, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createEmptySection, createPageBody, createPanelSection, BodySurface, type FormSurfaceItemSpec, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import {
   createPositionDescriptionTemplateSection,
@@ -14,7 +14,7 @@ import { usePositionReportOverridesSection } from "./position-report-overrides-p
 import { usePositionDescriptionPanelSection } from "./position-description-panel";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { selectedEntityName } from "./detail-editors";
-import type { Department, DescriptionDraft, Position, PositionDraft, Selection } from "./types";
+import type { Department, DescriptionDraft, OrganizationCodeConfig, Position, PositionDraft, Selection } from "./types";
 import { departmentPath, positionCodePrefix, positionCodePrefixFromCode, positionCodeSuffix, splitAliasText } from "./utils";
 type PositionEditorProps = {
   position: Position | null | undefined;
@@ -26,6 +26,7 @@ type PositionEditorProps = {
   showArchived: boolean;
   canArchive: boolean;
   canEditPosition: boolean;
+  codeConfig: OrganizationCodeConfig | null;
   dirty: boolean;
   descriptionDirty: boolean;
   saving: boolean;
@@ -66,6 +67,7 @@ export function usePositionEditorSections({
   showArchived,
   canArchive,
   canEditPosition,
+  codeConfig,
   dirty,
   descriptionDirty,
   saving,
@@ -100,14 +102,6 @@ export function usePositionEditorSections({
   const [previewError, setPreviewError] = useState("");
   const [previewData, setPreviewData] = useState<PositionDescriptionTemplateData | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<PositionDescriptionTemplateDto | null>(null);
-  const [previewAsOf, setPreviewAsOf] = useState("");
-  const [previewRevisions, setPreviewRevisions] = useState<Array<{
-    sequence: number;
-    version: string | null;
-    effectiveDate: string | null;
-    changeKind: string;
-    temporalState: string;
-  }>>([]);
   const positionDescriptionId = position?.positionDescriptionId || null;
   const reportOverridesBlock = usePositionReportOverridesSection(position ?? null);
   const descriptionBlock = usePositionDescriptionPanelSection({
@@ -142,15 +136,12 @@ export function usePositionEditorSections({
     let cancelled = false;
     setPreviewLoading(true);
     setPreviewError("");
-    const asOfQuery = previewAsOf ? `&asOf=${encodeURIComponent(previewAsOf)}` : "";
-    fetch(workspacePath(`/api/modules/hr/roster/position-descriptions?id=${encodeURIComponent(String(positionDescriptionId))}${asOfQuery}`))
+    fetch(workspacePath(`/api/modules/hr/roster/position-descriptions?id=${encodeURIComponent(String(positionDescriptionId))}`))
       .then((response) => response.ok ? response.json() : Promise.reject())
       .then((data) => {
         if (cancelled) return;
         setPreviewData(data.positionDescription ?? null);
         setPreviewTemplate(data.template ?? null);
-        setPreviewRevisions(Array.isArray(data.revisions) ? data.revisions : []);
-        if (!previewAsOf && typeof data.asOfDate === "string") setPreviewAsOf(data.asOfDate);
         setPreviewLoading(false);
       })
       .catch(() => {
@@ -162,36 +153,19 @@ export function usePositionEditorSections({
     return () => {
       cancelled = true;
     };
-  }, [positionDescriptionId, previewOpen, previewAsOf]);
+  }, [positionDescriptionId, previewOpen]);
 
   if (!position) return [];
   const draftDepartment = draft?.departmentId ? departmentById.get(draft.departmentId) : undefined;
-  const draftCodePrefix = positionCodePrefix(draftDepartment) || (showArchived ? positionCodePrefixFromCode(position.code) : "");
+  const draftCodePrefix = codeConfig
+    ? positionCodePrefix(draftDepartment, codeConfig)
+    : showArchived ? positionCodePrefixFromCode(position.code, codeConfig) : "";
   const draftDepartmentDisplay = departmentPath(draftDepartment, departmentById) || position.departmentName || "";
   const previewSection = previewLoading
     ? createEmptySection("position-description-preview-paper", { content: "加载中...", compact: true })
     : previewError || !previewData
       ? createEmptySection("position-description-preview-paper", { content: previewError || "未找到", compact: true })
       : createPositionDescriptionTemplateSection("position-description-preview-paper", previewData, previewTemplate);
-  const previewTemporalSection = createFieldsSection("position-description-temporal", [{
-    key: "asOf",
-    label: "截至业务日",
-    spec: { valueType: "date", control: "temporal", precision: "date" },
-    value: previewAsOf,
-    onChange: (value) => setPreviewAsOf(String(value ?? "")),
-  }, {
-    kind: "note",
-    key: "revisions",
-    content: previewRevisions.length === 0
-      ? "暂无修订"
-      : previewRevisions.map((revision) => [
-          `#${revision.sequence}`,
-          revision.version,
-          revision.effectiveDate || "未设生效日",
-          revision.changeKind === "correction" ? "纠错" : "正常变更",
-          revision.temporalState === "current" ? "当前" : revision.temporalState === "upcoming" ? "未来" : "历史",
-        ].filter(Boolean).join(" · ")).join("\n"),
-  }], { layout: { columns: 2 } });
   const positionInfoFields: FormSurfaceItemSpec<string>[] = draft ? [
     {
       key: "code",
@@ -201,19 +175,20 @@ export function usePositionEditorSections({
         control: "text",
         mask: {
           kind: "editableSegment",
-          extract: (code: string) => positionCodeSuffix(code),
+          extract: (code: string) => positionCodeSuffix(code, codeConfig),
           compose: (segment: string, code: string) => {
-            const prefix = draftCodePrefix || positionCodePrefixFromCode(code);
-            const suffix = segment.replace(/\D/g, "").slice(0, 2).padStart(2, "0");
+            const prefix = draftCodePrefix || positionCodePrefixFromCode(code, codeConfig);
+            const length = codeConfig?.position.sequenceLength ?? 0;
+            const suffix = segment.replace(/\D/g, "").slice(0, length).padStart(length, "0");
             return suffix && prefix ? `${prefix}${suffix}` : code;
           },
-          normalize: (segment: string) => segment.replace(/\D/g, "").slice(0, 2),
-          placeholder: "01",
+          normalize: (segment: string) => segment.replace(/\D/g, "").slice(0, codeConfig?.position.sequenceLength ?? 0),
+          placeholder: String(codeConfig?.position.sequenceStart ?? "").padStart(codeConfig?.position.sequenceLength ?? 0, "0"),
         },
         state: !canEditPosition || !draftCodePrefix ? "disabled" : "normal",
       },
       value: draft.code,
-      onChange: (nextCode) => onUpdateDraftCodeSuffix(positionCodeSuffix(String(nextCode ?? "")), true),
+      onChange: (nextCode) => onUpdateDraftCodeSuffix(positionCodeSuffix(String(nextCode ?? ""), codeConfig), true),
     },
     {
       key: "name",
@@ -289,42 +264,6 @@ export function usePositionEditorSections({
         onUpdateDraft("reportToPositionId", fkOption?.id ?? null);
       },
     },
-    {
-      key: "effectiveOn",
-      label: "生效日",
-      spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditPosition ? "disabled" : "normal" },
-      value: draft.effectiveOn,
-      onChange: (value) => onUpdateDraft("effectiveOn", String(value ?? "")),
-    },
-    {
-      key: "changeKind",
-      label: "变更类型",
-      spec: {
-        valueType: "string",
-        control: "choice",
-        state: !canEditPosition ? "disabled" : "normal",
-        options: { source: "static", items: [
-          { value: "schedule", label: "正常变更" },
-          { value: "correct", label: "历史纠错" },
-        ] },
-      },
-      value: draft.changeKind,
-      onChange: (value) => onUpdateDraft("changeKind", value === "correct" ? "correct" : "schedule"),
-    },
-    ...(draft.changeKind === "correct" ? [{
-      key: "changeReason",
-      label: "纠错原因",
-      required: true,
-      span: "wide" as const,
-      spec: { valueType: "string" as const, control: "text" as const, state: !canEditPosition ? "disabled" as const : "normal" as const },
-      value: draft.changeReason,
-      onChange: (value: unknown) => onUpdateDraft("changeReason", String(value ?? "")),
-    }] : []),
-    {
-      kind: "note",
-      key: "temporalTimeline",
-      content: positionTimelineSummary(position),
-    },
   ] : [];
   return [
       ...(position.departmentId ? [createDirectPositionPanelSection({ departmentId: position.departmentId, positionsByDepartment, selection, onSelect })] : []),
@@ -359,23 +298,11 @@ export function usePositionEditorSections({
             title: "岗位说明书",
             size: "xl",
             onClose: () => setPreviewOpen(false),
-            sections: [previewTemporalSection, previewSection],
+            sections: [previewSection],
           }],
         },
       },
     ];
-}
-
-function positionTimelineSummary(position: Position) {
-  const current = position.temporal.current;
-  return [
-    `基准日 ${position.asOfDate}`,
-    current
-      ? `当前 #${current.sequence} · ${current.validFrom || "历史起点未知"} 至 ${current.validToExclusive || "长期"} · ${current.recordState}`
-      : "当前：无有效版本",
-    ...position.temporal.upcoming.map((item) => `待生效 #${item.sequence} · ${item.validFrom || "未定"} · ${item.payload.name}`),
-    ...position.temporal.history.slice(0, 5).map((item) => `历史 #${item.sequence} · ${item.validFrom || "起点未知"} 至 ${item.validToExclusive || "长期"} · ${item.changeKind}${item.reason ? ` · ${item.reason}` : ""}`),
-  ].join("\n");
 }
 
 export function PositionEditor(props: Omit<PositionEditorProps, "position"> & { position: Position }) {

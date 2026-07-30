@@ -1,5 +1,6 @@
-export { default as LoginClient } from "./LoginClient";
 export { AgentConversationSurface, type AgentConversationStarter } from "./AgentConversationSurface";
+export { default as WorkspacePageAssistantProvider } from "./PageAssistantProvider";
+export { default as LoginClient } from "./LoginClient";
 export { default as ModuleHome } from "./ModuleHome";
 export { default as NavLink } from "./NavLink";
 export { useDeployUnitNavigation } from "./useDeployUnitNavigation";
@@ -73,9 +74,6 @@ export {
   type StageFlowStateSpec,
   type StageFlowSurfaceProps,
 } from "./workflow";
-export { DocsCompanyPage } from "./docs";
-export { default as SettingsClient } from "./settings/SettingsClient";
-export type { AccountWorkflowDetailRenderer, AccountWorkflowDetailRendererProps } from "./settings/AccountNotificationsPanel";
 export {
   fetchPreferredDepartmentSettings,
   savePreferredDepartmentIds,

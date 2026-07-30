@@ -6,7 +6,7 @@ import { isPermissionActionKey } from "../permission-actions";
 import { isPermissionActionSupported } from "../permission-resource-policy";
 import { rotateUserApiKey } from "./personal-api-key";
 import { prisma } from "./prisma";
-import { validateAgentActorUserFieldChange } from "./agent/actor-user-policy";
+import { validateAgentActorUserFieldChange } from "./agent-actor-user-policy";
 
 export type CreateAdminUserInput = {
   username: string;
@@ -48,12 +48,13 @@ export async function createAdminUser(input: CreateAdminUserInput) {
   if (duplicate) throw new Error(duplicate);
   const employeeError = await validateEmployeeAccountLink(0, employeeId);
   if (employeeError) throw new Error(employeeError);
-  return prisma.user.create({
-    data: {
-      username,
-      employeeId,
-      canLogin: true,
-    },
+  return prisma.$transaction(async (tx) => {
+    const user = await tx.user.create({ data: { username, canLogin: true } });
+    if (employeeId) {
+      const linked = await tx.employee.updateMany({ where: { employeeId, userId: null }, data: { userId: user.id } });
+      if (linked.count !== 1) throw new Error(`工号 ${employeeId} 已被其他账号绑定`);
+    }
+    return user;
   });
 }
 
@@ -80,20 +81,11 @@ async function validateUsernameAvailable(userId: number, username: string) {
 async function validateEmployeeAccountLink(userId: number, employeeId: string | null) {
   if (!employeeId) return null;
 
-  const [duplicateUser, employee] = await Promise.all([
-    prisma.user.findFirst({
-      where: { employeeId, id: { not: userId } },
-      select: { id: true, username: true },
-    }),
-    prisma.employee.findUnique({
-      where: { employeeId },
-      select: { userId: true, name: true },
-    }),
-  ]);
-
-  if (duplicateUser) {
-    return `工号 ${employeeId} 已绑定账号 ${duplicateUser.username}`;
-  }
+  const employee = await prisma.employee.findUnique({
+    where: { employeeId },
+    select: { userId: true, name: true },
+  });
+  if (!employee) return `工号 ${employeeId} 不存在`;
   if (employee?.userId && employee.userId !== userId) {
     return `工号 ${employeeId} 已绑定员工 ${employee.name} 的账号`;
   }
@@ -116,10 +108,18 @@ export async function updateAdminUserField(input: UpdateAdminUserFieldInput): Pr
     const value = normalizeNullableText(input.value);
     const error = await validateEmployeeAccountLink(input.userId, value);
     if (error) return { success: false, status: 409, error };
-    await prisma.user.update({
-      where: { id: input.userId },
-      data: { employeeId: value },
+    const linked = await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${input.userId} FOR UPDATE`;
+      const target = value
+        ? await tx.$queryRaw<Array<{ userId: number | null }>>`SELECT "userId" FROM "Employee" WHERE "employeeId" = ${value} FOR UPDATE`
+        : [];
+      if (value && (target.length !== 1 || (target[0]!.userId !== null && target[0]!.userId !== input.userId))) return false;
+      await tx.employee.updateMany({ where: { userId: input.userId }, data: { userId: null } });
+      if (!value) return true;
+      await tx.employee.update({ where: { employeeId: value }, data: { userId: input.userId } });
+      return true;
     });
+    if (!linked) return { success: false, status: 409, error: `工号 ${value} 已被其他账号绑定` };
     return { success: true };
   }
 

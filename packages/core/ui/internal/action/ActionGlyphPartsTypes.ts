@@ -37,6 +37,8 @@ export type ActionGlyphIconKind =
   | "permission-organization"
   | "permission-derived"
   | "sort"
+  | "move-up"
+  | "move-down"
   | "more"
   | "download"
   | "upload"

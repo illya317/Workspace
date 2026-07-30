@@ -12,7 +12,6 @@ test.describe.configure({ retries: 0 });
 
 interface ModuleReadinessCase {
   id: string;
-  unitId: string;
   label: string;
   path: string;
   pageTitle: string;
@@ -31,7 +30,6 @@ function visible(locator: Locator) {
 const readinessCases: ModuleReadinessCase[] = [
   {
     id: "hr-roster",
-    unitId: "hr",
     label: "HR 花名册",
     path: "/workspace/hr/roster",
     pageTitle: "人事基础资料",
@@ -47,7 +45,6 @@ const readinessCases: ModuleReadinessCase[] = [
   },
   {
     id: "work-home",
-    unitId: "work",
     label: "Work 主入口",
     path: "/workspace/work",
     pageTitle: "工作管理",
@@ -56,7 +53,6 @@ const readinessCases: ModuleReadinessCase[] = [
   },
   {
     id: "work-project",
-    unitId: "work",
     label: "Work 项目",
     path: "/workspace/work/project",
     pageTitle: "项目管理",
@@ -75,7 +71,6 @@ const readinessCases: ModuleReadinessCase[] = [
   },
   {
     id: "finance-home",
-    unitId: "finance",
     label: "Finance 主入口",
     path: "/workspace/finance",
     pageTitle: "财务管理",
@@ -84,7 +79,6 @@ const readinessCases: ModuleReadinessCase[] = [
   },
   {
     id: "production-qc",
-    unitId: "production",
     label: "Production QC",
     path: "/workspace/production/qc",
     pageTitle: "批次检验",
@@ -93,7 +87,6 @@ const readinessCases: ModuleReadinessCase[] = [
   },
   {
     id: "inventory-operations",
-    unitId: "inventory",
     label: "Inventory 运营台",
     path: "/workspace/inventory/operations",
     pageTitle: "库存运营",
@@ -104,7 +97,6 @@ const readinessCases: ModuleReadinessCase[] = [
   },
   {
     id: "library-basic-info",
-    unitId: "library",
     label: "Library 基础资料",
     path: "/workspace/library/basic-info",
     pageTitle: "资料库",
@@ -119,7 +111,6 @@ const readinessCases: ModuleReadinessCase[] = [
   },
   {
     id: "external-customers",
-    unitId: "external",
     label: "External 客户",
     path: "/workspace/external/customers",
     pageTitle: "客户管理",
@@ -129,7 +120,6 @@ const readinessCases: ModuleReadinessCase[] = [
   },
   {
     id: "administration-home",
-    unitId: "administration",
     label: "Administration 主入口",
     path: "/workspace/administration",
     pageTitle: "行政管理",
@@ -138,12 +128,7 @@ const readinessCases: ModuleReadinessCase[] = [
   },
 ];
 
-const deployUnitId = process.env.E2E_DEPLOY_UNIT_ID?.trim();
-const selectedReadinessCases = deployUnitId
-  ? readinessCases.filter((readinessCase) => readinessCase.unitId === deployUnitId)
-  : readinessCases;
-
-for (const readinessCase of selectedReadinessCases) {
+for (const readinessCase of readinessCases) {
   test(`${readinessCase.label} 首屏进入可用或明确空态`, {
     tag: ["@nightly", "@latency", "@module-readiness", `@${readinessCase.id}`],
   }, async ({ page }, testInfo) => {

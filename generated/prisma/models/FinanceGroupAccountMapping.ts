@@ -30,6 +30,8 @@ export type FinanceGroupAccountMappingAvgAggregateOutputType = {
   id: number | null
   policyVersionId: number | null
   groupAccountId: number | null
+  companyId: number | null
+  localAccountId: number | null
   latestYear: number | null
 }
 
@@ -37,6 +39,8 @@ export type FinanceGroupAccountMappingSumAggregateOutputType = {
   id: number | null
   policyVersionId: number | null
   groupAccountId: number | null
+  companyId: number | null
+  localAccountId: number | null
   latestYear: number | null
 }
 
@@ -45,12 +49,14 @@ export type FinanceGroupAccountMappingMinAggregateOutputType = {
   policyVersionId: number | null
   groupAccountId: number | null
   companyCode: string | null
+  companyId: number | null
   sourceScopeKey: string | null
   sourceSystem: string | null
   sourceDatabase: string | null
   sourceLedger: string | null
   localAccountCode: string | null
   localAccountName: string | null
+  localAccountId: number | null
   localCategory: string | null
   localBalanceDirection: string | null
   latestYear: number | null
@@ -64,12 +70,14 @@ export type FinanceGroupAccountMappingMaxAggregateOutputType = {
   policyVersionId: number | null
   groupAccountId: number | null
   companyCode: string | null
+  companyId: number | null
   sourceScopeKey: string | null
   sourceSystem: string | null
   sourceDatabase: string | null
   sourceLedger: string | null
   localAccountCode: string | null
   localAccountName: string | null
+  localAccountId: number | null
   localCategory: string | null
   localBalanceDirection: string | null
   latestYear: number | null
@@ -83,12 +91,14 @@ export type FinanceGroupAccountMappingCountAggregateOutputType = {
   policyVersionId: number
   groupAccountId: number
   companyCode: number
+  companyId: number
   sourceScopeKey: number
   sourceSystem: number
   sourceDatabase: number
   sourceLedger: number
   localAccountCode: number
   localAccountName: number
+  localAccountId: number
   localCategory: number
   localBalanceDirection: number
   latestYear: number
@@ -103,6 +113,8 @@ export type FinanceGroupAccountMappingAvgAggregateInputType = {
   id?: true
   policyVersionId?: true
   groupAccountId?: true
+  companyId?: true
+  localAccountId?: true
   latestYear?: true
 }
 
@@ -110,6 +122,8 @@ export type FinanceGroupAccountMappingSumAggregateInputType = {
   id?: true
   policyVersionId?: true
   groupAccountId?: true
+  companyId?: true
+  localAccountId?: true
   latestYear?: true
 }
 
@@ -118,12 +132,14 @@ export type FinanceGroupAccountMappingMinAggregateInputType = {
   policyVersionId?: true
   groupAccountId?: true
   companyCode?: true
+  companyId?: true
   sourceScopeKey?: true
   sourceSystem?: true
   sourceDatabase?: true
   sourceLedger?: true
   localAccountCode?: true
   localAccountName?: true
+  localAccountId?: true
   localCategory?: true
   localBalanceDirection?: true
   latestYear?: true
@@ -137,12 +153,14 @@ export type FinanceGroupAccountMappingMaxAggregateInputType = {
   policyVersionId?: true
   groupAccountId?: true
   companyCode?: true
+  companyId?: true
   sourceScopeKey?: true
   sourceSystem?: true
   sourceDatabase?: true
   sourceLedger?: true
   localAccountCode?: true
   localAccountName?: true
+  localAccountId?: true
   localCategory?: true
   localBalanceDirection?: true
   latestYear?: true
@@ -156,12 +174,14 @@ export type FinanceGroupAccountMappingCountAggregateInputType = {
   policyVersionId?: true
   groupAccountId?: true
   companyCode?: true
+  companyId?: true
   sourceScopeKey?: true
   sourceSystem?: true
   sourceDatabase?: true
   sourceLedger?: true
   localAccountCode?: true
   localAccountName?: true
+  localAccountId?: true
   localCategory?: true
   localBalanceDirection?: true
   latestYear?: true
@@ -262,12 +282,14 @@ export type FinanceGroupAccountMappingGroupByOutputType = {
   policyVersionId: number
   groupAccountId: number | null
   companyCode: string
+  companyId: number | null
   sourceScopeKey: string
   sourceSystem: string | null
   sourceDatabase: string | null
   sourceLedger: string | null
   localAccountCode: string
   localAccountName: string
+  localAccountId: number | null
   localCategory: string
   localBalanceDirection: string
   latestYear: number | null
@@ -304,12 +326,14 @@ export type FinanceGroupAccountMappingWhereInput = {
   policyVersionId?: Prisma.IntFilter<"FinanceGroupAccountMapping"> | number
   groupAccountId?: Prisma.IntNullableFilter<"FinanceGroupAccountMapping"> | number | null
   companyCode?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceGroupAccountMapping"> | number | null
   sourceScopeKey?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
   sourceSystem?: Prisma.StringNullableFilter<"FinanceGroupAccountMapping"> | string | null
   sourceDatabase?: Prisma.StringNullableFilter<"FinanceGroupAccountMapping"> | string | null
   sourceLedger?: Prisma.StringNullableFilter<"FinanceGroupAccountMapping"> | string | null
   localAccountCode?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
   localAccountName?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
+  localAccountId?: Prisma.IntNullableFilter<"FinanceGroupAccountMapping"> | number | null
   localCategory?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
   localBalanceDirection?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
   latestYear?: Prisma.IntNullableFilter<"FinanceGroupAccountMapping"> | number | null
@@ -318,6 +342,8 @@ export type FinanceGroupAccountMappingWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FinanceGroupAccountMapping"> | Date | string
   policyVersion?: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionScalarRelationFilter, Prisma.FinanceAccountingPolicyVersionWhereInput>
   groupAccount?: Prisma.XOR<Prisma.FinanceGroupAccountNullableScalarRelationFilter, Prisma.FinanceGroupAccountWhereInput> | null
+  localAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceGroupAccountMappingOrderByWithRelationInput = {
@@ -325,12 +351,14 @@ export type FinanceGroupAccountMappingOrderByWithRelationInput = {
   policyVersionId?: Prisma.SortOrder
   groupAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceScopeKey?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceLedger?: Prisma.SortOrderInput | Prisma.SortOrder
   localAccountCode?: Prisma.SortOrder
   localAccountName?: Prisma.SortOrder
+  localAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   localCategory?: Prisma.SortOrder
   localBalanceDirection?: Prisma.SortOrder
   latestYear?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -339,6 +367,8 @@ export type FinanceGroupAccountMappingOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   policyVersion?: Prisma.FinanceAccountingPolicyVersionOrderByWithRelationInput
   groupAccount?: Prisma.FinanceGroupAccountOrderByWithRelationInput
+  localAccount?: Prisma.FinanceAccountOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceGroupAccountMappingWhereUniqueInput = Prisma.AtLeast<{
@@ -350,12 +380,14 @@ export type FinanceGroupAccountMappingWhereUniqueInput = Prisma.AtLeast<{
   policyVersionId?: Prisma.IntFilter<"FinanceGroupAccountMapping"> | number
   groupAccountId?: Prisma.IntNullableFilter<"FinanceGroupAccountMapping"> | number | null
   companyCode?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceGroupAccountMapping"> | number | null
   sourceScopeKey?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
   sourceSystem?: Prisma.StringNullableFilter<"FinanceGroupAccountMapping"> | string | null
   sourceDatabase?: Prisma.StringNullableFilter<"FinanceGroupAccountMapping"> | string | null
   sourceLedger?: Prisma.StringNullableFilter<"FinanceGroupAccountMapping"> | string | null
   localAccountCode?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
   localAccountName?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
+  localAccountId?: Prisma.IntNullableFilter<"FinanceGroupAccountMapping"> | number | null
   localCategory?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
   localBalanceDirection?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
   latestYear?: Prisma.IntNullableFilter<"FinanceGroupAccountMapping"> | number | null
@@ -364,6 +396,8 @@ export type FinanceGroupAccountMappingWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"FinanceGroupAccountMapping"> | Date | string
   policyVersion?: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionScalarRelationFilter, Prisma.FinanceAccountingPolicyVersionWhereInput>
   groupAccount?: Prisma.XOR<Prisma.FinanceGroupAccountNullableScalarRelationFilter, Prisma.FinanceGroupAccountWhereInput> | null
+  localAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "policyVersionId_companyCode_sourceScopeKey_localAccountCode">
 
 export type FinanceGroupAccountMappingOrderByWithAggregationInput = {
@@ -371,12 +405,14 @@ export type FinanceGroupAccountMappingOrderByWithAggregationInput = {
   policyVersionId?: Prisma.SortOrder
   groupAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceScopeKey?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceLedger?: Prisma.SortOrderInput | Prisma.SortOrder
   localAccountCode?: Prisma.SortOrder
   localAccountName?: Prisma.SortOrder
+  localAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   localCategory?: Prisma.SortOrder
   localBalanceDirection?: Prisma.SortOrder
   latestYear?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -398,12 +434,14 @@ export type FinanceGroupAccountMappingScalarWhereWithAggregatesInput = {
   policyVersionId?: Prisma.IntWithAggregatesFilter<"FinanceGroupAccountMapping"> | number
   groupAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceGroupAccountMapping"> | number | null
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountMapping"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceGroupAccountMapping"> | number | null
   sourceScopeKey?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountMapping"> | string
   sourceSystem?: Prisma.StringNullableWithAggregatesFilter<"FinanceGroupAccountMapping"> | string | null
   sourceDatabase?: Prisma.StringNullableWithAggregatesFilter<"FinanceGroupAccountMapping"> | string | null
   sourceLedger?: Prisma.StringNullableWithAggregatesFilter<"FinanceGroupAccountMapping"> | string | null
   localAccountCode?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountMapping"> | string
   localAccountName?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountMapping"> | string
+  localAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceGroupAccountMapping"> | number | null
   localCategory?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountMapping"> | string
   localBalanceDirection?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountMapping"> | string
   latestYear?: Prisma.IntNullableWithAggregatesFilter<"FinanceGroupAccountMapping"> | number | null
@@ -428,6 +466,8 @@ export type FinanceGroupAccountMappingCreateInput = {
   updatedAt?: Date | string
   policyVersion: Prisma.FinanceAccountingPolicyVersionCreateNestedOneWithoutMappingsInput
   groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutMappingsInput
+  localAccount?: Prisma.FinanceAccountCreateNestedOneWithoutGroupAccountMappingsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceGroupAccountMappingsInput
 }
 
 export type FinanceGroupAccountMappingUncheckedCreateInput = {
@@ -435,12 +475,14 @@ export type FinanceGroupAccountMappingUncheckedCreateInput = {
   policyVersionId: number
   groupAccountId?: number | null
   companyCode: string
+  companyId?: number | null
   sourceScopeKey: string
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceLedger?: string | null
   localAccountCode: string
   localAccountName: string
+  localAccountId?: number | null
   localCategory: string
   localBalanceDirection: string
   latestYear?: number | null
@@ -465,6 +507,8 @@ export type FinanceGroupAccountMappingUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   policyVersion?: Prisma.FinanceAccountingPolicyVersionUpdateOneRequiredWithoutMappingsNestedInput
   groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutMappingsNestedInput
+  localAccount?: Prisma.FinanceAccountUpdateOneWithoutGroupAccountMappingsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceGroupAccountMappingsNestedInput
 }
 
 export type FinanceGroupAccountMappingUncheckedUpdateInput = {
@@ -472,12 +516,14 @@ export type FinanceGroupAccountMappingUncheckedUpdateInput = {
   policyVersionId?: Prisma.IntFieldUpdateOperationsInput | number
   groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceScopeKey?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   localAccountName?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   localCategory?: Prisma.StringFieldUpdateOperationsInput | string
   localBalanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   latestYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -491,12 +537,14 @@ export type FinanceGroupAccountMappingCreateManyInput = {
   policyVersionId: number
   groupAccountId?: number | null
   companyCode: string
+  companyId?: number | null
   sourceScopeKey: string
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceLedger?: string | null
   localAccountCode: string
   localAccountName: string
+  localAccountId?: number | null
   localCategory: string
   localBalanceDirection: string
   latestYear?: number | null
@@ -526,12 +574,14 @@ export type FinanceGroupAccountMappingUncheckedUpdateManyInput = {
   policyVersionId?: Prisma.IntFieldUpdateOperationsInput | number
   groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceScopeKey?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   localAccountName?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   localCategory?: Prisma.StringFieldUpdateOperationsInput | string
   localBalanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   latestYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -562,12 +612,14 @@ export type FinanceGroupAccountMappingCountOrderByAggregateInput = {
   policyVersionId?: Prisma.SortOrder
   groupAccountId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceScopeKey?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   localAccountCode?: Prisma.SortOrder
   localAccountName?: Prisma.SortOrder
+  localAccountId?: Prisma.SortOrder
   localCategory?: Prisma.SortOrder
   localBalanceDirection?: Prisma.SortOrder
   latestYear?: Prisma.SortOrder
@@ -580,6 +632,8 @@ export type FinanceGroupAccountMappingAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   policyVersionId?: Prisma.SortOrder
   groupAccountId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
+  localAccountId?: Prisma.SortOrder
   latestYear?: Prisma.SortOrder
 }
 
@@ -588,12 +642,14 @@ export type FinanceGroupAccountMappingMaxOrderByAggregateInput = {
   policyVersionId?: Prisma.SortOrder
   groupAccountId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceScopeKey?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   localAccountCode?: Prisma.SortOrder
   localAccountName?: Prisma.SortOrder
+  localAccountId?: Prisma.SortOrder
   localCategory?: Prisma.SortOrder
   localBalanceDirection?: Prisma.SortOrder
   latestYear?: Prisma.SortOrder
@@ -607,12 +663,14 @@ export type FinanceGroupAccountMappingMinOrderByAggregateInput = {
   policyVersionId?: Prisma.SortOrder
   groupAccountId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceScopeKey?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   localAccountCode?: Prisma.SortOrder
   localAccountName?: Prisma.SortOrder
+  localAccountId?: Prisma.SortOrder
   localCategory?: Prisma.SortOrder
   localBalanceDirection?: Prisma.SortOrder
   latestYear?: Prisma.SortOrder
@@ -625,6 +683,8 @@ export type FinanceGroupAccountMappingSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   policyVersionId?: Prisma.SortOrder
   groupAccountId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
+  localAccountId?: Prisma.SortOrder
   latestYear?: Prisma.SortOrder
 }
 
@@ -712,6 +772,90 @@ export type FinanceGroupAccountMappingUncheckedUpdateManyWithoutPolicyVersionNes
   deleteMany?: Prisma.FinanceGroupAccountMappingScalarWhereInput | Prisma.FinanceGroupAccountMappingScalarWhereInput[]
 }
 
+export type FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountMappingCreateWithoutLocalAccountInput, Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutLocalAccountInput> | Prisma.FinanceGroupAccountMappingCreateWithoutLocalAccountInput[] | Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutLocalAccountInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutLocalAccountInput | Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutLocalAccountInput[]
+  createMany?: Prisma.FinanceGroupAccountMappingCreateManyLocalAccountInputEnvelope
+  connect?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+}
+
+export type FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountMappingCreateWithoutLocalAccountInput, Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutLocalAccountInput> | Prisma.FinanceGroupAccountMappingCreateWithoutLocalAccountInput[] | Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutLocalAccountInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutLocalAccountInput | Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutLocalAccountInput[]
+  createMany?: Prisma.FinanceGroupAccountMappingCreateManyLocalAccountInputEnvelope
+  connect?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+}
+
+export type FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountMappingCreateWithoutLocalAccountInput, Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutLocalAccountInput> | Prisma.FinanceGroupAccountMappingCreateWithoutLocalAccountInput[] | Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutLocalAccountInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutLocalAccountInput | Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutLocalAccountInput[]
+  upsert?: Prisma.FinanceGroupAccountMappingUpsertWithWhereUniqueWithoutLocalAccountInput | Prisma.FinanceGroupAccountMappingUpsertWithWhereUniqueWithoutLocalAccountInput[]
+  createMany?: Prisma.FinanceGroupAccountMappingCreateManyLocalAccountInputEnvelope
+  set?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  disconnect?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  delete?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  connect?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  update?: Prisma.FinanceGroupAccountMappingUpdateWithWhereUniqueWithoutLocalAccountInput | Prisma.FinanceGroupAccountMappingUpdateWithWhereUniqueWithoutLocalAccountInput[]
+  updateMany?: Prisma.FinanceGroupAccountMappingUpdateManyWithWhereWithoutLocalAccountInput | Prisma.FinanceGroupAccountMappingUpdateManyWithWhereWithoutLocalAccountInput[]
+  deleteMany?: Prisma.FinanceGroupAccountMappingScalarWhereInput | Prisma.FinanceGroupAccountMappingScalarWhereInput[]
+}
+
+export type FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountMappingCreateWithoutLocalAccountInput, Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutLocalAccountInput> | Prisma.FinanceGroupAccountMappingCreateWithoutLocalAccountInput[] | Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutLocalAccountInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutLocalAccountInput | Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutLocalAccountInput[]
+  upsert?: Prisma.FinanceGroupAccountMappingUpsertWithWhereUniqueWithoutLocalAccountInput | Prisma.FinanceGroupAccountMappingUpsertWithWhereUniqueWithoutLocalAccountInput[]
+  createMany?: Prisma.FinanceGroupAccountMappingCreateManyLocalAccountInputEnvelope
+  set?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  disconnect?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  delete?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  connect?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  update?: Prisma.FinanceGroupAccountMappingUpdateWithWhereUniqueWithoutLocalAccountInput | Prisma.FinanceGroupAccountMappingUpdateWithWhereUniqueWithoutLocalAccountInput[]
+  updateMany?: Prisma.FinanceGroupAccountMappingUpdateManyWithWhereWithoutLocalAccountInput | Prisma.FinanceGroupAccountMappingUpdateManyWithWhereWithoutLocalAccountInput[]
+  deleteMany?: Prisma.FinanceGroupAccountMappingScalarWhereInput | Prisma.FinanceGroupAccountMappingScalarWhereInput[]
+}
+
+export type FinanceGroupAccountMappingCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountMappingCreateWithoutCompanyInput, Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutCompanyInput> | Prisma.FinanceGroupAccountMappingCreateWithoutCompanyInput[] | Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutCompanyInput | Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceGroupAccountMappingCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+}
+
+export type FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountMappingCreateWithoutCompanyInput, Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutCompanyInput> | Prisma.FinanceGroupAccountMappingCreateWithoutCompanyInput[] | Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutCompanyInput | Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceGroupAccountMappingCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+}
+
+export type FinanceGroupAccountMappingUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountMappingCreateWithoutCompanyInput, Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutCompanyInput> | Prisma.FinanceGroupAccountMappingCreateWithoutCompanyInput[] | Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutCompanyInput | Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceGroupAccountMappingUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceGroupAccountMappingUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceGroupAccountMappingCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  disconnect?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  delete?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  connect?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  update?: Prisma.FinanceGroupAccountMappingUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceGroupAccountMappingUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceGroupAccountMappingUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceGroupAccountMappingUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceGroupAccountMappingScalarWhereInput | Prisma.FinanceGroupAccountMappingScalarWhereInput[]
+}
+
+export type FinanceGroupAccountMappingUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountMappingCreateWithoutCompanyInput, Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutCompanyInput> | Prisma.FinanceGroupAccountMappingCreateWithoutCompanyInput[] | Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutCompanyInput | Prisma.FinanceGroupAccountMappingCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceGroupAccountMappingUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceGroupAccountMappingUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceGroupAccountMappingCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  disconnect?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  delete?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  connect?: Prisma.FinanceGroupAccountMappingWhereUniqueInput | Prisma.FinanceGroupAccountMappingWhereUniqueInput[]
+  update?: Prisma.FinanceGroupAccountMappingUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceGroupAccountMappingUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceGroupAccountMappingUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceGroupAccountMappingUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceGroupAccountMappingScalarWhereInput | Prisma.FinanceGroupAccountMappingScalarWhereInput[]
+}
+
 export type FinanceGroupAccountMappingCreateWithoutGroupAccountInput = {
   companyCode: string
   sourceScopeKey: string
@@ -727,18 +871,22 @@ export type FinanceGroupAccountMappingCreateWithoutGroupAccountInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   policyVersion: Prisma.FinanceAccountingPolicyVersionCreateNestedOneWithoutMappingsInput
+  localAccount?: Prisma.FinanceAccountCreateNestedOneWithoutGroupAccountMappingsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceGroupAccountMappingsInput
 }
 
 export type FinanceGroupAccountMappingUncheckedCreateWithoutGroupAccountInput = {
   id?: number
   policyVersionId: number
   companyCode: string
+  companyId?: number | null
   sourceScopeKey: string
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceLedger?: string | null
   localAccountCode: string
   localAccountName: string
+  localAccountId?: number | null
   localCategory: string
   localBalanceDirection: string
   latestYear?: number | null
@@ -781,12 +929,14 @@ export type FinanceGroupAccountMappingScalarWhereInput = {
   policyVersionId?: Prisma.IntFilter<"FinanceGroupAccountMapping"> | number
   groupAccountId?: Prisma.IntNullableFilter<"FinanceGroupAccountMapping"> | number | null
   companyCode?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceGroupAccountMapping"> | number | null
   sourceScopeKey?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
   sourceSystem?: Prisma.StringNullableFilter<"FinanceGroupAccountMapping"> | string | null
   sourceDatabase?: Prisma.StringNullableFilter<"FinanceGroupAccountMapping"> | string | null
   sourceLedger?: Prisma.StringNullableFilter<"FinanceGroupAccountMapping"> | string | null
   localAccountCode?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
   localAccountName?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
+  localAccountId?: Prisma.IntNullableFilter<"FinanceGroupAccountMapping"> | number | null
   localCategory?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
   localBalanceDirection?: Prisma.StringFilter<"FinanceGroupAccountMapping"> | string
   latestYear?: Prisma.IntNullableFilter<"FinanceGroupAccountMapping"> | number | null
@@ -810,18 +960,22 @@ export type FinanceGroupAccountMappingCreateWithoutPolicyVersionInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutMappingsInput
+  localAccount?: Prisma.FinanceAccountCreateNestedOneWithoutGroupAccountMappingsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceGroupAccountMappingsInput
 }
 
 export type FinanceGroupAccountMappingUncheckedCreateWithoutPolicyVersionInput = {
   id?: number
   groupAccountId?: number | null
   companyCode: string
+  companyId?: number | null
   sourceScopeKey: string
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceLedger?: string | null
   localAccountCode: string
   localAccountName: string
+  localAccountId?: number | null
   localCategory: string
   localBalanceDirection: string
   latestYear?: number | null
@@ -856,9 +1010,7 @@ export type FinanceGroupAccountMappingUpdateManyWithWhereWithoutPolicyVersionInp
   data: Prisma.XOR<Prisma.FinanceGroupAccountMappingUpdateManyMutationInput, Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutPolicyVersionInput>
 }
 
-export type FinanceGroupAccountMappingCreateManyGroupAccountInput = {
-  id?: number
-  policyVersionId: number
+export type FinanceGroupAccountMappingCreateWithoutLocalAccountInput = {
   companyCode: string
   sourceScopeKey: string
   sourceSystem?: string | null
@@ -866,6 +1018,140 @@ export type FinanceGroupAccountMappingCreateManyGroupAccountInput = {
   sourceLedger?: string | null
   localAccountCode: string
   localAccountName: string
+  localCategory: string
+  localBalanceDirection: string
+  latestYear?: number | null
+  mappingMethod: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  policyVersion: Prisma.FinanceAccountingPolicyVersionCreateNestedOneWithoutMappingsInput
+  groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutMappingsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceGroupAccountMappingsInput
+}
+
+export type FinanceGroupAccountMappingUncheckedCreateWithoutLocalAccountInput = {
+  id?: number
+  policyVersionId: number
+  groupAccountId?: number | null
+  companyCode: string
+  companyId?: number | null
+  sourceScopeKey: string
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceLedger?: string | null
+  localAccountCode: string
+  localAccountName: string
+  localCategory: string
+  localBalanceDirection: string
+  latestYear?: number | null
+  mappingMethod: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceGroupAccountMappingCreateOrConnectWithoutLocalAccountInput = {
+  where: Prisma.FinanceGroupAccountMappingWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceGroupAccountMappingCreateWithoutLocalAccountInput, Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutLocalAccountInput>
+}
+
+export type FinanceGroupAccountMappingCreateManyLocalAccountInputEnvelope = {
+  data: Prisma.FinanceGroupAccountMappingCreateManyLocalAccountInput | Prisma.FinanceGroupAccountMappingCreateManyLocalAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceGroupAccountMappingUpsertWithWhereUniqueWithoutLocalAccountInput = {
+  where: Prisma.FinanceGroupAccountMappingWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceGroupAccountMappingUpdateWithoutLocalAccountInput, Prisma.FinanceGroupAccountMappingUncheckedUpdateWithoutLocalAccountInput>
+  create: Prisma.XOR<Prisma.FinanceGroupAccountMappingCreateWithoutLocalAccountInput, Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutLocalAccountInput>
+}
+
+export type FinanceGroupAccountMappingUpdateWithWhereUniqueWithoutLocalAccountInput = {
+  where: Prisma.FinanceGroupAccountMappingWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceGroupAccountMappingUpdateWithoutLocalAccountInput, Prisma.FinanceGroupAccountMappingUncheckedUpdateWithoutLocalAccountInput>
+}
+
+export type FinanceGroupAccountMappingUpdateManyWithWhereWithoutLocalAccountInput = {
+  where: Prisma.FinanceGroupAccountMappingScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceGroupAccountMappingUpdateManyMutationInput, Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountInput>
+}
+
+export type FinanceGroupAccountMappingCreateWithoutCompanyInput = {
+  companyCode: string
+  sourceScopeKey: string
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceLedger?: string | null
+  localAccountCode: string
+  localAccountName: string
+  localCategory: string
+  localBalanceDirection: string
+  latestYear?: number | null
+  mappingMethod: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  policyVersion: Prisma.FinanceAccountingPolicyVersionCreateNestedOneWithoutMappingsInput
+  groupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutMappingsInput
+  localAccount?: Prisma.FinanceAccountCreateNestedOneWithoutGroupAccountMappingsInput
+}
+
+export type FinanceGroupAccountMappingUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  policyVersionId: number
+  groupAccountId?: number | null
+  companyCode: string
+  sourceScopeKey: string
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceLedger?: string | null
+  localAccountCode: string
+  localAccountName: string
+  localAccountId?: number | null
+  localCategory: string
+  localBalanceDirection: string
+  latestYear?: number | null
+  mappingMethod: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceGroupAccountMappingCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceGroupAccountMappingWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceGroupAccountMappingCreateWithoutCompanyInput, Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceGroupAccountMappingCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceGroupAccountMappingCreateManyCompanyInput | Prisma.FinanceGroupAccountMappingCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceGroupAccountMappingUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceGroupAccountMappingWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceGroupAccountMappingUpdateWithoutCompanyInput, Prisma.FinanceGroupAccountMappingUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceGroupAccountMappingCreateWithoutCompanyInput, Prisma.FinanceGroupAccountMappingUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceGroupAccountMappingUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceGroupAccountMappingWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceGroupAccountMappingUpdateWithoutCompanyInput, Prisma.FinanceGroupAccountMappingUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceGroupAccountMappingUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceGroupAccountMappingScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceGroupAccountMappingUpdateManyMutationInput, Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type FinanceGroupAccountMappingCreateManyGroupAccountInput = {
+  id?: number
+  policyVersionId: number
+  companyCode: string
+  companyId?: number | null
+  sourceScopeKey: string
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceLedger?: string | null
+  localAccountCode: string
+  localAccountName: string
+  localAccountId?: number | null
   localCategory: string
   localBalanceDirection: string
   latestYear?: number | null
@@ -889,18 +1175,22 @@ export type FinanceGroupAccountMappingUpdateWithoutGroupAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   policyVersion?: Prisma.FinanceAccountingPolicyVersionUpdateOneRequiredWithoutMappingsNestedInput
+  localAccount?: Prisma.FinanceAccountUpdateOneWithoutGroupAccountMappingsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceGroupAccountMappingsNestedInput
 }
 
 export type FinanceGroupAccountMappingUncheckedUpdateWithoutGroupAccountInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   policyVersionId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceScopeKey?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   localAccountName?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   localCategory?: Prisma.StringFieldUpdateOperationsInput | string
   localBalanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   latestYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -913,12 +1203,14 @@ export type FinanceGroupAccountMappingUncheckedUpdateManyWithoutGroupAccountInpu
   id?: Prisma.IntFieldUpdateOperationsInput | number
   policyVersionId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceScopeKey?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   localAccountName?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   localCategory?: Prisma.StringFieldUpdateOperationsInput | string
   localBalanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   latestYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -931,12 +1223,14 @@ export type FinanceGroupAccountMappingCreateManyPolicyVersionInput = {
   id?: number
   groupAccountId?: number | null
   companyCode: string
+  companyId?: number | null
   sourceScopeKey: string
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceLedger?: string | null
   localAccountCode: string
   localAccountName: string
+  localAccountId?: number | null
   localCategory: string
   localBalanceDirection: string
   latestYear?: number | null
@@ -960,12 +1254,95 @@ export type FinanceGroupAccountMappingUpdateWithoutPolicyVersionInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutMappingsNestedInput
+  localAccount?: Prisma.FinanceAccountUpdateOneWithoutGroupAccountMappingsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceGroupAccountMappingsNestedInput
 }
 
 export type FinanceGroupAccountMappingUncheckedUpdateWithoutPolicyVersionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceScopeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountName?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  localCategory?: Prisma.StringFieldUpdateOperationsInput | string
+  localBalanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  latestYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mappingMethod?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceGroupAccountMappingUncheckedUpdateManyWithoutPolicyVersionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceScopeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountName?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  localCategory?: Prisma.StringFieldUpdateOperationsInput | string
+  localBalanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  latestYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mappingMethod?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceGroupAccountMappingCreateManyLocalAccountInput = {
+  id?: number
+  policyVersionId: number
+  groupAccountId?: number | null
+  companyCode: string
+  companyId?: number | null
+  sourceScopeKey: string
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceLedger?: string | null
+  localAccountCode: string
+  localAccountName: string
+  localCategory: string
+  localBalanceDirection: string
+  latestYear?: number | null
+  mappingMethod: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceGroupAccountMappingUpdateWithoutLocalAccountInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceScopeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountName?: Prisma.StringFieldUpdateOperationsInput | string
+  localCategory?: Prisma.StringFieldUpdateOperationsInput | string
+  localBalanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  latestYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mappingMethod?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  policyVersion?: Prisma.FinanceAccountingPolicyVersionUpdateOneRequiredWithoutMappingsNestedInput
+  groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutMappingsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceGroupAccountMappingsNestedInput
+}
+
+export type FinanceGroupAccountMappingUncheckedUpdateWithoutLocalAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionId?: Prisma.IntFieldUpdateOperationsInput | number
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceScopeKey?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -980,8 +1357,68 @@ export type FinanceGroupAccountMappingUncheckedUpdateWithoutPolicyVersionInput =
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type FinanceGroupAccountMappingUncheckedUpdateManyWithoutPolicyVersionInput = {
+export type FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionId?: Prisma.IntFieldUpdateOperationsInput | number
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceScopeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountName?: Prisma.StringFieldUpdateOperationsInput | string
+  localCategory?: Prisma.StringFieldUpdateOperationsInput | string
+  localBalanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  latestYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mappingMethod?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceGroupAccountMappingCreateManyCompanyInput = {
+  id?: number
+  policyVersionId: number
+  groupAccountId?: number | null
+  companyCode: string
+  sourceScopeKey: string
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceLedger?: string | null
+  localAccountCode: string
+  localAccountName: string
+  localAccountId?: number | null
+  localCategory: string
+  localBalanceDirection: string
+  latestYear?: number | null
+  mappingMethod: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceGroupAccountMappingUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceScopeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountName?: Prisma.StringFieldUpdateOperationsInput | string
+  localCategory?: Prisma.StringFieldUpdateOperationsInput | string
+  localBalanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  latestYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mappingMethod?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  policyVersion?: Prisma.FinanceAccountingPolicyVersionUpdateOneRequiredWithoutMappingsNestedInput
+  groupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutMappingsNestedInput
+  localAccount?: Prisma.FinanceAccountUpdateOneWithoutGroupAccountMappingsNestedInput
+}
+
+export type FinanceGroupAccountMappingUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionId?: Prisma.IntFieldUpdateOperationsInput | number
   groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   sourceScopeKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -990,6 +1427,27 @@ export type FinanceGroupAccountMappingUncheckedUpdateManyWithoutPolicyVersionInp
   sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   localAccountName?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  localCategory?: Prisma.StringFieldUpdateOperationsInput | string
+  localBalanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  latestYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mappingMethod?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceGroupAccountMappingUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionId?: Prisma.IntFieldUpdateOperationsInput | number
+  groupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceScopeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountName?: Prisma.StringFieldUpdateOperationsInput | string
+  localAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   localCategory?: Prisma.StringFieldUpdateOperationsInput | string
   localBalanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   latestYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1005,12 +1463,14 @@ export type FinanceGroupAccountMappingSelect<ExtArgs extends runtime.Types.Exten
   policyVersionId?: boolean
   groupAccountId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceScopeKey?: boolean
   sourceSystem?: boolean
   sourceDatabase?: boolean
   sourceLedger?: boolean
   localAccountCode?: boolean
   localAccountName?: boolean
+  localAccountId?: boolean
   localCategory?: boolean
   localBalanceDirection?: boolean
   latestYear?: boolean
@@ -1019,6 +1479,8 @@ export type FinanceGroupAccountMappingSelect<ExtArgs extends runtime.Types.Exten
   updatedAt?: boolean
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountMapping$groupAccountArgs<ExtArgs>
+  localAccount?: boolean | Prisma.FinanceGroupAccountMapping$localAccountArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceGroupAccountMapping$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeGroupAccountMapping"]>
 
 export type FinanceGroupAccountMappingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1026,12 +1488,14 @@ export type FinanceGroupAccountMappingSelectCreateManyAndReturn<ExtArgs extends 
   policyVersionId?: boolean
   groupAccountId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceScopeKey?: boolean
   sourceSystem?: boolean
   sourceDatabase?: boolean
   sourceLedger?: boolean
   localAccountCode?: boolean
   localAccountName?: boolean
+  localAccountId?: boolean
   localCategory?: boolean
   localBalanceDirection?: boolean
   latestYear?: boolean
@@ -1040,6 +1504,8 @@ export type FinanceGroupAccountMappingSelectCreateManyAndReturn<ExtArgs extends 
   updatedAt?: boolean
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountMapping$groupAccountArgs<ExtArgs>
+  localAccount?: boolean | Prisma.FinanceGroupAccountMapping$localAccountArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceGroupAccountMapping$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeGroupAccountMapping"]>
 
 export type FinanceGroupAccountMappingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1047,12 +1513,14 @@ export type FinanceGroupAccountMappingSelectUpdateManyAndReturn<ExtArgs extends 
   policyVersionId?: boolean
   groupAccountId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceScopeKey?: boolean
   sourceSystem?: boolean
   sourceDatabase?: boolean
   sourceLedger?: boolean
   localAccountCode?: boolean
   localAccountName?: boolean
+  localAccountId?: boolean
   localCategory?: boolean
   localBalanceDirection?: boolean
   latestYear?: boolean
@@ -1061,6 +1529,8 @@ export type FinanceGroupAccountMappingSelectUpdateManyAndReturn<ExtArgs extends 
   updatedAt?: boolean
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountMapping$groupAccountArgs<ExtArgs>
+  localAccount?: boolean | Prisma.FinanceGroupAccountMapping$localAccountArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceGroupAccountMapping$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeGroupAccountMapping"]>
 
 export type FinanceGroupAccountMappingSelectScalar = {
@@ -1068,12 +1538,14 @@ export type FinanceGroupAccountMappingSelectScalar = {
   policyVersionId?: boolean
   groupAccountId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceScopeKey?: boolean
   sourceSystem?: boolean
   sourceDatabase?: boolean
   sourceLedger?: boolean
   localAccountCode?: boolean
   localAccountName?: boolean
+  localAccountId?: boolean
   localCategory?: boolean
   localBalanceDirection?: boolean
   latestYear?: boolean
@@ -1082,18 +1554,24 @@ export type FinanceGroupAccountMappingSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceGroupAccountMappingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "policyVersionId" | "groupAccountId" | "companyCode" | "sourceScopeKey" | "sourceSystem" | "sourceDatabase" | "sourceLedger" | "localAccountCode" | "localAccountName" | "localCategory" | "localBalanceDirection" | "latestYear" | "mappingMethod" | "createdAt" | "updatedAt", ExtArgs["result"]["financeGroupAccountMapping"]>
+export type FinanceGroupAccountMappingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "policyVersionId" | "groupAccountId" | "companyCode" | "companyId" | "sourceScopeKey" | "sourceSystem" | "sourceDatabase" | "sourceLedger" | "localAccountCode" | "localAccountName" | "localAccountId" | "localCategory" | "localBalanceDirection" | "latestYear" | "mappingMethod" | "createdAt" | "updatedAt", ExtArgs["result"]["financeGroupAccountMapping"]>
 export type FinanceGroupAccountMappingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountMapping$groupAccountArgs<ExtArgs>
+  localAccount?: boolean | Prisma.FinanceGroupAccountMapping$localAccountArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceGroupAccountMapping$companyArgs<ExtArgs>
 }
 export type FinanceGroupAccountMappingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountMapping$groupAccountArgs<ExtArgs>
+  localAccount?: boolean | Prisma.FinanceGroupAccountMapping$localAccountArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceGroupAccountMapping$companyArgs<ExtArgs>
 }
 export type FinanceGroupAccountMappingIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountMapping$groupAccountArgs<ExtArgs>
+  localAccount?: boolean | Prisma.FinanceGroupAccountMapping$localAccountArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceGroupAccountMapping$companyArgs<ExtArgs>
 }
 
 export type $FinanceGroupAccountMappingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1101,18 +1579,22 @@ export type $FinanceGroupAccountMappingPayload<ExtArgs extends runtime.Types.Ext
   objects: {
     policyVersion: Prisma.$FinanceAccountingPolicyVersionPayload<ExtArgs>
     groupAccount: Prisma.$FinanceGroupAccountPayload<ExtArgs> | null
+    localAccount: Prisma.$FinanceAccountPayload<ExtArgs> | null
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     policyVersionId: number
     groupAccountId: number | null
     companyCode: string
+    companyId: number | null
     sourceScopeKey: string
     sourceSystem: string | null
     sourceDatabase: string | null
     sourceLedger: string | null
     localAccountCode: string
     localAccountName: string
+    localAccountId: number | null
     localCategory: string
     localBalanceDirection: string
     latestYear: number | null
@@ -1515,6 +1997,8 @@ export interface Prisma__FinanceGroupAccountMappingClient<T, Null = never, ExtAr
   readonly [Symbol.toStringTag]: "PrismaPromise"
   policyVersion<T extends Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountingPolicyVersionClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountingPolicyVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   groupAccount<T extends Prisma.FinanceGroupAccountMapping$groupAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceGroupAccountMapping$groupAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceGroupAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceGroupAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  localAccount<T extends Prisma.FinanceGroupAccountMapping$localAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceGroupAccountMapping$localAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.FinanceGroupAccountMapping$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceGroupAccountMapping$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1548,12 +2032,14 @@ export interface FinanceGroupAccountMappingFieldRefs {
   readonly policyVersionId: Prisma.FieldRef<"FinanceGroupAccountMapping", 'Int'>
   readonly groupAccountId: Prisma.FieldRef<"FinanceGroupAccountMapping", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceGroupAccountMapping", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceGroupAccountMapping", 'Int'>
   readonly sourceScopeKey: Prisma.FieldRef<"FinanceGroupAccountMapping", 'String'>
   readonly sourceSystem: Prisma.FieldRef<"FinanceGroupAccountMapping", 'String'>
   readonly sourceDatabase: Prisma.FieldRef<"FinanceGroupAccountMapping", 'String'>
   readonly sourceLedger: Prisma.FieldRef<"FinanceGroupAccountMapping", 'String'>
   readonly localAccountCode: Prisma.FieldRef<"FinanceGroupAccountMapping", 'String'>
   readonly localAccountName: Prisma.FieldRef<"FinanceGroupAccountMapping", 'String'>
+  readonly localAccountId: Prisma.FieldRef<"FinanceGroupAccountMapping", 'Int'>
   readonly localCategory: Prisma.FieldRef<"FinanceGroupAccountMapping", 'String'>
   readonly localBalanceDirection: Prisma.FieldRef<"FinanceGroupAccountMapping", 'String'>
   readonly latestYear: Prisma.FieldRef<"FinanceGroupAccountMapping", 'Int'>
@@ -1977,6 +2463,44 @@ export type FinanceGroupAccountMapping$groupAccountArgs<ExtArgs extends runtime.
    */
   include?: Prisma.FinanceGroupAccountInclude<ExtArgs> | null
   where?: Prisma.FinanceGroupAccountWhereInput
+}
+
+/**
+ * FinanceGroupAccountMapping.localAccount
+ */
+export type FinanceGroupAccountMapping$localAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccount
+   */
+  select?: Prisma.FinanceAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccount
+   */
+  omit?: Prisma.FinanceAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+/**
+ * FinanceGroupAccountMapping.company
+ */
+export type FinanceGroupAccountMapping$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

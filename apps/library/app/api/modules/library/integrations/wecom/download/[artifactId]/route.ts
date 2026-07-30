@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { getLibraryExportFile } from "@workspace/library/server/export";
 import { getLibraryFileByVersionUid } from "@workspace/library/server/file-access";
-import { verifyWecomArtifactToken } from "@workspace/platform/server/agent/wecom-artifacts";
+import { verifyWecomArtifactToken } from "@workspace/platform/server/wecom-artifacts";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 import { authenticate } from "@workspace/platform/server/auth";
 

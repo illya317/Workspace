@@ -13,9 +13,10 @@ test("assignment fields stay reusable by lifecycle forms while ordinary tables a
   }
 });
 
-test("ordinary employment views cannot edit lifecycle boundary fields", () => {
-  for (const key of ["isActive", "joinDate", "leaveDate"]) {
-    assert.equal(employmentFields.find((field) => field.key === key)?.readOnly, true);
+test("profile edits dates directly while the ordinary employment table stays read-only", () => {
+  assert.equal(employmentFields.find((field) => field.key === "isActive")?.readOnly, true);
+  for (const key of ["joinDate", "leaveDate"]) {
+    assert.notEqual(employmentFields.find((field) => field.key === key)?.readOnly, true);
     assert.equal(employmentConfig.fields.find((field) => field.key === key)?.editable, false);
   }
 });

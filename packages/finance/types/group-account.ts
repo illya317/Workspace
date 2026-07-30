@@ -38,40 +38,8 @@ export type FinanceConsolidationRole =
 
 export type FinanceCounterpartyRequirement = "none" | "optional" | "required";
 export type FinanceConsolidationMovementType = "closingBalance" | "periodMovement" | "transaction";
-export type FinanceTranslationRateType =
-  | "closing"
-  | "average"
-  | "historical"
-  | "retainedEarningsRollforward"
-  | "translationDifference";
+export type FinanceTranslationRateType = "closing" | "average" | "historical" | "transactionDate";
 export type FinanceGroupAccountUsage = "consolidation" | "reclassification";
-
-/**
- * 集团报表法定折算口径。该值只由科目性质派生，不能作为用户可覆盖的配置。
- */
-export function deriveFinanceGroupAccountTranslationRateType(input: {
-  code: string;
-  name: string;
-  category: string;
-  consolidationRole?: FinanceConsolidationRole | string;
-}): FinanceTranslationRateType {
-  const code = input.code.trim();
-  const name = input.name.trim();
-  if (input.consolidationRole === "difference"
-    || /^(4003|4005)/.test(code)
-    || /外币报表折算差额|其他综合收益/.test(name)) return "translationDifference";
-  if (/^(4104|310415)/.test(code) || name.includes("未分配利润")) {
-    return "retainedEarningsRollforward";
-  }
-  if (input.consolidationRole === "shareCapital"
-    || input.consolidationRole === "capitalReserve"
-    || /^(4001|3001|4002|3002|4101|3101)/.test(code)
-    || /实收资本|股本|资本公积|盈余公积|其他权益工具|库存股/.test(name)) return "historical";
-  if (input.consolidationRole === "cashFlow"
-    || ["revenue", "cost", "expense"].includes(input.category)) return "average";
-  if (input.category === "equity") return "historical";
-  return "closing";
-}
 
 export interface FinanceAccountingPolicyVersionRow {
   id: number;
@@ -95,6 +63,7 @@ export interface CreateFinanceGroupAccountInput {
   consolidationRole: FinanceConsolidationRole;
   counterpartyRequirement: FinanceCounterpartyRequirement;
   movementType: FinanceConsolidationMovementType;
+  translationRateType: FinanceTranslationRateType;
 }
 
 export interface UpdateFinanceGroupAccountInput extends CreateFinanceGroupAccountInput {

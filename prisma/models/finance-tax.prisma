@@ -1,0 +1,122 @@
+/// 税种受控目录（主数据，来源于 Workspace 配置或经审核的公共税务目录）
+model FinanceTaxType {
+  id                Int                      @id @default(autoincrement())
+  code              String                   @unique
+  name              String
+  jurisdiction      String
+  calculationMethod String
+  description       String?
+  isActive          Boolean                  @default(true)
+  sourceKind        String?
+  sourceReleaseId   String?
+  sourceSha256      String?
+  sourceFile        String?
+  sourceSheet       String?
+  sourceRow         Int?
+  sourceRange       String?
+  sourceKey         String?
+  version           Int                      @default(1)
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @default(now()) @updatedAt
+  registrations     FinanceTaxRegistration[]
+
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([jurisdiction, isActive])
+}
+
+/// 公司纳税登记（事实表，来源于税务登记资料手工维护或受治理导入）
+model FinanceTaxRegistration {
+  id                  Int                                @id @default(autoincrement())
+  companyId           Int
+  taxTypeId           Int
+  authorityPartyId    Int?
+  registrationNo      String
+  jurisdiction        String
+  filingFrequency     String
+  effectiveFrom       DateTime                           @db.Date
+  effectiveThrough    DateTime?                          @db.Date
+  status              String                             @default("active")
+  sourceKind          String?
+  sourceReleaseId     String?
+  sourceSha256        String?
+  sourceFile          String?
+  sourceSheet         String?
+  sourceRow           Int?
+  sourceRange         String?
+  sourceKey           String?
+  version             Int                                @default(1)
+  createdAt           DateTime                           @default(now())
+  updatedAt           DateTime                           @default(now()) @updatedAt
+  company             Company                            @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  taxType             FinanceTaxType                     @relation(fields: [taxTypeId], references: [id], onDelete: Restrict)
+  authorityParty      Party?                             @relation(fields: [authorityPartyId], references: [id], onDelete: Restrict)
+  workpapers          FinanceTaxWorkpaper[]
+  filings             FinanceTaxFiling[]
+  snapshots           FinanceTaxReconciliationSnapshot[]
+
+  @@unique([companyId, taxTypeId, registrationNo])
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([companyId, status, effectiveThrough])
+  @@index([taxTypeId])
+  @@index([authorityPartyId])
+}
+
+/// 期间税费计提工作底稿（事实表，来源于纳税登记、期间和人工确认的计税输入）
+model FinanceTaxWorkpaper {
+  id                 Int                       @id @default(autoincrement())
+  registrationId     Int
+  periodId           Int
+  status             String                    @default("draft")
+  calculationVersion String
+  inputFingerprint   String
+  note               String?
+  sourceKind         String?
+  sourceReleaseId    String?
+  sourceSha256       String?
+  sourceFile         String?
+  sourceSheet        String?
+  sourceRow          Int?
+  sourceRange        String?
+  sourceKey          String?
+  version            Int                       @default(1)
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @default(now()) @updatedAt
+  registration       FinanceTaxRegistration    @relation(fields: [registrationId], references: [id], onDelete: Restrict)
+  period             FinancePeriod             @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  accrualLines       FinanceTaxAccrualLine[]
+
+  @@unique([registrationId, periodId])
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([periodId, status])
+}
+
+/// 税费计提输入明细（事实表，来源于业务计税依据、税率政策或受治理底稿导入）
+model FinanceTaxAccrualLine {
+  id                      Int                  @id @default(autoincrement())
+  workpaperId             Int
+  voucherItemId           Int?
+  lineNo                  Int
+  recognitionOn          DateTime?            @db.Date
+  description            String
+  taxBaseAmount           Decimal?             @db.Decimal(20, 2)
+  taxRate                 Decimal?             @db.Decimal(18, 10)
+  quantity                Decimal?             @db.Decimal(20, 6)
+  unitRate                Decimal?             @db.Decimal(20, 6)
+  divisor                 Decimal?             @db.Decimal(20, 6)
+  sourceReportedTaxAmount Decimal?             @db.Decimal(20, 2)
+  sourceKind              String?
+  sourceReleaseId         String?
+  sourceSha256            String?
+  sourceFile              String?
+  sourceSheet             String?
+  sourceRow               Int?
+  sourceRange             String?
+  sourceKey               String?
+  createdAt               DateTime             @default(now())
+  workpaper               FinanceTaxWorkpaper  @relation(fields: [workpaperId], references: [id], onDelete: Restrict)
+  voucherItem             FinanceVoucherItem?  @relation(fields: [voucherItemId], references: [id], onDelete: Restrict)
+
+  @@unique([workpaperId, lineNo])
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([voucherItemId])
+}

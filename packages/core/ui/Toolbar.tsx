@@ -27,6 +27,8 @@ export type {
   ToolbarGroupedSelectItem,
   ToolbarOptionGroupItem,
   ToolbarFieldFilterItem,
+  ToolbarFilterPanelItem,
+  ToolbarFilterPanelFieldSpec,
   ToolbarColumnToggleItem,
   ToolbarPageSizeItem,
   ToolbarPeriodItem,

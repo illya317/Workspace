@@ -20,6 +20,7 @@ import type {
   Position,
   PositionDraft,
   Selection,
+  OrganizationCodeConfig,
 } from "./types";
 
 export function useDepartmentPositionViewRenderers(props: {
@@ -29,6 +30,7 @@ export function useDepartmentPositionViewRenderers(props: {
   canArchive: boolean;
   departmentActionRuntime: ActionRuntime | null;
   canEditPosition: boolean;
+  codeConfig: OrganizationCodeConfig | null;
   createPanel: "department" | "position" | null;
   createPositionCode: string;
   createPositionDescriptionDetailsSurface: FormSurfaceProps;
@@ -105,6 +107,7 @@ export function useDepartmentPositionViewRenderers(props: {
     showArchived: props.showArchived,
     canArchive: props.canArchive,
     canEditPosition: props.canEditPosition,
+    codeConfig: props.codeConfig,
     dirty: props.dirty,
     descriptionDirty: props.descriptionDirty,
     saving: props.saving,
@@ -153,6 +156,7 @@ export function useDepartmentPositionViewRenderers(props: {
     createPositionDepartment: props.createPositionDepartment,
     createPositionDraft: props.createPositionDraft,
     departmentById: props.departmentById,
+    codeConfig: props.codeConfig,
     departmentDirty: props.departmentDirty,
     departmentDescriptionDirty: props.departmentDescriptionDirty,
     saving: props.saving,

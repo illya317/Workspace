@@ -2,6 +2,7 @@ import { checkAppRouteHierarchy } from "./app-route-hierarchy";
 import { checkAuth } from "./auth";
 import { checkDeps } from "./deps";
 import { checkDomainValidation } from "./domain-validation";
+import { checkFinanceWorkbookFormulaGate } from "./finance-workbook-formula-gate";
 import { checkModules } from "./modules";
 import { checkOpenApi } from "./open-api";
 import { scan } from "./scan";
@@ -17,6 +18,7 @@ export const domainGateChecks: GateCheck[] = [
   ["app-route-hierarchy", checkAppRouteHierarchy],
   ["split-priority", checkSplitPriority],
   ["domain-validation", checkDomainValidation],
+  ["finance-workbook-formulas", checkFinanceWorkbookFormulaGate],
   ["auth", checkAuth],
 ];
 

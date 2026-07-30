@@ -2,7 +2,7 @@ import { matchSearchFields } from "@workspace/platform/search";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { currentEmploymentDateWhere, employmentIsActiveOnDate } from "@workspace/platform/server/relation-registry";
-import { primaryContractCompany } from "./employments";
+import { employmentCompanyName } from "./employments";
 
 function activeFilterValue(value: string | null | undefined) {
   if (value === "true") return true;
@@ -72,7 +72,7 @@ export async function listEdps(input: {
       employeeId: true,
       name: true,
       employments: {
-        select: { isActive: true, joinDate: true, leaveDate: true, currentCompany: true, contracts: true },
+        select: { isActive: true, joinDate: true, leaveDate: true, currentCompany: true, contracts: true, company: { select: { party: { select: { name: true } } } } },
         orderBy: [{ isActive: "desc" }, { id: "desc" }],
       },
     },
@@ -127,7 +127,7 @@ export async function listEdps(input: {
     rows = rows.filter((row) =>
       row.employeeEmployments
         .filter((employment) => isActive === null || employmentIsActiveOnDate(employment, today) === isActive)
-        .some((employment) => primaryContractCompany(employment.contracts, employment.currentCompany) === input.company),
+        .some((employment) => employmentCompanyName(employment.contracts, employment.currentCompany, employment.company?.party.name) === input.company),
     );
   }
   if (input.department) {

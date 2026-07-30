@@ -19,7 +19,7 @@ const updateGroupAccountSchema = z.object({
   consolidationRole: z.enum(["none", "intercompanyReceivable", "intercompanyPayable", "intercompanyRevenue", "intercompanyExpense", "investmentInSubsidiary", "shareCapital", "capitalReserve", "dividendReceivable", "dividendPayable", "inventory", "fixedAsset", "cashFlow", "difference"]),
   counterpartyRequirement: z.enum(["none", "optional", "required"]),
   movementType: z.enum(["closingBalance", "periodMovement", "transaction"]),
-  translationRateType: z.never().optional(),
+  translationRateType: z.enum(["closing", "average", "historical", "transactionDate"]),
   expectedUpdatedAt: z.string().min(1),
 });
 

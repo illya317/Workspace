@@ -901,6 +901,12 @@ resolve_release_metadata() {
   RELEASE_GENESIS_LEGACY_MIGRATION_DIGEST=""
   RELEASE_GENESIS_BASELINE_MIGRATION=""
   RELEASE_GENESIS_BASELINE_CHECKSUM=""
+  RELEASE_DATABASE_REPLACEMENT_DUMP_SHA=""
+  RELEASE_DATABASE_REPLACEMENT_DUMP_SIZE=""
+  RELEASE_DATABASE_REPLACEMENT_REMOTE_ARTIFACT=""
+  RELEASE_DATABASE_REPLACEMENT_MIGRATION_COUNT=""
+  RELEASE_DATABASE_REPLACEMENT_MIGRATION_SET=""
+  RELEASE_DATABASE_REPLACEMENT_PREPARED_AT=""
 
   if [ "$RELEASE_METADATA_FILE" != ".cnb-release.json" ]; then
     echo "[错误] RELEASE_METADATA_FILE 必须是 .cnb-release.json"
@@ -942,60 +948,21 @@ const validLocalTiming = localTiming
   && !Number.isNaN(Date.parse(localTiming.releaseProcessStartedAt))
   && Number.isSafeInteger(localTiming.tenantSyncSeconds)
   && localTiming.tenantSyncSeconds >= 0;
-const target = metadata.deployment?.target;
-const gate = metadata.localReleaseGate;
-const validGateBase = gate?.kind === 'workspace-local-release-gate'
-  && gate.status === 'passed'
-  && gate.command === 'ops/local-release-gate.sh'
-  && gate.sourceSha === sha
-  && gate.treeSha === tree
-  && Number.isFinite(Date.parse(gate.completedAt ?? ''));
-const validFullGate = target?.kind === 'monolith'
-  && gate?.schemaVersion === 2
-  && gate.scope === undefined
-  && JSON.stringify(gate.checks) === JSON.stringify([
-    'full-ci',
-    'disposable-postgresql-migrations',
-    'resource-seed',
-    'playwright-e2e',
-  ])
-  && gate.fullCi?.schemaVersion === 1
-  && gate.fullCi?.kind === 'workspace-local-full-ci'
-  && gate.fullCi?.status === 'passed'
-  && gate.fullCi?.command === 'npm run check:ci'
-  && gate.fullCi?.treeSha === tree;
-const validUnitGate = target?.kind === 'unit'
-  && gate?.schemaVersion === 3
-  && gate.scope?.kind === 'unit'
-  && gate.scope?.unitId === target.unitId
-  && JSON.stringify(gate.checks) === JSON.stringify([
-    'release-unit-base',
-    'deploy-unit-typecheck',
-    'deploy-unit-production-build',
-    'disposable-postgresql-migrations',
-    'resource-seed',
-    'deploy-unit-runtime-smoke',
-    'deploy-unit-e2e',
-  ])
-  && gate.unit?.id === target.unitId
-  && /^[0-9a-f]{64}$/.test(gate.unit?.contractSha256 ?? '')
-  && /^[0-9a-f]{64}$/.test(gate.unit?.graphSha256 ?? '')
-  && /^[0-9a-f]{64}$/.test(gate.unit?.artifactSha256 ?? '')
-  && Array.isArray(gate.unit?.typecheckScopes)
-  && gate.unit.typecheckScopes.length > 0
-  && Array.isArray(gate.unit?.e2eSuites)
-  && gate.unitCi?.schemaVersion === 1
-  && gate.unitCi?.kind === 'workspace-local-unit-ci'
-  && gate.unitCi?.status === 'passed'
-  && gate.unitCi?.command === 'scripts/check/run-check-suite.mjs release-unit'
-  && gate.unitCi?.unitId === target.unitId
-  && gate.unitCi?.sourceSha === sha
-  && gate.unitCi?.treeSha === tree;
 if (metadata.schemaVersion !== 1
   || metadata.source?.commitSha !== sha
   || metadata.source?.treeSha !== tree
-  || !validGateBase
-  || (!validFullGate && !validUnitGate)
+  || metadata.releaseCandidate?.schemaVersion !== 1
+  || metadata.releaseCandidate?.kind !== 'workspace-release-candidate'
+  || metadata.releaseCandidate?.status !== 'prepared'
+  || metadata.releaseCandidate?.command !== 'ops/publish.sh prepare'
+  || metadata.releaseCandidate?.sourceSha !== sha
+  || metadata.releaseCandidate?.treeSha !== tree
+  || JSON.stringify(metadata.releaseCandidate?.checks) !== JSON.stringify([
+    'cnb-release-config',
+    'tenant-config-dry-run',
+    'tenant-permission-docs',
+  ])
+  || !Number.isFinite(Date.parse(metadata.releaseCandidate?.completedAt ?? ''))
   || metadata.cnb?.repository !== repository
   || metadata.cnb?.sourceBranch !== branch
   || !Number.isSafeInteger(metadata.deployment?.startedAtEpochSeconds)
@@ -1005,7 +972,33 @@ if (metadata.schemaVersion !== 1
 }
 const bootstrap = metadata.deploymentBootstrap;
 const genesis = metadata.deploymentGenesis;
+const databaseReplacement = metadata.databaseReplacement;
 if (bootstrap && genesis) throw new Error('bootstrap and genesis metadata are mutually exclusive');
+if (databaseReplacement) {
+  const replacementKeys = Object.keys(databaseReplacement).sort().join(',');
+  const sourceKeys = Object.keys(databaseReplacement.source ?? {}).sort().join(',');
+  const dumpKeys = Object.keys(databaseReplacement.dump ?? {}).sort().join(',');
+  const databaseKeys = Object.keys(databaseReplacement.database ?? {}).sort().join(',');
+  if (metadata.deployment?.target?.kind !== 'monolith' || bootstrap || genesis
+    || replacementKeys !== 'database,dump,kind,preparedAt,schemaVersion,source,status'
+    || databaseReplacement.schemaVersion !== 1
+    || databaseReplacement.kind !== 'workspace-database-replacement'
+    || databaseReplacement.status !== 'prepared'
+    || sourceKeys !== 'commitSha,treeSha'
+    || databaseReplacement.source.commitSha !== sha
+    || databaseReplacement.source.treeSha !== tree
+    || dumpKeys !== 'format,remoteArtifact,sha256,sizeBytes'
+    || databaseReplacement.dump.format !== 'postgresql-custom'
+    || !/^[0-9a-f]{64}$/.test(databaseReplacement.dump.sha256 ?? '')
+    || databaseReplacement.dump.remoteArtifact !== `${sha}/${databaseReplacement.dump.sha256}/workspace-postgresql.dump`
+    || !Number.isSafeInteger(databaseReplacement.dump.sizeBytes) || databaseReplacement.dump.sizeBytes < 1
+    || databaseKeys !== 'migrationCount,migrationSetSha256'
+    || !Number.isSafeInteger(databaseReplacement.database.migrationCount) || databaseReplacement.database.migrationCount < 1
+    || !/^[0-9a-f]{64}$/.test(databaseReplacement.database.migrationSetSha256 ?? '')
+    || !Number.isFinite(Date.parse(databaseReplacement.preparedAt ?? ''))) {
+    throw new Error('database replacement metadata is invalid');
+  }
+}
 if (genesis) {
   if (metadata.deployment?.target?.kind !== 'monolith'
     || Object.keys(genesis).sort().join(',') !== 'baselineChecksum,baselineMigration,fromSourceSha,legacyMigrationCount,legacyMigrationSetSha256'
@@ -1037,6 +1030,12 @@ const values = [
   genesis?.legacyMigrationSetSha256 ?? '',
   genesis?.baselineMigration ?? '',
   genesis?.baselineChecksum ?? '',
+  databaseReplacement?.dump?.sha256 ?? '',
+  String(databaseReplacement?.dump?.sizeBytes ?? ''),
+  databaseReplacement?.dump?.remoteArtifact ?? '',
+  String(databaseReplacement?.database?.migrationCount ?? ''),
+  databaseReplacement?.database?.migrationSetSha256 ?? '',
+  databaseReplacement?.preparedAt ?? '',
 ];
 process.stdout.write(values.join('\n'));
 NODE
@@ -1065,6 +1064,14 @@ NODE
     RELEASE_GENESIS_LEGACY_MIGRATION_DIGEST="$(printf '%s\n' "$metadata_values" | sed -n '15p')"
     RELEASE_GENESIS_BASELINE_MIGRATION="$(printf '%s\n' "$metadata_values" | sed -n '16p')"
     RELEASE_GENESIS_BASELINE_CHECKSUM="$(printf '%s\n' "$metadata_values" | sed -n '17p')"
+  fi
+  RELEASE_DATABASE_REPLACEMENT_DUMP_SHA="$(printf '%s\n' "$metadata_values" | sed -n '18p')"
+  if [ -n "$RELEASE_DATABASE_REPLACEMENT_DUMP_SHA" ]; then
+    RELEASE_DATABASE_REPLACEMENT_DUMP_SIZE="$(printf '%s\n' "$metadata_values" | sed -n '19p')"
+    RELEASE_DATABASE_REPLACEMENT_REMOTE_ARTIFACT="$(printf '%s\n' "$metadata_values" | sed -n '20p')"
+    RELEASE_DATABASE_REPLACEMENT_MIGRATION_COUNT="$(printf '%s\n' "$metadata_values" | sed -n '21p')"
+    RELEASE_DATABASE_REPLACEMENT_MIGRATION_SET="$(printf '%s\n' "$metadata_values" | sed -n '22p')"
+    RELEASE_DATABASE_REPLACEMENT_PREPARED_AT="$(printf '%s\n' "$metadata_values" | sed -n '23p')"
   fi
   echo "==> 已验证 CNB source: ${RELEASE_SOURCE_SHA:0:12} via ${RELEASE_CNB_INJECTION_SHA:0:12}"
 }
@@ -1101,6 +1108,12 @@ process.stdout.write(artifactSha);
 NODE
 )"
   RELEASE_MIGRATION_SET_SHA="$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); const value=m.inputs?.migrationSetSha256; if (!/^[0-9a-f]{64}$/.test(value ?? "")) throw new Error("standalone migration-set digest is invalid"); process.stdout.write(value);' "$ARTIFACT_MANIFEST_PATH")"
+  if [ -n "$RELEASE_DATABASE_REPLACEMENT_DUMP_SHA" ]; then
+    [ "$RELEASE_DATABASE_REPLACEMENT_MIGRATION_SET" = "$RELEASE_MIGRATION_SET_SHA" ] || {
+      echo "[错误] 数据库替换 receipt 的 migration set 与 CNB artifact 不一致"
+      exit 1
+    }
+  fi
   ARTIFACT_MANIFEST_SHA="$(node -e 'const {createHash}=require("crypto"); const {readFileSync}=require("fs"); process.stdout.write(createHash("sha256").update(readFileSync(process.argv[1])).digest("hex"))' "$ARTIFACT_MANIFEST_PATH")"
 }
 
@@ -1650,6 +1663,7 @@ NODE
     test -f \"\$release_dir/scripts/lib/agent-workforce-specs.mjs\"
     test -f \"\$release_dir/scripts/check/check-permission-action-grants.mjs\"
     test -f \"\$release_dir/ops/prisma-genesis-cutover.mjs\"
+    test -x \"\$release_dir/ops/replace-production-database.sh\"
     test -f \"\$release_dir/.release-manifest.json\"
 
     cd \"\$release_dir\"
@@ -1675,6 +1689,8 @@ NODE
     maintenance_backup=''
     maintenance_backup_sha=''
     maintenance_marker_present=0
+    database_replacement_guard=0
+    database_replacement_state='$REMOTE_WORKSPACE_CONFIG_DIR/database-replacement-in-progress.json'
     if [ -f \"\$maintenance_marker_path\" ]; then
       maintenance_marker_present=1
       maintenance_migration_started=1
@@ -1883,6 +1899,19 @@ if (!Array.isArray(routeMap.activeUnits) || routeMap.activeUnits.length !== 0
 NODE
       echo "==> Full Gateway overrides 已原子清空: \$gateway_generation_id"
     }
+    commit_database_replacement_state() {
+      [ \"\$database_replacement_guard\" = '1' ] || return 0
+      \"\$release_dir/ops/replace-production-database.sh\" commit \
+        --state-file \"\$database_replacement_state\"
+      replacement_receipt_dir='$REMOTE_WORKSPACE_CONFIG_DIR/database-replacement-receipts'
+      mkdir -p \"\$replacement_receipt_dir\"
+      chmod 700 \"\$replacement_receipt_dir\"
+      cp \"\$database_replacement_state\" \"\$replacement_receipt_dir/$RELEASE_SOURCE_SHA.json.tmp\"
+      chmod 600 \"\$replacement_receipt_dir/$RELEASE_SOURCE_SHA.json.tmp\"
+      mv \"\$replacement_receipt_dir/$RELEASE_SOURCE_SHA.json.tmp\" \"\$replacement_receipt_dir/$RELEASE_SOURCE_SHA.json\"
+      rm -f \"\$database_replacement_state\"
+      database_replacement_guard=0
+    }
     rollback_cutover() {
       exit_code=\$?
       trap - EXIT
@@ -1902,6 +1931,7 @@ NODE
           --release-dir \"\$release_dir\"
         then
           release_committed=1
+          commit_database_replacement_state
           echo '==> deployed-release 原子记录已绑定当前 candidate；将其视为 commit point，不执行旧版本回滚'
         fi
       fi
@@ -1980,7 +2010,12 @@ NODE
         pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
         pm2 delete '$PM2_NAME' 2>/dev/null || true
         pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
-        if [ \"\$maintenance_migration_started\" = '1' ]; then
+        if [ \"\$database_replacement_guard\" = '1' ]; then
+          echo '[维护] 整库替换已进入 writer fence；旧生产数据库仍保留，保持 Workspace 与企业微信停止并等待同 source 恢复。'
+          test -f \"\$database_replacement_state\" \
+            || echo '[错误] 数据库替换持久状态缺失；禁止自动恢复任何 writer。'
+          pm2 save
+        elif [ \"\$maintenance_migration_started\" = '1' ]; then
           echo '[维护] 不兼容 migration 已开始执行；为防止旧版本读取新协议，保持 Workspace 与企业微信停止。'
           if [ ! -f \"\$maintenance_marker_path\" ]; then
             echo '[错误] maintenance 持久 marker 丢失；保持停机并等待人工恢复'
@@ -2018,6 +2053,9 @@ NODE
     }
     trap rollback_cutover EXIT
     control_plane_policy='$CONTROL_PLANE_POLICY'
+    if [ -n '$RELEASE_DATABASE_REPLACEMENT_DUMP_SHA' ]; then
+      control_plane_policy='refresh'
+    fi
     control_plane_ready=0
     if [ \"\$control_plane_policy\" != 'refresh' ] \
       && [ -z \"\$cutover_source\" ] \
@@ -2037,6 +2075,46 @@ NODE
       exit 1
     fi
     begin_remote_timing_stage migration.provision
+    if [ -n '$RELEASE_DATABASE_REPLACEMENT_DUMP_SHA' ]; then
+      replacement_dump='$REMOTE_WORKSPACE_CONFIG_DIR/deploy-inputs/database-replacements/$RELEASE_DATABASE_REPLACEMENT_REMOTE_ARTIFACT'
+      case \"\$replacement_dump\" in
+        '$REMOTE_WORKSPACE_CONFIG_DIR/deploy-inputs/database-replacements/$RELEASE_SOURCE_SHA/'*.dump) ;;
+        *) echo '[错误] 数据库替换 artifact 路径越界'; exit 1 ;;
+      esac
+      test -s \"\$replacement_dump\"
+      test \"\$(stat -c '%s' \"\$replacement_dump\")\" = '$RELEASE_DATABASE_REPLACEMENT_DUMP_SIZE'
+      test \"\$(sha256sum \"\$replacement_dump\" | awk '{print \$1}')\" = '$RELEASE_DATABASE_REPLACEMENT_DUMP_SHA'
+      pg_restore --list \"\$replacement_dump\" >/dev/null
+      echo '==> 进入整库替换维护窗口；停止 Workspace、candidate 与企业微信 writer...'
+      database_replacement_guard=1
+      public_process_stopped=1
+      pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
+      pm2 delete '$PM2_NAME' 2>/dev/null || true
+      pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
+      if [ \"\$(pm2_pid_or_unavailable \"\$cutover_candidate_name\")\" != '0' ] \
+        || [ \"\$(pm2_pid_or_unavailable '$PM2_NAME')\" != '0' ] \
+        || [ \"\$(pm2_pid_or_unavailable '$PM2_WECOM_BOT_NAME')\" != '0' ]; then
+        echo '[错误] 整库替换前未能确认所有 writer 停止'
+        exit 1
+      fi
+      pm2 save
+      echo '==> 恢复并原子切换已绑定候选的 PostgreSQL dump...'
+      WORKSPACE_DATABASE_REPLACEMENT_WRITERS_STOPPED=1 \
+        \"\$release_dir/ops/replace-production-database.sh\" apply \
+          --dump \"\$replacement_dump\" \
+          --expected-sha '$RELEASE_DATABASE_REPLACEMENT_DUMP_SHA' \
+          --expected-size '$RELEASE_DATABASE_REPLACEMENT_DUMP_SIZE' \
+          --source-sha '$RELEASE_SOURCE_SHA' \
+          --source-tree '$RELEASE_SOURCE_TREE' \
+          --migration-set '$RELEASE_DATABASE_REPLACEMENT_MIGRATION_SET' \
+          --migration-count '$RELEASE_DATABASE_REPLACEMENT_MIGRATION_COUNT' \
+          --migrations-dir \"\$release_dir/prisma/migrations\" \
+          --state-file \"\$database_replacement_state\"
+      set -a
+      . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+      set +a
+      echo '==> 整库替换已切换；后续 migration/seed/candidate 健康门禁继续复用标准流程'
+    fi
     if [ \"\$maintenance_migration_started\" = '1' ]; then
       echo '==> 检测到 maintenance marker；先无条件隔离所有旧 writer'
       public_process_stopped=1
@@ -2471,6 +2549,7 @@ PY
       --release-id '$release_id' \
       --release-dir '$REMOTE_DIR/releases/$release_id'
     release_committed=1
+    commit_database_replacement_state
     finish_remote_timing_stage passed 0
     rm -f '$REMOTE_WORKSPACE_CONFIG_DIR/maintenance-deploy'
     rm -f '$REMOTE_WORKSPACE_CONFIG_DIR/production-bootstrap-in-progress.json'

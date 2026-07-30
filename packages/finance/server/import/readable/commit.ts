@@ -134,13 +134,7 @@ export async function commitFinanceArchiveImport(batch: NormalizedReadableBatch)
         rulesByVersion.set(rule.policyVersionId, groupAccountIds);
       }
       for (const [policyVersionId, sourceGroupAccountIds] of rulesByVersion) {
-        await materializeConfirmedReclassAdjustments(
-          tx,
-          policyVersionId,
-          [...sourceGroupAccountIds],
-          null,
-          [...core.periods.values()],
-        );
+        await materializeConfirmedReclassAdjustments(tx, policyVersionId, [...sourceGroupAccountIds]);
       }
       await tx.financeReadableImportRun.update({
         where: { id: importRun.id }, data: { status: "completed", completedAt: new Date(), errorMessage: null },

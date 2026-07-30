@@ -13,6 +13,7 @@ import {
   type ToolbarRenderableAction,
 } from "./Toolbar.parts";
 import type { ToolbarItem, ToolbarMenuActionItem, ToolbarMenuItem } from "./Toolbar.types";
+import { ToolbarFilterPanelFields } from "./ToolbarFilterPanel";
 
 export function MobileToolbarSheet({
   title,
@@ -199,6 +200,19 @@ function MobileToolbarControl({
   }
   if (item.kind === "menu") return <MobileToolbarMenu item={item} onClose={onClose} />;
   if (item.kind === "page-size") return <MobilePageSizeControl item={item} />;
+  if (item.kind === "filter-panel") {
+    return (
+      <div
+        className={joinClassNames(
+          "min-w-0 border border-slate-200 bg-slate-50/70",
+          compact ? "rounded-xl p-2" : "rounded-2xl p-3",
+        )}
+        data-mobile-toolbar-control="filter-panel"
+      >
+        <ToolbarFilterPanelFields item={item} compact />
+      </div>
+    );
+  }
 
   const label = getControlLabel(item);
   return (

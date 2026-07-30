@@ -8,7 +8,7 @@ import {
   agentBusinessApiTools,
   handleParsedAgentMessageStreamRequest,
   parseAgentRequest,
-} from "@workspace/platform/server/agent";
+} from "@workspace/agent/server";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export const runtime = "nodejs";

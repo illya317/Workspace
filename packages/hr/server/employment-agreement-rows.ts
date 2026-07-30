@@ -2,7 +2,6 @@ import { classifyInclusiveBusinessPeriod } from "@workspace/platform/contracts/b
 import { businessTemporalBaselineMissingRequiredFields } from "@workspace/platform/contracts/business-temporal-baseline";
 import { prisma, type Prisma } from "@workspace/platform/server/prisma";
 import { employmentAgreementMissingFieldLabel } from "@workspace/hr/employment-agreement-field-contract";
-import { preferredAgreementTerm } from "@workspace/hr/agreement-term-semantics";
 import type { ContractRow, EmploymentAgreementRevisionRow, EmploymentAgreementTermRow } from "@workspace/hr/types";
 import { HR_EMPLOYMENT_AGREEMENT_TEMPORAL } from "../business-temporal";
 
@@ -26,11 +25,9 @@ export function normalizedEmploymentAgreementRow(
   agreement: Awaited<ReturnType<typeof _loadAgreementShape>>,
   asOfDate: string,
 ): ContractRow {
-  const rootOrdinals = agreementTermRootOrdinals(agreement.terms);
   const terms = agreement.terms.map((term): EmploymentAgreementTermRow => ({
     termUid: term.termUid,
-    storageSequence: term.sequence,
-    sequence: rootOrdinals.get(term.id) ?? term.sequence,
+    sequence: term.sequence,
     termKind: term.termKind as EmploymentAgreementTermRow["termKind"],
     effectiveFrom: term.effectiveFrom ?? null,
     effectiveThrough: term.effectiveThrough,
@@ -55,11 +52,12 @@ export function normalizedEmploymentAgreementRow(
     ? parseContent(agreement.currentPublishedRevision.contentJson)
     : emptyContent();
   const confirmedTerms = terms.filter((term) => term.recordState === "confirmed");
-  const preferredConfirmedTerm = preferredAgreementTerm(confirmedTerms);
-  const datefulTerms = confirmedTerms.filter((term): term is EmploymentAgreementTermRow & { effectiveFrom: string } => Boolean(term.effectiveFrom));
-  const ordered = [...datefulTerms].sort((left, right) => (
-    left.effectiveFrom.localeCompare(right.effectiveFrom) || left.sequence - right.sequence
-  ));
+  const latestConfirmedTerm = confirmedTerms.at(-1) ?? null;
+  const authoritativeTerms = terms.filter((term) => term.recordState === "confirmed" || term.recordState === "unknown");
+  const datefulTerms = authoritativeTerms.filter(
+    (term): term is EmploymentAgreementTermRow & { effectiveFrom: string } => Boolean(term.effectiveFrom),
+  );
+  const ordered = [...datefulTerms].sort((left, right) => left.effectiveFrom.localeCompare(right.effectiveFrom));
   const primaryState = agreement.actualEndDate
     ? classifyInclusiveBusinessPeriod({ validFrom: ordered[0]?.effectiveFrom ?? null, validThrough: agreement.actualEndDate }, asOfDate)
     : preferredTemporalState(confirmedTerms.length > 0 ? confirmedTerms : terms);
@@ -89,7 +87,7 @@ export function normalizedEmploymentAgreementRow(
     thirdContractStartDate: ordered[2]?.effectiveFrom ?? null,
     thirdContractEndDate: ordered[2]?.effectiveThrough ?? null,
     permanentContractDate: ordered.find((term) => term.termKind === "permanent")?.effectiveFrom ?? null,
-    expiryDate: preferredConfirmedTerm?.effectiveThrough ?? null,
+    expiryDate: latestConfirmedTerm?.effectiveThrough ?? null,
     confidentialityDate: content.confidentialityDate,
     nonCompeteDate: content.nonCompeteDate,
     endDate: agreement.actualEndDate,
@@ -102,7 +100,7 @@ export function normalizedEmploymentAgreementRow(
       : "normalized",
     missingFields: missingFieldPaths.map((path) => ({
       path,
-      label: employmentAgreementMissingFieldLabel(projectedMissingFieldPath(path, terms)),
+      label: employmentAgreementMissingFieldLabel(path),
       required: missingRequiredFieldSet.has(path),
     })),
     currentRevisionUid: agreement.currentPublishedRevision?.revisionUid ?? null,
@@ -126,42 +124,6 @@ export function normalizedEmploymentAgreementRow(
       version: attachment.version,
     })),
   };
-}
-
-function agreementTermRootOrdinals<T extends { id: number; sequence: number; supersedesId: number | null }>(
-  terms: readonly T[],
-) {
-  const byId = new Map(terms.map((term) => [term.id, term]));
-  const rootById = new Map<number, number>();
-  function rootId(term: T): number {
-    const cached = rootById.get(term.id);
-    if (cached) return cached;
-    const visited = new Set<number>();
-    let current = term;
-    while (current.supersedesId && !visited.has(current.id)) {
-      visited.add(current.id);
-      const parent = byId.get(current.supersedesId);
-      if (!parent) break;
-      current = parent;
-    }
-    for (const id of visited) rootById.set(id, current.id);
-    rootById.set(term.id, current.id);
-    return current.id;
-  }
-  const roots = [...new Map(terms.map((term) => {
-    const root = byId.get(rootId(term)) ?? term;
-    return [root.id, root] as const;
-  })).values()].sort((left, right) => left.sequence - right.sequence || left.id - right.id);
-  const ordinalByRoot = new Map(roots.map((root, index) => [root.id, index + 1]));
-  return new Map(terms.map((term) => [term.id, ordinalByRoot.get(rootId(term)) ?? term.sequence]));
-}
-
-function projectedMissingFieldPath(path: string, terms: EmploymentAgreementTermRow[]) {
-  const termMatch = /^terms\.(\d+)\.(.+)$/.exec(path);
-  if (!termMatch) return path;
-  const storageSequence = Number(termMatch[1]);
-  const term = terms.find((item) => item.storageSequence === storageSequence);
-  return term ? `terms.${term.sequence}.${termMatch[2]}` : path;
 }
 
 function parseMissingFields(value: string): string[] {

@@ -65,8 +65,9 @@ export function buildConsolidatedPreviewFromBatchSnapshot(
     functionalCurrencyByEntitySnapshotId.set(entity.id, functionalCurrency);
   }
   if ([...functionalCurrencyByEntitySnapshotId.values()].some((currency) => currency.toUpperCase() === "CAD")
-    && batch.exchangeRates.some((rate) => !["centralParity", "monthlyAverage"].includes(rate.rateKind))) {
-    return failCommand("当前草稿仍冻结旧汇率来源，请重新生成批次并抓取中国货币网人民币汇率中间价", 409, "exchangeRates");
+    && (batch.exchangeRates.some((rate) => !["centralParity", "monthlyAverage", "historicalInvestment"].includes(rate.rateKind))
+      || !batch.exchangeRates.some((rate) => rate.rateKind === "monthlyAverage"))) {
+    return failCommand("当前草稿缺少逐月平均汇率证据，请重新生成合并工作底稿", 409, "exchangeRates");
   }
   return buildConsolidatedReportOutput(
     buildConsolidationPreviewPackage(batch),

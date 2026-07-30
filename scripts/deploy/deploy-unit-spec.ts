@@ -122,7 +122,7 @@ export const deployUnitBlueprints: readonly DeployUnitBlueprint[] = [
     kind: "workspace-shell",
     maturity: "active",
     coordination: "available",
-    registryPackages: ["@workspace/platform:settings", "@workspace/platform:system"],
+    registryPackages: ["@workspace/settings", "@workspace/platform:system"],
     impactModules: ["shell", "settings", "auth"],
     runtimeDependencies: [
       { unitId: "work", requirement: "required", protocol: "signed-internal-rpc", reason: "account notifications and preferred projects" },
@@ -161,7 +161,7 @@ export const deployUnitBlueprints: readonly DeployUnitBlueprint[] = [
     runtimeDependencies: [
       { unitId: "work", requirement: "required", protocol: "signed-internal-rpc", reason: "business-space access policy" },
       { unitId: "hr", requirement: "optional", protocol: "signed-internal-rpc", reason: "authorized workspace analysis source discovery and execution" },
-      { unitId: "inventory", requirement: "optional", protocol: "signed-internal-rpc", reason: "authorized workspace analysis source discovery and execution" },
+      { unitId: "inventory", requirement: "optional", protocol: "signed-internal-rpc", reason: "authorized workspace analysis sources and read-only period closing inspections" },
       { unitId: "library", requirement: "optional", protocol: "signed-internal-rpc", reason: "authorized workspace analysis source discovery and execution" },
       { unitId: "production", requirement: "optional", protocol: "signed-internal-rpc", reason: "authorized workspace analysis source discovery and execution" },
       { unitId: "external", requirement: "optional", protocol: "signed-internal-rpc", reason: "authorized workspace analysis source discovery and execution" },
@@ -184,15 +184,15 @@ export const deployUnitBlueprints: readonly DeployUnitBlueprint[] = [
     { unitId: "capital-securities", requirement: "required", protocol: "signed-internal-rpc", reason: "current ownership structure snapshots" },
     { unitId: "administration", requirement: "required", protocol: "signed-internal-rpc", reason: "current contract ledger snapshots" },
   ] }),
-  nextZone("docs", 3207, "@workspace/platform:docs", { kind: "platform-l1", maturity: "active", capacity: { memoryMiB: 512, databasePoolMax: 3 }, runtimeDependencies: [
+  nextZone("docs", 3207, "@workspace/docs", { maturity: "active", capacity: { memoryMiB: 512, databasePoolMax: 3 }, runtimeDependencies: [
     { unitId: "assistant", requirement: "optional", protocol: "gateway-http", reason: "page assistant" },
   ] }),
   {
     id: "assistant",
-    kind: "headless-runtime",
+    kind: "business-l1",
     maturity: "active",
     coordination: "available",
-    registryPackages: ["@workspace/platform:agent"],
+    registryPackages: ["@workspace/agent"],
     impactModules: ["agent", "integrations"],
     runtimeDependencies: [
       { unitId: "finance", requirement: "optional", protocol: "signed-internal-rpc", reason: "Finance agent domain" },
@@ -208,7 +208,7 @@ export const deployUnitBlueprints: readonly DeployUnitBlueprint[] = [
         blue: { port: 3208 },
         green: { port: 3308 },
       },
-      assetPrefix: null,
+      assetPrefix: "/workspace-static/assistant",
       healthPath: HEALTH_PATH,
       versionPath: VERSION_PATH,
       capacity: {

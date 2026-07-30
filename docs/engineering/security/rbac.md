@@ -141,7 +141,7 @@ space.company
 
 ## Agent 与虚拟员工
 
-`agent` 是无 `/agent` 页面和 L2 的 headless 运行态模块。`agent.assistant` 是普通员工工具栏和 `/api/agent/**` 使用的 capability。它以 `settings.account` 为 `capabilityOwnerKey`；`runtimeParentKey=agent` 只让 Agent 模块停用时同步停止运行态，不产生 RBAC 继承：
+`agent` 是有 `/agent` 页面、但没有 L2 的普通 L1。`agent.assistant` 是 `/agent` 会话、普通员工工具栏和 `/api/agent/**` 共用的 capability。它以 `settings.account` 为 `capabilityOwnerKey`；`runtimeParentKey=agent` 只让 Agent 模块停用时同步停止运行态，不产生 RBAC 继承：
 
 - `agent.assistant.read`：发现可用 profile，并读取能力清单或本人安全视图。
 - `agent.assistant.submit`：显示工具栏助手、提交消息，以及确认/取消自己创建的 proposal；`submit` 按 action registry 同时隐含 `entry/read`。

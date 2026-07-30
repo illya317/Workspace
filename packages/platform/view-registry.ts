@@ -94,11 +94,17 @@ const basePageViewDefinitions: PageViewDefinition[] = [
         label: "凭证明细",
         children: [
           { key: "company", label: "公司明细" },
-          { key: "reclassification", label: "重分类明细" },
           { key: "consolidation", label: "合并明细" },
         ],
       },
-      { key: "ledger", label: "科目余额" },
+      {
+        key: "ledger",
+        label: "科目余额",
+        children: [
+          { key: "balances", label: "账面余额" },
+          { key: "reclassification", label: "重分类" },
+        ],
+      },
       {
         key: "counterparty",
         label: "往来款项",
@@ -109,16 +115,46 @@ const basePageViewDefinitions: PageViewDefinition[] = [
           { key: "otherAp", label: "其他应付" },
         ],
       },
+      { key: "closing", label: "关账" },
+    ],
+  },
+  {
+    route: "/finance/assets",
+    moduleKey: "finance",
+    label: "资产会计",
+    views: [
       {
-        key: "depreciation",
-        label: "折旧摊销",
+        key: "policies",
+        label: "核算政策",
         children: [
-          { key: "cards", label: "资产卡片" },
-          { key: "period", label: "月度折旧摊销" },
-          { key: "adjustments", label: "调整事项" },
-          { key: "reconciliation", label: "总账勾稽" },
+          { key: "group", label: "集团" },
+          { key: "company", label: "公司" },
         ],
       },
+      { key: "cards", label: "资产卡片" },
+      { key: "period", label: "月度折旧摊销" },
+      { key: "adjustments", label: "减值与处置" },
+    ],
+  },
+  {
+    route: "/finance/treasury",
+    moduleKey: "finance",
+    label: "资金管理",
+    views: [
+      { key: "bank-accounts", label: "银行账户" },
+      { key: "bank-reconciliation", label: "银行对账" },
+      { key: "loans", label: "借款" },
+      { key: "interest", label: "利息" },
+    ],
+  },
+  {
+    route: "/finance/tax",
+    moduleKey: "finance",
+    label: "税务管理",
+    views: [
+      { key: "accrual", label: "税费计提" },
+      { key: "filing-payment", label: "申报与缴纳" },
+      { key: "reconciliation-evidence", label: "税务勾稽与证据" },
     ],
   },
   {

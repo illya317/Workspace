@@ -80,8 +80,8 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
       notes: "HTTP dispatch 开始后发生异常时，目标业务单元可能已接受写入；AgentProposal 记录不确定失败，禁止自动重试，必须先通过对应业务 API 核对。",
     },
     domain: d(
-      "packages/platform/server/agent/business-api-connector.validateAgentBusinessApiMutationProposalPayload",
-      "packages/platform/server/agent/business-api-connector.executeAgentBusinessApiMutationProposal",
+      "packages/agent/server/business-api-connector.validateAgentBusinessApiMutationProposalPayload",
+      "packages/agent/server/business-api-connector.executeAgentBusinessApiMutationProposal",
     ),
   },
   {
@@ -97,7 +97,7 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     },
     payload: { cardinality: "single", shape: "full_record", target: "existing_record", targetIdKey: "templateId", versionKey: "version" },
     persistence: { strategy: "approval_payload", activeEntity: "DocumentTemplate", draftEntity: "ApprovalRequest", supportedPersistenceModes: ["active", "workflowDraft"], defaultMode: "active", commitMode: "apply_patch" },
-    domain: d("packages/platform/server/docs-editor/domain/document-template-validation.buildSaveDraftCommand", "packages/platform/server/docs-editor/service.saveDraft"),
+    domain: d("packages/docs/server/domain/document-template-validation.buildSaveDraftCommand", "packages/docs/server/service.saveDraft"),
     workflow: {
       kind: "configurable",
       defaultExecutionMode: "direct",
@@ -220,7 +220,7 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
   registeredWrite({
     key: "docs.editor.template.copy",
     activeEntity: "DocumentTemplate",
-    domain: d("packages/platform/server/docs-editor/domain/document-template-validation.buildCopyTemplateCommand", "packages/platform/server/docs-editor/service.copyTemplate"),
+    domain: d("packages/docs/server/domain/document-template-validation.buildCopyTemplateCommand", "packages/docs/server/service.copyTemplate"),
     shape: "full_record",
     target: "new_record",
     commitMode: "activate",
@@ -230,7 +230,7 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     activeEntity: "DocumentTemplate",
     operation: "archive",
     versionKey: "version",
-    domain: d("packages/platform/server/docs-editor/domain/document-template-validation.buildTemplateIdCommand", "packages/platform/server/docs-editor/service.archiveTemplate"),
+    domain: d("packages/docs/server/domain/document-template-validation.buildTemplateIdCommand", "packages/docs/server/service.archiveTemplate"),
   }),
   registeredLifecycle({
     key: "docs.editor.template.draft.delete",
@@ -239,7 +239,7 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     versionKey: "version",
     deleteMode: "hard",
     referencePolicy: "domain",
-    domain: d("packages/platform/server/docs-editor/domain/document-template-validation.buildTemplateIdCommand", "packages/platform/server/docs-editor/service.deleteDraft"),
+    domain: d("packages/docs/server/domain/document-template-validation.buildTemplateIdCommand", "packages/docs/server/service.deleteDraft"),
   }),
   registeredWrite({
     key: "production.qc.batch.create",

@@ -46,7 +46,7 @@ test("routes and APIs are derived from the product registry rather than copied i
   const assistant = graph.units.find((unit) => unit.id === "assistant");
   assert.ok(assistant);
   assert.deepEqual(assistant.moduleLabels, ["智能体"]);
-  assert.deepEqual(assistant.pageRoutes, []);
+  assert.deepEqual(assistant.pageRoutes, ["/agent"]);
   assert.ok(assistant.apiPrefixes.includes("/api/agent"));
 });
 

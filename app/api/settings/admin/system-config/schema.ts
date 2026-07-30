@@ -1,0 +1,200 @@
+import { z } from "zod";
+import { parseFinanceAssetCodeRule } from "@workspace/platform/business-code-config";
+import { applyBusinessCodeTemplateSettings } from "@workspace/platform/business-code-management";
+import { parseComposableBusinessCodeRule } from "@workspace/platform/business-code-rule";
+import { parseBusinessCodeTemplateSettings } from "@workspace/platform/business-code-template";
+import {
+  BUSINESS_CODE_FIELDS,
+  BUSINESS_CODE_OBJECTS,
+  BUSINESS_CODE_SYSTEM_TEMPLATES,
+  type BusinessCodeObjectKey,
+} from "@workspace/platform/business-code-registry";
+import { PERMISSION_ACTION_KEYS } from "@workspace/platform/permission-actions";
+
+const shortText = z.string().trim().max(24);
+const separator = z.string().max(3);
+const sequenceLength = z.number().int().min(1).max(12);
+const sequenceValue = z.number().int().min(1).max(999_999_999);
+const businessCodeObjectKeys = BUSINESS_CODE_OBJECTS.map((definition) => definition.key) as [
+  BusinessCodeObjectKey,
+  ...BusinessCodeObjectKey[],
+];
+const businessCodeFieldKeys = BUSINESS_CODE_FIELDS.map((definition) => definition.key) as [string, ...string[]];
+
+const sequentialCodeRuleSchema = z.object({
+  prefix: shortText,
+  separator,
+  sequenceLength,
+  sequenceStart: sequenceValue,
+}).strict().refine(
+  (value) => value.sequenceStart <= (10 ** value.sequenceLength) - 1,
+  { message: "流水起始值超出配置位数", path: ["sequenceStart"] },
+);
+
+const businessCodeSegmentSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("literal"), value: z.string().trim().min(1).max(24) }).strict(),
+  z.object({ kind: z.literal("reference"), source: z.string().trim().min(1).max(64) }).strict(),
+  z.object({
+    kind: z.enum(["date", "datetime"]),
+    source: z.string().trim().min(1).max(64),
+    format: z.string().trim().min(1).max(32),
+  }).strict(),
+  z.object({ kind: z.literal("sequence"), length: sequenceLength }).strict(),
+]);
+
+const composableCodeRuleSchema = (allowedSources: readonly string[]) => z.object({
+  segments: z.array(businessCodeSegmentSchema).min(1).max(12),
+  sequenceStart: sequenceValue,
+  sequenceScope: z.array(z.enum(businessCodeFieldKeys)).max(8).optional(),
+}).strict().superRefine((value, context) => {
+  try {
+    parseComposableBusinessCodeRule(value, { allowedSources });
+  } catch (error) {
+    context.addIssue({ code: "custom", message: error instanceof Error ? error.message : "编码规则无效" });
+  }
+});
+
+const financeAssetCodeRuleSchema = composableCodeRuleSchema([
+  "companyCode",
+  "assetCategoryCode",
+  "fiscalYear",
+]).superRefine((value, context) => {
+  try {
+    parseFinanceAssetCodeRule(value);
+  } catch (error) {
+    context.addIssue({ code: "custom", message: error instanceof Error ? error.message : "资产编码规则无效" });
+  }
+});
+
+const templateTransformSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("none") }).strict(),
+  z.object({ kind: z.enum(["uppercaseLetters", "uppercaseAlphanumeric", "compactText", "integer", "padInteger"]), length: sequenceLength }).strict(),
+]);
+
+const templateSegmentSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("literal"), value: z.string().trim().min(1).max(24) }).strict(),
+  z.object({ kind: z.literal("field"), field: z.enum(businessCodeFieldKeys), transform: templateTransformSchema.optional() }).strict(),
+  z.object({ kind: z.enum(["date", "datetime"]), field: z.enum(businessCodeFieldKeys), format: z.string().trim().min(1).max(32) }).strict(),
+  z.object({ kind: z.literal("sequence"), length: sequenceLength }).strict(),
+]);
+
+const templateConditionSchema = z.object({
+  field: z.enum(businessCodeFieldKeys),
+  operator: z.literal("equals"),
+  value: z.string().trim().min(1).max(64),
+}).strict();
+
+const templateRuleSchema = z.object({
+  key: z.string().trim().regex(/^[a-z0-9][a-z0-9-]{0,63}$/),
+  name: z.string().trim().min(1).max(40),
+  priority: z.number().int().min(1).max(9999),
+  conditions: z.array(templateConditionSchema).max(4),
+  segments: z.array(templateSegmentSchema).min(1).max(12),
+  sequence: z.object({
+    start: sequenceValue,
+    end: sequenceValue.optional(),
+    scope: z.array(z.enum(businessCodeFieldKeys)).max(8),
+  }).strict().optional(),
+}).strict();
+
+const businessCodeTemplateSettingsSchema = z.object({
+  version: z.literal(2),
+  rules: z.array(templateRuleSchema).min(1).max(8),
+}).strict().superRefine((value, context) => {
+  try {
+    parseBusinessCodeTemplateSettings(value);
+  } catch (error) {
+    context.addIssue({ code: "custom", message: error instanceof Error ? error.message : "模板规则无效" });
+  }
+});
+
+const customBusinessCodeTemplateSchema = z.object({
+  key: z.string().trim().regex(/^custom\.[a-z0-9][a-z0-9-]{0,62}$/),
+  name: z.string().trim().min(1).max(40),
+  example: z.string().trim().min(1).max(120),
+  settings: businessCodeTemplateSettingsSchema,
+}).strict();
+
+const businessCodeManagementSchema = z.object({
+  templates: z.array(customBusinessCodeTemplateSchema).max(100),
+  templateByObject: z.record(z.enum(businessCodeObjectKeys), z.string().trim().min(1).max(64)),
+}).strict().superRefine((value, context) => {
+  const keys = new Set<string>();
+  value.templates.forEach((template, index) => {
+    if (keys.has(template.key)) context.addIssue({ code: "custom", message: "自定义模板键不能重复", path: ["templates", index, "key"] });
+    keys.add(template.key);
+  });
+});
+
+const businessCodeConfigSchema = z.object({
+  management: businessCodeManagementSchema,
+  employee: composableCodeRuleSchema(["createdAt"]),
+  department: z.object({
+    identifierFormat: z.enum(["uppercaseLetters", "uppercaseAlphanumeric", "freeText"]),
+    identifierLength: z.number().int().min(1).max(12),
+    functionalPrefix: shortText.min(1),
+    separator,
+    managementRootSuffix: z.string().trim().regex(/^\d+$/).max(12),
+    level2Suffix: z.string().trim().regex(/^\d+$/).max(12),
+    level2SequenceLength: z.number().int().min(1).max(6),
+    level3SequenceLength: z.number().int().min(1).max(6),
+  }).strict(),
+  position: sequentialCodeRuleSchema,
+  customer: composableCodeRuleSchema(["createdAt"]),
+  supplier: composableCodeRuleSchema(["createdAt"]),
+  project: z.object({
+    companyPrefix: shortText.min(1),
+    separator,
+    yearDigits: z.union([z.literal(2), z.literal(4)]),
+    companySequenceLength: sequenceLength,
+    companySequenceStart: sequenceValue,
+    companySequenceEnd: sequenceValue,
+    departmentSequenceLength: sequenceLength,
+    departmentSequenceStart: sequenceValue,
+    otherSequenceLength: sequenceLength,
+    otherSequenceStart: sequenceValue,
+  }).strict().refine(
+    (value) => value.companySequenceEnd >= value.companySequenceStart,
+    { message: "公司项目流水结束值不能小于起始值", path: ["companySequenceEnd"] },
+  ).refine(
+    (value) => value.companySequenceEnd <= (10 ** value.companySequenceLength) - 1,
+    { message: "公司项目流水超出配置位数", path: ["companySequenceEnd"] },
+  ).refine(
+    (value) => value.departmentSequenceStart <= (10 ** value.departmentSequenceLength) - 1,
+    { message: "部门项目流水起始值超出配置位数", path: ["departmentSequenceStart"] },
+  ).refine(
+    (value) => value.otherSequenceStart <= (10 ** value.otherSequenceLength) - 1,
+    { message: "其他项目流水起始值超出配置位数", path: ["otherSequenceStart"] },
+  ),
+  financeAsset: financeAssetCodeRuleSchema,
+}).strict().superRefine((value, context) => {
+  const templateByKey = new Map<string, BusinessCodeTemplateSettingsLike>([
+    ...BUSINESS_CODE_SYSTEM_TEMPLATES.map((template) => [template.key, template.settings] as const),
+    ...value.management.templates.map((template) => [template.key, template.settings] as const),
+  ]);
+  BUSINESS_CODE_OBJECTS.forEach((definition) => {
+    const key = value.management.templateByObject[definition.key];
+    const settings = templateByKey.get(key);
+    if (!settings) {
+      context.addIssue({ code: "custom", message: "编码对象所选模板不存在", path: ["management", "templateByObject", definition.key] });
+      return;
+    }
+    try {
+      applyBusinessCodeTemplateSettings(value, definition.key, settings);
+    } catch (error) {
+      context.addIssue({
+        code: "custom",
+        message: error instanceof Error ? error.message : "编码对象所选模板不兼容",
+        path: ["management", "templateByObject", definition.key],
+      });
+    }
+  });
+});
+
+type BusinessCodeTemplateSettingsLike = (typeof BUSINESS_CODE_SYSTEM_TEMPLATES)[number]["settings"];
+
+export const systemConfigSchema = z.object({
+  conflictStrategy: z.enum(["union", "deny_override"]).optional(),
+  agentAllowedActions: z.array(z.enum(PERMISSION_ACTION_KEYS)).max(PERMISSION_ACTION_KEYS.length).optional(),
+  businessCodeConfig: businessCodeConfigSchema.optional(),
+});

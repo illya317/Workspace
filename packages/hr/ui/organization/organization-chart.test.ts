@@ -25,7 +25,7 @@ const copy = {
 };
 
 test("organization chart keeps functional level two but hides business level two and every level three", () => {
-  const visual = buildOrganizationChartVisual(departments, copy);
+  const visual = buildOrganizationChartVisual(departments, copy, "FUN");
   assert.equal(visual.focusNodeKey, "organization:1");
   assert.deepEqual(
     visual.nodes.map((node) => node.label),
@@ -50,7 +50,7 @@ test("organization chart preserves an explicit sibling order and leaves missing 
     { ...departments[1] as OrganizationChartDepartment, id: 20, code: "A01", sortOrder: 20 },
     { ...departments[1] as OrganizationChartDepartment, id: 21, code: "A02", sortOrder: 10 },
     { ...departments[1] as OrganizationChartDepartment, id: 22, code: "A03" },
-  ], copy);
+  ], copy, "FUN");
   assert.deepEqual(
     visual.nodes.slice(1).map((node) => [node.key, node.layoutOrder]),
     [["organization:21", 10], ["organization:20", 20], ["organization:22", undefined]],

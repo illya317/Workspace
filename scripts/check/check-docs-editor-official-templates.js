@@ -9,9 +9,8 @@ const forbiddenRepoRoots = [
 const hrSourcePath = path.join(
   repoRoot,
   "packages",
-  "platform",
+  "docs",
   "server",
-  "docs-editor",
   "official-template-sources",
   "hr-position-description.json",
 );

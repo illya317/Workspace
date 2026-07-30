@@ -1,4 +1,8 @@
 import * as XLSX from "xlsx";
+import {
+  formulaAwareSheet,
+  type FinanceWorkbookCell,
+} from "../workbook-formula-contract";
 
 export interface LedgerWorkbookColumn {
   header: string;
@@ -9,13 +13,13 @@ export interface LedgerWorkbookColumn {
 export interface LedgerWorkbookInput {
   sheetName: string;
   columns: LedgerWorkbookColumn[];
-  rows: Array<Array<string | number>>;
+  rows: FinanceWorkbookCell[][];
 }
 
 const AMOUNT_FORMAT = "#,##0.00;[Red]-#,##0.00;0";
 
 export function buildLedgerWorkbook(input: LedgerWorkbookInput): Buffer {
-  const worksheet = XLSX.utils.aoa_to_sheet([
+  const worksheet = formulaAwareSheet([
     input.columns.map((column) => column.header),
     ...input.rows,
   ]);

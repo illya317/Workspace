@@ -32,23 +32,12 @@ export function comparativePeriodEndDate(periodEnd: string) {
 }
 
 export function sourceHasNonzeroPreviousAmount(source: Pick<ComparativeSource, "reportType" | "reportPayload">) {
-  const hasNonzeroAccumulated = reportRows(source.reportType, source.reportPayload).some((value) => {
+  return reportRows(source.reportType, source.reportPayload).some((value) => {
     const row = record(value);
     const previousAmount = typeof row?.previousAmount === "number" || typeof row?.previousAmount === "string"
       ? Number(row.previousAmount)
       : 0;
     return Number.isFinite(previousAmount) && Math.abs(previousAmount) > 0.005;
-  });
-  if (hasNonzeroAccumulated) return true;
-  const envelope = record(source.reportPayload);
-  const monthlyPeriods = record(envelope?.monthlyPeriods);
-  const comparative = Array.isArray(monthlyPeriods?.comparative) ? monthlyPeriods.comparative : [];
-  return comparative.some((period) => {
-    const lines = record(period)?.lines;
-    return Array.isArray(lines) && lines.some((value) => {
-      const amount = Number(record(value)?.amount ?? 0);
-      return Number.isFinite(amount) && Math.abs(amount) > 0.005;
-    });
   });
 }
 

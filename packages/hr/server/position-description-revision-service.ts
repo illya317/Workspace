@@ -95,7 +95,18 @@ export async function appendPositionDescriptionRevision(
       const latest = await tx.positionDescriptionRevision.findFirst({
         where: { positionDescriptionId: command.id },
         orderBy: { sequence: "desc" },
-        select: { id: true, sequence: true, details: true },
+        select: {
+          id: true,
+          revisionUid: true,
+          sequence: true,
+          positionPurpose: true,
+          summary: true,
+          headcount: true,
+          version: true,
+          effectiveDate: true,
+          sourceFile: true,
+          details: true,
+        },
       });
       if (!latest) {
         return { ok: false, error: "岗位说明书已产生新修订，请刷新后重试", status: 409 } as const;
@@ -106,6 +117,18 @@ export async function appendPositionDescriptionRevision(
         changeKind: command.changeKind,
       });
       if (!next.ok) return { ok: false, error: next.error, status: 409 } as const;
+      const details = command.revision.details === undefined ? latest.details : command.revision.details;
+      if (positionDescriptionRevisionMatches(latest, command.revision, details)) {
+        return {
+          ok: true,
+          receipt: {
+            id: latest.id,
+            revisionUid: latest.revisionUid,
+            positionDescriptionId: command.id,
+            sequence: latest.sequence,
+          },
+        } as const;
+      }
 
       const revision = await tx.positionDescriptionRevision.create({
         data: {
@@ -115,7 +138,7 @@ export async function appendPositionDescriptionRevision(
           changeKind: command.changeKind,
           supersedesRevisionId: next.supersedesRevisionId,
           ...command.revision,
-          details: command.revision.details === undefined ? latest.details : command.revision.details,
+          details,
           changeReason: command.changeReason,
           createdBy: userId,
         },
@@ -145,4 +168,26 @@ export async function appendPositionDescriptionRevision(
     }
     throw error;
   }
+}
+
+function positionDescriptionRevisionMatches(
+  latest: {
+    positionPurpose: string | null;
+    summary: string | null;
+    headcount: number | null;
+    version: string | null;
+    effectiveDate: string | null;
+    sourceFile: string;
+    details: string | null;
+  },
+  revision: PositionDescriptionUpdateCommand["revision"],
+  details: string | null,
+) {
+  return latest.positionPurpose === revision.positionPurpose
+    && latest.summary === revision.summary
+    && latest.headcount === revision.headcount
+    && latest.version === revision.version
+    && latest.effectiveDate === revision.effectiveDate
+    && latest.sourceFile === revision.sourceFile
+    && latest.details === details;
 }

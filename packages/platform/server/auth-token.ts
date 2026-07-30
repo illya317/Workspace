@@ -55,5 +55,5 @@ export type AuthPayload = {
   departmentId: number;
   departmentName?: string | null;
   sessionVersion?: number;
-  agentDelegation?: import("./agent/api-delegation").AgentApiDelegationClaims;
+  agentDelegation?: import("./agent-api-delegation").AgentApiDelegationClaims;
 };

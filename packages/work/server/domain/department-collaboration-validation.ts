@@ -1,7 +1,11 @@
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
-import { prisma } from "@workspace/platform/server/prisma";
-import { currentEmploymentDateWhere, currentOpenEndedDateWhere } from "@workspace/platform/server/relation-registry";
 import { canUpdateWorkTaskAction } from "../access";
+import {
+  findCollaborationDepartmentsAndPositions,
+  findDepartmentCollaborationResponseReference,
+  findDepartmentCollaborationUpdateReference,
+  listEligibleCollaborationOwnerEmployeeIds,
+} from "../department-collaboration-reference-adapter";
 
 export const DEPARTMENT_COLLABORATION_TYPES = ["routine", "periodic", "event", "temporary"] as const;
 export type DepartmentCollaborationType = (typeof DEPARTMENT_COLLABORATION_TYPES)[number];
@@ -54,20 +58,10 @@ export async function buildDepartmentCollaborationCreateCommand(
   if (executorPositionIds.length === 0) return failCommand("至少选择一个执行岗位", 400, "executorPositionIds");
 
   const departmentIds = [responsibleDepartmentId, ...enablingDepartmentIds];
-  const [departments, positions] = await Promise.all([
-    prisma.department.findMany({
-      where: { id: { in: departmentIds }, isArchived: false, OR: [{ endDate: null }, { endDate: { gte: new Date() } }] },
-      select: { id: true },
-    }),
-    prisma.position.findMany({
-      where: {
-        id: { in: [...responsiblePositionIds, ...executorPositionIds] },
-        isArchived: false,
-        OR: [{ endDate: null }, { endDate: { gte: new Date() } }],
-      },
-      select: { id: true, departmentId: true },
-    }),
-  ]);
+  const { departments, positions } = await findCollaborationDepartmentsAndPositions({
+    departmentIds,
+    positionIds: [...responsiblePositionIds, ...executorPositionIds],
+  });
   if (departments.length !== departmentIds.length) return failCommand("负责部门或赋能部门不存在或已失效", 400);
   if (positions.length !== responsiblePositionIds.length + executorPositionIds.length) return failCommand("负责岗位或执行岗位不存在或已失效", 400);
   const positionDepartment = new Map(positions.map((position) => [position.id, position.departmentId]));
@@ -92,26 +86,7 @@ export async function buildDepartmentCollaborationUpdateCommand(input: {
 }): Promise<DomainValidationResult<DepartmentCollaborationUpdateCommand>> {
   const collaborationId = positiveId(input.collaborationId);
   if (!collaborationId) return failCommand("协作事项无效", 400, "collaborationId");
-  const existing = await prisma.departmentCollaboration.findUnique({
-    where: { id: collaborationId },
-    select: {
-      responsibleDepartmentId: true,
-      status: true,
-      isArchived: true,
-      triggerRule: true,
-      scopeDescription: true,
-      inputRequirement: true,
-      deliverable: true,
-      acceptanceCriteria: true,
-      responseTargetHours: true,
-      deliveryTargetDays: true,
-      escalationPolicy: true,
-      enablingDepartments: { select: { departmentId: true, responseStatus: true } },
-      positions: { where: { kind: "executor" }, select: { positionId: true } },
-      workPlans: { where: { isArchived: false, ownerEmployeeId: { not: null } }, select: { ownerEmployeeId: true } },
-      workItems: { where: { isArchived: false, ownerEmployeeId: { not: null } }, select: { ownerEmployeeId: true } },
-    },
-  });
+  const existing = await findDepartmentCollaborationUpdateReference(collaborationId);
   if (!existing || existing.isArchived) return failCommand("协作事项不存在", 404);
   if (existing.status !== "active") return failCommand("协作事项当前不可编辑", 409);
   const requestedDepartmentId = positiveId(input.data.responsibleDepartmentId);
@@ -154,10 +129,7 @@ export async function buildDepartmentCollaborationResponseCommand(input: {
   if (!responseStatus) return failCommand("协作响应无效", 400, "action");
   const responseNote = stringValue(input.note);
   if (responseNote.length > 500) return failCommand("响应说明不能超过 500 个字", 400, "note");
-  const relation = await prisma.departmentCollaborationDepartment.findUnique({
-    where: { collaborationId_departmentId: { collaborationId, departmentId } },
-    select: { responseStatus: true, collaboration: { select: { isArchived: true, status: true } } },
-  });
+  const relation = await findDepartmentCollaborationResponseReference(collaborationId, departmentId);
   if (!relation || relation.collaboration.isArchived) return failCommand("协作事项不存在", 404);
   if (relation.collaboration.status !== "active") return failCommand("协作事项当前不可响应", 409);
   if (relation.responseStatus !== "pending") return failCommand("该部门已经反馈过协作事项", 409);
@@ -230,22 +202,11 @@ async function validateLinkedOwnerCompatibility(
   const acceptedDepartmentIds = new Set(existing.enablingDepartments
     .filter((entry) => entry.responseStatus === "accepted" && command.enablingDepartmentIds.includes(entry.departmentId))
     .map((entry) => entry.departmentId));
-  const executorPositions = await prisma.position.findMany({
-    where: { id: { in: command.executorPositionIds }, departmentId: { in: Array.from(acceptedDepartmentIds) } },
-    select: { id: true },
-  });
-  const eligibleAssignments = executorPositions.length > 0
-    ? await prisma.eDP.findMany({
-        where: {
-          employeeId: { in: ownerEmployeeIds },
-          positionId: { in: executorPositions.map((position) => position.id) },
-          ...currentOpenEndedDateWhere(),
-          employee: { employments: { some: currentEmploymentDateWhere() } },
-        },
-        select: { employeeId: true },
-      })
-    : [];
-  const eligibleEmployeeIds = new Set(eligibleAssignments.map((assignment) => assignment.employeeId));
+  const eligibleEmployeeIds = new Set(await listEligibleCollaborationOwnerEmployeeIds({
+    ownerEmployeeIds,
+    executorPositionIds: command.executorPositionIds,
+    acceptedDepartmentIds: Array.from(acceptedDepartmentIds),
+  }));
   if (ownerEmployeeIds.some((employeeId) => !eligibleEmployeeIds.has(employeeId))) {
     return failCommand("新的执行岗位不包含已关联计划或任务的负责人，请先调整负责人", 409, "executorPositionIds");
   }

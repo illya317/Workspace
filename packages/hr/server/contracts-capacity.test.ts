@@ -108,6 +108,7 @@ test("default contract tab expands and paginates contracts in PostgreSQL", async
   assert.equal(employmentFindManyCalls, 0);
   assert.equal(rawQueries.length, 2);
   assert.match(JSON.stringify(rawQueries[0]), /pg_input_is_valid/);
+  assert.match(JSON.stringify(rawQueries[0]), /NULL::jsonb AS \\"contractJson\\"/);
   assert.match(JSON.stringify(rawQueries[0]), /joinDate.*\\\\d\{4\}/);
   assert.match(JSON.stringify(rawQueries[1]), /jsonb_array_elements/);
   assert.deepEqual(collectValues(rawQueries[1]), ["2026-07-27", "9999-12-30", "2026-07-27", 100, 50]);

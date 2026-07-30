@@ -13,6 +13,10 @@ model FinanceConsolidationScopeSelection {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @default(now()) @updatedAt
 
+  parentCompany     Company  @relation("FinanceConsolidationScopeParentCompany", fields: [parentCompanyId], references: [id], onDelete: Restrict)
+  company           Company  @relation("FinanceConsolidationScopeCompany", fields: [companyId], references: [id], onDelete: Restrict)
+
   @@unique([parentCompanyId, year, month, periodKind, companyId], map: "FinanceConsolidationScopeSelection_scope_company_key")
   @@index([parentCompanyId, year, month, periodKind], map: "FinanceConsolidationScopeSelection_scope_idx")
+  @@index([companyId])
 }

@@ -3,7 +3,6 @@ import type { MeetingPermissionResult } from "./meeting-access";
 
 const userSelect = {
   id: true,
-  employeeId: true,
   employees: { select: { name: true, employeeId: true }, take: 1 },
 } satisfies Prisma.UserSelect;
 

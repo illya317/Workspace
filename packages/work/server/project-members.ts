@@ -217,9 +217,11 @@ export async function updateProjectMemberFieldAction(input: {
   if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
   const previous = await prisma.employeeProject.findUnique({
     where: { id: command.data.recordId },
-    select: { employeeId: true, projectId: true, role: true },
+    select: { employeeId: true, projectId: true, role: true, version: true },
   });
   if (!previous) return serviceError("项目成员记录不存在", 404);
+  if (previous.version !== input.expectedVersion) return serviceError("项目成员记录已被其他人修改，请刷新后重试", 409);
+  if ((previous.role || "") === command.data.value) return serviceOk({ success: true });
   const result = await captureMembershipLifecycleError(() => changeProjectMembershipRole({
     recordId: command.data.recordId,
     nextRole: command.data.value,

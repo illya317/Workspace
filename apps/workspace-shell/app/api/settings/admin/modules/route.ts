@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { listModuleManagement, setModuleRuntimeEnabled } from "@workspace/platform/server/module-management";
+import { listModuleManagement, setModuleRuntimeEnabled } from "@workspace/settings/server/module-management";
 import { requireAdminApiAccess, isSuperAdmin } from "@workspace/platform/server/auth";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 

@@ -1,4 +1,4 @@
-import { businessTemporalBaselineMissingRequiredFields, validateBusinessTemporalBaselineMutation } from "@workspace/platform/contracts/business-temporal-baseline";
+import { businessTemporalBaselineMissingRequiredFields } from "@workspace/platform/contracts/business-temporal-baseline";
 import { checkHRUpdate } from "@workspace/platform/server/auth";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
@@ -12,19 +12,16 @@ import { employmentForAgreementDate } from "@workspace/hr/utils/employment-selec
 import { HR_EMPLOYMENT_AGREEMENT_TEMPORAL } from "../business-temporal";
 import {
   buildEmploymentAgreementCommand,
-  employmentAgreementContentPatchFields,
-  employmentAgreementTemporalContractIssue,
-  employmentAgreementTermOverlapIssue,
   validateEmploymentAgreementContentReferences,
   type EmploymentAgreementCommand,
 } from "./domain/employment-agreement-validation";
 import { employmentAgreementChangeManifest } from "./domain/employment-agreement-change";
+import { applyEmploymentAgreementBaselineMutation } from "./employment-agreement-baseline-mutation";
 import {
-  normalizedEmploymentAgreementContent,
-  parseEmploymentAgreementContent,
-  parseEmploymentAgreementMissingFields,
-  refreshEmploymentAgreementBaselineMissingFields,
-} from "./employment-agreement-baseline-storage";
+  employmentAgreementTemporalContractError,
+  employmentAgreementTermOverlapError,
+} from "./domain/employment-agreement-temporal-policy";
+import { parseEmploymentAgreementMissingFields, refreshEmploymentAgreementBaselineMissingFields } from "./employment-agreement-baseline-storage";
 import { buildLegacyAgreementRows, inspectLegacyEmploymentAgreements } from "./employment-agreement-legacy";
 import { EMPLOYMENT_AGREEMENT_INCLUDE, normalizedEmploymentAgreementRow } from "./employment-agreement-rows";
 
@@ -46,11 +43,11 @@ export async function executeEmploymentAgreementCommand(input: {
     blockedMessage: "员工合同变更已配置为必须走流程，请从合同入口提交",
   });
   if (!direct.ok) return direct;
-  const contentError = built.data.kind === "create" || built.data.kind === "replace"
+  const contentError = built.data.kind === "create"
     ? await validateEmploymentAgreementContentReferences(built.data.content)
     : null;
   if (contentError) return serviceError(contentError.message, 400);
-  const temporalContractError = employmentAgreementTemporalContractIssue(built.data);
+  const temporalContractError = employmentAgreementTemporalContractError(built.data, workspaceBusinessDate(new Date()));
   if (temporalContractError) return serviceError(temporalContractError, 409);
   const requestFingerprint = businessTemporalRequestFingerprint({
     aggregate: "EmploymentAgreement",
@@ -72,25 +69,33 @@ export async function executeEmploymentAgreementCommand(input: {
         }
         return { idempotent: true };
       }
-      const outcome = built.data.kind === "create" || built.data.kind === "replace"
+      const outcome = built.data.kind === "create"
         ? await createAgreement(tx, input.employeeId, input.userId, built.data)
         : await changeAgreement(tx, input.employeeId, input.userId, built.data);
-      await tx.employmentAgreementChange.create({
-        data: {
-          employeeId: input.employeeId,
-          agreementId: outcome.agreementId,
-          commandKind: built.data.kind,
-          idempotencyKey: input.idempotencyKey,
-          requestFingerprint,
-          expectedVersion: built.data.kind === "create" ? null : built.data.expectedVersion,
-          effectManifestJson: JSON.stringify(employmentAgreementChangeManifest(built.data)),
-          actorUserId: input.userId,
-        },
-      });
-      return { idempotent: false };
+      if (outcome.changed) {
+        await tx.employmentAgreementChange.create({
+          data: {
+            employeeId: input.employeeId,
+            agreementId: outcome.agreementId,
+            commandKind: built.data.kind,
+            idempotencyKey: input.idempotencyKey,
+            requestFingerprint,
+            expectedVersion: built.data.kind === "create" ? null : built.data.expectedVersion,
+            effectManifestJson: JSON.stringify(employmentAgreementChangeManifest(built.data)),
+            actorUserId: input.userId,
+          },
+        });
+      }
+      return { idempotent: false, changed: outcome.changed };
     });
     const rows = await listEmploymentAgreementsForEmployee(input.employeeId);
-    return serviceOk({ success: true as const, commandKind: built.data.kind, idempotent: persisted.idempotent, agreements: rows });
+    return serviceOk({
+      success: true as const,
+      commandKind: built.data.kind,
+      idempotent: persisted.idempotent,
+      changed: "changed" in persisted ? persisted.changed : false,
+      agreements: rows,
+    });
   } catch (error) {
     if (error instanceof EmploymentAgreementCommandError) return serviceError(error.message, error.status);
     if (error instanceof SerializableTransactionConflictError) return serviceError(error.message, 409);
@@ -187,22 +192,8 @@ async function createAgreement(
   tx: Prisma.TransactionClient,
   employeeId: number,
   userId: number,
-  command: Extract<EmploymentAgreementCommand, { kind: "create" | "replace" }>,
+  command: Extract<EmploymentAgreementCommand, { kind: "create" }>,
 ) {
-  if (command.kind === "replace") {
-    const replaced = await tx.employmentAgreement.findFirst({
-      where: {
-        agreementUid: command.agreementUid,
-        employment: { employeeId },
-        recordState: "confirmed",
-        version: command.expectedVersion,
-      },
-      select: { id: true },
-    });
-    if (!replaced) {
-      return failed("被更换协议不存在或已发生变化，请刷新后重试", 409);
-    }
-  }
   const employments = await tx.employment.findMany({
     where: { employeeId },
     select: { id: true, joinDate: true, leaveDate: true },
@@ -263,7 +254,7 @@ async function changeAgreement(
   tx: Prisma.TransactionClient,
   employeeId: number,
   userId: number,
-  command: Exclude<EmploymentAgreementCommand, { kind: "create" | "replace" }>,
+  command: Exclude<EmploymentAgreementCommand, { kind: "create" }>,
 ) {
   const agreement = await tx.employmentAgreement.findFirst({
     where: { agreementUid: command.agreementUid, employment: { employeeId } },
@@ -279,90 +270,50 @@ async function changeAgreement(
     missingRequiredFields.includes(`terms.${item.sequence}.effectiveFrom`)
   ));
   const contentOnlyCommand = command.kind === "supplement-missing" || command.kind === "correct-existing";
-  const correctionChannelCommand = command.kind === "correct" || command.kind === "supplement-term";
   if (
     incompleteBaselineTerm
     && !contentOnlyCommand
-    && !correctionChannelCommand
+    && (command.kind !== "correct" || command.termUid !== incompleteBaselineTerm.termUid)
   ) {
     return failed("合同期限缺少开始日期，请先通过修正期限补齐后再保存其他变更", 409);
   }
-  const claimed = await tx.employmentAgreement.updateMany({
-    where: { id: agreement.id, version: command.expectedVersion, recordState: "confirmed" },
-    data: {
-      version: { increment: 1 },
-      reason: command.reason,
-      updatedBy: userId,
-    },
-  });
-  if (claimed.count !== 1) return failed("协议已被其他人修改，请刷新后重试", 409);
+  if (agreement.version !== command.expectedVersion) return failed("协议已被其他人修改，请刷新后重试", 409);
 
   if (command.kind === "set-primary") {
+    if (agreement.isPrimary) return succeeded(agreement.id, false);
+    await claimAgreementVersion(tx, agreement.id, command.expectedVersion, userId, command.reason);
     await clearPrimaryAgreements(tx, employeeId, userId, agreement.id);
     await tx.employmentAgreement.update({ where: { id: agreement.id }, data: { isPrimary: true } });
     return succeeded(agreement.id);
   }
 
   if (command.kind === "supplement-missing" || command.kind === "correct-existing") {
-    if (command.kind === "supplement-missing" && agreement.sourceKind !== "legacy-baseline") {
-      return failed("只有已登记缺失字段的 baseline 协议可以补充资料", 409);
-    }
-    const changedFields = employmentAgreementContentPatchFields(command.patch);
-    const baselineMutation = validateBusinessTemporalBaselineMutation({
-      kind: command.kind,
+    await claimAgreementVersion(tx, agreement.id, command.expectedVersion, userId, command.reason);
+    const mutation = await applyEmploymentAgreementBaselineMutation({
+      tx,
+      agreement,
       missingFields,
-      changedFields,
+      command,
+      userId,
     });
-    if (!baselineMutation.ok) {
-      if (baselineMutation.reason === "no-fields") return failed("没有需要保存的协议资料变化", 400);
-      return failed(
-        command.kind === "supplement-missing"
-          ? "补充资料只能填写当前标记为缺失的字段"
-          : "修正资料不能同时补充缺失字段，请分别保存",
-        409,
-      );
-    }
-    if (
-      command.kind === "supplement-missing"
-      && Object.values(command.patch).some((value) => value == null || value === "")
-    ) {
-      return failed("补充资料必须为缺失字段提供有效值", 400);
-    }
-    const currentContent = normalizedEmploymentAgreementContent(
-      parseEmploymentAgreementContent(agreement.currentPublishedRevision?.contentJson),
-    );
-    const nextContent = { ...currentContent, ...command.patch };
-    const nextContentError = await validateEmploymentAgreementContentReferences(nextContent);
-    if (nextContentError) return failed(nextContentError.message, 400);
-    const revisionNo = nextRevisionNo(agreement.revisions);
-    const revision = await tx.employmentAgreementRevision.create({
-      data: {
-        agreementId: agreement.id,
-        revisionNo,
-        recordState: "published",
-        changeKind: command.kind === "supplement-missing" ? "supplement" : "correction",
-        contentJson: JSON.stringify(nextContent),
-        supersedesRevisionId: agreement.currentPublishedRevisionId,
-        sourceKind: command.sourceKind,
-        sourceRef: command.sourceRef,
-        reason: command.reason,
-        createdBy: userId,
-      },
-    });
-    await tx.employmentAgreement.update({
-      where: { id: agreement.id },
-      data: { currentPublishedRevisionId: revision.id },
-    });
-    await refreshEmploymentAgreementBaselineMissingFields(tx, agreement.id);
+    if (!mutation.ok) return failed(mutation.error, mutation.status);
     return succeeded(agreement.id);
   }
 
   if (command.kind === "renew") {
-    const overlapIssue = employmentAgreementTermOverlapIssue(agreement.terms, {
+    const duplicate = agreement.terms.some((term) => (
+      term.recordState === "confirmed"
+      && term.effectiveFrom === command.effectiveFrom
+      && term.effectiveThrough === command.effectiveThrough
+      && term.termKind === command.termKind
+    ));
+    if (duplicate) return succeeded(agreement.id, false);
+    const overlapError = employmentAgreementTermOverlapError(agreement.terms, {
       effectiveFrom: command.effectiveFrom,
       effectiveThrough: command.effectiveThrough,
     });
-    if (overlapIssue) return failed(overlapIssue, 409);
+    if (overlapError) return failed(overlapError, 409);
+    await claimAgreementVersion(tx, agreement.id, command.expectedVersion, userId, command.reason);
     await tx.employmentAgreementTerm.create({
       data: {
         agreementId: agreement.id,
@@ -384,40 +335,6 @@ async function changeAgreement(
 
   const term = agreement.terms.find((item) => item.termUid === command.termUid);
   if (!term) return failed("协议期限不存在", 404);
-  if (command.kind === "supplement-term") {
-    if (agreement.sourceKind !== "legacy-baseline") {
-      return failed("只有已登记缺失字段的历史协议可以补充期限", 409);
-    }
-    if (term.recordState !== "confirmed" && term.recordState !== "unknown") {
-      return failed("只有已确认或待补全的合同期限可以补充", 409);
-    }
-    const changedFields = Object.keys(command.patch).map((field) => `terms.${term.sequence}.${field}`);
-    const baselineMutation = validateBusinessTemporalBaselineMutation({
-      kind: "supplement-missing",
-      missingFields,
-      changedFields,
-    });
-    if (!baselineMutation.ok) return failed("期限补充只能填写当前标记为缺失的字段", 409);
-    const replacement = {
-      effectiveFrom: command.patch.effectiveFrom ?? term.effectiveFrom,
-      effectiveThrough: command.patch.effectiveThrough ?? term.effectiveThrough,
-      termKind: term.termKind,
-      changeKind: "supplement",
-    };
-    if (
-      replacement.effectiveFrom
-      && replacement.effectiveThrough
-      && replacement.effectiveFrom > replacement.effectiveThrough
-    ) {
-      return failed("协议开始日期不能晚于到期日期", 409);
-    }
-    if (replacement.termKind === "permanent" && replacement.effectiveThrough) {
-      return failed("无固定期限不得填写到期日期", 409);
-    }
-    await supersedeAgreementTerm(tx, agreement, term, replacement, command, userId);
-    await refreshEmploymentAgreementBaselineMissingFields(tx, agreement.id);
-    return succeeded(agreement.id);
-  }
   if (command.kind === "correct") {
     if (term.recordState !== "confirmed" && term.recordState !== "unknown") {
       return failed("只有已确认或待补全的合同期限可以修正", 409);
@@ -428,6 +345,7 @@ async function changeAgreement(
   if (command.kind === "cancel-future") {
     const today = workspaceBusinessDate(new Date());
     if (!term.effectiveFrom || term.effectiveFrom <= today) return failed("只有尚未生效的期限可以取消", 409);
+    await claimAgreementVersion(tx, agreement.id, command.expectedVersion, userId, command.reason);
     await tx.employmentAgreementTerm.update({
       where: { id: term.id },
       data: {
@@ -449,6 +367,8 @@ async function changeAgreement(
     if (term.effectiveThrough && command.effectiveThrough > term.effectiveThrough) {
       return failed("结束日期不能晚于合同到期日期", 409);
     }
+    if (agreement.actualEndDate === command.effectiveThrough) return succeeded(agreement.id, false);
+    await claimAgreementVersion(tx, agreement.id, command.expectedVersion, userId, command.reason);
     await tx.employmentAgreement.update({
       where: { id: agreement.id },
       data: { actualEndDate: command.effectiveThrough },
@@ -463,29 +383,22 @@ async function changeAgreement(
     termKind: command.termKind,
     changeKind: "correct",
   };
-  await supersedeAgreementTerm(tx, agreement, term, replacement, command, userId);
-  if (term.changeKind === "end-date") {
-    await tx.employmentAgreement.update({
-      where: { id: agreement.id },
-      data: { actualEndDate: replacement.effectiveThrough },
-    });
+  if (!replacement.effectiveFrom) return failed("历史合同缺少开始日期，请先修正期限并补齐", 409);
+  if (replacement.effectiveThrough && replacement.effectiveFrom > replacement.effectiveThrough) {
+    return failed("协议开始日期不能晚于到期日期", 409);
   }
-  await refreshEmploymentAgreementBaselineMissingFields(tx, agreement.id);
-  return succeeded(agreement.id);
-}
-
-async function supersedeAgreementTerm(
-  tx: Prisma.TransactionClient,
-  agreement: { id: number; terms: Array<{ sequence: number }> },
-  term: { id: number },
-  replacement: { effectiveFrom: string | null; effectiveThrough: string | null; termKind: string; changeKind: string },
-  command: { sourceKind: string; sourceRef: string | null; reason: string | null },
-  userId: number,
-) {
-  await tx.employmentAgreementTerm.update({
-    where: { id: term.id },
-    data: { recordState: "superseded" },
-  });
+  if (
+    term.effectiveFrom === replacement.effectiveFrom
+    && term.effectiveThrough === replacement.effectiveThrough
+    && term.termKind === replacement.termKind
+  ) return succeeded(agreement.id, false);
+  const overlapError = employmentAgreementTermOverlapError(
+    agreement.terms.filter((item) => item.id !== term.id),
+    replacement,
+  );
+  if (overlapError) return failed(overlapError, 409);
+  await claimAgreementVersion(tx, agreement.id, command.expectedVersion, userId, command.reason);
+  await tx.employmentAgreementTerm.update({ where: { id: term.id }, data: { recordState: "superseded" } });
   await tx.employmentAgreementTerm.create({
     data: {
       agreementId: agreement.id,
@@ -502,6 +415,14 @@ async function supersedeAgreementTerm(
       createdBy: userId,
     },
   });
+  if (term.changeKind === "end-date") {
+    await tx.employmentAgreement.update({
+      where: { id: agreement.id },
+      data: { actualEndDate: replacement.effectiveThrough },
+    });
+  }
+  await refreshEmploymentAgreementBaselineMissingFields(tx, agreement.id);
+  return succeeded(agreement.id);
 }
 
 async function clearPrimaryAgreements(
@@ -521,16 +442,26 @@ async function clearPrimaryAgreements(
   });
 }
 
-function nextRevisionNo(revisions: Array<{ revisionNo: number }>) {
-  return Math.max(0, ...revisions.map((revision) => revision.revisionNo)) + 1;
-}
-
 function nextTermSequence(terms: Array<{ sequence: number }>) {
   return Math.max(0, ...terms.map((term) => term.sequence)) + 1;
 }
 
-function succeeded(agreementId: number) {
-  return { ok: true as const, agreementId };
+async function claimAgreementVersion(
+  tx: Prisma.TransactionClient,
+  agreementId: number,
+  expectedVersion: number,
+  userId: number,
+  reason: string | null,
+) {
+  const claimed = await tx.employmentAgreement.updateMany({
+    where: { id: agreementId, version: expectedVersion, recordState: "confirmed" },
+    data: { version: { increment: 1 }, reason, updatedBy: userId },
+  });
+  if (claimed.count !== 1) return failed("协议已被其他人修改，请刷新后重试", 409);
+}
+
+function succeeded(agreementId: number, changed = true) {
+  return { ok: true as const, agreementId, changed };
 }
 
 function failed(error: string, status: number): never {

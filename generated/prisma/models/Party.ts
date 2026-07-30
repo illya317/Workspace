@@ -274,6 +274,8 @@ export type PartyWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Party"> | Date | string
   externalProfile?: Prisma.XOR<Prisma.ExternalPartyProfileNullableScalarRelationFilter, Prisma.ExternalPartyProfileWhereInput> | null
   externalRoles?: Prisma.ExternalPartyRoleListRelationFilter
+  employeeIdentityLink?: Prisma.XOR<Prisma.EmployeePartyIdentityLinkNullableScalarRelationFilter, Prisma.EmployeePartyIdentityLinkWhereInput> | null
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberListRelationFilter
   nameHistory?: Prisma.PartyNameHistoryListRelationFilter
   legalFactRevisions?: Prisma.PartyLegalFactRevisionListRelationFilter
   company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
@@ -286,6 +288,9 @@ export type PartyWhereInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantListRelationFilter
   contractsAsPartyA?: Prisma.ContractListRelationFilter
   contractsAsPartyB?: Prisma.ContractListRelationFilter
+  financeLoansAsLender?: Prisma.FinanceLoanListRelationFilter
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationListRelationFilter
+  inventoryDocuments?: Prisma.InventoryDocumentListRelationFilter
 }
 
 export type PartyOrderByWithRelationInput = {
@@ -302,6 +307,8 @@ export type PartyOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   externalProfile?: Prisma.ExternalPartyProfileOrderByWithRelationInput
   externalRoles?: Prisma.ExternalPartyRoleOrderByRelationAggregateInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkOrderByWithRelationInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberOrderByRelationAggregateInput
   nameHistory?: Prisma.PartyNameHistoryOrderByRelationAggregateInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionOrderByRelationAggregateInput
   company?: Prisma.CompanyOrderByWithRelationInput
@@ -314,6 +321,9 @@ export type PartyOrderByWithRelationInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantOrderByRelationAggregateInput
   contractsAsPartyA?: Prisma.ContractOrderByRelationAggregateInput
   contractsAsPartyB?: Prisma.ContractOrderByRelationAggregateInput
+  financeLoansAsLender?: Prisma.FinanceLoanOrderByRelationAggregateInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationOrderByRelationAggregateInput
+  inventoryDocuments?: Prisma.InventoryDocumentOrderByRelationAggregateInput
 }
 
 export type PartyWhereUniqueInput = Prisma.AtLeast<{
@@ -334,6 +344,8 @@ export type PartyWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Party"> | Date | string
   externalProfile?: Prisma.XOR<Prisma.ExternalPartyProfileNullableScalarRelationFilter, Prisma.ExternalPartyProfileWhereInput> | null
   externalRoles?: Prisma.ExternalPartyRoleListRelationFilter
+  employeeIdentityLink?: Prisma.XOR<Prisma.EmployeePartyIdentityLinkNullableScalarRelationFilter, Prisma.EmployeePartyIdentityLinkWhereInput> | null
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberListRelationFilter
   nameHistory?: Prisma.PartyNameHistoryListRelationFilter
   legalFactRevisions?: Prisma.PartyLegalFactRevisionListRelationFilter
   company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
@@ -346,6 +358,9 @@ export type PartyWhereUniqueInput = Prisma.AtLeast<{
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantListRelationFilter
   contractsAsPartyA?: Prisma.ContractListRelationFilter
   contractsAsPartyB?: Prisma.ContractListRelationFilter
+  financeLoansAsLender?: Prisma.FinanceLoanListRelationFilter
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationListRelationFilter
+  inventoryDocuments?: Prisma.InventoryDocumentListRelationFilter
 }, "id" | "subjectType_identityNumber">
 
 export type PartyOrderByWithAggregationInput = {
@@ -397,6 +412,8 @@ export type PartyCreateInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
@@ -409,6 +426,9 @@ export type PartyCreateInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateInput = {
@@ -425,6 +445,8 @@ export type PartyUncheckedCreateInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
@@ -437,6 +459,9 @@ export type PartyUncheckedCreateInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUpdateInput = {
@@ -452,6 +477,8 @@ export type PartyUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
@@ -464,6 +491,9 @@ export type PartyUpdateInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateInput = {
@@ -480,6 +510,8 @@ export type PartyUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
@@ -492,6 +524,9 @@ export type PartyUncheckedUpdateInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyCreateManyInput = {
@@ -798,6 +833,52 @@ export type PartyUpdateOneRequiredWithoutExternalRolesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PartyUpdateToOneWithWhereWithoutExternalRolesInput, Prisma.PartyUpdateWithoutExternalRolesInput>, Prisma.PartyUncheckedUpdateWithoutExternalRolesInput>
 }
 
+export type PartyCreateNestedOneWithoutFinanceAuxiliaryMembersInput = {
+  create?: Prisma.XOR<Prisma.PartyCreateWithoutFinanceAuxiliaryMembersInput, Prisma.PartyUncheckedCreateWithoutFinanceAuxiliaryMembersInput>
+  connectOrCreate?: Prisma.PartyCreateOrConnectWithoutFinanceAuxiliaryMembersInput
+  connect?: Prisma.PartyWhereUniqueInput
+}
+
+export type PartyUpdateOneWithoutFinanceAuxiliaryMembersNestedInput = {
+  create?: Prisma.XOR<Prisma.PartyCreateWithoutFinanceAuxiliaryMembersInput, Prisma.PartyUncheckedCreateWithoutFinanceAuxiliaryMembersInput>
+  connectOrCreate?: Prisma.PartyCreateOrConnectWithoutFinanceAuxiliaryMembersInput
+  upsert?: Prisma.PartyUpsertWithoutFinanceAuxiliaryMembersInput
+  disconnect?: Prisma.PartyWhereInput | boolean
+  delete?: Prisma.PartyWhereInput | boolean
+  connect?: Prisma.PartyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PartyUpdateToOneWithWhereWithoutFinanceAuxiliaryMembersInput, Prisma.PartyUpdateWithoutFinanceAuxiliaryMembersInput>, Prisma.PartyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput>
+}
+
+export type PartyCreateNestedOneWithoutFinanceTaxAuthoritiesInput = {
+  create?: Prisma.XOR<Prisma.PartyCreateWithoutFinanceTaxAuthoritiesInput, Prisma.PartyUncheckedCreateWithoutFinanceTaxAuthoritiesInput>
+  connectOrCreate?: Prisma.PartyCreateOrConnectWithoutFinanceTaxAuthoritiesInput
+  connect?: Prisma.PartyWhereUniqueInput
+}
+
+export type PartyUpdateOneWithoutFinanceTaxAuthoritiesNestedInput = {
+  create?: Prisma.XOR<Prisma.PartyCreateWithoutFinanceTaxAuthoritiesInput, Prisma.PartyUncheckedCreateWithoutFinanceTaxAuthoritiesInput>
+  connectOrCreate?: Prisma.PartyCreateOrConnectWithoutFinanceTaxAuthoritiesInput
+  upsert?: Prisma.PartyUpsertWithoutFinanceTaxAuthoritiesInput
+  disconnect?: Prisma.PartyWhereInput | boolean
+  delete?: Prisma.PartyWhereInput | boolean
+  connect?: Prisma.PartyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PartyUpdateToOneWithWhereWithoutFinanceTaxAuthoritiesInput, Prisma.PartyUpdateWithoutFinanceTaxAuthoritiesInput>, Prisma.PartyUncheckedUpdateWithoutFinanceTaxAuthoritiesInput>
+}
+
+export type PartyCreateNestedOneWithoutFinanceLoansAsLenderInput = {
+  create?: Prisma.XOR<Prisma.PartyCreateWithoutFinanceLoansAsLenderInput, Prisma.PartyUncheckedCreateWithoutFinanceLoansAsLenderInput>
+  connectOrCreate?: Prisma.PartyCreateOrConnectWithoutFinanceLoansAsLenderInput
+  connect?: Prisma.PartyWhereUniqueInput
+}
+
+export type PartyUpdateOneRequiredWithoutFinanceLoansAsLenderNestedInput = {
+  create?: Prisma.XOR<Prisma.PartyCreateWithoutFinanceLoansAsLenderInput, Prisma.PartyUncheckedCreateWithoutFinanceLoansAsLenderInput>
+  connectOrCreate?: Prisma.PartyCreateOrConnectWithoutFinanceLoansAsLenderInput
+  upsert?: Prisma.PartyUpsertWithoutFinanceLoansAsLenderInput
+  connect?: Prisma.PartyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PartyUpdateToOneWithWhereWithoutFinanceLoansAsLenderInput, Prisma.PartyUpdateWithoutFinanceLoansAsLenderInput>, Prisma.PartyUncheckedUpdateWithoutFinanceLoansAsLenderInput>
+}
+
 export type PartyCreateNestedOneWithoutCompanyInput = {
   create?: Prisma.XOR<Prisma.PartyCreateWithoutCompanyInput, Prisma.PartyUncheckedCreateWithoutCompanyInput>
   connectOrCreate?: Prisma.PartyCreateOrConnectWithoutCompanyInput
@@ -810,6 +891,36 @@ export type PartyUpdateOneRequiredWithoutCompanyNestedInput = {
   upsert?: Prisma.PartyUpsertWithoutCompanyInput
   connect?: Prisma.PartyWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.PartyUpdateToOneWithWhereWithoutCompanyInput, Prisma.PartyUpdateWithoutCompanyInput>, Prisma.PartyUncheckedUpdateWithoutCompanyInput>
+}
+
+export type PartyCreateNestedOneWithoutInventoryDocumentsInput = {
+  create?: Prisma.XOR<Prisma.PartyCreateWithoutInventoryDocumentsInput, Prisma.PartyUncheckedCreateWithoutInventoryDocumentsInput>
+  connectOrCreate?: Prisma.PartyCreateOrConnectWithoutInventoryDocumentsInput
+  connect?: Prisma.PartyWhereUniqueInput
+}
+
+export type PartyUpdateOneWithoutInventoryDocumentsNestedInput = {
+  create?: Prisma.XOR<Prisma.PartyCreateWithoutInventoryDocumentsInput, Prisma.PartyUncheckedCreateWithoutInventoryDocumentsInput>
+  connectOrCreate?: Prisma.PartyCreateOrConnectWithoutInventoryDocumentsInput
+  upsert?: Prisma.PartyUpsertWithoutInventoryDocumentsInput
+  disconnect?: Prisma.PartyWhereInput | boolean
+  delete?: Prisma.PartyWhereInput | boolean
+  connect?: Prisma.PartyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PartyUpdateToOneWithWhereWithoutInventoryDocumentsInput, Prisma.PartyUpdateWithoutInventoryDocumentsInput>, Prisma.PartyUncheckedUpdateWithoutInventoryDocumentsInput>
+}
+
+export type PartyCreateNestedOneWithoutEmployeeIdentityLinkInput = {
+  create?: Prisma.XOR<Prisma.PartyCreateWithoutEmployeeIdentityLinkInput, Prisma.PartyUncheckedCreateWithoutEmployeeIdentityLinkInput>
+  connectOrCreate?: Prisma.PartyCreateOrConnectWithoutEmployeeIdentityLinkInput
+  connect?: Prisma.PartyWhereUniqueInput
+}
+
+export type PartyUpdateOneRequiredWithoutEmployeeIdentityLinkNestedInput = {
+  create?: Prisma.XOR<Prisma.PartyCreateWithoutEmployeeIdentityLinkInput, Prisma.PartyUncheckedCreateWithoutEmployeeIdentityLinkInput>
+  connectOrCreate?: Prisma.PartyCreateOrConnectWithoutEmployeeIdentityLinkInput
+  upsert?: Prisma.PartyUpsertWithoutEmployeeIdentityLinkInput
+  connect?: Prisma.PartyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PartyUpdateToOneWithWhereWithoutEmployeeIdentityLinkInput, Prisma.PartyUpdateWithoutEmployeeIdentityLinkInput>, Prisma.PartyUncheckedUpdateWithoutEmployeeIdentityLinkInput>
 }
 
 export type PartyCreateWithoutOwnedInterestsInput = {
@@ -825,6 +936,8 @@ export type PartyCreateWithoutOwnedInterestsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
@@ -836,6 +949,9 @@ export type PartyCreateWithoutOwnedInterestsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutOwnedInterestsInput = {
@@ -852,6 +968,8 @@ export type PartyUncheckedCreateWithoutOwnedInterestsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
@@ -863,6 +981,9 @@ export type PartyUncheckedCreateWithoutOwnedInterestsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutOwnedInterestsInput = {
@@ -894,6 +1015,8 @@ export type PartyUpdateWithoutOwnedInterestsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
@@ -905,6 +1028,9 @@ export type PartyUpdateWithoutOwnedInterestsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutOwnedInterestsInput = {
@@ -921,6 +1047,8 @@ export type PartyUncheckedUpdateWithoutOwnedInterestsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
@@ -932,6 +1060,9 @@ export type PartyUncheckedUpdateWithoutOwnedInterestsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyCreateWithoutRegistryOwnershipParticipantsInput = {
@@ -947,6 +1078,8 @@ export type PartyCreateWithoutRegistryOwnershipParticipantsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
@@ -958,6 +1091,9 @@ export type PartyCreateWithoutRegistryOwnershipParticipantsInput = {
   shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutRegistryOwnershipParticipantsInput = {
@@ -974,6 +1110,8 @@ export type PartyUncheckedCreateWithoutRegistryOwnershipParticipantsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
@@ -985,6 +1123,9 @@ export type PartyUncheckedCreateWithoutRegistryOwnershipParticipantsInput = {
   shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutRegistryOwnershipParticipantsInput = {
@@ -1016,6 +1157,8 @@ export type PartyUpdateWithoutRegistryOwnershipParticipantsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
@@ -1027,6 +1170,9 @@ export type PartyUpdateWithoutRegistryOwnershipParticipantsInput = {
   shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutRegistryOwnershipParticipantsInput = {
@@ -1043,6 +1189,8 @@ export type PartyUncheckedUpdateWithoutRegistryOwnershipParticipantsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
@@ -1054,6 +1202,9 @@ export type PartyUncheckedUpdateWithoutRegistryOwnershipParticipantsInput = {
   shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyCreateWithoutControlledAfterCapitalEventsInput = {
@@ -1069,6 +1220,8 @@ export type PartyCreateWithoutControlledAfterCapitalEventsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
@@ -1080,6 +1233,9 @@ export type PartyCreateWithoutControlledAfterCapitalEventsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutControlledAfterCapitalEventsInput = {
@@ -1096,6 +1252,8 @@ export type PartyUncheckedCreateWithoutControlledAfterCapitalEventsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
@@ -1107,6 +1265,9 @@ export type PartyUncheckedCreateWithoutControlledAfterCapitalEventsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutControlledAfterCapitalEventsInput = {
@@ -1138,6 +1299,8 @@ export type PartyUpdateWithoutControlledAfterCapitalEventsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
@@ -1149,6 +1312,9 @@ export type PartyUpdateWithoutControlledAfterCapitalEventsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutControlledAfterCapitalEventsInput = {
@@ -1165,6 +1331,8 @@ export type PartyUncheckedUpdateWithoutControlledAfterCapitalEventsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
@@ -1176,6 +1344,9 @@ export type PartyUncheckedUpdateWithoutControlledAfterCapitalEventsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyCreateWithoutShareCapitalOutflowsInput = {
@@ -1191,6 +1362,8 @@ export type PartyCreateWithoutShareCapitalOutflowsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
@@ -1202,6 +1375,9 @@ export type PartyCreateWithoutShareCapitalOutflowsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutShareCapitalOutflowsInput = {
@@ -1218,6 +1394,8 @@ export type PartyUncheckedCreateWithoutShareCapitalOutflowsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
@@ -1229,6 +1407,9 @@ export type PartyUncheckedCreateWithoutShareCapitalOutflowsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutShareCapitalOutflowsInput = {
@@ -1249,6 +1430,8 @@ export type PartyCreateWithoutShareCapitalInflowsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
@@ -1260,6 +1443,9 @@ export type PartyCreateWithoutShareCapitalInflowsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutShareCapitalInflowsInput = {
@@ -1276,6 +1462,8 @@ export type PartyUncheckedCreateWithoutShareCapitalInflowsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
@@ -1287,6 +1475,9 @@ export type PartyUncheckedCreateWithoutShareCapitalInflowsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutShareCapitalInflowsInput = {
@@ -1318,6 +1509,8 @@ export type PartyUpdateWithoutShareCapitalOutflowsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
@@ -1329,6 +1522,9 @@ export type PartyUpdateWithoutShareCapitalOutflowsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutShareCapitalOutflowsInput = {
@@ -1345,6 +1541,8 @@ export type PartyUncheckedUpdateWithoutShareCapitalOutflowsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
@@ -1356,6 +1554,9 @@ export type PartyUncheckedUpdateWithoutShareCapitalOutflowsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUpsertWithoutShareCapitalInflowsInput = {
@@ -1382,6 +1583,8 @@ export type PartyUpdateWithoutShareCapitalInflowsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
@@ -1393,6 +1596,9 @@ export type PartyUpdateWithoutShareCapitalInflowsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutShareCapitalInflowsInput = {
@@ -1409,6 +1615,8 @@ export type PartyUncheckedUpdateWithoutShareCapitalInflowsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
@@ -1420,6 +1628,9 @@ export type PartyUncheckedUpdateWithoutShareCapitalInflowsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyCreateWithoutShareCapitalSnapshotPositionsInput = {
@@ -1435,6 +1646,8 @@ export type PartyCreateWithoutShareCapitalSnapshotPositionsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
@@ -1446,6 +1659,9 @@ export type PartyCreateWithoutShareCapitalSnapshotPositionsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutShareCapitalSnapshotPositionsInput = {
@@ -1462,6 +1678,8 @@ export type PartyUncheckedCreateWithoutShareCapitalSnapshotPositionsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
@@ -1473,6 +1691,9 @@ export type PartyUncheckedCreateWithoutShareCapitalSnapshotPositionsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutShareCapitalSnapshotPositionsInput = {
@@ -1504,6 +1725,8 @@ export type PartyUpdateWithoutShareCapitalSnapshotPositionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
@@ -1515,6 +1738,9 @@ export type PartyUpdateWithoutShareCapitalSnapshotPositionsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutShareCapitalSnapshotPositionsInput = {
@@ -1531,6 +1757,8 @@ export type PartyUncheckedUpdateWithoutShareCapitalSnapshotPositionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
@@ -1542,6 +1770,9 @@ export type PartyUncheckedUpdateWithoutShareCapitalSnapshotPositionsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyCreateWithoutShareholderGroupMembershipsInput = {
@@ -1557,6 +1788,8 @@ export type PartyCreateWithoutShareholderGroupMembershipsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
@@ -1568,6 +1801,9 @@ export type PartyCreateWithoutShareholderGroupMembershipsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutShareholderGroupMembershipsInput = {
@@ -1584,6 +1820,8 @@ export type PartyUncheckedCreateWithoutShareholderGroupMembershipsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
@@ -1595,6 +1833,9 @@ export type PartyUncheckedCreateWithoutShareholderGroupMembershipsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutShareholderGroupMembershipsInput = {
@@ -1626,6 +1867,8 @@ export type PartyUpdateWithoutShareholderGroupMembershipsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
@@ -1637,6 +1880,9 @@ export type PartyUpdateWithoutShareholderGroupMembershipsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutShareholderGroupMembershipsInput = {
@@ -1653,6 +1899,8 @@ export type PartyUncheckedUpdateWithoutShareholderGroupMembershipsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
@@ -1664,6 +1912,9 @@ export type PartyUncheckedUpdateWithoutShareholderGroupMembershipsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyCreateWithoutContractsAsPartyAInput = {
@@ -1679,6 +1930,8 @@ export type PartyCreateWithoutContractsAsPartyAInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
@@ -1690,6 +1943,9 @@ export type PartyCreateWithoutContractsAsPartyAInput = {
   shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipCreateNestedManyWithoutPartyInput
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutContractsAsPartyAInput = {
@@ -1706,6 +1962,8 @@ export type PartyUncheckedCreateWithoutContractsAsPartyAInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
@@ -1717,6 +1975,9 @@ export type PartyUncheckedCreateWithoutContractsAsPartyAInput = {
   shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedCreateNestedManyWithoutPartyInput
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutContractsAsPartyAInput = {
@@ -1737,6 +1998,8 @@ export type PartyCreateWithoutContractsAsPartyBInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
@@ -1748,6 +2011,9 @@ export type PartyCreateWithoutContractsAsPartyBInput = {
   shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipCreateNestedManyWithoutPartyInput
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutContractsAsPartyBInput = {
@@ -1764,6 +2030,8 @@ export type PartyUncheckedCreateWithoutContractsAsPartyBInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
@@ -1775,6 +2043,9 @@ export type PartyUncheckedCreateWithoutContractsAsPartyBInput = {
   shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedCreateNestedManyWithoutPartyInput
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutContractsAsPartyBInput = {
@@ -1806,6 +2077,8 @@ export type PartyUpdateWithoutContractsAsPartyAInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
@@ -1817,6 +2090,9 @@ export type PartyUpdateWithoutContractsAsPartyAInput = {
   shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUpdateManyWithoutPartyNestedInput
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutContractsAsPartyAInput = {
@@ -1833,6 +2109,8 @@ export type PartyUncheckedUpdateWithoutContractsAsPartyAInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
@@ -1844,6 +2122,9 @@ export type PartyUncheckedUpdateWithoutContractsAsPartyAInput = {
   shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedUpdateManyWithoutPartyNestedInput
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUpsertWithoutContractsAsPartyBInput = {
@@ -1870,6 +2151,8 @@ export type PartyUpdateWithoutContractsAsPartyBInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
@@ -1881,6 +2164,9 @@ export type PartyUpdateWithoutContractsAsPartyBInput = {
   shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUpdateManyWithoutPartyNestedInput
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutContractsAsPartyBInput = {
@@ -1897,6 +2183,8 @@ export type PartyUncheckedUpdateWithoutContractsAsPartyBInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
@@ -1908,6 +2196,9 @@ export type PartyUncheckedUpdateWithoutContractsAsPartyBInput = {
   shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedUpdateManyWithoutPartyNestedInput
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyCreateWithoutLegalFactRevisionsInput = {
@@ -1923,6 +2214,8 @@ export type PartyCreateWithoutLegalFactRevisionsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
   ownedInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutOwnerInput
@@ -1934,6 +2227,9 @@ export type PartyCreateWithoutLegalFactRevisionsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutLegalFactRevisionsInput = {
@@ -1950,6 +2246,8 @@ export type PartyUncheckedCreateWithoutLegalFactRevisionsInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
   ownedInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutOwnerInput
@@ -1961,6 +2259,9 @@ export type PartyUncheckedCreateWithoutLegalFactRevisionsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutLegalFactRevisionsInput = {
@@ -1992,6 +2293,8 @@ export type PartyUpdateWithoutLegalFactRevisionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
   ownedInterests?: Prisma.OwnershipInterestUpdateManyWithoutOwnerNestedInput
@@ -2003,6 +2306,9 @@ export type PartyUpdateWithoutLegalFactRevisionsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutLegalFactRevisionsInput = {
@@ -2019,6 +2325,8 @@ export type PartyUncheckedUpdateWithoutLegalFactRevisionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
   ownedInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutOwnerNestedInput
@@ -2030,6 +2338,9 @@ export type PartyUncheckedUpdateWithoutLegalFactRevisionsInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyCreateWithoutNameHistoryInput = {
@@ -2045,6 +2356,8 @@ export type PartyCreateWithoutNameHistoryInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
   ownedInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutOwnerInput
@@ -2056,6 +2369,9 @@ export type PartyCreateWithoutNameHistoryInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutNameHistoryInput = {
@@ -2072,6 +2388,8 @@ export type PartyUncheckedCreateWithoutNameHistoryInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
   ownedInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutOwnerInput
@@ -2083,6 +2401,9 @@ export type PartyUncheckedCreateWithoutNameHistoryInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutNameHistoryInput = {
@@ -2114,6 +2435,8 @@ export type PartyUpdateWithoutNameHistoryInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
   ownedInterests?: Prisma.OwnershipInterestUpdateManyWithoutOwnerNestedInput
@@ -2125,6 +2448,9 @@ export type PartyUpdateWithoutNameHistoryInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutNameHistoryInput = {
@@ -2141,6 +2467,8 @@ export type PartyUncheckedUpdateWithoutNameHistoryInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
   ownedInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutOwnerNestedInput
@@ -2152,6 +2480,9 @@ export type PartyUncheckedUpdateWithoutNameHistoryInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyCreateWithoutExternalProfileInput = {
@@ -2166,6 +2497,8 @@ export type PartyCreateWithoutExternalProfileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
@@ -2178,6 +2511,9 @@ export type PartyCreateWithoutExternalProfileInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutExternalProfileInput = {
@@ -2193,6 +2529,8 @@ export type PartyUncheckedCreateWithoutExternalProfileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
@@ -2205,6 +2543,9 @@ export type PartyUncheckedCreateWithoutExternalProfileInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutExternalProfileInput = {
@@ -2235,6 +2576,8 @@ export type PartyUpdateWithoutExternalProfileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
@@ -2247,6 +2590,9 @@ export type PartyUpdateWithoutExternalProfileInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutExternalProfileInput = {
@@ -2262,6 +2608,8 @@ export type PartyUncheckedUpdateWithoutExternalProfileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
@@ -2274,6 +2622,9 @@ export type PartyUncheckedUpdateWithoutExternalProfileInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyCreateWithoutExternalRolesInput = {
@@ -2288,6 +2639,8 @@ export type PartyCreateWithoutExternalRolesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
@@ -2300,6 +2653,9 @@ export type PartyCreateWithoutExternalRolesInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutExternalRolesInput = {
@@ -2315,6 +2671,8 @@ export type PartyUncheckedCreateWithoutExternalRolesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
@@ -2327,6 +2685,9 @@ export type PartyUncheckedCreateWithoutExternalRolesInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutExternalRolesInput = {
@@ -2357,6 +2718,8 @@ export type PartyUpdateWithoutExternalRolesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
@@ -2369,6 +2732,9 @@ export type PartyUpdateWithoutExternalRolesInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutExternalRolesInput = {
@@ -2384,6 +2750,8 @@ export type PartyUncheckedUpdateWithoutExternalRolesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
@@ -2396,6 +2764,435 @@ export type PartyUncheckedUpdateWithoutExternalRolesInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
+}
+
+export type PartyCreateWithoutFinanceAuxiliaryMembersInput = {
+  subjectType?: string
+  name: string
+  fullName?: string | null
+  identityNumber: string
+  legalRepresentative?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
+  externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
+  company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
+  ownedInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutOwnerInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutFromPartyInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutToPartyInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutPartyInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutConsolidatedByPartyAfterInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipCreateNestedManyWithoutPartyInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
+  contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
+  contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
+}
+
+export type PartyUncheckedCreateWithoutFinanceAuxiliaryMembersInput = {
+  id?: number
+  subjectType?: string
+  name: string
+  fullName?: string | null
+  identityNumber: string
+  legalRepresentative?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
+  externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
+  company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
+  ownedInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutOwnerInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutFromPartyInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutToPartyInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutPartyInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutConsolidatedByPartyAfterInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedCreateNestedManyWithoutPartyInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
+  contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
+  contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
+}
+
+export type PartyCreateOrConnectWithoutFinanceAuxiliaryMembersInput = {
+  where: Prisma.PartyWhereUniqueInput
+  create: Prisma.XOR<Prisma.PartyCreateWithoutFinanceAuxiliaryMembersInput, Prisma.PartyUncheckedCreateWithoutFinanceAuxiliaryMembersInput>
+}
+
+export type PartyUpsertWithoutFinanceAuxiliaryMembersInput = {
+  update: Prisma.XOR<Prisma.PartyUpdateWithoutFinanceAuxiliaryMembersInput, Prisma.PartyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput>
+  create: Prisma.XOR<Prisma.PartyCreateWithoutFinanceAuxiliaryMembersInput, Prisma.PartyUncheckedCreateWithoutFinanceAuxiliaryMembersInput>
+  where?: Prisma.PartyWhereInput
+}
+
+export type PartyUpdateToOneWithWhereWithoutFinanceAuxiliaryMembersInput = {
+  where?: Prisma.PartyWhereInput
+  data: Prisma.XOR<Prisma.PartyUpdateWithoutFinanceAuxiliaryMembersInput, Prisma.PartyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput>
+}
+
+export type PartyUpdateWithoutFinanceAuxiliaryMembersInput = {
+  subjectType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
+  externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
+  ownedInterests?: Prisma.OwnershipInterestUpdateManyWithoutOwnerNestedInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUpdateManyWithoutFromPartyNestedInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUpdateManyWithoutToPartyNestedInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutPartyNestedInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutConsolidatedByPartyAfterNestedInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUpdateManyWithoutPartyNestedInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
+  contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
+  contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
+}
+
+export type PartyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  subjectType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
+  externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
+  company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
+  ownedInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutOwnerNestedInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutFromPartyNestedInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutToPartyNestedInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutPartyNestedInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutConsolidatedByPartyAfterNestedInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedUpdateManyWithoutPartyNestedInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
+  contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
+  contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
+}
+
+export type PartyCreateWithoutFinanceTaxAuthoritiesInput = {
+  subjectType?: string
+  name: string
+  fullName?: string | null
+  identityNumber: string
+  legalRepresentative?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
+  externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
+  nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
+  company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
+  ownedInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutOwnerInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutFromPartyInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutToPartyInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutPartyInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutConsolidatedByPartyAfterInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipCreateNestedManyWithoutPartyInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
+  contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
+  contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
+}
+
+export type PartyUncheckedCreateWithoutFinanceTaxAuthoritiesInput = {
+  id?: number
+  subjectType?: string
+  name: string
+  fullName?: string | null
+  identityNumber: string
+  legalRepresentative?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
+  externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
+  nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
+  company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
+  ownedInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutOwnerInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutFromPartyInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutToPartyInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutPartyInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutConsolidatedByPartyAfterInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedCreateNestedManyWithoutPartyInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
+  contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
+  contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
+}
+
+export type PartyCreateOrConnectWithoutFinanceTaxAuthoritiesInput = {
+  where: Prisma.PartyWhereUniqueInput
+  create: Prisma.XOR<Prisma.PartyCreateWithoutFinanceTaxAuthoritiesInput, Prisma.PartyUncheckedCreateWithoutFinanceTaxAuthoritiesInput>
+}
+
+export type PartyUpsertWithoutFinanceTaxAuthoritiesInput = {
+  update: Prisma.XOR<Prisma.PartyUpdateWithoutFinanceTaxAuthoritiesInput, Prisma.PartyUncheckedUpdateWithoutFinanceTaxAuthoritiesInput>
+  create: Prisma.XOR<Prisma.PartyCreateWithoutFinanceTaxAuthoritiesInput, Prisma.PartyUncheckedCreateWithoutFinanceTaxAuthoritiesInput>
+  where?: Prisma.PartyWhereInput
+}
+
+export type PartyUpdateToOneWithWhereWithoutFinanceTaxAuthoritiesInput = {
+  where?: Prisma.PartyWhereInput
+  data: Prisma.XOR<Prisma.PartyUpdateWithoutFinanceTaxAuthoritiesInput, Prisma.PartyUncheckedUpdateWithoutFinanceTaxAuthoritiesInput>
+}
+
+export type PartyUpdateWithoutFinanceTaxAuthoritiesInput = {
+  subjectType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
+  externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
+  nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
+  ownedInterests?: Prisma.OwnershipInterestUpdateManyWithoutOwnerNestedInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUpdateManyWithoutFromPartyNestedInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUpdateManyWithoutToPartyNestedInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutPartyNestedInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutConsolidatedByPartyAfterNestedInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUpdateManyWithoutPartyNestedInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
+  contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
+  contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
+}
+
+export type PartyUncheckedUpdateWithoutFinanceTaxAuthoritiesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  subjectType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
+  externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
+  nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
+  company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
+  ownedInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutOwnerNestedInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutFromPartyNestedInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutToPartyNestedInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutPartyNestedInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutConsolidatedByPartyAfterNestedInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedUpdateManyWithoutPartyNestedInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
+  contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
+  contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
+}
+
+export type PartyCreateWithoutFinanceLoansAsLenderInput = {
+  subjectType?: string
+  name: string
+  fullName?: string | null
+  identityNumber: string
+  legalRepresentative?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
+  externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
+  nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
+  company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
+  ownedInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutOwnerInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutFromPartyInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutToPartyInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutPartyInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutConsolidatedByPartyAfterInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipCreateNestedManyWithoutPartyInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
+  contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
+  contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
+}
+
+export type PartyUncheckedCreateWithoutFinanceLoansAsLenderInput = {
+  id?: number
+  subjectType?: string
+  name: string
+  fullName?: string | null
+  identityNumber: string
+  legalRepresentative?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
+  externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
+  nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
+  company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
+  ownedInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutOwnerInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutFromPartyInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutToPartyInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutPartyInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutConsolidatedByPartyAfterInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedCreateNestedManyWithoutPartyInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
+  contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
+  contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
+}
+
+export type PartyCreateOrConnectWithoutFinanceLoansAsLenderInput = {
+  where: Prisma.PartyWhereUniqueInput
+  create: Prisma.XOR<Prisma.PartyCreateWithoutFinanceLoansAsLenderInput, Prisma.PartyUncheckedCreateWithoutFinanceLoansAsLenderInput>
+}
+
+export type PartyUpsertWithoutFinanceLoansAsLenderInput = {
+  update: Prisma.XOR<Prisma.PartyUpdateWithoutFinanceLoansAsLenderInput, Prisma.PartyUncheckedUpdateWithoutFinanceLoansAsLenderInput>
+  create: Prisma.XOR<Prisma.PartyCreateWithoutFinanceLoansAsLenderInput, Prisma.PartyUncheckedCreateWithoutFinanceLoansAsLenderInput>
+  where?: Prisma.PartyWhereInput
+}
+
+export type PartyUpdateToOneWithWhereWithoutFinanceLoansAsLenderInput = {
+  where?: Prisma.PartyWhereInput
+  data: Prisma.XOR<Prisma.PartyUpdateWithoutFinanceLoansAsLenderInput, Prisma.PartyUncheckedUpdateWithoutFinanceLoansAsLenderInput>
+}
+
+export type PartyUpdateWithoutFinanceLoansAsLenderInput = {
+  subjectType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
+  externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
+  nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
+  ownedInterests?: Prisma.OwnershipInterestUpdateManyWithoutOwnerNestedInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUpdateManyWithoutFromPartyNestedInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUpdateManyWithoutToPartyNestedInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutPartyNestedInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutConsolidatedByPartyAfterNestedInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUpdateManyWithoutPartyNestedInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
+  contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
+  contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
+}
+
+export type PartyUncheckedUpdateWithoutFinanceLoansAsLenderInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  subjectType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
+  externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
+  nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
+  company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
+  ownedInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutOwnerNestedInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutFromPartyNestedInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutToPartyNestedInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutPartyNestedInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutConsolidatedByPartyAfterNestedInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedUpdateManyWithoutPartyNestedInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
+  contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
+  contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyCreateWithoutCompanyInput = {
@@ -2411,6 +3208,8 @@ export type PartyCreateWithoutCompanyInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
   ownedInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutOwnerInput
@@ -2422,6 +3221,9 @@ export type PartyCreateWithoutCompanyInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyUncheckedCreateWithoutCompanyInput = {
@@ -2438,6 +3240,8 @@ export type PartyUncheckedCreateWithoutCompanyInput = {
   updatedAt?: Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
   ownedInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutOwnerInput
@@ -2449,6 +3253,9 @@ export type PartyUncheckedCreateWithoutCompanyInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
   contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
   contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
 }
 
 export type PartyCreateOrConnectWithoutCompanyInput = {
@@ -2480,6 +3287,8 @@ export type PartyUpdateWithoutCompanyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
   ownedInterests?: Prisma.OwnershipInterestUpdateManyWithoutOwnerNestedInput
@@ -2491,6 +3300,9 @@ export type PartyUpdateWithoutCompanyInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 export type PartyUncheckedUpdateWithoutCompanyInput = {
@@ -2507,6 +3319,8 @@ export type PartyUncheckedUpdateWithoutCompanyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
   externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
   nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
   legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
   ownedInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutOwnerNestedInput
@@ -2518,6 +3332,293 @@ export type PartyUncheckedUpdateWithoutCompanyInput = {
   registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
   contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
   contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
+}
+
+export type PartyCreateWithoutInventoryDocumentsInput = {
+  subjectType?: string
+  name: string
+  fullName?: string | null
+  identityNumber: string
+  legalRepresentative?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
+  externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
+  nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
+  company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
+  ownedInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutOwnerInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutFromPartyInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutToPartyInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutPartyInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutConsolidatedByPartyAfterInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipCreateNestedManyWithoutPartyInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
+  contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
+  contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+}
+
+export type PartyUncheckedCreateWithoutInventoryDocumentsInput = {
+  id?: number
+  subjectType?: string
+  name: string
+  fullName?: string | null
+  identityNumber: string
+  legalRepresentative?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
+  externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedCreateNestedOneWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
+  nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
+  company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
+  ownedInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutOwnerInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutFromPartyInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutToPartyInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutPartyInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutConsolidatedByPartyAfterInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedCreateNestedManyWithoutPartyInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
+  contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
+  contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+}
+
+export type PartyCreateOrConnectWithoutInventoryDocumentsInput = {
+  where: Prisma.PartyWhereUniqueInput
+  create: Prisma.XOR<Prisma.PartyCreateWithoutInventoryDocumentsInput, Prisma.PartyUncheckedCreateWithoutInventoryDocumentsInput>
+}
+
+export type PartyUpsertWithoutInventoryDocumentsInput = {
+  update: Prisma.XOR<Prisma.PartyUpdateWithoutInventoryDocumentsInput, Prisma.PartyUncheckedUpdateWithoutInventoryDocumentsInput>
+  create: Prisma.XOR<Prisma.PartyCreateWithoutInventoryDocumentsInput, Prisma.PartyUncheckedCreateWithoutInventoryDocumentsInput>
+  where?: Prisma.PartyWhereInput
+}
+
+export type PartyUpdateToOneWithWhereWithoutInventoryDocumentsInput = {
+  where?: Prisma.PartyWhereInput
+  data: Prisma.XOR<Prisma.PartyUpdateWithoutInventoryDocumentsInput, Prisma.PartyUncheckedUpdateWithoutInventoryDocumentsInput>
+}
+
+export type PartyUpdateWithoutInventoryDocumentsInput = {
+  subjectType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
+  externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
+  nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
+  ownedInterests?: Prisma.OwnershipInterestUpdateManyWithoutOwnerNestedInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUpdateManyWithoutFromPartyNestedInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUpdateManyWithoutToPartyNestedInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutPartyNestedInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutConsolidatedByPartyAfterNestedInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUpdateManyWithoutPartyNestedInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
+  contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
+  contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+}
+
+export type PartyUncheckedUpdateWithoutInventoryDocumentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  subjectType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
+  externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  employeeIdentityLink?: Prisma.EmployeePartyIdentityLinkUncheckedUpdateOneWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
+  nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
+  company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
+  ownedInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutOwnerNestedInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutFromPartyNestedInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutToPartyNestedInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutPartyNestedInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutConsolidatedByPartyAfterNestedInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedUpdateManyWithoutPartyNestedInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
+  contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
+  contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+}
+
+export type PartyCreateWithoutEmployeeIdentityLinkInput = {
+  subjectType?: string
+  name: string
+  fullName?: string | null
+  identityNumber: string
+  legalRepresentative?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  externalProfile?: Prisma.ExternalPartyProfileCreateNestedOneWithoutPartyInput
+  externalRoles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedPartyInput
+  nameHistory?: Prisma.PartyNameHistoryCreateNestedManyWithoutPartyInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionCreateNestedManyWithoutPartyInput
+  company?: Prisma.CompanyCreateNestedOneWithoutPartyInput
+  ownedInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutOwnerInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutFromPartyInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutToPartyInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutPartyInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutConsolidatedByPartyAfterInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipCreateNestedManyWithoutPartyInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantCreateNestedManyWithoutPartyInput
+  contractsAsPartyA?: Prisma.ContractCreateNestedManyWithoutPartyAIdentityInput
+  contractsAsPartyB?: Prisma.ContractCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentCreateNestedManyWithoutCounterpartyPartyInput
+}
+
+export type PartyUncheckedCreateWithoutEmployeeIdentityLinkInput = {
+  id?: number
+  subjectType?: string
+  name: string
+  fullName?: string | null
+  identityNumber: string
+  legalRepresentative?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUncheckedCreateNestedOneWithoutPartyInput
+  externalRoles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedPartyInput
+  nameHistory?: Prisma.PartyNameHistoryUncheckedCreateNestedManyWithoutPartyInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedCreateNestedManyWithoutPartyInput
+  company?: Prisma.CompanyUncheckedCreateNestedOneWithoutPartyInput
+  ownedInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutOwnerInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutFromPartyInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutToPartyInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutPartyInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutConsolidatedByPartyAfterInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedCreateNestedManyWithoutPartyInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedCreateNestedManyWithoutPartyInput
+  contractsAsPartyA?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput
+  contractsAsPartyB?: Prisma.ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedCreateNestedManyWithoutLenderPartyInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedCreateNestedManyWithoutAuthorityPartyInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedCreateNestedManyWithoutCounterpartyPartyInput
+}
+
+export type PartyCreateOrConnectWithoutEmployeeIdentityLinkInput = {
+  where: Prisma.PartyWhereUniqueInput
+  create: Prisma.XOR<Prisma.PartyCreateWithoutEmployeeIdentityLinkInput, Prisma.PartyUncheckedCreateWithoutEmployeeIdentityLinkInput>
+}
+
+export type PartyUpsertWithoutEmployeeIdentityLinkInput = {
+  update: Prisma.XOR<Prisma.PartyUpdateWithoutEmployeeIdentityLinkInput, Prisma.PartyUncheckedUpdateWithoutEmployeeIdentityLinkInput>
+  create: Prisma.XOR<Prisma.PartyCreateWithoutEmployeeIdentityLinkInput, Prisma.PartyUncheckedCreateWithoutEmployeeIdentityLinkInput>
+  where?: Prisma.PartyWhereInput
+}
+
+export type PartyUpdateToOneWithWhereWithoutEmployeeIdentityLinkInput = {
+  where?: Prisma.PartyWhereInput
+  data: Prisma.XOR<Prisma.PartyUpdateWithoutEmployeeIdentityLinkInput, Prisma.PartyUncheckedUpdateWithoutEmployeeIdentityLinkInput>
+}
+
+export type PartyUpdateWithoutEmployeeIdentityLinkInput = {
+  subjectType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUpdateOneWithoutPartyNestedInput
+  externalRoles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedPartyNestedInput
+  nameHistory?: Prisma.PartyNameHistoryUpdateManyWithoutPartyNestedInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUpdateManyWithoutPartyNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutPartyNestedInput
+  ownedInterests?: Prisma.OwnershipInterestUpdateManyWithoutOwnerNestedInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUpdateManyWithoutFromPartyNestedInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUpdateManyWithoutToPartyNestedInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutPartyNestedInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutConsolidatedByPartyAfterNestedInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUpdateManyWithoutPartyNestedInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUpdateManyWithoutPartyNestedInput
+  contractsAsPartyA?: Prisma.ContractUpdateManyWithoutPartyAIdentityNestedInput
+  contractsAsPartyB?: Prisma.ContractUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUpdateManyWithoutCounterpartyPartyNestedInput
+}
+
+export type PartyUncheckedUpdateWithoutEmployeeIdentityLinkInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  subjectType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  externalProfile?: Prisma.ExternalPartyProfileUncheckedUpdateOneWithoutPartyNestedInput
+  externalRoles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedPartyNestedInput
+  nameHistory?: Prisma.PartyNameHistoryUncheckedUpdateManyWithoutPartyNestedInput
+  legalFactRevisions?: Prisma.PartyLegalFactRevisionUncheckedUpdateManyWithoutPartyNestedInput
+  company?: Prisma.CompanyUncheckedUpdateOneWithoutPartyNestedInput
+  ownedInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutOwnerNestedInput
+  shareCapitalOutflows?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutFromPartyNestedInput
+  shareCapitalInflows?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutToPartyNestedInput
+  shareCapitalSnapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutPartyNestedInput
+  controlledAfterCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutConsolidatedByPartyAfterNestedInput
+  shareholderGroupMemberships?: Prisma.ShareholderGroupMembershipUncheckedUpdateManyWithoutPartyNestedInput
+  registryOwnershipParticipants?: Prisma.CompanyRegistryOwnershipParticipantUncheckedUpdateManyWithoutPartyNestedInput
+  contractsAsPartyA?: Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput
+  contractsAsPartyB?: Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput
+  financeLoansAsLender?: Prisma.FinanceLoanUncheckedUpdateManyWithoutLenderPartyNestedInput
+  financeTaxAuthorities?: Prisma.FinanceTaxRegistrationUncheckedUpdateManyWithoutAuthorityPartyNestedInput
+  inventoryDocuments?: Prisma.InventoryDocumentUncheckedUpdateManyWithoutCounterpartyPartyNestedInput
 }
 
 
@@ -2527,6 +3628,7 @@ export type PartyUncheckedUpdateWithoutCompanyInput = {
 
 export type PartyCountOutputType = {
   externalRoles: number
+  financeAuxiliaryMembers: number
   nameHistory: number
   legalFactRevisions: number
   ownedInterests: number
@@ -2538,10 +3640,14 @@ export type PartyCountOutputType = {
   registryOwnershipParticipants: number
   contractsAsPartyA: number
   contractsAsPartyB: number
+  financeLoansAsLender: number
+  financeTaxAuthorities: number
+  inventoryDocuments: number
 }
 
 export type PartyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   externalRoles?: boolean | PartyCountOutputTypeCountExternalRolesArgs
+  financeAuxiliaryMembers?: boolean | PartyCountOutputTypeCountFinanceAuxiliaryMembersArgs
   nameHistory?: boolean | PartyCountOutputTypeCountNameHistoryArgs
   legalFactRevisions?: boolean | PartyCountOutputTypeCountLegalFactRevisionsArgs
   ownedInterests?: boolean | PartyCountOutputTypeCountOwnedInterestsArgs
@@ -2553,6 +3659,9 @@ export type PartyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   registryOwnershipParticipants?: boolean | PartyCountOutputTypeCountRegistryOwnershipParticipantsArgs
   contractsAsPartyA?: boolean | PartyCountOutputTypeCountContractsAsPartyAArgs
   contractsAsPartyB?: boolean | PartyCountOutputTypeCountContractsAsPartyBArgs
+  financeLoansAsLender?: boolean | PartyCountOutputTypeCountFinanceLoansAsLenderArgs
+  financeTaxAuthorities?: boolean | PartyCountOutputTypeCountFinanceTaxAuthoritiesArgs
+  inventoryDocuments?: boolean | PartyCountOutputTypeCountInventoryDocumentsArgs
 }
 
 /**
@@ -2570,6 +3679,13 @@ export type PartyCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extens
  */
 export type PartyCountOutputTypeCountExternalRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ExternalPartyRoleWhereInput
+}
+
+/**
+ * PartyCountOutputType without action
+ */
+export type PartyCountOutputTypeCountFinanceAuxiliaryMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAuxiliaryMemberWhereInput
 }
 
 /**
@@ -2649,6 +3765,27 @@ export type PartyCountOutputTypeCountContractsAsPartyBArgs<ExtArgs extends runti
   where?: Prisma.ContractWhereInput
 }
 
+/**
+ * PartyCountOutputType without action
+ */
+export type PartyCountOutputTypeCountFinanceLoansAsLenderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceLoanWhereInput
+}
+
+/**
+ * PartyCountOutputType without action
+ */
+export type PartyCountOutputTypeCountFinanceTaxAuthoritiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceTaxRegistrationWhereInput
+}
+
+/**
+ * PartyCountOutputType without action
+ */
+export type PartyCountOutputTypeCountInventoryDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InventoryDocumentWhereInput
+}
+
 
 export type PartySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2664,6 +3801,8 @@ export type PartySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   updatedAt?: boolean
   externalProfile?: boolean | Prisma.Party$externalProfileArgs<ExtArgs>
   externalRoles?: boolean | Prisma.Party$externalRolesArgs<ExtArgs>
+  employeeIdentityLink?: boolean | Prisma.Party$employeeIdentityLinkArgs<ExtArgs>
+  financeAuxiliaryMembers?: boolean | Prisma.Party$financeAuxiliaryMembersArgs<ExtArgs>
   nameHistory?: boolean | Prisma.Party$nameHistoryArgs<ExtArgs>
   legalFactRevisions?: boolean | Prisma.Party$legalFactRevisionsArgs<ExtArgs>
   company?: boolean | Prisma.Party$companyArgs<ExtArgs>
@@ -2676,6 +3815,9 @@ export type PartySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   registryOwnershipParticipants?: boolean | Prisma.Party$registryOwnershipParticipantsArgs<ExtArgs>
   contractsAsPartyA?: boolean | Prisma.Party$contractsAsPartyAArgs<ExtArgs>
   contractsAsPartyB?: boolean | Prisma.Party$contractsAsPartyBArgs<ExtArgs>
+  financeLoansAsLender?: boolean | Prisma.Party$financeLoansAsLenderArgs<ExtArgs>
+  financeTaxAuthorities?: boolean | Prisma.Party$financeTaxAuthoritiesArgs<ExtArgs>
+  inventoryDocuments?: boolean | Prisma.Party$inventoryDocumentsArgs<ExtArgs>
   _count?: boolean | Prisma.PartyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["party"]>
 
@@ -2725,6 +3867,8 @@ export type PartyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
 export type PartyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   externalProfile?: boolean | Prisma.Party$externalProfileArgs<ExtArgs>
   externalRoles?: boolean | Prisma.Party$externalRolesArgs<ExtArgs>
+  employeeIdentityLink?: boolean | Prisma.Party$employeeIdentityLinkArgs<ExtArgs>
+  financeAuxiliaryMembers?: boolean | Prisma.Party$financeAuxiliaryMembersArgs<ExtArgs>
   nameHistory?: boolean | Prisma.Party$nameHistoryArgs<ExtArgs>
   legalFactRevisions?: boolean | Prisma.Party$legalFactRevisionsArgs<ExtArgs>
   company?: boolean | Prisma.Party$companyArgs<ExtArgs>
@@ -2737,6 +3881,9 @@ export type PartyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   registryOwnershipParticipants?: boolean | Prisma.Party$registryOwnershipParticipantsArgs<ExtArgs>
   contractsAsPartyA?: boolean | Prisma.Party$contractsAsPartyAArgs<ExtArgs>
   contractsAsPartyB?: boolean | Prisma.Party$contractsAsPartyBArgs<ExtArgs>
+  financeLoansAsLender?: boolean | Prisma.Party$financeLoansAsLenderArgs<ExtArgs>
+  financeTaxAuthorities?: boolean | Prisma.Party$financeTaxAuthoritiesArgs<ExtArgs>
+  inventoryDocuments?: boolean | Prisma.Party$inventoryDocumentsArgs<ExtArgs>
   _count?: boolean | Prisma.PartyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PartyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2747,6 +3894,8 @@ export type $PartyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   objects: {
     externalProfile: Prisma.$ExternalPartyProfilePayload<ExtArgs> | null
     externalRoles: Prisma.$ExternalPartyRolePayload<ExtArgs>[]
+    employeeIdentityLink: Prisma.$EmployeePartyIdentityLinkPayload<ExtArgs> | null
+    financeAuxiliaryMembers: Prisma.$FinanceAuxiliaryMemberPayload<ExtArgs>[]
     nameHistory: Prisma.$PartyNameHistoryPayload<ExtArgs>[]
     legalFactRevisions: Prisma.$PartyLegalFactRevisionPayload<ExtArgs>[]
     company: Prisma.$CompanyPayload<ExtArgs> | null
@@ -2759,6 +3908,9 @@ export type $PartyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     registryOwnershipParticipants: Prisma.$CompanyRegistryOwnershipParticipantPayload<ExtArgs>[]
     contractsAsPartyA: Prisma.$ContractPayload<ExtArgs>[]
     contractsAsPartyB: Prisma.$ContractPayload<ExtArgs>[]
+    financeLoansAsLender: Prisma.$FinanceLoanPayload<ExtArgs>[]
+    financeTaxAuthorities: Prisma.$FinanceTaxRegistrationPayload<ExtArgs>[]
+    inventoryDocuments: Prisma.$InventoryDocumentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -3168,6 +4320,8 @@ export interface Prisma__PartyClient<T, Null = never, ExtArgs extends runtime.Ty
   readonly [Symbol.toStringTag]: "PrismaPromise"
   externalProfile<T extends Prisma.Party$externalProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$externalProfileArgs<ExtArgs>>): Prisma.Prisma__ExternalPartyProfileClient<runtime.Types.Result.GetResult<Prisma.$ExternalPartyProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   externalRoles<T extends Prisma.Party$externalRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$externalRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExternalPartyRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  employeeIdentityLink<T extends Prisma.Party$employeeIdentityLinkArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$employeeIdentityLinkArgs<ExtArgs>>): Prisma.Prisma__EmployeePartyIdentityLinkClient<runtime.Types.Result.GetResult<Prisma.$EmployeePartyIdentityLinkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  financeAuxiliaryMembers<T extends Prisma.Party$financeAuxiliaryMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$financeAuxiliaryMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAuxiliaryMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   nameHistory<T extends Prisma.Party$nameHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$nameHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PartyNameHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   legalFactRevisions<T extends Prisma.Party$legalFactRevisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$legalFactRevisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PartyLegalFactRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   company<T extends Prisma.Party$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -3180,6 +4334,9 @@ export interface Prisma__PartyClient<T, Null = never, ExtArgs extends runtime.Ty
   registryOwnershipParticipants<T extends Prisma.Party$registryOwnershipParticipantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$registryOwnershipParticipantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompanyRegistryOwnershipParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   contractsAsPartyA<T extends Prisma.Party$contractsAsPartyAArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$contractsAsPartyAArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   contractsAsPartyB<T extends Prisma.Party$contractsAsPartyBArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$contractsAsPartyBArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  financeLoansAsLender<T extends Prisma.Party$financeLoansAsLenderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$financeLoansAsLenderArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceLoanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  financeTaxAuthorities<T extends Prisma.Party$financeTaxAuthoritiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$financeTaxAuthoritiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceTaxRegistrationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  inventoryDocuments<T extends Prisma.Party$inventoryDocumentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Party$inventoryDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3656,6 +4813,49 @@ export type Party$externalRolesArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 /**
+ * Party.employeeIdentityLink
+ */
+export type Party$employeeIdentityLinkArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmployeePartyIdentityLink
+   */
+  select?: Prisma.EmployeePartyIdentityLinkSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmployeePartyIdentityLink
+   */
+  omit?: Prisma.EmployeePartyIdentityLinkOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeePartyIdentityLinkInclude<ExtArgs> | null
+  where?: Prisma.EmployeePartyIdentityLinkWhereInput
+}
+
+/**
+ * Party.financeAuxiliaryMembers
+ */
+export type Party$financeAuxiliaryMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAuxiliaryMember
+   */
+  select?: Prisma.FinanceAuxiliaryMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAuxiliaryMember
+   */
+  omit?: Prisma.FinanceAuxiliaryMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAuxiliaryMemberInclude<ExtArgs> | null
+  where?: Prisma.FinanceAuxiliaryMemberWhereInput
+  orderBy?: Prisma.FinanceAuxiliaryMemberOrderByWithRelationInput | Prisma.FinanceAuxiliaryMemberOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAuxiliaryMemberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAuxiliaryMemberScalarFieldEnum | Prisma.FinanceAuxiliaryMemberScalarFieldEnum[]
+}
+
+/**
  * Party.nameHistory
  */
 export type Party$nameHistoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3936,6 +5136,78 @@ export type Party$contractsAsPartyBArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.ContractScalarFieldEnum | Prisma.ContractScalarFieldEnum[]
+}
+
+/**
+ * Party.financeLoansAsLender
+ */
+export type Party$financeLoansAsLenderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceLoan
+   */
+  select?: Prisma.FinanceLoanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceLoan
+   */
+  omit?: Prisma.FinanceLoanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceLoanInclude<ExtArgs> | null
+  where?: Prisma.FinanceLoanWhereInput
+  orderBy?: Prisma.FinanceLoanOrderByWithRelationInput | Prisma.FinanceLoanOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceLoanWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceLoanScalarFieldEnum | Prisma.FinanceLoanScalarFieldEnum[]
+}
+
+/**
+ * Party.financeTaxAuthorities
+ */
+export type Party$financeTaxAuthoritiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceTaxRegistration
+   */
+  select?: Prisma.FinanceTaxRegistrationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceTaxRegistration
+   */
+  omit?: Prisma.FinanceTaxRegistrationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceTaxRegistrationInclude<ExtArgs> | null
+  where?: Prisma.FinanceTaxRegistrationWhereInput
+  orderBy?: Prisma.FinanceTaxRegistrationOrderByWithRelationInput | Prisma.FinanceTaxRegistrationOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceTaxRegistrationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceTaxRegistrationScalarFieldEnum | Prisma.FinanceTaxRegistrationScalarFieldEnum[]
+}
+
+/**
+ * Party.inventoryDocuments
+ */
+export type Party$inventoryDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InventoryDocument
+   */
+  select?: Prisma.InventoryDocumentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InventoryDocument
+   */
+  omit?: Prisma.InventoryDocumentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryDocumentInclude<ExtArgs> | null
+  where?: Prisma.InventoryDocumentWhereInput
+  orderBy?: Prisma.InventoryDocumentOrderByWithRelationInput | Prisma.InventoryDocumentOrderByWithRelationInput[]
+  cursor?: Prisma.InventoryDocumentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InventoryDocumentScalarFieldEnum | Prisma.InventoryDocumentScalarFieldEnum[]
 }
 
 /**

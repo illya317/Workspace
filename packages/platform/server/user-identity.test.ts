@@ -18,6 +18,7 @@ function identity(overrides: Partial<UserEmployeeIdentity> = {}): UserEmployeeId
     canLogin: true,
     employeeName: "张三",
     employeeId: "E001",
+    employeeRefId: 1,
     hasEmployeeRecord: true,
     isActiveEmployee: true,
     ...overrides,
@@ -29,6 +30,7 @@ test("root admin is a business actor named 管理员 without an employee record"
     username: "admin",
     employeeName: null,
     employeeId: null,
+    employeeRefId: null,
     hasEmployeeRecord: false,
     isActiveEmployee: false,
   })), {
@@ -36,6 +38,7 @@ test("root admin is a business actor named 管理员 without an employee record"
     canLogin: true,
     employeeName: null,
     employeeId: null,
+    employeeRefId: null,
     hasEmployeeRecord: false,
     isActiveEmployee: false,
     actorName: "管理员",

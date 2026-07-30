@@ -1,11 +1,4 @@
-import {
-  businessDateWindowsOverlap,
-  businessTemporalRetrospectiveChanges,
-  inclusiveBusinessPeriodToWindow,
-  parseBusinessDate,
-  type BusinessDate,
-} from "@workspace/platform/contracts/business-temporal";
-import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
+import { parseBusinessDate, type BusinessDate } from "@workspace/platform/contracts/business-temporal";
 import {
   failCommand,
   okCommand,
@@ -17,7 +10,6 @@ import {
   employmentAgreementFieldLabel,
   type EmploymentAgreementCommandKind,
 } from "@workspace/hr/employment-agreement-field-contract";
-import { HR_EMPLOYMENT_AGREEMENT_TEMPORAL } from "../../business-temporal";
 import { isValidCompanyName, validateContractOption } from "../field-validation";
 
 export { EMPLOYMENT_AGREEMENT_COMMAND_KINDS };
@@ -34,10 +26,17 @@ export interface EmploymentAgreementContent {
 }
 
 export type EmploymentAgreementContentPatch = Partial<EmploymentAgreementContent>;
-export type EmploymentAgreementTermPatch = Partial<{
-  effectiveFrom: BusinessDate;
-  effectiveThrough: BusinessDate;
-}>;
+
+export interface EmploymentAgreementTermPatch {
+  termUid: string;
+  effectiveFrom?: BusinessDate;
+  effectiveThrough?: BusinessDate;
+}
+
+export interface EmploymentAgreementSupplementPatch {
+  content: EmploymentAgreementContentPatch;
+  terms: EmploymentAgreementTermPatch[];
+}
 
 export function validateEmploymentAgreementMissingFields(value: unknown): DomainValidationResult<string[]> {
   if (!Array.isArray(value) || value.some((field) => typeof field !== "string" || field.length === 0)) {
@@ -68,15 +67,6 @@ export type EmploymentAgreementCommand =
       content: EmploymentAgreementContent;
     })
   | (ExistingAgreementCommandBase & {
-      kind: "replace";
-      employmentId: number;
-      isPrimary: boolean;
-      effectiveFrom: BusinessDate;
-      effectiveThrough: BusinessDate | null;
-      termKind: "initial" | "permanent";
-      content: EmploymentAgreementContent;
-    })
-  | (ExistingAgreementCommandBase & {
       kind: "renew";
       effectiveFrom: BusinessDate;
       effectiveThrough: BusinessDate | null;
@@ -95,13 +85,8 @@ export type EmploymentAgreementCommand =
       termKind: "initial" | "renewal" | "permanent";
     })
   | (ExistingAgreementCommandBase & {
-      kind: "supplement-term";
-      termUid: string;
-      patch: EmploymentAgreementTermPatch;
-    })
-  | (ExistingAgreementCommandBase & {
       kind: "supplement-missing";
-      patch: EmploymentAgreementContentPatch;
+      patch: EmploymentAgreementSupplementPatch;
     })
   | (ExistingAgreementCommandBase & {
       kind: "correct-existing";
@@ -133,9 +118,7 @@ export function buildEmploymentAgreementCommand(
   if (kind === "create") {
     const employmentId = positiveInteger(raw.employmentId);
     if (!employmentId) return failCommand("雇佣记录ID无效", 400, "employmentId");
-    const termKind = agreementTermKind(raw.termKind, ["initial", "permanent"]);
-    if (!termKind) return failCommand("期限性质无效", 400, "termKind");
-    const period = agreementPeriod(raw, termKind);
+    const period = agreementPeriod(raw);
     if (!period.ok) return period;
     const content = agreementContent(raw.content);
     if (!content.ok) return content;
@@ -143,7 +126,7 @@ export function buildEmploymentAgreementCommand(
       kind,
       employmentId,
       isPrimary: raw.isPrimary === true,
-      termKind,
+      termKind: raw.termKind === "permanent" ? "permanent" : "initial",
       ...period.data,
       content: content.data,
       ...meta.data,
@@ -154,28 +137,14 @@ export function buildEmploymentAgreementCommand(
   if (!target.ok) return target;
   if (kind === "set-primary") return okCommand({ kind, ...target.data, ...meta.data });
 
-  if (kind === "replace") {
-    const employmentId = positiveInteger(raw.employmentId);
-    if (!employmentId) return failCommand("雇佣记录ID无效", 400, "employmentId");
-    const termKind = agreementTermKind(raw.termKind, ["initial", "permanent"]);
-    if (!termKind) return failCommand("期限性质无效", 400, "termKind");
-    const period = agreementPeriod(raw, termKind);
-    if (!period.ok) return period;
-    const content = agreementContent(raw.content);
-    if (!content.ok) return content;
-    return okCommand({
-      kind,
-      employmentId,
-      isPrimary: raw.isPrimary === true,
-      termKind,
-      ...period.data,
-      content: content.data,
-      ...target.data,
-      ...meta.data,
-    });
+  if (kind === "supplement-missing") {
+    const patch = agreementSupplementPatch(raw.patch);
+    return patch.ok
+      ? okCommand({ kind, patch: patch.data, ...target.data, ...meta.data })
+      : patch;
   }
 
-  if (kind === "supplement-missing" || kind === "correct-existing") {
+  if (kind === "correct-existing") {
     const patch = agreementContentPatch(raw.patch);
     return patch.ok
       ? okCommand({ kind, patch: patch.data, ...target.data, ...meta.data })
@@ -183,13 +152,11 @@ export function buildEmploymentAgreementCommand(
   }
 
   if (kind === "renew") {
-    const termKind = agreementTermKind(raw.termKind, ["renewal", "permanent"]);
-    if (!termKind) return failCommand("期限性质无效", 400, "termKind");
-    const period = agreementPeriod(raw, termKind);
+    const period = agreementPeriod(raw);
     if (!period.ok) return period;
     return okCommand({
       kind,
-      termKind,
+      termKind: raw.termKind === "permanent" ? "permanent" : "renewal",
       ...period.data,
       ...target.data,
       ...meta.data,
@@ -198,12 +165,6 @@ export function buildEmploymentAgreementCommand(
 
   const termUid = stableUid(raw.termUid);
   if (!termUid) return failCommand("协议期限ID无效", 400, "termUid");
-  if (kind === "supplement-term") {
-    const patch = agreementTermPatch(raw.patch);
-    return patch.ok
-      ? okCommand({ kind, termUid, patch: patch.data, ...target.data, ...meta.data })
-      : patch;
-  }
   if (kind === "cancel-future") return okCommand({ kind, termUid, ...target.data, ...meta.data });
 
   if (kind === "end") {
@@ -213,14 +174,16 @@ export function buildEmploymentAgreementCommand(
       : failCommand("结束日期无效", 400, "effectiveThrough");
   }
 
-  const termKind = agreementTermKind(raw.termKind, ["initial", "renewal", "permanent"]);
-  if (!termKind) return failCommand("期限性质无效", 400, "termKind");
-  const period = agreementPeriod(raw, termKind);
+  const period = agreementPeriod(raw);
   if (!period.ok) return period;
   return okCommand({
     kind,
     termUid,
-    termKind,
+    termKind: raw.termKind === "permanent"
+      ? "permanent"
+      : raw.termKind === "renewal"
+        ? "renewal"
+        : "initial",
     ...period.data,
     ...target.data,
     ...meta.data,
@@ -241,42 +204,6 @@ export function employmentAgreementContentPatchFields(
   return Object.keys(patch).map((field) => `content.${field}`);
 }
 
-export function employmentAgreementTemporalContractIssue(
-  command: EmploymentAgreementCommand,
-  today = workspaceBusinessDate(new Date()),
-) {
-  if (businessTemporalRetrospectiveChanges(HR_EMPLOYMENT_AGREEMENT_TEMPORAL.policy) === "allow") return null;
-  const effectiveDate = command.kind === "create" || command.kind === "replace" || command.kind === "renew"
-    ? command.effectiveFrom
-    : command.kind === "end"
-      ? command.effectiveThrough
-      : null;
-  return effectiveDate && effectiveDate < today
-    ? "该合同期限不允许补录历史日期"
-    : null;
-}
-
-export function employmentAgreementTermOverlapIssue(
-  existing: Array<{ recordState: string; effectiveFrom: string | null; effectiveThrough: string | null }>,
-  proposed: { effectiveFrom: string; effectiveThrough: string | null },
-) {
-  if (HR_EMPLOYMENT_AGREEMENT_TEMPORAL.policy.overlaps === "allow") return null;
-  const proposedWindow = inclusiveBusinessPeriodToWindow({
-    validFrom: proposed.effectiveFrom,
-    validThrough: proposed.effectiveThrough,
-  });
-  if (!proposedWindow) return "合同期限无效";
-  const overlaps = existing.some((term) => {
-    if (term.recordState !== "confirmed" || !term.effectiveFrom) return false;
-    const window = inclusiveBusinessPeriodToWindow({
-      validFrom: term.effectiveFrom,
-      validThrough: term.effectiveThrough,
-    });
-    return !window || businessDateWindowsOverlap(window, proposedWindow);
-  });
-  return overlaps ? "合同期限不能与已有期限重叠" : null;
-}
-
 function existingTarget(raw: Record<string, unknown>) {
   const agreementUid = stableUid(raw.agreementUid);
   if (!agreementUid) return failCommand("协议ID无效", 400, "agreementUid");
@@ -295,10 +222,7 @@ function commandMeta(raw: Record<string, unknown>) {
   return okCommand({ sourceKind, sourceRef, reason });
 }
 
-function agreementPeriod(
-  raw: Record<string, unknown>,
-  termKind: "initial" | "renewal" | "permanent",
-) {
+function agreementPeriod(raw: Record<string, unknown>) {
   const effectiveFrom = parseBusinessDate(raw.effectiveFrom);
   if (!effectiveFrom) return failCommand("协议开始日期无效", 400, "effectiveFrom");
   const effectiveThrough = raw.effectiveThrough == null || raw.effectiveThrough === ""
@@ -310,45 +234,7 @@ function agreementPeriod(
   if (effectiveThrough && effectiveFrom > effectiveThrough) {
     return failCommand("协议开始日期不能晚于到期日期", 409, "effectiveThrough");
   }
-  if (termKind === "permanent" && effectiveThrough) {
-    return failCommand("无固定期限不得填写到期日期", 409, "effectiveThrough");
-  }
-  if (termKind !== "permanent" && !effectiveThrough) {
-    return failCommand("固定期限必须填写到期日期", 400, "effectiveThrough");
-  }
   return okCommand({ effectiveFrom, effectiveThrough });
-}
-
-function agreementTermKind<T extends "initial" | "renewal" | "permanent">(
-  value: unknown,
-  allowed: readonly T[],
-): T | null {
-  return typeof value === "string" && (allowed as readonly string[]).includes(value)
-    ? value as T
-    : null;
-}
-
-function agreementTermPatch(value: unknown): DomainValidationResult<EmploymentAgreementTermPatch> {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return failCommand("期限补充资料无效", 400, "patch");
-  }
-  const raw = value as Record<string, unknown>;
-  const keys = Object.keys(raw);
-  if (keys.length === 0 || keys.some((key) => key !== "effectiveFrom" && key !== "effectiveThrough")) {
-    return failCommand("期限补充字段无效", 400, "patch");
-  }
-  const patch: EmploymentAgreementTermPatch = {};
-  if (Object.hasOwn(raw, "effectiveFrom")) {
-    const effectiveFrom = parseBusinessDate(raw.effectiveFrom);
-    if (!effectiveFrom) return failCommand("协议开始日期无效", 400, "effectiveFrom");
-    patch.effectiveFrom = effectiveFrom;
-  }
-  if (Object.hasOwn(raw, "effectiveThrough")) {
-    const effectiveThrough = parseBusinessDate(raw.effectiveThrough);
-    if (!effectiveThrough) return failCommand("协议到期日期无效", 400, "effectiveThrough");
-    patch.effectiveThrough = effectiveThrough;
-  }
-  return okCommand(patch);
 }
 
 function agreementContent(value: unknown) {
@@ -393,6 +279,57 @@ function agreementContentPatch(value: unknown) {
     key,
     parsed.data[key as keyof EmploymentAgreementContent],
   ])) as EmploymentAgreementContentPatch);
+}
+
+function agreementSupplementPatch(value: unknown): DomainValidationResult<EmploymentAgreementSupplementPatch> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return failCommand("协议缺失资料变更无效", 400, "patch");
+  }
+  const raw = value as Record<string, unknown>;
+  if (Object.keys(raw).some((key) => key !== "content" && key !== "terms")) {
+    return failCommand("协议缺失资料字段无效", 400, "patch");
+  }
+  let content: EmploymentAgreementContentPatch = {};
+  if (raw.content !== undefined) {
+    const parsedContent = agreementContentPatch(raw.content);
+    if (!parsedContent.ok) return parsedContent;
+    content = parsedContent.data;
+  }
+  const terms = termPatches(raw.terms);
+  if (!terms.ok) return terms;
+  if (Object.keys(content).length === 0 && terms.data.length === 0) {
+    return failCommand("至少提交一个协议缺失字段", 400, "patch");
+  }
+  return okCommand({ content, terms: terms.data });
+}
+
+function termPatches(value: unknown): DomainValidationResult<EmploymentAgreementTermPatch[]> {
+  if (value === undefined) return okCommand([]);
+  if (!Array.isArray(value) || value.length > 20) return failCommand("协议期限补充资料无效", 400, "patch.terms");
+  const patches: EmploymentAgreementTermPatch[] = [];
+  const seen = new Set<string>();
+  for (const valueItem of value) {
+    if (!valueItem || typeof valueItem !== "object" || Array.isArray(valueItem)) return failCommand("协议期限补充资料无效", 400, "patch.terms");
+    const item = valueItem as Record<string, unknown>;
+    if (Object.keys(item).some((key) => !["termUid", "effectiveFrom", "effectiveThrough"].includes(key))) {
+      return failCommand("协议期限补充字段无效", 400, "patch.terms");
+    }
+    const termUid = stableUid(item.termUid);
+    if (!termUid || seen.has(termUid)) return failCommand("协议期限ID无效或重复", 400, "patch.terms");
+    const patch: EmploymentAgreementTermPatch = { termUid };
+    for (const field of ["effectiveFrom", "effectiveThrough"] as const) {
+      if (item[field] === undefined) continue;
+      const date = parseBusinessDate(item[field]);
+      if (!date) return failCommand(`${employmentAgreementFieldLabel("supplement-missing", field)}无效`, 400, `patch.terms.${field}`);
+      patch[field] = date;
+    }
+    if (patch.effectiveFrom === undefined && patch.effectiveThrough === undefined) {
+      return failCommand("至少提交一个协议期限字段", 400, "patch.terms");
+    }
+    seen.add(termUid);
+    patches.push(patch);
+  }
+  return okCommand(patches);
 }
 
 function optionalDate(value: unknown): BusinessDate | null | "invalid" {

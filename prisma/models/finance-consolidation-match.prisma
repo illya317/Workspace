@@ -60,6 +60,7 @@ model FinanceVoucherCompanyMappingRule {
   id                Int      @id @default(autoincrement())
   purpose           String // investmentInvestee
   sourceCompanyCode String
+  sourceCompanyId   Int?
   linkedCompanyId   Int
   voucherDate       String?
   voucherNo         String?
@@ -70,8 +71,10 @@ model FinanceVoucherCompanyMappingRule {
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @default(now()) @updatedAt
+  sourceCompany     Company? @relation("FinanceVoucherCompanyMappingRuleSourceCompany", fields: [sourceCompanyId], references: [id], onDelete: Restrict)
   linkedCompany     Company  @relation(fields: [linkedCompanyId], references: [id], onDelete: Restrict)
 
   @@index([purpose, sourceCompanyCode, isActive, priority], map: "FinanceVoucherCompanyMappingRule_purpose_sourceCompanyCode_isAc")
+  @@index([sourceCompanyId])
   @@index([linkedCompanyId])
 }

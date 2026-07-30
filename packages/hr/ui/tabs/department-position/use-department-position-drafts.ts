@@ -6,6 +6,7 @@ import type {
   DescriptionDraft,
   Position,
   PositionDraft,
+  OrganizationCodeConfig,
 } from "./types";
 import { composePositionCode, positionCodeSuffix } from "./utils";
 import {
@@ -26,10 +27,12 @@ export function useDepartmentPositionDrafts({
   departmentById,
   selectedDepartment,
   selectedPosition,
+  codeConfig,
 }: {
   departmentById: Map<number, Department>;
   selectedDepartment: Department | undefined;
   selectedPosition: Position | undefined;
+  codeConfig: OrganizationCodeConfig | null;
 }) {
   const [draft, setDraft] = useState<PositionDraft | null>(null);
   const [descriptionDraft, setDescriptionDraft] = useState<DescriptionDraft | null>(null);
@@ -76,18 +79,26 @@ export function useDepartmentPositionDrafts({
       return {
         ...prev,
         departmentId,
-        code: composePositionCode(department, positionCodeSuffix(prev.code), prev.code),
+        code: codeConfig
+          ? composePositionCode(department, positionCodeSuffix(prev.code, codeConfig), prev.code, codeConfig)
+          : prev.code,
       };
     });
   }
 
   function updateDraftCodeSuffix(value: string, pad = false) {
-    const digits = value.replace(/\D/g, "").slice(0, 2);
-    const suffix = pad && digits.length === 1 ? digits.padStart(2, "0") : digits;
+    const length = codeConfig?.position.sequenceLength ?? 0;
+    const digits = value.replace(/\D/g, "").slice(0, length);
+    const suffix = pad ? digits.padStart(length, "0") : digits;
     setDraft((prev) => {
       if (!prev) return prev;
       const department = prev.departmentId ? departmentById.get(prev.departmentId) : undefined;
-      return { ...prev, code: composePositionCode(department, suffix, prev.code) };
+      return {
+        ...prev,
+        code: codeConfig
+          ? composePositionCode(department, suffix, prev.code, codeConfig)
+          : prev.code,
+      };
     });
   }
 

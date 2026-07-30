@@ -1,7 +1,10 @@
 import { failCommand, okCommand } from "@workspace/platform/server/domain-validation";
 import type { PartyIdentityInput } from "@workspace/platform/server/party-directory";
-import { prisma } from "@workspace/platform/server/prisma";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
+import {
+  findCompanyGovernanceReference,
+  findCompanyIdByCode,
+} from "../company-reference-adapter";
 
 function nullableString(value: unknown) {
   return value === null || value === undefined || value === "" ? null : String(value).trim();
@@ -44,10 +47,7 @@ async function validateCompanyData(body: Record<string, unknown>, id?: number) {
   const identityData = companyIdentityData(body);
   const companyData = companyRoleData(body);
   if (!companyData.code || !identityData.name) return failCommand("请填写公司编码和简称");
-  const duplicate = await prisma.company.findFirst({
-    where: { code: companyData.code, ...(id ? { id: { not: id } } : {}) },
-    select: { id: true },
-  });
+  const duplicate = await findCompanyIdByCode(companyData.code, id);
   if (duplicate) return failCommand("公司编码已存在", 409, "code");
   return okCommand({ identityData, companyData });
 }
@@ -65,10 +65,7 @@ export async function buildCompanyUpdateCommand(body: Record<string, unknown>) {
   if (!Number.isInteger(version) || version < 0) return failCommand("公司版本无效，请刷新后重试", 400, "version");
   if (!Number.isInteger(partyVersion) || partyVersion < 0) return failCommand("主体版本无效，请刷新后重试", 400, "partyVersion");
   if (!Number.isInteger(legalFactRevision) || legalFactRevision < 0) return failCommand("法定事实版本无效，请刷新后重试", 400, "legalFactRevision");
-  const existing = await prisma.company.findUnique({
-    where: { id: id.data },
-    select: { id: true, party: { select: { fullName: true, legalRepresentative: true } } },
-  });
+  const existing = await findCompanyGovernanceReference(id.data);
   if (!existing) return failCommand("公司不存在", 404);
   const validated = await validateCompanyData(body, id.data);
   if (validated.ok && validated.data.identityData.fullName !== existing.party.fullName) {

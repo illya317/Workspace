@@ -18,6 +18,7 @@ function draft(overrides: Partial<ErpDiligenceSaveInput> = {}): ErpDiligenceSave
 
 const POSITION_SELECTION = {
   id: 71,
+  departmentId: 41,
   departmentName: " 销售部 ",
   positionName: " 销售内勤 ",
 };

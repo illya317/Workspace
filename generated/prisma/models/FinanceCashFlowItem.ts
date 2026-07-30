@@ -28,6 +28,7 @@ export type AggregateFinanceCashFlowItem = {
 
 export type FinanceCashFlowItemAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
   parentId: number | null
   firstYear: number | null
   lastYear: number | null
@@ -36,6 +37,7 @@ export type FinanceCashFlowItemAvgAggregateOutputType = {
 
 export type FinanceCashFlowItemSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
   parentId: number | null
   firstYear: number | null
   lastYear: number | null
@@ -45,6 +47,7 @@ export type FinanceCashFlowItemSumAggregateOutputType = {
 export type FinanceCashFlowItemMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   sourceSystem: string | null
   sourceLedger: string | null
   sourceCode: string | null
@@ -61,6 +64,7 @@ export type FinanceCashFlowItemMinAggregateOutputType = {
 export type FinanceCashFlowItemMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   sourceSystem: string | null
   sourceLedger: string | null
   sourceCode: string | null
@@ -77,6 +81,7 @@ export type FinanceCashFlowItemMaxAggregateOutputType = {
 export type FinanceCashFlowItemCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   sourceSystem: number
   sourceLedger: number
   sourceCode: number
@@ -94,6 +99,7 @@ export type FinanceCashFlowItemCountAggregateOutputType = {
 
 export type FinanceCashFlowItemAvgAggregateInputType = {
   id?: true
+  companyId?: true
   parentId?: true
   firstYear?: true
   lastYear?: true
@@ -102,6 +108,7 @@ export type FinanceCashFlowItemAvgAggregateInputType = {
 
 export type FinanceCashFlowItemSumAggregateInputType = {
   id?: true
+  companyId?: true
   parentId?: true
   firstYear?: true
   lastYear?: true
@@ -111,6 +118,7 @@ export type FinanceCashFlowItemSumAggregateInputType = {
 export type FinanceCashFlowItemMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceSystem?: true
   sourceLedger?: true
   sourceCode?: true
@@ -127,6 +135,7 @@ export type FinanceCashFlowItemMinAggregateInputType = {
 export type FinanceCashFlowItemMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceSystem?: true
   sourceLedger?: true
   sourceCode?: true
@@ -143,6 +152,7 @@ export type FinanceCashFlowItemMaxAggregateInputType = {
 export type FinanceCashFlowItemCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceSystem?: true
   sourceLedger?: true
   sourceCode?: true
@@ -246,6 +256,7 @@ export type FinanceCashFlowItemGroupByArgs<ExtArgs extends runtime.Types.Extensi
 export type FinanceCashFlowItemGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -285,6 +296,7 @@ export type FinanceCashFlowItemWhereInput = {
   NOT?: Prisma.FinanceCashFlowItemWhereInput | Prisma.FinanceCashFlowItemWhereInput[]
   id?: Prisma.IntFilter<"FinanceCashFlowItem"> | number
   companyCode?: Prisma.StringFilter<"FinanceCashFlowItem"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceCashFlowItem"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceCashFlowItem"> | string
   sourceLedger?: Prisma.StringFilter<"FinanceCashFlowItem"> | string
   sourceCode?: Prisma.StringFilter<"FinanceCashFlowItem"> | string
@@ -300,11 +312,13 @@ export type FinanceCashFlowItemWhereInput = {
   parent?: Prisma.XOR<Prisma.FinanceCashFlowItemNullableScalarRelationFilter, Prisma.FinanceCashFlowItemWhereInput> | null
   children?: Prisma.FinanceCashFlowItemListRelationFilter
   allocations?: Prisma.FinanceCashFlowAllocationListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceCashFlowItemOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceCode?: Prisma.SortOrder
@@ -320,6 +334,7 @@ export type FinanceCashFlowItemOrderByWithRelationInput = {
   parent?: Prisma.FinanceCashFlowItemOrderByWithRelationInput
   children?: Prisma.FinanceCashFlowItemOrderByRelationAggregateInput
   allocations?: Prisma.FinanceCashFlowAllocationOrderByRelationAggregateInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceCashFlowItemWhereUniqueInput = Prisma.AtLeast<{
@@ -329,6 +344,7 @@ export type FinanceCashFlowItemWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FinanceCashFlowItemWhereInput[]
   NOT?: Prisma.FinanceCashFlowItemWhereInput | Prisma.FinanceCashFlowItemWhereInput[]
   companyCode?: Prisma.StringFilter<"FinanceCashFlowItem"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceCashFlowItem"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceCashFlowItem"> | string
   sourceLedger?: Prisma.StringFilter<"FinanceCashFlowItem"> | string
   sourceCode?: Prisma.StringFilter<"FinanceCashFlowItem"> | string
@@ -344,11 +360,13 @@ export type FinanceCashFlowItemWhereUniqueInput = Prisma.AtLeast<{
   parent?: Prisma.XOR<Prisma.FinanceCashFlowItemNullableScalarRelationFilter, Prisma.FinanceCashFlowItemWhereInput> | null
   children?: Prisma.FinanceCashFlowItemListRelationFilter
   allocations?: Prisma.FinanceCashFlowAllocationListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "companyCode_sourceSystem_sourceLedger_sourceCode">
 
 export type FinanceCashFlowItemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceCode?: Prisma.SortOrder
@@ -373,6 +391,7 @@ export type FinanceCashFlowItemScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FinanceCashFlowItemScalarWhereWithAggregatesInput | Prisma.FinanceCashFlowItemScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"FinanceCashFlowItem"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceCashFlowItem"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceCashFlowItem"> | number | null
   sourceSystem?: Prisma.StringWithAggregatesFilter<"FinanceCashFlowItem"> | string
   sourceLedger?: Prisma.StringWithAggregatesFilter<"FinanceCashFlowItem"> | string
   sourceCode?: Prisma.StringWithAggregatesFilter<"FinanceCashFlowItem"> | string
@@ -401,11 +420,13 @@ export type FinanceCashFlowItemCreateInput = {
   parent?: Prisma.FinanceCashFlowItemCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutParentInput
   allocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCashFlowItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceCashFlowItemsInput
 }
 
 export type FinanceCashFlowItemUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -436,11 +457,13 @@ export type FinanceCashFlowItemUpdateInput = {
   parent?: Prisma.FinanceCashFlowItemUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceCashFlowItemUpdateManyWithoutParentNestedInput
   allocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCashFlowItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceCashFlowItemsNestedInput
 }
 
 export type FinanceCashFlowItemUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -459,6 +482,7 @@ export type FinanceCashFlowItemUncheckedUpdateInput = {
 export type FinanceCashFlowItemCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -488,6 +512,7 @@ export type FinanceCashFlowItemUpdateManyMutationInput = {
 export type FinanceCashFlowItemUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -526,6 +551,7 @@ export type FinanceCashFlowItemCompanyCodeSourceSystemSourceLedgerSourceCodeComp
 export type FinanceCashFlowItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceCode?: Prisma.SortOrder
@@ -541,6 +567,7 @@ export type FinanceCashFlowItemCountOrderByAggregateInput = {
 
 export type FinanceCashFlowItemAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   firstYear?: Prisma.SortOrder
   lastYear?: Prisma.SortOrder
@@ -550,6 +577,7 @@ export type FinanceCashFlowItemAvgOrderByAggregateInput = {
 export type FinanceCashFlowItemMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceCode?: Prisma.SortOrder
@@ -566,6 +594,7 @@ export type FinanceCashFlowItemMaxOrderByAggregateInput = {
 export type FinanceCashFlowItemMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceCode?: Prisma.SortOrder
@@ -581,6 +610,7 @@ export type FinanceCashFlowItemMinOrderByAggregateInput = {
 
 export type FinanceCashFlowItemSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   firstYear?: Prisma.SortOrder
   lastYear?: Prisma.SortOrder
@@ -706,6 +736,48 @@ export type FinanceCashFlowItemUncheckedUpdateManyWithoutLatestImportNestedInput
   deleteMany?: Prisma.FinanceCashFlowItemScalarWhereInput | Prisma.FinanceCashFlowItemScalarWhereInput[]
 }
 
+export type FinanceCashFlowItemCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceCashFlowItemCreateWithoutCompanyInput, Prisma.FinanceCashFlowItemUncheckedCreateWithoutCompanyInput> | Prisma.FinanceCashFlowItemCreateWithoutCompanyInput[] | Prisma.FinanceCashFlowItemUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceCashFlowItemCreateOrConnectWithoutCompanyInput | Prisma.FinanceCashFlowItemCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceCashFlowItemCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceCashFlowItemWhereUniqueInput | Prisma.FinanceCashFlowItemWhereUniqueInput[]
+}
+
+export type FinanceCashFlowItemUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceCashFlowItemCreateWithoutCompanyInput, Prisma.FinanceCashFlowItemUncheckedCreateWithoutCompanyInput> | Prisma.FinanceCashFlowItemCreateWithoutCompanyInput[] | Prisma.FinanceCashFlowItemUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceCashFlowItemCreateOrConnectWithoutCompanyInput | Prisma.FinanceCashFlowItemCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceCashFlowItemCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceCashFlowItemWhereUniqueInput | Prisma.FinanceCashFlowItemWhereUniqueInput[]
+}
+
+export type FinanceCashFlowItemUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceCashFlowItemCreateWithoutCompanyInput, Prisma.FinanceCashFlowItemUncheckedCreateWithoutCompanyInput> | Prisma.FinanceCashFlowItemCreateWithoutCompanyInput[] | Prisma.FinanceCashFlowItemUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceCashFlowItemCreateOrConnectWithoutCompanyInput | Prisma.FinanceCashFlowItemCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceCashFlowItemUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceCashFlowItemUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceCashFlowItemCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceCashFlowItemWhereUniqueInput | Prisma.FinanceCashFlowItemWhereUniqueInput[]
+  disconnect?: Prisma.FinanceCashFlowItemWhereUniqueInput | Prisma.FinanceCashFlowItemWhereUniqueInput[]
+  delete?: Prisma.FinanceCashFlowItemWhereUniqueInput | Prisma.FinanceCashFlowItemWhereUniqueInput[]
+  connect?: Prisma.FinanceCashFlowItemWhereUniqueInput | Prisma.FinanceCashFlowItemWhereUniqueInput[]
+  update?: Prisma.FinanceCashFlowItemUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceCashFlowItemUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceCashFlowItemUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceCashFlowItemUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceCashFlowItemScalarWhereInput | Prisma.FinanceCashFlowItemScalarWhereInput[]
+}
+
+export type FinanceCashFlowItemUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceCashFlowItemCreateWithoutCompanyInput, Prisma.FinanceCashFlowItemUncheckedCreateWithoutCompanyInput> | Prisma.FinanceCashFlowItemCreateWithoutCompanyInput[] | Prisma.FinanceCashFlowItemUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceCashFlowItemCreateOrConnectWithoutCompanyInput | Prisma.FinanceCashFlowItemCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceCashFlowItemUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceCashFlowItemUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceCashFlowItemCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceCashFlowItemWhereUniqueInput | Prisma.FinanceCashFlowItemWhereUniqueInput[]
+  disconnect?: Prisma.FinanceCashFlowItemWhereUniqueInput | Prisma.FinanceCashFlowItemWhereUniqueInput[]
+  delete?: Prisma.FinanceCashFlowItemWhereUniqueInput | Prisma.FinanceCashFlowItemWhereUniqueInput[]
+  connect?: Prisma.FinanceCashFlowItemWhereUniqueInput | Prisma.FinanceCashFlowItemWhereUniqueInput[]
+  update?: Prisma.FinanceCashFlowItemUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceCashFlowItemUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceCashFlowItemUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceCashFlowItemUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceCashFlowItemScalarWhereInput | Prisma.FinanceCashFlowItemScalarWhereInput[]
+}
+
 export type FinanceCashFlowItemCreateWithoutChildrenInput = {
   companyCode: string
   sourceSystem: string
@@ -720,11 +792,13 @@ export type FinanceCashFlowItemCreateWithoutChildrenInput = {
   latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutCashFlowItemsInput
   parent?: Prisma.FinanceCashFlowItemCreateNestedOneWithoutChildrenInput
   allocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCashFlowItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceCashFlowItemsInput
 }
 
 export type FinanceCashFlowItemUncheckedCreateWithoutChildrenInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -758,11 +832,13 @@ export type FinanceCashFlowItemCreateWithoutParentInput = {
   latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutCashFlowItemsInput
   children?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutParentInput
   allocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCashFlowItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceCashFlowItemsInput
 }
 
 export type FinanceCashFlowItemUncheckedCreateWithoutParentInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -812,11 +888,13 @@ export type FinanceCashFlowItemUpdateWithoutChildrenInput = {
   latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutCashFlowItemsNestedInput
   parent?: Prisma.FinanceCashFlowItemUpdateOneWithoutChildrenNestedInput
   allocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCashFlowItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceCashFlowItemsNestedInput
 }
 
 export type FinanceCashFlowItemUncheckedUpdateWithoutChildrenInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -853,6 +931,7 @@ export type FinanceCashFlowItemScalarWhereInput = {
   NOT?: Prisma.FinanceCashFlowItemScalarWhereInput | Prisma.FinanceCashFlowItemScalarWhereInput[]
   id?: Prisma.IntFilter<"FinanceCashFlowItem"> | number
   companyCode?: Prisma.StringFilter<"FinanceCashFlowItem"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceCashFlowItem"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceCashFlowItem"> | string
   sourceLedger?: Prisma.StringFilter<"FinanceCashFlowItem"> | string
   sourceCode?: Prisma.StringFilter<"FinanceCashFlowItem"> | string
@@ -880,11 +959,13 @@ export type FinanceCashFlowItemCreateWithoutAllocationsInput = {
   latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutCashFlowItemsInput
   parent?: Prisma.FinanceCashFlowItemCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutParentInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceCashFlowItemsInput
 }
 
 export type FinanceCashFlowItemUncheckedCreateWithoutAllocationsInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -929,11 +1010,13 @@ export type FinanceCashFlowItemUpdateWithoutAllocationsInput = {
   latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutCashFlowItemsNestedInput
   parent?: Prisma.FinanceCashFlowItemUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceCashFlowItemUpdateManyWithoutParentNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceCashFlowItemsNestedInput
 }
 
 export type FinanceCashFlowItemUncheckedUpdateWithoutAllocationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -962,11 +1045,13 @@ export type FinanceCashFlowItemCreateWithoutLatestImportInput = {
   parent?: Prisma.FinanceCashFlowItemCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutParentInput
   allocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCashFlowItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceCashFlowItemsInput
 }
 
 export type FinanceCashFlowItemUncheckedCreateWithoutLatestImportInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -1007,9 +1092,71 @@ export type FinanceCashFlowItemUpdateManyWithWhereWithoutLatestImportInput = {
   data: Prisma.XOR<Prisma.FinanceCashFlowItemUpdateManyMutationInput, Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutLatestImportInput>
 }
 
+export type FinanceCashFlowItemCreateWithoutCompanyInput = {
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  sourceCode: string
+  sourceName: string
+  direction?: string | null
+  firstYear?: number | null
+  lastYear?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutCashFlowItemsInput
+  parent?: Prisma.FinanceCashFlowItemCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutParentInput
+  allocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCashFlowItemInput
+}
+
+export type FinanceCashFlowItemUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  sourceCode: string
+  sourceName: string
+  parentId?: number | null
+  direction?: string | null
+  firstYear?: number | null
+  lastYear?: number | null
+  latestImportId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceCashFlowItemUncheckedCreateNestedManyWithoutParentInput
+  allocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCashFlowItemInput
+}
+
+export type FinanceCashFlowItemCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceCashFlowItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceCashFlowItemCreateWithoutCompanyInput, Prisma.FinanceCashFlowItemUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceCashFlowItemCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceCashFlowItemCreateManyCompanyInput | Prisma.FinanceCashFlowItemCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceCashFlowItemUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceCashFlowItemWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceCashFlowItemUpdateWithoutCompanyInput, Prisma.FinanceCashFlowItemUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceCashFlowItemCreateWithoutCompanyInput, Prisma.FinanceCashFlowItemUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceCashFlowItemUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceCashFlowItemWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceCashFlowItemUpdateWithoutCompanyInput, Prisma.FinanceCashFlowItemUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceCashFlowItemUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceCashFlowItemScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceCashFlowItemUpdateManyMutationInput, Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutCompanyInput>
+}
+
 export type FinanceCashFlowItemCreateManyParentInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -1036,11 +1183,13 @@ export type FinanceCashFlowItemUpdateWithoutParentInput = {
   latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutCashFlowItemsNestedInput
   children?: Prisma.FinanceCashFlowItemUpdateManyWithoutParentNestedInput
   allocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCashFlowItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceCashFlowItemsNestedInput
 }
 
 export type FinanceCashFlowItemUncheckedUpdateWithoutParentInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1058,6 +1207,7 @@ export type FinanceCashFlowItemUncheckedUpdateWithoutParentInput = {
 export type FinanceCashFlowItemUncheckedUpdateManyWithoutParentInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1073,6 +1223,7 @@ export type FinanceCashFlowItemUncheckedUpdateManyWithoutParentInput = {
 export type FinanceCashFlowItemCreateManyLatestImportInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -1099,11 +1250,13 @@ export type FinanceCashFlowItemUpdateWithoutLatestImportInput = {
   parent?: Prisma.FinanceCashFlowItemUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceCashFlowItemUpdateManyWithoutParentNestedInput
   allocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCashFlowItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceCashFlowItemsNestedInput
 }
 
 export type FinanceCashFlowItemUncheckedUpdateWithoutLatestImportInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1121,6 +1274,7 @@ export type FinanceCashFlowItemUncheckedUpdateWithoutLatestImportInput = {
 export type FinanceCashFlowItemUncheckedUpdateManyWithoutLatestImportInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1129,6 +1283,73 @@ export type FinanceCashFlowItemUncheckedUpdateManyWithoutLatestImportInput = {
   direction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceCashFlowItemCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  sourceCode: string
+  sourceName: string
+  parentId?: number | null
+  direction?: string | null
+  firstYear?: number | null
+  lastYear?: number | null
+  latestImportId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceCashFlowItemUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  direction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutCashFlowItemsNestedInput
+  parent?: Prisma.FinanceCashFlowItemUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceCashFlowItemUpdateManyWithoutParentNestedInput
+  allocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCashFlowItemNestedInput
+}
+
+export type FinanceCashFlowItemUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  direction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutParentNestedInput
+  allocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCashFlowItemNestedInput
+}
+
+export type FinanceCashFlowItemUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  direction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1176,6 +1397,7 @@ export type FinanceCashFlowItemCountOutputTypeCountAllocationsArgs<ExtArgs exten
 export type FinanceCashFlowItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceLedger?: boolean
   sourceCode?: boolean
@@ -1191,12 +1413,14 @@ export type FinanceCashFlowItemSelect<ExtArgs extends runtime.Types.Extensions.I
   parent?: boolean | Prisma.FinanceCashFlowItem$parentArgs<ExtArgs>
   children?: boolean | Prisma.FinanceCashFlowItem$childrenArgs<ExtArgs>
   allocations?: boolean | Prisma.FinanceCashFlowItem$allocationsArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCashFlowItem$companyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceCashFlowItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeCashFlowItem"]>
 
 export type FinanceCashFlowItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceLedger?: boolean
   sourceCode?: boolean
@@ -1210,11 +1434,13 @@ export type FinanceCashFlowItemSelectCreateManyAndReturn<ExtArgs extends runtime
   updatedAt?: boolean
   latestImport?: boolean | Prisma.FinanceCashFlowItem$latestImportArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceCashFlowItem$parentArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCashFlowItem$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeCashFlowItem"]>
 
 export type FinanceCashFlowItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceLedger?: boolean
   sourceCode?: boolean
@@ -1228,11 +1454,13 @@ export type FinanceCashFlowItemSelectUpdateManyAndReturn<ExtArgs extends runtime
   updatedAt?: boolean
   latestImport?: boolean | Prisma.FinanceCashFlowItem$latestImportArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceCashFlowItem$parentArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCashFlowItem$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeCashFlowItem"]>
 
 export type FinanceCashFlowItemSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceLedger?: boolean
   sourceCode?: boolean
@@ -1246,21 +1474,24 @@ export type FinanceCashFlowItemSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceCashFlowItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "sourceSystem" | "sourceLedger" | "sourceCode" | "sourceName" | "parentId" | "direction" | "firstYear" | "lastYear" | "latestImportId" | "createdAt" | "updatedAt", ExtArgs["result"]["financeCashFlowItem"]>
+export type FinanceCashFlowItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "sourceSystem" | "sourceLedger" | "sourceCode" | "sourceName" | "parentId" | "direction" | "firstYear" | "lastYear" | "latestImportId" | "createdAt" | "updatedAt", ExtArgs["result"]["financeCashFlowItem"]>
 export type FinanceCashFlowItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   latestImport?: boolean | Prisma.FinanceCashFlowItem$latestImportArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceCashFlowItem$parentArgs<ExtArgs>
   children?: boolean | Prisma.FinanceCashFlowItem$childrenArgs<ExtArgs>
   allocations?: boolean | Prisma.FinanceCashFlowItem$allocationsArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCashFlowItem$companyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceCashFlowItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceCashFlowItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   latestImport?: boolean | Prisma.FinanceCashFlowItem$latestImportArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceCashFlowItem$parentArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCashFlowItem$companyArgs<ExtArgs>
 }
 export type FinanceCashFlowItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   latestImport?: boolean | Prisma.FinanceCashFlowItem$latestImportArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceCashFlowItem$parentArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCashFlowItem$companyArgs<ExtArgs>
 }
 
 export type $FinanceCashFlowItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1270,10 +1501,12 @@ export type $FinanceCashFlowItemPayload<ExtArgs extends runtime.Types.Extensions
     parent: Prisma.$FinanceCashFlowItemPayload<ExtArgs> | null
     children: Prisma.$FinanceCashFlowItemPayload<ExtArgs>[]
     allocations: Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>[]
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     sourceSystem: string
     sourceLedger: string
     sourceCode: string
@@ -1683,6 +1916,7 @@ export interface Prisma__FinanceCashFlowItemClient<T, Null = never, ExtArgs exte
   parent<T extends Prisma.FinanceCashFlowItem$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCashFlowItem$parentArgs<ExtArgs>>): Prisma.Prisma__FinanceCashFlowItemClient<runtime.Types.Result.GetResult<Prisma.$FinanceCashFlowItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.FinanceCashFlowItem$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCashFlowItem$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceCashFlowItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   allocations<T extends Prisma.FinanceCashFlowItem$allocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCashFlowItem$allocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  company<T extends Prisma.FinanceCashFlowItem$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCashFlowItem$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1714,6 +1948,7 @@ export interface Prisma__FinanceCashFlowItemClient<T, Null = never, ExtArgs exte
 export interface FinanceCashFlowItemFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceCashFlowItem", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceCashFlowItem", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceCashFlowItem", 'Int'>
   readonly sourceSystem: Prisma.FieldRef<"FinanceCashFlowItem", 'String'>
   readonly sourceLedger: Prisma.FieldRef<"FinanceCashFlowItem", 'String'>
   readonly sourceCode: Prisma.FieldRef<"FinanceCashFlowItem", 'String'>
@@ -2209,6 +2444,25 @@ export type FinanceCashFlowItem$allocationsArgs<ExtArgs extends runtime.Types.Ex
   take?: number
   skip?: number
   distinct?: Prisma.FinanceCashFlowAllocationScalarFieldEnum | Prisma.FinanceCashFlowAllocationScalarFieldEnum[]
+}
+
+/**
+ * FinanceCashFlowItem.company
+ */
+export type FinanceCashFlowItem$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

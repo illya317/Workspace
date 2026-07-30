@@ -37,8 +37,10 @@ test("preserves matrix scrolling defaults and caller overrides", () => {
   assert.match(resolveTablePresentation(undefined, "normal", { stickyHeader: true }).head, /\bsticky\b/);
 });
 
-test("balances ordinary columns while keeping numeric and explicit columns compact", () => {
-  assert.match(resolveDataTableLayoutClass(false), /\btable-fixed\b/);
+test("adapts ordinary columns while keeping numeric and explicit columns compact", () => {
+  assert.match(resolveDataTableLayoutClass(false), /\btable-auto\b/);
+  assert.doesNotMatch(resolveDataTableLayoutClass(false), /\btable-fixed\b/);
+  assert.match(resolveDataTableLayoutClass(true), /\btable-fixed\b/);
   assert.deepEqual(resolveStandardTableColumnWidths([
     {},
     { numeric: true },

@@ -57,6 +57,11 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     reason: "lookupFragment",
     description: "该接口只返回股权主体候选项；完整主体和持股事实由治理及股权数据源提供。",
   },
+  "/api/modules/external/related-parties/candidates": {
+    disposition: "excluded",
+    reason: "lookupFragment",
+    description: "该接口只返回当前用户可登记的客户或供应商 Party 候选；完整关联方名录由已登记的数据源提供。",
+  },
   "/api/modules/finance/analysis/budget": {
     disposition: "derived",
     sourceKeys: ["finance.budget.versions", "finance.budget.department-monthly", "finance.budget.research-monthly"],
@@ -88,6 +93,31 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     disposition: "derived",
     sourceKeys: ["finance.cost.shipments", "finance.cost.structure", "finance.cost.sales-salary"],
     reason: "成本总览是已登记成本明细事实的展示汇总。",
+  },
+  "/api/modules/finance/assets/code-preview": {
+    disposition: "excluded",
+    reason: "lookupFragment",
+    description: "资产编号预览只返回当前规则下的不占号候选，不是已经形成的资产事实。",
+  },
+  "/api/modules/finance/ledger/closing": {
+    disposition: "excluded",
+    reason: "workflowControl",
+    description: "关账运行、任务状态和阻断项是期间关账编排控制面；稳定财务事实由各 contributor 的已登记来源承载。",
+  },
+  "/api/modules/finance/ledger/closing/workpapers": {
+    disposition: "excluded",
+    reason: "workflowControl",
+    description: "关账底稿的编制、复核和版本状态用于关账工作流控制；其引用的凭证及业务事实由原 owner 数据源承载。",
+  },
+  "/api/modules/finance/tax": {
+    disposition: "excluded",
+    reason: "unstableComposite",
+    description: "当前税务工作区一次返回登记、计税底稿、申报、缴款、勾稽快照及嵌套明细，尚无各事实独立的有界分页读模型，不能把当前页面复合数组登记为完整数据源。",
+  },
+  "/api/modules/finance/treasury": {
+    disposition: "excluded",
+    reason: "unstableComposite",
+    description: "当前资金工作区一次返回银行账户、对账、借款、利息底稿及多层嵌套明细，尚无各事实独立的有界分页读模型，不能把当前页面复合数组登记为完整数据源。",
   },
   "/api/modules/hr/roster": {
     disposition: "derived",
@@ -209,6 +239,10 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates/[templateId]/lifecycle": "recursiveAnalysis",
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates/[templateId]/runtime": "recursiveAnalysis",
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates/contract": "recursiveAnalysis",
+  "/api/modules/finance/assets/export": "binary",
+  "/api/modules/finance/assets/reference-options": "lookupFragment",
+  "/api/modules/finance/tax/reference-options": "lookupFragment",
+  "/api/modules/finance/treasury/reference-options": "lookupFragment",
   "/api/modules/finance/ledger/export": "binary",
   "/api/modules/finance/ledger/group-account-options": "lookupFragment",
   "/api/modules/finance/ledger/consolidation-rules": "controlPlane",
@@ -255,6 +289,7 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/settings/account/routine": "controlPlane",
   "/api/settings/account/spaces": "controlPlane",
   "/api/settings/account/spaces/[targetType]/[targetId]/permissions": "controlPlane",
+  "/api/settings/admin/database-schema": "controlPlane",
   "/api/settings/admin/modules": "controlPlane",
   "/api/settings/admin/permission-grant-ledger": "controlPlane",
   "/api/settings/admin/permission-grants": "controlPlane",

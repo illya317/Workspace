@@ -129,12 +129,7 @@ function reportContentValue(reportPayload: unknown) {
   }
   const record = reportPayload as Record<string, unknown>;
   return "payload" in record
-    ? {
-        httpStatus: record.httpStatus ?? null,
-        payload: record.payload,
-        monthlyPeriods: record.monthlyPeriods ?? null,
-        equityRollforward: record.equityRollforward ?? null,
-      }
+    ? { httpStatus: record.httpStatus ?? null, payload: record.payload }
     : reportPayload;
 }
 

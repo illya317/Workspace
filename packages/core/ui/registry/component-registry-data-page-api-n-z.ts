@@ -3,8 +3,8 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 export const page_api_registry_entries = [
   {
     name: "Toolbar",
-    description: "PageSurface 内部统一工具栏 renderer；每页最多一个桌面固定短宽度搜索且禁止页面覆盖，期间导航可在保留前后切换的同时直接选择年、季度或月，桌面和移动动作均为纯图标，新增固定为 +，移动端自动收口为搜索行、主命令坞和筛选/更多底部面板",
-    composes: ["ActionButton", "ActionGlyph", "SearchInput", "SearchableOptionInput", "ToolbarOptionGroup", "FieldValueFilter", "DropdownSurface", "FloatingPortalSurface"],
+    description: "PageSurface 内部统一工具栏 renderer；每页最多一个桌面固定短宽度搜索且禁止页面覆盖，多组低频枚举条件可声明为 filter-panel 并在桌面折叠、移动端展开到筛选面板，期间导航可在保留前后切换的同时直接选择年、季度或月，桌面和移动动作均为纯图标，新增固定为 +",
+    composes: ["ActionButton", "ActionGlyph", "SearchInput", "SearchableOptionInput", "ToolbarOptionGroup", "ToolbarFilterPanel", "FieldValueFilter", "DropdownSurface", "FloatingPortalSurface"],
   },
   {
     name: "useFeedback",
@@ -54,7 +54,21 @@ export const page_api_registry_entries = [
         name: "toolbar",
         description: "页面级唯一工具区：搜索、筛选、刷新、导出、新建等都进入这里。",
         children: [
-          { name: "items", description: "工具项列表，具体渲染交给 Toolbar。" },
+          {
+            name: "items",
+            description: "工具项列表，具体渲染交给 Toolbar。",
+            children: [
+              {
+                name: "filter-panel",
+                description: "多组低频枚举筛选；桌面使用纯图标入口，移动端进入统一筛选面板。",
+                children: [
+                  { name: "label", description: "筛选入口的无障碍名称；Toolbar 不直接显示文字。" },
+                  { name: "fields", description: "字段 key、label、value、options、allLabel 与 onChange 声明。" },
+                  { name: "onReset", description: "可选的一次性重置回调。" },
+                ],
+              },
+            ],
+          },
           { name: "hidden", description: "隐藏页面工具栏。" },
         ],
       },
@@ -135,6 +149,8 @@ export const page_api_registry_entries = [
           { name: "visual.comparisonBars", description: "实际值与参考值对比。" },
           { name: "visual.tree", description: "树形层级可视化。" },
           { name: "visual.network", description: "自动布局的有向关系图。" },
+          { name: "visual.network.presentation", description: "diagram 用于结构图；map 用于力导向拓扑探索。" },
+          { name: "visual.network.map", description: "大规模关系地图：Core 统一负责拓扑社区、节点碰撞、圆形外环、方向悬停、局部返回和最小缩放，调用方只声明节点、边与交互意图。" },
           { name: "frame", description: "chart 专属面板标题和外框声明。" },
         ],
       },
@@ -162,8 +178,8 @@ export const page_api_registry_entries = [
   },
   {
     name: "VisualizationNetwork",
-    description: "VisualizationSurface 有向关系图 renderer；使用通用节点、边和分组声明，通过 G6 Combo、汇流母线与上下分层算法展示复杂关系。converging 按显式 layoutOrder 排序并将缺省项放在视觉中心；hierarchy 的每层独立居中，密集层统一使用等尺寸竖向节点，子节点块优先对齐到直属父节点，仅多子节点使用局部母线。组件只负责画布交互，数据导出由页面 Toolbar 统一承载。",
-    composes: [],
+    description: "VisualizationSurface 有向关系图 renderer；diagram 通过 G6 Combo、汇流母线与上下分层算法展示结构，map 通过中性圆点、连接度软饱和缩放、Louvain 社区、圆形装箱与单一外围圆环探索大规模拓扑。map 的方向悬停、局部返回和最小缩放均由 Core 控制；数据导出由页面 Toolbar 统一承载。",
+    composes: ["ActionGlyph"],
   },
   {
     name: "VisualizationGantt",

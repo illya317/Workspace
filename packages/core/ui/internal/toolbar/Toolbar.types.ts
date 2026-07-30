@@ -135,6 +135,23 @@ export interface ToolbarFieldFilterItem {
   referenceEndpoint?: string;
 }
 
+export interface ToolbarFilterPanelFieldSpec {
+  key: string;
+  label: string;
+  value: string;
+  options: InputOption[];
+  onChange: (value: string) => void;
+  allLabel?: string;
+}
+
+export interface ToolbarFilterPanelItem {
+  kind: "filter-panel";
+  key: string;
+  label?: string;
+  fields: ToolbarFilterPanelFieldSpec[];
+  onReset?: () => void;
+}
+
 export interface ToolbarColumnToggleItem {
   kind: "column-toggle";
   key: string;
@@ -282,6 +299,7 @@ export type ToolbarItem = {
   | ToolbarLabelItem
   | ToolbarOptionGroupItem
   | ToolbarFieldFilterItem
+  | ToolbarFilterPanelItem
   | ToolbarColumnToggleItem
   | ToolbarPageSizeItem
   | ToolbarPeriodItem

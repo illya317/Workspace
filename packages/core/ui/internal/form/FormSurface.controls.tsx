@@ -30,6 +30,16 @@ export function isInputField<T>(field: FormSurfaceItemSpec<T>): field is FormSur
   return !("kind" in field) || field.kind === "field";
 }
 
+export function isMultilineInputField<T>(field: FormSurfaceItemSpec<T>): field is FormSurfaceFieldSpec {
+  return isInputField(field) && field.spec.multiline === true;
+}
+
+export function resolveFormSurfaceFieldSpan<T>(
+  field: Exclude<FormSurfaceItemSpec<T>, { kind: "note" | "groupTitle" | "section" | "repeatable" }>,
+) {
+  return isMultilineInputField(field) ? "full" : field.span;
+}
+
 export function renderControl(field: FormSurfaceFieldSpec, density: InputSurfaceProps["density"]) {
   return (
     <InputSurface
@@ -264,14 +274,14 @@ function TagAppendReferenceCreatePanel({
           {create.description ? <div className="text-xs leading-5 text-slate-500">{create.description}</div> : null}
         </div>
       )}
-      <FieldGrid columns={layout.columns ?? 2} mode={layout.mode ?? "mixed"}>
+      <FieldGrid columns={layout.columns ?? 2} mode={layout.mode ?? "mixed"} fieldLayout={layout.fieldLayout ?? "inline"}>
         {create.fields.map((field) => (
           <FieldGrid.Cell
             key={field.key}
             label={field.label}
             required={isFormSurfaceFieldRequired(field)}
             hint={field.error ?? field.hint}
-            span={field.span}
+            span={resolveFormSurfaceFieldSpan(field)}
             rowSpan={field.rowSpan}
             mode={layout.mode ?? "mixed"}
           >

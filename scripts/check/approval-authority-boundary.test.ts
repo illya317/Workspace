@@ -35,9 +35,9 @@ test("only approved command seams can consume approval authorization", () => {
     .sort();
 
   assert.deepEqual(consumers, [
+    "packages/docs/server/approvals.ts",
     "packages/platform/server/approval-commit-authorization.ts",
     "packages/platform/server/business-action-executor.ts",
-    "packages/platform/server/docs-editor/approvals.ts",
     "packages/work/server/task-approval-commit.ts",
   ]);
 });
@@ -51,7 +51,7 @@ test("explicit workflow-approved writes stay behind capability-consuming approva
     .sort();
 
   assert.deepEqual(explicitBypassFiles, [
-    "packages/platform/server/docs-editor/approvals.ts",
+    "packages/docs/server/approvals.ts",
     "packages/work/server/task-approval-adapter.ts",
     "packages/work/server/task-approval-commit.ts",
   ]);

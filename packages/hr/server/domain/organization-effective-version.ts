@@ -99,6 +99,38 @@ export function organizationVersionAt<TPayload>(
   return matches[0] ?? null;
 }
 
+export function resolveSameDayCorrectionMeta<TPayload>(
+  rows: readonly OrganizationEffectiveVersion<TPayload>[],
+  meta: OrganizationLifecycleMeta,
+  label: string,
+): OrganizationLifecycleMeta {
+  if (meta.kind !== "schedule") return meta;
+  const target = organizationVersionAt(rows, meta.effectiveOn);
+  if (!target || target.validFrom !== meta.effectiveOn) return meta;
+  return {
+    ...meta,
+    kind: "correct",
+    targetVersionId: target.id,
+    reason: meta.reason ?? `同日直接修改${label}`,
+  };
+}
+
+export function organizationChangeIsNoOp<TPayload>(
+  rows: readonly OrganizationEffectiveVersion<TPayload>[],
+  meta: OrganizationLifecycleMeta,
+  payload: TPayload,
+) {
+  if (meta.kind !== "correct" && meta.kind !== "schedule") return false;
+  const target = meta.kind === "correct" && meta.targetVersionId
+    ? rows.find((row) => row.id === meta.targetVersionId)
+    : organizationVersionAt(rows, meta.effectiveOn);
+  if (!target) return false;
+  const current = target.payload as Record<string, unknown>;
+  const next = payload as Record<string, unknown>;
+  const keys = new Set([...Object.keys(current), ...Object.keys(next)]);
+  return [...keys].every((key) => Object.is(current[key], next[key]));
+}
+
 export function classifyOrganizationVersion<TPayload>(
   row: OrganizationEffectiveVersion<TPayload>,
   asOf: string,

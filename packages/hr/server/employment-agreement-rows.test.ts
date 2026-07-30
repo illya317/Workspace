@@ -43,7 +43,6 @@ function agreement(terms: Array<Record<string, unknown>>, missingFields: string[
       effectiveThrough: null,
       recordState: "confirmed",
       changeKind: "legacy",
-      supersedesId: null,
       reason: null,
       ...term,
     })),
@@ -71,7 +70,7 @@ test("overlapping confirmed renewal dates remain a complete baseline", () => {
   ]) as never, "2026-07-27");
   assert.equal(row.migrationState, "baseline");
   assert.equal(row.terms.length, 2);
-  assert.equal(row.expiryDate, "2026-12-31");
+  assert.equal(row.expiryDate, "2027-09-30");
   assert.equal(row.endDate, null);
 });
 
@@ -98,69 +97,4 @@ test("contract endDate is the recorded actual end rather than the contractual ex
   assert.equal(row.expiryDate, "2030-04-15");
   assert.equal(row.endDate, "2025-12-31");
   assert.equal(row.temporalState, "past");
-});
-
-test("correcting an old period keeps its business ordinal and does not replace the current period", () => {
-  const row = normalizedEmploymentAgreementRow(agreement([
-    {
-      id: 1,
-      sequence: 1,
-      termKind: "initial",
-      effectiveFrom: "2009-06-10",
-      effectiveThrough: "2014-06-09",
-      recordState: "superseded",
-    },
-    {
-      id: 2,
-      sequence: 2,
-      termKind: "permanent",
-      effectiveFrom: "2017-12-28",
-      effectiveThrough: null,
-      recordState: "confirmed",
-    },
-    {
-      id: 3,
-      sequence: 3,
-      termKind: "initial",
-      effectiveFrom: "2009-06-10",
-      effectiveThrough: "2014-06-09",
-      recordState: "confirmed",
-      changeKind: "correct",
-      supersedesId: 1,
-    },
-  ]) as never, "2026-07-27");
-
-  assert.equal(row.terms[2].storageSequence, 3);
-  assert.equal(row.terms[2].sequence, 1);
-  assert.equal(row.terms[1].sequence, 2);
-  assert.equal(row.permanentContractDate, "2017-12-28");
-  assert.equal(row.expiryDate, null);
-  assert.equal(row.temporalState, "current");
-});
-
-test("missing-field labels use the corrected period ordinal instead of append order", () => {
-  const row = normalizedEmploymentAgreementRow(agreement([
-    {
-      id: 1,
-      sequence: 1,
-      effectiveFrom: "2009-06-10",
-      effectiveThrough: null,
-      recordState: "superseded",
-    },
-    {
-      id: 2,
-      sequence: 2,
-      effectiveFrom: "2009-06-10",
-      effectiveThrough: null,
-      recordState: "confirmed",
-      changeKind: "correct",
-      supersedesId: 1,
-    },
-  ], ["terms.2.effectiveThrough"]) as never, "2026-07-27");
-
-  assert.deepEqual(row.missingFields, [{
-    path: "terms.2.effectiveThrough",
-    label: "第 1 期到期日期",
-    required: false,
-  }]);
 });

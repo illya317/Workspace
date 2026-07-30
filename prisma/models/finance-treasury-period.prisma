@@ -1,0 +1,144 @@
+/// 期间银行对账工作底稿（事实表，来源于 Workspace 手工维护或受治理银行底稿导入）
+model FinanceBankReconciliation {
+  id                     Int                              @id @default(autoincrement())
+  bankAccountId          Int
+  periodId               Int
+  statementDate          DateTime                         @db.Date
+  statementEndingBalance Decimal                          @db.Decimal(20, 2)
+  ledgerEndingBalance    Decimal                          @db.Decimal(20, 2)
+  status                 String                           @default("draft")
+  conclusion             String?
+  evidenceRef            String?
+  sourceKind             String?
+  sourceReleaseId        String?
+  sourceSha256           String?
+  sourceFile             String?
+  sourceSheet            String?
+  sourceRow              Int?
+  sourceRange            String?
+  sourceKey              String?
+  version                Int                              @default(1)
+  createdAt              DateTime                         @default(now())
+  updatedAt              DateTime                         @default(now()) @updatedAt
+  bankAccount            FinanceBankAccount               @relation(fields: [bankAccountId], references: [id], onDelete: Restrict)
+  period                 FinancePeriod                    @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  items                  FinanceBankReconciliationItem[]
+
+  @@unique([bankAccountId, periodId])
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([periodId, status])
+}
+
+/// 银行对账未达项目（事实表，来源于银行流水、总账分录或人工识别）
+model FinanceBankReconciliationItem {
+  id               Int                         @id @default(autoincrement())
+  reconciliationId Int
+  voucherItemId    Int?
+  itemKind         String
+  occurredOn       DateTime?                   @db.Date
+  referenceNo      String?
+  description      String
+  amount           Decimal                     @db.Decimal(20, 2)
+  clearedOn        DateTime?                   @db.Date
+  status           String                      @default("open")
+  sourceKind       String?
+  sourceReleaseId  String?
+  sourceSha256     String?
+  sourceFile       String?
+  sourceSheet      String?
+  sourceRow        Int?
+  sourceRange      String?
+  sourceKey        String?
+  version          Int                         @default(1)
+  createdAt        DateTime                    @default(now())
+  updatedAt        DateTime                    @default(now()) @updatedAt
+  reconciliation   FinanceBankReconciliation   @relation(fields: [reconciliationId], references: [id], onDelete: Restrict)
+  voucherItem      FinanceVoucherItem?         @relation(fields: [voucherItemId], references: [id], onDelete: Restrict)
+
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([reconciliationId, status])
+  @@index([voucherItemId])
+}
+
+/// 期间利息计提工作底稿（事实表，来源于借款条款、期间和人工确认的计算输入）
+model FinanceInterestWorkpaper {
+  id                 Int                           @id @default(autoincrement())
+  loanId             Int
+  periodId           Int
+  status             String                        @default("draft")
+  calculationVersion String
+  inputFingerprint   String
+  note               String?
+  sourceKind         String?
+  sourceReleaseId    String?
+  sourceSha256       String?
+  sourceFile         String?
+  sourceSheet        String?
+  sourceRow          Int?
+  sourceRange        String?
+  sourceKey          String?
+  version            Int                           @default(1)
+  createdAt          DateTime                      @default(now())
+  updatedAt          DateTime                      @default(now()) @updatedAt
+  loan               FinanceLoan                   @relation(fields: [loanId], references: [id], onDelete: Restrict)
+  period             FinancePeriod                 @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  lines              FinanceInterestWorkpaperLine[]
+  voucherLinks       FinanceInterestVoucherLink[]
+
+  @@unique([loanId, periodId])
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([periodId, status])
+}
+
+/// 利息底稿分段计息输入（事实表，来源于本金事件、利率条款或受治理底稿导入）
+model FinanceInterestWorkpaperLine {
+  id                           Int                      @id @default(autoincrement())
+  workpaperId                  Int
+  lineNo                       Int
+  accrualFrom                  DateTime                 @db.Date
+  accrualThrough               DateTime                 @db.Date
+  principalBasis              Decimal                  @db.Decimal(20, 2)
+  annualRate                   Decimal                  @db.Decimal(18, 10)
+  dayCount                     Int
+  sourceReportedInterestAmount Decimal?                 @db.Decimal(20, 2)
+  note                         String?
+  sourceKind                   String?
+  sourceReleaseId              String?
+  sourceSha256                 String?
+  sourceFile                   String?
+  sourceSheet                  String?
+  sourceRow                    Int?
+  sourceRange                  String?
+  sourceKey                    String?
+  createdAt                    DateTime                 @default(now())
+  workpaper                    FinanceInterestWorkpaper @relation(fields: [workpaperId], references: [id], onDelete: Restrict)
+
+  @@unique([workpaperId, lineNo])
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([workpaperId, accrualFrom, accrualThrough], map: "FinanceInterestLine_workpaper_period_idx")
+}
+
+/// 利息底稿与总账分录的分配链接（事实表，来源于人工勾稽或受治理凭证匹配）
+model FinanceInterestVoucherLink {
+  id            Int                       @id @default(autoincrement())
+  workpaperId   Int
+  voucherItemId Int
+  linkKind      String
+  amount        Decimal                   @db.Decimal(20, 2)
+  note          String?
+  sourceKind    String?
+  sourceReleaseId String?
+  sourceSha256  String?
+  sourceFile    String?
+  sourceSheet   String?
+  sourceRow     Int?
+  sourceRange   String?
+  sourceKey     String?
+  createdAt     DateTime                  @default(now())
+  workpaper     FinanceInterestWorkpaper  @relation(fields: [workpaperId], references: [id], onDelete: Restrict)
+  voucherItem   FinanceVoucherItem        @relation(fields: [voucherItemId], references: [id], onDelete: Restrict)
+
+  @@unique([workpaperId, voucherItemId, linkKind], map: "FinanceInterestVoucher_workpaper_item_kind_key")
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([voucherItemId])
+}

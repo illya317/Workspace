@@ -6,6 +6,8 @@ import net from "node:net";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { superviseNextDev } from "./local-dev-supervisor.mjs";
+
 export const LOCAL_DEV_PORT = 3000;
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -13,6 +15,7 @@ const lockPath = path.join(repositoryRoot, ".cache/runtime/local-dev-server.lock
 const nextCliPath = path.join(repositoryRoot, "node_modules/next/dist/bin/next");
 const prismaCliPath = path.join(repositoryRoot, "node_modules/prisma/build/index.js");
 const workspaceCheckPath = path.join(repositoryRoot, "scripts/check/check-workspace-runtime.js");
+const sourceCodeAnalysisPath = path.join(repositoryRoot, "scripts/arch/source-code-analysis/cli.ts");
 
 export function assertFixedDevArguments(args) {
   if (args.length === 0) return;
@@ -140,30 +143,28 @@ async function runDevelopmentMigrations() {
   }
 }
 
-async function runNextDev() {
-  const child = spawn(process.execPath, [nextCliPath, "dev", "--port", String(LOCAL_DEV_PORT)], {
+async function runSourceCodeAnalysisSnapshot() {
+  const child = spawn(process.execPath, ["--import", "tsx", sourceCodeAnalysisPath, "--write", "--optional"], {
     cwd: repositoryRoot,
-    env: { ...process.env, PORT: String(LOCAL_DEV_PORT) },
+    env: process.env,
     stdio: "inherit",
   });
-
-  const forwardSignal = (signal) => {
-    if (!child.killed) child.kill(signal);
-  };
-  const onSigint = () => forwardSignal("SIGINT");
-  const onSigterm = () => forwardSignal("SIGTERM");
-  process.on("SIGINT", onSigint);
-  process.on("SIGTERM", onSigterm);
-
-  try {
-    return await new Promise((resolve, reject) => {
-      child.once("error", reject);
-      child.once("exit", (code, signal) => resolve({ code, signal }));
-    });
-  } finally {
-    process.off("SIGINT", onSigint);
-    process.off("SIGTERM", onSigterm);
+  const result = await new Promise((resolve) => {
+    child.once("error", (error) => resolve({ code: 1, signal: null, error }));
+    child.once("exit", (code, signal) => resolve({ code, signal }));
+  });
+  if (result.code !== 0) {
+    console.warn("[警告] 源码分析 snapshot 未生成；本地应用继续启动，严格声明检查由 gate:domain 负责。", result.error ?? "");
   }
+}
+
+async function runNextDev() {
+  return superviseNextDev({
+    repositoryRoot,
+    nextCliPath,
+    port: LOCAL_DEV_PORT,
+    isPortAvailable: () => isPortAvailable(LOCAL_DEV_PORT),
+  });
 }
 
 export async function main(args = process.argv.slice(2)) {
@@ -177,6 +178,7 @@ export async function main(args = process.argv.slice(2)) {
 
     await runWorkspacePreflight();
     await runDevelopmentMigrations();
+    await runSourceCodeAnalysisSnapshot();
     await fs.rm(path.join(repositoryRoot, ".next"), { recursive: true, force: true });
     const result = await runNextDev();
     if (result.code !== null) return result.code;

@@ -8,6 +8,9 @@ export { default as FinanceDepartmentOperationalAnalysisView } from "./cost/Fina
 export { default as FinancePersonalOperationalAnalysisView } from "./cost/FinancePersonalShipmentView";
 export { default as FinanceOperationalAnalysisPage } from "./cost/FinanceOperationalAnalysisPage";
 export { default as LedgerClient } from "./ledger/LedgerClient";
+export { default as AssetsClient } from "./assets/AssetsClient";
+export { default as TreasuryClient } from "./treasury/TreasuryClient";
+export { default as TaxClient } from "./tax/TaxClient";
 export { default as StatementsClient } from "./statements/StatementsClient";
 export { getAccountColumns } from "./components/AccountTable";
 export { getBaseItemColumns } from "./components/VoucherItemTable";

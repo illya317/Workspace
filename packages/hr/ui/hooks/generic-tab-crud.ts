@@ -15,10 +15,6 @@ export function resolveGenericTabCrudCapabilities(
   };
 }
 
-export function canEditGenericTabRows(fields: readonly FieldConfig[], hasEditPermission: boolean) {
-  return hasEditPermission && fields.some((field) => field.editable === true);
-}
-
 export function genericTabCreateFields(fields: FieldConfig[]) {
   return fields.filter((field) => !field.hidden && (field.editable === true || field.createOnly === true));
 }

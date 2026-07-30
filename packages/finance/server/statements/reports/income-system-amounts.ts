@@ -24,6 +24,7 @@ async function computeFromVouchers(
     where: {
       voucher: {
         status: "posted",
+        statementExclusions: { none: { statementType: "income", enabled: true } },
         period: {
           companyCode,
           year,

@@ -1,5 +1,5 @@
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
-import { prisma } from "@workspace/platform/server/prisma";
+import { findActiveWorkGoalApprovalRequest } from "./task-approval-reference-adapter";
 
 export async function assertNoActiveWorkGoalRequest(input: {
   businessActionKey: string | null | undefined;
@@ -9,15 +9,10 @@ export async function assertNoActiveWorkGoalRequest(input: {
   if (!input.businessActionKey?.startsWith("work.tasks.goal.") || !input.subjectId) {
     return serviceOk({ ok: true as const });
   }
-  const existing = await prisma.approvalRequest.findFirst({
-    where: {
-      subjectType: "work.task",
-      subjectId: input.subjectId,
-      businessActionKey: input.businessActionKey,
-      status: { in: input.includeDraft ? ["draft", "submitted", "committing"] : ["submitted", "committing"] },
-    },
-    select: { id: true, status: true },
-    orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+  const existing = await findActiveWorkGoalApprovalRequest({
+    businessActionKey: input.businessActionKey,
+    subjectId: input.subjectId,
+    includeDraft: input.includeDraft,
   });
   return existing
     ? serviceError(`已有未结束的目标/结果申请（${existing.id}，${existing.status}），请继续处理原申请`, 409)

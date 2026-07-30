@@ -17,6 +17,7 @@ export const REPORT_OPTIONS = [
 ];
 
 export const ENTRY_TYPE_OPTIONS: { value: ConsolidationEntryType; label: string }[] = [
+  { value: "groupAdjustment", label: "集团调整" },
   { value: "investmentEquity", label: "投资与权益" },
   { value: "reclassification", label: "重分类" },
   { value: "nonControllingInterest", label: "少数股东" },
@@ -33,7 +34,7 @@ export const CONTROL_OPTIONS: { value: ConsolidationControlKey; label: string }[
   { value: "sources", label: "个别三表来源" },
   { value: "fx", label: "外币折算" },
   ...ENTRY_TYPE_OPTIONS
-    .filter((option) => option.value !== "reclassification")
+    .filter((option) => option.value !== "groupAdjustment" && option.value !== "reclassification")
     .map((option) => ({ value: `elimination:${option.value}` as const, label: `${option.label}抵销` })),
   { value: "tax", label: "税务影响" },
 ];

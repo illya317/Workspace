@@ -108,3 +108,29 @@ test("social insurance supplement accepts only explicit missing-field patch valu
     reason: "补录",
   }).ok, false);
 });
+
+test("social insurance correction requires a reason and preserves explicit nulls", () => {
+  assert.deepEqual(buildEmployeeSocialInsuranceCommand({
+    kind: "correct-existing",
+    periodUid: "f2799f26-64d9-4a28-accc-979abf4e3d9d",
+    expectedVersion: 3,
+    patch: { insuranceStatus: "insured", endMonth: null, stopReason: null, note: "  原记录录错  " },
+    reason: "  根据社保回执纠正  ",
+  }), {
+    ok: true,
+    data: {
+      kind: "correct-existing",
+      periodUid: "f2799f26-64d9-4a28-accc-979abf4e3d9d",
+      expectedVersion: 3,
+      patch: { insuranceStatus: "insured", endMonth: null, stopReason: null, note: "原记录录错" },
+      reason: "根据社保回执纠正",
+    },
+  });
+  assert.equal(buildEmployeeSocialInsuranceCommand({
+    kind: "correct-existing",
+    periodUid: "f2799f26-64d9-4a28-accc-979abf4e3d9d",
+    expectedVersion: 3,
+    patch: { insuranceStatus: "insured" },
+    reason: "",
+  }).ok, false);
+});

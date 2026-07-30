@@ -9,7 +9,7 @@ import { formatPhoneNumber, normalizeChineseIdNumber, normalizePhoneValue } from
 import { fromPercentDisplay, normalizeInputValue, toPercentDisplay } from "./profile-input-utils";
 import { majorOptions, normalizeRank, rankGroups, readAliasTags, serializeAliasTags } from "./EmployeeProfileFieldOptions";
 
-type EditableRecord = Record<string, unknown> & { id?: number; isNew?: boolean };
+type EditableRecord = Record<string, unknown> & { id?: string | number; isNew?: boolean };
 
 export function profileFieldSpec(
   field: ProfileField,
@@ -18,9 +18,8 @@ export function profileFieldSpec(
   onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
   isFieldDisabled?: (field: ProfileField, record: EditableRecord) => boolean,
 ): FormSurfaceItemSpec<string> {
-  const disabledByStatus = record.isActive === true && (field.key === "leaveDate" || field.key === "leaveReason" || field.key === "leaveNote");
   const disabledByRule = isFieldDisabled?.(field, record) ?? false;
-  const fieldDisabled = disabled || field.readOnly || disabledByStatus || disabledByRule;
+  const fieldDisabled = disabled || field.readOnly || disabledByRule;
   const base = {
     key: field.key,
     label: field.label,

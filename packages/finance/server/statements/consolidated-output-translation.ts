@@ -1,19 +1,16 @@
-import type {
-  ConsolidatedOutputLine,
-  StatementReportType,
-} from "@workspace/finance/types";
+import type { ConsolidatedOutputLine, StatementReportType } from "@workspace/finance/types";
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
-
-import { consolidatedMoney as money } from "./consolidated-line-amounts";
+import { recomputeBalance } from "./consolidated-output-balance-lines";
 import {
-  recomputeConsolidatedBalance,
-  recomputeConsolidatedCashFlow,
-} from "./consolidated-output-derivations";
-import { cnyPerForeignUnit, historicalEquityTranslation } from "./consolidation-frozen-rates";
+  reconcileCadCashFlowTranslation,
+  type CashFlowMonthlySource,
+} from "./consolidated-output-cash-flow";
 import {
-  consolidationMonthEndDate,
-  consolidationPreviousMonthEndDate,
-} from "./consolidation-period-rates";
+  consolidatedMoney as money,
+  sumLineAmounts,
+  translatedCurrentMonthAmounts,
+} from "./consolidated-line-amounts";
+import { cnyPerForeignUnit, historicalEquityRate } from "./consolidation-frozen-rates";
 import type { ConsolidationReplayPackage } from "./consolidation-replay";
 
 type FrozenReportLine = Omit<ConsolidatedOutputLine, "sourceAmount" | "adjustmentAmount">;
@@ -23,14 +20,13 @@ const REPORT_LABELS: Record<StatementReportType, string> = {
   incomeStatement: "合并利润表",
   cashFlow: "合并现金流量表",
 };
+
 const CNY_CODES = new Set(["CNY", "RMB", "人民币"]);
-const HISTORICAL_EQUITY_LINE_CODES = new Set([
+const HISTORICAL_CAPITAL_LINE_CODES = new Set([
   "paidInCapital",
   "otherEquityInstruments",
   "capitalReserve",
   "treasuryStock",
-  "surplusReserve",
-  "undistributedProfit",
 ]);
 const TRANSLATION_DIFFERENCE_LINE_CODE = "otherComprehensiveIncome";
 
@@ -42,8 +38,10 @@ type EntityTranslationPolicy = {
   entityLabel: string;
   closingRate: number;
   comparativeClosingRate: number | null;
-  closingRates: Record<"current" | "comparative", ReadonlyMap<string, number>>;
-  monthlyAverageRates: Record<"current" | "comparative", ReadonlyMap<string, number>>;
+  historicalCapitalRate: number | null;
+  comparativeHistoricalCapitalRate: number | null;
+  flowRates: Record<"current" | "comparative", Map<string, number>>;
+  cashPointRates: Record<"current" | "comparative", Map<string, number>>;
 };
 
 function record(value: unknown): Record<string, unknown> | null {
@@ -60,19 +58,37 @@ function finiteNumber(value: unknown) {
   return Number.isFinite(number) ? number : null;
 }
 
-export function frozenPayloadLines(reportType: StatementReportType, reportPayload: unknown): unknown[] | null {
+function payloadMonthlyFlows(reportPayload: unknown, periodBasis: "current" | "comparative"): CashFlowMonthlySource[] | null {
   const envelope = record(reportPayload);
-  if (!envelope) return null;
-  const status = finiteNumber(envelope.httpStatus);
-  if (status !== null && (status < 200 || status >= 300)) return null;
-  const payload = record(envelope.payload) ?? envelope;
-  if (reportType === "balanceSheet") {
-    const assets = Array.isArray(payload.assets) ? payload.assets : [];
-    const liabilities = Array.isArray(payload.liabilities) ? payload.liabilities : [];
-    const equity = Array.isArray(payload.equity) ? payload.equity : [];
-    return [...assets, ...liabilities, ...equity];
-  }
-  return Array.isArray(payload.lines) ? payload.lines : null;
+  const facts = record(envelope?.translationFacts);
+  const monthlyFlows = record(facts?.monthlyFlows);
+  const rows = monthlyFlows?.[periodBasis];
+  if (!Array.isArray(rows)) return null;
+  return rows.flatMap((value) => {
+    const row = record(value);
+    if (typeof row?.periodEnd !== "string" || !Array.isArray(row.lines)) return [];
+    const lines = row.lines.flatMap((item) => {
+      const line = record(item);
+      const amount = finiteNumber(line?.amount);
+      return typeof line?.lineCode === "string" && amount !== null
+        ? [{ lineCode: line.lineCode, amount }]
+        : [];
+    });
+    return [{ periodEnd: row.periodEnd, lines }];
+  });
+}
+
+function retainedEarningsOpening(reportPayload: unknown) {
+  const envelope = record(reportPayload);
+  const facts = record(envelope?.translationFacts);
+  const opening = record(facts?.retainedEarningsOpening);
+  const amount = finiteNumber(opening?.openingAmount);
+  return typeof opening?.openingDate === "string"
+    && typeof opening?.presentationCurrencyCode === "string"
+    && typeof opening?.evidence === "string"
+    && amount !== null
+    ? { openingDate: opening.openingDate, currencyCode: opening.presentationCurrencyCode, amount, evidence: opening.evidence }
+    : null;
 }
 
 function parseFrozenLine(value: unknown): FrozenReportLine | null {
@@ -106,109 +122,45 @@ function parseFrozenLine(value: unknown): FrozenReportLine | null {
   };
 }
 
-interface FrozenMonthlyPeriod {
-  year: number;
-  month: number;
-  lines: Map<string, { label: string; amount: number }>;
-}
-
-function parseFrozenMonthlyPeriods(
-  reportPayload: unknown,
+function entityAppliedRate(
+  replay: ConsolidationReplayPackage,
+  entitySnapshotId: number,
   periodBasis: "current" | "comparative",
-  expectedYear: number,
-  throughMonth: number,
-): DomainValidationResult<FrozenMonthlyPeriod[]> {
-  const envelope = record(reportPayload);
-  const monthlyPeriods = record(envelope?.monthlyPeriods);
-  const rawPeriods = monthlyPeriods?.[periodBasis];
-  if (!Array.isArray(rawPeriods) || rawPeriods.length !== throughMonth) {
-    return failCommand("CAD 利润表及现金流量表来源必须冻结完整逐月发生额", 409, "reportPayload");
-  }
-  const periods: FrozenMonthlyPeriod[] = [];
-  for (let month = 1; month <= throughMonth; month += 1) {
-    const matches = rawPeriods.filter((value) => {
-      const row = record(value);
-      return Number(row?.year) === expectedYear && Number(row?.month) === month;
-    });
-    const rawPeriod = record(matches[0]);
-    if (matches.length !== 1 || !rawPeriod || !Array.isArray(rawPeriod.lines)) {
-      return failCommand(`CAD 来源缺少 ${expectedYear}-${String(month).padStart(2, "0")} 月发生额`, 409, "reportPayload");
-    }
-    const lines = new Map<string, { label: string; amount: number }>();
-    for (const value of rawPeriod.lines) {
-      const row = record(value);
-      const lineCode = typeof row?.lineCode === "string" ? row.lineCode.trim() : "";
-      const label = typeof row?.label === "string" ? row.label.trim() : "";
-      const amount = finiteNumber(row?.amount);
-      if (!lineCode || !label || amount === null || lines.has(lineCode)) {
-        return failCommand(`CAD 来源 ${expectedYear}-${String(month).padStart(2, "0")} 月发生额行无效或重复`, 409, "reportPayload");
-      }
-      lines.set(lineCode, { label, amount });
-    }
-    periods.push({ year: expectedYear, month, lines });
-  }
-  return okCommand(periods);
-}
-
-function monthlySourceAmount(period: FrozenMonthlyPeriod, line: FrozenReportLine) {
-  const source = period.lines.get(line.lineCode);
-  return source && source.label === line.label ? source.amount : null;
-}
-
-function translateMonthlyLine(
-  policy: Extract<EntityTranslationPolicy, { currency: "CAD" }>,
-  periods: FrozenMonthlyPeriod[],
-  line: FrozenReportLine,
-  periodBasis: "current" | "comparative",
-): DomainValidationResult<{ accumulated: number; currentMonth: number }> {
-  let accumulated = 0;
-  let currentMonth = 0;
-  for (const period of periods) {
-    const sourceAmount = monthlySourceAmount(period, line);
-    const targetDate = consolidationMonthEndDate(period.year, period.month);
-    const rate = policy.monthlyAverageRates[periodBasis].get(targetDate);
-    if (sourceAmount === null) {
-      return failCommand(`${policy.entityLabel} 的 ${targetDate} 来源缺少报表行 ${line.lineCode}`, 409, "reportPayload");
-    }
-    if (rate === undefined && sourceAmount !== 0) {
-      return failCommand(`${policy.entityLabel} 缺少 ${targetDate.slice(0, 7)} 月平均汇率`, 409, "rateApplications");
-    }
-    currentMonth = money(sourceAmount * (rate ?? 1));
-    accumulated = money(accumulated + currentMonth);
-  }
-  return okCommand({ accumulated, currentMonth });
+): DomainValidationResult<number | null> {
+  const matches = replay.exchangeRates.flatMap((rate) => rate.applications
+    .filter((application) => (
+      (rate.rateKind === "closing" || rate.rateKind === "centralParity")
+      && application.applicationType === "closing"
+      && application.periodBasis === periodBasis
+      && application.entitySnapshotId === entitySnapshotId
+    ))
+    .map(() => rate));
+  if (matches.length === 0) return okCommand(null);
+  if (matches.length !== 1) return failCommand(`CAD 实体 ${entitySnapshotId} 在同一期间必须且只能绑定一条期末汇率`, 409, "rateApplications");
+  return cnyPerForeignUnit(matches[0]!);
 }
 
 function entityAppliedRates(
   replay: ConsolidationReplayPackage,
   entitySnapshotId: number,
+  applicationType: "flowAverage" | "cashPoint",
   periodBasis: "current" | "comparative",
-  applicationType: "closing" | "monthlyAverage" = "closing",
-): DomainValidationResult<Map<string, number>> {
-  const matches = replay.exchangeRates.flatMap((rate) => rate.applications
-    .filter((application) => (
-      (applicationType === "closing"
-        ? rate.rateKind === "closing" || rate.rateKind === "centralParity"
-        : rate.rateKind === "monthlyAverage")
-      && application.applicationType === applicationType
-      && application.periodBasis === periodBasis
-      && application.entitySnapshotId === entitySnapshotId
-    ))
-    .map((application) => ({ rate, application })));
-  const byTargetDate = new Map<string, number>();
-  for (const { rate, application } of matches) {
-    if (byTargetDate.has(application.targetDate)) {
-      return failCommand(
-        `CAD 实体 ${entitySnapshotId} 的 ${application.targetDate} 重复绑定${applicationType === "closing" ? "期末" : "月平均"}汇率`,
-        409,
-        "rateApplications",
-      );
+) {
+  const result = new Map<string, number>();
+  for (const rate of replay.exchangeRates) {
+    for (const application of rate.applications) {
+      if (application.applicationType !== applicationType
+        || application.periodBasis !== periodBasis
+        || application.entitySnapshotId !== entitySnapshotId) continue;
+      const normalized = cnyPerForeignUnit(rate);
+      if (!normalized.ok) return normalized;
+      if (result.has(application.targetDate)) {
+        return failCommand(`CAD 实体 ${entitySnapshotId} 的 ${application.targetDate} 汇率重复绑定`, 409, "rateApplications");
+      }
+      result.set(application.targetDate, normalized.data);
     }
-    const normalized = cnyPerForeignUnit(rate);
-    if (!normalized.ok) return normalized;
-    byTargetDate.set(application.targetDate, normalized.data);
   }
-  return okCommand(byTargetDate);
+  return okCommand(result);
 }
 
 function buildEntityTranslationPolicy(
@@ -220,36 +172,42 @@ function buildEntityTranslationPolicy(
   if (functionalCurrency.toUpperCase() !== "CAD") {
     return failCommand(`暂不支持 ${functionalCurrency} 本位币的合并折算`, 409, "functionalCurrency");
   }
-  const closingRates = entityAppliedRates(replay, entitySnapshotId, "current");
-  if (!closingRates.ok) return closingRates;
-  const comparativeClosingRates = entityAppliedRates(replay, entitySnapshotId, "comparative");
-  if (!comparativeClosingRates.ok) return comparativeClosingRates;
-  const monthlyAverageRates = entityAppliedRates(replay, entitySnapshotId, "current", "monthlyAverage");
-  if (!monthlyAverageRates.ok) return monthlyAverageRates;
-  const comparativeMonthlyAverageRates = entityAppliedRates(replay, entitySnapshotId, "comparative", "monthlyAverage");
-  if (!comparativeMonthlyAverageRates.ok) return comparativeMonthlyAverageRates;
-  const periodEnd = consolidationMonthEndDate(replay.batch.year, replay.batch.month);
-  const closing = closingRates.data.get(periodEnd) ?? null;
-  if (closing === null) {
+  const closing = entityAppliedRate(replay, entitySnapshotId, "current");
+  if (!closing.ok) return closing;
+  if (closing.data === null) {
     return failCommand(`CAD 实体 ${entitySnapshotId} 缺少本期期末汇率`, 409, "rateApplications");
   }
+  const comparativeClosing = entityAppliedRate(replay, entitySnapshotId, "comparative");
+  if (!comparativeClosing.ok) return comparativeClosing;
+  const historicalCapital = historicalEquityRate(replay.exchangeRates, entitySnapshotId, "current");
+  if (!historicalCapital.ok) return historicalCapital;
+  const comparativeHistoricalCapital = historicalEquityRate(replay.exchangeRates, entitySnapshotId, "comparative");
+  if (!comparativeHistoricalCapital.ok) return comparativeHistoricalCapital;
+  const currentFlowRates = entityAppliedRates(replay, entitySnapshotId, "flowAverage", "current");
+  if (!currentFlowRates.ok) return currentFlowRates;
+  const comparativeFlowRates = entityAppliedRates(replay, entitySnapshotId, "flowAverage", "comparative");
+  if (!comparativeFlowRates.ok) return comparativeFlowRates;
+  const currentCashPointRates = entityAppliedRates(replay, entitySnapshotId, "cashPoint", "current");
+  if (!currentCashPointRates.ok) return currentCashPointRates;
+  const comparativeCashPointRates = entityAppliedRates(replay, entitySnapshotId, "cashPoint", "comparative");
+  if (!comparativeCashPointRates.ok) return comparativeCashPointRates;
   const entity = replay.entities.find((candidate) => candidate.id === entitySnapshotId);
   return okCommand({
     currency: "CAD",
     entitySnapshotId,
     entityLabel: entity ? `${entity.companyCode} ${entity.companyName}` : String(entitySnapshotId),
-    closingRate: closing,
-    comparativeClosingRate: closingRates.data.get(consolidationMonthEndDate(replay.batch.year - 1, 12)) ?? null,
-    closingRates: { current: closingRates.data, comparative: comparativeClosingRates.data },
-    monthlyAverageRates: {
-      current: monthlyAverageRates.data,
-      comparative: comparativeMonthlyAverageRates.data,
-    },
+    closingRate: closing.data,
+    comparativeClosingRate: comparativeClosing.data,
+    historicalCapitalRate: historicalCapital.data,
+    comparativeHistoricalCapitalRate: comparativeHistoricalCapital.data,
+    flowRates: { current: currentFlowRates.data, comparative: comparativeFlowRates.data },
+    cashPointRates: { current: currentCashPointRates.data, comparative: comparativeCashPointRates.data },
   });
 }
 
-function rateForBalanceLine(
+function rateForSourceLine(
   policy: EntityTranslationPolicy,
+  reportType: StatementReportType,
   line: FrozenReportLine,
   periodBasis: "current" | "comparative",
 ): DomainValidationResult<number> {
@@ -258,146 +216,39 @@ function rateForBalanceLine(
   if (sourceAmount === 0) return okCommand(1);
   const closingRate = periodBasis === "current" ? policy.closingRate : policy.comparativeClosingRate;
   if (closingRate === null) {
-    return failCommand(`${policy.entityLabel} 的合并资产负债表含非零上期数，但批次未冻结比较期期末汇率`, 409, "comparativeExchangeRates");
+    return failCommand(
+      `${policy.entityLabel} 的${REPORT_LABELS[reportType]}含非零上期数，但批次未冻结比较期期末汇率`,
+      409,
+      "comparativeExchangeRates",
+    );
   }
-  if (line.section === "equity" && HISTORICAL_EQUITY_LINE_CODES.has(line.lineCode)) {
-    return failCommand("历史权益项目必须按逐笔冻结事实折算", 409, "historicalEquityRates");
+  if (reportType !== "balanceSheet") return okCommand(closingRate);
+  if (line.isHeader || line.isTotal || line.isGrandTotal || line.section !== "equity") return okCommand(closingRate);
+  if (HISTORICAL_CAPITAL_LINE_CODES.has(line.lineCode)) {
+    const historicalRate = periodBasis === "current" ? policy.historicalCapitalRate : policy.comparativeHistoricalCapitalRate;
+    if (historicalRate === null) {
+      return failCommand(
+        `${policy.entityLabel} 存在非零${periodBasis === "current" ? "本期" : "比较期"}权益资本，但缺少该期间适用的投资日历史汇率及原币金额`,
+        409,
+        "historicalEquityRates",
+      );
+    }
+    return okCommand(historicalRate);
   }
   return okCommand(closingRate);
-}
-
-function translateCashBalanceLine(input: {
-  replay: ConsolidationReplayPackage;
-  policy: Extract<EntityTranslationPolicy, { currency: "CAD" }>;
-  line: FrozenReportLine;
-  currentPeriods: FrozenMonthlyPeriod[];
-  comparativePeriods: FrozenMonthlyPeriod[];
-}): DomainValidationResult<{ amount: number; currentMonthAmount: number; previousAmount: number }> {
-  const { replay, policy, line, currentPeriods, comparativePeriods } = input;
-  const currentFirst = currentPeriods[0]!;
-  const currentLast = currentPeriods[currentPeriods.length - 1]!;
-  const comparativeFirst = comparativePeriods[0]!;
-  const comparativeLast = comparativePeriods[comparativePeriods.length - 1]!;
-  const convert = (source: number | null, targetDate: string, periodBasis: "current" | "comparative") => {
-    if (source === null) return failCommand(`${policy.entityLabel} 的现金流量表来源缺少 ${line.lineCode}`, 409, "reportPayload");
-    const rate = policy.closingRates[periodBasis].get(targetDate);
-    if (rate === undefined && source !== 0) {
-      return failCommand(`${policy.entityLabel} 缺少现金余额 ${targetDate} 期末汇率`, 409, "rateApplications");
-    }
-    return okCommand(money(source * (rate ?? 1)));
-  };
-  const isOpening = line.lineCode === "openingCash";
-  const amount = convert(
-    monthlySourceAmount(isOpening ? currentFirst : currentLast, line),
-    isOpening ? consolidationMonthEndDate(replay.batch.year - 1, 12) : consolidationMonthEndDate(replay.batch.year, replay.batch.month),
-    "current",
-  );
-  if (!amount.ok) return amount;
-  const currentMonthAmount = convert(
-    monthlySourceAmount(currentLast, line),
-    isOpening ? consolidationPreviousMonthEndDate(replay.batch.year, replay.batch.month) : consolidationMonthEndDate(replay.batch.year, replay.batch.month),
-    "current",
-  );
-  if (!currentMonthAmount.ok) return currentMonthAmount;
-  const previousAmount = convert(
-    monthlySourceAmount(isOpening ? comparativeFirst : comparativeLast, line),
-    isOpening ? consolidationMonthEndDate(replay.batch.year - 2, 12) : consolidationMonthEndDate(replay.batch.year - 1, replay.batch.month),
-    "comparative",
-  );
-  if (!previousAmount.ok) return previousAmount;
-  return okCommand({ amount: amount.data, currentMonthAmount: currentMonthAmount.data, previousAmount: previousAmount.data });
-}
-
-function retainedEarningsTranslation(input: {
-  replay: ConsolidationReplayPackage;
-  policy: Extract<EntityTranslationPolicy, { currency: "CAD" }>;
-  reportPayload: unknown;
-  periodBasis: "current" | "comparative";
-}): DomainValidationResult<{ originalAmount: number; translatedAmount: number }> {
-  const { replay, policy, reportPayload, periodBasis } = input;
-  const envelope = record(reportPayload);
-  const rollforward = record(envelope?.equityRollforward);
-  const seed = record(rollforward?.seed);
-  const openingDate = typeof seed?.openingDate === "string" ? seed.openingDate : "";
-  const openingOriginalAmount = finiteNumber(seed?.originalAmount);
-  const openingCnyAmount = finiteNumber(seed?.openingRetainedEarningsCny);
-  const evidence = typeof seed?.evidence === "string" ? seed.evidence.trim() : "";
-  if (!/^\d{4}-12-31$/.test(openingDate)
-    || openingOriginalAmount === null
-    || openingCnyAmount === null
-    || !evidence
-    || !Array.isArray(rollforward?.periods)) {
-    return failCommand(`${policy.entityLabel} 缺少经批准的上年末人民币未分配利润事实`, 409, "retainedEarningsBaseline");
-  }
-  const cutoff = periodBasis === "current"
-    ? consolidationMonthEndDate(replay.batch.year, replay.batch.month)
-    : consolidationMonthEndDate(replay.batch.year - 1, 12);
-  if (cutoff < openingDate) {
-    return failCommand(`${policy.entityLabel} 的人民币未分配利润基准晚于报表比较期`, 409, "retainedEarningsBaseline");
-  }
-  if (cutoff === openingDate) {
-    return okCommand({
-      originalAmount: money(openingOriginalAmount),
-      translatedAmount: money(openingCnyAmount),
-    });
-  }
-  let expectedYear = Number(openingDate.slice(0, 4)) + 1;
-  let expectedMonth = 1;
-  let originalAmount = money(openingOriginalAmount);
-  let translatedAmount = money(openingCnyAmount);
-  for (const value of rollforward.periods) {
-    const period = record(value);
-    const year = Number(period?.year);
-    const month = Number(period?.month);
-    const targetDate = typeof period?.targetDate === "string" ? period.targetDate : "";
-    const closingOriginalAmount = finiteNumber(period?.closingOriginalAmount);
-    const netProfit = finiteNumber(period?.netProfitOriginalAmount);
-    const otherAdjustment = finiteNumber(period?.otherAdjustmentOriginalAmount);
-    if (year !== expectedYear || month !== expectedMonth
-      || targetDate !== consolidationMonthEndDate(year, month)
-      || closingOriginalAmount === null || netProfit === null || otherAdjustment === null) {
-      return failCommand(`${policy.entityLabel} 的未分配利润期初后月份不连续或事实无效`, 409, "retainedEarningsRollforward");
-    }
-    expectedMonth += 1;
-    if (expectedMonth === 13) {
-      expectedYear += 1;
-      expectedMonth = 1;
-    }
-    if (targetDate > cutoff) continue;
-    const movement = money(netProfit + otherAdjustment);
-    originalAmount = money(originalAmount + movement);
-    if (originalAmount !== money(closingOriginalAmount)) {
-      return failCommand(`${policy.entityLabel} 的 ${targetDate} 未分配利润滚算与原币期末余额不一致`, 409, "retainedEarningsRollforward");
-    }
-    const rate = policy.monthlyAverageRates[periodBasis].get(targetDate);
-    if (rate === undefined && movement !== 0) {
-      return failCommand(`${policy.entityLabel} 缺少 ${targetDate.slice(0, 7)} 月未分配利润滚算汇率`, 409, "rateApplications");
-    }
-    translatedAmount = money(translatedAmount + movement * (rate ?? 1));
-  }
-  const expectedEnd = consolidationMonthEndDate(replay.batch.year, replay.batch.month);
-  const lastPeriod = rollforward.periods.at(-1);
-  if (record(lastPeriod)?.targetDate !== expectedEnd) {
-    return failCommand(`${policy.entityLabel} 的未分配利润滚算未连续覆盖至 ${expectedEnd}`, 409, "retainedEarningsRollforward");
-  }
-  return okCommand({ originalAmount, translatedAmount });
 }
 
 function applyCadTranslationDifference(
   policy: Extract<EntityTranslationPolicy, { currency: "CAD" }>,
   lines: ConsolidatedOutputLine[],
 ): DomainValidationResult<ConsolidatedOutputLine[]> {
-  recomputeConsolidatedBalance(lines);
+  recomputeBalance(lines);
   const byCode = new Map(lines.map((line) => [line.lineCode, line]));
   const balanceTotal = (lineCode: string, fallbackSections: string[]) => {
     const line = byCode.get(lineCode);
     if (line) return { amount: line.amount, previousAmount: line.previousAmount };
     const sectionTotals = lines.filter((candidate) => candidate.isTotal && fallbackSections.includes(candidate.section));
-    if (sectionTotals.length === 0) return null;
-    return {
-      amount: money(sectionTotals.reduce((sum, line) => sum + line.amount, 0)),
-      previousAmount: money(sectionTotals.reduce((sum, line) => sum + line.previousAmount, 0)),
-    };
+    return sectionTotals.length > 0 ? sumLineAmounts(sectionTotals, () => true) : null;
   };
   const assets = balanceTotal("totalAssets", ["currentAssets", "nonCurrentAssets"]);
   const liabilities = balanceTotal("totalLiabilities", ["currentLiabilities", "nonCurrentLiabilities"]);
@@ -415,7 +266,7 @@ function applyCadTranslationDifference(
     translationLine.amount = money(translationLine.amount + difference);
     translationLine.previousAmount = money(translationLine.previousAmount + previousDifference);
   }
-  recomputeConsolidatedBalance(lines);
+  recomputeBalance(lines);
   for (const line of lines) {
     line.sourceAmount = line.amount;
     line.adjustmentAmount = 0;
@@ -425,87 +276,172 @@ function applyCadTranslationDifference(
   return okCommand(lines);
 }
 
-export function translateFrozenSourceLines(
+function monthlyTranslatedAmount(
+  flows: CashFlowMonthlySource[],
+  rates: ReadonlyMap<string, number>,
+  lineCode: string,
+): DomainValidationResult<{ sourceAmount: number; translatedAmount: number; currentMonthSourceAmount: number; currentMonthAmount: number }> {
+  if (flows.length === 0) return failCommand("CAD 期间发生额缺少逐月来源快照", 409, "monthlyFlows");
+  let sourceAmount = 0;
+  let translatedAmount = 0;
+  for (const month of flows) {
+    const rate = rates.get(month.periodEnd);
+    if (!rate) return failCommand(`CAD 期间发生额缺少 ${month.periodEnd.slice(0, 7)} 月平均汇率`, 409, "rateApplications");
+    const amount = month.lines.find((line) => line.lineCode === lineCode)?.amount;
+    if (amount === undefined) return failCommand(`CAD 月度来源缺少报表行 ${lineCode}`, 409, "monthlyFlows");
+    sourceAmount += amount;
+    translatedAmount += amount * rate;
+  }
+  const currentMonth = flows.at(-1)!;
+  const currentMonthSourceAmount = currentMonth.lines.find((line) => line.lineCode === lineCode)?.amount;
+  if (currentMonthSourceAmount === undefined) return failCommand(`CAD 当月来源缺少报表行 ${lineCode}`, 409, "monthlyFlows");
+  return okCommand({
+    sourceAmount: money(sourceAmount),
+    translatedAmount: money(translatedAmount),
+    currentMonthSourceAmount: money(currentMonthSourceAmount),
+    currentMonthAmount: money(currentMonthSourceAmount * rates.get(currentMonth.periodEnd)!),
+  });
+}
+
+function cashPointDate(year: number, month: number, kind: "yearOpening" | "monthOpening") {
+  if (kind === "yearOpening") return `${year - 1}-12-31`;
+  return new Date(Date.UTC(year, month - 1, 0)).toISOString().slice(0, 10);
+}
+
+function translatedNetProfit(
+  replay: ConsolidationReplayPackage,
+  policy: Extract<EntityTranslationPolicy, { currency: "CAD" }>,
+) {
+  const source = replay.sources.find((item) => item.entitySnapshotId === policy.entitySnapshotId && item.reportType === "incomeStatement");
+  const flows = source ? payloadMonthlyFlows(source.reportPayload, "current") : null;
+  if (!flows) return failCommand(`${policy.entityLabel} 缺少未分配利润滚算所需的逐月利润表`, 409, "monthlyFlows");
+  return monthlyTranslatedAmount(flows, policy.flowRates.current, "netProfit");
+}
+
+function monthEndDate(year: number, month: number) {
+  const day = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+export function translateSourceLines(
   replay: ConsolidationReplayPackage,
   entitySnapshotId: number,
   functionalCurrency: string,
   reportType: StatementReportType,
-  sourceRows: unknown[],
   reportPayload: unknown,
+  sourceRows: unknown[],
 ): DomainValidationResult<ConsolidatedOutputLine[]> {
   const policy = buildEntityTranslationPolicy(replay, entitySnapshotId, functionalCurrency);
   if (!policy.ok) return policy;
-  const currentPeriods = policy.data.currency === "CAD" && reportType !== "balanceSheet"
-    ? parseFrozenMonthlyPeriods(reportPayload, "current", replay.batch.year, replay.batch.month)
-    : null;
-  if (currentPeriods && !currentPeriods.ok) return currentPeriods;
-  const comparativePeriods = policy.data.currency === "CAD" && reportType !== "balanceSheet"
-    ? parseFrozenMonthlyPeriods(reportPayload, "comparative", replay.batch.year - 1, replay.batch.month)
-    : null;
-  if (comparativePeriods && !comparativePeriods.ok) return comparativePeriods;
   const translated: ConsolidatedOutputLine[] = [];
+  const currentFlows = reportType === "balanceSheet" ? null : payloadMonthlyFlows(reportPayload, "current");
+  const comparativeFlows = reportType === "balanceSheet" ? null : payloadMonthlyFlows(reportPayload, "comparative");
+  const useMonthlyFlowTranslation = policy.data.currency === "CAD"
+    && reportType !== "balanceSheet"
+    && currentFlows !== null
+    && comparativeFlows !== null
+    && policy.data.flowRates.current.size > 0;
   for (const rawLine of sourceRows) {
     const parsed = parseFrozenLine(rawLine);
     if (!parsed) return failCommand(`${REPORT_LABELS[reportType]}来源缺少规范行标识或借贷方向`, 409, "reportPayload");
-    let amount = parsed.amount;
-    let currentMonthAmount = parsed.currentMonthAmount;
-    let previousAmount = parsed.previousAmount;
-    if (policy.data.currency === "CAD" && reportType === "balanceSheet") {
-      if (parsed.section === "equity" && HISTORICAL_EQUITY_LINE_CODES.has(parsed.lineCode)) {
-        const current = parsed.lineCode === "undistributedProfit"
-          ? retainedEarningsTranslation({ replay, policy: policy.data, reportPayload, periodBasis: "current" })
-          : historicalEquityTranslation(replay.exchangeRates, entitySnapshotId, "current", parsed.lineCode);
-        if (!current.ok) return current;
-        const comparative = parsed.lineCode === "undistributedProfit"
-          ? retainedEarningsTranslation({ replay, policy: policy.data, reportPayload, periodBasis: "comparative" })
-          : historicalEquityTranslation(replay.exchangeRates, entitySnapshotId, "comparative", parsed.lineCode);
-        if (!comparative.ok) return comparative;
-        const currentOriginal = money(current.data?.originalAmount ?? 0);
-        const comparativeOriginal = money(comparative.data?.originalAmount ?? 0);
-        if (currentOriginal !== money(parsed.amount) || comparativeOriginal !== money(parsed.previousAmount)) {
-          return failCommand(`${policy.data.entityLabel} 的 ${parsed.label} 历史权益事实与单体报表原币余额不一致`, 409, "historicalEquityRates");
-        }
-        amount = money(current.data?.translatedAmount ?? 0);
-        previousAmount = money(comparative.data?.translatedAmount ?? 0);
-      } else {
-        const rate = rateForBalanceLine(policy.data, parsed, "current");
-        if (!rate.ok) return rate;
-        const comparativeRate = rateForBalanceLine(policy.data, parsed, "comparative");
-        if (!comparativeRate.ok) return comparativeRate;
-        amount = money(parsed.amount * rate.data);
-        previousAmount = money(parsed.previousAmount * comparativeRate.data);
+    const opening = policy.data.currency === "CAD" && reportType === "balanceSheet"
+      ? retainedEarningsOpening(reportPayload)
+      : null;
+    if (policy.data.currency === "CAD" && reportType === "balanceSheet" && parsed.lineCode === "undistributedProfit" && opening) {
+      if (opening.currencyCode.toUpperCase() !== "CNY") {
+        return failCommand(`${policy.data.entityLabel} 的未分配利润期初基准必须使用人民币`, 409, "retainedEarningsOpening");
       }
-    } else if (policy.data.currency === "CAD" && currentPeriods?.ok && comparativePeriods?.ok) {
-      if (reportType === "cashFlow" && (parsed.lineCode === "openingCash" || parsed.lineCode === "endingCash")) {
-        const balances = translateCashBalanceLine({
-          replay,
-          policy: policy.data,
-          line: parsed,
-          currentPeriods: currentPeriods.data,
-          comparativePeriods: comparativePeriods.data,
-        });
-        if (!balances.ok) return balances;
-        amount = balances.data.amount;
-        currentMonthAmount = balances.data.currentMonthAmount;
-        previousAmount = balances.data.previousAmount;
-      } else {
-        const current = translateMonthlyLine(policy.data, currentPeriods.data, parsed, "current");
-        if (!current.ok) return current;
-        const comparative = translateMonthlyLine(policy.data, comparativePeriods.data, parsed, "comparative");
-        if (!comparative.ok) return comparative;
-        amount = current.data.accumulated;
-        currentMonthAmount = current.data.currentMonth;
-        previousAmount = comparative.data.accumulated;
+      const expectedOpeningDate = `${replay.batch.year - 1}-12-31`;
+      if (opening.openingDate !== expectedOpeningDate) {
+        return failCommand(`${policy.data.entityLabel} 未分配利润期初基准日期必须为 ${expectedOpeningDate}`, 409, "retainedEarningsOpening");
       }
+      const netProfit = translatedNetProfit(replay, policy.data);
+      if (!netProfit.ok) return netProfit;
+      const unexplainedMovement = money(parsed.amount - parsed.previousAmount - netProfit.data.sourceAmount);
+      if (Math.abs(unexplainedMovement) >= 0.01) {
+        return failCommand(`${policy.data.entityLabel} 未分配利润存在 ${unexplainedMovement} CAD 的分红或其他变动，但缺少逐笔折算证据`, 409, "retainedEarningsMovements");
+      }
+      const amount = money(opening.amount + netProfit.data.translatedAmount);
+      translated.push({
+        ...parsed,
+        amount,
+        previousAmount: money(opening.amount),
+        sourceAmount: amount,
+        adjustmentAmount: 0,
+        previousSourceAmount: money(opening.amount),
+        previousAdjustmentAmount: 0,
+      });
+      continue;
     }
+    if (useMonthlyFlowTranslation && currentFlows && comparativeFlows && policy.data.currency === "CAD") {
+      if (reportType === "cashFlow" && (parsed.lineCode === "openingCash" || parsed.lineCode === "endingCash")) {
+        const currentYear = replay.batch.year;
+        const comparativeYear = currentYear - 1;
+        const currentDate = parsed.lineCode === "openingCash"
+          ? cashPointDate(currentYear, replay.batch.month, "yearOpening")
+          : monthEndDate(currentYear, replay.batch.month);
+        const comparativeDate = parsed.lineCode === "openingCash"
+          ? cashPointDate(comparativeYear, replay.batch.month, "yearOpening")
+          : monthEndDate(comparativeYear, replay.batch.month);
+        const currentRate = parsed.lineCode === "endingCash" ? policy.data.closingRate : policy.data.cashPointRates.current.get(currentDate);
+        const comparativeRate = parsed.lineCode === "endingCash" ? policy.data.comparativeClosingRate : policy.data.cashPointRates.comparative.get(comparativeDate);
+        const currentMonthDate = cashPointDate(currentYear, replay.batch.month, "monthOpening");
+        const currentMonthRate = parsed.lineCode === "endingCash" ? policy.data.closingRate : policy.data.cashPointRates.current.get(currentMonthDate);
+        if (!currentRate || !comparativeRate || !currentMonthRate) {
+          return failCommand(`${policy.data.entityLabel} 现金余额缺少对应时点汇率`, 409, "rateApplications");
+        }
+        translated.push({
+          ...parsed,
+          amount: money(parsed.amount * currentRate),
+          ...translatedCurrentMonthAmounts(parsed.currentMonthAmount, currentMonthRate),
+          previousAmount: money(parsed.previousAmount * comparativeRate),
+          sourceAmount: money(parsed.amount * currentRate),
+          adjustmentAmount: 0,
+          previousSourceAmount: money(parsed.previousAmount * comparativeRate),
+          previousAdjustmentAmount: 0,
+        });
+        continue;
+      }
+      const current = monthlyTranslatedAmount(currentFlows, policy.data.flowRates.current, parsed.lineCode);
+      if (!current.ok) return current;
+      const comparative = monthlyTranslatedAmount(comparativeFlows, policy.data.flowRates.comparative, parsed.lineCode);
+      if (!comparative.ok) return comparative;
+      const currentSourceDifference = money(current.data.sourceAmount - parsed.amount);
+      const comparativeSourceDifference = money(comparative.data.sourceAmount - parsed.previousAmount);
+      if (currentSourceDifference !== 0 || comparativeSourceDifference !== 0) {
+        return failCommand(
+          `${policy.data.entityLabel} 的${parsed.label}原币逐月发生额与累计报表不一致：本期 ${currentSourceDifference.toFixed(2)}，比较期 ${comparativeSourceDifference.toFixed(2)}；原币差异不得作为折算舍入处理`,
+          409,
+          reportType === "cashFlow" ? "cashFlowSourceReconciliation" : "monthlyFlows",
+        );
+      }
+      translated.push({
+        ...parsed,
+        amount: parsed.lineCode === "fxEffect" ? 0 : current.data.translatedAmount,
+        currentMonthAmount: parsed.lineCode === "fxEffect" ? 0 : current.data.currentMonthAmount,
+        currentMonthSourceAmount: parsed.lineCode === "fxEffect" ? 0 : current.data.currentMonthAmount,
+        currentMonthAdjustmentAmount: 0,
+        previousAmount: parsed.lineCode === "fxEffect" ? 0 : comparative.data.translatedAmount,
+        sourceAmount: parsed.lineCode === "fxEffect" ? 0 : current.data.translatedAmount,
+        adjustmentAmount: 0,
+        previousSourceAmount: parsed.lineCode === "fxEffect" ? 0 : comparative.data.translatedAmount,
+        previousAdjustmentAmount: 0,
+      });
+      continue;
+    }
+    const rate = rateForSourceLine(policy.data, reportType, parsed, "current");
+    if (!rate.ok) return rate;
+    const comparativeRate = rateForSourceLine(policy.data, reportType, parsed, "comparative");
+    if (!comparativeRate.ok) return comparativeRate;
+    const amount = money(parsed.amount * rate.data);
+    const previousAmount = money(parsed.previousAmount * comparativeRate.data);
     translated.push({
       ...parsed,
       amount,
-      ...(currentMonthAmount === undefined ? {} : { currentMonthAmount: money(currentMonthAmount) }),
+      ...translatedCurrentMonthAmounts(parsed.currentMonthAmount, rate.data),
       previousAmount,
       sourceAmount: amount,
       adjustmentAmount: 0,
-      ...(currentMonthAmount === undefined ? {} : { currentMonthSourceAmount: money(currentMonthAmount), currentMonthAdjustmentAmount: 0 }),
       previousSourceAmount: previousAmount,
       previousAdjustmentAmount: 0,
     });
@@ -513,18 +449,13 @@ export function translateFrozenSourceLines(
   if (reportType === "balanceSheet" && policy.data.currency === "CAD") {
     return applyCadTranslationDifference(policy.data, translated);
   }
-  if (reportType === "cashFlow" && policy.data.currency === "CAD") {
-    recomputeConsolidatedCashFlow(translated);
-    for (const line of translated) {
-      line.sourceAmount = line.amount;
-      line.adjustmentAmount = 0;
-      if (line.currentMonthAmount !== undefined) {
-        line.currentMonthSourceAmount = line.currentMonthAmount;
-        line.currentMonthAdjustmentAmount = 0;
-      }
-      line.previousSourceAmount = line.previousAmount;
-      line.previousAdjustmentAmount = 0;
-    }
+  if (reportType === "cashFlow" && policy.data.currency === "CAD" && useMonthlyFlowTranslation) {
+    return reconcileCadCashFlowTranslation({
+      entityLabel: policy.data.entityLabel,
+      currentFlows: currentFlows!,
+      comparativeFlows: comparativeFlows!,
+      translatedLines: translated,
+    });
   }
   return okCommand(translated);
 }

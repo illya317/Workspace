@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import type {
   DataSurfaceAlign,
+  DataSurfaceCellState,
+  DataSurfaceDisclosureSpec,
   DataSurfaceEmphasis,
   DataSurfaceFont,
   DataSurfaceFrame,
@@ -33,8 +35,11 @@ export interface DataTableColumn<T> extends ColumnDef {
   emphasis?: DataSurfaceEmphasis;
   font?: DataSurfaceFont;
   numeric?: boolean;
+  disclosure?: DataSurfaceDisclosureSpec;
   /** 表头点击回调，用于排序等表格级交互。 */
   onHeaderClick?: () => void;
+  cellState?: (row: T) => DataSurfaceCellState;
+  cellSelected?: (row: T) => boolean;
   /** 单元格渲染函数。如需行内编辑，在此实现并处理好事件冒泡。 */
   render: (row: T) => ReactNode;
 }

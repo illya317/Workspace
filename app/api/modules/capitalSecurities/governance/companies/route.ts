@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { createCompany, listCompanies, updateCompany } from "@workspace/capital-securities/server";
-import { failCommand, okCommand } from "@workspace/platform/server/domain-validation";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { directCommandId } from "@workspace/platform/server/direct-command-meta";
 
 const querySchema = z.object({
   keyword: z.string().catch(""),
@@ -33,12 +34,11 @@ export const GET = createCommandRoute({
 
 export const POST = createCommandRoute({
   bodySchema: companyBodySchema,
-  buildCommand: ({ body, user, request }) => {
-    const idempotencyKey = request.headers.get("idempotency-key")?.trim();
-    return idempotencyKey
-      ? okCommand({ userId: user.userId, idempotencyKey, body })
-      : failCommand("缺少 Idempotency-Key 请求头");
-  },
+  buildCommand: ({ body, user, request }) => okCommand({
+    userId: user.userId,
+    idempotencyKey: directCommandId(request),
+    body,
+  }),
   action: createCompany,
 });
 
@@ -49,11 +49,10 @@ export const PUT = createCommandRoute({
     partyVersion: z.coerce.number().int().nonnegative(),
     legalFactRevision: z.coerce.number().int().nonnegative(),
   }),
-  buildCommand: ({ body, user, request }) => {
-    const idempotencyKey = request.headers.get("idempotency-key")?.trim();
-    return idempotencyKey
-      ? okCommand({ userId: user.userId, idempotencyKey, body })
-      : failCommand("缺少 Idempotency-Key 请求头");
-  },
+  buildCommand: ({ body, user, request }) => okCommand({
+    userId: user.userId,
+    idempotencyKey: directCommandId(request),
+    body,
+  }),
   action: updateCompany,
 });

@@ -13,6 +13,8 @@ model Party {
   updatedAt                     DateTime                              @default(now()) @updatedAt
   externalProfile               ExternalPartyProfile?
   externalRoles                 ExternalPartyRole[]
+  employeeIdentityLink          EmployeePartyIdentityLink?
+  financeAuxiliaryMembers       FinanceAuxiliaryMember[]             @relation("FinanceAuxiliaryMemberLinkedParty")
   nameHistory                   PartyNameHistory[]
   legalFactRevisions            PartyLegalFactRevision[]
   company                       Company?
@@ -25,6 +27,9 @@ model Party {
   registryOwnershipParticipants CompanyRegistryOwnershipParticipant[]
   contractsAsPartyA             Contract[]                            @relation("ContractPartyA")
   contractsAsPartyB             Contract[]                            @relation("ContractPartyB")
+  financeLoansAsLender          FinanceLoan[]
+  financeTaxAuthorities         FinanceTaxRegistration[]
+  inventoryDocuments           InventoryDocument[]
 
   @@unique([subjectType, identityNumber])
   @@index([name])

@@ -15,7 +15,7 @@ function write(
   key: string,
   activeEntity: string,
   command: ActionMutationDomainReferenceContract,
-  options?: { shape?: "full_record" | "field_patch" | "change_set"; targetIdKey?: string; commitMode?: "activate" | "apply_patch" | "native_transition" },
+  options?: { shape?: "full_record" | "field_patch" | "change_set"; targetIdKey?: string; versionKey?: string; commitMode?: "activate" | "apply_patch" | "native_transition" },
 ): ActionContractMetadata {
   return {
     ...registeredActionFacts(key),
@@ -25,6 +25,7 @@ function write(
       shape: options?.shape ?? "field_patch",
       target: options?.commitMode === "activate" ? "new_record" : "existing_record",
       targetIdKey: options?.targetIdKey,
+      versionKey: options?.versionKey,
     },
     persistence: {
       strategy: "active_table_state",
@@ -180,10 +181,14 @@ export const HR_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetadataLi
     "packages/hr/server/domain/employment-agreement-attachment-validation.buildEmploymentAgreementAttachmentRemoveCommand",
     "packages/hr/server/employment-agreement-attachments.executeRemoveEmploymentAgreementAttachment",
   ), "custom", { targetIdKey: "attachmentUid", deleteMode: "soft", referencePolicy: "domain" }),
-  lifecycle("hr.roster.employeePeriod.revise", "EmployeeTemporalPeriod", domain(
-    "packages/hr/server/domain/employee-period-revision-validation.buildEmployeePeriodRevisionCommand",
-    "packages/hr/server/employee-period-revisions.reviseEmployeePeriod",
-  ), "custom", { targetIdKey: "periodId", versionKey: "expectedVersion", referencePolicy: "domain" }),
+  write("hr.roster.employeePeriod.correct", "EmployeeTemporalPeriod", domain(
+    "packages/hr/server/domain/employee-period-correction-validation.buildEmployeePeriodCorrectionCommand",
+    "packages/hr/server/employee-period-corrections.correctEmployeePeriod",
+  ), { targetIdKey: "periodId", versionKey: "expectedVersion" }),
+  write("hr.roster.employeeAssignment.create", "EDP", domain(
+    "packages/hr/server/domain/employee-period-create-validation.buildEmployeeAssignmentCreateCommand",
+    "packages/hr/server/employee-period-creates.createEmployeeAssignment",
+  ), { shape: "full_record", commitMode: "activate" }),
   write("hr.roster.employeeProfile.lifecycle.record", "EmployeeLifecycleEvent", domain(
     "packages/hr/server/domain/employee-lifecycle-validation.buildEmployeeLifecycleCommand",
     "packages/hr/server/employee-lifecycle.recordEmployeeLifecycleEvent",
@@ -192,6 +197,10 @@ export const HR_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetadataLi
     "packages/hr/server/domain/employment-validation.buildEmploymentPageDraftCommand",
     "packages/hr/server/employments.updateEmploymentPageDraft",
   ), { shape: "change_set", commitMode: "native_transition" }),
+  write("hr.roster.employment.create", "Employment", domain(
+    "packages/hr/server/domain/employee-period-create-validation.buildEmploymentPeriodCreateCommand",
+    "packages/hr/server/employee-period-creates.createEmploymentPeriod",
+  ), { shape: "full_record", commitMode: "activate" }),
   lifecycle("hr.roster.position.archive", "Position", domain(
     "packages/hr/server/domain/position-validation.buildPositionUpdateCommand",
     "packages/hr/server/positions.updatePosition",

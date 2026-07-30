@@ -32,7 +32,7 @@ export async function registerDeployUnitRuntime(unitId: string) {
   if (process.env.NEXT_PHASE === "phase-production-build") return;
   const { assertDeployUnitInternalIdentity } = await import("./internal-unit-identity");
   assertDeployUnitInternalIdentity(unitId);
-  const { preloadModuleRuntimeOverrides } = await import("./module-management");
+  const { preloadModuleRuntimeOverrides } = await import("./module-runtime-overrides");
   await preloadModuleRuntimeOverrides();
   if (unitId === "workspace-shell") {
     const { startPermissionReviewScheduler } = await import("./permission-review-scheduler");

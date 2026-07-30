@@ -4,6 +4,48 @@ model SystemConfig {
   value String
 }
 
+/// 业务编码的服务端原子流水；scopeKey 由各领域按公司、分类、年度等稳定维度组成
+model BusinessCodeSequence {
+  ruleKey    String
+  scopeKey   String
+  nextValue  Int      @default(1)
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@id([ruleKey, scopeKey])
+}
+
+/// 当前生效的业务编码规则；修改配置时保留稳定 id 并递增 version
+model BusinessCodeRule {
+  id          Int                      @id @default(autoincrement())
+  objectKey   String                   @unique
+  configJson  Json
+  version     Int                      @default(1)
+  isActive    Boolean                  @default(true)
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @default(now()) @updatedAt
+  allocations BusinessCodeAllocation[]
+}
+
+/// 已分配业务编码凭证；保存规则版本、渲染结果和幂等键，既有记录不随规则变化重算
+model BusinessCodeAllocation {
+  id              Int              @id @default(autoincrement())
+  objectKey       String
+  idempotencyKey  String
+  inputFingerprint String
+  ruleId          Int
+  ruleVersion     Int
+  scopeKey        String
+  sequence        Int
+  code            String
+  createdAt       DateTime         @default(now())
+  rule            BusinessCodeRule @relation(fields: [ruleId], references: [id], onDelete: Restrict)
+
+  @@unique([objectKey, idempotencyKey])
+  @@unique([objectKey, code])
+  @@unique([ruleId, ruleVersion, scopeKey, sequence])
+  @@index([ruleId, scopeKey])
+}
+
 /// 登录尝试审计日志
 model LoginAttempt {
   id        Int      @id @default(autoincrement())

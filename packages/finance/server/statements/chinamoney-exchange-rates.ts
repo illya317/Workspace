@@ -22,12 +22,16 @@ export interface ChinaMoneyCentralParityQuote extends SourceQuote {
   sourceUrl: string;
 }
 
-export interface ChinaMoneyMonthlyAverageQuote extends ChinaMoneyCentralParityQuote {
-  periodStartDate: string;
-  periodEndDate: string;
-  firstRateDate: string;
-  lastRateDate: string;
-  observationCount: number;
+export interface ChinaMoneyMonthlyAverageQuote {
+  baseCurrency: string;
+  quoteCurrency: "CNY";
+  month: string;
+  rateDate: string;
+  rate: number;
+  sourcePair: string;
+  sourceUnit: number;
+  sourceUrl: string;
+  observations: Array<{ rateDate: string; rate: number; price: number }>;
 }
 
 export class ChinaMoneyRateError extends Error {
@@ -113,12 +117,7 @@ function historicalQuote(payload: unknown, sourcePair: string, targetDate: strin
   }).sort((left, right) => right.rateDate.localeCompare(left.rateDate))[0] ?? null;
 }
 
-function historicalQuotes(
-  payload: unknown,
-  sourcePair: string,
-  startDate: string,
-  endDate: string,
-): SourceQuote[] {
+function historicalQuotes(payload: unknown, sourcePair: string, startDate: string, endDate: string): SourceQuote[] {
   const root = payload as {
     data?: { searchlist?: unknown[]; records?: unknown[] };
     searchlist?: unknown[];
@@ -212,49 +211,51 @@ export async function fetchChinaMoneyCentralParity(input: {
 
 export async function fetchChinaMoneyMonthlyAverage(input: {
   currencyCode: string;
-  targetDate: string;
+  year: number;
+  month: number;
   fetcher?: typeof fetch;
 }): Promise<ChinaMoneyMonthlyAverageQuote> {
   const currencyCode = input.currencyCode.toUpperCase();
-  const match = /^(\d{4})-(\d{2})-\d{2}$/.exec(input.targetDate);
-  if (!match) throw new ChinaMoneyRateError("月平均汇率目标日期无效", 400);
-  const periodStartDate = `${match[1]}-${match[2]}-01`;
   const sourcePair = SPECIAL_SOURCE_PAIRS[currencyCode] ?? `${currencyCode}/CNY`;
+  const startDate = `${input.year}-${String(input.month).padStart(2, "0")}-01`;
+  const rateDate = new Date(Date.UTC(input.year, input.month, 0)).toISOString().slice(0, 10);
+  if (rateDate >= businessToday()) {
+    throw new ChinaMoneyRateError(`${startDate.slice(0, 7)} 尚未结束，不能冻结月平均汇率`);
+  }
   const url = new URL(HISTORY_URL);
-  url.searchParams.set("startDate", periodStartDate);
-  url.searchParams.set("endDate", input.targetDate);
+  url.searchParams.set("startDate", startDate);
+  url.searchParams.set("endDate", rateDate);
   url.searchParams.set("currency", sourcePair);
-  url.searchParams.set("pageSize", "20");
+  url.searchParams.set("pageNum", "1");
+  url.searchParams.set("pageSize", "50");
   const sourceUrl = url.toString();
-  const quotesByDate = new Map<string, ChinaMoneyCentralParityQuote>();
-  for (let pageNum = 1; pageNum <= 3; pageNum += 1) {
-    url.searchParams.set("pageNum", String(pageNum));
-    const pageQuotes = historicalQuotes(
-      await fetchJson(url.toString(), input.fetcher ?? fetch),
-      sourcePair,
-      periodStartDate,
-      input.targetDate,
-    ).map(normalizeChinaMoneyQuote);
-    for (const quote of pageQuotes) quotesByDate.set(quote.rateDate, quote);
-    if (pageQuotes.length < 20) break;
-  }
-  const quotes = [...quotesByDate.values()].sort((left, right) => left.rateDate.localeCompare(right.rateDate));
+  const quotes = historicalQuotes(
+    await fetchJson(sourceUrl, input.fetcher ?? fetch),
+    sourcePair,
+    startDate,
+    rateDate,
+  );
   if (quotes.length === 0) {
-    throw new ChinaMoneyRateError(`中国货币网没有返回 ${currencyCode} 在 ${periodStartDate} 至 ${input.targetDate} 的人民币汇率中间价，请重试`);
+    throw new ChinaMoneyRateError(`中国货币网没有返回 ${currencyCode} 在 ${startDate.slice(0, 7)} 的有效交易日中间价`);
   }
-  if (quotes.some((quote) => quote.baseCurrency !== currencyCode)) {
-    throw new ChinaMoneyRateError(`中国货币网月平均汇率币种与请求 ${currencyCode} 不一致`);
+  const normalized = quotes.map((quote) => normalizeChinaMoneyQuote(quote));
+  if (normalized.some((quote) => quote.baseCurrency !== currencyCode)) {
+    throw new ChinaMoneyRateError(`中国货币网月平均汇率返回币种与请求 ${currencyCode} 不一致`);
   }
-  const rate = quotes.reduce((sum, quote) => sum + quote.rate, 0) / quotes.length;
+  const rate = Math.round((normalized.reduce((sum, quote) => sum + quote.rate, 0) / normalized.length) * 1e8) / 1e8;
   return {
-    ...quotes[quotes.length - 1]!,
-    rateDate: input.targetDate,
+    baseCurrency: currencyCode,
+    quoteCurrency: "CNY",
+    month: startDate.slice(0, 7),
+    rateDate,
     rate,
+    sourcePair,
+    sourceUnit: normalized[0]!.sourceUnit,
     sourceUrl,
-    periodStartDate,
-    periodEndDate: input.targetDate,
-    firstRateDate: quotes[0]!.rateDate,
-    lastRateDate: quotes[quotes.length - 1]!.rateDate,
-    observationCount: quotes.length,
+    observations: normalized.map((quote) => ({
+      rateDate: quote.rateDate,
+      rate: quote.rate,
+      price: quote.price,
+    })),
   };
 }

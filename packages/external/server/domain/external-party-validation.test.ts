@@ -2,9 +2,18 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  assertExternalPartyAggregateTouchInput,
   buildExternalPartyCreateCommand,
   buildExternalPartyUpdateCommand,
 } from "./external-party-validation";
+
+test("validates aggregate touch identifiers before persistence", () => {
+  assert.doesNotThrow(() => assertExternalPartyAggregateTouchInput({ partyId: 1, expectedVersion: 2, userId: 3 }));
+  assert.throws(
+    () => assertExternalPartyAggregateTouchInput({ partyId: 0, expectedVersion: 2, userId: 3 }),
+    /partyId 必须是正整数/,
+  );
+});
 
 test("splits legal subject fields from customer role fields", () => {
   const result = buildExternalPartyCreateCommand("customer", {
@@ -45,6 +54,17 @@ test("accepts an explicit existing subject when adding a second role", () => {
 
   assert.equal(result.ok, true);
   if (result.ok) assert.equal(result.data.existingPartyId, 42);
+});
+
+test("allows create commands to leave the role code for server allocation", () => {
+  const result = buildExternalPartyCreateCommand("supplier", {
+    code: "",
+    name: "自动编号供应商",
+    identityNumber: "9132AUTO",
+  }, 7, "create-supplier-auto");
+
+  assert.equal(result.ok, true);
+  if (result.ok) assert.equal(result.data.roleData.code, "");
 });
 
 test("requires a unified code or identity number for a new role record", () => {

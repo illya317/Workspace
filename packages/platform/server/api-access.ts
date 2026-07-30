@@ -11,7 +11,44 @@ import { canEnterResource } from "./rbac/resource-entry";
 import type { AuthPayload } from "./auth-token";
 import { disabledApiResponseForRequest } from "./module-runtime";
 import { jsonErrorResponse } from "./api";
-import { authorizeAgentApiDelegation } from "./agent/business-api-authorization";
+import { agentPolicyAllowsActions } from "../agent-permission-policy";
+import { getSystemConfig } from "./system-config";
+
+async function identityCanUseContract(userId: number, contract: ApiContract) {
+  const authorization = contract.authorization;
+  if (!authorization.resourceKey) return false;
+  if (authorization.runtimeEnforcement === "serviceDelegated") {
+    return canEnterResource(userId, authorization.resourceKey);
+  }
+  for (const action of authorization.requiredActions) {
+    const allowed = action === "entry" && !authorization.scopeId
+      ? await canEnterResource(userId, authorization.resourceKey)
+      : await evaluatePermissionAction(userId, authorization.resourceKey, action, {
+          scopeId: authorization.scopeId ?? undefined,
+          projection: authorization.projection,
+        });
+    if (!allowed) return false;
+  }
+  return true;
+}
+
+async function authorizeAgentApiDelegation(payload: AuthPayload, contract: ApiContract) {
+  const delegation = payload.agentDelegation;
+  if (!delegation || payload.userId !== delegation.requesterId) return false;
+  if (
+    contract.apiKind !== "business"
+    || contract.access !== "protected"
+    || !contract.pathPrefix.startsWith("/api/modules/")
+  ) return false;
+  const { agentAllowedActions } = await getSystemConfig();
+  if (!agentPolicyAllowsActions(contract.requiredActions, agentAllowedActions)) return false;
+  if (delegation.profileId !== null && contract.runtimeEnforcement === "serviceDelegated") return false;
+  const identities = delegation.requesterId === delegation.actorId
+    ? [delegation.requesterId]
+    : [delegation.requesterId, delegation.actorId];
+  const checks = await Promise.all(identities.map((userId) => identityCanUseContract(userId, contract)));
+  return checks.every(Boolean);
+}
 
 export type ApiAccessResult =
   | {

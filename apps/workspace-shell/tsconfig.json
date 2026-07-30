@@ -31,6 +31,9 @@
       "path": "../../packages/platform"
     },
     {
+      "path": "../../packages/settings"
+    },
+    {
       "path": "../../tsconfig.prisma-client.json"
     }
   ]

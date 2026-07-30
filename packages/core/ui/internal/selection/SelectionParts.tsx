@@ -4,7 +4,7 @@ function joinClassNames(...classNames: Array<string | false | null | undefined>)
   return classNames.filter(Boolean).join(" ");
 }
 
-export interface SelectionOptionButtonProps extends Pick<ButtonHTMLAttributes<HTMLButtonElement>, "onMouseDown" | "onMouseEnter"> {
+export interface SelectionOptionButtonProps extends Pick<ButtonHTMLAttributes<HTMLButtonElement>, "disabled" | "onMouseDown" | "onMouseEnter"> {
   children: ReactNode;
   selected?: boolean;
   variant?: "default" | "placeholder";
@@ -21,6 +21,7 @@ export function SelectionOptionButton({
   onClick,
   onMouseDown,
   onMouseEnter,
+  disabled,
   className = "",
   align = "center",
   size = "normal",
@@ -32,6 +33,7 @@ export function SelectionOptionButton({
   return (
     <button
       type="button"
+      disabled={disabled}
       onClick={onClick}
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter}
@@ -40,6 +42,7 @@ export function SelectionOptionButton({
         size === "compact" ? "px-3 py-1.5 text-xs" : "px-3 py-2 text-sm",
         align === "left" && "text-left",
         selected ? selectedClass : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50",
+        disabled && "cursor-not-allowed opacity-45",
         className
       )}
     >

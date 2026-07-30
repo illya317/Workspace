@@ -12,12 +12,15 @@ model StockRawMaterial {
   currentConsume  Float     @default(0)
   remark          String?
   companyCode     String?
+  companyId Int?
   editedBy        Int?
   editedAt        DateTime?
   version         Int       @default(1)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @default(now()) @updatedAt
   editor          User?     @relation("StockRawMaterialEditor", fields: [editedBy], references: [id])
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  @@index([companyId])
 }
 
 /// 包装材料库存
@@ -36,12 +39,15 @@ model StockPackaging {
   expiryDate      String?
   remark          String?
   companyCode     String?
+  companyId Int?
   editedBy        Int?
   editedAt        DateTime?
   version         Int       @default(1)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @default(now()) @updatedAt
   editor          User?     @relation("StockPackagingEditor", fields: [editedBy], references: [id])
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  @@index([companyId])
 }
 
 /// 成品库存
@@ -58,12 +64,15 @@ model StockFinishedGoods {
   availableStock  Float     @default(0)
   remark          String?
   companyCode     String?
+  companyId Int?
   editedBy        Int?
   editedAt        DateTime?
   version         Int       @default(1)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @default(now()) @updatedAt
   editor          User?     @relation("StockFinishedGoodsEditor", fields: [editedBy], references: [id])
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  @@index([companyId])
 }
 
 /// 批次信息

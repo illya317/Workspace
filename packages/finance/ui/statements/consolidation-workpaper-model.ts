@@ -3,7 +3,9 @@ import type {
   ConsolidatedOutputLine,
   ConsolidatedReportOutputPackage,
   ConsolidatedStatementOutput,
+  ConsolidationAdjustmentComparison,
   ConsolidationEntrySnapshot,
+  ConsolidationEntitySnapshot,
   StatementReportType,
 } from "@workspace/finance/types";
 
@@ -11,13 +13,24 @@ import { ENTRY_TYPE_OPTIONS } from "./consolidation-decision-presenters";
 
 export interface ConsolidationWorkpaperEntryEffect {
   key: string;
+  entryNo: string;
   title: string;
   typeLabel: string;
-  companyCode: string;
-  debit: number;
-  credit: number;
+  companies: string;
   amount: number;
   note: string | null;
+}
+
+export interface ConsolidationWorkpaperOpenItem {
+  key: string;
+  categoryLabel: string;
+  title: string;
+  parties: string;
+  bookAmounts: string;
+  difference: number;
+  currencyCode: string | null;
+  statusLabel: string;
+  actionLabel: string;
 }
 
 export interface ConsolidationWorkpaperAdjustmentAmounts {
@@ -43,6 +56,27 @@ function combinedEntityAmounts(lines: readonly ConsolidatedOutputLine[]) {
 }
 
 export function consolidationWorkpaperLines(statement: ConsolidatedStatementOutput): ConsolidatedOutputLine[] {
+  if (statement.reportType === "incomeStatement") {
+    const netProfit = statement.lines.find((line) => line.lineCode === "netProfit");
+    const parent = statement.lines.find((line) => line.lineCode === "netProfitAttributableToParent");
+    const nci = statement.lines.find((line) => line.lineCode === "netProfitAttributableToNci");
+    if (netProfit?.entityAmounts && parent && nci) {
+      return statement.lines.map((line) => {
+        if (line === parent) return { ...line, entityAmounts: netProfit.entityAmounts?.map((entity) => ({ ...entity })) };
+        if (line === nci) return {
+          ...line,
+          entityAmounts: netProfit.entityAmounts?.map((entity) => ({
+            ...entity,
+            amount: 0,
+            previousAmount: 0,
+            ...(entity.currentMonthAmount === undefined ? {} : { currentMonthAmount: 0 }),
+          })),
+        };
+        return line;
+      });
+    }
+    return statement.lines;
+  }
   if (statement.reportType !== "balanceSheet" || statement.lines.some((line) => line.lineCode === "totalLiabilitiesAndEquity")) {
     return statement.lines;
   }
@@ -77,6 +111,7 @@ export function consolidationWorkpaperLines(statement: ConsolidatedStatementOutp
 
 export function consolidationWorkpaperEntities(
   report: ConsolidatedReportOutputPackage | null,
+  scopeEntities: readonly ConsolidationEntitySnapshot[] = [],
 ): ConsolidatedOutputEntityAmount[] {
   const byEntity = new Map<number, ConsolidatedOutputEntityAmount>();
   for (const statement of report?.statements ?? []) {
@@ -85,6 +120,17 @@ export function consolidationWorkpaperEntities(
         if (!byEntity.has(entity.entitySnapshotId)) byEntity.set(entity.entitySnapshotId, entity);
       }
     }
+  }
+  for (const entity of scopeEntities.filter((item) => item.isConsolidated)) {
+    if (byEntity.has(entity.id)) continue;
+    byEntity.set(entity.id, {
+      entitySnapshotId: entity.id,
+      companyCode: entity.companyCode,
+      companyName: entity.companyName,
+      role: entity.role,
+      amount: 0,
+      previousAmount: 0,
+    });
   }
   return [...byEntity.values()].sort((left, right) => {
     if (left.role !== right.role) return left.role === "parent" ? -1 : 1;
@@ -119,25 +165,71 @@ export function consolidationWorkpaperEntryEffects(
   line: ConsolidatedOutputLine,
 ): ConsolidationWorkpaperEntryEffect[] {
   return entries.flatMap((entry) => {
-    if (entry.status !== "approved") return [];
+    if (entry.status !== "approved" && entry.status !== "draft") return [];
     const typeLabel = ENTRY_TYPE_OPTIONS.find((option) => option.value === entry.entryType)?.label ?? entry.entryType;
-    return entry.lines
-      .filter((entryLine) => (
-        entryLine.statementType === reportType
-        && entryLine.lineCode === line.lineCode
-        && (entryLine.periodBasis ?? "current") === "current"
-      ))
-      .map((entryLine) => ({
-        key: `${entry.id}-${entryLine.id}`,
-        title: entry.title,
-        typeLabel,
-        companyCode: entryLine.companyCode,
-        debit: entryLine.debit,
-        credit: entryLine.credit,
-        amount: line.side === "debit"
-          ? entryLine.debit - entryLine.credit
-          : entryLine.credit - entryLine.debit,
-        note: entryLine.note,
-      }));
+    const lines = entry.lines.filter((entryLine) => (
+      entryLine.statementType === reportType
+      && entryLine.lineCode === line.lineCode
+      && (entryLine.periodBasis ?? "current") === "current"
+    ));
+    if (lines.length === 0) return [];
+    const notes = [...new Set(lines.map((entryLine) => entryLine.note).filter((note): note is string => Boolean(note)))];
+    return [{
+      key: `${entry.id}-${line.lineCode}`,
+      entryNo: entry.entryNo,
+      title: entry.title,
+      typeLabel,
+      companies: [...new Set(lines.map((entryLine) => entryLine.companyCode))].join(" ↔ "),
+      amount: money(lines.reduce((sum, entryLine) => sum + (line.side === "debit"
+        ? entryLine.debit - entryLine.credit
+        : entryLine.credit - entryLine.debit), 0)),
+      note: notes.join("；") || entry.description,
+    }];
   });
+}
+
+export function consolidationWorkpaperOpenItems(
+  comparisons: readonly ConsolidationAdjustmentComparison[],
+  entries: readonly ConsolidationEntrySnapshot[],
+): ConsolidationWorkpaperOpenItem[] {
+  const activeEntryIds = new Set(entries
+    .filter((entry) => entry.status === "draft" || entry.status === "approved")
+    .map((entry) => entry.id));
+  return comparisons.flatMap((comparison) => {
+    const alreadyIncluded = comparison.reviewStatus === "approved"
+      || comparison.reviewStatus === "calculated"
+      || comparison.entryId !== null && activeEntryIds.has(comparison.entryId);
+    if (alreadyIncluded) return [];
+    const leftCurrency = comparison.leftCurrencyCode ? ` ${comparison.leftCurrencyCode}` : "";
+    const rightCurrency = comparison.rightCurrencyCode ? ` ${comparison.rightCurrencyCode}` : "";
+    return [{
+      key: comparison.key,
+      categoryLabel: comparisonCategoryLabel(comparison.category),
+      title: comparison.title,
+      parties: `${comparison.leftCompany} ↔ ${comparison.rightCompany}`,
+      bookAmounts: `${comparison.leftDirection} ${comparison.leftAmount.toFixed(2)}${leftCurrency} / ${comparison.rightDirection} ${comparison.rightAmount.toFixed(2)}${rightCurrency}`,
+      difference: comparison.difference,
+      currencyCode: comparison.differenceCurrencyCode,
+      statusLabel: comparisonStatusLabel(comparison),
+      actionLabel: comparison.treatmentLabel,
+    }];
+  });
+}
+
+function comparisonCategoryLabel(category: ConsolidationAdjustmentComparison["category"]) {
+  return {
+    investment: "投资与权益",
+    intercompany: "内部往来",
+    reclassification: "重分类",
+    translation: "外币折算",
+  }[category];
+}
+
+function comparisonStatusLabel(comparison: ConsolidationAdjustmentComparison) {
+  if (comparison.reviewStatus === "returned") return "已退回";
+  if (comparison.status === "difference") return "存在差额";
+  if (comparison.status === "missingCounterpart") return "缺少对方";
+  if (comparison.status === "unresolved") return "尚未解析";
+  if (comparison.status === "pendingCalculation") return "待计算";
+  return "待生成抵销";
 }

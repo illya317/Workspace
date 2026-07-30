@@ -184,19 +184,7 @@ export async function updateCompany(command: WriteCommand) {
         current.party.version !== validated.data.partyVersion
         || latestLegalFactRevision !== validated.data.legalFactRevision
       ) throw new StaleCompanyError();
-      await ensureEditHistoryBaseline("Company", validated.data.id, command.userId, tx);
-      await ensureEditHistoryBaseline("Party", current.partyId, command.userId, tx);
       const { registeredCapital: _registeredCapital, registeredAddress: _registeredAddress, registeredDate: _registeredDate, ...operationalCompanyData } = validated.data.companyData;
-      const companyResult = await tx.company.updateMany({
-        where: { id: validated.data.id, version: validated.data.version },
-        data: {
-          ...operationalCompanyData,
-          editedBy: command.userId,
-          editedAt: new Date(),
-          version: { increment: 1 },
-        },
-      });
-      if (companyResult.count !== 1) throw new StaleCompanyError();
       const currentSnapshot = partyLegalFactSnapshotFromCurrent({
         ...current.party,
         company: {
@@ -206,7 +194,28 @@ export async function updateCompany(command: WriteCommand) {
         },
       });
       const nextSnapshot = companyLegalFactSnapshot(validated.data.identityData, validated.data.companyData);
-      if (JSON.stringify(currentSnapshot) !== JSON.stringify(nextSnapshot)) {
+      const changesLegalFacts = JSON.stringify(currentSnapshot) !== JSON.stringify(nextSnapshot);
+      const changesCompany = Object.entries(operationalCompanyData)
+        .some(([field, value]) => current[field as keyof typeof current] !== value);
+      if (!changesCompany && !changesLegalFacts) return;
+
+      if (changesCompany) {
+        await ensureEditHistoryBaseline("Company", validated.data.id, command.userId, tx);
+        const companyResult = await tx.company.updateMany({
+          where: { id: validated.data.id, version: validated.data.version },
+          data: {
+            ...operationalCompanyData,
+            editedBy: command.userId,
+            editedAt: new Date(),
+            version: { increment: 1 },
+          },
+        });
+        if (companyResult.count !== 1) throw new StaleCompanyError();
+      } else if (current.version !== validated.data.version) {
+        throw new StaleCompanyError();
+      }
+      if (changesLegalFacts) {
+        await ensureEditHistoryBaseline("Party", current.partyId, command.userId, tx);
         await recordPartyLegalFactInTransaction({
           partyId: current.partyId,
           userId: command.userId,
@@ -223,7 +232,7 @@ export async function updateCompany(command: WriteCommand) {
         }, tx);
         await snapshotHistory("Party", current.partyId, command.userId, tx);
       }
-      await snapshotHistory("Company", validated.data.id, command.userId, tx);
+      if (changesCompany) await snapshotHistory("Company", validated.data.id, command.userId, tx);
     });
     invalidateCompanyCache();
     return serviceOk({ success: true });

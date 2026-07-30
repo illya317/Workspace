@@ -231,6 +231,7 @@ function replayPackage(): ConsolidationReplayPackage {
     approvedEntries: [{
       id: 21,
       entryNo: "E-001",
+      postingDate: "2027-01-02", documentType: "elimination", postingLevel: "20",
       entryType: "internalTrading",
       title: "内部交易抵销",
       description: null,

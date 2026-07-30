@@ -1,5 +1,6 @@
 export * from "./accounting-adapter";
 export * from "./calculator";
+export * from "./closing-adapter";
 export * from "./route-commands";
 export * from "./schemas";
 export * from "./service";

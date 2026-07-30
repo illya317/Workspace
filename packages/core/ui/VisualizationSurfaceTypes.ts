@@ -136,13 +136,28 @@ export interface VisualizationNetworkGroupSpec {
   layoutOrder?: number;
 }
 
+export interface VisualizationNetworkBackNavigationSpec {
+  label: string;
+  onActivate: () => void;
+}
+
+export interface VisualizationNetworkEdgeDirectionLegendSpec {
+  outgoingLabel: string;
+  incomingLabel: string;
+  selfReferenceLabel?: string;
+}
+
 export interface VisualizationNetworkSpec {
   kind: "network";
+  presentation?: "diagram" | "map";
   layout?: VisualizationNetworkLayoutSpec;
   groups?: VisualizationNetworkGroupSpec[];
   nodes: VisualizationNetworkNodeSpec[];
   edges: VisualizationNetworkEdgeSpec[];
   focusNodeKey?: string;
+  onNodeSelect?: (nodeKey: string) => void;
+  backNavigation?: VisualizationNetworkBackNavigationSpec;
+  edgeDirectionLegend?: VisualizationNetworkEdgeDirectionLegendSpec;
   emptyText?: string;
   height?: number;
 }

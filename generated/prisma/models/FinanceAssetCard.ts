@@ -28,10 +28,22 @@ export type AggregateFinanceAssetCard = {
 
 export type FinanceAssetCardAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
+  categoryId: number | null
+  assetAccountId: number | null
+  accumulatedAccountId: number | null
   originalCost: runtime.Decimal | null
   residualRate: runtime.Decimal | null
   usefulLifeMonths: number | null
   openingAccumulatedAmount: runtime.Decimal | null
+  openingImpairmentAmount: runtime.Decimal | null
+  openingNetBookValue: runtime.Decimal | null
+  remainingUsefulLifeMonthsAtCutover: number | null
+  cutoverResidualValue: runtime.Decimal | null
+  cutoverPeriodId: number | null
+  cutoverAssetBalanceId: number | null
+  cutoverAccumulatedBalanceId: number | null
+  cutoverImpairmentBalanceId: number | null
   sourceRow: number | null
   editedBy: number | null
   version: number | null
@@ -39,10 +51,22 @@ export type FinanceAssetCardAvgAggregateOutputType = {
 
 export type FinanceAssetCardSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
+  categoryId: number | null
+  assetAccountId: number | null
+  accumulatedAccountId: number | null
   originalCost: runtime.Decimal | null
   residualRate: runtime.Decimal | null
   usefulLifeMonths: number | null
   openingAccumulatedAmount: runtime.Decimal | null
+  openingImpairmentAmount: runtime.Decimal | null
+  openingNetBookValue: runtime.Decimal | null
+  remainingUsefulLifeMonthsAtCutover: number | null
+  cutoverResidualValue: runtime.Decimal | null
+  cutoverPeriodId: number | null
+  cutoverAssetBalanceId: number | null
+  cutoverAccumulatedBalanceId: number | null
+  cutoverImpairmentBalanceId: number | null
   sourceRow: number | null
   editedBy: number | null
   version: number | null
@@ -51,20 +75,36 @@ export type FinanceAssetCardSumAggregateOutputType = {
 export type FinanceAssetCardMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   assetCode: string | null
   name: string | null
   assetKind: string | null
-  category: string | null
+  categoryId: number | null
+  sourceCategory: string | null
   assetAccountCode: string | null
   accumulatedAccountCode: string | null
+  assetAccountId: number | null
+  accumulatedAccountId: number | null
   acquisitionDate: string | null
   depreciationStartDate: string | null
   originalCost: runtime.Decimal | null
   residualRate: runtime.Decimal | null
   usefulLifeMonths: number | null
   method: string | null
+  initializationMode: string | null
   openingAccumulatedAmount: runtime.Decimal | null
+  openingImpairmentAmount: runtime.Decimal | null
+  openingNetBookValue: runtime.Decimal | null
   openingAsOfDate: string | null
+  cutoverDate: string | null
+  remainingUsefulLifeMonthsAtCutover: number | null
+  cutoverResidualValue: runtime.Decimal | null
+  cutoverAllocationStatus: string | null
+  cutoverReconciliationFingerprint: string | null
+  cutoverPeriodId: number | null
+  cutoverAssetBalanceId: number | null
+  cutoverAccumulatedBalanceId: number | null
+  cutoverImpairmentBalanceId: number | null
   status: string | null
   nonAmortizationReason: string | null
   note: string | null
@@ -81,20 +121,36 @@ export type FinanceAssetCardMinAggregateOutputType = {
 export type FinanceAssetCardMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   assetCode: string | null
   name: string | null
   assetKind: string | null
-  category: string | null
+  categoryId: number | null
+  sourceCategory: string | null
   assetAccountCode: string | null
   accumulatedAccountCode: string | null
+  assetAccountId: number | null
+  accumulatedAccountId: number | null
   acquisitionDate: string | null
   depreciationStartDate: string | null
   originalCost: runtime.Decimal | null
   residualRate: runtime.Decimal | null
   usefulLifeMonths: number | null
   method: string | null
+  initializationMode: string | null
   openingAccumulatedAmount: runtime.Decimal | null
+  openingImpairmentAmount: runtime.Decimal | null
+  openingNetBookValue: runtime.Decimal | null
   openingAsOfDate: string | null
+  cutoverDate: string | null
+  remainingUsefulLifeMonthsAtCutover: number | null
+  cutoverResidualValue: runtime.Decimal | null
+  cutoverAllocationStatus: string | null
+  cutoverReconciliationFingerprint: string | null
+  cutoverPeriodId: number | null
+  cutoverAssetBalanceId: number | null
+  cutoverAccumulatedBalanceId: number | null
+  cutoverImpairmentBalanceId: number | null
   status: string | null
   nonAmortizationReason: string | null
   note: string | null
@@ -111,20 +167,36 @@ export type FinanceAssetCardMaxAggregateOutputType = {
 export type FinanceAssetCardCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   assetCode: number
   name: number
   assetKind: number
-  category: number
+  categoryId: number
+  sourceCategory: number
   assetAccountCode: number
   accumulatedAccountCode: number
+  assetAccountId: number
+  accumulatedAccountId: number
   acquisitionDate: number
   depreciationStartDate: number
   originalCost: number
   residualRate: number
   usefulLifeMonths: number
   method: number
+  initializationMode: number
   openingAccumulatedAmount: number
+  openingImpairmentAmount: number
+  openingNetBookValue: number
   openingAsOfDate: number
+  cutoverDate: number
+  remainingUsefulLifeMonthsAtCutover: number
+  cutoverResidualValue: number
+  cutoverAllocationStatus: number
+  cutoverReconciliationFingerprint: number
+  cutoverPeriodId: number
+  cutoverAssetBalanceId: number
+  cutoverAccumulatedBalanceId: number
+  cutoverImpairmentBalanceId: number
   status: number
   nonAmortizationReason: number
   note: number
@@ -142,10 +214,22 @@ export type FinanceAssetCardCountAggregateOutputType = {
 
 export type FinanceAssetCardAvgAggregateInputType = {
   id?: true
+  companyId?: true
+  categoryId?: true
+  assetAccountId?: true
+  accumulatedAccountId?: true
   originalCost?: true
   residualRate?: true
   usefulLifeMonths?: true
   openingAccumulatedAmount?: true
+  openingImpairmentAmount?: true
+  openingNetBookValue?: true
+  remainingUsefulLifeMonthsAtCutover?: true
+  cutoverResidualValue?: true
+  cutoverPeriodId?: true
+  cutoverAssetBalanceId?: true
+  cutoverAccumulatedBalanceId?: true
+  cutoverImpairmentBalanceId?: true
   sourceRow?: true
   editedBy?: true
   version?: true
@@ -153,10 +237,22 @@ export type FinanceAssetCardAvgAggregateInputType = {
 
 export type FinanceAssetCardSumAggregateInputType = {
   id?: true
+  companyId?: true
+  categoryId?: true
+  assetAccountId?: true
+  accumulatedAccountId?: true
   originalCost?: true
   residualRate?: true
   usefulLifeMonths?: true
   openingAccumulatedAmount?: true
+  openingImpairmentAmount?: true
+  openingNetBookValue?: true
+  remainingUsefulLifeMonthsAtCutover?: true
+  cutoverResidualValue?: true
+  cutoverPeriodId?: true
+  cutoverAssetBalanceId?: true
+  cutoverAccumulatedBalanceId?: true
+  cutoverImpairmentBalanceId?: true
   sourceRow?: true
   editedBy?: true
   version?: true
@@ -165,20 +261,36 @@ export type FinanceAssetCardSumAggregateInputType = {
 export type FinanceAssetCardMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   assetCode?: true
   name?: true
   assetKind?: true
-  category?: true
+  categoryId?: true
+  sourceCategory?: true
   assetAccountCode?: true
   accumulatedAccountCode?: true
+  assetAccountId?: true
+  accumulatedAccountId?: true
   acquisitionDate?: true
   depreciationStartDate?: true
   originalCost?: true
   residualRate?: true
   usefulLifeMonths?: true
   method?: true
+  initializationMode?: true
   openingAccumulatedAmount?: true
+  openingImpairmentAmount?: true
+  openingNetBookValue?: true
   openingAsOfDate?: true
+  cutoverDate?: true
+  remainingUsefulLifeMonthsAtCutover?: true
+  cutoverResidualValue?: true
+  cutoverAllocationStatus?: true
+  cutoverReconciliationFingerprint?: true
+  cutoverPeriodId?: true
+  cutoverAssetBalanceId?: true
+  cutoverAccumulatedBalanceId?: true
+  cutoverImpairmentBalanceId?: true
   status?: true
   nonAmortizationReason?: true
   note?: true
@@ -195,20 +307,36 @@ export type FinanceAssetCardMinAggregateInputType = {
 export type FinanceAssetCardMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   assetCode?: true
   name?: true
   assetKind?: true
-  category?: true
+  categoryId?: true
+  sourceCategory?: true
   assetAccountCode?: true
   accumulatedAccountCode?: true
+  assetAccountId?: true
+  accumulatedAccountId?: true
   acquisitionDate?: true
   depreciationStartDate?: true
   originalCost?: true
   residualRate?: true
   usefulLifeMonths?: true
   method?: true
+  initializationMode?: true
   openingAccumulatedAmount?: true
+  openingImpairmentAmount?: true
+  openingNetBookValue?: true
   openingAsOfDate?: true
+  cutoverDate?: true
+  remainingUsefulLifeMonthsAtCutover?: true
+  cutoverResidualValue?: true
+  cutoverAllocationStatus?: true
+  cutoverReconciliationFingerprint?: true
+  cutoverPeriodId?: true
+  cutoverAssetBalanceId?: true
+  cutoverAccumulatedBalanceId?: true
+  cutoverImpairmentBalanceId?: true
   status?: true
   nonAmortizationReason?: true
   note?: true
@@ -225,20 +353,36 @@ export type FinanceAssetCardMaxAggregateInputType = {
 export type FinanceAssetCardCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   assetCode?: true
   name?: true
   assetKind?: true
-  category?: true
+  categoryId?: true
+  sourceCategory?: true
   assetAccountCode?: true
   accumulatedAccountCode?: true
+  assetAccountId?: true
+  accumulatedAccountId?: true
   acquisitionDate?: true
   depreciationStartDate?: true
   originalCost?: true
   residualRate?: true
   usefulLifeMonths?: true
   method?: true
+  initializationMode?: true
   openingAccumulatedAmount?: true
+  openingImpairmentAmount?: true
+  openingNetBookValue?: true
   openingAsOfDate?: true
+  cutoverDate?: true
+  remainingUsefulLifeMonthsAtCutover?: true
+  cutoverResidualValue?: true
+  cutoverAllocationStatus?: true
+  cutoverReconciliationFingerprint?: true
+  cutoverPeriodId?: true
+  cutoverAssetBalanceId?: true
+  cutoverAccumulatedBalanceId?: true
+  cutoverImpairmentBalanceId?: true
   status?: true
   nonAmortizationReason?: true
   note?: true
@@ -342,20 +486,36 @@ export type FinanceAssetCardGroupByArgs<ExtArgs extends runtime.Types.Extensions
 export type FinanceAssetCardGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   assetCode: string
   name: string
   assetKind: string
-  category: string | null
+  categoryId: number
+  sourceCategory: string | null
   assetAccountCode: string
   accumulatedAccountCode: string | null
+  assetAccountId: number | null
+  accumulatedAccountId: number | null
   acquisitionDate: string | null
   depreciationStartDate: string | null
   originalCost: runtime.Decimal
   residualRate: runtime.Decimal
   usefulLifeMonths: number | null
   method: string
+  initializationMode: string
   openingAccumulatedAmount: runtime.Decimal
+  openingImpairmentAmount: runtime.Decimal
+  openingNetBookValue: runtime.Decimal | null
   openingAsOfDate: string | null
+  cutoverDate: string | null
+  remainingUsefulLifeMonthsAtCutover: number | null
+  cutoverResidualValue: runtime.Decimal | null
+  cutoverAllocationStatus: string | null
+  cutoverReconciliationFingerprint: string | null
+  cutoverPeriodId: number | null
+  cutoverAssetBalanceId: number | null
+  cutoverAccumulatedBalanceId: number | null
+  cutoverImpairmentBalanceId: number | null
   status: string
   nonAmortizationReason: string | null
   note: string | null
@@ -395,20 +555,36 @@ export type FinanceAssetCardWhereInput = {
   NOT?: Prisma.FinanceAssetCardWhereInput | Prisma.FinanceAssetCardWhereInput[]
   id?: Prisma.IntFilter<"FinanceAssetCard"> | number
   companyCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
   assetCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
   name?: Prisma.StringFilter<"FinanceAssetCard"> | string
   assetKind?: Prisma.StringFilter<"FinanceAssetCard"> | string
-  category?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  categoryId?: Prisma.IntFilter<"FinanceAssetCard"> | number
+  sourceCategory?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   assetAccountCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
   accumulatedAccountCode?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  assetAccountId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  accumulatedAccountId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
   acquisitionDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   depreciationStartDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   originalCost?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
   method?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  initializationMode?: Prisma.StringFilter<"FinanceAssetCard"> | string
   openingAccumulatedAmount?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.DecimalNullableFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  cutoverDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  cutoverResidualValue?: Prisma.DecimalNullableFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  cutoverReconciliationFingerprint?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  cutoverPeriodId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  cutoverAssetBalanceId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  cutoverAccumulatedBalanceId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  cutoverImpairmentBalanceId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
   status?: Prisma.StringFilter<"FinanceAssetCard"> | string
   nonAmortizationReason?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   note?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
@@ -420,29 +596,56 @@ export type FinanceAssetCardWhereInput = {
   version?: Prisma.IntFilter<"FinanceAssetCard"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceAssetCard"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAssetCard"> | Date | string
+  category?: Prisma.XOR<Prisma.FinanceAssetCategoryScalarRelationFilter, Prisma.FinanceAssetCategoryWhereInput>
+  assetAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  accumulatedAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  cutoverPeriod?: Prisma.XOR<Prisma.FinancePeriodNullableScalarRelationFilter, Prisma.FinancePeriodWhereInput> | null
+  cutoverAssetBalance?: Prisma.XOR<Prisma.FinanceAccountBalanceNullableScalarRelationFilter, Prisma.FinanceAccountBalanceWhereInput> | null
+  cutoverAccumulatedBalance?: Prisma.XOR<Prisma.FinanceAccountBalanceNullableScalarRelationFilter, Prisma.FinanceAccountBalanceWhereInput> | null
+  cutoverImpairmentBalance?: Prisma.XOR<Prisma.FinanceAccountBalanceNullableScalarRelationFilter, Prisma.FinanceAccountBalanceWhereInput> | null
   costLines?: Prisma.FinanceAssetCostLineListRelationFilter
   allocations?: Prisma.FinanceAssetExpenseAllocationListRelationFilter
   periodEntries?: Prisma.FinanceAssetPeriodEntryListRelationFilter
   adjustments?: Prisma.FinanceAssetAdjustmentListRelationFilter
+  disposal?: Prisma.XOR<Prisma.FinanceAssetDisposalNullableScalarRelationFilter, Prisma.FinanceAssetDisposalWhereInput> | null
+  acquisitionEvidence?: Prisma.XOR<Prisma.FinanceAssetAcquisitionEvidenceNullableScalarRelationFilter, Prisma.FinanceAssetAcquisitionEvidenceWhereInput> | null
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceAssetCardOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   assetCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   assetKind?: Prisma.SortOrder
-  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
   assetAccountCode?: Prisma.SortOrder
   accumulatedAccountCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   acquisitionDate?: Prisma.SortOrderInput | Prisma.SortOrder
   depreciationStartDate?: Prisma.SortOrderInput | Prisma.SortOrder
   originalCost?: Prisma.SortOrder
   residualRate?: Prisma.SortOrder
   usefulLifeMonths?: Prisma.SortOrderInput | Prisma.SortOrder
   method?: Prisma.SortOrder
+  initializationMode?: Prisma.SortOrder
   openingAccumulatedAmount?: Prisma.SortOrder
+  openingImpairmentAmount?: Prisma.SortOrder
+  openingNetBookValue?: Prisma.SortOrderInput | Prisma.SortOrder
   openingAsOfDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  remainingUsefulLifeMonthsAtCutover?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverResidualValue?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverAllocationStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverReconciliationFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverAssetBalanceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverAccumulatedBalanceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverImpairmentBalanceId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   nonAmortizationReason?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -454,10 +657,21 @@ export type FinanceAssetCardOrderByWithRelationInput = {
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  category?: Prisma.FinanceAssetCategoryOrderByWithRelationInput
+  assetAccount?: Prisma.FinanceAccountOrderByWithRelationInput
+  accumulatedAccount?: Prisma.FinanceAccountOrderByWithRelationInput
+  cutoverPeriod?: Prisma.FinancePeriodOrderByWithRelationInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceOrderByWithRelationInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceOrderByWithRelationInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceOrderByWithRelationInput
   costLines?: Prisma.FinanceAssetCostLineOrderByRelationAggregateInput
   allocations?: Prisma.FinanceAssetExpenseAllocationOrderByRelationAggregateInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryOrderByRelationAggregateInput
   adjustments?: Prisma.FinanceAssetAdjustmentOrderByRelationAggregateInput
+  disposal?: Prisma.FinanceAssetDisposalOrderByWithRelationInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceOrderByWithRelationInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationOrderByRelationAggregateInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceAssetCardWhereUniqueInput = Prisma.AtLeast<{
@@ -468,20 +682,36 @@ export type FinanceAssetCardWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FinanceAssetCardWhereInput[]
   NOT?: Prisma.FinanceAssetCardWhereInput | Prisma.FinanceAssetCardWhereInput[]
   companyCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
   assetCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
   name?: Prisma.StringFilter<"FinanceAssetCard"> | string
   assetKind?: Prisma.StringFilter<"FinanceAssetCard"> | string
-  category?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  categoryId?: Prisma.IntFilter<"FinanceAssetCard"> | number
+  sourceCategory?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   assetAccountCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
   accumulatedAccountCode?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  assetAccountId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  accumulatedAccountId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
   acquisitionDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   depreciationStartDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   originalCost?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
   method?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  initializationMode?: Prisma.StringFilter<"FinanceAssetCard"> | string
   openingAccumulatedAmount?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.DecimalNullableFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  cutoverDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  cutoverResidualValue?: Prisma.DecimalNullableFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  cutoverReconciliationFingerprint?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  cutoverPeriodId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  cutoverAssetBalanceId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  cutoverAccumulatedBalanceId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  cutoverImpairmentBalanceId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
   status?: Prisma.StringFilter<"FinanceAssetCard"> | string
   nonAmortizationReason?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
   note?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
@@ -493,29 +723,56 @@ export type FinanceAssetCardWhereUniqueInput = Prisma.AtLeast<{
   version?: Prisma.IntFilter<"FinanceAssetCard"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceAssetCard"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAssetCard"> | Date | string
+  category?: Prisma.XOR<Prisma.FinanceAssetCategoryScalarRelationFilter, Prisma.FinanceAssetCategoryWhereInput>
+  assetAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  accumulatedAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  cutoverPeriod?: Prisma.XOR<Prisma.FinancePeriodNullableScalarRelationFilter, Prisma.FinancePeriodWhereInput> | null
+  cutoverAssetBalance?: Prisma.XOR<Prisma.FinanceAccountBalanceNullableScalarRelationFilter, Prisma.FinanceAccountBalanceWhereInput> | null
+  cutoverAccumulatedBalance?: Prisma.XOR<Prisma.FinanceAccountBalanceNullableScalarRelationFilter, Prisma.FinanceAccountBalanceWhereInput> | null
+  cutoverImpairmentBalance?: Prisma.XOR<Prisma.FinanceAccountBalanceNullableScalarRelationFilter, Prisma.FinanceAccountBalanceWhereInput> | null
   costLines?: Prisma.FinanceAssetCostLineListRelationFilter
   allocations?: Prisma.FinanceAssetExpenseAllocationListRelationFilter
   periodEntries?: Prisma.FinanceAssetPeriodEntryListRelationFilter
   adjustments?: Prisma.FinanceAssetAdjustmentListRelationFilter
+  disposal?: Prisma.XOR<Prisma.FinanceAssetDisposalNullableScalarRelationFilter, Prisma.FinanceAssetDisposalWhereInput> | null
+  acquisitionEvidence?: Prisma.XOR<Prisma.FinanceAssetAcquisitionEvidenceNullableScalarRelationFilter, Prisma.FinanceAssetAcquisitionEvidenceWhereInput> | null
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "companyCode_assetCode" | "companyCode_sourceKey">
 
 export type FinanceAssetCardOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   assetCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   assetKind?: Prisma.SortOrder
-  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
   assetAccountCode?: Prisma.SortOrder
   accumulatedAccountCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   acquisitionDate?: Prisma.SortOrderInput | Prisma.SortOrder
   depreciationStartDate?: Prisma.SortOrderInput | Prisma.SortOrder
   originalCost?: Prisma.SortOrder
   residualRate?: Prisma.SortOrder
   usefulLifeMonths?: Prisma.SortOrderInput | Prisma.SortOrder
   method?: Prisma.SortOrder
+  initializationMode?: Prisma.SortOrder
   openingAccumulatedAmount?: Prisma.SortOrder
+  openingImpairmentAmount?: Prisma.SortOrder
+  openingNetBookValue?: Prisma.SortOrderInput | Prisma.SortOrder
   openingAsOfDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  remainingUsefulLifeMonthsAtCutover?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverResidualValue?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverAllocationStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverReconciliationFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverAssetBalanceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverAccumulatedBalanceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cutoverImpairmentBalanceId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   nonAmortizationReason?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -540,20 +797,36 @@ export type FinanceAssetCardScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FinanceAssetCardScalarWhereWithAggregatesInput | Prisma.FinanceAssetCardScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"FinanceAssetCard"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetCard"> | number | null
   assetCode?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
   name?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
   assetKind?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
-  category?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
+  categoryId?: Prisma.IntWithAggregatesFilter<"FinanceAssetCard"> | number
+  sourceCategory?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
   assetAccountCode?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
   accumulatedAccountCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
+  assetAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetCard"> | number | null
+  accumulatedAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetCard"> | number | null
   acquisitionDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
   depreciationStartDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
   originalCost?: Prisma.DecimalWithAggregatesFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: Prisma.DecimalWithAggregatesFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetCard"> | number | null
   method?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
+  initializationMode?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
   openingAccumulatedAmount?: Prisma.DecimalWithAggregatesFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalWithAggregatesFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
+  cutoverDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetCard"> | number | null
+  cutoverResidualValue?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
+  cutoverReconciliationFingerprint?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
+  cutoverPeriodId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetCard"> | number | null
+  cutoverAssetBalanceId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetCard"> | number | null
+  cutoverAccumulatedBalanceId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetCard"> | number | null
+  cutoverImpairmentBalanceId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetCard"> | number | null
   status?: Prisma.StringWithAggregatesFilter<"FinanceAssetCard"> | string
   nonAmortizationReason?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
   note?: Prisma.StringNullableWithAggregatesFilter<"FinanceAssetCard"> | string | null
@@ -572,7 +845,7 @@ export type FinanceAssetCardCreateInput = {
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
   acquisitionDate?: string | null
@@ -581,8 +854,16 @@ export type FinanceAssetCardCreateInput = {
   residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: number | null
   method?: string
+  initializationMode?: string
   openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
   status?: string
   nonAmortizationReason?: string | null
   note?: string | null
@@ -594,29 +875,56 @@ export type FinanceAssetCardCreateInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
   costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
   allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
 }
 
 export type FinanceAssetCardUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  categoryId: number
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
   acquisitionDate?: string | null
   depreciationStartDate?: string | null
   originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: number | null
   method?: string
+  initializationMode?: string
   openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
   status?: string
   nonAmortizationReason?: string | null
   note?: string | null
@@ -632,6 +940,9 @@ export type FinanceAssetCardUncheckedCreateInput = {
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type FinanceAssetCardUpdateInput = {
@@ -639,7 +950,7 @@ export type FinanceAssetCardUpdateInput = {
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -648,8 +959,16 @@ export type FinanceAssetCardUpdateInput = {
   residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
   openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -661,29 +980,56 @@ export type FinanceAssetCardUpdateInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
   costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
 }
 
 export type FinanceAssetCardUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
   openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -699,25 +1045,44 @@ export type FinanceAssetCardUncheckedUpdateInput = {
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 export type FinanceAssetCardCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  categoryId: number
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
   acquisitionDate?: string | null
   depreciationStartDate?: string | null
   originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: number | null
   method?: string
+  initializationMode?: string
   openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
   status?: string
   nonAmortizationReason?: string | null
   note?: string | null
@@ -736,7 +1101,7 @@ export type FinanceAssetCardUpdateManyMutationInput = {
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -745,8 +1110,16 @@ export type FinanceAssetCardUpdateManyMutationInput = {
   residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
   openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -763,20 +1136,36 @@ export type FinanceAssetCardUpdateManyMutationInput = {
 export type FinanceAssetCardUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
   openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -788,6 +1177,16 @@ export type FinanceAssetCardUncheckedUpdateManyInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetCardListRelationFilter = {
+  every?: Prisma.FinanceAssetCardWhereInput
+  some?: Prisma.FinanceAssetCardWhereInput
+  none?: Prisma.FinanceAssetCardWhereInput
+}
+
+export type FinanceAssetCardOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type FinanceAssetCardCompanyCodeAssetCodeCompoundUniqueInput = {
@@ -803,20 +1202,36 @@ export type FinanceAssetCardCompanyCodeSourceKeyCompoundUniqueInput = {
 export type FinanceAssetCardCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   assetCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   assetKind?: Prisma.SortOrder
-  category?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrder
   assetAccountCode?: Prisma.SortOrder
   accumulatedAccountCode?: Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrder
   acquisitionDate?: Prisma.SortOrder
   depreciationStartDate?: Prisma.SortOrder
   originalCost?: Prisma.SortOrder
   residualRate?: Prisma.SortOrder
   usefulLifeMonths?: Prisma.SortOrder
   method?: Prisma.SortOrder
+  initializationMode?: Prisma.SortOrder
   openingAccumulatedAmount?: Prisma.SortOrder
+  openingImpairmentAmount?: Prisma.SortOrder
+  openingNetBookValue?: Prisma.SortOrder
   openingAsOfDate?: Prisma.SortOrder
+  cutoverDate?: Prisma.SortOrder
+  remainingUsefulLifeMonthsAtCutover?: Prisma.SortOrder
+  cutoverResidualValue?: Prisma.SortOrder
+  cutoverAllocationStatus?: Prisma.SortOrder
+  cutoverReconciliationFingerprint?: Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrder
+  cutoverAssetBalanceId?: Prisma.SortOrder
+  cutoverAccumulatedBalanceId?: Prisma.SortOrder
+  cutoverImpairmentBalanceId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   nonAmortizationReason?: Prisma.SortOrder
   note?: Prisma.SortOrder
@@ -832,10 +1247,22 @@ export type FinanceAssetCardCountOrderByAggregateInput = {
 
 export type FinanceAssetCardAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrder
   originalCost?: Prisma.SortOrder
   residualRate?: Prisma.SortOrder
   usefulLifeMonths?: Prisma.SortOrder
   openingAccumulatedAmount?: Prisma.SortOrder
+  openingImpairmentAmount?: Prisma.SortOrder
+  openingNetBookValue?: Prisma.SortOrder
+  remainingUsefulLifeMonthsAtCutover?: Prisma.SortOrder
+  cutoverResidualValue?: Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrder
+  cutoverAssetBalanceId?: Prisma.SortOrder
+  cutoverAccumulatedBalanceId?: Prisma.SortOrder
+  cutoverImpairmentBalanceId?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -844,20 +1271,36 @@ export type FinanceAssetCardAvgOrderByAggregateInput = {
 export type FinanceAssetCardMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   assetCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   assetKind?: Prisma.SortOrder
-  category?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrder
   assetAccountCode?: Prisma.SortOrder
   accumulatedAccountCode?: Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrder
   acquisitionDate?: Prisma.SortOrder
   depreciationStartDate?: Prisma.SortOrder
   originalCost?: Prisma.SortOrder
   residualRate?: Prisma.SortOrder
   usefulLifeMonths?: Prisma.SortOrder
   method?: Prisma.SortOrder
+  initializationMode?: Prisma.SortOrder
   openingAccumulatedAmount?: Prisma.SortOrder
+  openingImpairmentAmount?: Prisma.SortOrder
+  openingNetBookValue?: Prisma.SortOrder
   openingAsOfDate?: Prisma.SortOrder
+  cutoverDate?: Prisma.SortOrder
+  remainingUsefulLifeMonthsAtCutover?: Prisma.SortOrder
+  cutoverResidualValue?: Prisma.SortOrder
+  cutoverAllocationStatus?: Prisma.SortOrder
+  cutoverReconciliationFingerprint?: Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrder
+  cutoverAssetBalanceId?: Prisma.SortOrder
+  cutoverAccumulatedBalanceId?: Prisma.SortOrder
+  cutoverImpairmentBalanceId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   nonAmortizationReason?: Prisma.SortOrder
   note?: Prisma.SortOrder
@@ -874,20 +1317,36 @@ export type FinanceAssetCardMaxOrderByAggregateInput = {
 export type FinanceAssetCardMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   assetCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   assetKind?: Prisma.SortOrder
-  category?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrder
   assetAccountCode?: Prisma.SortOrder
   accumulatedAccountCode?: Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrder
   acquisitionDate?: Prisma.SortOrder
   depreciationStartDate?: Prisma.SortOrder
   originalCost?: Prisma.SortOrder
   residualRate?: Prisma.SortOrder
   usefulLifeMonths?: Prisma.SortOrder
   method?: Prisma.SortOrder
+  initializationMode?: Prisma.SortOrder
   openingAccumulatedAmount?: Prisma.SortOrder
+  openingImpairmentAmount?: Prisma.SortOrder
+  openingNetBookValue?: Prisma.SortOrder
   openingAsOfDate?: Prisma.SortOrder
+  cutoverDate?: Prisma.SortOrder
+  remainingUsefulLifeMonthsAtCutover?: Prisma.SortOrder
+  cutoverResidualValue?: Prisma.SortOrder
+  cutoverAllocationStatus?: Prisma.SortOrder
+  cutoverReconciliationFingerprint?: Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrder
+  cutoverAssetBalanceId?: Prisma.SortOrder
+  cutoverAccumulatedBalanceId?: Prisma.SortOrder
+  cutoverImpairmentBalanceId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   nonAmortizationReason?: Prisma.SortOrder
   note?: Prisma.SortOrder
@@ -903,10 +1362,22 @@ export type FinanceAssetCardMinOrderByAggregateInput = {
 
 export type FinanceAssetCardSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  assetAccountId?: Prisma.SortOrder
+  accumulatedAccountId?: Prisma.SortOrder
   originalCost?: Prisma.SortOrder
   residualRate?: Prisma.SortOrder
   usefulLifeMonths?: Prisma.SortOrder
   openingAccumulatedAmount?: Prisma.SortOrder
+  openingImpairmentAmount?: Prisma.SortOrder
+  openingNetBookValue?: Prisma.SortOrder
+  remainingUsefulLifeMonthsAtCutover?: Prisma.SortOrder
+  cutoverResidualValue?: Prisma.SortOrder
+  cutoverPeriodId?: Prisma.SortOrder
+  cutoverAssetBalanceId?: Prisma.SortOrder
+  cutoverAccumulatedBalanceId?: Prisma.SortOrder
+  cutoverImpairmentBalanceId?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -920,6 +1391,62 @@ export type FinanceAssetCardScalarRelationFilter = {
 export type FinanceAssetCardNullableScalarRelationFilter = {
   is?: Prisma.FinanceAssetCardWhereInput | null
   isNot?: Prisma.FinanceAssetCardWhereInput | null
+}
+
+export type FinanceAssetCardCreateNestedManyWithoutCategoryInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput> | Prisma.FinanceAssetCardCreateWithoutCategoryInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCategoryInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUncheckedCreateNestedManyWithoutCategoryInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput> | Prisma.FinanceAssetCardCreateWithoutCategoryInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCategoryInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUpdateManyWithoutCategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput> | Prisma.FinanceAssetCardCreateWithoutCategoryInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCategoryInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCategoryInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCategoryInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCategoryInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCategoryInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCategoryInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCategoryInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput> | Prisma.FinanceAssetCardCreateWithoutCategoryInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCategoryInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCategoryInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCategoryInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCategoryInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCategoryInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCategoryInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCategoryInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCategoryInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardCreateNestedOneWithoutAcquisitionEvidenceInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAcquisitionEvidenceInput>
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAcquisitionEvidenceInput
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput
+}
+
+export type FinanceAssetCardUpdateOneRequiredWithoutAcquisitionEvidenceNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAcquisitionEvidenceInput>
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAcquisitionEvidenceInput
+  upsert?: Prisma.FinanceAssetCardUpsertWithoutAcquisitionEvidenceInput
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAssetCardUpdateToOneWithWhereWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUpdateWithoutAcquisitionEvidenceInput>, Prisma.FinanceAssetCardUncheckedUpdateWithoutAcquisitionEvidenceInput>
 }
 
 export type FinanceAssetCardCreateNestedOneWithoutCostLinesInput = {
@@ -980,12 +1507,334 @@ export type FinanceAssetCardUpdateOneWithoutAdjustmentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAssetCardUpdateToOneWithWhereWithoutAdjustmentsInput, Prisma.FinanceAssetCardUpdateWithoutAdjustmentsInput>, Prisma.FinanceAssetCardUncheckedUpdateWithoutAdjustmentsInput>
 }
 
-export type FinanceAssetCardCreateWithoutCostLinesInput = {
+export type FinanceAssetCardCreateNestedOneWithoutImpairmentAllocationsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUncheckedCreateWithoutImpairmentAllocationsInput>
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutImpairmentAllocationsInput
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput
+}
+
+export type FinanceAssetCardUpdateOneRequiredWithoutImpairmentAllocationsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUncheckedCreateWithoutImpairmentAllocationsInput>
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutImpairmentAllocationsInput
+  upsert?: Prisma.FinanceAssetCardUpsertWithoutImpairmentAllocationsInput
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAssetCardUpdateToOneWithWhereWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUpdateWithoutImpairmentAllocationsInput>, Prisma.FinanceAssetCardUncheckedUpdateWithoutImpairmentAllocationsInput>
+}
+
+export type FinanceAssetCardCreateNestedOneWithoutDisposalInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutDisposalInput, Prisma.FinanceAssetCardUncheckedCreateWithoutDisposalInput>
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutDisposalInput
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput
+}
+
+export type FinanceAssetCardUpdateOneRequiredWithoutDisposalNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutDisposalInput, Prisma.FinanceAssetCardUncheckedCreateWithoutDisposalInput>
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutDisposalInput
+  upsert?: Prisma.FinanceAssetCardUpsertWithoutDisposalInput
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAssetCardUpdateToOneWithWhereWithoutDisposalInput, Prisma.FinanceAssetCardUpdateWithoutDisposalInput>, Prisma.FinanceAssetCardUncheckedUpdateWithoutDisposalInput>
+}
+
+export type FinanceAssetCardCreateNestedManyWithoutAssetAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput> | Prisma.FinanceAssetCardCreateWithoutAssetAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAssetAccountInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput> | Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAccumulatedAccountInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput> | Prisma.FinanceAssetCardCreateWithoutAssetAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAssetAccountInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput> | Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAccumulatedAccountInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput> | Prisma.FinanceAssetCardCreateWithoutAssetAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAssetAccountInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAssetAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAssetAccountInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAssetAccountInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAssetAccountInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAssetAccountInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAssetAccountInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput> | Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAccumulatedAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAccumulatedAccountInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAccumulatedAccountInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAccumulatedAccountInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput> | Prisma.FinanceAssetCardCreateWithoutAssetAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAssetAccountInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAssetAccountInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAssetAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAssetAccountInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAssetAccountInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAssetAccountInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAssetAccountInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAssetAccountInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput> | Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutAccumulatedAccountInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyAccumulatedAccountInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutAccumulatedAccountInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAccumulatedAccountInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutAccumulatedAccountInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardCreateNestedManyWithoutCutoverPeriodInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverPeriodInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverPeriodInput> | Prisma.FinanceAssetCardCreateWithoutCutoverPeriodInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverPeriodInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverPeriodInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverPeriodInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverPeriodInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverPeriodInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverPeriodInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverPeriodInput> | Prisma.FinanceAssetCardCreateWithoutCutoverPeriodInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverPeriodInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverPeriodInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverPeriodInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverPeriodInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUpdateManyWithoutCutoverPeriodNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverPeriodInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverPeriodInput> | Prisma.FinanceAssetCardCreateWithoutCutoverPeriodInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverPeriodInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverPeriodInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverPeriodInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverPeriodInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverPeriodInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverPeriodInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverPeriodInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverPeriodInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverPeriodInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverPeriodInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCutoverPeriodNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverPeriodInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverPeriodInput> | Prisma.FinanceAssetCardCreateWithoutCutoverPeriodInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverPeriodInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverPeriodInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverPeriodInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverPeriodInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverPeriodInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverPeriodInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverPeriodInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverPeriodInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverPeriodInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverPeriodInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardCreateNestedManyWithoutCutoverAssetBalanceInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverAssetBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAssetBalanceInput> | Prisma.FinanceAssetCardCreateWithoutCutoverAssetBalanceInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAssetBalanceInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAssetBalanceInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAssetBalanceInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverAssetBalanceInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardCreateNestedManyWithoutCutoverAccumulatedBalanceInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverAccumulatedBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAccumulatedBalanceInput> | Prisma.FinanceAssetCardCreateWithoutCutoverAccumulatedBalanceInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAccumulatedBalanceInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAccumulatedBalanceInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAccumulatedBalanceInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverAccumulatedBalanceInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardCreateNestedManyWithoutCutoverImpairmentBalanceInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverImpairmentBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverImpairmentBalanceInput> | Prisma.FinanceAssetCardCreateWithoutCutoverImpairmentBalanceInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverImpairmentBalanceInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverImpairmentBalanceInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverImpairmentBalanceInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverImpairmentBalanceInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAssetBalanceInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverAssetBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAssetBalanceInput> | Prisma.FinanceAssetCardCreateWithoutCutoverAssetBalanceInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAssetBalanceInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAssetBalanceInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAssetBalanceInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverAssetBalanceInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverAccumulatedBalanceInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverAccumulatedBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAccumulatedBalanceInput> | Prisma.FinanceAssetCardCreateWithoutCutoverAccumulatedBalanceInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAccumulatedBalanceInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAccumulatedBalanceInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAccumulatedBalanceInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverAccumulatedBalanceInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUncheckedCreateNestedManyWithoutCutoverImpairmentBalanceInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverImpairmentBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverImpairmentBalanceInput> | Prisma.FinanceAssetCardCreateWithoutCutoverImpairmentBalanceInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverImpairmentBalanceInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverImpairmentBalanceInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverImpairmentBalanceInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverImpairmentBalanceInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUpdateManyWithoutCutoverAssetBalanceNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverAssetBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAssetBalanceInput> | Prisma.FinanceAssetCardCreateWithoutCutoverAssetBalanceInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAssetBalanceInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAssetBalanceInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAssetBalanceInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverAssetBalanceInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverAssetBalanceInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverAssetBalanceInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverAssetBalanceInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverAssetBalanceInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverAssetBalanceInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverAssetBalanceInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUpdateManyWithoutCutoverAccumulatedBalanceNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverAccumulatedBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAccumulatedBalanceInput> | Prisma.FinanceAssetCardCreateWithoutCutoverAccumulatedBalanceInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAccumulatedBalanceInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAccumulatedBalanceInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAccumulatedBalanceInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverAccumulatedBalanceInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverAccumulatedBalanceInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverAccumulatedBalanceInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverAccumulatedBalanceInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverAccumulatedBalanceInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverAccumulatedBalanceInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverAccumulatedBalanceInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUpdateManyWithoutCutoverImpairmentBalanceNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverImpairmentBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverImpairmentBalanceInput> | Prisma.FinanceAssetCardCreateWithoutCutoverImpairmentBalanceInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverImpairmentBalanceInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverImpairmentBalanceInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverImpairmentBalanceInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverImpairmentBalanceInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverImpairmentBalanceInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverImpairmentBalanceInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverImpairmentBalanceInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverImpairmentBalanceInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverImpairmentBalanceInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverImpairmentBalanceInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCutoverAssetBalanceNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverAssetBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAssetBalanceInput> | Prisma.FinanceAssetCardCreateWithoutCutoverAssetBalanceInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAssetBalanceInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAssetBalanceInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAssetBalanceInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverAssetBalanceInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverAssetBalanceInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverAssetBalanceInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverAssetBalanceInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverAssetBalanceInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverAssetBalanceInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverAssetBalanceInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCutoverAccumulatedBalanceNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverAccumulatedBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAccumulatedBalanceInput> | Prisma.FinanceAssetCardCreateWithoutCutoverAccumulatedBalanceInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAccumulatedBalanceInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAccumulatedBalanceInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverAccumulatedBalanceInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverAccumulatedBalanceInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverAccumulatedBalanceInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverAccumulatedBalanceInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverAccumulatedBalanceInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverAccumulatedBalanceInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverAccumulatedBalanceInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverAccumulatedBalanceInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCutoverImpairmentBalanceNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverImpairmentBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverImpairmentBalanceInput> | Prisma.FinanceAssetCardCreateWithoutCutoverImpairmentBalanceInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverImpairmentBalanceInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverImpairmentBalanceInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCutoverImpairmentBalanceInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverImpairmentBalanceInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverImpairmentBalanceInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCutoverImpairmentBalanceInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverImpairmentBalanceInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverImpairmentBalanceInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverImpairmentBalanceInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCutoverImpairmentBalanceInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetCardCreateWithoutCompanyInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetCardCreateWithoutCompanyInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+}
+
+export type FinanceAssetCardUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetCardCreateWithoutCompanyInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetCardCreateWithoutCompanyInput[] | Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetCardCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetCardUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetCardCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetCardWhereUniqueInput | Prisma.FinanceAssetCardWhereUniqueInput[]
+  update?: Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetCardUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceAssetCardUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+}
+
+export type FinanceAssetCardCreateWithoutCategoryInput = {
   companyCode: string
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
   acquisitionDate?: string | null
@@ -994,8 +1843,16 @@ export type FinanceAssetCardCreateWithoutCostLinesInput = {
   residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: number | null
   method?: string
+  initializationMode?: string
   openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
   status?: string
   nonAmortizationReason?: string | null
   note?: string | null
@@ -1007,18 +1864,155 @@ export type FinanceAssetCardCreateWithoutCostLinesInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
   allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
 }
 
-export type FinanceAssetCardUncheckedCreateWithoutCostLinesInput = {
+export type FinanceAssetCardUncheckedCreateWithoutCategoryInput = {
   id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutCategoryInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput>
+}
+
+export type FinanceAssetCardCreateManyCategoryInputEnvelope = {
+  data: Prisma.FinanceAssetCardCreateManyCategoryInput | Prisma.FinanceAssetCardCreateManyCategoryInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetCardUpsertWithWhereUniqueWithoutCategoryInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCategoryInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCategoryInput>
+}
+
+export type FinanceAssetCardUpdateWithWhereUniqueWithoutCategoryInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCategoryInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCategoryInput>
+}
+
+export type FinanceAssetCardUpdateManyWithWhereWithoutCategoryInput = {
+  where: Prisma.FinanceAssetCardScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateManyMutationInput, Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCategoryInput>
+}
+
+export type FinanceAssetCardScalarWhereInput = {
+  AND?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+  OR?: Prisma.FinanceAssetCardScalarWhereInput[]
+  NOT?: Prisma.FinanceAssetCardScalarWhereInput | Prisma.FinanceAssetCardScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceAssetCard"> | number
+  companyCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  assetCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  name?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  assetKind?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  categoryId?: Prisma.IntFilter<"FinanceAssetCard"> | number
+  sourceCategory?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  assetAccountCode?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  accumulatedAccountCode?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  assetAccountId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  accumulatedAccountId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  acquisitionDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  depreciationStartDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  originalCost?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  method?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  initializationMode?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  openingAccumulatedAmount?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.DecimalNullableFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  cutoverDate?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  cutoverResidualValue?: Prisma.DecimalNullableFilter<"FinanceAssetCard"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  cutoverReconciliationFingerprint?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  cutoverPeriodId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  cutoverAssetBalanceId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  cutoverAccumulatedBalanceId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  cutoverImpairmentBalanceId?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  status?: Prisma.StringFilter<"FinanceAssetCard"> | string
+  nonAmortizationReason?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  note?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  sourceFile?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  sourceSheet?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  sourceRow?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  sourceKey?: Prisma.StringNullableFilter<"FinanceAssetCard"> | string | null
+  editedBy?: Prisma.IntNullableFilter<"FinanceAssetCard"> | number | null
+  version?: Prisma.IntFilter<"FinanceAssetCard"> | number
+  createdAt?: Prisma.DateTimeFilter<"FinanceAssetCard"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FinanceAssetCard"> | Date | string
+}
+
+export type FinanceAssetCardCreateWithoutAcquisitionEvidenceInput = {
   companyCode: string
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
   acquisitionDate?: string | null
@@ -1027,8 +2021,298 @@ export type FinanceAssetCardUncheckedCreateWithoutCostLinesInput = {
   residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: number | null
   method?: string
+  initializationMode?: string
   openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutAcquisitionEvidenceInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutAcquisitionEvidenceInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAcquisitionEvidenceInput>
+}
+
+export type FinanceAssetCardUpsertWithoutAcquisitionEvidenceInput = {
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutAcquisitionEvidenceInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAcquisitionEvidenceInput>
+  where?: Prisma.FinanceAssetCardWhereInput
+}
+
+export type FinanceAssetCardUpdateToOneWithWhereWithoutAcquisitionEvidenceInput = {
+  where?: Prisma.FinanceAssetCardWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutAcquisitionEvidenceInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutAcquisitionEvidenceInput>
+}
+
+export type FinanceAssetCardUpdateWithoutAcquisitionEvidenceInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutAcquisitionEvidenceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardCreateWithoutCostLinesInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutCostLinesInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
   status?: string
   nonAmortizationReason?: string | null
   note?: string | null
@@ -1043,6 +2327,9 @@ export type FinanceAssetCardUncheckedCreateWithoutCostLinesInput = {
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type FinanceAssetCardCreateOrConnectWithoutCostLinesInput = {
@@ -1066,7 +2353,7 @@ export type FinanceAssetCardUpdateWithoutCostLinesInput = {
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1075,8 +2362,16 @@ export type FinanceAssetCardUpdateWithoutCostLinesInput = {
   residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
   openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1088,28 +2383,55 @@ export type FinanceAssetCardUpdateWithoutCostLinesInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
 }
 
 export type FinanceAssetCardUncheckedUpdateWithoutCostLinesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
   openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1124,6 +2446,9 @@ export type FinanceAssetCardUncheckedUpdateWithoutCostLinesInput = {
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 export type FinanceAssetCardCreateWithoutAllocationsInput = {
@@ -1131,7 +2456,7 @@ export type FinanceAssetCardCreateWithoutAllocationsInput = {
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
   acquisitionDate?: string | null
@@ -1140,8 +2465,16 @@ export type FinanceAssetCardCreateWithoutAllocationsInput = {
   residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: number | null
   method?: string
+  initializationMode?: string
   openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
   status?: string
   nonAmortizationReason?: string | null
   note?: string | null
@@ -1153,28 +2486,55 @@ export type FinanceAssetCardCreateWithoutAllocationsInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
   costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
 }
 
 export type FinanceAssetCardUncheckedCreateWithoutAllocationsInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  categoryId: number
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
   acquisitionDate?: string | null
   depreciationStartDate?: string | null
   originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: number | null
   method?: string
+  initializationMode?: string
   openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
   status?: string
   nonAmortizationReason?: string | null
   note?: string | null
@@ -1189,6 +2549,9 @@ export type FinanceAssetCardUncheckedCreateWithoutAllocationsInput = {
   costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type FinanceAssetCardCreateOrConnectWithoutAllocationsInput = {
@@ -1212,7 +2575,7 @@ export type FinanceAssetCardUpdateWithoutAllocationsInput = {
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1221,8 +2584,16 @@ export type FinanceAssetCardUpdateWithoutAllocationsInput = {
   residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
   openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1234,28 +2605,55 @@ export type FinanceAssetCardUpdateWithoutAllocationsInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
   costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
 }
 
 export type FinanceAssetCardUncheckedUpdateWithoutAllocationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
   openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1270,6 +2668,9 @@ export type FinanceAssetCardUncheckedUpdateWithoutAllocationsInput = {
   costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 export type FinanceAssetCardCreateWithoutPeriodEntriesInput = {
@@ -1277,7 +2678,7 @@ export type FinanceAssetCardCreateWithoutPeriodEntriesInput = {
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
   acquisitionDate?: string | null
@@ -1286,8 +2687,16 @@ export type FinanceAssetCardCreateWithoutPeriodEntriesInput = {
   residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: number | null
   method?: string
+  initializationMode?: string
   openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
   status?: string
   nonAmortizationReason?: string | null
   note?: string | null
@@ -1299,28 +2708,55 @@ export type FinanceAssetCardCreateWithoutPeriodEntriesInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
   costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
   allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
 }
 
 export type FinanceAssetCardUncheckedCreateWithoutPeriodEntriesInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  categoryId: number
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
   acquisitionDate?: string | null
   depreciationStartDate?: string | null
   originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: number | null
   method?: string
+  initializationMode?: string
   openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
   status?: string
   nonAmortizationReason?: string | null
   note?: string | null
@@ -1335,6 +2771,9 @@ export type FinanceAssetCardUncheckedCreateWithoutPeriodEntriesInput = {
   costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type FinanceAssetCardCreateOrConnectWithoutPeriodEntriesInput = {
@@ -1358,7 +2797,7 @@ export type FinanceAssetCardUpdateWithoutPeriodEntriesInput = {
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1367,8 +2806,16 @@ export type FinanceAssetCardUpdateWithoutPeriodEntriesInput = {
   residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
   openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1380,28 +2827,55 @@ export type FinanceAssetCardUpdateWithoutPeriodEntriesInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
   costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
 }
 
 export type FinanceAssetCardUncheckedUpdateWithoutPeriodEntriesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
   openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1416,6 +2890,9 @@ export type FinanceAssetCardUncheckedUpdateWithoutPeriodEntriesInput = {
   costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
   adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 export type FinanceAssetCardCreateWithoutAdjustmentsInput = {
@@ -1423,7 +2900,7 @@ export type FinanceAssetCardCreateWithoutAdjustmentsInput = {
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
   acquisitionDate?: string | null
@@ -1432,8 +2909,16 @@ export type FinanceAssetCardCreateWithoutAdjustmentsInput = {
   residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: number | null
   method?: string
+  initializationMode?: string
   openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
   status?: string
   nonAmortizationReason?: string | null
   note?: string | null
@@ -1445,28 +2930,55 @@ export type FinanceAssetCardCreateWithoutAdjustmentsInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
   costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
   allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
 }
 
 export type FinanceAssetCardUncheckedCreateWithoutAdjustmentsInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetCode: string
   name: string
   assetKind: string
-  category?: string | null
+  categoryId: number
+  sourceCategory?: string | null
   assetAccountCode: string
   accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
   acquisitionDate?: string | null
   depreciationStartDate?: string | null
   originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: number | null
   method?: string
+  initializationMode?: string
   openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
   status?: string
   nonAmortizationReason?: string | null
   note?: string | null
@@ -1481,6 +2993,9 @@ export type FinanceAssetCardUncheckedCreateWithoutAdjustmentsInput = {
   costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type FinanceAssetCardCreateOrConnectWithoutAdjustmentsInput = {
@@ -1504,7 +3019,7 @@ export type FinanceAssetCardUpdateWithoutAdjustmentsInput = {
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1513,8 +3028,16 @@ export type FinanceAssetCardUpdateWithoutAdjustmentsInput = {
   residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
   openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1526,28 +3049,55 @@ export type FinanceAssetCardUpdateWithoutAdjustmentsInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
   costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
 }
 
 export type FinanceAssetCardUncheckedUpdateWithoutAdjustmentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetKind?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
   openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1562,6 +3112,2900 @@ export type FinanceAssetCardUncheckedUpdateWithoutAdjustmentsInput = {
   costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
   allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
   periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardCreateWithoutImpairmentAllocationsInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutImpairmentAllocationsInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutImpairmentAllocationsInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUncheckedCreateWithoutImpairmentAllocationsInput>
+}
+
+export type FinanceAssetCardUpsertWithoutImpairmentAllocationsInput = {
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutImpairmentAllocationsInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUncheckedCreateWithoutImpairmentAllocationsInput>
+  where?: Prisma.FinanceAssetCardWhereInput
+}
+
+export type FinanceAssetCardUpdateToOneWithWhereWithoutImpairmentAllocationsInput = {
+  where?: Prisma.FinanceAssetCardWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutImpairmentAllocationsInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutImpairmentAllocationsInput>
+}
+
+export type FinanceAssetCardUpdateWithoutImpairmentAllocationsInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutImpairmentAllocationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardCreateWithoutDisposalInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutDisposalInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutDisposalInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutDisposalInput, Prisma.FinanceAssetCardUncheckedCreateWithoutDisposalInput>
+}
+
+export type FinanceAssetCardUpsertWithoutDisposalInput = {
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutDisposalInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutDisposalInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutDisposalInput, Prisma.FinanceAssetCardUncheckedCreateWithoutDisposalInput>
+  where?: Prisma.FinanceAssetCardWhereInput
+}
+
+export type FinanceAssetCardUpdateToOneWithWhereWithoutDisposalInput = {
+  where?: Prisma.FinanceAssetCardWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutDisposalInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutDisposalInput>
+}
+
+export type FinanceAssetCardUpdateWithoutDisposalInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutDisposalInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardCreateWithoutAssetAccountInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutAssetAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutAssetAccountInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput>
+}
+
+export type FinanceAssetCardCreateManyAssetAccountInputEnvelope = {
+  data: Prisma.FinanceAssetCardCreateManyAssetAccountInput | Prisma.FinanceAssetCardCreateManyAssetAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetCardCreateWithoutAccumulatedAccountInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutAccumulatedAccountInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput>
+}
+
+export type FinanceAssetCardCreateManyAccumulatedAccountInputEnvelope = {
+  data: Prisma.FinanceAssetCardCreateManyAccumulatedAccountInput | Prisma.FinanceAssetCardCreateManyAccumulatedAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetCardUpsertWithWhereUniqueWithoutAssetAccountInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutAssetAccountInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAssetAccountInput>
+}
+
+export type FinanceAssetCardUpdateWithWhereUniqueWithoutAssetAccountInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutAssetAccountInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutAssetAccountInput>
+}
+
+export type FinanceAssetCardUpdateManyWithWhereWithoutAssetAccountInput = {
+  where: Prisma.FinanceAssetCardScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateManyMutationInput, Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountInput>
+}
+
+export type FinanceAssetCardUpsertWithWhereUniqueWithoutAccumulatedAccountInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutAccumulatedAccountInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedCreateWithoutAccumulatedAccountInput>
+}
+
+export type FinanceAssetCardUpdateWithWhereUniqueWithoutAccumulatedAccountInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutAccumulatedAccountInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutAccumulatedAccountInput>
+}
+
+export type FinanceAssetCardUpdateManyWithWhereWithoutAccumulatedAccountInput = {
+  where: Prisma.FinanceAssetCardScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateManyMutationInput, Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountInput>
+}
+
+export type FinanceAssetCardCreateWithoutCutoverPeriodInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutCutoverPeriodInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutCutoverPeriodInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverPeriodInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverPeriodInput>
+}
+
+export type FinanceAssetCardCreateManyCutoverPeriodInputEnvelope = {
+  data: Prisma.FinanceAssetCardCreateManyCutoverPeriodInput | Prisma.FinanceAssetCardCreateManyCutoverPeriodInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverPeriodInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCutoverPeriodInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCutoverPeriodInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverPeriodInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverPeriodInput>
+}
+
+export type FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverPeriodInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCutoverPeriodInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCutoverPeriodInput>
+}
+
+export type FinanceAssetCardUpdateManyWithWhereWithoutCutoverPeriodInput = {
+  where: Prisma.FinanceAssetCardScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateManyMutationInput, Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverPeriodInput>
+}
+
+export type FinanceAssetCardCreateWithoutCutoverAssetBalanceInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutCutoverAssetBalanceInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutCutoverAssetBalanceInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverAssetBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAssetBalanceInput>
+}
+
+export type FinanceAssetCardCreateManyCutoverAssetBalanceInputEnvelope = {
+  data: Prisma.FinanceAssetCardCreateManyCutoverAssetBalanceInput | Prisma.FinanceAssetCardCreateManyCutoverAssetBalanceInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetCardCreateWithoutCutoverAccumulatedBalanceInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutCutoverAccumulatedBalanceInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutCutoverAccumulatedBalanceInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverAccumulatedBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAccumulatedBalanceInput>
+}
+
+export type FinanceAssetCardCreateManyCutoverAccumulatedBalanceInputEnvelope = {
+  data: Prisma.FinanceAssetCardCreateManyCutoverAccumulatedBalanceInput | Prisma.FinanceAssetCardCreateManyCutoverAccumulatedBalanceInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetCardCreateWithoutCutoverImpairmentBalanceInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetCardsInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutCutoverImpairmentBalanceInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutCutoverImpairmentBalanceInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverImpairmentBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverImpairmentBalanceInput>
+}
+
+export type FinanceAssetCardCreateManyCutoverImpairmentBalanceInputEnvelope = {
+  data: Prisma.FinanceAssetCardCreateManyCutoverImpairmentBalanceInput | Prisma.FinanceAssetCardCreateManyCutoverImpairmentBalanceInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverAssetBalanceInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCutoverAssetBalanceInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCutoverAssetBalanceInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverAssetBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAssetBalanceInput>
+}
+
+export type FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverAssetBalanceInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCutoverAssetBalanceInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCutoverAssetBalanceInput>
+}
+
+export type FinanceAssetCardUpdateManyWithWhereWithoutCutoverAssetBalanceInput = {
+  where: Prisma.FinanceAssetCardScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateManyMutationInput, Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAssetBalanceInput>
+}
+
+export type FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverAccumulatedBalanceInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCutoverAccumulatedBalanceInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCutoverAccumulatedBalanceInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverAccumulatedBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverAccumulatedBalanceInput>
+}
+
+export type FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverAccumulatedBalanceInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCutoverAccumulatedBalanceInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCutoverAccumulatedBalanceInput>
+}
+
+export type FinanceAssetCardUpdateManyWithWhereWithoutCutoverAccumulatedBalanceInput = {
+  where: Prisma.FinanceAssetCardScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateManyMutationInput, Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverAccumulatedBalanceInput>
+}
+
+export type FinanceAssetCardUpsertWithWhereUniqueWithoutCutoverImpairmentBalanceInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCutoverImpairmentBalanceInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCutoverImpairmentBalanceInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCutoverImpairmentBalanceInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCutoverImpairmentBalanceInput>
+}
+
+export type FinanceAssetCardUpdateWithWhereUniqueWithoutCutoverImpairmentBalanceInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCutoverImpairmentBalanceInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCutoverImpairmentBalanceInput>
+}
+
+export type FinanceAssetCardUpdateManyWithWhereWithoutCutoverImpairmentBalanceInput = {
+  where: Prisma.FinanceAssetCardScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateManyMutationInput, Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCutoverImpairmentBalanceInput>
+}
+
+export type FinanceAssetCardCreateWithoutCompanyInput = {
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinanceAssetCategoryCreateNestedOneWithoutCardsInput
+  assetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAssetCardsInput
+  accumulatedAccount?: Prisma.FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput
+  cutoverPeriod?: Prisma.FinancePeriodCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAssetCutoverCardsInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutAccumulatedAssetCutoverCardsInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceCreateNestedOneWithoutImpairmentAssetCutoverCardsInput
+  costLines?: Prisma.FinanceAssetCostLineCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedCreateNestedManyWithoutAssetInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutAssetInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutAssetInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAssetInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedCreateNestedOneWithoutAssetInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedOneWithoutAssetInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type FinanceAssetCardCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceAssetCardCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceAssetCardCreateManyCompanyInput | Prisma.FinanceAssetCardCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetCardUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceAssetCardCreateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceAssetCardUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceAssetCardWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateWithoutCompanyInput, Prisma.FinanceAssetCardUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceAssetCardUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceAssetCardScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetCardUpdateManyMutationInput, Prisma.FinanceAssetCardUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type FinanceAssetCardCreateManyCategoryInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetCardUpdateWithoutCategoryInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutCategoryInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCategoryInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetCardCreateManyAssetAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetCardCreateManyAccumulatedAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetCardUpdateWithoutAssetAccountInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutAssetAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetCardUpdateWithoutAccumulatedAccountInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutAccumulatedAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetCardCreateManyCutoverPeriodInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetCardUpdateWithoutCutoverPeriodInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutCutoverPeriodInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCutoverPeriodInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetCardCreateManyCutoverAssetBalanceInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetCardCreateManyCutoverAccumulatedBalanceInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetCardCreateManyCutoverImpairmentBalanceInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetCardUpdateWithoutCutoverAssetBalanceInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutCutoverAssetBalanceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCutoverAssetBalanceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetCardUpdateWithoutCutoverAccumulatedBalanceInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutCutoverAccumulatedBalanceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCutoverAccumulatedBalanceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetCardUpdateWithoutCutoverImpairmentBalanceInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetCardsNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutCutoverImpairmentBalanceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCutoverImpairmentBalanceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetCardCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  assetCode: string
+  name: string
+  assetKind: string
+  categoryId: number
+  sourceCategory?: string | null
+  assetAccountCode: string
+  accumulatedAccountCode?: string | null
+  assetAccountId?: number | null
+  accumulatedAccountId?: number | null
+  acquisitionDate?: string | null
+  depreciationStartDate?: string | null
+  originalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: number | null
+  method?: string
+  initializationMode?: string
+  openingAccumulatedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: string | null
+  cutoverDate?: string | null
+  remainingUsefulLifeMonthsAtCutover?: number | null
+  cutoverResidualValue?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: string | null
+  cutoverReconciliationFingerprint?: string | null
+  cutoverPeriodId?: number | null
+  cutoverAssetBalanceId?: number | null
+  cutoverAccumulatedBalanceId?: number | null
+  cutoverImpairmentBalanceId?: number | null
+  status?: string
+  nonAmortizationReason?: string | null
+  note?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  editedBy?: number | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAssetCardUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinanceAssetCategoryUpdateOneRequiredWithoutCardsNestedInput
+  assetAccount?: Prisma.FinanceAccountUpdateOneWithoutAssetCardsNestedInput
+  accumulatedAccount?: Prisma.FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput
+  cutoverPeriod?: Prisma.FinancePeriodUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAssetBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAssetCutoverCardsNestedInput
+  cutoverAccumulatedBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutAccumulatedAssetCutoverCardsNestedInput
+  cutoverImpairmentBalance?: Prisma.FinanceAccountBalanceUpdateOneWithoutImpairmentAssetCutoverCardsNestedInput
+  costLines?: Prisma.FinanceAssetCostLineUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costLines?: Prisma.FinanceAssetCostLineUncheckedUpdateManyWithoutAssetNestedInput
+  allocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  periodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutAssetNestedInput
+  adjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput
+  disposal?: Prisma.FinanceAssetDisposalUncheckedUpdateOneWithoutAssetNestedInput
+  acquisitionEvidence?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateOneWithoutAssetNestedInput
+  impairmentAllocations?: Prisma.FinanceAssetImpairmentAllocationUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type FinanceAssetCardUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  assetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accumulatedAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accumulatedAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  acquisitionDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depreciationStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  residualRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usefulLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  method?: Prisma.StringFieldUpdateOperationsInput | string
+  initializationMode?: Prisma.StringFieldUpdateOperationsInput | string
+  openingAccumulatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingImpairmentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  openingNetBookValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  openingAsOfDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remainingUsefulLifeMonthsAtCutover?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverResidualValue?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cutoverAllocationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverReconciliationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoverPeriodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAssetBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverAccumulatedBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cutoverImpairmentBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  nonAmortizationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1574,6 +6018,7 @@ export type FinanceAssetCardCountOutputType = {
   allocations: number
   periodEntries: number
   adjustments: number
+  impairmentAllocations: number
 }
 
 export type FinanceAssetCardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1581,6 +6026,7 @@ export type FinanceAssetCardCountOutputTypeSelect<ExtArgs extends runtime.Types.
   allocations?: boolean | FinanceAssetCardCountOutputTypeCountAllocationsArgs
   periodEntries?: boolean | FinanceAssetCardCountOutputTypeCountPeriodEntriesArgs
   adjustments?: boolean | FinanceAssetCardCountOutputTypeCountAdjustmentsArgs
+  impairmentAllocations?: boolean | FinanceAssetCardCountOutputTypeCountImpairmentAllocationsArgs
 }
 
 /**
@@ -1621,24 +6067,47 @@ export type FinanceAssetCardCountOutputTypeCountAdjustmentsArgs<ExtArgs extends 
   where?: Prisma.FinanceAssetAdjustmentWhereInput
 }
 
+/**
+ * FinanceAssetCardCountOutputType without action
+ */
+export type FinanceAssetCardCountOutputTypeCountImpairmentAllocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetImpairmentAllocationWhereInput
+}
+
 
 export type FinanceAssetCardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   assetCode?: boolean
   name?: boolean
   assetKind?: boolean
-  category?: boolean
+  categoryId?: boolean
+  sourceCategory?: boolean
   assetAccountCode?: boolean
   accumulatedAccountCode?: boolean
+  assetAccountId?: boolean
+  accumulatedAccountId?: boolean
   acquisitionDate?: boolean
   depreciationStartDate?: boolean
   originalCost?: boolean
   residualRate?: boolean
   usefulLifeMonths?: boolean
   method?: boolean
+  initializationMode?: boolean
   openingAccumulatedAmount?: boolean
+  openingImpairmentAmount?: boolean
+  openingNetBookValue?: boolean
   openingAsOfDate?: boolean
+  cutoverDate?: boolean
+  remainingUsefulLifeMonthsAtCutover?: boolean
+  cutoverResidualValue?: boolean
+  cutoverAllocationStatus?: boolean
+  cutoverReconciliationFingerprint?: boolean
+  cutoverPeriodId?: boolean
+  cutoverAssetBalanceId?: boolean
+  cutoverAccumulatedBalanceId?: boolean
+  cutoverImpairmentBalanceId?: boolean
   status?: boolean
   nonAmortizationReason?: boolean
   note?: boolean
@@ -1650,30 +6119,57 @@ export type FinanceAssetCardSelect<ExtArgs extends runtime.Types.Extensions.Inte
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  category?: boolean | Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>
+  assetAccount?: boolean | Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>
+  accumulatedAccount?: boolean | Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>
+  cutoverPeriod?: boolean | Prisma.FinanceAssetCard$cutoverPeriodArgs<ExtArgs>
+  cutoverAssetBalance?: boolean | Prisma.FinanceAssetCard$cutoverAssetBalanceArgs<ExtArgs>
+  cutoverAccumulatedBalance?: boolean | Prisma.FinanceAssetCard$cutoverAccumulatedBalanceArgs<ExtArgs>
+  cutoverImpairmentBalance?: boolean | Prisma.FinanceAssetCard$cutoverImpairmentBalanceArgs<ExtArgs>
   costLines?: boolean | Prisma.FinanceAssetCard$costLinesArgs<ExtArgs>
   allocations?: boolean | Prisma.FinanceAssetCard$allocationsArgs<ExtArgs>
   periodEntries?: boolean | Prisma.FinanceAssetCard$periodEntriesArgs<ExtArgs>
   adjustments?: boolean | Prisma.FinanceAssetCard$adjustmentsArgs<ExtArgs>
+  disposal?: boolean | Prisma.FinanceAssetCard$disposalArgs<ExtArgs>
+  acquisitionEvidence?: boolean | Prisma.FinanceAssetCard$acquisitionEvidenceArgs<ExtArgs>
+  impairmentAllocations?: boolean | Prisma.FinanceAssetCard$impairmentAllocationsArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetCard$companyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAssetCardCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetCard"]>
 
 export type FinanceAssetCardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   assetCode?: boolean
   name?: boolean
   assetKind?: boolean
-  category?: boolean
+  categoryId?: boolean
+  sourceCategory?: boolean
   assetAccountCode?: boolean
   accumulatedAccountCode?: boolean
+  assetAccountId?: boolean
+  accumulatedAccountId?: boolean
   acquisitionDate?: boolean
   depreciationStartDate?: boolean
   originalCost?: boolean
   residualRate?: boolean
   usefulLifeMonths?: boolean
   method?: boolean
+  initializationMode?: boolean
   openingAccumulatedAmount?: boolean
+  openingImpairmentAmount?: boolean
+  openingNetBookValue?: boolean
   openingAsOfDate?: boolean
+  cutoverDate?: boolean
+  remainingUsefulLifeMonthsAtCutover?: boolean
+  cutoverResidualValue?: boolean
+  cutoverAllocationStatus?: boolean
+  cutoverReconciliationFingerprint?: boolean
+  cutoverPeriodId?: boolean
+  cutoverAssetBalanceId?: boolean
+  cutoverAccumulatedBalanceId?: boolean
+  cutoverImpairmentBalanceId?: boolean
   status?: boolean
   nonAmortizationReason?: boolean
   note?: boolean
@@ -1685,25 +6181,49 @@ export type FinanceAssetCardSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  category?: boolean | Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>
+  assetAccount?: boolean | Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>
+  accumulatedAccount?: boolean | Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>
+  cutoverPeriod?: boolean | Prisma.FinanceAssetCard$cutoverPeriodArgs<ExtArgs>
+  cutoverAssetBalance?: boolean | Prisma.FinanceAssetCard$cutoverAssetBalanceArgs<ExtArgs>
+  cutoverAccumulatedBalance?: boolean | Prisma.FinanceAssetCard$cutoverAccumulatedBalanceArgs<ExtArgs>
+  cutoverImpairmentBalance?: boolean | Prisma.FinanceAssetCard$cutoverImpairmentBalanceArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetCard$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetCard"]>
 
 export type FinanceAssetCardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   assetCode?: boolean
   name?: boolean
   assetKind?: boolean
-  category?: boolean
+  categoryId?: boolean
+  sourceCategory?: boolean
   assetAccountCode?: boolean
   accumulatedAccountCode?: boolean
+  assetAccountId?: boolean
+  accumulatedAccountId?: boolean
   acquisitionDate?: boolean
   depreciationStartDate?: boolean
   originalCost?: boolean
   residualRate?: boolean
   usefulLifeMonths?: boolean
   method?: boolean
+  initializationMode?: boolean
   openingAccumulatedAmount?: boolean
+  openingImpairmentAmount?: boolean
+  openingNetBookValue?: boolean
   openingAsOfDate?: boolean
+  cutoverDate?: boolean
+  remainingUsefulLifeMonthsAtCutover?: boolean
+  cutoverResidualValue?: boolean
+  cutoverAllocationStatus?: boolean
+  cutoverReconciliationFingerprint?: boolean
+  cutoverPeriodId?: boolean
+  cutoverAssetBalanceId?: boolean
+  cutoverAccumulatedBalanceId?: boolean
+  cutoverImpairmentBalanceId?: boolean
   status?: boolean
   nonAmortizationReason?: boolean
   note?: boolean
@@ -1715,25 +6235,49 @@ export type FinanceAssetCardSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  category?: boolean | Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>
+  assetAccount?: boolean | Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>
+  accumulatedAccount?: boolean | Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>
+  cutoverPeriod?: boolean | Prisma.FinanceAssetCard$cutoverPeriodArgs<ExtArgs>
+  cutoverAssetBalance?: boolean | Prisma.FinanceAssetCard$cutoverAssetBalanceArgs<ExtArgs>
+  cutoverAccumulatedBalance?: boolean | Prisma.FinanceAssetCard$cutoverAccumulatedBalanceArgs<ExtArgs>
+  cutoverImpairmentBalance?: boolean | Prisma.FinanceAssetCard$cutoverImpairmentBalanceArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetCard$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetCard"]>
 
 export type FinanceAssetCardSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   assetCode?: boolean
   name?: boolean
   assetKind?: boolean
-  category?: boolean
+  categoryId?: boolean
+  sourceCategory?: boolean
   assetAccountCode?: boolean
   accumulatedAccountCode?: boolean
+  assetAccountId?: boolean
+  accumulatedAccountId?: boolean
   acquisitionDate?: boolean
   depreciationStartDate?: boolean
   originalCost?: boolean
   residualRate?: boolean
   usefulLifeMonths?: boolean
   method?: boolean
+  initializationMode?: boolean
   openingAccumulatedAmount?: boolean
+  openingImpairmentAmount?: boolean
+  openingNetBookValue?: boolean
   openingAsOfDate?: boolean
+  cutoverDate?: boolean
+  remainingUsefulLifeMonthsAtCutover?: boolean
+  cutoverResidualValue?: boolean
+  cutoverAllocationStatus?: boolean
+  cutoverReconciliationFingerprint?: boolean
+  cutoverPeriodId?: boolean
+  cutoverAssetBalanceId?: boolean
+  cutoverAccumulatedBalanceId?: boolean
+  cutoverImpairmentBalanceId?: boolean
   status?: boolean
   nonAmortizationReason?: boolean
   note?: boolean
@@ -1747,42 +6291,98 @@ export type FinanceAssetCardSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceAssetCardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "assetCode" | "name" | "assetKind" | "category" | "assetAccountCode" | "accumulatedAccountCode" | "acquisitionDate" | "depreciationStartDate" | "originalCost" | "residualRate" | "usefulLifeMonths" | "method" | "openingAccumulatedAmount" | "openingAsOfDate" | "status" | "nonAmortizationReason" | "note" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceKey" | "editedBy" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAssetCard"]>
+export type FinanceAssetCardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "assetCode" | "name" | "assetKind" | "categoryId" | "sourceCategory" | "assetAccountCode" | "accumulatedAccountCode" | "assetAccountId" | "accumulatedAccountId" | "acquisitionDate" | "depreciationStartDate" | "originalCost" | "residualRate" | "usefulLifeMonths" | "method" | "initializationMode" | "openingAccumulatedAmount" | "openingImpairmentAmount" | "openingNetBookValue" | "openingAsOfDate" | "cutoverDate" | "remainingUsefulLifeMonthsAtCutover" | "cutoverResidualValue" | "cutoverAllocationStatus" | "cutoverReconciliationFingerprint" | "cutoverPeriodId" | "cutoverAssetBalanceId" | "cutoverAccumulatedBalanceId" | "cutoverImpairmentBalanceId" | "status" | "nonAmortizationReason" | "note" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceKey" | "editedBy" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAssetCard"]>
 export type FinanceAssetCardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  category?: boolean | Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>
+  assetAccount?: boolean | Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>
+  accumulatedAccount?: boolean | Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>
+  cutoverPeriod?: boolean | Prisma.FinanceAssetCard$cutoverPeriodArgs<ExtArgs>
+  cutoverAssetBalance?: boolean | Prisma.FinanceAssetCard$cutoverAssetBalanceArgs<ExtArgs>
+  cutoverAccumulatedBalance?: boolean | Prisma.FinanceAssetCard$cutoverAccumulatedBalanceArgs<ExtArgs>
+  cutoverImpairmentBalance?: boolean | Prisma.FinanceAssetCard$cutoverImpairmentBalanceArgs<ExtArgs>
   costLines?: boolean | Prisma.FinanceAssetCard$costLinesArgs<ExtArgs>
   allocations?: boolean | Prisma.FinanceAssetCard$allocationsArgs<ExtArgs>
   periodEntries?: boolean | Prisma.FinanceAssetCard$periodEntriesArgs<ExtArgs>
   adjustments?: boolean | Prisma.FinanceAssetCard$adjustmentsArgs<ExtArgs>
+  disposal?: boolean | Prisma.FinanceAssetCard$disposalArgs<ExtArgs>
+  acquisitionEvidence?: boolean | Prisma.FinanceAssetCard$acquisitionEvidenceArgs<ExtArgs>
+  impairmentAllocations?: boolean | Prisma.FinanceAssetCard$impairmentAllocationsArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetCard$companyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAssetCardCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type FinanceAssetCardIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type FinanceAssetCardIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type FinanceAssetCardIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  category?: boolean | Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>
+  assetAccount?: boolean | Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>
+  accumulatedAccount?: boolean | Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>
+  cutoverPeriod?: boolean | Prisma.FinanceAssetCard$cutoverPeriodArgs<ExtArgs>
+  cutoverAssetBalance?: boolean | Prisma.FinanceAssetCard$cutoverAssetBalanceArgs<ExtArgs>
+  cutoverAccumulatedBalance?: boolean | Prisma.FinanceAssetCard$cutoverAccumulatedBalanceArgs<ExtArgs>
+  cutoverImpairmentBalance?: boolean | Prisma.FinanceAssetCard$cutoverImpairmentBalanceArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetCard$companyArgs<ExtArgs>
+}
+export type FinanceAssetCardIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  category?: boolean | Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>
+  assetAccount?: boolean | Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>
+  accumulatedAccount?: boolean | Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>
+  cutoverPeriod?: boolean | Prisma.FinanceAssetCard$cutoverPeriodArgs<ExtArgs>
+  cutoverAssetBalance?: boolean | Prisma.FinanceAssetCard$cutoverAssetBalanceArgs<ExtArgs>
+  cutoverAccumulatedBalance?: boolean | Prisma.FinanceAssetCard$cutoverAccumulatedBalanceArgs<ExtArgs>
+  cutoverImpairmentBalance?: boolean | Prisma.FinanceAssetCard$cutoverImpairmentBalanceArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetCard$companyArgs<ExtArgs>
+}
 
 export type $FinanceAssetCardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceAssetCard"
   objects: {
+    category: Prisma.$FinanceAssetCategoryPayload<ExtArgs>
+    assetAccount: Prisma.$FinanceAccountPayload<ExtArgs> | null
+    accumulatedAccount: Prisma.$FinanceAccountPayload<ExtArgs> | null
+    cutoverPeriod: Prisma.$FinancePeriodPayload<ExtArgs> | null
+    cutoverAssetBalance: Prisma.$FinanceAccountBalancePayload<ExtArgs> | null
+    cutoverAccumulatedBalance: Prisma.$FinanceAccountBalancePayload<ExtArgs> | null
+    cutoverImpairmentBalance: Prisma.$FinanceAccountBalancePayload<ExtArgs> | null
     costLines: Prisma.$FinanceAssetCostLinePayload<ExtArgs>[]
     allocations: Prisma.$FinanceAssetExpenseAllocationPayload<ExtArgs>[]
     periodEntries: Prisma.$FinanceAssetPeriodEntryPayload<ExtArgs>[]
     adjustments: Prisma.$FinanceAssetAdjustmentPayload<ExtArgs>[]
+    disposal: Prisma.$FinanceAssetDisposalPayload<ExtArgs> | null
+    acquisitionEvidence: Prisma.$FinanceAssetAcquisitionEvidencePayload<ExtArgs> | null
+    impairmentAllocations: Prisma.$FinanceAssetImpairmentAllocationPayload<ExtArgs>[]
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     assetCode: string
     name: string
     assetKind: string
-    category: string | null
+    categoryId: number
+    sourceCategory: string | null
     assetAccountCode: string
     accumulatedAccountCode: string | null
+    assetAccountId: number | null
+    accumulatedAccountId: number | null
     acquisitionDate: string | null
     depreciationStartDate: string | null
     originalCost: runtime.Decimal
     residualRate: runtime.Decimal
     usefulLifeMonths: number | null
     method: string
+    initializationMode: string
     openingAccumulatedAmount: runtime.Decimal
+    openingImpairmentAmount: runtime.Decimal
+    openingNetBookValue: runtime.Decimal | null
     openingAsOfDate: string | null
+    cutoverDate: string | null
+    remainingUsefulLifeMonthsAtCutover: number | null
+    cutoverResidualValue: runtime.Decimal | null
+    cutoverAllocationStatus: string | null
+    cutoverReconciliationFingerprint: string | null
+    cutoverPeriodId: number | null
+    cutoverAssetBalanceId: number | null
+    cutoverAccumulatedBalanceId: number | null
+    cutoverImpairmentBalanceId: number | null
     status: string
     nonAmortizationReason: string | null
     note: string | null
@@ -2188,10 +6788,21 @@ readonly fields: FinanceAssetCardFieldRefs;
  */
 export interface Prisma__FinanceAssetCardClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  category<T extends Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAssetCategoryClient<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  assetAccount<T extends Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$assetAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  accumulatedAccount<T extends Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$accumulatedAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  cutoverPeriod<T extends Prisma.FinanceAssetCard$cutoverPeriodArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$cutoverPeriodArgs<ExtArgs>>): Prisma.Prisma__FinancePeriodClient<runtime.Types.Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  cutoverAssetBalance<T extends Prisma.FinanceAssetCard$cutoverAssetBalanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$cutoverAssetBalanceArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountBalanceClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountBalancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  cutoverAccumulatedBalance<T extends Prisma.FinanceAssetCard$cutoverAccumulatedBalanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$cutoverAccumulatedBalanceArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountBalanceClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountBalancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  cutoverImpairmentBalance<T extends Prisma.FinanceAssetCard$cutoverImpairmentBalanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$cutoverImpairmentBalanceArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountBalanceClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountBalancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   costLines<T extends Prisma.FinanceAssetCard$costLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$costLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCostLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   allocations<T extends Prisma.FinanceAssetCard$allocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$allocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetExpenseAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   periodEntries<T extends Prisma.FinanceAssetCard$periodEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$periodEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetPeriodEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   adjustments<T extends Prisma.FinanceAssetCard$adjustmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$adjustmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  disposal<T extends Prisma.FinanceAssetCard$disposalArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$disposalArgs<ExtArgs>>): Prisma.Prisma__FinanceAssetDisposalClient<runtime.Types.Result.GetResult<Prisma.$FinanceAssetDisposalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  acquisitionEvidence<T extends Prisma.FinanceAssetCard$acquisitionEvidenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$acquisitionEvidenceArgs<ExtArgs>>): Prisma.Prisma__FinanceAssetAcquisitionEvidenceClient<runtime.Types.Result.GetResult<Prisma.$FinanceAssetAcquisitionEvidencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  impairmentAllocations<T extends Prisma.FinanceAssetCard$impairmentAllocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$impairmentAllocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetImpairmentAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  company<T extends Prisma.FinanceAssetCard$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetCard$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2223,20 +6834,36 @@ export interface Prisma__FinanceAssetCardClient<T, Null = never, ExtArgs extends
 export interface FinanceAssetCardFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceAssetCard", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
   readonly assetCode: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly name: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly assetKind: Prisma.FieldRef<"FinanceAssetCard", 'String'>
-  readonly category: Prisma.FieldRef<"FinanceAssetCard", 'String'>
+  readonly categoryId: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
+  readonly sourceCategory: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly assetAccountCode: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly accumulatedAccountCode: Prisma.FieldRef<"FinanceAssetCard", 'String'>
+  readonly assetAccountId: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
+  readonly accumulatedAccountId: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
   readonly acquisitionDate: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly depreciationStartDate: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly originalCost: Prisma.FieldRef<"FinanceAssetCard", 'Decimal'>
   readonly residualRate: Prisma.FieldRef<"FinanceAssetCard", 'Decimal'>
   readonly usefulLifeMonths: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
   readonly method: Prisma.FieldRef<"FinanceAssetCard", 'String'>
+  readonly initializationMode: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly openingAccumulatedAmount: Prisma.FieldRef<"FinanceAssetCard", 'Decimal'>
+  readonly openingImpairmentAmount: Prisma.FieldRef<"FinanceAssetCard", 'Decimal'>
+  readonly openingNetBookValue: Prisma.FieldRef<"FinanceAssetCard", 'Decimal'>
   readonly openingAsOfDate: Prisma.FieldRef<"FinanceAssetCard", 'String'>
+  readonly cutoverDate: Prisma.FieldRef<"FinanceAssetCard", 'String'>
+  readonly remainingUsefulLifeMonthsAtCutover: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
+  readonly cutoverResidualValue: Prisma.FieldRef<"FinanceAssetCard", 'Decimal'>
+  readonly cutoverAllocationStatus: Prisma.FieldRef<"FinanceAssetCard", 'String'>
+  readonly cutoverReconciliationFingerprint: Prisma.FieldRef<"FinanceAssetCard", 'String'>
+  readonly cutoverPeriodId: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
+  readonly cutoverAssetBalanceId: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
+  readonly cutoverAccumulatedBalanceId: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
+  readonly cutoverImpairmentBalanceId: Prisma.FieldRef<"FinanceAssetCard", 'Int'>
   readonly status: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly nonAmortizationReason: Prisma.FieldRef<"FinanceAssetCard", 'String'>
   readonly note: Prisma.FieldRef<"FinanceAssetCard", 'String'>
@@ -2502,6 +7129,10 @@ export type FinanceAssetCardCreateManyAndReturnArgs<ExtArgs extends runtime.Type
    */
   data: Prisma.FinanceAssetCardCreateManyInput | Prisma.FinanceAssetCardCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCardIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2572,6 +7203,10 @@ export type FinanceAssetCardUpdateManyAndReturnArgs<ExtArgs extends runtime.Type
    * Limit how many FinanceAssetCards to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCardIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2638,6 +7273,120 @@ export type FinanceAssetCardDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many FinanceAssetCards to delete.
    */
   limit?: number
+}
+
+/**
+ * FinanceAssetCard.assetAccount
+ */
+export type FinanceAssetCard$assetAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccount
+   */
+  select?: Prisma.FinanceAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccount
+   */
+  omit?: Prisma.FinanceAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+/**
+ * FinanceAssetCard.accumulatedAccount
+ */
+export type FinanceAssetCard$accumulatedAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccount
+   */
+  select?: Prisma.FinanceAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccount
+   */
+  omit?: Prisma.FinanceAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+/**
+ * FinanceAssetCard.cutoverPeriod
+ */
+export type FinanceAssetCard$cutoverPeriodArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinancePeriod
+   */
+  select?: Prisma.FinancePeriodSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinancePeriod
+   */
+  omit?: Prisma.FinancePeriodOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinancePeriodInclude<ExtArgs> | null
+  where?: Prisma.FinancePeriodWhereInput
+}
+
+/**
+ * FinanceAssetCard.cutoverAssetBalance
+ */
+export type FinanceAssetCard$cutoverAssetBalanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccountBalance
+   */
+  select?: Prisma.FinanceAccountBalanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccountBalance
+   */
+  omit?: Prisma.FinanceAccountBalanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountBalanceInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountBalanceWhereInput
+}
+
+/**
+ * FinanceAssetCard.cutoverAccumulatedBalance
+ */
+export type FinanceAssetCard$cutoverAccumulatedBalanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccountBalance
+   */
+  select?: Prisma.FinanceAccountBalanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccountBalance
+   */
+  omit?: Prisma.FinanceAccountBalanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountBalanceInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountBalanceWhereInput
+}
+
+/**
+ * FinanceAssetCard.cutoverImpairmentBalance
+ */
+export type FinanceAssetCard$cutoverImpairmentBalanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccountBalance
+   */
+  select?: Prisma.FinanceAccountBalanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccountBalance
+   */
+  omit?: Prisma.FinanceAccountBalanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountBalanceInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountBalanceWhereInput
 }
 
 /**
@@ -2734,6 +7483,87 @@ export type FinanceAssetCard$adjustmentsArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.FinanceAssetAdjustmentScalarFieldEnum | Prisma.FinanceAssetAdjustmentScalarFieldEnum[]
+}
+
+/**
+ * FinanceAssetCard.disposal
+ */
+export type FinanceAssetCard$disposalArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetDisposal
+   */
+  select?: Prisma.FinanceAssetDisposalSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetDisposal
+   */
+  omit?: Prisma.FinanceAssetDisposalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetDisposalInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetDisposalWhereInput
+}
+
+/**
+ * FinanceAssetCard.acquisitionEvidence
+ */
+export type FinanceAssetCard$acquisitionEvidenceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetAcquisitionEvidence
+   */
+  select?: Prisma.FinanceAssetAcquisitionEvidenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetAcquisitionEvidence
+   */
+  omit?: Prisma.FinanceAssetAcquisitionEvidenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetAcquisitionEvidenceInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetAcquisitionEvidenceWhereInput
+}
+
+/**
+ * FinanceAssetCard.impairmentAllocations
+ */
+export type FinanceAssetCard$impairmentAllocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetImpairmentAllocation
+   */
+  select?: Prisma.FinanceAssetImpairmentAllocationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetImpairmentAllocation
+   */
+  omit?: Prisma.FinanceAssetImpairmentAllocationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetImpairmentAllocationInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetImpairmentAllocationWhereInput
+  orderBy?: Prisma.FinanceAssetImpairmentAllocationOrderByWithRelationInput | Prisma.FinanceAssetImpairmentAllocationOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetImpairmentAllocationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetImpairmentAllocationScalarFieldEnum | Prisma.FinanceAssetImpairmentAllocationScalarFieldEnum[]
+}
+
+/**
+ * FinanceAssetCard.company
+ */
+export type FinanceAssetCard$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

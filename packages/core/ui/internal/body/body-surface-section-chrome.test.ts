@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import type { BodySurfaceSectionSpec } from "../../BodySurface.types";
-import { resolveBodySurfaceSectionChrome } from "./body-surface-section-chrome";
+import {
+  resolveBodySurfaceSectionChrome,
+  resolveBodySurfaceSectionStackPosition,
+} from "./body-surface-section-chrome";
 
 function section(input: Partial<BodySurfaceSectionSpec>): BodySurfaceSectionSpec {
   return {
@@ -28,6 +31,18 @@ test("nested titled sections use a divider instead of another frame", () => {
   assert.equal(resolveBodySurfaceSectionChrome(section({
     header: { title: "详情" },
   }), 1), "divider");
+});
+
+test("nested siblings receive segmented spacing even when their chrome differs", () => {
+  const sections = [
+    section({ body: { kind: "data", data: { kind: "summary", metrics: [] } } }),
+    section({ header: { title: "职责分布" } }),
+  ];
+
+  assert.equal(resolveBodySurfaceSectionChrome(sections[0], 1), "plain");
+  assert.equal(resolveBodySurfaceSectionChrome(sections[1], 1), "divider");
+  assert.equal(resolveBodySurfaceSectionStackPosition(sections, 0, 1), "first");
+  assert.equal(resolveBodySurfaceSectionStackPosition(sections, 1, 1), "last");
 });
 
 test("create bodies never add a second frame around CreateSurface", () => {

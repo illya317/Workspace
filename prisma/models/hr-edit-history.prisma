@@ -1,0 +1,14 @@
+/// 实体编辑历史（版本快照）
+model EditHistory {
+  id         Int      @id @default(autoincrement())
+  entityType String
+  entityId   String
+  version    Int
+  dataJson   String
+  editedBy   Int
+  createdAt  DateTime @default(now())
+  tag        String?
+  editor     User     @relation("EditHistoryEditor", fields: [editedBy], references: [id])
+
+  @@unique([entityType, entityId, version, tag])
+}

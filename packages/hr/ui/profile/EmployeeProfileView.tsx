@@ -11,7 +11,6 @@ import {
 } from "@workspace/core/ui";
 import { employeeFields, withTenantProfileFieldOptions } from "@workspace/hr/constants";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
-import { preferredEmployment } from "@workspace/hr/utils/employment-selection";
 import type {
   ContractRow,
   EdpRow,
@@ -34,14 +33,14 @@ import {
   updateProfileRow,
   type EditableRecord,
 } from "./EmployeeProfileUtils";
-import { useEmployeeLifecycleSections } from "./EmployeeLifecycleSection";
 import { useEmployeeSocialInsuranceSections } from "./EmployeeSocialInsuranceSection";
 
-export type EmployeeProfileSection = "basic" | "employment" | "socialInsurance" | "assignment" | "history";
+type ProfileSection = "basic" | "employment" | "socialInsurance" | "edp" | "history";
 
 export interface EmployeeProfileDirtyState {
   basic: boolean;
   employment: boolean;
+  edp: boolean;
   all: boolean;
 }
 
@@ -64,14 +63,17 @@ export default function EmployeeProfileView({
   historyLoading,
   expandedHistoryId,
   setEmployments,
+  setContracts,
+  setEdps,
+  setError,
   onBack,
   onSaveAll,
+  onAddContract,
   onEmployeeFieldChange,
   onHistoryToggle,
   onHistoryRefresh,
-  onLifecycleSaved,
-  onAgreementSaved,
   onSocialInsuranceSaved,
+  confirmDelete,
 }: {
   loading: boolean;
   profile: EmployeeProfile | null;
@@ -80,8 +82,8 @@ export default function EmployeeProfileView({
   message: string | null;
   canEdit: boolean;
   saving: string | null;
-  activeSection: EmployeeProfileSection;
-  onSectionChange: (section: EmployeeProfileSection) => void;
+  activeSection: ProfileSection;
+  onSectionChange: (section: ProfileSection) => void;
   dirtyState: EmployeeProfileDirtyState;
   employments: EmploymentRow[];
   contracts: ContractRow[];
@@ -89,23 +91,27 @@ export default function EmployeeProfileView({
   edps: EdpRow[];
   historyEntries: ProfileHistoryEntry[];
   historyLoading: boolean;
-  expandedHistoryId: string | number | null;
+  expandedHistoryId: number | null;
   setEmployments: Dispatch<SetStateAction<EmploymentRow[]>>;
+  setContracts: Dispatch<SetStateAction<ContractRow[]>>;
+  setEdps: Dispatch<SetStateAction<EdpRow[]>>;
+  setError: (message: string | null) => void;
   onBack: () => void;
   onSaveAll: () => Promise<void>;
+  onAddContract: () => void;
   onEmployeeFieldChange: (key: string, value: unknown, option?: ReferenceOption) => void;
-  onHistoryToggle: (id: string | number) => void;
+  onHistoryToggle: (id: number) => void;
   onHistoryRefresh: () => void;
-  onLifecycleSaved: () => Promise<void>;
-  onAgreementSaved: () => Promise<void>;
   onSocialInsuranceSaved: () => Promise<void>;
+  confirmDelete: (options: { message: string }) => Promise<boolean>;
 }) {
   const tenantConfig = useTenantConfig();
   const resolvedEmployeeFields = useMemo(
     () => withTenantProfileFieldOptions(employeeFields, tenantConfig),
     [tenantConfig],
   );
-  const activeEmployment = preferredEmployment(employments);
+  const activeEmploymentIndex = employments.findIndex((row) => row.isActive);
+  const activeEmployment = employments[activeEmploymentIndex >= 0 ? activeEmploymentIndex : 0] ?? null;
   const sectionCardClassName = "border-sky-200 bg-sky-100/30 shadow-none";
   const getEmployeeFields = (keys: string[]) => keys
     .map((key) => resolvedEmployeeFields.find((field) => field.key === key))
@@ -119,13 +125,13 @@ export default function EmployeeProfileView({
     { key: "basic", label: "基本信息" },
     { key: "employment", label: "雇佣关系" },
     { key: "socialInsurance", label: "社会保险" },
-    { key: "assignment", label: "任职管理" },
+    { key: "edp", label: "部门岗位" },
     { key: "history", label: "历史记录" },
   ];
 
   const toolbarActions: SurfaceToolbarActionGroupActionSpec[] = [];
 
-  if (canEdit && (activeSection === "basic" || activeSection === "employment")) {
+  if (canEdit && (activeSection === "basic" || activeSection === "employment" || activeSection === "edp")) {
     toolbarActions.push({
       key: "save",
       kind: "save",
@@ -152,20 +158,39 @@ export default function EmployeeProfileView({
 
   const employmentSections = useEmploymentSections({
     employment: activeEmployment,
-    employeeId: profile?.employee.id ?? 0,
-    employments,
-    asOfDate: profile?.asOfDate ?? "",
     canEdit,
     saving,
-    onChange: (index, field, value, option) => setEmployments((rows) => changeEmployment(rows, index, field, value, option)),
+    onChange: (field, value, option) => setEmployments((rows) => changeEmployment(rows, activeEmploymentIndex, field, value, option)),
     contracts,
     className: sectionCardClassName,
-    onAgreementSaved,
+    onAddContract,
+    onChangeContract: (index, field, value, option) => setContracts((rows) => changeContract(rows, index, field, value, option)),
+    onDeleteContract: (row, index) => removeRow(row.company, "合同记录", index, setContracts, confirmDelete),
   });
   const edpSections = useEdpSections({
     rows: edps,
-    asOfDate: profile?.asOfDate ?? "",
+    canEdit,
+    saving,
+    onAdd: () => {
+      if (!profile) return;
+      setEdps((rows) => [newEdp(profile), ...rows]);
+    },
     className: sectionCardClassName,
+    onChange: (index, field, value, option) => setEdps((rows) => updateProfileRow(rows, index, field, value, option) as EdpRow[]),
+    onDelete: async (row, index) => {
+      if (!row.isNew) {
+        setError("已保存的任职期间不能删除；请通过生命周期变更或结束日期保留历史。");
+        return;
+      }
+      const ok = await confirmDelete({ message: `确定删除这条岗位记录${row.positionName ? `（${row.positionName}）` : ""}吗？` });
+      if (!ok) return;
+      setError(null);
+      setEdps((rows) => {
+        const nextRows = rows.filter((_, i) => i !== index);
+        if (nextRows.length > 0) return nextRows;
+        return profile ? [newEdp(profile)] : [];
+      });
+    },
   });
   const createHistorySections = [
     createHistorySection({
@@ -177,8 +202,6 @@ export default function EmployeeProfileView({
       className: sectionCardClassName,
     }, tenantConfig.localization.businessTimeZone),
   ];
-  const lifecycleSections = useEmployeeLifecycleSections({ profile, canEdit, onSaved: onLifecycleSaved });
-  const assignmentSections = [...edpSections, ...lifecycleSections];
   const socialInsuranceSections = useEmployeeSocialInsuranceSections({
     employeeId: profile?.employee.id ?? 0,
     rows: socialInsurancePeriods,
@@ -186,7 +209,6 @@ export default function EmployeeProfileView({
     canEdit,
     onSaved: onSocialInsuranceSaved,
   });
-
   const ready = !loading && Boolean(profile && employeeDraft);
 
   const basicSections = ready ? [
@@ -205,16 +227,16 @@ export default function EmployeeProfileView({
         ? employmentSections
         : activeSection === "socialInsurance"
           ? socialInsuranceSections
-        : activeSection === "assignment"
-          ? assignmentSections
-          : createHistorySections;
+          : activeSection === "edp"
+            ? edpSections
+            : createHistorySections;
 
   return (
     <PageSurface kind="standard"
       tabbar={ready ? createPageTabBar({
         items: profileTabs,
         active: activeSection,
-        onChange: (key) => onSectionChange(key as EmployeeProfileSection),
+        onChange: (key) => onSectionChange(key as ProfileSection),
       }) : undefined}
       toolbar={ready ? { items: toolbarItems } : undefined}
       body={createPageBody(
@@ -231,7 +253,45 @@ export default function EmployeeProfileView({
   );
 }
 
-function changeEmployment(rows: EmploymentRow[], index: number, field: ProfileField, value: unknown, option?: ReferenceOption) {
+function changeEmployment(rows: EmploymentRow[], activeIndex: number, field: ProfileField, value: unknown, option?: ReferenceOption) {
+  const index = activeIndex >= 0 ? activeIndex : 0;
   if (index < 0) return rows;
-  return updateProfileRow(rows, index, field, value, option) as EmploymentRow[];
+  const nextRows = updateProfileRow(rows, index, field, value, option) as EmploymentRow[];
+  if (field.key !== "isActive" || value !== true) return nextRows;
+  return nextRows.map((row, rowIndex) => rowIndex === index ? { ...row, leaveDate: null, leaveReason: null, leaveNote: null } : row);
+}
+
+function changeContract(rows: ContractRow[], index: number, field: ProfileField, value: unknown, option?: ReferenceOption) {
+  const nextRows = updateProfileRow(rows, index, field, value, option);
+  if (field.key !== "isPrimary" || value !== true) return nextRows;
+  return nextRows.map((row, rowIndex) => rowIndex === index ? row : { ...row, isPrimary: false });
+}
+
+async function removeRow<T>(name: string | null | undefined, label: string, index: number, setRows: Dispatch<SetStateAction<T[]>>, confirmDelete: (options: { message: string }) => Promise<boolean>) {
+  const ok = await confirmDelete({ message: `确定删除这条${label}${name ? `（${name}）` : ""}吗？` });
+  if (ok) setRows((rows) => rows.filter((_, i) => i !== index));
+}
+
+function newEdp(profile: EmployeeProfile): EdpRow {
+  return {
+    version: 0,
+    employeeId: profile.employee.id,
+    reportingCompanyId: profile.summary.reportingCompanyId,
+    reportingCompanyName: profile.summary.reportingCompanyName,
+    departmentId: null,
+    departmentName: null,
+    departmentPath: null,
+    positionId: null,
+    positionReportOverrideId: null,
+    positionName: null,
+    isPrimary: false,
+    startDate: null,
+    endDate: null,
+    reportTo: null,
+    reportToPositionId: null,
+    allocationWeight: null,
+    allocationPercent: null,
+    temporalState: "invalid",
+    isNew: true,
+  };
 }

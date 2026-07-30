@@ -1,5 +1,6 @@
-import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import type { Prisma } from "@workspace/platform/server/prisma";
 import { failCommand, okCommand } from "@workspace/platform/server/domain-validation";
+import { findPerformanceArchiveReferences } from "../performance-reference-adapter";
 
 export interface HrPerformanceReviewArchiveInput {
   employeeId: number;
@@ -26,14 +27,7 @@ export async function buildHrPerformanceReviewArchiveCommand(input: HrPerformanc
   const finalGrade = String(input.finalGrade || "").trim().toUpperCase();
   if (!ALLOWED_GRADES.includes(finalGrade)) return failCommand("HR 最终等级必须为 S/A/B/C/D", 400, "finalGrade");
 
-  const [employee, cycle, duplicate] = await Promise.all([
-    prisma.employee.findUnique({ where: { id: input.employeeId }, select: { id: true } }),
-    prisma.workOkrCycle.findUnique({ where: { id: input.okrCycleId }, select: { id: true } }),
-    prisma.hrPerformanceReview.findUnique({
-      where: { employeeId_okrCycleId: { employeeId: input.employeeId, okrCycleId: input.okrCycleId } },
-      select: { id: true },
-    }),
-  ]);
+  const { employee, cycle, duplicate } = await findPerformanceArchiveReferences(input.employeeId, input.okrCycleId);
   if (!employee) return failCommand("员工不存在", 404, "employeeId");
   if (!cycle) return failCommand("OKR 周期不存在", 404, "okrCycleId");
   if (duplicate) return failCommand("该员工在当前周期已有正式绩效记录", 409, "okrCycleId");

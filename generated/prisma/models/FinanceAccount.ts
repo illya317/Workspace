@@ -29,6 +29,7 @@ export type AggregateFinanceAccount = {
 export type FinanceAccountAvgAggregateOutputType = {
   id: number | null
   parentId: number | null
+  companyId: number | null
   subjectLevel: number | null
   year: number | null
   sortOrder: number | null
@@ -39,6 +40,7 @@ export type FinanceAccountAvgAggregateOutputType = {
 export type FinanceAccountSumAggregateOutputType = {
   id: number | null
   parentId: number | null
+  companyId: number | null
   subjectLevel: number | null
   year: number | null
   sortOrder: number | null
@@ -55,6 +57,7 @@ export type FinanceAccountMinAggregateOutputType = {
   balanceDirection: string | null
   isActive: boolean | null
   companyCode: string | null
+  companyId: number | null
   mnemonicCode: string | null
   currency: string | null
   sourceSystem: string | null
@@ -81,6 +84,7 @@ export type FinanceAccountMaxAggregateOutputType = {
   balanceDirection: string | null
   isActive: boolean | null
   companyCode: string | null
+  companyId: number | null
   mnemonicCode: string | null
   currency: string | null
   sourceSystem: string | null
@@ -107,6 +111,7 @@ export type FinanceAccountCountAggregateOutputType = {
   balanceDirection: number
   isActive: number
   companyCode: number
+  companyId: number
   mnemonicCode: number
   currency: number
   sourceSystem: number
@@ -129,6 +134,7 @@ export type FinanceAccountCountAggregateOutputType = {
 export type FinanceAccountAvgAggregateInputType = {
   id?: true
   parentId?: true
+  companyId?: true
   subjectLevel?: true
   year?: true
   sortOrder?: true
@@ -139,6 +145,7 @@ export type FinanceAccountAvgAggregateInputType = {
 export type FinanceAccountSumAggregateInputType = {
   id?: true
   parentId?: true
+  companyId?: true
   subjectLevel?: true
   year?: true
   sortOrder?: true
@@ -155,6 +162,7 @@ export type FinanceAccountMinAggregateInputType = {
   balanceDirection?: true
   isActive?: true
   companyCode?: true
+  companyId?: true
   mnemonicCode?: true
   currency?: true
   sourceSystem?: true
@@ -181,6 +189,7 @@ export type FinanceAccountMaxAggregateInputType = {
   balanceDirection?: true
   isActive?: true
   companyCode?: true
+  companyId?: true
   mnemonicCode?: true
   currency?: true
   sourceSystem?: true
@@ -207,6 +216,7 @@ export type FinanceAccountCountAggregateInputType = {
   balanceDirection?: true
   isActive?: true
   companyCode?: true
+  companyId?: true
   mnemonicCode?: true
   currency?: true
   sourceSystem?: true
@@ -320,6 +330,7 @@ export type FinanceAccountGroupByOutputType = {
   balanceDirection: string
   isActive: boolean
   companyCode: string
+  companyId: number | null
   mnemonicCode: string | null
   currency: string | null
   sourceSystem: string | null
@@ -369,6 +380,7 @@ export type FinanceAccountWhereInput = {
   balanceDirection?: Prisma.StringFilter<"FinanceAccount"> | string
   isActive?: Prisma.BoolFilter<"FinanceAccount"> | boolean
   companyCode?: Prisma.StringFilter<"FinanceAccount"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
   mnemonicCode?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
   currency?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
   sourceSystem?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
@@ -385,6 +397,7 @@ export type FinanceAccountWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"FinanceAccount"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAccount"> | Date | string
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   parent?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
   children?: Prisma.FinanceAccountListRelationFilter
   balances?: Prisma.FinanceAccountBalanceListRelationFilter
@@ -400,6 +413,21 @@ export type FinanceAccountWhereInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationListRelationFilter
   currentLineages?: Prisma.FinanceAccountLineageListRelationFilter
   previousLineages?: Prisma.FinanceAccountLineageListRelationFilter
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyListRelationFilter
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyListRelationFilter
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyListRelationFilter
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyListRelationFilter
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyListRelationFilter
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyListRelationFilter
+  assetCards?: Prisma.FinanceAssetCardListRelationFilter
+  accumulatedAssetCards?: Prisma.FinanceAssetCardListRelationFilter
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationListRelationFilter
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentListRelationFilter
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingListRelationFilter
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleListRelationFilter
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleListRelationFilter
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryListRelationFilter
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryListRelationFilter
 }
 
 export type FinanceAccountOrderByWithRelationInput = {
@@ -411,6 +439,7 @@ export type FinanceAccountOrderByWithRelationInput = {
   balanceDirection?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   mnemonicCode?: Prisma.SortOrderInput | Prisma.SortOrder
   currency?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceSystem?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -427,6 +456,7 @@ export type FinanceAccountOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   editor?: Prisma.UserOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
   parent?: Prisma.FinanceAccountOrderByWithRelationInput
   children?: Prisma.FinanceAccountOrderByRelationAggregateInput
   balances?: Prisma.FinanceAccountBalanceOrderByRelationAggregateInput
@@ -442,6 +472,21 @@ export type FinanceAccountOrderByWithRelationInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationOrderByRelationAggregateInput
   currentLineages?: Prisma.FinanceAccountLineageOrderByRelationAggregateInput
   previousLineages?: Prisma.FinanceAccountLineageOrderByRelationAggregateInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyOrderByRelationAggregateInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyOrderByRelationAggregateInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyOrderByRelationAggregateInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyOrderByRelationAggregateInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyOrderByRelationAggregateInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyOrderByRelationAggregateInput
+  assetCards?: Prisma.FinanceAssetCardOrderByRelationAggregateInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardOrderByRelationAggregateInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationOrderByRelationAggregateInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentOrderByRelationAggregateInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingOrderByRelationAggregateInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleOrderByRelationAggregateInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleOrderByRelationAggregateInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryOrderByRelationAggregateInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryOrderByRelationAggregateInput
 }
 
 export type FinanceAccountWhereUniqueInput = Prisma.AtLeast<{
@@ -458,6 +503,7 @@ export type FinanceAccountWhereUniqueInput = Prisma.AtLeast<{
   balanceDirection?: Prisma.StringFilter<"FinanceAccount"> | string
   isActive?: Prisma.BoolFilter<"FinanceAccount"> | boolean
   companyCode?: Prisma.StringFilter<"FinanceAccount"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
   mnemonicCode?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
   currency?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
   sourceSystem?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
@@ -474,6 +520,7 @@ export type FinanceAccountWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"FinanceAccount"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAccount"> | Date | string
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   parent?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
   children?: Prisma.FinanceAccountListRelationFilter
   balances?: Prisma.FinanceAccountBalanceListRelationFilter
@@ -489,6 +536,21 @@ export type FinanceAccountWhereUniqueInput = Prisma.AtLeast<{
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationListRelationFilter
   currentLineages?: Prisma.FinanceAccountLineageListRelationFilter
   previousLineages?: Prisma.FinanceAccountLineageListRelationFilter
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyListRelationFilter
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyListRelationFilter
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyListRelationFilter
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyListRelationFilter
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyListRelationFilter
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyListRelationFilter
+  assetCards?: Prisma.FinanceAssetCardListRelationFilter
+  accumulatedAssetCards?: Prisma.FinanceAssetCardListRelationFilter
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationListRelationFilter
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentListRelationFilter
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingListRelationFilter
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleListRelationFilter
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleListRelationFilter
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryListRelationFilter
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryListRelationFilter
 }, "id" | "code_companyCode_year" | "sourceSystem_sourceDatabase_sourceKey">
 
 export type FinanceAccountOrderByWithAggregationInput = {
@@ -500,6 +562,7 @@ export type FinanceAccountOrderByWithAggregationInput = {
   balanceDirection?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   mnemonicCode?: Prisma.SortOrderInput | Prisma.SortOrder
   currency?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceSystem?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -534,6 +597,7 @@ export type FinanceAccountScalarWhereWithAggregatesInput = {
   balanceDirection?: Prisma.StringWithAggregatesFilter<"FinanceAccount"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"FinanceAccount"> | boolean
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceAccount"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAccount"> | number | null
   mnemonicCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceAccount"> | string | null
   currency?: Prisma.StringNullableWithAggregatesFilter<"FinanceAccount"> | string | null
   sourceSystem?: Prisma.StringNullableWithAggregatesFilter<"FinanceAccount"> | string | null
@@ -573,6 +637,7 @@ export type FinanceAccountCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -588,6 +653,21 @@ export type FinanceAccountCreateInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateInput = {
@@ -599,6 +679,7 @@ export type FinanceAccountUncheckedCreateInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -628,6 +709,21 @@ export type FinanceAccountUncheckedCreateInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUpdateInput = {
@@ -652,6 +748,7 @@ export type FinanceAccountUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -667,6 +764,21 @@ export type FinanceAccountUpdateInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateInput = {
@@ -678,6 +790,7 @@ export type FinanceAccountUncheckedUpdateInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -707,6 +820,21 @@ export type FinanceAccountUncheckedUpdateInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountCreateManyInput = {
@@ -718,6 +846,7 @@ export type FinanceAccountCreateManyInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -767,6 +896,7 @@ export type FinanceAccountUncheckedUpdateManyInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -794,14 +924,14 @@ export type FinanceAccountOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type FinanceAccountNullableScalarRelationFilter = {
-  is?: Prisma.FinanceAccountWhereInput | null
-  isNot?: Prisma.FinanceAccountWhereInput | null
-}
-
 export type FinanceAccountScalarRelationFilter = {
   is?: Prisma.FinanceAccountWhereInput
   isNot?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountNullableScalarRelationFilter = {
+  is?: Prisma.FinanceAccountWhereInput | null
+  isNot?: Prisma.FinanceAccountWhereInput | null
 }
 
 export type FinanceAccountCodeCompanyCodeYearCompoundUniqueInput = {
@@ -825,6 +955,7 @@ export type FinanceAccountCountOrderByAggregateInput = {
   balanceDirection?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   mnemonicCode?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
@@ -845,6 +976,7 @@ export type FinanceAccountCountOrderByAggregateInput = {
 export type FinanceAccountAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   subjectLevel?: Prisma.SortOrder
   year?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -861,6 +993,7 @@ export type FinanceAccountMaxOrderByAggregateInput = {
   balanceDirection?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   mnemonicCode?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
@@ -887,6 +1020,7 @@ export type FinanceAccountMinOrderByAggregateInput = {
   balanceDirection?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   mnemonicCode?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
@@ -907,6 +1041,7 @@ export type FinanceAccountMinOrderByAggregateInput = {
 export type FinanceAccountSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   subjectLevel?: Prisma.SortOrder
   year?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -954,6 +1089,164 @@ export type FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput = {
   update?: Prisma.FinanceAccountUpdateWithWhereUniqueWithoutEditorInput | Prisma.FinanceAccountUpdateWithWhereUniqueWithoutEditorInput[]
   updateMany?: Prisma.FinanceAccountUpdateManyWithWhereWithoutEditorInput | Prisma.FinanceAccountUpdateManyWithWhereWithoutEditorInput[]
   deleteMany?: Prisma.FinanceAccountScalarWhereInput | Prisma.FinanceAccountScalarWhereInput[]
+}
+
+export type FinanceAccountCreateNestedOneWithoutAssetCategoryPoliciesInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetCategoryPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetCategoryPoliciesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetCategoryPoliciesInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountCreateNestedOneWithoutAccumulatedAssetPoliciesInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAccumulatedAssetPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAccumulatedAssetPoliciesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAccumulatedAssetPoliciesInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountCreateNestedOneWithoutAssetExpensePoliciesInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetExpensePoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetExpensePoliciesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetExpensePoliciesInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountCreateNestedOneWithoutAssetImpairmentLossPoliciesInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetImpairmentLossPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetImpairmentLossPoliciesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetImpairmentLossPoliciesInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountCreateNestedOneWithoutAssetImpairmentAllowancePoliciesInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetImpairmentAllowancePoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetImpairmentAllowancePoliciesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetImpairmentAllowancePoliciesInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountCreateNestedOneWithoutAssetDisposalGainLossPoliciesInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetDisposalGainLossPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetDisposalGainLossPoliciesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetDisposalGainLossPoliciesInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountUpdateOneRequiredWithoutAssetCategoryPoliciesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetCategoryPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetCategoryPoliciesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetCategoryPoliciesInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutAssetCategoryPoliciesInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutAssetCategoryPoliciesInput, Prisma.FinanceAccountUpdateWithoutAssetCategoryPoliciesInput>, Prisma.FinanceAccountUncheckedUpdateWithoutAssetCategoryPoliciesInput>
+}
+
+export type FinanceAccountUpdateOneWithoutAccumulatedAssetPoliciesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAccumulatedAssetPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAccumulatedAssetPoliciesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAccumulatedAssetPoliciesInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutAccumulatedAssetPoliciesInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutAccumulatedAssetPoliciesInput, Prisma.FinanceAccountUpdateWithoutAccumulatedAssetPoliciesInput>, Prisma.FinanceAccountUncheckedUpdateWithoutAccumulatedAssetPoliciesInput>
+}
+
+export type FinanceAccountUpdateOneWithoutAssetExpensePoliciesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetExpensePoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetExpensePoliciesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetExpensePoliciesInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutAssetExpensePoliciesInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutAssetExpensePoliciesInput, Prisma.FinanceAccountUpdateWithoutAssetExpensePoliciesInput>, Prisma.FinanceAccountUncheckedUpdateWithoutAssetExpensePoliciesInput>
+}
+
+export type FinanceAccountUpdateOneWithoutAssetImpairmentLossPoliciesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetImpairmentLossPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetImpairmentLossPoliciesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetImpairmentLossPoliciesInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutAssetImpairmentLossPoliciesInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutAssetImpairmentLossPoliciesInput, Prisma.FinanceAccountUpdateWithoutAssetImpairmentLossPoliciesInput>, Prisma.FinanceAccountUncheckedUpdateWithoutAssetImpairmentLossPoliciesInput>
+}
+
+export type FinanceAccountUpdateOneWithoutAssetImpairmentAllowancePoliciesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetImpairmentAllowancePoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetImpairmentAllowancePoliciesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetImpairmentAllowancePoliciesInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutAssetImpairmentAllowancePoliciesInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutAssetImpairmentAllowancePoliciesInput, Prisma.FinanceAccountUpdateWithoutAssetImpairmentAllowancePoliciesInput>, Prisma.FinanceAccountUncheckedUpdateWithoutAssetImpairmentAllowancePoliciesInput>
+}
+
+export type FinanceAccountUpdateOneWithoutAssetDisposalGainLossPoliciesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetDisposalGainLossPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetDisposalGainLossPoliciesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetDisposalGainLossPoliciesInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutAssetDisposalGainLossPoliciesInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutAssetDisposalGainLossPoliciesInput, Prisma.FinanceAccountUpdateWithoutAssetDisposalGainLossPoliciesInput>, Prisma.FinanceAccountUncheckedUpdateWithoutAssetDisposalGainLossPoliciesInput>
+}
+
+export type FinanceAccountCreateNestedOneWithoutAssetCardsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetCardsInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetCardsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetCardsInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountCreateNestedOneWithoutAccumulatedAssetCardsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAccumulatedAssetCardsInput, Prisma.FinanceAccountUncheckedCreateWithoutAccumulatedAssetCardsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAccumulatedAssetCardsInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountUpdateOneWithoutAssetCardsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetCardsInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetCardsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetCardsInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutAssetCardsInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutAssetCardsInput, Prisma.FinanceAccountUpdateWithoutAssetCardsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutAssetCardsInput>
+}
+
+export type FinanceAccountUpdateOneWithoutAccumulatedAssetCardsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAccumulatedAssetCardsInput, Prisma.FinanceAccountUncheckedCreateWithoutAccumulatedAssetCardsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAccumulatedAssetCardsInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutAccumulatedAssetCardsInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutAccumulatedAssetCardsInput, Prisma.FinanceAccountUpdateWithoutAccumulatedAssetCardsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutAccumulatedAssetCardsInput>
+}
+
+export type FinanceAccountCreateNestedOneWithoutAssetExpenseAllocationsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetExpenseAllocationsInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetExpenseAllocationsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetExpenseAllocationsInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountUpdateOneWithoutAssetExpenseAllocationsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetExpenseAllocationsInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetExpenseAllocationsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetExpenseAllocationsInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutAssetExpenseAllocationsInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutAssetExpenseAllocationsInput, Prisma.FinanceAccountUpdateWithoutAssetExpenseAllocationsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutAssetExpenseAllocationsInput>
+}
+
+export type FinanceAccountCreateNestedOneWithoutAssetAdjustmentsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetAdjustmentsInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetAdjustmentsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetAdjustmentsInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountUpdateOneWithoutAssetAdjustmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetAdjustmentsInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetAdjustmentsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAssetAdjustmentsInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutAssetAdjustmentsInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutAssetAdjustmentsInput, Prisma.FinanceAccountUpdateWithoutAssetAdjustmentsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutAssetAdjustmentsInput>
 }
 
 export type FinanceAccountCreateNestedOneWithoutDeptBudgetsInput = {
@@ -1032,6 +1325,22 @@ export type FinanceAccountUpdateOneWithoutOpenItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutOpenItemsInput, Prisma.FinanceAccountUpdateWithoutOpenItemsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutOpenItemsInput>
 }
 
+export type FinanceAccountCreateNestedOneWithoutGroupAccountMappingsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutGroupAccountMappingsInput, Prisma.FinanceAccountUncheckedCreateWithoutGroupAccountMappingsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutGroupAccountMappingsInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountUpdateOneWithoutGroupAccountMappingsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutGroupAccountMappingsInput, Prisma.FinanceAccountUncheckedCreateWithoutGroupAccountMappingsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutGroupAccountMappingsInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutGroupAccountMappingsInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutGroupAccountMappingsInput, Prisma.FinanceAccountUpdateWithoutGroupAccountMappingsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutGroupAccountMappingsInput>
+}
+
 export type FinanceAccountCreateNestedOneWithoutAuxiliaryRequirementsInput = {
   create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAuxiliaryRequirementsInput, Prisma.FinanceAccountUncheckedCreateWithoutAuxiliaryRequirementsInput>
   connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAuxiliaryRequirementsInput
@@ -1086,6 +1395,20 @@ export type FinanceAccountUpdateOneRequiredWithoutSourceBalancesNestedInput = {
   upsert?: Prisma.FinanceAccountUpsertWithoutSourceBalancesInput
   connect?: Prisma.FinanceAccountWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutSourceBalancesInput, Prisma.FinanceAccountUpdateWithoutSourceBalancesInput>, Prisma.FinanceAccountUncheckedUpdateWithoutSourceBalancesInput>
+}
+
+export type FinanceAccountCreateNestedOneWithoutSnapshotRowsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedCreateWithoutSnapshotRowsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutSnapshotRowsInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountUpdateOneRequiredWithoutSnapshotRowsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedCreateWithoutSnapshotRowsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutSnapshotRowsInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutSnapshotRowsInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutSnapshotRowsInput, Prisma.FinanceAccountUpdateWithoutSnapshotRowsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput>
 }
 
 export type FinanceAccountCreateNestedOneWithoutChildrenInput = {
@@ -1174,18 +1497,68 @@ export type FinanceAccountUpdateOneRequiredWithoutBalancesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutBalancesInput, Prisma.FinanceAccountUpdateWithoutBalancesInput>, Prisma.FinanceAccountUncheckedUpdateWithoutBalancesInput>
 }
 
-export type FinanceAccountCreateNestedOneWithoutSnapshotRowsInput = {
-  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedCreateWithoutSnapshotRowsInput>
-  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutSnapshotRowsInput
+export type FinanceAccountCreateNestedOneWithoutReclassItemRuleSourcesInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassItemRuleSourcesInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassItemRuleSourcesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutReclassItemRuleSourcesInput
   connect?: Prisma.FinanceAccountWhereUniqueInput
 }
 
-export type FinanceAccountUpdateOneRequiredWithoutSnapshotRowsNestedInput = {
-  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedCreateWithoutSnapshotRowsInput>
-  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutSnapshotRowsInput
-  upsert?: Prisma.FinanceAccountUpsertWithoutSnapshotRowsInput
+export type FinanceAccountCreateNestedOneWithoutReclassItemRuleTargetsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassItemRuleTargetsInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassItemRuleTargetsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutReclassItemRuleTargetsInput
   connect?: Prisma.FinanceAccountWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutSnapshotRowsInput, Prisma.FinanceAccountUpdateWithoutSnapshotRowsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput>
+}
+
+export type FinanceAccountUpdateOneWithoutReclassItemRuleSourcesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassItemRuleSourcesInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassItemRuleSourcesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutReclassItemRuleSourcesInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutReclassItemRuleSourcesInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutReclassItemRuleSourcesInput, Prisma.FinanceAccountUpdateWithoutReclassItemRuleSourcesInput>, Prisma.FinanceAccountUncheckedUpdateWithoutReclassItemRuleSourcesInput>
+}
+
+export type FinanceAccountUpdateOneWithoutReclassItemRuleTargetsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassItemRuleTargetsInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassItemRuleTargetsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutReclassItemRuleTargetsInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutReclassItemRuleTargetsInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutReclassItemRuleTargetsInput, Prisma.FinanceAccountUpdateWithoutReclassItemRuleTargetsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutReclassItemRuleTargetsInput>
+}
+
+export type FinanceAccountCreateNestedOneWithoutReclassHistorySourcesInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassHistorySourcesInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassHistorySourcesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutReclassHistorySourcesInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountCreateNestedOneWithoutReclassHistoryTargetsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassHistoryTargetsInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassHistoryTargetsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutReclassHistoryTargetsInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountUpdateOneWithoutReclassHistorySourcesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassHistorySourcesInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassHistorySourcesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutReclassHistorySourcesInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutReclassHistorySourcesInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutReclassHistorySourcesInput, Prisma.FinanceAccountUpdateWithoutReclassHistorySourcesInput>, Prisma.FinanceAccountUncheckedUpdateWithoutReclassHistorySourcesInput>
+}
+
+export type FinanceAccountUpdateOneWithoutReclassHistoryTargetsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassHistoryTargetsInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassHistoryTargetsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutReclassHistoryTargetsInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutReclassHistoryTargetsInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutReclassHistoryTargetsInput, Prisma.FinanceAccountUpdateWithoutReclassHistoryTargetsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutReclassHistoryTargetsInput>
 }
 
 export type FinanceAccountCreateNestedOneWithoutBankAccountsInput = {
@@ -1202,6 +1575,48 @@ export type FinanceAccountUpdateOneWithoutBankAccountsNestedInput = {
   delete?: Prisma.FinanceAccountWhereInput | boolean
   connect?: Prisma.FinanceAccountWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutBankAccountsInput, Prisma.FinanceAccountUpdateWithoutBankAccountsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutBankAccountsInput>
+}
+
+export type FinanceAccountCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutCompanyInput, Prisma.FinanceAccountUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAccountCreateWithoutCompanyInput[] | Prisma.FinanceAccountUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutCompanyInput | Prisma.FinanceAccountCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAccountCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceAccountWhereUniqueInput | Prisma.FinanceAccountWhereUniqueInput[]
+}
+
+export type FinanceAccountUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutCompanyInput, Prisma.FinanceAccountUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAccountCreateWithoutCompanyInput[] | Prisma.FinanceAccountUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutCompanyInput | Prisma.FinanceAccountCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAccountCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceAccountWhereUniqueInput | Prisma.FinanceAccountWhereUniqueInput[]
+}
+
+export type FinanceAccountUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutCompanyInput, Prisma.FinanceAccountUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAccountCreateWithoutCompanyInput[] | Prisma.FinanceAccountUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutCompanyInput | Prisma.FinanceAccountCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceAccountUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAccountUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAccountCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceAccountWhereUniqueInput | Prisma.FinanceAccountWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAccountWhereUniqueInput | Prisma.FinanceAccountWhereUniqueInput[]
+  delete?: Prisma.FinanceAccountWhereUniqueInput | Prisma.FinanceAccountWhereUniqueInput[]
+  connect?: Prisma.FinanceAccountWhereUniqueInput | Prisma.FinanceAccountWhereUniqueInput[]
+  update?: Prisma.FinanceAccountUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAccountUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceAccountUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceAccountUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceAccountScalarWhereInput | Prisma.FinanceAccountScalarWhereInput[]
+}
+
+export type FinanceAccountUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutCompanyInput, Prisma.FinanceAccountUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAccountCreateWithoutCompanyInput[] | Prisma.FinanceAccountUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutCompanyInput | Prisma.FinanceAccountCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceAccountUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAccountUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAccountCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceAccountWhereUniqueInput | Prisma.FinanceAccountWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAccountWhereUniqueInput | Prisma.FinanceAccountWhereUniqueInput[]
+  delete?: Prisma.FinanceAccountWhereUniqueInput | Prisma.FinanceAccountWhereUniqueInput[]
+  connect?: Prisma.FinanceAccountWhereUniqueInput | Prisma.FinanceAccountWhereUniqueInput[]
+  update?: Prisma.FinanceAccountUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAccountUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceAccountUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceAccountUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceAccountScalarWhereInput | Prisma.FinanceAccountScalarWhereInput[]
 }
 
 export type FinanceAccountCreateWithoutEditorInput = {
@@ -1225,6 +1640,7 @@ export type FinanceAccountCreateWithoutEditorInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -1240,6 +1656,21 @@ export type FinanceAccountCreateWithoutEditorInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutEditorInput = {
@@ -1251,6 +1682,7 @@ export type FinanceAccountUncheckedCreateWithoutEditorInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -1279,6 +1711,21 @@ export type FinanceAccountUncheckedCreateWithoutEditorInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutEditorInput = {
@@ -1319,6 +1766,7 @@ export type FinanceAccountScalarWhereInput = {
   balanceDirection?: Prisma.StringFilter<"FinanceAccount"> | string
   isActive?: Prisma.BoolFilter<"FinanceAccount"> | boolean
   companyCode?: Prisma.StringFilter<"FinanceAccount"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
   mnemonicCode?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
   currency?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
   sourceSystem?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
@@ -1334,6 +1782,2346 @@ export type FinanceAccountScalarWhereInput = {
   version?: Prisma.IntFilter<"FinanceAccount"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceAccount"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAccount"> | Date | string
+}
+
+export type FinanceAccountCreateWithoutAssetCategoryPoliciesInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutAssetCategoryPoliciesInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutAssetCategoryPoliciesInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetCategoryPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetCategoryPoliciesInput>
+}
+
+export type FinanceAccountCreateWithoutAccumulatedAssetPoliciesInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutAccumulatedAssetPoliciesInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutAccumulatedAssetPoliciesInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAccumulatedAssetPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAccumulatedAssetPoliciesInput>
+}
+
+export type FinanceAccountCreateWithoutAssetExpensePoliciesInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutAssetExpensePoliciesInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutAssetExpensePoliciesInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetExpensePoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetExpensePoliciesInput>
+}
+
+export type FinanceAccountCreateWithoutAssetImpairmentLossPoliciesInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutAssetImpairmentLossPoliciesInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutAssetImpairmentLossPoliciesInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetImpairmentLossPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetImpairmentLossPoliciesInput>
+}
+
+export type FinanceAccountCreateWithoutAssetImpairmentAllowancePoliciesInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutAssetImpairmentAllowancePoliciesInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutAssetImpairmentAllowancePoliciesInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetImpairmentAllowancePoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetImpairmentAllowancePoliciesInput>
+}
+
+export type FinanceAccountCreateWithoutAssetDisposalGainLossPoliciesInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutAssetDisposalGainLossPoliciesInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutAssetDisposalGainLossPoliciesInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetDisposalGainLossPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetDisposalGainLossPoliciesInput>
+}
+
+export type FinanceAccountUpsertWithoutAssetCategoryPoliciesInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetCategoryPoliciesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetCategoryPoliciesInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetCategoryPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetCategoryPoliciesInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutAssetCategoryPoliciesInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetCategoryPoliciesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetCategoryPoliciesInput>
+}
+
+export type FinanceAccountUpdateWithoutAssetCategoryPoliciesInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutAssetCategoryPoliciesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUpsertWithoutAccumulatedAssetPoliciesInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAccumulatedAssetPoliciesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAccumulatedAssetPoliciesInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAccumulatedAssetPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAccumulatedAssetPoliciesInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutAccumulatedAssetPoliciesInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAccumulatedAssetPoliciesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAccumulatedAssetPoliciesInput>
+}
+
+export type FinanceAccountUpdateWithoutAccumulatedAssetPoliciesInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutAccumulatedAssetPoliciesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUpsertWithoutAssetExpensePoliciesInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetExpensePoliciesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetExpensePoliciesInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetExpensePoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetExpensePoliciesInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutAssetExpensePoliciesInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetExpensePoliciesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetExpensePoliciesInput>
+}
+
+export type FinanceAccountUpdateWithoutAssetExpensePoliciesInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutAssetExpensePoliciesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUpsertWithoutAssetImpairmentLossPoliciesInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetImpairmentLossPoliciesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetImpairmentLossPoliciesInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetImpairmentLossPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetImpairmentLossPoliciesInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutAssetImpairmentLossPoliciesInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetImpairmentLossPoliciesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetImpairmentLossPoliciesInput>
+}
+
+export type FinanceAccountUpdateWithoutAssetImpairmentLossPoliciesInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutAssetImpairmentLossPoliciesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUpsertWithoutAssetImpairmentAllowancePoliciesInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetImpairmentAllowancePoliciesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetImpairmentAllowancePoliciesInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetImpairmentAllowancePoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetImpairmentAllowancePoliciesInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutAssetImpairmentAllowancePoliciesInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetImpairmentAllowancePoliciesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetImpairmentAllowancePoliciesInput>
+}
+
+export type FinanceAccountUpdateWithoutAssetImpairmentAllowancePoliciesInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutAssetImpairmentAllowancePoliciesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUpsertWithoutAssetDisposalGainLossPoliciesInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetDisposalGainLossPoliciesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetDisposalGainLossPoliciesInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetDisposalGainLossPoliciesInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetDisposalGainLossPoliciesInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutAssetDisposalGainLossPoliciesInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetDisposalGainLossPoliciesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetDisposalGainLossPoliciesInput>
+}
+
+export type FinanceAccountUpdateWithoutAssetDisposalGainLossPoliciesInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutAssetDisposalGainLossPoliciesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountCreateWithoutAssetCardsInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutAssetCardsInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutAssetCardsInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetCardsInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetCardsInput>
+}
+
+export type FinanceAccountCreateWithoutAccumulatedAssetCardsInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutAccumulatedAssetCardsInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutAccumulatedAssetCardsInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAccumulatedAssetCardsInput, Prisma.FinanceAccountUncheckedCreateWithoutAccumulatedAssetCardsInput>
+}
+
+export type FinanceAccountUpsertWithoutAssetCardsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetCardsInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetCardsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetCardsInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetCardsInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutAssetCardsInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetCardsInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetCardsInput>
+}
+
+export type FinanceAccountUpdateWithoutAssetCardsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutAssetCardsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUpsertWithoutAccumulatedAssetCardsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAccumulatedAssetCardsInput, Prisma.FinanceAccountUncheckedUpdateWithoutAccumulatedAssetCardsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAccumulatedAssetCardsInput, Prisma.FinanceAccountUncheckedCreateWithoutAccumulatedAssetCardsInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutAccumulatedAssetCardsInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAccumulatedAssetCardsInput, Prisma.FinanceAccountUncheckedUpdateWithoutAccumulatedAssetCardsInput>
+}
+
+export type FinanceAccountUpdateWithoutAccumulatedAssetCardsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutAccumulatedAssetCardsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountCreateWithoutAssetExpenseAllocationsInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutAssetExpenseAllocationsInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutAssetExpenseAllocationsInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetExpenseAllocationsInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetExpenseAllocationsInput>
+}
+
+export type FinanceAccountUpsertWithoutAssetExpenseAllocationsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetExpenseAllocationsInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetExpenseAllocationsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetExpenseAllocationsInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetExpenseAllocationsInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutAssetExpenseAllocationsInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetExpenseAllocationsInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetExpenseAllocationsInput>
+}
+
+export type FinanceAccountUpdateWithoutAssetExpenseAllocationsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutAssetExpenseAllocationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountCreateWithoutAssetAdjustmentsInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutAssetAdjustmentsInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutAssetAdjustmentsInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetAdjustmentsInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetAdjustmentsInput>
+}
+
+export type FinanceAccountUpsertWithoutAssetAdjustmentsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetAdjustmentsInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetAdjustmentsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAssetAdjustmentsInput, Prisma.FinanceAccountUncheckedCreateWithoutAssetAdjustmentsInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutAssetAdjustmentsInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAssetAdjustmentsInput, Prisma.FinanceAccountUncheckedUpdateWithoutAssetAdjustmentsInput>
+}
+
+export type FinanceAccountUpdateWithoutAssetAdjustmentsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutAssetAdjustmentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutDeptBudgetsInput = {
@@ -1358,6 +4146,7 @@ export type FinanceAccountCreateWithoutDeptBudgetsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -1372,6 +4161,21 @@ export type FinanceAccountCreateWithoutDeptBudgetsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutDeptBudgetsInput = {
@@ -1383,6 +4187,7 @@ export type FinanceAccountUncheckedCreateWithoutDeptBudgetsInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -1411,6 +4216,21 @@ export type FinanceAccountUncheckedCreateWithoutDeptBudgetsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutDeptBudgetsInput = {
@@ -1451,6 +4271,7 @@ export type FinanceAccountUpdateWithoutDeptBudgetsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -1465,6 +4286,21 @@ export type FinanceAccountUpdateWithoutDeptBudgetsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutDeptBudgetsInput = {
@@ -1476,6 +4312,7 @@ export type FinanceAccountUncheckedUpdateWithoutDeptBudgetsInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1504,6 +4341,21 @@ export type FinanceAccountUncheckedUpdateWithoutDeptBudgetsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutRdBudgetsInput = {
@@ -1528,6 +4380,7 @@ export type FinanceAccountCreateWithoutRdBudgetsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -1542,6 +4395,21 @@ export type FinanceAccountCreateWithoutRdBudgetsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutRdBudgetsInput = {
@@ -1553,6 +4421,7 @@ export type FinanceAccountUncheckedCreateWithoutRdBudgetsInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -1581,6 +4450,21 @@ export type FinanceAccountUncheckedCreateWithoutRdBudgetsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutRdBudgetsInput = {
@@ -1621,6 +4505,7 @@ export type FinanceAccountUpdateWithoutRdBudgetsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -1635,6 +4520,21 @@ export type FinanceAccountUpdateWithoutRdBudgetsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutRdBudgetsInput = {
@@ -1646,6 +4546,7 @@ export type FinanceAccountUncheckedUpdateWithoutRdBudgetsInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1674,6 +4575,21 @@ export type FinanceAccountUncheckedUpdateWithoutRdBudgetsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutCounterpartyClassificationsInput = {
@@ -1698,6 +4614,7 @@ export type FinanceAccountCreateWithoutCounterpartyClassificationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -1712,6 +4629,21 @@ export type FinanceAccountCreateWithoutCounterpartyClassificationsInput = {
   auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutCounterpartyClassificationsInput = {
@@ -1723,6 +4655,7 @@ export type FinanceAccountUncheckedCreateWithoutCounterpartyClassificationsInput
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -1751,6 +4684,21 @@ export type FinanceAccountUncheckedCreateWithoutCounterpartyClassificationsInput
   auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutCounterpartyClassificationsInput = {
@@ -1791,6 +4739,7 @@ export type FinanceAccountUpdateWithoutCounterpartyClassificationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -1805,6 +4754,21 @@ export type FinanceAccountUpdateWithoutCounterpartyClassificationsInput = {
   auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutCounterpartyClassificationsInput = {
@@ -1816,6 +4780,7 @@ export type FinanceAccountUncheckedUpdateWithoutCounterpartyClassificationsInput
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1844,6 +4809,21 @@ export type FinanceAccountUncheckedUpdateWithoutCounterpartyClassificationsInput
   auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutAuxiliaryBalancesInput = {
@@ -1868,6 +4848,7 @@ export type FinanceAccountCreateWithoutAuxiliaryBalancesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -1882,6 +4863,21 @@ export type FinanceAccountCreateWithoutAuxiliaryBalancesInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutAuxiliaryBalancesInput = {
@@ -1893,6 +4889,7 @@ export type FinanceAccountUncheckedCreateWithoutAuxiliaryBalancesInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -1921,6 +4918,21 @@ export type FinanceAccountUncheckedCreateWithoutAuxiliaryBalancesInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutAuxiliaryBalancesInput = {
@@ -1961,6 +4973,7 @@ export type FinanceAccountUpdateWithoutAuxiliaryBalancesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -1975,6 +4988,21 @@ export type FinanceAccountUpdateWithoutAuxiliaryBalancesInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutAuxiliaryBalancesInput = {
@@ -1986,6 +5014,7 @@ export type FinanceAccountUncheckedUpdateWithoutAuxiliaryBalancesInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2014,6 +5043,21 @@ export type FinanceAccountUncheckedUpdateWithoutAuxiliaryBalancesInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutOpenItemsInput = {
@@ -2038,6 +5082,7 @@ export type FinanceAccountCreateWithoutOpenItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -2052,6 +5097,21 @@ export type FinanceAccountCreateWithoutOpenItemsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutOpenItemsInput = {
@@ -2063,6 +5123,7 @@ export type FinanceAccountUncheckedCreateWithoutOpenItemsInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -2091,6 +5152,21 @@ export type FinanceAccountUncheckedCreateWithoutOpenItemsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutOpenItemsInput = {
@@ -2131,6 +5207,7 @@ export type FinanceAccountUpdateWithoutOpenItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -2145,6 +5222,21 @@ export type FinanceAccountUpdateWithoutOpenItemsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutOpenItemsInput = {
@@ -2156,6 +5248,7 @@ export type FinanceAccountUncheckedUpdateWithoutOpenItemsInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2184,6 +5277,255 @@ export type FinanceAccountUncheckedUpdateWithoutOpenItemsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountCreateWithoutGroupAccountMappingsInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutGroupAccountMappingsInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutGroupAccountMappingsInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutGroupAccountMappingsInput, Prisma.FinanceAccountUncheckedCreateWithoutGroupAccountMappingsInput>
+}
+
+export type FinanceAccountUpsertWithoutGroupAccountMappingsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutGroupAccountMappingsInput, Prisma.FinanceAccountUncheckedUpdateWithoutGroupAccountMappingsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutGroupAccountMappingsInput, Prisma.FinanceAccountUncheckedCreateWithoutGroupAccountMappingsInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutGroupAccountMappingsInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutGroupAccountMappingsInput, Prisma.FinanceAccountUncheckedUpdateWithoutGroupAccountMappingsInput>
+}
+
+export type FinanceAccountUpdateWithoutGroupAccountMappingsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutGroupAccountMappingsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutAuxiliaryRequirementsInput = {
@@ -2208,6 +5550,7 @@ export type FinanceAccountCreateWithoutAuxiliaryRequirementsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -2222,6 +5565,21 @@ export type FinanceAccountCreateWithoutAuxiliaryRequirementsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutAuxiliaryRequirementsInput = {
@@ -2233,6 +5591,7 @@ export type FinanceAccountUncheckedCreateWithoutAuxiliaryRequirementsInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -2261,6 +5620,21 @@ export type FinanceAccountUncheckedCreateWithoutAuxiliaryRequirementsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutAuxiliaryRequirementsInput = {
@@ -2301,6 +5675,7 @@ export type FinanceAccountUpdateWithoutAuxiliaryRequirementsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -2315,6 +5690,21 @@ export type FinanceAccountUpdateWithoutAuxiliaryRequirementsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutAuxiliaryRequirementsInput = {
@@ -2326,6 +5716,7 @@ export type FinanceAccountUncheckedUpdateWithoutAuxiliaryRequirementsInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2354,6 +5745,21 @@ export type FinanceAccountUncheckedUpdateWithoutAuxiliaryRequirementsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutCurrentLineagesInput = {
@@ -2378,6 +5784,7 @@ export type FinanceAccountCreateWithoutCurrentLineagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -2392,6 +5799,21 @@ export type FinanceAccountCreateWithoutCurrentLineagesInput = {
   auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutCurrentLineagesInput = {
@@ -2403,6 +5825,7 @@ export type FinanceAccountUncheckedCreateWithoutCurrentLineagesInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -2431,6 +5854,21 @@ export type FinanceAccountUncheckedCreateWithoutCurrentLineagesInput = {
   auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutCurrentLineagesInput = {
@@ -2460,6 +5898,7 @@ export type FinanceAccountCreateWithoutPreviousLineagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -2474,6 +5913,21 @@ export type FinanceAccountCreateWithoutPreviousLineagesInput = {
   auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutPreviousLineagesInput = {
@@ -2485,6 +5939,7 @@ export type FinanceAccountUncheckedCreateWithoutPreviousLineagesInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -2513,6 +5968,21 @@ export type FinanceAccountUncheckedCreateWithoutPreviousLineagesInput = {
   auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutPreviousLineagesInput = {
@@ -2553,6 +6023,7 @@ export type FinanceAccountUpdateWithoutCurrentLineagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -2567,6 +6038,21 @@ export type FinanceAccountUpdateWithoutCurrentLineagesInput = {
   auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutCurrentLineagesInput = {
@@ -2578,6 +6064,7 @@ export type FinanceAccountUncheckedUpdateWithoutCurrentLineagesInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2606,6 +6093,21 @@ export type FinanceAccountUncheckedUpdateWithoutCurrentLineagesInput = {
   auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUpsertWithoutPreviousLineagesInput = {
@@ -2641,6 +6143,7 @@ export type FinanceAccountUpdateWithoutPreviousLineagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -2655,6 +6158,21 @@ export type FinanceAccountUpdateWithoutPreviousLineagesInput = {
   auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutPreviousLineagesInput = {
@@ -2666,6 +6184,7 @@ export type FinanceAccountUncheckedUpdateWithoutPreviousLineagesInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2694,6 +6213,21 @@ export type FinanceAccountUncheckedUpdateWithoutPreviousLineagesInput = {
   auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutSourceBalancesInput = {
@@ -2718,6 +6252,7 @@ export type FinanceAccountCreateWithoutSourceBalancesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -2732,6 +6267,21 @@ export type FinanceAccountCreateWithoutSourceBalancesInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutSourceBalancesInput = {
@@ -2743,6 +6293,7 @@ export type FinanceAccountUncheckedCreateWithoutSourceBalancesInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -2771,6 +6322,21 @@ export type FinanceAccountUncheckedCreateWithoutSourceBalancesInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutSourceBalancesInput = {
@@ -2811,6 +6377,7 @@ export type FinanceAccountUpdateWithoutSourceBalancesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -2825,6 +6392,21 @@ export type FinanceAccountUpdateWithoutSourceBalancesInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutSourceBalancesInput = {
@@ -2836,6 +6418,7 @@ export type FinanceAccountUncheckedUpdateWithoutSourceBalancesInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2864,6 +6447,255 @@ export type FinanceAccountUncheckedUpdateWithoutSourceBalancesInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountCreateWithoutSnapshotRowsInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutSnapshotRowsInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutSnapshotRowsInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedCreateWithoutSnapshotRowsInput>
+}
+
+export type FinanceAccountUpsertWithoutSnapshotRowsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedCreateWithoutSnapshotRowsInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutSnapshotRowsInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput>
+}
+
+export type FinanceAccountUpdateWithoutSnapshotRowsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutChildrenInput = {
@@ -2888,6 +6720,7 @@ export type FinanceAccountCreateWithoutChildrenInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
   voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
@@ -2902,6 +6735,21 @@ export type FinanceAccountCreateWithoutChildrenInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutChildrenInput = {
@@ -2913,6 +6761,7 @@ export type FinanceAccountUncheckedCreateWithoutChildrenInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -2941,6 +6790,21 @@ export type FinanceAccountUncheckedCreateWithoutChildrenInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutChildrenInput = {
@@ -2970,6 +6834,7 @@ export type FinanceAccountCreateWithoutParentInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
   voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
@@ -2984,6 +6849,21 @@ export type FinanceAccountCreateWithoutParentInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutParentInput = {
@@ -2994,6 +6874,7 @@ export type FinanceAccountUncheckedCreateWithoutParentInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -3023,6 +6904,21 @@ export type FinanceAccountUncheckedCreateWithoutParentInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutParentInput = {
@@ -3068,6 +6964,7 @@ export type FinanceAccountUpdateWithoutChildrenInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
   voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
@@ -3082,6 +6979,21 @@ export type FinanceAccountUpdateWithoutChildrenInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutChildrenInput = {
@@ -3093,6 +7005,7 @@ export type FinanceAccountUncheckedUpdateWithoutChildrenInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3121,6 +7034,21 @@ export type FinanceAccountUncheckedUpdateWithoutChildrenInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUpsertWithWhereUniqueWithoutParentInput = {
@@ -3161,6 +7089,7 @@ export type FinanceAccountCreateWithoutVoucherItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -3175,6 +7104,21 @@ export type FinanceAccountCreateWithoutVoucherItemsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutVoucherItemsInput = {
@@ -3186,6 +7130,7 @@ export type FinanceAccountUncheckedCreateWithoutVoucherItemsInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -3214,6 +7159,21 @@ export type FinanceAccountUncheckedCreateWithoutVoucherItemsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutVoucherItemsInput = {
@@ -3254,6 +7214,7 @@ export type FinanceAccountUpdateWithoutVoucherItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -3268,6 +7229,21 @@ export type FinanceAccountUpdateWithoutVoucherItemsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutVoucherItemsInput = {
@@ -3279,6 +7255,7 @@ export type FinanceAccountUncheckedUpdateWithoutVoucherItemsInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3307,6 +7284,21 @@ export type FinanceAccountUncheckedUpdateWithoutVoucherItemsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutBalancesInput = {
@@ -3331,6 +7323,7 @@ export type FinanceAccountCreateWithoutBalancesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
@@ -3345,6 +7338,21 @@ export type FinanceAccountCreateWithoutBalancesInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutBalancesInput = {
@@ -3356,6 +7364,7 @@ export type FinanceAccountUncheckedCreateWithoutBalancesInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -3384,6 +7393,21 @@ export type FinanceAccountUncheckedCreateWithoutBalancesInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutBalancesInput = {
@@ -3424,6 +7448,7 @@ export type FinanceAccountUpdateWithoutBalancesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
@@ -3438,6 +7463,21 @@ export type FinanceAccountUpdateWithoutBalancesInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutBalancesInput = {
@@ -3449,6 +7489,7 @@ export type FinanceAccountUncheckedUpdateWithoutBalancesInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3477,9 +7518,24 @@ export type FinanceAccountUncheckedUpdateWithoutBalancesInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
-export type FinanceAccountCreateWithoutSnapshotRowsInput = {
+export type FinanceAccountCreateWithoutReclassItemRuleSourcesInput = {
   code: string
   name: string
   category: string
@@ -3501,10 +7557,12 @@ export type FinanceAccountCreateWithoutSnapshotRowsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
   voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
@@ -3515,9 +7573,23 @@ export type FinanceAccountCreateWithoutSnapshotRowsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
-export type FinanceAccountUncheckedCreateWithoutSnapshotRowsInput = {
+export type FinanceAccountUncheckedCreateWithoutReclassItemRuleSourcesInput = {
   id?: number
   code: string
   name: string
@@ -3526,6 +7598,7 @@ export type FinanceAccountUncheckedCreateWithoutSnapshotRowsInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -3544,6 +7617,7 @@ export type FinanceAccountUncheckedCreateWithoutSnapshotRowsInput = {
   children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
   voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
@@ -3554,25 +7628,153 @@ export type FinanceAccountUncheckedCreateWithoutSnapshotRowsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
-export type FinanceAccountCreateOrConnectWithoutSnapshotRowsInput = {
+export type FinanceAccountCreateOrConnectWithoutReclassItemRuleSourcesInput = {
   where: Prisma.FinanceAccountWhereUniqueInput
-  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedCreateWithoutSnapshotRowsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassItemRuleSourcesInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassItemRuleSourcesInput>
 }
 
-export type FinanceAccountUpsertWithoutSnapshotRowsInput = {
-  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput>
-  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedCreateWithoutSnapshotRowsInput>
+export type FinanceAccountCreateWithoutReclassItemRuleTargetsInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutReclassItemRuleTargetsInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutReclassItemRuleTargetsInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassItemRuleTargetsInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassItemRuleTargetsInput>
+}
+
+export type FinanceAccountUpsertWithoutReclassItemRuleSourcesInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutReclassItemRuleSourcesInput, Prisma.FinanceAccountUncheckedUpdateWithoutReclassItemRuleSourcesInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassItemRuleSourcesInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassItemRuleSourcesInput>
   where?: Prisma.FinanceAccountWhereInput
 }
 
-export type FinanceAccountUpdateToOneWithWhereWithoutSnapshotRowsInput = {
+export type FinanceAccountUpdateToOneWithWhereWithoutReclassItemRuleSourcesInput = {
   where?: Prisma.FinanceAccountWhereInput
-  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput>
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutReclassItemRuleSourcesInput, Prisma.FinanceAccountUncheckedUpdateWithoutReclassItemRuleSourcesInput>
 }
 
-export type FinanceAccountUpdateWithoutSnapshotRowsInput = {
+export type FinanceAccountUpdateWithoutReclassItemRuleSourcesInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3594,10 +7796,12 @@ export type FinanceAccountUpdateWithoutSnapshotRowsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
   voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
@@ -3608,9 +7812,23 @@ export type FinanceAccountUpdateWithoutSnapshotRowsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
-export type FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput = {
+export type FinanceAccountUncheckedUpdateWithoutReclassItemRuleSourcesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3619,6 +7837,7 @@ export type FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3637,6 +7856,7 @@ export type FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput = {
   children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
   voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
@@ -3647,6 +7867,608 @@ export type FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUpsertWithoutReclassItemRuleTargetsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutReclassItemRuleTargetsInput, Prisma.FinanceAccountUncheckedUpdateWithoutReclassItemRuleTargetsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassItemRuleTargetsInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassItemRuleTargetsInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutReclassItemRuleTargetsInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutReclassItemRuleTargetsInput, Prisma.FinanceAccountUncheckedUpdateWithoutReclassItemRuleTargetsInput>
+}
+
+export type FinanceAccountUpdateWithoutReclassItemRuleTargetsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutReclassItemRuleTargetsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountCreateWithoutReclassHistorySourcesInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutReclassHistorySourcesInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutReclassHistorySourcesInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassHistorySourcesInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassHistorySourcesInput>
+}
+
+export type FinanceAccountCreateWithoutReclassHistoryTargetsInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutReclassHistoryTargetsInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  companyId?: number | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutReclassHistoryTargetsInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassHistoryTargetsInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassHistoryTargetsInput>
+}
+
+export type FinanceAccountUpsertWithoutReclassHistorySourcesInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutReclassHistorySourcesInput, Prisma.FinanceAccountUncheckedUpdateWithoutReclassHistorySourcesInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassHistorySourcesInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassHistorySourcesInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutReclassHistorySourcesInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutReclassHistorySourcesInput, Prisma.FinanceAccountUncheckedUpdateWithoutReclassHistorySourcesInput>
+}
+
+export type FinanceAccountUpdateWithoutReclassHistorySourcesInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutReclassHistorySourcesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUpsertWithoutReclassHistoryTargetsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutReclassHistoryTargetsInput, Prisma.FinanceAccountUncheckedUpdateWithoutReclassHistoryTargetsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutReclassHistoryTargetsInput, Prisma.FinanceAccountUncheckedCreateWithoutReclassHistoryTargetsInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutReclassHistoryTargetsInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutReclassHistoryTargetsInput, Prisma.FinanceAccountUncheckedUpdateWithoutReclassHistoryTargetsInput>
+}
+
+export type FinanceAccountUpdateWithoutReclassHistoryTargetsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutReclassHistoryTargetsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutBankAccountsInput = {
@@ -3671,6 +8493,7 @@ export type FinanceAccountCreateWithoutBankAccountsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
@@ -3685,6 +8508,21 @@ export type FinanceAccountCreateWithoutBankAccountsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutBankAccountsInput = {
@@ -3696,6 +8534,7 @@ export type FinanceAccountUncheckedCreateWithoutBankAccountsInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -3724,6 +8563,21 @@ export type FinanceAccountUncheckedCreateWithoutBankAccountsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutBankAccountsInput = {
@@ -3764,6 +8618,7 @@ export type FinanceAccountUpdateWithoutBankAccountsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -3778,6 +8633,21 @@ export type FinanceAccountUpdateWithoutBankAccountsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutBankAccountsInput = {
@@ -3789,6 +8659,7 @@ export type FinanceAccountUncheckedUpdateWithoutBankAccountsInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3817,6 +8688,156 @@ export type FinanceAccountUncheckedUpdateWithoutBankAccountsInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountCreateWithoutCompanyInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutAccountInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutAccountInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutAccountInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedCreateNestedManyWithoutAccountInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutCurrentAccountInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutPreviousAccountInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentLossAccountInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutImpairmentAllowanceAccountInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedCreateNestedManyWithoutDisposalGainLossAccountInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAssetAccountInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedCreateNestedManyWithoutAccumulatedAccountInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedCreateNestedManyWithoutExpenseAccountInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutLocalAccountInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutSourceAccountInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedCreateNestedManyWithoutTargetAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutCompanyInput, Prisma.FinanceAccountUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceAccountCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceAccountCreateManyCompanyInput | Prisma.FinanceAccountCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAccountUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutCompanyInput, Prisma.FinanceAccountUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutCompanyInput, Prisma.FinanceAccountUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceAccountUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutCompanyInput, Prisma.FinanceAccountUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceAccountUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceAccountScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateManyMutationInput, Prisma.FinanceAccountUncheckedUpdateManyWithoutCompanyInput>
 }
 
 export type FinanceAccountCreateManyEditorInput = {
@@ -3828,6 +8849,7 @@ export type FinanceAccountCreateManyEditorInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -3865,6 +8887,7 @@ export type FinanceAccountUpdateWithoutEditorInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
@@ -3880,6 +8903,21 @@ export type FinanceAccountUpdateWithoutEditorInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutEditorInput = {
@@ -3891,6 +8929,7 @@ export type FinanceAccountUncheckedUpdateWithoutEditorInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3919,6 +8958,21 @@ export type FinanceAccountUncheckedUpdateWithoutEditorInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateManyWithoutEditorInput = {
@@ -3930,6 +8984,7 @@ export type FinanceAccountUncheckedUpdateManyWithoutEditorInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3954,6 +9009,7 @@ export type FinanceAccountCreateManyParentInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode: string
+  companyId?: number | null
   mnemonicCode?: string | null
   currency?: string | null
   sourceSystem?: string | null
@@ -3993,6 +9049,7 @@ export type FinanceAccountUpdateWithoutParentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAccountsNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
   voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
@@ -4007,6 +9064,21 @@ export type FinanceAccountUpdateWithoutParentInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutParentInput = {
@@ -4014,6 +9086,168 @@ export type FinanceAccountUncheckedUpdateWithoutParentInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateManyWithoutParentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAccountCreateManyCompanyInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAccountUpdateWithoutCompanyInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutAccountNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutAccountNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutAccountNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+  auxiliaryRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutAccountNestedInput
+  counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUpdateManyWithoutAccountNestedInput
+  currentLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutCurrentAccountNestedInput
+  previousLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUpdateManyWithoutTargetAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4046,13 +9280,29 @@ export type FinanceAccountUncheckedUpdateWithoutParentInput = {
   counterpartyClassifications?: Prisma.FinanceCounterpartyClassificationUncheckedUpdateManyWithoutAccountNestedInput
   currentLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutCurrentAccountNestedInput
   previousLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutPreviousAccountNestedInput
+  assetCategoryPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpensePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetImpairmentLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentLossAccountNestedInput
+  assetImpairmentAllowancePolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutImpairmentAllowanceAccountNestedInput
+  assetDisposalGainLossPolicies?: Prisma.FinanceAssetCategoryPolicyUncheckedUpdateManyWithoutDisposalGainLossAccountNestedInput
+  assetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAssetAccountNestedInput
+  accumulatedAssetCards?: Prisma.FinanceAssetCardUncheckedUpdateManyWithoutAccumulatedAccountNestedInput
+  assetExpenseAllocations?: Prisma.FinanceAssetExpenseAllocationUncheckedUpdateManyWithoutExpenseAccountNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput
+  groupAccountMappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutLocalAccountNestedInput
+  reclassItemRuleSources?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassItemRuleTargets?: Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput
+  reclassHistorySources?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutSourceAccountNestedInput
+  reclassHistoryTargets?: Prisma.FinanceBalanceReclassAdjustmentHistoryUncheckedUpdateManyWithoutTargetAccountNestedInput
 }
 
-export type FinanceAccountUncheckedUpdateManyWithoutParentInput = {
+export type FinanceAccountUncheckedUpdateManyWithoutCompanyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4093,6 +9343,21 @@ export type FinanceAccountCountOutputType = {
   counterpartyClassifications: number
   currentLineages: number
   previousLineages: number
+  assetCategoryPolicies: number
+  accumulatedAssetPolicies: number
+  assetExpensePolicies: number
+  assetImpairmentLossPolicies: number
+  assetImpairmentAllowancePolicies: number
+  assetDisposalGainLossPolicies: number
+  assetCards: number
+  accumulatedAssetCards: number
+  assetExpenseAllocations: number
+  assetAdjustments: number
+  groupAccountMappings: number
+  reclassItemRuleSources: number
+  reclassItemRuleTargets: number
+  reclassHistorySources: number
+  reclassHistoryTargets: number
 }
 
 export type FinanceAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4110,6 +9375,21 @@ export type FinanceAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Ex
   counterpartyClassifications?: boolean | FinanceAccountCountOutputTypeCountCounterpartyClassificationsArgs
   currentLineages?: boolean | FinanceAccountCountOutputTypeCountCurrentLineagesArgs
   previousLineages?: boolean | FinanceAccountCountOutputTypeCountPreviousLineagesArgs
+  assetCategoryPolicies?: boolean | FinanceAccountCountOutputTypeCountAssetCategoryPoliciesArgs
+  accumulatedAssetPolicies?: boolean | FinanceAccountCountOutputTypeCountAccumulatedAssetPoliciesArgs
+  assetExpensePolicies?: boolean | FinanceAccountCountOutputTypeCountAssetExpensePoliciesArgs
+  assetImpairmentLossPolicies?: boolean | FinanceAccountCountOutputTypeCountAssetImpairmentLossPoliciesArgs
+  assetImpairmentAllowancePolicies?: boolean | FinanceAccountCountOutputTypeCountAssetImpairmentAllowancePoliciesArgs
+  assetDisposalGainLossPolicies?: boolean | FinanceAccountCountOutputTypeCountAssetDisposalGainLossPoliciesArgs
+  assetCards?: boolean | FinanceAccountCountOutputTypeCountAssetCardsArgs
+  accumulatedAssetCards?: boolean | FinanceAccountCountOutputTypeCountAccumulatedAssetCardsArgs
+  assetExpenseAllocations?: boolean | FinanceAccountCountOutputTypeCountAssetExpenseAllocationsArgs
+  assetAdjustments?: boolean | FinanceAccountCountOutputTypeCountAssetAdjustmentsArgs
+  groupAccountMappings?: boolean | FinanceAccountCountOutputTypeCountGroupAccountMappingsArgs
+  reclassItemRuleSources?: boolean | FinanceAccountCountOutputTypeCountReclassItemRuleSourcesArgs
+  reclassItemRuleTargets?: boolean | FinanceAccountCountOutputTypeCountReclassItemRuleTargetsArgs
+  reclassHistorySources?: boolean | FinanceAccountCountOutputTypeCountReclassHistorySourcesArgs
+  reclassHistoryTargets?: boolean | FinanceAccountCountOutputTypeCountReclassHistoryTargetsArgs
 }
 
 /**
@@ -4220,6 +9500,111 @@ export type FinanceAccountCountOutputTypeCountPreviousLineagesArgs<ExtArgs exten
   where?: Prisma.FinanceAccountLineageWhereInput
 }
 
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountAssetCategoryPoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetCategoryPolicyWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountAccumulatedAssetPoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetCategoryPolicyWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountAssetExpensePoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetCategoryPolicyWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountAssetImpairmentLossPoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetCategoryPolicyWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountAssetImpairmentAllowancePoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetCategoryPolicyWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountAssetDisposalGainLossPoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetCategoryPolicyWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountAssetCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetCardWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountAccumulatedAssetCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetCardWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountAssetExpenseAllocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetExpenseAllocationWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountAssetAdjustmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetAdjustmentWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountGroupAccountMappingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceGroupAccountMappingWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountReclassItemRuleSourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceReclassItemRuleWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountReclassItemRuleTargetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceReclassItemRuleWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountReclassHistorySourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountReclassHistoryTargetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereInput
+}
+
 
 export type FinanceAccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -4230,6 +9615,7 @@ export type FinanceAccountSelect<ExtArgs extends runtime.Types.Extensions.Intern
   balanceDirection?: boolean
   isActive?: boolean
   companyCode?: boolean
+  companyId?: boolean
   mnemonicCode?: boolean
   currency?: boolean
   sourceSystem?: boolean
@@ -4246,6 +9632,7 @@ export type FinanceAccountSelect<ExtArgs extends runtime.Types.Extensions.Intern
   createdAt?: boolean
   updatedAt?: boolean
   editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAccount$companyArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
   children?: boolean | Prisma.FinanceAccount$childrenArgs<ExtArgs>
   balances?: boolean | Prisma.FinanceAccount$balancesArgs<ExtArgs>
@@ -4261,6 +9648,21 @@ export type FinanceAccountSelect<ExtArgs extends runtime.Types.Extensions.Intern
   counterpartyClassifications?: boolean | Prisma.FinanceAccount$counterpartyClassificationsArgs<ExtArgs>
   currentLineages?: boolean | Prisma.FinanceAccount$currentLineagesArgs<ExtArgs>
   previousLineages?: boolean | Prisma.FinanceAccount$previousLineagesArgs<ExtArgs>
+  assetCategoryPolicies?: boolean | Prisma.FinanceAccount$assetCategoryPoliciesArgs<ExtArgs>
+  accumulatedAssetPolicies?: boolean | Prisma.FinanceAccount$accumulatedAssetPoliciesArgs<ExtArgs>
+  assetExpensePolicies?: boolean | Prisma.FinanceAccount$assetExpensePoliciesArgs<ExtArgs>
+  assetImpairmentLossPolicies?: boolean | Prisma.FinanceAccount$assetImpairmentLossPoliciesArgs<ExtArgs>
+  assetImpairmentAllowancePolicies?: boolean | Prisma.FinanceAccount$assetImpairmentAllowancePoliciesArgs<ExtArgs>
+  assetDisposalGainLossPolicies?: boolean | Prisma.FinanceAccount$assetDisposalGainLossPoliciesArgs<ExtArgs>
+  assetCards?: boolean | Prisma.FinanceAccount$assetCardsArgs<ExtArgs>
+  accumulatedAssetCards?: boolean | Prisma.FinanceAccount$accumulatedAssetCardsArgs<ExtArgs>
+  assetExpenseAllocations?: boolean | Prisma.FinanceAccount$assetExpenseAllocationsArgs<ExtArgs>
+  assetAdjustments?: boolean | Prisma.FinanceAccount$assetAdjustmentsArgs<ExtArgs>
+  groupAccountMappings?: boolean | Prisma.FinanceAccount$groupAccountMappingsArgs<ExtArgs>
+  reclassItemRuleSources?: boolean | Prisma.FinanceAccount$reclassItemRuleSourcesArgs<ExtArgs>
+  reclassItemRuleTargets?: boolean | Prisma.FinanceAccount$reclassItemRuleTargetsArgs<ExtArgs>
+  reclassHistorySources?: boolean | Prisma.FinanceAccount$reclassHistorySourcesArgs<ExtArgs>
+  reclassHistoryTargets?: boolean | Prisma.FinanceAccount$reclassHistoryTargetsArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAccount"]>
 
@@ -4273,6 +9675,7 @@ export type FinanceAccountSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   balanceDirection?: boolean
   isActive?: boolean
   companyCode?: boolean
+  companyId?: boolean
   mnemonicCode?: boolean
   currency?: boolean
   sourceSystem?: boolean
@@ -4289,6 +9692,7 @@ export type FinanceAccountSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   createdAt?: boolean
   updatedAt?: boolean
   editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAccount$companyArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
 }, ExtArgs["result"]["financeAccount"]>
 
@@ -4301,6 +9705,7 @@ export type FinanceAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   balanceDirection?: boolean
   isActive?: boolean
   companyCode?: boolean
+  companyId?: boolean
   mnemonicCode?: boolean
   currency?: boolean
   sourceSystem?: boolean
@@ -4317,6 +9722,7 @@ export type FinanceAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   createdAt?: boolean
   updatedAt?: boolean
   editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAccount$companyArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
 }, ExtArgs["result"]["financeAccount"]>
 
@@ -4329,6 +9735,7 @@ export type FinanceAccountSelectScalar = {
   balanceDirection?: boolean
   isActive?: boolean
   companyCode?: boolean
+  companyId?: boolean
   mnemonicCode?: boolean
   currency?: boolean
   sourceSystem?: boolean
@@ -4346,9 +9753,10 @@ export type FinanceAccountSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "category" | "parentId" | "balanceDirection" | "isActive" | "companyCode" | "mnemonicCode" | "currency" | "sourceSystem" | "sourceLedger" | "sourceDatabase" | "sourceKey" | "groupSubjectCode" | "subjectLevel" | "year" | "sortOrder" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAccount"]>
+export type FinanceAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "category" | "parentId" | "balanceDirection" | "isActive" | "companyCode" | "companyId" | "mnemonicCode" | "currency" | "sourceSystem" | "sourceLedger" | "sourceDatabase" | "sourceKey" | "groupSubjectCode" | "subjectLevel" | "year" | "sortOrder" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAccount"]>
 export type FinanceAccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAccount$companyArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
   children?: boolean | Prisma.FinanceAccount$childrenArgs<ExtArgs>
   balances?: boolean | Prisma.FinanceAccount$balancesArgs<ExtArgs>
@@ -4364,14 +9772,31 @@ export type FinanceAccountInclude<ExtArgs extends runtime.Types.Extensions.Inter
   counterpartyClassifications?: boolean | Prisma.FinanceAccount$counterpartyClassificationsArgs<ExtArgs>
   currentLineages?: boolean | Prisma.FinanceAccount$currentLineagesArgs<ExtArgs>
   previousLineages?: boolean | Prisma.FinanceAccount$previousLineagesArgs<ExtArgs>
+  assetCategoryPolicies?: boolean | Prisma.FinanceAccount$assetCategoryPoliciesArgs<ExtArgs>
+  accumulatedAssetPolicies?: boolean | Prisma.FinanceAccount$accumulatedAssetPoliciesArgs<ExtArgs>
+  assetExpensePolicies?: boolean | Prisma.FinanceAccount$assetExpensePoliciesArgs<ExtArgs>
+  assetImpairmentLossPolicies?: boolean | Prisma.FinanceAccount$assetImpairmentLossPoliciesArgs<ExtArgs>
+  assetImpairmentAllowancePolicies?: boolean | Prisma.FinanceAccount$assetImpairmentAllowancePoliciesArgs<ExtArgs>
+  assetDisposalGainLossPolicies?: boolean | Prisma.FinanceAccount$assetDisposalGainLossPoliciesArgs<ExtArgs>
+  assetCards?: boolean | Prisma.FinanceAccount$assetCardsArgs<ExtArgs>
+  accumulatedAssetCards?: boolean | Prisma.FinanceAccount$accumulatedAssetCardsArgs<ExtArgs>
+  assetExpenseAllocations?: boolean | Prisma.FinanceAccount$assetExpenseAllocationsArgs<ExtArgs>
+  assetAdjustments?: boolean | Prisma.FinanceAccount$assetAdjustmentsArgs<ExtArgs>
+  groupAccountMappings?: boolean | Prisma.FinanceAccount$groupAccountMappingsArgs<ExtArgs>
+  reclassItemRuleSources?: boolean | Prisma.FinanceAccount$reclassItemRuleSourcesArgs<ExtArgs>
+  reclassItemRuleTargets?: boolean | Prisma.FinanceAccount$reclassItemRuleTargetsArgs<ExtArgs>
+  reclassHistorySources?: boolean | Prisma.FinanceAccount$reclassHistorySourcesArgs<ExtArgs>
+  reclassHistoryTargets?: boolean | Prisma.FinanceAccount$reclassHistoryTargetsArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceAccountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAccount$companyArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
 }
 export type FinanceAccountIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAccount$companyArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
 }
 
@@ -4379,6 +9804,7 @@ export type $FinanceAccountPayload<ExtArgs extends runtime.Types.Extensions.Inte
   name: "FinanceAccount"
   objects: {
     editor: Prisma.$UserPayload<ExtArgs> | null
+    company: Prisma.$CompanyPayload<ExtArgs> | null
     parent: Prisma.$FinanceAccountPayload<ExtArgs> | null
     children: Prisma.$FinanceAccountPayload<ExtArgs>[]
     balances: Prisma.$FinanceAccountBalancePayload<ExtArgs>[]
@@ -4394,6 +9820,21 @@ export type $FinanceAccountPayload<ExtArgs extends runtime.Types.Extensions.Inte
     counterpartyClassifications: Prisma.$FinanceCounterpartyClassificationPayload<ExtArgs>[]
     currentLineages: Prisma.$FinanceAccountLineagePayload<ExtArgs>[]
     previousLineages: Prisma.$FinanceAccountLineagePayload<ExtArgs>[]
+    assetCategoryPolicies: Prisma.$FinanceAssetCategoryPolicyPayload<ExtArgs>[]
+    accumulatedAssetPolicies: Prisma.$FinanceAssetCategoryPolicyPayload<ExtArgs>[]
+    assetExpensePolicies: Prisma.$FinanceAssetCategoryPolicyPayload<ExtArgs>[]
+    assetImpairmentLossPolicies: Prisma.$FinanceAssetCategoryPolicyPayload<ExtArgs>[]
+    assetImpairmentAllowancePolicies: Prisma.$FinanceAssetCategoryPolicyPayload<ExtArgs>[]
+    assetDisposalGainLossPolicies: Prisma.$FinanceAssetCategoryPolicyPayload<ExtArgs>[]
+    assetCards: Prisma.$FinanceAssetCardPayload<ExtArgs>[]
+    accumulatedAssetCards: Prisma.$FinanceAssetCardPayload<ExtArgs>[]
+    assetExpenseAllocations: Prisma.$FinanceAssetExpenseAllocationPayload<ExtArgs>[]
+    assetAdjustments: Prisma.$FinanceAssetAdjustmentPayload<ExtArgs>[]
+    groupAccountMappings: Prisma.$FinanceGroupAccountMappingPayload<ExtArgs>[]
+    reclassItemRuleSources: Prisma.$FinanceReclassItemRulePayload<ExtArgs>[]
+    reclassItemRuleTargets: Prisma.$FinanceReclassItemRulePayload<ExtArgs>[]
+    reclassHistorySources: Prisma.$FinanceBalanceReclassAdjustmentHistoryPayload<ExtArgs>[]
+    reclassHistoryTargets: Prisma.$FinanceBalanceReclassAdjustmentHistoryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -4404,6 +9845,7 @@ export type $FinanceAccountPayload<ExtArgs extends runtime.Types.Extensions.Inte
     balanceDirection: string
     isActive: boolean
     companyCode: string
+    companyId: number | null
     mnemonicCode: string | null
     currency: string | null
     sourceSystem: string | null
@@ -4814,6 +10256,7 @@ readonly fields: FinanceAccountFieldRefs;
 export interface Prisma__FinanceAccountClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   editor<T extends Prisma.FinanceAccount$editorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$editorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.FinanceAccount$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   parent<T extends Prisma.FinanceAccount$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$parentArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.FinanceAccount$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   balances<T extends Prisma.FinanceAccount$balancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$balancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4829,6 +10272,21 @@ export interface Prisma__FinanceAccountClient<T, Null = never, ExtArgs extends r
   counterpartyClassifications<T extends Prisma.FinanceAccount$counterpartyClassificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$counterpartyClassificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceCounterpartyClassificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   currentLineages<T extends Prisma.FinanceAccount$currentLineagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$currentLineagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountLineagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   previousLineages<T extends Prisma.FinanceAccount$previousLineagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$previousLineagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountLineagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assetCategoryPolicies<T extends Prisma.FinanceAccount$assetCategoryPoliciesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$assetCategoryPoliciesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCategoryPolicyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  accumulatedAssetPolicies<T extends Prisma.FinanceAccount$accumulatedAssetPoliciesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$accumulatedAssetPoliciesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCategoryPolicyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assetExpensePolicies<T extends Prisma.FinanceAccount$assetExpensePoliciesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$assetExpensePoliciesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCategoryPolicyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assetImpairmentLossPolicies<T extends Prisma.FinanceAccount$assetImpairmentLossPoliciesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$assetImpairmentLossPoliciesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCategoryPolicyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assetImpairmentAllowancePolicies<T extends Prisma.FinanceAccount$assetImpairmentAllowancePoliciesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$assetImpairmentAllowancePoliciesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCategoryPolicyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assetDisposalGainLossPolicies<T extends Prisma.FinanceAccount$assetDisposalGainLossPoliciesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$assetDisposalGainLossPoliciesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCategoryPolicyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assetCards<T extends Prisma.FinanceAccount$assetCardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$assetCardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  accumulatedAssetCards<T extends Prisma.FinanceAccount$accumulatedAssetCardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$accumulatedAssetCardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assetExpenseAllocations<T extends Prisma.FinanceAccount$assetExpenseAllocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$assetExpenseAllocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetExpenseAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assetAdjustments<T extends Prisma.FinanceAccount$assetAdjustmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$assetAdjustmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  groupAccountMappings<T extends Prisma.FinanceAccount$groupAccountMappingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$groupAccountMappingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceGroupAccountMappingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reclassItemRuleSources<T extends Prisma.FinanceAccount$reclassItemRuleSourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$reclassItemRuleSourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceReclassItemRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reclassItemRuleTargets<T extends Prisma.FinanceAccount$reclassItemRuleTargetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$reclassItemRuleTargetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceReclassItemRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reclassHistorySources<T extends Prisma.FinanceAccount$reclassHistorySourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$reclassHistorySourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBalanceReclassAdjustmentHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reclassHistoryTargets<T extends Prisma.FinanceAccount$reclassHistoryTargetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$reclassHistoryTargetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBalanceReclassAdjustmentHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4866,6 +10324,7 @@ export interface FinanceAccountFieldRefs {
   readonly balanceDirection: Prisma.FieldRef<"FinanceAccount", 'String'>
   readonly isActive: Prisma.FieldRef<"FinanceAccount", 'Boolean'>
   readonly companyCode: Prisma.FieldRef<"FinanceAccount", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceAccount", 'Int'>
   readonly mnemonicCode: Prisma.FieldRef<"FinanceAccount", 'String'>
   readonly currency: Prisma.FieldRef<"FinanceAccount", 'String'>
   readonly sourceSystem: Prisma.FieldRef<"FinanceAccount", 'String'>
@@ -5301,6 +10760,25 @@ export type FinanceAccount$editorArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
+ * FinanceAccount.company
+ */
+export type FinanceAccount$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
+}
+
+/**
  * FinanceAccount.parent
  */
 export type FinanceAccount$parentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -5653,6 +11131,366 @@ export type FinanceAccount$previousLineagesArgs<ExtArgs extends runtime.Types.Ex
   take?: number
   skip?: number
   distinct?: Prisma.FinanceAccountLineageScalarFieldEnum | Prisma.FinanceAccountLineageScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.assetCategoryPolicies
+ */
+export type FinanceAccount$assetCategoryPoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetCategoryPolicy
+   */
+  select?: Prisma.FinanceAssetCategoryPolicySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetCategoryPolicy
+   */
+  omit?: Prisma.FinanceAssetCategoryPolicyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCategoryPolicyInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetCategoryPolicyWhereInput
+  orderBy?: Prisma.FinanceAssetCategoryPolicyOrderByWithRelationInput | Prisma.FinanceAssetCategoryPolicyOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetCategoryPolicyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetCategoryPolicyScalarFieldEnum | Prisma.FinanceAssetCategoryPolicyScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.accumulatedAssetPolicies
+ */
+export type FinanceAccount$accumulatedAssetPoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetCategoryPolicy
+   */
+  select?: Prisma.FinanceAssetCategoryPolicySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetCategoryPolicy
+   */
+  omit?: Prisma.FinanceAssetCategoryPolicyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCategoryPolicyInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetCategoryPolicyWhereInput
+  orderBy?: Prisma.FinanceAssetCategoryPolicyOrderByWithRelationInput | Prisma.FinanceAssetCategoryPolicyOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetCategoryPolicyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetCategoryPolicyScalarFieldEnum | Prisma.FinanceAssetCategoryPolicyScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.assetExpensePolicies
+ */
+export type FinanceAccount$assetExpensePoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetCategoryPolicy
+   */
+  select?: Prisma.FinanceAssetCategoryPolicySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetCategoryPolicy
+   */
+  omit?: Prisma.FinanceAssetCategoryPolicyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCategoryPolicyInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetCategoryPolicyWhereInput
+  orderBy?: Prisma.FinanceAssetCategoryPolicyOrderByWithRelationInput | Prisma.FinanceAssetCategoryPolicyOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetCategoryPolicyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetCategoryPolicyScalarFieldEnum | Prisma.FinanceAssetCategoryPolicyScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.assetImpairmentLossPolicies
+ */
+export type FinanceAccount$assetImpairmentLossPoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetCategoryPolicy
+   */
+  select?: Prisma.FinanceAssetCategoryPolicySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetCategoryPolicy
+   */
+  omit?: Prisma.FinanceAssetCategoryPolicyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCategoryPolicyInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetCategoryPolicyWhereInput
+  orderBy?: Prisma.FinanceAssetCategoryPolicyOrderByWithRelationInput | Prisma.FinanceAssetCategoryPolicyOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetCategoryPolicyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetCategoryPolicyScalarFieldEnum | Prisma.FinanceAssetCategoryPolicyScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.assetImpairmentAllowancePolicies
+ */
+export type FinanceAccount$assetImpairmentAllowancePoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetCategoryPolicy
+   */
+  select?: Prisma.FinanceAssetCategoryPolicySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetCategoryPolicy
+   */
+  omit?: Prisma.FinanceAssetCategoryPolicyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCategoryPolicyInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetCategoryPolicyWhereInput
+  orderBy?: Prisma.FinanceAssetCategoryPolicyOrderByWithRelationInput | Prisma.FinanceAssetCategoryPolicyOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetCategoryPolicyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetCategoryPolicyScalarFieldEnum | Prisma.FinanceAssetCategoryPolicyScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.assetDisposalGainLossPolicies
+ */
+export type FinanceAccount$assetDisposalGainLossPoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetCategoryPolicy
+   */
+  select?: Prisma.FinanceAssetCategoryPolicySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetCategoryPolicy
+   */
+  omit?: Prisma.FinanceAssetCategoryPolicyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCategoryPolicyInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetCategoryPolicyWhereInput
+  orderBy?: Prisma.FinanceAssetCategoryPolicyOrderByWithRelationInput | Prisma.FinanceAssetCategoryPolicyOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetCategoryPolicyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetCategoryPolicyScalarFieldEnum | Prisma.FinanceAssetCategoryPolicyScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.assetCards
+ */
+export type FinanceAccount$assetCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetCard
+   */
+  select?: Prisma.FinanceAssetCardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetCard
+   */
+  omit?: Prisma.FinanceAssetCardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCardInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetCardWhereInput
+  orderBy?: Prisma.FinanceAssetCardOrderByWithRelationInput | Prisma.FinanceAssetCardOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetCardWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetCardScalarFieldEnum | Prisma.FinanceAssetCardScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.accumulatedAssetCards
+ */
+export type FinanceAccount$accumulatedAssetCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetCard
+   */
+  select?: Prisma.FinanceAssetCardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetCard
+   */
+  omit?: Prisma.FinanceAssetCardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetCardInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetCardWhereInput
+  orderBy?: Prisma.FinanceAssetCardOrderByWithRelationInput | Prisma.FinanceAssetCardOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetCardWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetCardScalarFieldEnum | Prisma.FinanceAssetCardScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.assetExpenseAllocations
+ */
+export type FinanceAccount$assetExpenseAllocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetExpenseAllocation
+   */
+  select?: Prisma.FinanceAssetExpenseAllocationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetExpenseAllocation
+   */
+  omit?: Prisma.FinanceAssetExpenseAllocationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetExpenseAllocationInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetExpenseAllocationWhereInput
+  orderBy?: Prisma.FinanceAssetExpenseAllocationOrderByWithRelationInput | Prisma.FinanceAssetExpenseAllocationOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetExpenseAllocationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetExpenseAllocationScalarFieldEnum | Prisma.FinanceAssetExpenseAllocationScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.assetAdjustments
+ */
+export type FinanceAccount$assetAdjustmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetAdjustment
+   */
+  select?: Prisma.FinanceAssetAdjustmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetAdjustment
+   */
+  omit?: Prisma.FinanceAssetAdjustmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetAdjustmentInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetAdjustmentWhereInput
+  orderBy?: Prisma.FinanceAssetAdjustmentOrderByWithRelationInput | Prisma.FinanceAssetAdjustmentOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetAdjustmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetAdjustmentScalarFieldEnum | Prisma.FinanceAssetAdjustmentScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.groupAccountMappings
+ */
+export type FinanceAccount$groupAccountMappingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceGroupAccountMapping
+   */
+  select?: Prisma.FinanceGroupAccountMappingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceGroupAccountMapping
+   */
+  omit?: Prisma.FinanceGroupAccountMappingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceGroupAccountMappingInclude<ExtArgs> | null
+  where?: Prisma.FinanceGroupAccountMappingWhereInput
+  orderBy?: Prisma.FinanceGroupAccountMappingOrderByWithRelationInput | Prisma.FinanceGroupAccountMappingOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceGroupAccountMappingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceGroupAccountMappingScalarFieldEnum | Prisma.FinanceGroupAccountMappingScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.reclassItemRuleSources
+ */
+export type FinanceAccount$reclassItemRuleSourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceReclassItemRule
+   */
+  select?: Prisma.FinanceReclassItemRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceReclassItemRule
+   */
+  omit?: Prisma.FinanceReclassItemRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleInclude<ExtArgs> | null
+  where?: Prisma.FinanceReclassItemRuleWhereInput
+  orderBy?: Prisma.FinanceReclassItemRuleOrderByWithRelationInput | Prisma.FinanceReclassItemRuleOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceReclassItemRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceReclassItemRuleScalarFieldEnum | Prisma.FinanceReclassItemRuleScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.reclassItemRuleTargets
+ */
+export type FinanceAccount$reclassItemRuleTargetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceReclassItemRule
+   */
+  select?: Prisma.FinanceReclassItemRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceReclassItemRule
+   */
+  omit?: Prisma.FinanceReclassItemRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleInclude<ExtArgs> | null
+  where?: Prisma.FinanceReclassItemRuleWhereInput
+  orderBy?: Prisma.FinanceReclassItemRuleOrderByWithRelationInput | Prisma.FinanceReclassItemRuleOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceReclassItemRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceReclassItemRuleScalarFieldEnum | Prisma.FinanceReclassItemRuleScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.reclassHistorySources
+ */
+export type FinanceAccount$reclassHistorySourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceBalanceReclassAdjustmentHistory
+   */
+  select?: Prisma.FinanceBalanceReclassAdjustmentHistorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceBalanceReclassAdjustmentHistory
+   */
+  omit?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs> | null
+  where?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereInput
+  orderBy?: Prisma.FinanceBalanceReclassAdjustmentHistoryOrderByWithRelationInput | Prisma.FinanceBalanceReclassAdjustmentHistoryOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarFieldEnum | Prisma.FinanceBalanceReclassAdjustmentHistoryScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.reclassHistoryTargets
+ */
+export type FinanceAccount$reclassHistoryTargetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceBalanceReclassAdjustmentHistory
+   */
+  select?: Prisma.FinanceBalanceReclassAdjustmentHistorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceBalanceReclassAdjustmentHistory
+   */
+  omit?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceReclassAdjustmentHistoryInclude<ExtArgs> | null
+  where?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereInput
+  orderBy?: Prisma.FinanceBalanceReclassAdjustmentHistoryOrderByWithRelationInput | Prisma.FinanceBalanceReclassAdjustmentHistoryOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceBalanceReclassAdjustmentHistoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceBalanceReclassAdjustmentHistoryScalarFieldEnum | Prisma.FinanceBalanceReclassAdjustmentHistoryScalarFieldEnum[]
 }
 
 /**

@@ -1,0 +1,13 @@
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import {
+  buildPreviewFinanceAssetCodeRouteCommand,
+  executePreviewFinanceAssetCodeRouteCommand,
+} from "@workspace/finance/server/assets/route-commands";
+import { financeAssetCodePreviewSchema } from "@workspace/finance/server/assets/schemas";
+
+export const GET = createCommandRoute({
+  querySchema: financeAssetCodePreviewSchema,
+  queryError: "资产编号预览参数无效",
+  buildCommand: ({ query }) => buildPreviewFinanceAssetCodeRouteCommand(query),
+  action: executePreviewFinanceAssetCodeRouteCommand,
+});

@@ -29,11 +29,15 @@ const balanceRows = [
     },
   },
 ];
-let supplementalRows: Array<{
+let exclusionRows: Array<{
+  voucher: { items: Array<{ debit: number; credit: number; account: { code: string; category: string } }> };
+}> = [];
+let consolidationRows: Array<{
   debit: number;
   credit: number;
-  account: { code: string; category: string };
+  accountCode: string;
 }> = [];
+let consolidationWhere: unknown = null;
 
 mock.module("@workspace/platform/server/prisma", {
   namedExports: {
@@ -47,7 +51,13 @@ mock.module("@workspace/platform/server/prisma", {
         })),
       },
       financeBalanceSnapshot: { findFirst: async () => ({ year: 2024 }) },
-      financeVoucherItem: { findMany: async () => supplementalRows },
+      financeConsolidationEntryLine: {
+        findMany: async (args: { where: unknown }) => {
+          consolidationWhere = args.where;
+          return consolidationRows;
+        },
+      },
+      financeStatementVoucherExclusion: { findMany: async () => exclusionRows },
     },
   },
 } as never);
@@ -55,7 +65,8 @@ mock.module("@workspace/platform/server/prisma", {
 const { aggregateMappingBasedBalances } = await import("./mapping-based-balances");
 
 test("presents an unclosed expense residual through undistributed profit", async () => {
-  supplementalRows = [];
+  exclusionRows = [];
+  consolidationRows = [];
   const result = await aggregateMappingBasedBalances("02", 2026, 7);
   const retainedEarnings = result.byLineCode.find((line) => line.lineCode === "undistributedProfit");
 
@@ -78,14 +89,45 @@ test("presents an unclosed expense residual through undistributed profit", async
   assert.equal(result.resolvedCount, 1);
 });
 
-test("adds pre-baseline Workspace supplements without mutating ERP balances", async () => {
-  supplementalRows = [
-    { debit: 505_060, credit: 0, account: { code: "1511", category: "asset" } },
-    { debit: 0, credit: 505_060, account: { code: "2241", category: "liability" } },
+test("reverses an explicitly excluded voucher from balance-sheet presentation only", async () => {
+  consolidationRows = [];
+  exclusionRows = [{
+    voucher: {
+      items: [{ debit: 80, credit: 0, account: { code: "660112", category: "expense" } }],
+    },
+  }];
+
+  const result = await aggregateMappingBasedBalances("02", 2026, 7);
+  const retainedEarnings = result.byLineCode.find((line) => line.lineCode === "undistributedProfit");
+
+  assert.equal(retainedEarnings?.net, 0);
+});
+
+test("carries approved group adjustments into later balance-sheet periods", async () => {
+  exclusionRows = [];
+  consolidationRows = [
+    { debit: 505_056, credit: 0, accountCode: "1511" },
+    { debit: 0, credit: 505_056, accountCode: "224101" },
   ];
 
   const result = await aggregateMappingBasedBalances("02", 2026, 6);
 
-  assert.equal(result.byLineCode.find((line) => line.lineCode === "longTermInvest")?.net, 505_060);
-  assert.equal(result.byLineCode.find((line) => line.lineCode === "otherPayables")?.net, -505_060);
+  assert.equal(result.byLineCode.find((line) => line.lineCode === "longTermInvest")?.net, 505_056);
+  assert.equal(result.byLineCode.find((line) => line.lineCode === "otherPayables")?.net, -505_056);
+  assert.deepEqual(consolidationWhere, {
+    companyCode: "02",
+    statementType: "balanceSheet",
+    periodBasis: "current",
+    entry: {
+      status: "approved",
+      documentType: "groupAdjustment",
+      entryType: "groupAdjustment",
+      batch: {
+        OR: [
+          { year: { lt: 2026 } },
+          { year: 2026, month: { lt: 6 } },
+        ],
+      },
+    },
+  });
 });

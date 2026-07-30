@@ -3,8 +3,8 @@ import {
   agentBusinessApiTools,
   handleParsedAgentMessageStreamRequest,
   toParsedAgentRequest,
-} from "@workspace/platform/server/agent";
-import { withWecomAgentBridgeAccess } from "@workspace/platform/server/with-auth";
+  withWecomAgentBridgeAccess,
+} from "@workspace/agent/server";
 
 export const runtime = "nodejs";
 export const maxDuration = 900;

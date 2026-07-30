@@ -1,12 +1,19 @@
 "use client";
 
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
-import type { VoucherCashFlowAllocation } from "@workspace/finance/types";
+import type {
+  Account,
+  GroupVoucherBalanceCheck,
+  GroupVoucherReclassificationTrace,
+  GroupVoucherSourceTrace,
+  VoucherCashFlowAllocation,
+} from "@workspace/finance/types";
 import { formatFinanceAmount } from "../formatters";
 import { formatVoucherCashFlowDetail } from "../ledger/voucherCashFlow";
 
 interface VoucherItem {
   id: number;
+  sourceDate?: string | null;
   account?: { code: string; name: string } | null;
   debit: number;
   credit: number;
@@ -15,6 +22,10 @@ interface VoucherItem {
   entityName?: string | null;
   counterpartyName?: string | null;
   sourceEvidence?: string | null;
+  sourceTrace?: GroupVoucherSourceTrace[];
+  sourceReclassification?: GroupVoucherReclassificationTrace | null;
+  sourceBalanceCheck?: GroupVoucherBalanceCheck | null;
+  presentationAccount?: Account | null;
   cashFlowAllocations?: VoucherCashFlowAllocation[];
 }
 
@@ -29,6 +40,12 @@ export function getBaseItemColumns(): DataSurfaceColumnSpec<VoucherItemRow>[] {
       label: "序号",
       required: true,
       cell: (row) => ({ kind: "text", value: (row._idx ?? 0) + 1, tone: "muted" }),
+    },
+    {
+      key: "sourceDate",
+      label: "发生日期",
+      required: true,
+      cell: (row) => ({ kind: "text", value: row.sourceDate || "—", tone: "muted" }),
     },
     {
       key: "accountCode",
@@ -86,21 +103,89 @@ export function getBaseItemColumns(): DataSurfaceColumnSpec<VoucherItemRow>[] {
   ];
 }
 
-export function getGroupItemColumns(): DataSurfaceColumnSpec<VoucherItemRow>[] {
+export function getGroupItemColumns(expandedSourceLineId: number | null = null): DataSurfaceColumnSpec<VoucherItemRow>[] {
   const base = getBaseItemColumns().filter((column) => (
     !["accountCode", "accountName", "description", "cashFlowDetail", "relatedEntity"].includes(column.key)
   ));
   return [
-    base[0]!,
+    { ...base[0]!, width: "xs" },
+    base[1]!,
+    {
+      key: "account",
+      label: "原科目",
+      required: true,
+      cell: (row) => ({
+        kind: "disclosure",
+        label: [
+          row.account?.name,
+          row.account?.code === "NCI" ? null : row.account?.code,
+        ].filter(Boolean).join(" · ") || "-",
+        expanded: expandedSourceLineId === row.id,
+        emphasis: "medium",
+      }),
+    },
+    {
+      key: "presentationAccount",
+      label: "报表列示",
+      required: true,
+      cell: (row) => row.presentationAccount?.name || row.account?.name || "—",
+    },
+    {
+      key: "entity",
+      label: "合并主体",
+      required: true,
+      cell: (row) => row.entityName || "-",
+    },
+    ...base.slice(2),
+  ];
+}
+
+export type GroupVoucherSourceTraceRow = GroupVoucherSourceTrace;
+
+export function getGroupSourceTraceColumns(): DataSurfaceColumnSpec<GroupVoucherSourceTraceRow>[] {
+  return [
+    { key: "sourceLabel", label: "来源", required: true, width: "content", wrap: "nowrap", cell: (row) => row.sourceLabel },
+    { key: "date", label: "日期/余额日", required: true, width: "content", wrap: "nowrap", cell: (row) => row.date || "—" },
+    { key: "voucherNo", label: "原始凭证号", required: true, width: "content", wrap: "nowrap", cell: (row) => row.voucherNo || "—" },
     {
       key: "account",
       label: "科目",
       required: true,
-      cell: (row) => [row.account?.name, row.account?.code].filter(Boolean).join(" · ") || "-",
+      width: "lg",
+      wrap: "wrap",
+      cell: (row) => `${row.accountName} · ${row.accountCode}`,
     },
-    { key: "entity", label: "合并主体", required: true, cell: (row) => row.entityName || "-" },
-    { key: "counterparty", label: "对方主体", required: true, cell: (row) => row.counterpartyName || "-" },
-    ...base.slice(1),
+    {
+      key: "processing",
+      label: "处理",
+      required: true,
+      width: "content",
+      wrap: "nowrap",
+      cell: (row) => row.reclassifiedToAccountCode
+        ? `重分类 → ${row.reclassifiedToAccountCode}`
+        : row.voucherNo ? "原始入账" : "余额勾稽",
+    },
+    { key: "description", label: "摘要", width: "lg", wrap: "wrap", cell: (row) => row.description || "—" },
+    {
+      key: "debit",
+      label: "借方",
+      required: true,
+      width: "content",
+      wrap: "nowrap",
+      align: "right",
+      numeric: true,
+      cell: (row) => Math.abs(row.debit) >= 0.005 ? formatFinanceAmount(row.debit) : "",
+    },
+    {
+      key: "credit",
+      label: "贷方",
+      required: true,
+      width: "content",
+      wrap: "nowrap",
+      align: "right",
+      numeric: true,
+      cell: (row) => Math.abs(row.credit) >= 0.005 ? formatFinanceAmount(row.credit) : "",
+    },
   ];
 }
 

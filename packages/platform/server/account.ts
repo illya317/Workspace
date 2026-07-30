@@ -102,11 +102,11 @@ export async function changeUserProfile(
       username: true,
       alias: true,
       phone: true,
-      employeeId: true,
+      employees: { select: { employeeId: true }, take: 1 },
     },
   });
-
-  return { success: true, profile };
+  const { employees, ...userProfile } = profile;
+  return { success: true, profile: { ...userProfile, employeeId: employees[0]?.employeeId ?? null } };
 }
 
 export async function getUserAccountProfile(userId: number): Promise<AccountProfile> {
@@ -116,7 +116,7 @@ export async function getUserAccountProfile(userId: number): Promise<AccountProf
       username: true,
       alias: true,
       phone: true,
-      employeeId: true,
+      employees: { select: { employeeId: true }, take: 1 },
     },
   });
   if (!user) {
@@ -127,7 +127,8 @@ export async function getUserAccountProfile(userId: number): Promise<AccountProf
       employeeId: null,
     };
   }
-  return user;
+  const { employees, ...userProfile } = user;
+  return { ...userProfile, employeeId: employees[0]?.employeeId ?? null };
 }
 
 export async function changeUserAvatar(

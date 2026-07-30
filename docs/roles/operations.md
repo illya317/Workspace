@@ -19,8 +19,8 @@ Operations 负责 CI、部署、环境和脚本运行态。
 - 调查 CI 失败、构建失败和部署失败。
 - 维护 CI、check、runtime、deploy、本地开发命令相关文档，确保命令说明和 `package.json` / workflow 一致。
 - 维护 deploy graph 与生成 App 的运行契约：根 `app/`/registry 是事实源，`apps/*` 只通过生成器更新，并由 `deploy:apps:check` 阻断漂移。
-- 生产维护遵循本地优先：代码、migration、文档和检查在本地完成。Full 发布由当前 Git tree 的本地 `check:ci` 通过记录证明；单 unit 发布由共享 release evidence、deploy graph compiler closure、目标 production artifact 与目标 E2E 的 unit 回执证明。CNB 再构建 Linux 目标 artifact；本地记录不绑定调用方 Node 小版本或操作系统。GitHub PR/CI 是协作入口，不是生产发布依赖。
-- CNB 不作为代码调试窗口。先用 `ops/publish.sh prepare` 在本地一次性收集 CI/编译/E2E 问题并取得精确 tree 回执；只有零错误后才能运行 `ops/publish.sh deploy`。prepare 是唯一允许把 release 快进到 main 的阶段；deploy 冻结使用已 prepare 的 release HEAD，即使 main 随后前进也不得再次 promotion。deploy 只消费回执，禁止自动补跑或重跑本地检查。
+- 生产维护遵循提交优先：代码、migration 和文档先在 main 完成并提交。`ops/publish.sh prepare` 只冻结精确 Git tree、校验私有配置并生成候选回执；完整 CI、production build、一次性 PostgreSQL migration/seed 和全量 E2E 统一在 CNB Linux Builder 执行。GitHub PR/CI 是协作入口，不是生产发布依赖。
+- CNB 发布门禁使用 collect-all：Full 与单模块在目标制品分叉前经过完全相同的门禁接口；静态、Node、type、build 独立失败会收集到末尾，production build 可用时继续跑全量 E2E，再统一返回完整结果。拿到结果后回 main 修复并提交，再重新 prepare/deploy；禁止首错即停后反复触发。prepare 是唯一允许把 release 快进到 main 的阶段；deploy 冻结使用已 prepare 的 release HEAD，即使 main 随后前进也不得再次 promotion。
 - 多 agent 共用 main 时，pre-commit 的快照和缓存键只绑定 `HEAD + staged index + 检查环境`；其他 agent 的 unstaged/untracked 写入从一开始就不参与身份计算，不拒绝提交，也不使已通过缓存失效。`prepare` 只读取提交后的 main tree 并快进到干净 release worktree；`deploy` 固定消费该已验证候选。
 
 ## 禁止
@@ -39,7 +39,7 @@ Operations 负责 CI、部署、环境和脚本运行态。
 
 ## 生产发布
 
-- Full 与单 unit 的唯一 operator 入口仍是 `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy`，但调用前必须对相同目标运行 prepare：Full 使用 `ops/publish.sh prepare`，单 unit 使用 `ops/publish.sh prepare --deploy-unit <unit>`，shadow 使用 `--shadow-unit <unit>`；Profile/Fleet 的 prepare/promote/rollback 命令只允许受信发布流水线调用，不是本地旁路入口。私有配置以 `SOURCE_DIR` 指向日常 `main` 工作区、`RELEASE_SOURCE_DIR` 指向专用 worktree、`RELEASE_CI_ENV_FILE` 指向本机受控 CI 环境文件。两步完全忽略日常工作区的未提交/未跟踪文件。release worktree 只以忽略的 `.env` 符号链接复用 CI/本地数据库配置，并且只有 `prepare` 允许从 `main` 快进；`deploy` 读取干净的现有 release HEAD，不追随两步之间新增的 main 提交。Full 复用 `.cache/release-check/local-release-gate.json`；unit 使用 `.cache/release-check/units/<unit>.json` 和 `.cache/next-units/<unit>`，保留共享 static/Node/PostgreSQL evidence，只把 type/build/E2E 收敛到 deploy graph 与 unit contract 的真实闭包。`deploy` 从冻结 release tree 调用后续校验和 CNB 脚本，只验证同 source/tree/target 回执后触发 CNB。
+- Full 与单 unit 的唯一 operator 入口仍是 `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy`，但调用前必须先对同一候选运行 `ops/publish.sh prepare`；Profile/Fleet 的 prepare/promote/rollback 命令只允许受信发布流水线调用，不是本地旁路入口。私有配置以 `SOURCE_DIR` 指向日常 `main` 工作区、`RELEASE_SOURCE_DIR` 指向专用 worktree、`RELEASE_CI_ENV_FILE` 指向本机受控环境文件。两步完全忽略日常工作区的未提交/未跟踪文件。只有 `prepare` 允许从 `main` 快进 release 并生成 source/tree 绑定的 candidate receipt；`deploy` 冻结消费该回执并触发 CNB，不追随后续 main。CNB 的公共 release-gate 先生成与目标无关的 `full-and-unit` 通过回执，随后才允许 Full monolith 或单 unit artifact 构建与部署。
 - CNB 按 release metadata 构建目标 Linux artifact：Full 为 canonical monolith standalone，单 unit 为 graph/contract 约束的独立制品。已验证 artifact 交给统一部署器按目标执行或复验 control-plane，再完成不可变 release 目录、原子切换、健康检查和失败回滚；服务器不从源码重建生产 artifact。
 - Full 成功切流必须生成并原子提交一个无 `activeUnits`、无独立路由的 Gateway generation，让全部公网模块统一回落到本次 monolith；不得保留上一次单 unit/Profile 的公开 override。后续单 unit/Profile 部署再显式建立新的 override。
 - `deployed-release.json` 只记录 CNB runtime/canonical source、artifact 与 deployment 证据。候选必须是当前部署 source 的后代；同 source 为 no-op，回退或分叉直接阻断。
@@ -54,4 +54,4 @@ npm run deploy:graph:check
 npm run deploy:apps:check
 ```
 
-日常候选使用自适应 `check:push`。只有 CI/Full 发布、schema、认证/RBAC、共享边界、未知覆盖或用户明确要求全量收口时才运行 `npm run check:ci`；普通局部改动禁止用它做“放心检查”。deploy graph 或根 route/registry 变化另运行生成 App 契约。远端是否允许合并仍由 `CI / required` 决定。正式 Full 发布固定为 `ops/publish.sh prepare` 零错误后再 deploy；正式 unit 发布固定为相同 unit 参数的 prepare 零错误后再 deploy。后者都不会运行本地编译或测试。Profile/Fleet 只经受信内部入口运行。
+日常候选使用自适应 `check:push`。只有 CI/发布、schema、认证/RBAC、共享边界、未知覆盖或用户明确要求全量收口时才运行 `npm run check:ci`；普通局部改动禁止用它做“放心检查”。deploy graph 或根 route/registry 变化另运行生成 App 契约。远端是否允许合并仍由 `CI / required` 决定。正式发布固定为 `ops/publish.sh prepare` 冻结候选后再 `ops/publish.sh deploy`；本机不编译，CNB 门禁完整跑完后才进入目标部署。Profile/Fleet 只经受信内部入口运行。

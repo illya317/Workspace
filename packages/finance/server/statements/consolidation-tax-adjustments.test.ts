@@ -15,7 +15,8 @@ function line(lineCode: string, side: "debit" | "credit", amount = 0): Consolida
 
 function entry(recognition: "asset" | "liability"): ConsolidationEntrySnapshot {
   return {
-    id: 1, entryNo: "E-1", entryType: "internalTrading", title: "未实现利润", description: null,
+    id: 1, entryNo: "E-1", postingDate: "2026-01-01", documentType: "elimination", postingLevel: "20",
+    entryType: "internalTrading", title: "未实现利润", description: null,
     evidence: "底稿", status: "approved", version: 1, supersedesEntryId: null, reversalOfEntryId: null,
     predecessorEntryId: null, preparedBy: 1, submittedBy: 2, submittedAt: null, approvedBy: 3,
     approvedAt: null, approvalNote: null, reversedBy: null, reversedAt: null, createdAt: "2026-01-01",

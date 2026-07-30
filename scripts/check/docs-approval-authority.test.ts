@@ -28,10 +28,10 @@ mock.module("../../packages/platform/server/domain-validation", {
 mock.module("../../packages/platform/server/prisma", {
   namedExports: { prisma: { user: { findMany: async () => [] } } },
 } as never);
-mock.module("../../packages/platform/server/docs-editor/domain/document-template-validation", {
+mock.module("../../packages/docs/server/domain/document-template-validation", {
   namedExports: { buildSaveDraftCommand: async () => ({ ok: false }) },
 } as never);
-mock.module("../../packages/platform/server/docs-editor/db", {
+mock.module("../../packages/docs/server/db", {
   namedExports: {
     docsEditorDb: () => ({
       documentTemplate: { findFirst: async () => null },
@@ -42,7 +42,7 @@ mock.module("../../packages/platform/server/docs-editor/db", {
     }),
   },
 } as never);
-mock.module("../../packages/platform/server/docs-editor/permissions", {
+mock.module("../../packages/docs/server/permissions", {
   namedExports: {
     canApproveDocsEditorTemplateAction: async () => true,
     canSubmitDocsEditorTemplateAction: async () => true,
@@ -51,7 +51,7 @@ mock.module("../../packages/platform/server/docs-editor/permissions", {
     resolveSpaceAccess: async () => true,
   },
 } as never);
-mock.module("../../packages/platform/server/docs-editor/publish-service", {
+mock.module("../../packages/docs/server/publish-service", {
   namedExports: {
     publishTemplateSnapshot: async (input: Record<string, unknown>) => {
       publishWrites.push(input);
@@ -59,13 +59,13 @@ mock.module("../../packages/platform/server/docs-editor/publish-service", {
     },
   },
 } as never);
-mock.module("../../packages/platform/server/docs-editor/service", {
+mock.module("../../packages/docs/server/service", {
   namedExports: {
     getTemplateWithAccess: async () => ({ ok: false }),
     saveDraft: async () => ({ ok: true, data: { id: 12 } }),
   },
 } as never);
-mock.module("../../packages/platform/server/docs-editor/space-service", {
+mock.module("../../packages/docs/server/space-service", {
   namedExports: { resolveTargetSpace: async () => null },
 } as never);
 
@@ -86,7 +86,7 @@ const request = {
 };
 
 async function adapter() {
-  const docsApprovalModule = await import("../../packages/platform/server/docs-editor/approvals");
+  const docsApprovalModule = await import("../../packages/docs/server/approvals");
   return docsApprovalModule.docsTemplateApprovalAdapter;
 }
 

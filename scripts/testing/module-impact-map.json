@@ -206,13 +206,16 @@
       "id": "docs",
       "roots": {
         "prefixes": [
-          "app/(docs)/",
-          "app/api/modules/docs/"
+          "app/(modules)/docs/",
+          "app/api/modules/docs/",
+          "packages/docs/"
         ],
         "files": []
       },
       "potentialWritePrefixes": [
-        "app/api/modules/docs/"
+        "app/api/modules/docs/",
+        "packages/docs/server/",
+        "packages/docs/ui/"
       ]
     },
     {
@@ -331,14 +334,19 @@
       "id": "settings",
       "roots": {
         "prefixes": [
-          "app/(system)/settings/",
-          "app/api/settings/"
+          "app/(modules)/settings/",
+          "app/api/modules/settings/",
+          "app/api/settings/",
+          "packages/settings/"
         ],
         "files": []
       },
       "potentialWritePrefixes": [
-        "app/(system)/settings/",
-        "app/api/settings/"
+        "app/(modules)/settings/",
+        "app/api/modules/settings/",
+        "app/api/settings/",
+        "packages/settings/server/",
+        "packages/settings/ui/"
       ]
     },
     {
@@ -346,12 +354,16 @@
       "roots": {
         "prefixes": [
           "app/(modules)/agent/",
-          "app/api/agent/"
+          "app/api/agent/",
+          "app/api/integrations/wecom/agent/",
+          "packages/agent/"
         ],
         "files": []
       },
       "potentialWritePrefixes": [
-        "app/api/agent/"
+        "app/api/agent/",
+        "packages/agent/server/",
+        "packages/agent/ui/"
       ]
     },
     {
@@ -416,19 +428,17 @@
       "id": "settings-account-save",
       "modules": [
         "settings",
-        "platform",
-        "work"
+        "platform"
       ],
       "paths": {
         "prefixes": [
-          "app/(system)/settings/account/",
+          "app/(modules)/settings/account/",
           "app/api/settings/account/profile/"
         ],
         "files": [
-          "packages/platform/ui/settings/AccountSettingsPanel.tsx",
-          "packages/platform/ui/settings/SettingsClient.tsx",
-          "packages/platform/ui/settings/account-profile.ts",
-          "packages/work/ui/settings/pages.tsx"
+          "packages/settings/ui/settings/AccountSettingsPanel.tsx",
+          "packages/settings/ui/settings/SettingsClient.tsx",
+          "packages/settings/ui/settings/account-profile.ts"
         ]
       },
       "traits": [

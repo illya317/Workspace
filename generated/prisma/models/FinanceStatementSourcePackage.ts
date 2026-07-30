@@ -413,6 +413,7 @@ export type FinanceStatementSourcePackageWhereInput = {
   rejectionReason?: Prisma.StringNullableFilter<"FinanceStatementSourcePackage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceStatementSourcePackage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceStatementSourcePackage"> | Date | string
+  company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   sheets?: Prisma.FinanceStatementSourceSheetListRelationFilter
   workpapers?: Prisma.FinanceStatementWorkpaperListRelationFilter
 }
@@ -443,6 +444,7 @@ export type FinanceStatementSourcePackageOrderByWithRelationInput = {
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  company?: Prisma.CompanyOrderByWithRelationInput
   sheets?: Prisma.FinanceStatementSourceSheetOrderByRelationAggregateInput
   workpapers?: Prisma.FinanceStatementWorkpaperOrderByRelationAggregateInput
 }
@@ -477,6 +479,7 @@ export type FinanceStatementSourcePackageWhereUniqueInput = Prisma.AtLeast<{
   rejectionReason?: Prisma.StringNullableFilter<"FinanceStatementSourcePackage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceStatementSourcePackage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceStatementSourcePackage"> | Date | string
+  company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   sheets?: Prisma.FinanceStatementSourceSheetListRelationFilter
   workpapers?: Prisma.FinanceStatementWorkpaperListRelationFilter
 }, "id" | "companyId_year_month_revision">
@@ -546,7 +549,6 @@ export type FinanceStatementSourcePackageScalarWhereWithAggregatesInput = {
 }
 
 export type FinanceStatementSourcePackageCreateInput = {
-  companyId: number
   companyCode: string
   companyName: string
   year: number
@@ -570,6 +572,7 @@ export type FinanceStatementSourcePackageCreateInput = {
   rejectionReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutFinanceStatementSourcePackagesInput
   sheets?: Prisma.FinanceStatementSourceSheetCreateNestedManyWithoutSourcePackageInput
   workpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutSourcePackageInput
 }
@@ -605,7 +608,6 @@ export type FinanceStatementSourcePackageUncheckedCreateInput = {
 }
 
 export type FinanceStatementSourcePackageUpdateInput = {
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.StringFieldUpdateOperationsInput | string
   year?: Prisma.IntFieldUpdateOperationsInput | number
@@ -629,6 +631,7 @@ export type FinanceStatementSourcePackageUpdateInput = {
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutFinanceStatementSourcePackagesNestedInput
   sheets?: Prisma.FinanceStatementSourceSheetUpdateManyWithoutSourcePackageNestedInput
   workpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutSourcePackageNestedInput
 }
@@ -692,7 +695,6 @@ export type FinanceStatementSourcePackageCreateManyInput = {
 }
 
 export type FinanceStatementSourcePackageUpdateManyMutationInput = {
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.StringFieldUpdateOperationsInput | string
   year?: Prisma.IntFieldUpdateOperationsInput | number
@@ -873,6 +875,16 @@ export type FinanceStatementSourcePackageNullableScalarRelationFilter = {
   isNot?: Prisma.FinanceStatementSourcePackageWhereInput | null
 }
 
+export type FinanceStatementSourcePackageListRelationFilter = {
+  every?: Prisma.FinanceStatementSourcePackageWhereInput
+  some?: Prisma.FinanceStatementSourcePackageWhereInput
+  none?: Prisma.FinanceStatementSourcePackageWhereInput
+}
+
+export type FinanceStatementSourcePackageOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type FinanceStatementSourcePackageCreateNestedOneWithoutSheetsInput = {
   create?: Prisma.XOR<Prisma.FinanceStatementSourcePackageCreateWithoutSheetsInput, Prisma.FinanceStatementSourcePackageUncheckedCreateWithoutSheetsInput>
   connectOrCreate?: Prisma.FinanceStatementSourcePackageCreateOrConnectWithoutSheetsInput
@@ -903,8 +915,49 @@ export type FinanceStatementSourcePackageUpdateOneWithoutWorkpapersNestedInput =
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceStatementSourcePackageUpdateToOneWithWhereWithoutWorkpapersInput, Prisma.FinanceStatementSourcePackageUpdateWithoutWorkpapersInput>, Prisma.FinanceStatementSourcePackageUncheckedUpdateWithoutWorkpapersInput>
 }
 
+export type FinanceStatementSourcePackageCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceStatementSourcePackageCreateWithoutCompanyInput, Prisma.FinanceStatementSourcePackageUncheckedCreateWithoutCompanyInput> | Prisma.FinanceStatementSourcePackageCreateWithoutCompanyInput[] | Prisma.FinanceStatementSourcePackageUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceStatementSourcePackageCreateOrConnectWithoutCompanyInput | Prisma.FinanceStatementSourcePackageCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceStatementSourcePackageCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceStatementSourcePackageWhereUniqueInput | Prisma.FinanceStatementSourcePackageWhereUniqueInput[]
+}
+
+export type FinanceStatementSourcePackageUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceStatementSourcePackageCreateWithoutCompanyInput, Prisma.FinanceStatementSourcePackageUncheckedCreateWithoutCompanyInput> | Prisma.FinanceStatementSourcePackageCreateWithoutCompanyInput[] | Prisma.FinanceStatementSourcePackageUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceStatementSourcePackageCreateOrConnectWithoutCompanyInput | Prisma.FinanceStatementSourcePackageCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceStatementSourcePackageCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceStatementSourcePackageWhereUniqueInput | Prisma.FinanceStatementSourcePackageWhereUniqueInput[]
+}
+
+export type FinanceStatementSourcePackageUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceStatementSourcePackageCreateWithoutCompanyInput, Prisma.FinanceStatementSourcePackageUncheckedCreateWithoutCompanyInput> | Prisma.FinanceStatementSourcePackageCreateWithoutCompanyInput[] | Prisma.FinanceStatementSourcePackageUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceStatementSourcePackageCreateOrConnectWithoutCompanyInput | Prisma.FinanceStatementSourcePackageCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceStatementSourcePackageUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceStatementSourcePackageUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceStatementSourcePackageCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceStatementSourcePackageWhereUniqueInput | Prisma.FinanceStatementSourcePackageWhereUniqueInput[]
+  disconnect?: Prisma.FinanceStatementSourcePackageWhereUniqueInput | Prisma.FinanceStatementSourcePackageWhereUniqueInput[]
+  delete?: Prisma.FinanceStatementSourcePackageWhereUniqueInput | Prisma.FinanceStatementSourcePackageWhereUniqueInput[]
+  connect?: Prisma.FinanceStatementSourcePackageWhereUniqueInput | Prisma.FinanceStatementSourcePackageWhereUniqueInput[]
+  update?: Prisma.FinanceStatementSourcePackageUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceStatementSourcePackageUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceStatementSourcePackageUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceStatementSourcePackageUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceStatementSourcePackageScalarWhereInput | Prisma.FinanceStatementSourcePackageScalarWhereInput[]
+}
+
+export type FinanceStatementSourcePackageUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceStatementSourcePackageCreateWithoutCompanyInput, Prisma.FinanceStatementSourcePackageUncheckedCreateWithoutCompanyInput> | Prisma.FinanceStatementSourcePackageCreateWithoutCompanyInput[] | Prisma.FinanceStatementSourcePackageUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceStatementSourcePackageCreateOrConnectWithoutCompanyInput | Prisma.FinanceStatementSourcePackageCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceStatementSourcePackageUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceStatementSourcePackageUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceStatementSourcePackageCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceStatementSourcePackageWhereUniqueInput | Prisma.FinanceStatementSourcePackageWhereUniqueInput[]
+  disconnect?: Prisma.FinanceStatementSourcePackageWhereUniqueInput | Prisma.FinanceStatementSourcePackageWhereUniqueInput[]
+  delete?: Prisma.FinanceStatementSourcePackageWhereUniqueInput | Prisma.FinanceStatementSourcePackageWhereUniqueInput[]
+  connect?: Prisma.FinanceStatementSourcePackageWhereUniqueInput | Prisma.FinanceStatementSourcePackageWhereUniqueInput[]
+  update?: Prisma.FinanceStatementSourcePackageUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceStatementSourcePackageUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceStatementSourcePackageUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceStatementSourcePackageUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceStatementSourcePackageScalarWhereInput | Prisma.FinanceStatementSourcePackageScalarWhereInput[]
+}
+
 export type FinanceStatementSourcePackageCreateWithoutSheetsInput = {
-  companyId: number
   companyCode: string
   companyName: string
   year: number
@@ -928,6 +981,7 @@ export type FinanceStatementSourcePackageCreateWithoutSheetsInput = {
   rejectionReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutFinanceStatementSourcePackagesInput
   workpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutSourcePackageInput
 }
 
@@ -977,7 +1031,6 @@ export type FinanceStatementSourcePackageUpdateToOneWithWhereWithoutSheetsInput 
 }
 
 export type FinanceStatementSourcePackageUpdateWithoutSheetsInput = {
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.StringFieldUpdateOperationsInput | string
   year?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1001,6 +1054,7 @@ export type FinanceStatementSourcePackageUpdateWithoutSheetsInput = {
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutFinanceStatementSourcePackagesNestedInput
   workpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutSourcePackageNestedInput
 }
 
@@ -1034,7 +1088,6 @@ export type FinanceStatementSourcePackageUncheckedUpdateWithoutSheetsInput = {
 }
 
 export type FinanceStatementSourcePackageCreateWithoutWorkpapersInput = {
-  companyId: number
   companyCode: string
   companyName: string
   year: number
@@ -1058,6 +1111,7 @@ export type FinanceStatementSourcePackageCreateWithoutWorkpapersInput = {
   rejectionReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutFinanceStatementSourcePackagesInput
   sheets?: Prisma.FinanceStatementSourceSheetCreateNestedManyWithoutSourcePackageInput
 }
 
@@ -1107,7 +1161,6 @@ export type FinanceStatementSourcePackageUpdateToOneWithWhereWithoutWorkpapersIn
 }
 
 export type FinanceStatementSourcePackageUpdateWithoutWorkpapersInput = {
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.StringFieldUpdateOperationsInput | string
   year?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1131,6 +1184,7 @@ export type FinanceStatementSourcePackageUpdateWithoutWorkpapersInput = {
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutFinanceStatementSourcePackagesNestedInput
   sheets?: Prisma.FinanceStatementSourceSheetUpdateManyWithoutSourcePackageNestedInput
 }
 
@@ -1161,6 +1215,231 @@ export type FinanceStatementSourcePackageUncheckedUpdateWithoutWorkpapersInput =
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sheets?: Prisma.FinanceStatementSourceSheetUncheckedUpdateManyWithoutSourcePackageNestedInput
+}
+
+export type FinanceStatementSourcePackageCreateWithoutCompanyInput = {
+  companyCode: string
+  companyName: string
+  year: number
+  month: number
+  revision: number
+  version?: number
+  status?: string
+  fileName: string
+  mimeType: string
+  fileSize: number
+  fileChecksum: string
+  fileContent: runtime.Bytes
+  parsedCompanyName: string
+  note?: string | null
+  uploadedBy: number
+  uploadedAt?: Date | string
+  submittedBy?: number | null
+  submittedAt?: Date | string | null
+  rejectedBy?: number | null
+  rejectedAt?: Date | string | null
+  rejectionReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sheets?: Prisma.FinanceStatementSourceSheetCreateNestedManyWithoutSourcePackageInput
+  workpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutSourcePackageInput
+}
+
+export type FinanceStatementSourcePackageUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  companyName: string
+  year: number
+  month: number
+  revision: number
+  version?: number
+  status?: string
+  fileName: string
+  mimeType: string
+  fileSize: number
+  fileChecksum: string
+  fileContent: runtime.Bytes
+  parsedCompanyName: string
+  note?: string | null
+  uploadedBy: number
+  uploadedAt?: Date | string
+  submittedBy?: number | null
+  submittedAt?: Date | string | null
+  rejectedBy?: number | null
+  rejectedAt?: Date | string | null
+  rejectionReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sheets?: Prisma.FinanceStatementSourceSheetUncheckedCreateNestedManyWithoutSourcePackageInput
+  workpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutSourcePackageInput
+}
+
+export type FinanceStatementSourcePackageCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceStatementSourcePackageWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceStatementSourcePackageCreateWithoutCompanyInput, Prisma.FinanceStatementSourcePackageUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceStatementSourcePackageCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceStatementSourcePackageCreateManyCompanyInput | Prisma.FinanceStatementSourcePackageCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceStatementSourcePackageUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceStatementSourcePackageWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceStatementSourcePackageUpdateWithoutCompanyInput, Prisma.FinanceStatementSourcePackageUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceStatementSourcePackageCreateWithoutCompanyInput, Prisma.FinanceStatementSourcePackageUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceStatementSourcePackageUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceStatementSourcePackageWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceStatementSourcePackageUpdateWithoutCompanyInput, Prisma.FinanceStatementSourcePackageUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceStatementSourcePackageUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceStatementSourcePackageScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceStatementSourcePackageUpdateManyMutationInput, Prisma.FinanceStatementSourcePackageUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type FinanceStatementSourcePackageScalarWhereInput = {
+  AND?: Prisma.FinanceStatementSourcePackageScalarWhereInput | Prisma.FinanceStatementSourcePackageScalarWhereInput[]
+  OR?: Prisma.FinanceStatementSourcePackageScalarWhereInput[]
+  NOT?: Prisma.FinanceStatementSourcePackageScalarWhereInput | Prisma.FinanceStatementSourcePackageScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceStatementSourcePackage"> | number
+  companyId?: Prisma.IntFilter<"FinanceStatementSourcePackage"> | number
+  companyCode?: Prisma.StringFilter<"FinanceStatementSourcePackage"> | string
+  companyName?: Prisma.StringFilter<"FinanceStatementSourcePackage"> | string
+  year?: Prisma.IntFilter<"FinanceStatementSourcePackage"> | number
+  month?: Prisma.IntFilter<"FinanceStatementSourcePackage"> | number
+  revision?: Prisma.IntFilter<"FinanceStatementSourcePackage"> | number
+  version?: Prisma.IntFilter<"FinanceStatementSourcePackage"> | number
+  status?: Prisma.StringFilter<"FinanceStatementSourcePackage"> | string
+  fileName?: Prisma.StringFilter<"FinanceStatementSourcePackage"> | string
+  mimeType?: Prisma.StringFilter<"FinanceStatementSourcePackage"> | string
+  fileSize?: Prisma.IntFilter<"FinanceStatementSourcePackage"> | number
+  fileChecksum?: Prisma.StringFilter<"FinanceStatementSourcePackage"> | string
+  fileContent?: Prisma.BytesFilter<"FinanceStatementSourcePackage"> | runtime.Bytes
+  parsedCompanyName?: Prisma.StringFilter<"FinanceStatementSourcePackage"> | string
+  note?: Prisma.StringNullableFilter<"FinanceStatementSourcePackage"> | string | null
+  uploadedBy?: Prisma.IntFilter<"FinanceStatementSourcePackage"> | number
+  uploadedAt?: Prisma.DateTimeFilter<"FinanceStatementSourcePackage"> | Date | string
+  submittedBy?: Prisma.IntNullableFilter<"FinanceStatementSourcePackage"> | number | null
+  submittedAt?: Prisma.DateTimeNullableFilter<"FinanceStatementSourcePackage"> | Date | string | null
+  rejectedBy?: Prisma.IntNullableFilter<"FinanceStatementSourcePackage"> | number | null
+  rejectedAt?: Prisma.DateTimeNullableFilter<"FinanceStatementSourcePackage"> | Date | string | null
+  rejectionReason?: Prisma.StringNullableFilter<"FinanceStatementSourcePackage"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"FinanceStatementSourcePackage"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FinanceStatementSourcePackage"> | Date | string
+}
+
+export type FinanceStatementSourcePackageCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  companyName: string
+  year: number
+  month: number
+  revision: number
+  version?: number
+  status?: string
+  fileName: string
+  mimeType: string
+  fileSize: number
+  fileChecksum: string
+  fileContent: runtime.Bytes
+  parsedCompanyName: string
+  note?: string | null
+  uploadedBy: number
+  uploadedAt?: Date | string
+  submittedBy?: number | null
+  submittedAt?: Date | string | null
+  rejectedBy?: number | null
+  rejectedAt?: Date | string | null
+  rejectionReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceStatementSourcePackageUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileSize?: Prisma.IntFieldUpdateOperationsInput | number
+  fileChecksum?: Prisma.StringFieldUpdateOperationsInput | string
+  fileContent?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  parsedCompanyName?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submittedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sheets?: Prisma.FinanceStatementSourceSheetUpdateManyWithoutSourcePackageNestedInput
+  workpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutSourcePackageNestedInput
+}
+
+export type FinanceStatementSourcePackageUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileSize?: Prisma.IntFieldUpdateOperationsInput | number
+  fileChecksum?: Prisma.StringFieldUpdateOperationsInput | string
+  fileContent?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  parsedCompanyName?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submittedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sheets?: Prisma.FinanceStatementSourceSheetUncheckedUpdateManyWithoutSourcePackageNestedInput
+  workpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutSourcePackageNestedInput
+}
+
+export type FinanceStatementSourcePackageUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileSize?: Prisma.IntFieldUpdateOperationsInput | number
+  fileChecksum?: Prisma.StringFieldUpdateOperationsInput | string
+  fileContent?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  parsedCompanyName?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submittedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1229,6 +1508,7 @@ export type FinanceStatementSourcePackageSelect<ExtArgs extends runtime.Types.Ex
   rejectionReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   sheets?: boolean | Prisma.FinanceStatementSourcePackage$sheetsArgs<ExtArgs>
   workpapers?: boolean | Prisma.FinanceStatementSourcePackage$workpapersArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceStatementSourcePackageCountOutputTypeDefaultArgs<ExtArgs>
@@ -1260,6 +1540,7 @@ export type FinanceStatementSourcePackageSelectCreateManyAndReturn<ExtArgs exten
   rejectionReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeStatementSourcePackage"]>
 
 export type FinanceStatementSourcePackageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1288,6 +1569,7 @@ export type FinanceStatementSourcePackageSelectUpdateManyAndReturn<ExtArgs exten
   rejectionReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeStatementSourcePackage"]>
 
 export type FinanceStatementSourcePackageSelectScalar = {
@@ -1320,16 +1602,22 @@ export type FinanceStatementSourcePackageSelectScalar = {
 
 export type FinanceStatementSourcePackageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "companyCode" | "companyName" | "year" | "month" | "revision" | "version" | "status" | "fileName" | "mimeType" | "fileSize" | "fileChecksum" | "fileContent" | "parsedCompanyName" | "note" | "uploadedBy" | "uploadedAt" | "submittedBy" | "submittedAt" | "rejectedBy" | "rejectedAt" | "rejectionReason" | "createdAt" | "updatedAt", ExtArgs["result"]["financeStatementSourcePackage"]>
 export type FinanceStatementSourcePackageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   sheets?: boolean | Prisma.FinanceStatementSourcePackage$sheetsArgs<ExtArgs>
   workpapers?: boolean | Prisma.FinanceStatementSourcePackage$workpapersArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceStatementSourcePackageCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type FinanceStatementSourcePackageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type FinanceStatementSourcePackageIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type FinanceStatementSourcePackageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+}
+export type FinanceStatementSourcePackageIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+}
 
 export type $FinanceStatementSourcePackagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceStatementSourcePackage"
   objects: {
+    company: Prisma.$CompanyPayload<ExtArgs>
     sheets: Prisma.$FinanceStatementSourceSheetPayload<ExtArgs>[]
     workpapers: Prisma.$FinanceStatementWorkpaperPayload<ExtArgs>[]
   }
@@ -1753,6 +2041,7 @@ readonly fields: FinanceStatementSourcePackageFieldRefs;
  */
 export interface Prisma__FinanceStatementSourcePackageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   sheets<T extends Prisma.FinanceStatementSourcePackage$sheetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceStatementSourcePackage$sheetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceStatementSourceSheetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workpapers<T extends Prisma.FinanceStatementSourcePackage$workpapersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceStatementSourcePackage$workpapersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceStatementWorkpaperPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2063,6 +2352,10 @@ export type FinanceStatementSourcePackageCreateManyAndReturnArgs<ExtArgs extends
    */
   data: Prisma.FinanceStatementSourcePackageCreateManyInput | Prisma.FinanceStatementSourcePackageCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceStatementSourcePackageIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2133,6 +2426,10 @@ export type FinanceStatementSourcePackageUpdateManyAndReturnArgs<ExtArgs extends
    * Limit how many FinanceStatementSourcePackages to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceStatementSourcePackageIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

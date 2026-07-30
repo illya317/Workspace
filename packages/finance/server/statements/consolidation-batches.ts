@@ -27,27 +27,17 @@ import {
   appendConsolidationBatchEvent,
 } from "./consolidation-mutations";
 import {
+  comparativePeriodEndDate,
   sourceHasNonzeroPreviousAmount,
 } from "./consolidation-comparative";
 import { ChinaMoneyRateError } from "./chinamoney-exchange-rates";
-import {
-  ensureChinaMoneyCentralParityRate,
-  ensureChinaMoneyMonthlyAverageRate,
-} from "./exchange-rates";
+import { ensureChinaMoneyCentralParityRate } from "./exchange-rates";
 import {
   buildHistoricalCapitalRateApplications,
-  buildRetainedEarningsRateApplications,
-  loadCadInvestmentVoucherFacts,
   loadHistoricalCapitalFacts,
-  retainedEarningsFactsFromFrozenSources,
 } from "./consolidation-rate-applications";
 import { consolidationSourcesReady } from "./consolidation-source-coverage";
 import { loadFinanceConsolidationScope } from "./consolidation-scope-selections";
-import {
-  consolidationMonthEndDate,
-  consolidationPeriodRateRequirements,
-} from "./consolidation-period-rates";
-import { cloneConsolidationEntryData } from "./consolidation-batch-cloning";
 
 function snapshotError(cause: unknown) {
   if (cause instanceof ConsolidationSnapshotError) return serviceError(cause.message, cause.status);
@@ -66,6 +56,12 @@ function snapshotError(cause: unknown) {
   throw cause;
 }
 
+function latestRateAtOrBefore(rates: ConsolidationRateFact[], targetDate: string) {
+  return rates
+    .filter((rate) => rate.rateKind === "centralParity" && rate.rateDate <= targetDate)
+    .sort((left, right) => right.rateDate.localeCompare(left.rateDate))[0] ?? null;
+}
+
 async function ensureRequiredCadRates(input: {
   targetDates: string[];
   userId: number;
@@ -73,22 +69,6 @@ async function ensureRequiredCadRates(input: {
   const rateIdByTargetDate = new Map<string, number>();
   for (const targetDate of [...new Set(input.targetDates)].sort()) {
     const row = await ensureChinaMoneyCentralParityRate({
-      currencyCode: "CAD",
-      targetDate,
-      userId: input.userId,
-    });
-    rateIdByTargetDate.set(targetDate, row.id);
-  }
-  return rateIdByTargetDate;
-}
-
-async function ensureRequiredCadMonthlyAverageRates(input: {
-  targetDates: string[];
-  userId: number;
-}) {
-  const rateIdByTargetDate = new Map<string, number>();
-  for (const targetDate of [...new Set(input.targetDates)].sort()) {
-    const row = await ensureChinaMoneyMonthlyAverageRate({
       currencyCode: "CAD",
       targetDate,
       userId: input.userId,
@@ -143,6 +123,85 @@ async function loadBaseBatch(command: EnsureConsolidationBatchCommand) {
   return { existing, base, latest };
 }
 
+function cloneEntryData(
+  entry: NonNullable<Awaited<ReturnType<typeof loadConsolidationBatchRow>>>["entries"][number],
+  userId: number,
+  snapshotIdByCompany: Map<number, number>,
+  oldEntityCompanyById: Map<number, number>,
+  sourceSnapshotIdByCompanyAndReportType: Map<string, number>,
+) {
+  return {
+    entryNo: entry.entryNo,
+    postingDate: entry.postingDate,
+    documentType: entry.documentType,
+    postingLevel: entry.postingLevel,
+    entryType: entry.entryType,
+    title: entry.title,
+    description: entry.description,
+    evidence: entry.evidence,
+    status: "draft",
+    version: entry.version + 1,
+    supersedesEntryId: entry.id,
+    predecessorEntryId: entry.id,
+    preparedBy: userId,
+    lines: {
+      create: entry.lines.map((line) => ({
+        lineNo: line.lineNo,
+        entitySnapshotId: snapshotIdByCompany.get(line.companyId)!,
+        companyId: line.companyId,
+        companyCode: line.companyCode,
+        statementType: line.statementType,
+        lineCode: line.lineCode,
+        accountCode: line.accountCode,
+        groupAccountId: line.groupAccountId,
+        debit: line.debit,
+        credit: line.credit,
+        currencyCode: line.currencyCode,
+        periodBasis: line.periodBasis,
+        note: line.note,
+        matchSide: line.matchSide,
+        sourceKind: line.sourceKind,
+        sourceId: line.sourceId,
+        sourceFingerprint: line.sourceFingerprint,
+        sourceAmount: line.sourceAmount,
+        sourceCurrency: line.sourceCurrency,
+        counterpartyEntitySnapshotId: line.counterpartyCompanyId
+          ? snapshotIdByCompany.get(line.counterpartyCompanyId) ?? null
+          : null,
+        counterpartyCompanyId: line.counterpartyCompanyId,
+        sourceSnapshotId: line.sourceSnapshotId
+          ? sourceSnapshotIdByCompanyAndReportType.get(`${line.companyId}:${line.statementType}`) ?? null
+          : null,
+        sourceAuxiliaryBalanceId: line.sourceAuxiliaryBalanceId,
+        sourceOpenItemId: line.sourceOpenItemId,
+        sourceCashFlowAllocationId: line.sourceCashFlowAllocationId,
+        sourceVoucherItemId: line.sourceVoucherItemId,
+      })),
+    },
+    taxEffects: {
+      create: entry.taxEffects.map((tax) => ({
+        entitySnapshotId: tax.entitySnapshotId
+          ? snapshotIdByCompany.get(oldEntityCompanyById.get(tax.entitySnapshotId)!) ?? null
+          : null,
+        effectKey: tax.effectKey,
+        taxEffectType: tax.taxEffectType,
+        differenceAmount: tax.differenceAmount,
+        taxRate: tax.taxRate,
+        recognition: tax.recognition,
+        periodBasis: tax.periodBasis,
+        jurisdiction: tax.jurisdiction,
+        recognitionLocation: tax.recognitionLocation,
+        balanceSheetLineCode: tax.balanceSheetLineCode,
+        counterpartLineCode: tax.counterpartLineCode,
+        reversalPeriod: tax.reversalPeriod,
+        recoverabilityConclusion: tax.recoverabilityConclusion,
+        evidence: tax.evidence,
+        preparedBy: userId,
+      })),
+    },
+  };
+}
+
 export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBatchCommand) {
   const validation = buildEnsureConsolidationBatchCommand(rawCommand.input, rawCommand.userId);
   if (!validation.ok) return serviceError(validation.issue.message, validation.issue.status);
@@ -151,6 +210,7 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
     const { existing, base, latest } = await loadBaseBatch(command);
     if (existing) return serviceOk({ batch: consolidationBatchSnapshot(existing), created: false });
     const selectedPeriodEnd = periodEndDate(command.input.year, command.input.month);
+    const comparativePeriodEnd = comparativePeriodEndDate(selectedPeriodEnd);
     const { scope } = await loadFinanceConsolidationScope({
       parentCompanyId: command.input.parentCompanyId,
       year: command.input.year,
@@ -182,64 +242,27 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
     const actorName = await resolveUserBusinessActorName(command.userId);
     if (!actorName) return serviceError("当前账号缺少员工身份且不是管理员，不能创建合并批次", 409);
     const cadCompanyCodes = scope.filter((entity) => entity.functionalCurrency === "CAD").map((entity) => entity.companyCode);
-    const [historicalCapitalFacts, investmentFacts] = await Promise.all([
-      loadHistoricalCapitalFacts(cadCompanyCodes, selectedPeriodEnd),
-      loadCadInvestmentVoucherFacts(scope.map((entity) => entity.companyCode), selectedPeriodEnd),
-    ]);
-    const retainedEarningsFacts = retainedEarningsFactsFromFrozenSources({
-      sources,
-      companies: scope.map((entity) => ({
-        companyId: entity.companyId,
-        companyCode: entity.companyCode,
-        functionalCurrency: entity.functionalCurrency,
-      })),
-    });
-    const comparativeCompanyIds = new Set(sources.filter(sourceHasNonzeroPreviousAmount).map((source) => source.companyId));
-    const cadEntities = scope.filter((entity) => entity.functionalCurrency === "CAD");
-    const mappedInvestments = investmentFacts.flatMap((investment) => {
-      const investor = scope.find((entity) => entity.companyCode === investment.companyCode);
-      const directCandidates = investor
-        ? cadEntities.filter((entity) => entity.directParentCompanyId === investor.companyId)
-        : [];
-      return directCandidates.length === 1 ? [{ investment, entity: directCandidates[0]! }] : [];
-    });
-    const rateRequirements = consolidationPeriodRateRequirements(command.input.year, command.input.month);
-    const comparativeEquityPeriodEnd = consolidationMonthEndDate(command.input.year - 1, 12);
+    const historicalCapitalFacts = await loadHistoricalCapitalFacts(cadCompanyCodes, selectedPeriodEnd);
     let rateIdByTargetDate = new Map<string, number>();
-    let averageRateIdByTargetDate = new Map<string, number>();
     let rates: ConsolidationRateFact[] = [];
     try {
       rateIdByTargetDate = cadCompanyCodes.length > 0
         ? await ensureRequiredCadRates({
           targetDates: [
-            ...rateRequirements.closing.current,
-            ...(comparativeCompanyIds.size > 0 ? rateRequirements.closing.comparative : []),
+            selectedPeriodEnd,
+            comparativePeriodEnd,
             ...historicalCapitalFacts.map((fact) => fact.targetDate),
-            ...mappedInvestments.map(({ investment }) => investment.voucherDate),
-          ],
-          userId: command.userId,
-        })
-        : new Map<string, number>();
-      averageRateIdByTargetDate = cadCompanyCodes.length > 0
-        ? await ensureRequiredCadMonthlyAverageRates({
-          targetDates: [
-            ...rateRequirements.monthlyAverage.current,
-            ...(comparativeCompanyIds.size > 0 ? rateRequirements.monthlyAverage.comparative : []),
-            ...retainedEarningsFacts.map((fact) => fact.targetDate),
           ],
           userId: command.userId,
         })
         : new Map<string, number>();
       rates = cadCompanyCodes.length > 0
-        ? await loadAvailableRateFacts(selectedPeriodEnd, [
-          ...new Set([...rateIdByTargetDate.values(), ...averageRateIdByTargetDate.values()]),
-        ])
+        ? await loadAvailableRateFacts(selectedPeriodEnd, [...new Set(rateIdByTargetDate.values())])
         : [];
     } catch (cause) {
       if (!(cause instanceof ChinaMoneyRateError) && !(cause instanceof ConsolidationSnapshotError)) throw cause;
       console.warn("Automatic consolidation rate preparation is not ready during batch creation", cause.message);
       rateIdByTargetDate = new Map();
-      averageRateIdByTargetDate = new Map();
       rates = [];
     }
     const version = (latest?.version ?? 0) + 1;
@@ -366,54 +389,17 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
           periodKind: command.input.periodKind,
         },
       });
+      const currentRate = latestRateAtOrBefore(rates, selectedPeriodEnd);
+      const comparativeRate = latestRateAtOrBefore(rates, comparativePeriodEnd);
+      const comparativeCompanyIds = new Set(sources.filter(sourceHasNonzeroPreviousAmount).map((source) => source.companyId));
       const companyIdByCode = new Map(scope.map((entity) => [entity.companyCode, entity.companyId]));
       const historicalApplications = buildHistoricalCapitalRateApplications({
         facts: historicalCapitalFacts,
         rateIdByTargetDate,
-        comparativePeriodEnd: comparativeEquityPeriodEnd,
+        comparativePeriodEnd,
         comparativeCompanyIds,
         companyIdByCode,
         snapshotIdByCompany,
-      });
-      const retainedEarningsApplications = buildRetainedEarningsRateApplications({
-        facts: retainedEarningsFacts,
-        monthlyAverageRateIdByTargetDate: averageRateIdByTargetDate,
-        currentPeriodEnd: selectedPeriodEnd,
-        comparativeEquityPeriodEnd,
-        comparativeCompanyIds,
-        companyIdByCode,
-        snapshotIdByCompany,
-      });
-      const investmentApplications = mappedInvestments.flatMap(({ investment, entity }) => {
-        const exchangeRateId = rateIdByTargetDate.get(investment.voucherDate);
-        const entitySnapshotId = snapshotIdByCompany.get(entity.companyId);
-        if (!exchangeRateId || !entitySnapshotId) return [];
-        const shared = {
-          exchangeRateId,
-          applicationType: "historicalInvestment" as const,
-          entitySnapshotId,
-          voucherItemId: investment.id,
-          targetDate: investment.voucherDate,
-          evidence: `投资凭证 ${investment.voucherNo} 按 ${investment.voucherDate} 中国货币网人民币汇率中间价自动折算`,
-          capitalOriginalAmount: null,
-          equityLineCode: null,
-          voucher: {
-            companyCode: investment.companyCode,
-            voucherNo: investment.voucherNo,
-            voucherDate: investment.voucherDate,
-            description: investment.description,
-            accountCode: investment.accountCode,
-            bookedAmountCny: investment.bookedAmountCny,
-            currencyCode: investment.currencyCode,
-            originalAmount: investment.originalAmount,
-          },
-        };
-        return [
-          { ...shared, periodBasis: "current" as const },
-          ...(investment.voucherDate <= comparativeEquityPeriodEnd && comparativeCompanyIds.has(entity.companyId)
-            ? [{ ...shared, periodBasis: "comparative" as const }]
-            : []),
-        ];
       });
       const appliedRates = rates.map((rate) => {
         const closingApplications = scope.flatMap((entity) => {
@@ -427,41 +413,21 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
             capitalOriginalAmount: null,
             voucher: null,
           };
-          return (["current", "comparative"] as const).flatMap((periodBasis) => (
-            periodBasis === "current" || comparativeCompanyIds.has(entity.companyId)
-              ? rateRequirements.closing[periodBasis].flatMap((targetDate) => (
-                  rateIdByTargetDate.get(targetDate) === rate.exchangeRateId
-                    ? [{ ...shared, periodBasis, targetDate }]
-                    : []
-                ))
-              : []
-          ));
-        });
-        const monthlyAverageApplications = scope.flatMap((entity) => {
-          if (entity.functionalCurrency !== "CAD") return [];
-          const entitySnapshotId = snapshotIdByCompany.get(entity.companyId)!;
-          return (["current", "comparative"] as const).flatMap((periodBasis) => (
-            periodBasis === "current" || comparativeCompanyIds.has(entity.companyId)
-              ? rateRequirements.monthlyAverage[periodBasis].flatMap((targetDate) => (
-                  averageRateIdByTargetDate.get(targetDate) === rate.exchangeRateId
-                    ? [{
-                        applicationType: "monthlyAverage",
-                        periodBasis,
-                        entitySnapshotId,
-                        voucherItemId: null,
-                        targetDate,
-                        evidence: `${targetDate.slice(0, 7)} 中国外汇交易中心人民币汇率中间价月平均`,
-                        capitalOriginalAmount: null,
-                        voucher: null,
-                      }]
-                    : []
-                ))
-              : []
-          ));
+          return [
+            ...(currentRate?.exchangeRateId === rate.exchangeRateId ? [{
+              ...shared,
+              periodBasis: "current",
+              targetDate: selectedPeriodEnd,
+            }] : []),
+            ...(comparativeRate?.exchangeRateId === rate.exchangeRateId && comparativeCompanyIds.has(entity.companyId) ? [{
+              ...shared,
+              periodBasis: "comparative",
+              targetDate: comparativePeriodEnd,
+            }] : []),
+          ];
         });
         const applications = [
           ...closingApplications,
-          ...monthlyAverageApplications,
           ...historicalApplications
             .filter((application) => application.exchangeRateId === rate.exchangeRateId)
             .map((application) => ({
@@ -472,23 +438,8 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
               targetDate: application.capitalContributionDate,
               evidence: `中国外汇交易中心 ${rate.rateDate} 人民币汇率中间价；${application.evidence}`,
               capitalOriginalAmount: application.capitalOriginalAmount,
-              equityLineCode: application.equityLineCode,
               voucher: null,
             })),
-          ...retainedEarningsApplications
-            .filter((application) => application.exchangeRateId === rate.exchangeRateId)
-            .map((application) => ({
-              applicationType: application.applicationType,
-              periodBasis: application.periodBasis,
-              entitySnapshotId: application.entitySnapshotId,
-              voucherItemId: null,
-              targetDate: application.targetDate,
-              evidence: application.evidence,
-              capitalOriginalAmount: application.capitalOriginalAmount,
-              equityLineCode: application.equityLineCode,
-              voucher: null,
-            })),
-          ...investmentApplications.filter((application) => application.exchangeRateId === rate.exchangeRateId),
         ];
         return { ...rate, applications: JSON.parse(JSON.stringify(applications)) as Prisma.InputJsonValue };
       });
@@ -508,7 +459,7 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
         await tx.financeConsolidationEntry.create({
           data: {
             batchId: batch.id,
-            ...cloneConsolidationEntryData(
+            ...cloneEntryData(
               entry,
               command.userId,
               snapshotIdByCompany,

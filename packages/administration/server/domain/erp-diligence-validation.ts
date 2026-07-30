@@ -19,6 +19,7 @@ export interface ErpDiligenceSaveCommand {
   campaignKey: string;
   definitionVersion: number;
   positionAssignmentId: number | null;
+  departmentId: number | null;
   departmentName: string;
   roleTitle: string;
   primaryArea: string;
@@ -30,6 +31,7 @@ export interface ErpDiligenceSaveCommand {
 
 export interface ErpDiligencePositionSelection {
   id: number;
+  departmentId: number;
   departmentName: string;
   positionName: string;
 }
@@ -161,6 +163,7 @@ export function buildErpDiligenceSaveCommand(
     campaignKey: ERP_DILIGENCE_CAMPAIGN_KEY,
     definitionVersion: ERP_DILIGENCE_DEFINITION_VERSION,
     positionAssignmentId: positionSelection?.id ?? null,
+    departmentId: positionSelection?.departmentId ?? null,
     departmentName,
     roleTitle,
     primaryArea: input.primaryArea,

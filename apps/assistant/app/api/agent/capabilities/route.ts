@@ -5,7 +5,7 @@
  */
 import { NextResponse } from "next/server";
 import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
-import { agentBusinessApiTools, resolveAgentToolAccess } from "@workspace/platform/server/agent";
+import { agentBusinessApiTools, resolveAgentToolAccess } from "@workspace/agent/server";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export async function GET(request: Request) {

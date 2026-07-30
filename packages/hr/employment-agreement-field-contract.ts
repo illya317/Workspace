@@ -1,10 +1,8 @@
 export const EMPLOYMENT_AGREEMENT_COMMAND_KINDS = [
   "create",
-  "replace",
   "renew",
   "end",
   "correct",
-  "supplement-term",
   "supplement-missing",
   "correct-existing",
   "set-primary",
@@ -33,7 +31,7 @@ export type EmploymentAgreementFormField =
 export const EMPLOYMENT_AGREEMENT_FIELD_LABELS: Record<EmploymentAgreementFormField, string> = {
   kind: "期限动作",
   agreementUid: "合同",
-  termUid: "期限记录",
+  termUid: "历史期限",
   effectiveFrom: "开始日期",
   effectiveThrough: "到期日期",
   reason: "修订说明",
@@ -45,7 +43,7 @@ export const EMPLOYMENT_AGREEMENT_FIELD_LABELS: Record<EmploymentAgreementFormFi
   confidentialityDate: "保密协议",
   nonCompeteDate: "竞业限制",
   isPrimary: "历史主合同标记",
-  termKind: "期限性质",
+  termKind: "期限类型",
 };
 
 /**
@@ -53,13 +51,11 @@ export const EMPLOYMENT_AGREEMENT_FIELD_LABELS: Record<EmploymentAgreementFormFi
  * UI stars and domain required validation must both consume this contract.
  */
 export const EMPLOYMENT_AGREEMENT_REQUIRED_FIELDS = {
-  create: ["kind", "effectiveFrom", "termKind"],
-  replace: ["kind", "agreementUid", "effectiveFrom", "termKind"],
-  renew: ["kind", "agreementUid", "effectiveFrom", "termKind"],
+  create: ["kind", "effectiveFrom"],
+  renew: ["kind", "agreementUid", "effectiveFrom"],
   end: ["kind", "agreementUid", "termUid", "effectiveThrough", "reason"],
-  correct: ["kind", "agreementUid", "termUid", "effectiveFrom", "termKind", "reason"],
-  "supplement-term": ["kind", "agreementUid", "termUid", "reason"],
-  "supplement-missing": ["kind", "agreementUid", "reason"],
+  correct: ["kind", "agreementUid", "termUid", "effectiveFrom", "reason"],
+  "supplement-missing": ["kind", "agreementUid"],
   "correct-existing": ["kind", "agreementUid", "reason"],
   "set-primary": ["kind", "agreementUid"],
   "cancel-future": ["kind", "agreementUid", "termUid", "reason"],
@@ -77,9 +73,9 @@ export function employmentAgreementFieldLabel(
   field: EmploymentAgreementFormField,
 ): string {
   if (kind === "end" && field === "effectiveThrough") return "结束日期";
-  if ((kind === "create" || kind === "replace") && field === "reason") return "备注";
-  if ((kind === "supplement-term" || kind === "supplement-missing") && field === "reason") return "补充说明";
-  if ((kind === "correct" || kind === "correct-existing") && field === "reason") return "修正说明";
+  if (kind === "end" && field === "termUid") return "合同期限";
+  if (kind === "supplement-missing" && field === "reason") return "补充说明";
+  if (kind === "correct-existing" && field === "reason") return "修正说明";
   return EMPLOYMENT_AGREEMENT_FIELD_LABELS[field];
 }
 

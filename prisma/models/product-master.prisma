@@ -18,6 +18,7 @@ model Product {
   inventoryReceiptBatches    InventoryReceiptBatch[]
   inventoryReceiptWorkPoints InventoryReceiptProductWorkPoint[]
   productionQcBatches        ProductionQcBatch[]
+  financeWorkshopReports     FinanceWorkshopReport[]
 
   @@index([status, name])
 }

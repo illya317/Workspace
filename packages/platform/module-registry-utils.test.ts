@@ -10,7 +10,7 @@ test("production API Key login is public while the bypass helper stays developme
   assert.equal(routes.find((route) => route.pathPrefix === "/api/auth/dev-login-bypass")?.access, "dev");
 });
 
-test("assistant owns headless agent and integration adapters while auth remains in the shell", () => {
+test("assistant owns Agent L1 APIs and integration adapters while auth remains in the shell", () => {
   const assistantRoutes = assistantIntegrationApiRoutes();
   const systemRoutes = systemApiRoutes();
   assert.equal(assistantRoutes.some((route) => route.pathPrefix === "/api/agent"), true);

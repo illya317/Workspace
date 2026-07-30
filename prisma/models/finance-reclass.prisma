@@ -34,18 +34,27 @@ model FinanceReclassRule {
 model FinanceReclassItemRule {
   id                Int      @id @default(autoincrement())
   companyCode       String
+  companyId Int?
   year              Int
   sourceAccountCode String
+  sourceAccountId   Int?
   matchType         String   @default("exact_description")
   matchValue        String
   targetAccountCode String
+  targetAccountId   Int?
   enabled           Boolean  @default(true)
   note              String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @default(now()) @updatedAt
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  sourceAccount FinanceAccount? @relation("FinanceReclassItemRuleSourceAccount", fields: [sourceAccountId], references: [id], onDelete: Restrict)
+  targetAccount FinanceAccount? @relation("FinanceReclassItemRuleTargetAccount", fields: [targetAccountId], references: [id], onDelete: Restrict)
 
   @@unique([companyCode, year, sourceAccountCode, matchType, matchValue])
   @@index([companyCode, year, sourceAccountCode])
+  @@index([companyId])
+  @@index([sourceAccountId])
+  @@index([targetAccountId])
 }
 
 /// 余额层重分类调整（residual = 期末异常余额 - 凭证明细已调金额）
@@ -56,13 +65,14 @@ model FinanceBalanceReclassAdjustment {
   targetGroupAccountId Int?
   periodId          Int
   companyCode       String
+  companyId Int?
   year              Int
   sourceAccountCode String
   targetAccountCode String?
   amount            Float
   decision          String    @default("reclassify") // reclassify | no_reclass
   basis             String    @default("account_net") // 实际执行口径：account_net = 按科目净额 | counterparty_gross = 按往来户逐户毛额
-  sourceType        String    @default("automatic_rule") // automatic_rule | auxiliary_balance | balance_residual | manual
+  sourceType        String    @default("automatic_rule") // automatic_rule | auxiliary_balance | reference_workpaper | balance_residual | manual
   ruleId            Int?
   status            String    @default("approved") // approved | adjusted | rejected
   note              String?
@@ -74,10 +84,12 @@ model FinanceBalanceReclassAdjustment {
   policyVersion     FinanceAccountingPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)
   sourceGroupAccount FinanceGroupAccount? @relation("FinanceBalanceReclassSourceGroupAccount", fields: [sourceGroupAccountId], references: [id], onDelete: Restrict)
   targetGroupAccount FinanceGroupAccount? @relation("FinanceBalanceReclassTargetGroupAccount", fields: [targetGroupAccountId], references: [id], onDelete: Restrict)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([periodId, sourceAccountCode])
   @@index([policyVersionId, sourceGroupAccountId], map: "FinanceBalanceReclassAdjustment_policyVersionId_sourceGroup_idx")
   @@index([periodId, status])
+  @@index([companyId])
 }
 
 /// 余额层重分类结果历史（append-only 事实表；来源于自动结果重算或人工覆盖前的当前结果快照）
@@ -89,9 +101,12 @@ model FinanceBalanceReclassAdjustmentHistory {
   targetGroupAccountIdSnapshot Int?
   periodId             Int
   companyCode          String
+  companyId Int?
   year                 Int
   sourceAccountCode    String
+  sourceAccountId      Int?
   targetAccountCode    String?
+  targetAccountId      Int?
   amount               Float
   decision             String
   sourceType           String
@@ -103,10 +118,16 @@ model FinanceBalanceReclassAdjustmentHistory {
   archiveReason        String
   archivedBy           Int?
   archivedAt           DateTime  @default(now())
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  sourceAccount FinanceAccount? @relation("FinanceBalanceReclassHistorySourceAccount", fields: [sourceAccountId], references: [id], onDelete: Restrict)
+  targetAccount FinanceAccount? @relation("FinanceBalanceReclassHistoryTargetAccount", fields: [targetAccountId], references: [id], onDelete: Restrict)
 
   @@index([periodId, archivedAt])
   @@index([companyCode, year, sourceAccountCode])
   @@index([adjustmentIdSnapshot])
+  @@index([companyId])
+  @@index([sourceAccountId])
+  @@index([targetAccountId])
 }
 
 /// 重分类结果（引擎生成 + 人工审核，从 finance-schedules.prisma 迁入）

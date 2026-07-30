@@ -8,6 +8,11 @@ import * as XLSX from "xlsx";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../generated/prisma/client";
 import { businessTemporalRequestFingerprint } from "../../packages/platform/server/business-temporal-idempotency";
+import {
+  formatProjectBusinessCode,
+  type BusinessCodeConfig,
+} from "../../packages/platform/business-code-config";
+import { getBusinessCodeConfig } from "../../packages/platform/server/system-config";
 
 type StructuredTask = {
   sortOrder: number;
@@ -138,7 +143,10 @@ function extractTasks(text: string) {
     .filter(Boolean);
 }
 
-function buildStructuredProjects(filePath: string) {
+function buildStructuredProjects(
+  filePath: string,
+  numbering: BusinessCodeConfig["project"],
+) {
   const workbook = XLSX.readFile(filePath, { cellDates: true });
   const sheet = workbook.Sheets["公司目标"];
   if (!sheet) {
@@ -155,9 +163,21 @@ function buildStructuredProjects(filePath: string) {
     .map((row, index) => ({ row, rowNumber: index + 1 }))
     .filter(({ row }) => isCompanyGoalRow(row));
 
+  const sourceYear = Number(path.basename(filePath).match(/20\d{2}/)?.[0])
+    || new Date().getFullYear();
   return projectRows.map(({ row, rowNumber }, index) => {
-    const serialNo = index + 1;
-    const code = `FH-26-${String(serialNo).padStart(2, "0")}`;
+    const serialNo = numbering.companySequenceStart + index;
+    if (serialNo > numbering.companySequenceEnd) {
+      throw new Error(`${sourceYear} 年公司项目号段已用尽`);
+    }
+    const code = formatProjectBusinessCode({
+      prefix: numbering.companyPrefix,
+      year: sourceYear,
+      sequence: serialNo,
+      separator: numbering.separator,
+      yearDigits: numbering.yearDigits,
+      sequenceLength: numbering.companySequenceLength,
+    });
     const tasks = extractTasks(normalizeText(row[2])).map((title, taskIndex) => ({
       sortOrder: (taskIndex + 1) * 10,
       title,
@@ -403,7 +423,8 @@ async function main() {
   const prisma = new PrismaClient({ adapter });
 
   try {
-    const projects = buildStructuredProjects(options.file);
+    const numbering = (await getBusinessCodeConfig(prisma)).project;
+    const projects = buildStructuredProjects(options.file, numbering);
     const warnings = await resolveOwners(prisma, projects);
 
     await fs.mkdir(path.dirname(options.jsonOut), { recursive: true });

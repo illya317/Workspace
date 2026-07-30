@@ -3,12 +3,6 @@ import {
 } from "./api-access";
 import type { AuthPayload } from "./auth-token";
 import { jsonErrorResponse } from "./api";
-import {
-  parseWecomAgentBridgeRequest,
-  resolveWecomAgentUser,
-  type WecomAgentBridgeInput,
-} from "./agent/wecom-bridge";
-import type { SessionUser } from "../types";
 
 export type { AuthPayload };
 
@@ -34,21 +28,5 @@ export function withAuth(
       return jsonErrorResponse("无权限", 403);
     }
     return handler(req, payload, ctx);
-  };
-}
-
-export type WecomAgentBridgeHandler = (
-  request: Request,
-  input: WecomAgentBridgeInput,
-  user: SessionUser,
-) => Promise<Response>;
-
-export function withWecomAgentBridgeAccess(handler: WecomAgentBridgeHandler) {
-  return async (request: Request) => {
-    const parsed = await parseWecomAgentBridgeRequest(request);
-    if (!parsed.ok) return parsed.response;
-    const resolved = await resolveWecomAgentUser(parsed.input.userId);
-    if (!resolved.ok) return resolved.response;
-    return handler(request, parsed.input, resolved.user);
   };
 }

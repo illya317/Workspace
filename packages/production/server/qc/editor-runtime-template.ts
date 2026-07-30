@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getPublishedQcOfficialTemplateByProductKey, listPublishedQcOfficialTemplateSummaries } from "@workspace/platform/server/docs-editor";
+import { getPublishedQcOfficialTemplateByProductKey, listPublishedQcOfficialTemplateSummaries } from "@workspace/platform/server/document-template-catalog";
 import { resolveUniqueFinishedGood } from "@workspace/platform/server/product-master";
 import type { EditorBlock, EditorDocument, FieldModel } from "@workspace/platform/document-editor";
 import type {
