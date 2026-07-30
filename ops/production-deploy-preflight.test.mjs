@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
-import { preflightProductionDeploy } from "./production-deploy-preflight.mjs";
+import {
+  migrationSetSha256AtCommit,
+  preflightProductionDeploy,
+} from "./production-deploy-preflight.mjs";
 
 const digest = (character) => character.repeat(64);
 const injectionSha = "f".repeat(40);
@@ -110,6 +113,64 @@ test("production preflight rejects a candidate outside the canonical lineage", (
     candidateTreeSha: candidate.tree,
     expectedRepository: "example-owner/example-repo",
   }), /not a proven descendant/);
+});
+
+test("production preflight repairs only the legacy local injection-as-source receipt", (context) => {
+  const fixture = createRepository(context);
+  const corruptSource = "f".repeat(40);
+  const corruptTree = "e".repeat(40);
+  writeFileSync(fixture.receiptFile, `${JSON.stringify({
+    schemaVersion: 3,
+    source: { commitSha: corruptSource, treeSha: corruptTree },
+    canonicalSource: { commitSha: corruptSource, treeSha: corruptTree },
+    artifact: { sha256: digest("1"), manifestSha256: digest("2") },
+    migration: { setSha256: migrationSetSha256AtCommit(fixture.cwd, fixture.production.sha) },
+    transport: { kind: "local" },
+    cnb: { repository: "example-owner/example-repo", sourceBranch: "release", injectionSha: corruptSource },
+    deployment: { releaseId: `20260730083455-${corruptSource.slice(0, 8)}` },
+  })}\n`);
+  writeFileSync(join(fixture.cwd, "candidate.txt"), "candidate\n");
+  const candidate = commitAll(fixture.cwd, "candidate after corrupt local receipt");
+
+  const result = preflightProductionDeploy({
+    cwd: fixture.cwd,
+    receiptFile: fixture.receiptFile,
+    candidateSha: candidate.sha,
+    candidateTreeSha: candidate.tree,
+    expectedRepository: "example-owner/example-repo",
+    recoverLocalReceiptBaseSha: fixture.production.sha,
+  });
+  assert.equal(result.production.deployedSha, corruptSource);
+  assert.equal(result.production.validationBaseSha, fixture.production.sha);
+  assert.deepEqual(result.receiptRecovery, {
+    kind: "legacy-local-injection-source",
+    baseSha: fixture.production.sha,
+    sourceSha: corruptSource,
+    treeSha: corruptTree,
+    migrationSetSha256: migrationSetSha256AtCommit(fixture.cwd, fixture.production.sha),
+  });
+  assert.equal(result.order.reason, "monotonic-upgrade");
+
+  assert.throws(() => preflightProductionDeploy({
+    cwd: fixture.cwd,
+    receiptFile: fixture.receiptFile,
+    candidateSha: fixture.production.sha,
+    candidateTreeSha: fixture.production.tree,
+    expectedRepository: "example-owner/example-repo",
+    recoverLocalReceiptBaseSha: fixture.production.sha,
+  }), /candidate must advance beyond the recovery base/);
+
+  const invalidReceipt = JSON.parse(readFileSync(fixture.receiptFile, "utf8"));
+  invalidReceipt.cnb.injectionSha = "d".repeat(40);
+  writeFileSync(fixture.receiptFile, `${JSON.stringify(invalidReceipt)}\n`);
+  assert.throws(() => preflightProductionDeploy({
+    cwd: fixture.cwd,
+    receiptFile: fixture.receiptFile,
+    candidateSha: candidate.sha,
+    candidateTreeSha: candidate.tree,
+    expectedRepository: "example-owner/example-repo",
+    recoverLocalReceiptBaseSha: fixture.production.sha,
+  }), /not the legacy local injection-as-source shape/);
 });
 
 test("production preflight accepts one linear sanitized genesis lineage only with the deployed baseline", (context) => {

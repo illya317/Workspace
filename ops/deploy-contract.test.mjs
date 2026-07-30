@@ -62,6 +62,14 @@ test("deploy delegates all receipt reads and writes to one versioned helper", ()
   assert.ok(invocation.indexOf("acquire_remote_deploy_lock") < invocation.indexOf("sync_remote_deploy_tools"));
 });
 
+test("legacy local receipt repair revalidates the frozen production identity under the deploy lock", () => {
+  assert.match(deploy, /deployedReceiptRecovery/);
+  assert.match(deploy, /receiptRecovery\.kind !== 'legacy-local-injection-source'/);
+  assert.match(deploy, /--transport local/);
+  assert.match(deploy, /--migration-set '\$RELEASE_RECEIPT_RECOVERY_MIGRATION_SET'/);
+  assert.match(deploy, /comparison_base="\$RELEASE_RECEIPT_RECOVERY_BASE"/);
+});
+
 test("Full cutover atomically revokes every independent Gateway override", () => {
   assert.match(deploy, /gateway-generation\.mjs/);
   assert.match(deploy, /switch-deploy-gateway\.sh/);

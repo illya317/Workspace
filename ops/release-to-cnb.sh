@@ -192,7 +192,22 @@ if (target.kind === 'monolith') {
 }
 const genesis = metadata.deploymentGenesis;
 const databaseReplacement = metadata.databaseReplacement;
+const receiptRecovery = metadata.deployedReceiptRecovery;
 if (metadata.deploymentBootstrap && genesis) throw new Error('bootstrap and genesis metadata are mutually exclusive');
+if (receiptRecovery) {
+  const recoveryKeys = Object.keys(receiptRecovery).sort().join(',');
+  if (metadata.deploymentBootstrap || genesis || databaseReplacement
+    || recoveryKeys !== 'baseSha,kind,migrationSetSha256,sourceSha,treeSha'
+    || receiptRecovery.kind !== 'legacy-local-injection-source'
+    || !/^[0-9a-f]{40}$/.test(receiptRecovery.baseSha ?? '')
+    || !/^[0-9a-f]{40}$/.test(receiptRecovery.sourceSha ?? '')
+    || !/^[0-9a-f]{40}$/.test(receiptRecovery.treeSha ?? '')
+    || !/^[0-9a-f]{64}$/.test(receiptRecovery.migrationSetSha256 ?? '')
+    || receiptRecovery.baseSha !== metadata.validation?.baseSha
+    || receiptRecovery.sourceSha === sha) {
+    throw new Error('deployed local receipt recovery metadata is invalid');
+  }
+}
 if (databaseReplacement) {
   const replacementKeys = Object.keys(databaseReplacement).sort().join(',');
   const sourceKeys = Object.keys(databaseReplacement.source ?? {}).sort().join(',');

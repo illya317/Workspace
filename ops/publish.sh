@@ -15,7 +15,7 @@ usage() {
 用法:
   OPS_ENV_FILE=/path/to/ops/.env publish.sh push
   OPS_ENV_FILE=/path/to/ops/.env publish.sh prepare
-  OPS_ENV_FILE=/path/to/ops/.env publish.sh validate [--local] [CNB 部署目标选项]
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh validate [--local] [部署目标或回执修复选项]
   OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy
   OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy [--direct] [CNB 部署选项]
   OPS_ENV_FILE=/path/to/ops/.env publish.sh database-replace prepare|validate|deploy|status
@@ -29,6 +29,10 @@ usage() {
   deploy         仅消费同一 base/source/tree 的已验证制品；可走 CNB 或 --direct
   data           校验并上传私有数据发布源；上传只进入受控暂存区，不执行数据库写入
   timing         在处理 main 前暂停 Ops 计时；恢复 release 工作时继续累计
+
+一次性历史修复:
+  validate/deploy 可传 --recover-local-receipt-base SHA。仅当生产 schema-v3 local 回执把
+  injection SHA 误记为 source，且该基线 migration 集合与生产回执完全一致时接受。
 
 说明:
   main 只提供候选提交，Full 与单模块发布都只在 release worktree 执行。

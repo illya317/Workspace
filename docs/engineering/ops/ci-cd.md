@@ -104,6 +104,8 @@ npm run test:e2e:latency
 7. Git 跟踪的 `ops/cnb-release.yml` 只定义可复用流水线形状；租户实际的 CNB env import、服务器目录和健康检查地址由 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 管理。发布脚本读取并校验该租户文件；`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
 8. `publish.sh deploy` 或 `publish.sh deploy --direct` 必须恢复 validate 生成的同目标 artifact。cache miss、validation base/source/tree 不同或 digest 失败立即阻断；deploy 禁止运行 classifier、源码检查和 build。统一部署 adapter 仍复验 injection identity、manifest、artifact hash 与 migration set，全程不访问 GitHub。
 9. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准。candidate 必须是 bootstrap baseline 或已部署 source 的后代，同 source 是 no-op，回退或分叉直接阻断。
+
+历史版本若曾把一次性 local injection commit 同时误写为 canonical source，唯一修复入口是给同一次 `validate` 与 `deploy` 显式传入 `--recover-local-receipt-base <SHA>`。入口只接受 `transport.kind=local`、source/canonical/injection 三者相同的旧损坏形态，并要求恢复基线是 candidate 的祖先、其完整 migration-set digest 与生产回执完全一致；这组证据写入 release metadata 并在部署锁内再次核对。成功后正常 schema-v3 回执写回真实 candidate source 与 `transport.kind=local`，该修复参数自动失效，不能成为长期旁路。
 10. `publish.sh` 在专用 release worktree 维护跨失败重试的流程计时。validate 失败时回 main 修复并重新 prepare/validate；deploy 只统计生产预检、制品恢复、传输、migration、切换和健康结果。
 11. 当前部署历史覆盖 Full、单 unit shadow/activate/rollback 和 Profile promotion：事件追加到生产 `.workspace/deployment-history/deployments.ndjson`，同时保留逐次 JSON 与 `latest.json`。Profile promotion 当前只记录目标范围与本次 promotion duration，没有接入 `publish.sh` 的跨重试 release-process timing；Profile rollback 当前只切回上一 Gateway generation，尚未写部署事件或历史，这是通知/审计缺口，不能描述成已经完整留痕。Operations 不运行定时分析，只在用户要求时按需查询。生产记录按相应事件保存可用的 CNB/source/artifact/Gateway 证据，不创建 GitHub Deployment。
 

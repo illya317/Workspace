@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { pathToFileURL } from "node:url";
 
 import { checkMigrationPolicy } from "../scripts/ci/check-migration-policy.mjs";
@@ -21,6 +22,30 @@ function runGit(cwd, args, { allowNoMergeBase = false } = {}) {
     throw new Error(`git ${args.join(" ")} failed${result.stderr?.trim() ? `: ${result.stderr.trim()}` : ""}`);
   }
   return result.stdout.trim();
+}
+
+function runGitBuffer(cwd, args) {
+  const result = spawnSync("git", args, { cwd });
+  if (result.status !== 0) {
+    throw new Error(`git ${args.join(" ")} failed${result.stderr?.length ? `: ${result.stderr.toString("utf8").trim()}` : ""}`);
+  }
+  return result.stdout;
+}
+
+export function migrationSetSha256AtCommit(cwd, sha) {
+  const files = runGit(cwd, ["ls-tree", "-r", "--name-only", sha, "--", "prisma/migrations"])
+    .split("\n")
+    .filter(Boolean)
+    .sort();
+  if (files.length === 0) throw new Error(`migration set is empty at ${sha}`);
+  const hash = createHash("sha256");
+  for (const file of files) {
+    hash.update(file);
+    hash.update("\0");
+    hash.update(runGitBuffer(cwd, ["show", `${sha}:${file}`]));
+    hash.update("\0");
+  }
+  return hash.digest("hex");
 }
 
 function requireExactCommit(cwd, sha, label) {
@@ -48,6 +73,7 @@ export function preflightProductionDeploy({
   candidateTreeSha,
   expectedRepository,
   genesisFromSha,
+  recoverLocalReceiptBaseSha,
 }) {
   const repositoryRoot = cwd || process.cwd();
   const candidate = requireSha(candidateSha, "candidate SHA");
@@ -58,19 +84,50 @@ export function preflightProductionDeploy({
   }
 
   requireExactCommit(repositoryRoot, candidate, "candidate SHA");
-  requireExactCommit(repositoryRoot, receipt.runtimeSource.commitSha, "deployed production SHA");
   const actualCandidateTree = runGit(repositoryRoot, ["rev-parse", `${candidate}^{tree}`]);
   if (actualCandidateTree !== candidateTree) {
     throw new Error(`candidate tree changed: expected ${candidateTree}, received ${actualCandidateTree}`);
   }
-  const actualDeployedTree = runGit(repositoryRoot, [
-    "rev-parse",
-    `${receipt.runtimeSource.commitSha}^{tree}`,
-  ]);
-  if (actualDeployedTree !== receipt.runtimeSource.treeSha) {
-    throw new Error(
-      `deployed production tree changed: expected ${receipt.runtimeSource.treeSha}, received ${actualDeployedTree}`,
-    );
+
+  let validationBase = receipt.runtimeSource.commitSha;
+  let receiptRecovery;
+  if (recoverLocalReceiptBaseSha) {
+    if (genesisFromSha) throw new Error("local receipt recovery and genesis reset are mutually exclusive");
+    if (receipt.transport !== "local"
+      || receipt.runtimeSource.commitSha !== receipt.canonicalSource.commitSha
+      || receipt.runtimeSource.treeSha !== receipt.canonicalSource.treeSha
+      || receipt.runtimeSource.commitSha !== receipt.cnb.injectionSha) {
+      throw new Error("production receipt is not the legacy local injection-as-source shape");
+    }
+    validationBase = requireSha(recoverLocalReceiptBaseSha, "local receipt recovery base");
+    requireExactCommit(repositoryRoot, validationBase, "local receipt recovery base");
+    if (validationBase === candidate) {
+      throw new Error("local receipt recovery candidate must advance beyond the recovery base");
+    }
+    const baseMigrationSetSha256 = migrationSetSha256AtCommit(repositoryRoot, validationBase);
+    if (baseMigrationSetSha256 !== receipt.migrationSetSha256) {
+      throw new Error(
+        `local receipt recovery migration set ${baseMigrationSetSha256} does not match production ${receipt.migrationSetSha256}`,
+      );
+    }
+    receiptRecovery = {
+      kind: "legacy-local-injection-source",
+      baseSha: validationBase,
+      sourceSha: receipt.runtimeSource.commitSha,
+      treeSha: receipt.runtimeSource.treeSha,
+      migrationSetSha256: receipt.migrationSetSha256,
+    };
+  } else {
+    requireExactCommit(repositoryRoot, receipt.runtimeSource.commitSha, "deployed production SHA");
+    const actualDeployedTree = runGit(repositoryRoot, [
+      "rev-parse",
+      `${receipt.runtimeSource.commitSha}^{tree}`,
+    ]);
+    if (actualDeployedTree !== receipt.runtimeSource.treeSha) {
+      throw new Error(
+        `deployed production tree changed: expected ${receipt.runtimeSource.treeSha}, received ${actualDeployedTree}`,
+      );
+    }
   }
 
   if (genesisFromSha) {
@@ -100,23 +157,23 @@ export function preflightProductionDeploy({
     }
     return {
       schemaVersion: 1,
-      production: { deployedSha: receipt.runtimeSource.commitSha },
+      production: { deployedSha: receipt.runtimeSource.commitSha, validationBaseSha: receipt.runtimeSource.commitSha },
       candidate: { commitSha: candidate, treeSha: candidateTree },
       order: { action: "deploy", reason: "audited-genesis-reset" },
       migration: { diffMode: "genesis", changedMigrations: [baseline], requiresMaintenance: true },
     };
   }
 
-  const comparison = buildComparison(repositoryRoot, receipt.runtimeSource.commitSha, candidate);
+  const comparison = buildComparison(repositoryRoot, validationBase, candidate);
   const order = validateDeployOrder({
     candidateSha: candidate,
     currentHeadSha: candidate,
-    deployedSha: receipt.runtimeSource.commitSha,
+    deployedSha: validationBase,
     comparison,
   });
   const migration = checkMigrationPolicy({
     cwd: repositoryRoot,
-    baseSha: receipt.runtimeSource.commitSha,
+    baseSha: validationBase,
     headSha: candidate,
     diffMode: "two-dot",
   });
@@ -125,10 +182,12 @@ export function preflightProductionDeploy({
     schemaVersion: 1,
     production: {
       deployedSha: receipt.runtimeSource.commitSha,
+      validationBaseSha: validationBase,
     },
     candidate: { commitSha: candidate, treeSha: candidateTree },
     order,
     migration,
+    ...(receiptRecovery ? { receiptRecovery } : {}),
   };
 }
 
@@ -161,6 +220,7 @@ export function main(argv = process.argv.slice(2)) {
     candidateTreeSha: requireOption(options, "candidate_tree"),
     expectedRepository: requireOption(options, "expected_repository"),
     genesisFromSha: options.genesis_from,
+    recoverLocalReceiptBaseSha: options.recover_local_receipt_base,
   });
   process.stdout.write(`${JSON.stringify(result)}\n`);
 }

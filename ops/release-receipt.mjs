@@ -163,6 +163,7 @@ function assertReceipt(options) {
     ["canonical tree", receipt.canonicalSource.treeSha, options.canonical_tree],
     ["artifact digest", receipt.artifact.sha256, options.artifact_sha],
     ["manifest digest", receipt.artifact.manifestSha256, options.manifest_sha],
+    ["migration set", receipt.migrationSetSha256, options.migration_set],
     ["CNB injection", receipt.cnb.injectionSha, options.cnb_injection],
     ["transport", receipt.transport, options.transport],
     ["release directory", receipt.deployment.releaseDir, options.release_dir],

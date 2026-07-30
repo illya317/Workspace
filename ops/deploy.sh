@@ -812,6 +812,27 @@ verify_release_order() {
         echo "[错误] genesis reset 只授权从 $RELEASE_GENESIS_FROM_SOURCE 切换；当前生产是 $DEPLOYED_SOURCE_SHA"
         exit 1
       fi
+      if [ -n "$RELEASE_RECEIPT_RECOVERY_BASE" ]; then
+        if [ "$DEPLOYED_SOURCE_SHA" != "$RELEASE_RECEIPT_RECOVERY_SOURCE" ] \
+          || [ "$DEPLOYED_SOURCE_TREE" != "$RELEASE_RECEIPT_RECOVERY_TREE" ] \
+          || [ "$DEPLOYED_CANONICAL_SOURCE_SHA" != "$RELEASE_RECEIPT_RECOVERY_SOURCE" ] \
+          || [ "$DEPLOYED_CANONICAL_SOURCE_TREE" != "$RELEASE_RECEIPT_RECOVERY_TREE" ] \
+          || [ "$DEPLOYED_CNB_INJECTION_SHA" != "$RELEASE_RECEIPT_RECOVERY_SOURCE" ] \
+          || [ "$DEPLOYED_MIGRATION_SET_SHA" != "$RELEASE_RECEIPT_RECOVERY_MIGRATION_SET" ]; then
+          echo "[错误] 待修复的 legacy local 回执已变化；拒绝继续"
+          exit 1
+        fi
+        ssh_cmd "node '$REMOTE_RELEASE_RECEIPT_TOOL' assert \
+          --file '$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json' \
+          --expected-repository '$RELEASE_CNB_REPOSITORY' \
+          --runtime-source '$RELEASE_RECEIPT_RECOVERY_SOURCE' \
+          --runtime-tree '$RELEASE_RECEIPT_RECOVERY_TREE' \
+          --canonical-source '$RELEASE_RECEIPT_RECOVERY_SOURCE' \
+          --canonical-tree '$RELEASE_RECEIPT_RECOVERY_TREE' \
+          --cnb-injection '$RELEASE_RECEIPT_RECOVERY_SOURCE' \
+          --migration-set '$RELEASE_RECEIPT_RECOVERY_MIGRATION_SET' \
+          --transport local" >/dev/null
+      fi
       ;;
     *) echo "[错误] 服务器 deployed-release.json 无法证明当前生产版本"; exit 1 ;;
   esac
@@ -824,6 +845,10 @@ verify_release_order() {
   elif [ -n "$RELEASE_BOOTSTRAP_BASE" ]; then
     args+=(--bootstrap-base "$RELEASE_BOOTSTRAP_BASE")
     comparison_base="$RELEASE_BOOTSTRAP_BASE"
+  elif [ -n "$RELEASE_RECEIPT_RECOVERY_BASE" ]; then
+    [ "$record_kind" = "RECORD" ] || { echo "[错误] legacy local 回执修复需要正式生产回执"; exit 1; }
+    args+=(--deployed "$RELEASE_RECEIPT_RECOVERY_BASE")
+    comparison_base="$RELEASE_RECEIPT_RECOVERY_BASE"
   elif [ -n "$DEPLOYED_SOURCE_SHA" ]; then
     args+=(--deployed "$DEPLOYED_SOURCE_SHA")
     comparison_base="$DEPLOYED_SOURCE_SHA"
@@ -872,6 +897,8 @@ verify_release_order() {
   RELEASE_CANONICAL_SOURCE_TREE="$RELEASE_SOURCE_TREE"
   if [ -n "$RELEASE_GENESIS_FROM_SOURCE" ]; then
     echo "==> 锁内已证明一次性 genesis 切换基线精确匹配当前生产。"
+  elif [ -n "$RELEASE_RECEIPT_RECOVERY_BASE" ]; then
+    echo "==> 锁内已证明 legacy local 回执与恢复基线未漂移；本次成功后写回 canonical source。"
   else
     echo "==> 锁内已证明 CNB 候选顺序有效。"
   fi
@@ -911,6 +938,10 @@ resolve_release_metadata() {
   RELEASE_DATABASE_REPLACEMENT_MIGRATION_SET=""
   RELEASE_DATABASE_REPLACEMENT_PREPARED_AT=""
   RELEASE_TRANSPORT=""
+  RELEASE_RECEIPT_RECOVERY_BASE=""
+  RELEASE_RECEIPT_RECOVERY_SOURCE=""
+  RELEASE_RECEIPT_RECOVERY_TREE=""
+  RELEASE_RECEIPT_RECOVERY_MIGRATION_SET=""
 
   if [ "$RELEASE_METADATA_FILE" != ".cnb-release.json" ]; then
     echo "[错误] RELEASE_METADATA_FILE 必须是 .cnb-release.json"
@@ -979,7 +1010,22 @@ if (metadata.schemaVersion !== 1
 const bootstrap = metadata.deploymentBootstrap;
 const genesis = metadata.deploymentGenesis;
 const databaseReplacement = metadata.databaseReplacement;
+const receiptRecovery = metadata.deployedReceiptRecovery;
 if (bootstrap && genesis) throw new Error('bootstrap and genesis metadata are mutually exclusive');
+if (receiptRecovery) {
+  const recoveryKeys = Object.keys(receiptRecovery).sort().join(',');
+  if (bootstrap || genesis || databaseReplacement
+    || recoveryKeys !== 'baseSha,kind,migrationSetSha256,sourceSha,treeSha'
+    || receiptRecovery.kind !== 'legacy-local-injection-source'
+    || !/^[0-9a-f]{40}$/.test(receiptRecovery.baseSha ?? '')
+    || !/^[0-9a-f]{40}$/.test(receiptRecovery.sourceSha ?? '')
+    || !/^[0-9a-f]{40}$/.test(receiptRecovery.treeSha ?? '')
+    || !/^[0-9a-f]{64}$/.test(receiptRecovery.migrationSetSha256 ?? '')
+    || receiptRecovery.baseSha !== metadata.validation?.baseSha
+    || receiptRecovery.sourceSha === sha) {
+    throw new Error('deployed local receipt recovery metadata is invalid');
+  }
+}
 if (databaseReplacement) {
   const replacementKeys = Object.keys(databaseReplacement).sort().join(',');
   const sourceKeys = Object.keys(databaseReplacement.source ?? {}).sort().join(',');
@@ -1043,6 +1089,10 @@ const values = [
   databaseReplacement?.database?.migrationSetSha256 ?? '',
   databaseReplacement?.preparedAt ?? '',
   transport,
+  receiptRecovery?.baseSha ?? '',
+  receiptRecovery?.sourceSha ?? '',
+  receiptRecovery?.treeSha ?? '',
+  receiptRecovery?.migrationSetSha256 ?? '',
 ];
 process.stdout.write(values.join('\n'));
 NODE
@@ -1081,6 +1131,12 @@ NODE
     RELEASE_DATABASE_REPLACEMENT_PREPARED_AT="$(printf '%s\n' "$metadata_values" | sed -n '23p')"
   fi
   RELEASE_TRANSPORT="$(printf '%s\n' "$metadata_values" | sed -n '24p')"
+  RELEASE_RECEIPT_RECOVERY_BASE="$(printf '%s\n' "$metadata_values" | sed -n '25p')"
+  if [ -n "$RELEASE_RECEIPT_RECOVERY_BASE" ]; then
+    RELEASE_RECEIPT_RECOVERY_SOURCE="$(printf '%s\n' "$metadata_values" | sed -n '26p')"
+    RELEASE_RECEIPT_RECOVERY_TREE="$(printf '%s\n' "$metadata_values" | sed -n '27p')"
+    RELEASE_RECEIPT_RECOVERY_MIGRATION_SET="$(printf '%s\n' "$metadata_values" | sed -n '28p')"
+  fi
   echo "==> 已验证 ${RELEASE_TRANSPORT} source: ${RELEASE_SOURCE_SHA:0:12} via ${RELEASE_CNB_INJECTION_SHA:0:12}"
 }
 

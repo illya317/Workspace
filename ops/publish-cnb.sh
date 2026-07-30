@@ -29,6 +29,7 @@ BOOTSTRAP_LEGACY_CNB_BUILD_SN=""
 BOOTSTRAP_LEGACY_RUNTIME_VERSION=""
 BOOTSTRAP_LEGACY_BUILD_ID=""
 GENESIS_PRODUCTION_BASE=""
+LOCAL_RECEIPT_RECOVERY_BASE=""
 PRINT_COMMAND_ONLY=0
 RELEASE_ACTION="deploy"
 DIRECT_RELEASE=0
@@ -72,6 +73,8 @@ usage() {
   --print-command
   --release-action validate|deploy
   --direct            使用本地验证缓存直接部署；不触发 CNB
+  --recover-local-receipt-base SHA
+                      一次性修复把临时 injection 误记为 source 的旧 local 回执
 EOF
 }
 
@@ -275,6 +278,7 @@ while [ "$#" -gt 0 ]; do
     --bootstrap-legacy-runtime-version) shift; BOOTSTRAP_LEGACY_RUNTIME_VERSION="${1:-}" ;;
     --bootstrap-legacy-build-id) shift; BOOTSTRAP_LEGACY_BUILD_ID="${1:-}" ;;
     --genesis-production-base) shift; GENESIS_PRODUCTION_BASE="${1:-}" ;;
+    --recover-local-receipt-base) shift; LOCAL_RECEIPT_RECOVERY_BASE="${1:-}" ;;
     --deploy-unit)
       [ -z "$DEPLOY_UNIT_ID" ] || { echo "[错误] 只能指定一个单元部署目标"; exit 2; }
       shift; DEPLOY_UNIT_ID="${1:-}"; DEPLOY_UNIT_MODE="activate"
@@ -340,6 +344,12 @@ if [ -n "$GENESIS_PRODUCTION_BASE" ]; then
   [ "$PRINT_COMMAND_ONLY" = "0" ] || { echo "[错误] genesis reset 禁止 --print-command"; exit 1; }
   [ -z "$DEPLOY_UNIT_ID" ] || { echo "[错误] genesis reset 只能执行 Full monolith 部署"; exit 1; }
 fi
+if [ -n "$LOCAL_RECEIPT_RECOVERY_BASE" ]; then
+  [ -z "$BOOTSTRAP_PRODUCTION_BASE" ] && [ -z "$GENESIS_PRODUCTION_BASE" ] \
+    || { echo "[错误] local 回执修复不能与 bootstrap/genesis 同时执行"; exit 1; }
+  [ -z "$DATABASE_REPLACEMENT_RECEIPT_FILE" ] \
+    || { echo "[错误] local 回执修复不能与整库替换同时执行"; exit 1; }
+fi
 
 for pair in \
   "$BOOTSTRAP_PRODUCTION_BASE:production bootstrap SHA" \
@@ -352,6 +362,11 @@ for pair in \
     exit 1
   fi
 done
+if [ -n "$LOCAL_RECEIPT_RECOVERY_BASE" ] \
+  && ! printf '%s' "$LOCAL_RECEIPT_RECOVERY_BASE" | grep -Eq '^[0-9a-f]{40}$'; then
+  echo "[错误] local 回执恢复基线必须是 40 位小写 Git SHA"
+  exit 1
+fi
 if [ -n "$BOOTSTRAP_LEGACY_RELEASE_ID" ] && ! printf '%s' "$BOOTSTRAP_LEGACY_RELEASE_ID" | grep -Eq '^[0-9]{14}-[0-9a-f]{8}$'; then
   echo "[错误] legacy release id 格式无效"; exit 1
 fi
@@ -483,19 +498,23 @@ if [ "$PRINT_COMMAND_ONLY" = "0" ] && [ -z "$BOOTSTRAP_PRODUCTION_BASE" ]; then
     --expected-repository "$CNB_REPO"
   )
   [ -z "$GENESIS_PRODUCTION_BASE" ] || preflight_args+=(--genesis-from "$GENESIS_PRODUCTION_BASE")
+  [ -z "$LOCAL_RECEIPT_RECOVERY_BASE" ] \
+    || preflight_args+=(--recover-local-receipt-base "$LOCAL_RECEIPT_RECOVERY_BASE")
   node ops/production-deploy-preflight.mjs "${preflight_args[@]}" > "$PREFLIGHT_RESULT_FILE"
   node -e '
     const result = require(process.argv[1]);
     const migrations = result.migration.changedMigrations.length;
     const mode = result.migration.requiresMaintenance ? "maintenance" : "expand/none";
-    console.log(`==> 生产预检通过: deployed ${result.production.deployedSha.slice(0, 12)} -> candidate ${result.candidate.commitSha.slice(0, 12)}; migrations ${migrations} (${mode})`);
+    const base = result.production.validationBaseSha ?? result.production.deployedSha;
+    const recovery = result.receiptRecovery ? `; repaired-base ${base.slice(0, 12)}` : "";
+    console.log(`==> 生产预检通过: deployed ${result.production.deployedSha.slice(0, 12)} -> candidate ${result.candidate.commitSha.slice(0, 12)}${recovery}; migrations ${migrations} (${mode})`);
   ' "$PREFLIGHT_RESULT_FILE"
 fi
 
 if [ -n "$BOOTSTRAP_PRODUCTION_BASE" ]; then
   RELEASE_VALIDATION_BASE_SHA="$BOOTSTRAP_PRODUCTION_BASE"
 elif [ -n "${PREFLIGHT_RESULT_FILE:-}" ] && [ -f "$PREFLIGHT_RESULT_FILE" ]; then
-  RELEASE_VALIDATION_BASE_SHA="$(node -e 'const r=require(process.argv[1]); process.stdout.write(r.production.deployedSha)' "$PREFLIGHT_RESULT_FILE")"
+  RELEASE_VALIDATION_BASE_SHA="$(node -e 'const r=require(process.argv[1]); process.stdout.write(r.production.validationBaseSha ?? r.production.deployedSha)' "$PREFLIGHT_RESULT_FILE")"
 elif [ -n "${RELEASE_VALIDATION_BASE_SHA:-}" ]; then
   :
 else
@@ -602,6 +621,7 @@ GENESIS_PRODUCTION_BASE="$GENESIS_PRODUCTION_BASE" GENESIS_LEGACY_MIGRATION_COUN
 GENESIS_LEGACY_MIGRATION_DIGEST="$GENESIS_LEGACY_MIGRATION_DIGEST" GENESIS_BASELINE_MIGRATION="$GENESIS_BASELINE_MIGRATION" \
 GENESIS_BASELINE_CHECKSUM="$GENESIS_BASELINE_CHECKSUM" \
 RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_CANDIDATE_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" \
+PRODUCTION_PREFLIGHT_FILE="${PREFLIGHT_RESULT_FILE:-}" \
 DATABASE_REPLACEMENT_RECEIPT_FILE="$DATABASE_REPLACEMENT_RECEIPT_FILE" \
 PUBLISH_STARTED_EPOCH_SECONDS="$PUBLISH_STARTED_EPOCH_SECONDS" DEPLOY_UNIT_ID="$DEPLOY_UNIT_ID" DEPLOY_UNIT_MODE="$DEPLOY_UNIT_MODE" \
 RELEASE_PROCESS_SECONDS="$RELEASE_PROCESS_SECONDS" RELEASE_ATTEMPT_COUNT="$RELEASE_ATTEMPT_COUNT" \
@@ -640,6 +660,12 @@ const metadata = {
       : { kind: 'monolith' },
   },
 };
+if (process.env.PRODUCTION_PREFLIGHT_FILE) {
+  const productionPreflight = JSON.parse(fs.readFileSync(process.env.PRODUCTION_PREFLIGHT_FILE, 'utf8'));
+  if (productionPreflight.receiptRecovery) {
+    metadata.deployedReceiptRecovery = productionPreflight.receiptRecovery;
+  }
+}
 if (process.env.BOOTSTRAP_PRODUCTION_BASE) {
   metadata.deploymentBootstrap = {
     baselineSha: process.env.BOOTSTRAP_PRODUCTION_BASE,

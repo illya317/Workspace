@@ -132,6 +132,16 @@ test("release metadata preserves whether immutable validation runs locally or on
   assert.match(deploy, /--transport '\$RELEASE_TRANSPORT'/);
 });
 
+test("legacy local receipt recovery is explicit, migration-bound, and one-shot", () => {
+  assert.match(publishCnb, /--recover-local-receipt-base/);
+  assert.match(publishCnb, /preflight_args\+=\(--recover-local-receipt-base/);
+  assert.match(publishCnb, /metadata\.deployedReceiptRecovery = productionPreflight\.receiptRecovery/);
+  assert.match(releaseToCnb, /legacy-local-injection-source/);
+  assert.match(releaseToCnb, /receiptRecovery\.baseSha !== metadata\.validation\?\.baseSha/);
+  assert.match(deploy, /legacy local 回执与恢复基线未漂移/);
+  assert.match(deploy, /DEPLOYED_CNB_INJECTION_SHA" != "\$RELEASE_RECEIPT_RECOVERY_SOURCE/);
+});
+
 test("validation runs once and CNB or direct deploy only consumes its immutable artifact", () => {
   assert.doesNotMatch(publish, /npm run check:ci|npm run test:e2e|local-release-gate\.sh/);
   assert.match(runCnbReleaseGate, /classify-risk\.mjs[\s\S]*?--base "\$RELEASE_VALIDATION_BASE_SHA"[\s\S]*?run-affected-validation\.mjs/);
