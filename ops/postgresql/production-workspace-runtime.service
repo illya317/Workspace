@@ -12,6 +12,8 @@ Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 EnvironmentFile=/home/ubuntu/workspace/.workspace/runtime.env
 UnsetEnvironment=DIRECT_URL SHADOW_DATABASE_URL
 PIDFile=/var/lib/workspace-runtime/.pm2/pm2.pid
+ExecStartPre=-/usr/bin/pm2 kill
+ExecStartPre=/usr/bin/rm -f -- /var/lib/workspace-runtime/.pm2/pm2.pid
 ExecStart=/bin/sh -ec '/usr/bin/pm2 ping >/dev/null; if [ -s /var/lib/workspace-runtime/.pm2/dump.pm2 ]; then /usr/bin/pm2 resurrect; fi'
 ExecStartPost=/bin/sh -ec 'test -s /var/lib/workspace-runtime/.pm2/pm2.pid'
 ExecReload=/usr/bin/pm2 reload all --update-env

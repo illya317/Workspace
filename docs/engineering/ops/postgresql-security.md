@@ -9,7 +9,7 @@ This runbook covers the Workspace PostgreSQL role, transport, audit, backup, and
 - PostgreSQL remains loopback/private-network only. HBA rules are database, role, address, and TLS specific, followed by explicit rejects.
 - Runtime, migration, backup, and monitor secrets are separate. A long-running process must not receive `DIRECT_URL` or a shadow URL.
 - Production Workspace processes run as `workspace-runtime`, which has no sudo, Docker, LXD, or PostgreSQL system-group membership.
-- The systemd unit starts and owns the PM2 daemon before any Workspace process is created. Verification requires the unit `MainPID`, PM2 pid file, daemon, and every managed application PID to resolve to the same unit cgroup, so namespace and filesystem hardening apply to the live processes rather than only to a later supervisor command.
+- The systemd unit starts and owns the PM2 daemon before any Workspace process is created. Before each start it kills only a stale daemon from the same `workspace-runtime` user and `PM2_HOME`, then removes only the generated `pm2.pid`; it preserves `dump.pm2`, releases, and source. Verification requires the unit `MainPID`, PM2 pid file, daemon, and every managed application PID to resolve to the same unit cgroup, so namespace and filesystem hardening apply to the live processes rather than only to a later supervisor command.
 - The legacy PM2 `jlist` snapshot is streamed directly into the sanitizer. Only the root-mode sanitized migration plan is persisted; raw process environments are never written to the cutover backup directory.
 
 ## Local logical backups

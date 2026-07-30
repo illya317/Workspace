@@ -83,6 +83,12 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
   assert.match(security, /legacy_pm2 jlist \| node "\$SCRIPT_DIR\/production-pm2-plan\.mjs" create --input -/);
   assert.doesNotMatch(security, /pm2-before\.json/);
   assert.match(security, /systemctl start workspace-runtime-pm2\.service/);
+  assert.match(security, /systemctl reset-failed workspace-runtime-pm2\.service/);
+  assert.ok(
+    security.indexOf("systemctl reset-failed workspace-runtime-pm2.service")
+      < security.indexOf("systemctl start workspace-runtime-pm2.service"),
+    "the orchestrator must clear a stale systemd failure before starting PM2",
+  );
   assert.match(security, /verify_runtime_systemd_pm2_daemon/);
   assert.match(security, /verify_runtime_systemd_pm2_processes/);
   assert.match(security, /systemctl show workspace-runtime-pm2\.service -p MainPID --value/);
@@ -112,6 +118,15 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
   assert.doesNotMatch(service, /ReadWritePaths=.*\.workspace\/data(?:\s|$)/);
   assert.match(service, /ReadWritePaths=-\/home\/ubuntu\/workspace\/\.workspace\/cache\/production\/qc/);
   assert.match(service, /ProtectHome=read-only/);
+  const staleDaemonKill = service.indexOf("ExecStartPre=-/usr/bin/pm2 kill");
+  const stalePidRemove = service.indexOf("ExecStartPre=/usr/bin/rm -f -- /var/lib/workspace-runtime/.pm2/pm2.pid");
+  const daemonStart = service.indexOf("ExecStart=/bin/sh -ec '/usr/bin/pm2 ping");
+  assert.ok(staleDaemonKill >= 0 && staleDaemonKill < stalePidRemove && stalePidRemove < daemonStart);
+  assert.deepEqual(
+    service.match(/^ExecStartPre=.*\/usr\/bin\/rm.*$/gm),
+    ["ExecStartPre=/usr/bin/rm -f -- /var/lib/workspace-runtime/.pm2/pm2.pid"],
+  );
+  assert.doesNotMatch(service, /ExecStartPre=.*(?:dump\.pm2|\/home\/ubuntu\/workspace\/(?:current|releases)|\*)/);
   assert.match(service, /ExecStart=.*pm2 ping/);
   assert.match(service, /if \[ -s \/var\/lib\/workspace-runtime\/\.pm2\/dump\.pm2 \]/);
   assert.match(service, /ExecStartPost=.*pm2\.pid/);

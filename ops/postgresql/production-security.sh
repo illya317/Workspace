@@ -659,6 +659,7 @@ if [ "$COMMAND" = apply ]; then
   install -o root -g root -m 0644 "$SCRIPT_DIR/production-workspace-runtime.service" "$RUNTIME_SERVICE"
   systemctl daemon-reload
   systemctl enable workspace-runtime-pm2.service >/dev/null
+  systemctl reset-failed workspace-runtime-pm2.service
   systemctl start workspace-runtime-pm2.service
   verify_runtime_systemd_pm2_daemon
   runuser -u postgres -- env WORKSPACE_RUNTIME_DATABASE_PASSWORD="$WORKSPACE_RUNTIME_DATABASE_PASSWORD" \
