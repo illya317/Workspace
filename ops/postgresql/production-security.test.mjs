@@ -13,6 +13,7 @@ test("production shell and Node entrypoints parse", () => {
   for (const name of [
     "production-finance-bot-hook.sh",
     "production-hba.sh",
+    "production-install.sh",
     "production-legacy-pm2.sh",
     "production-runtime-pm2.sh",
     "production-security.sh",
@@ -65,6 +66,13 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
   assert.match(security, /write_receipt applying/);
   assert.match(security, /apply 必须显式传 --execute/);
   assert.match(security, /rollback 必须显式传 --execute/);
+  assert.match(security, /CONTROLLED_TOOL_ROOT="\/usr\/local\/lib\/workspace-postgresql"/);
+  assert.match(security, /assert_controlled_tooling/);
+  assert.match(security, /production-security\.sh 必须从受控路径/);
+  const fileInvocations = [...security.matchAll(/psql[^\n]*-f "\$SCRIPT_DIR\/production-[^"]+"/g)]
+    .map((match) => match[0]);
+  assert.equal(fileInvocations.length, 4);
+  assert.ok(fileInvocations.every((invocation) => invocation.includes("-v ON_ERROR_STOP=1")));
   assert.match(security, /install_hba before/);
   assert.match(security, /snapshot_runtime_env_links "\$backup_dir\/pm2-plan\.json" "\$backup_dir\/runtime-env-links\.before"/);
   assert.match(security, /switch_runtime_env_links "\$backup_dir\/runtime-env-links\.before"/);
@@ -86,6 +94,14 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
       < security.indexOf('production-pm2-plan.mjs" apply'),
     "systemd must own the PM2 daemon before applying the process plan",
   );
+  const rollbackStart = security.indexOf('else\n  [ "$EXECUTE" = 1 ] || { echo "[错误] rollback');
+  const rollbackBranch = security.slice(rollbackStart);
+  assert.ok(rollbackStart > 0);
+  assert.ok(
+    rollbackBranch.indexOf('install_hba before "$backup_dir"')
+      < rollbackBranch.indexOf('production-pm2-plan.mjs" apply'),
+    "rollback must restore the legacy HBA before starting legacy PM2",
+  );
   assert.match(security, /install -d -o root -g root -m 0755 \/etc\/workspace/);
   assert.match(security, /url\.searchParams\.get\("sslmode"\) !== "verify-full"/);
   assert.match(security, /url\.searchParams\.get\("sslrootcert"\) !== "\/etc\/workspace\/postgresql\/ca\.pem"/);
@@ -100,6 +116,16 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
   assert.match(service, /if \[ -s \/var\/lib\/workspace-runtime\/\.pm2\/dump\.pm2 \]/);
   assert.match(service, /ExecStartPost=.*pm2\.pid/);
   assert.match(service, /ExecStop=\/usr\/bin\/pm2 kill/);
+});
+
+test("production tooling installer pins root ownership and postgres-readable SQL", () => {
+  const installer = read("production-install.sh");
+  assert.match(installer, /TOOL_ROOT="\/usr\/local\/lib\/workspace-postgresql"/);
+  assert.match(installer, /install -d -o root -g root -m 0755 "\$TOOL_ROOT"/);
+  assert.match(installer, /\*\.sql\|\*\.service\|\*\.conf\) mode=0644/);
+  assert.match(installer, /install -o root -g root -m "\$mode"/);
+  assert.match(installer, /runuser -u postgres -- test -r "\$sql"/);
+  assert.match(installer, /mv -Tf -- "\$temporary" "\$destination"/);
 });
 
 test("finance bot keeps trusted OS user while taking only the monitor URL", () => {
@@ -176,6 +202,23 @@ test("PM2 plan migrates exactly two processes and drops secret environment", () 
       "--runner", runner,
     ], { encoding: "utf8" }).trim().split("\n");
     assert.deepEqual(pidRows, ["workspace|4100", "workspace-wecom-agent|4101"]);
+
+    const failingRunner = path.join(temporary, "failing-runner.mjs");
+    writeFileSync(
+      failingRunner,
+      "#!/usr/bin/env node\nprocess.stderr.write('postgresql://workspace_runtime:database-secret@127.0.0.1/workspace?token=token-secret\\nsecond-line-secret\\n');\nprocess.exit(42);\n",
+      { mode: 0o755 },
+    );
+    const failedApply = spawnSync(process.execPath, [
+      path.join(directory, "production-pm2-plan.mjs"),
+      "apply",
+      "--plan", output,
+      "--runner", failingRunner,
+    ], { encoding: "utf8" });
+    assert.notEqual(failedApply.status, 0);
+    assert.match(failedApply.stderr, /exit=42/);
+    assert.match(failedApply.stderr, /\[REDACTED\]/);
+    assert.doesNotMatch(failedApply.stderr, /database-secret|token-secret|second-line-secret/);
 
     writeFileSync(input, JSON.stringify([...fixture, base("workspace-candidate")]));
     const extra = spawnSync(process.execPath, [path.join(directory, "production-pm2-plan.mjs"), "create", "--input", input, "--output", output, "--remote-root", runtimeRoot]);

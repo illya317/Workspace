@@ -23,6 +23,14 @@ const FORBIDDEN_DATABASE_ENV = [
   "DIRECT_URL", "SHADOW_DATABASE_URL", "WORKSPACE_BACKUP_DATABASE_URL", "WORKSPACE_MONITOR_DATABASE_URL",
   "PGPASSWORD", "PGPASSFILE", "PGSERVICE", "PGSERVICEFILE", "PGOPTIONS", "PGUSER", "PGHOST", "PGDATABASE",
 ];
+const safeStderrFirstLine = (value) => {
+  const firstLine = String(value ?? "").split(/\r?\n/, 1)[0]
+    .replace(/\x1b\[[0-?]*[ -\/]*[@-~]/g, "")
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
+    .replace(/\b([a-z][a-z0-9+.-]*:\/\/)([^/\s:@]+):([^@\s]+)@/gi, "$1$2:[REDACTED]@")
+    .replace(/((?:^|[?&;\s])(?:password|secret|token|api[_-]?key)=)[^&;\s]*/gi, "$1[REDACTED]");
+  return (firstLine || "[empty]").slice(0, 240);
+};
 const safeArgument = (value) => !/postgres(?:ql)?:\/\/[^\s:]+:[^\s@]+@/i.test(value)
   && !/(?:password|secret|token|api[_-]?key)=/i.test(value);
 if (command === "create") {
@@ -74,7 +82,10 @@ if (command === "create") {
       encoding: "utf8",
       env: { PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", ...processSpec.env },
     });
-    if (result.status !== 0) fail(command + " " + processSpec.name + " 失败");
+    if (result.status !== 0) {
+      const status = Number.isInteger(result.status) ? result.status : "signal";
+      fail(command + " " + processSpec.name + " 失败 exit=" + status + " stderr=" + safeStderrFirstLine(result.stderr));
+    }
   }
 } else if (command === "verify" || command === "pids") {
   const plan = readJson(valueAfter("--plan"));

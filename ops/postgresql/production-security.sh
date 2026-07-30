@@ -3,6 +3,7 @@ set -euo pipefail
 umask 077
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONTROLLED_TOOL_ROOT="/usr/local/lib/workspace-postgresql"
 COMMAND="${1:-}"
 [ -z "$COMMAND" ] || shift
 CONFIG_ROOT="/home/ubuntu/workspace/.workspace"
@@ -56,6 +57,36 @@ require_commands() {
   local command
   for command in node psql pg_dump pg_restore pg_dumpall sha256sum getfacl setfacl systemctl runuser install pg_ctlcluster curl useradd getent mktemp readlink ln mv; do
     command -v "$command" >/dev/null || { echo "[错误] 缺少命令: $command" >&2; exit 1; }
+  done
+}
+assert_controlled_tooling() {
+  local resolved_script tool owner_group mode sql count=0
+  resolved_script="$(readlink -f -- "${BASH_SOURCE[0]}")"
+  [ "$SCRIPT_DIR" = "$CONTROLLED_TOOL_ROOT" ] \
+    && [ "$resolved_script" = "$CONTROLLED_TOOL_ROOT/production-security.sh" ] \
+    && [ ! -L "${BASH_SOURCE[0]}" ] || {
+      echo "[错误] production-security.sh 必须从受控路径 $CONTROLLED_TOOL_ROOT 运行；先执行 production-install.sh --execute" >&2
+      exit 1
+    }
+  [ ! -L "$CONTROLLED_TOOL_ROOT" ] \
+    && [ "$(stat -c '%u:%g' "$CONTROLLED_TOOL_ROOT")" = "0:0" ] || {
+      echo "[错误] 受控 production tooling 目录必须是 root:root 普通目录" >&2
+      exit 1
+    }
+  while IFS= read -r -d '' tool; do
+    [ ! -L "$tool" ] || { echo "[错误] 受控 production tooling 不能是符号链接: $tool" >&2; exit 1; }
+    owner_group="$(stat -c '%u:%g' "$tool")"
+    mode="$(stat -c %a "$tool")"
+    [ "$owner_group" = "0:0" ] && (( (8#$mode & 8#022) == 0 )) || {
+      echo "[错误] 受控 production tooling 必须 root:root 且不可被 group/other 写入: $tool" >&2
+      exit 1
+    }
+    count=$((count + 1))
+  done < <(find "$CONTROLLED_TOOL_ROOT" -maxdepth 1 -type f -name 'production-*' -print0)
+  [ "$count" -gt 0 ] || { echo "[错误] 受控 production tooling 为空" >&2; exit 1; }
+  for sql in "$CONTROLLED_TOOL_ROOT"/production-*.sql; do
+    [ -f "$sql" ] || continue
+    runuser -u postgres -- test -r "$sql" || { echo "[错误] postgres 无法读取受控 SQL: $sql" >&2; exit 1; }
   done
 }
 validate_expected_version() {
@@ -544,6 +575,7 @@ if [ "$COMMAND" = status ]; then
 fi
 require_root
 require_commands
+assert_controlled_tooling
 
 if [ "$COMMAND" = prepare ]; then
   [ "$EXECUTE" = 0 ] || { echo "[错误] prepare 不接受 --execute" >&2; exit 2; }
@@ -633,7 +665,7 @@ if [ "$COMMAND" = apply ]; then
     WORKSPACE_MIGRATOR_DATABASE_PASSWORD="$WORKSPACE_MIGRATOR_DATABASE_PASSWORD" \
     WORKSPACE_BACKUP_DATABASE_PASSWORD="$WORKSPACE_BACKUP_DATABASE_PASSWORD" \
     WORKSPACE_MONITOR_DATABASE_PASSWORD="$WORKSPACE_MONITOR_DATABASE_PASSWORD" \
-    psql -X -d postgres -f "$SCRIPT_DIR/production-roles.sql" >/dev/null
+    psql -X -v ON_ERROR_STOP=1 -d postgres -f "$SCRIPT_DIR/production-roles.sql" >/dev/null
   rehome_rollback_databases
   finance_bot_contract apply
   node "$SCRIPT_DIR/production-pm2-plan.mjs" apply --plan "$backup_dir/pm2-plan.json" --runner "$RUNTIME_RUNNER"
@@ -647,7 +679,7 @@ if [ "$COMMAND" = apply ]; then
   verify_workspace_http 45
   runuser -u postgres -- psql -X -v ON_ERROR_STOP=1 -d postgres -c \
     "ALTER ROLE workspace_app NOLOGIN; SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE usename='workspace_app' AND pid<>pg_backend_pid()" >/dev/null
-  runuser -u postgres -- psql -X -d postgres -f "$SCRIPT_DIR/production-verify.sql" >/dev/null
+  runuser -u postgres -- psql -X -v ON_ERROR_STOP=1 -d postgres -f "$SCRIPT_DIR/production-verify.sql" >/dev/null
   install_hba final "$backup_dir"
   verify_workspace_http 15
   verify_natsu_http 15
@@ -656,7 +688,7 @@ if [ "$COMMAND" = apply ]; then
 elif [ "$COMMAND" = verify ]; then
   verify_workspace_http 3
   verify_natsu_http 3
-  runuser -u postgres -- psql -X -d postgres -f "$SCRIPT_DIR/production-verify.sql" >/dev/null
+  runuser -u postgres -- psql -X -v ON_ERROR_STOP=1 -d postgres -f "$SCRIPT_DIR/production-verify.sql" >/dev/null
   node "$SCRIPT_DIR/production-pm2-plan.mjs" verify --plan "$backup_dir/pm2-plan.json" --runner "$RUNTIME_RUNNER"
   verify_runtime_systemd_pm2_processes "$backup_dir/pm2-plan.json"
   verify_legacy_pm2_empty
@@ -675,8 +707,9 @@ else
   fi
   systemctl disable --now workspace-runtime-pm2.service >/dev/null 2>&1 || true
   install_hba transition "$backup_dir"
-  runuser -u postgres -- psql -X -d postgres -f "$SCRIPT_DIR/production-rollback.sql" >/dev/null
+  runuser -u postgres -- psql -X -v ON_ERROR_STOP=1 -d postgres -f "$SCRIPT_DIR/production-rollback.sql" >/dev/null
   restore_runtime_env_links "$backup_dir/runtime-env-links.before"
+  install_hba before "$backup_dir"
   rollback_runner="$LEGACY_RUNNER"
   [ -x "$rollback_runner" ] || rollback_runner="$SCRIPT_DIR/production-legacy-pm2.sh"
   while IFS= read -r name; do legacy_pm2 delete "$name" >/dev/null 2>&1 || true; done < <(managed_process_names "$backup_dir/pm2-plan.json")
@@ -696,7 +729,6 @@ else
     enabled) systemctl enable workspace-runtime-pm2.service >/dev/null ;;
     *) systemctl disable workspace-runtime-pm2.service >/dev/null 2>&1 || true ;;
   esac
-  install_hba before "$backup_dir"
   systemctl start finance-bot.service 2>/dev/null || true
   verify_workspace_http 45
   verify_natsu_http 15

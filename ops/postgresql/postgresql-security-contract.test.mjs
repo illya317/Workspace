@@ -108,8 +108,10 @@ test("backup and restore timers are persistent", () => {
 test("compatibility rollback restores legacy deploy ownership and disables hardened logins", () => {
   const source = read("./production-rollback.sql");
   assert.match(source, /ALTER DATABASE workspace OWNER TO workspace_app/);
-  assert.match(source, /REASSIGN OWNED BY workspace_owner TO workspace_app/);
-  assert.match(source, /ALTER ROLE workspace_runtime NOLOGIN/);
-  assert.match(source, /ALTER ROLE workspace_migrator NOLOGIN/);
+  assert.match(source, /WHERE EXISTS \(SELECT 1 FROM pg_roles WHERE rolname='workspace_owner'\)/);
+  assert.match(source, /WHERE rolname IN \('workspace_runtime','workspace_migrator','workspace_backup','workspace_monitor'\)/);
+  assert.match(source, /format\('ALTER ROLE %I NOLOGIN', rolname\)/);
+  assert.match(source, /format\('REVOKE ALL ON DATABASE workspace FROM %I', rolname\)/);
+  assert.match(source, /\\gexec/);
   assert.match(source, /GRANT SELECT,INSERT,UPDATE,DELETE ON TABLE public\."_prisma_migrations" TO workspace_app/);
 });
