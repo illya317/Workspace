@@ -32,6 +32,7 @@ GENESIS_PRODUCTION_BASE=""
 PRINT_COMMAND_ONLY=0
 RELEASE_ACTION="deploy"
 DIRECT_RELEASE=0
+RELEASE_TRANSPORT="cnb"
 DEPLOY_UNIT_ID=""
 DEPLOY_UNIT_MODE=""
 DATABASE_REPLACEMENT_RECEIPT_FILE=""
@@ -88,7 +89,7 @@ record_failed_deploy_attempt() {
   local duration_seconds="$(($(date +%s) - DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS))"
   [ "$duration_seconds" -ge 0 ] || duration_seconds=0
   if ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
-    "REMOTE_DIR='$REMOTE_DIR' DEPLOY_SOURCE_SHA='$SOURCE_SHA' DEPLOY_STARTED_EPOCH_SECONDS='$DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS' DEPLOY_DURATION_SECONDS='$duration_seconds' DEPLOY_STATUS='$status' DEPLOY_EXIT_CODE='$exit_code' python3 - <<'PY'
+    "REMOTE_DIR='$REMOTE_DIR' DEPLOY_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_SOURCE_SHA='$SOURCE_SHA' DEPLOY_STARTED_EPOCH_SECONDS='$DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS' DEPLOY_DURATION_SECONDS='$duration_seconds' DEPLOY_STATUS='$status' DEPLOY_EXIT_CODE='$exit_code' python3 - <<'PY'
 import datetime
 import json
 import os
@@ -100,13 +101,14 @@ started = int(os.environ['DEPLOY_STARTED_EPOCH_SECONDS'])
 duration = int(os.environ['DEPLOY_DURATION_SECONDS'])
 status = os.environ['DEPLOY_STATUS']
 exit_code = int(os.environ['DEPLOY_EXIT_CODE'])
+transport = os.environ['DEPLOY_TRANSPORT']
 finished_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
 event_id = f'attempt:{build}:{started}'
 payload = {
     'schemaVersion': 2,
     'kind': 'workspace-deploy-event',
     'id': event_id,
-    'transport': 'cnb',
+    'transport': transport,
     'deploymentKind': 'full',
     'deploymentMode': 'full',
     'action': 'deploy',
@@ -300,6 +302,9 @@ esac
 [ "$DIRECT_RELEASE" = "0" ] || [ "$PRINT_COMMAND_ONLY" = "0" ] || {
   echo "[错误] --direct 不能与 --print-command 同时使用"; exit 2;
 }
+if [ "$DIRECT_RELEASE" = "1" ]; then
+  RELEASE_TRANSPORT="local"
+fi
 if [ "$DIRECT_RELEASE" = "0" ]; then
   : "${CNB_REMOTE:?CNB_REMOTE not set in $OPS_ENV_FILE}"
 fi
@@ -587,6 +592,7 @@ NODE
 fi
 
 SOURCE_SHA="$SOURCE_SHA" SOURCE_TREE="$SOURCE_TREE" CNB_REPO="$CNB_REPO" RELEASE_BRANCH="$RELEASE_BRANCH" \
+RELEASE_TRANSPORT="$RELEASE_TRANSPORT" \
 RELEASE_ACTION="$RELEASE_ACTION" RELEASE_VALIDATION_BASE_SHA="$RELEASE_VALIDATION_BASE_SHA" \
 BOOTSTRAP_PRODUCTION_BASE="$BOOTSTRAP_PRODUCTION_BASE" BOOTSTRAP_LEGACY_CNB_COMMIT="$BOOTSTRAP_LEGACY_CNB_COMMIT" \
 BOOTSTRAP_LEGACY_RELEASE_ID="$BOOTSTRAP_LEGACY_RELEASE_ID" BOOTSTRAP_LEGACY_CNB_BUILD_SN="$BOOTSTRAP_LEGACY_CNB_BUILD_SN" \
@@ -617,6 +623,7 @@ if (Number.isNaN(Date.parse(process.env.RELEASE_PROCESS_STARTED_AT))) throw new 
 const metadata = {
   schemaVersion: 1,
   source: { commitSha: process.env.SOURCE_SHA, treeSha: process.env.SOURCE_TREE },
+  transport: { kind: process.env.RELEASE_TRANSPORT },
   releaseCandidate,
   cnb: { repository: process.env.CNB_REPO, sourceBranch: process.env.RELEASE_BRANCH },
   validation: { action: process.env.RELEASE_ACTION, baseSha: process.env.RELEASE_VALIDATION_BASE_SHA },

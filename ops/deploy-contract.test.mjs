@@ -55,7 +55,9 @@ test("deploy delegates all receipt reads and writes to one versioned helper", ()
   assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' assert/);
   assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' write/);
   assert.doesNotMatch(deploy, /--deployed-canonical|--deployed-transport|--candidate-transport/);
-  assert.doesNotMatch(deploy, /--transport|DEPLOYED_TRANSPORT/);
+  assert.match(deploy, /metadata\.transport\?\.kind/);
+  assert.match(deploy, /--transport '\$RELEASE_TRANSPORT'/);
+  assert.doesNotMatch(deploy, /DEPLOYED_TRANSPORT/);
   const invocation = deploy.slice(deploy.indexOf('echo "==> 验证服务器连接..."'));
   assert.ok(invocation.indexOf("acquire_remote_deploy_lock") < invocation.indexOf("sync_remote_deploy_tools"));
 });

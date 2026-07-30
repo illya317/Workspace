@@ -27,7 +27,8 @@ cleanup() {
 trap cleanup EXIT
 
 metadata_values="$(node - "$METADATA_FILE" <<'NODE'
-const metadata = require(process.argv[2]);
+const metadata = JSON.parse(require('node:fs').readFileSync(process.argv[2], 'utf8'));
+if (metadata.transport?.kind !== 'local') throw new Error('local release metadata must declare local transport');
 const target = metadata.deployment?.target;
 process.stdout.write(`${target?.unitId ?? ''}\n${target?.mode ?? 'shadow'}\n`);
 NODE

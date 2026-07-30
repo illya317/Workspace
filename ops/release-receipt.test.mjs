@@ -48,6 +48,21 @@ test("v3 receipts reject unsupported transports", () => {
   }, { expectedRepository: "example-owner/example-repo" }), /unsupported release transport: ssh-hotfix/);
 });
 
+test("v3 receipts preserve each governed release transport", () => {
+  for (const transport of ["cnb", "local"]) {
+    const normalized = normalizeDeployedRelease({
+      schemaVersion: 3,
+      source: { commitSha: d, treeSha: c },
+      canonicalSource: { commitSha: d, treeSha: c },
+      artifact: { sha256: digest("1"), manifestSha256: digest("2") },
+      migration: { setSha256: digest("3") },
+      transport: { kind: transport },
+      cnb: { repository: "example-owner/example-repo", sourceBranch: "main", injectionSha: c },
+    });
+    assert.equal(normalized.transport, transport);
+  }
+});
+
 test("v3 CNB receipt cannot claim a different canonical source", () => {
   assert.throws(() => normalizeDeployedRelease({
     schemaVersion: 3,
@@ -60,43 +75,56 @@ test("v3 CNB receipt cannot claim a different canonical source", () => {
   }), /bind runtime and canonical source equally/);
 });
 
-test("write creates an atomic schema-v3 receipt that assert can verify", async (context) => {
+test("write creates atomic schema-v3 receipts with truthful transport evidence", async (context) => {
   const root = mkdtempSync(join(tmpdir(), "workspace-release-receipt-"));
   context.after(() => rmSync(root, { recursive: true, force: true }));
-  const file = join(root, "deployed-release.json");
-  await main([
-    "write",
-    "--file", file,
-    "--runtime-source", d,
-    "--runtime-tree", c,
-    "--canonical-source", d,
-    "--canonical-tree", c,
-    "--artifact-sha", digest("1"),
-    "--manifest-sha", digest("2"),
-    "--migration-set", digest("3"),
-    "--cnb-repository", "example-owner/example-repo",
-    "--cnb-branch", "main",
-    "--cnb-injection", c,
-    "--release-id", `20260717170000-${d.slice(0, 8)}`,
-    "--release-dir", `/srv/releases/${d.slice(0, 8)}`,
-  ]);
-  const record = JSON.parse(readFileSync(file, "utf8"));
-  assert.equal(record.schemaVersion, 3);
-  assert.equal(record.transport.kind, "cnb");
-  await main([
-    "assert",
-    "--file", file,
-    "--expected-repository", "example-owner/example-repo",
-    "--runtime-source", d,
-    "--canonical-source", d,
-    "--artifact-sha", digest("1"),
-  ]);
+  for (const transport of ["cnb", "local"]) {
+    const file = join(root, `deployed-release-${transport}.json`);
+    await main([
+      "write",
+      "--file", file,
+      "--transport", transport,
+      "--runtime-source", d,
+      "--runtime-tree", c,
+      "--canonical-source", d,
+      "--canonical-tree", c,
+      "--artifact-sha", digest("1"),
+      "--manifest-sha", digest("2"),
+      "--migration-set", digest("3"),
+      "--cnb-repository", "example-owner/example-repo",
+      "--cnb-branch", "main",
+      "--cnb-injection", c,
+      "--release-id", `20260717170000-${d.slice(0, 8)}`,
+      "--release-dir", `/srv/releases/${d.slice(0, 8)}`,
+    ]);
+    const record = JSON.parse(readFileSync(file, "utf8"));
+    assert.equal(record.schemaVersion, 3);
+    assert.equal(record.transport.kind, transport);
+    await main([
+      "assert",
+      "--file", file,
+      "--expected-repository", "example-owner/example-repo",
+      "--runtime-source", d,
+      "--canonical-source", d,
+      "--artifact-sha", digest("1"),
+      "--transport", transport,
+    ]);
+  }
 });
 
 test("retired transport options cannot recreate a secondary receipt", async () => {
   await assert.rejects(() => main([
     "write",
     "--file", "/tmp/unused-release-receipt.json",
+    "--transport", "local",
+    "--scope-policy", "off",
+  ]), /--scope-policy is no longer supported/);
+});
+
+test("write rejects retired transport kinds", async () => {
+  await assert.rejects(() => main([
+    "write",
+    "--file", "/tmp/unused-release-receipt.json",
     "--transport", "ssh-hotfix",
-  ]), /--transport is no longer supported/);
+  ]), /unsupported release transport: ssh-hotfix/);
 });

@@ -232,7 +232,7 @@ sync_remote_deploy_tools() {
   FULL_DEPLOY_GRAPH_TMP="$(mktemp "${TMPDIR:-/tmp}/workspace-full-deploy-graph.XXXXXX")"
   : "${RELEASE_DEPLOY_GRAPH_FILE:?RELEASE_DEPLOY_GRAPH_FILE is required from the validated artifact bundle}"
   cp "$RELEASE_DEPLOY_GRAPH_FILE" "$FULL_DEPLOY_GRAPH_TMP"
-  expected_graph_sha="$(node -e 'const m=require(process.argv[1]); process.stdout.write(m.inputs?.deployGraphSha256 ?? "")' "$ARTIFACT_MANIFEST_PATH")"
+  expected_graph_sha="$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(m.inputs?.deployGraphSha256 ?? "")' "$ARTIFACT_MANIFEST_PATH")"
   node ops/gateway-generation.mjs graph-assert --graph "$FULL_DEPLOY_GRAPH_TMP" --digest "$expected_graph_sha" >/dev/null
   node ops/gateway-generation.mjs graph-digest --graph "$FULL_DEPLOY_GRAPH_TMP" >/dev/null
   ssh_cmd "mkdir -p '$REMOTE_DEPLOY_TOOL_DIR'"
@@ -910,6 +910,7 @@ resolve_release_metadata() {
   RELEASE_DATABASE_REPLACEMENT_MIGRATION_COUNT=""
   RELEASE_DATABASE_REPLACEMENT_MIGRATION_SET=""
   RELEASE_DATABASE_REPLACEMENT_PREPARED_AT=""
+  RELEASE_TRANSPORT=""
 
   if [ "$RELEASE_METADATA_FILE" != ".cnb-release.json" ]; then
     echo "[错误] RELEASE_METADATA_FILE 必须是 .cnb-release.json"
@@ -939,6 +940,7 @@ resolve_release_metadata() {
 const fs = require('node:fs');
 const [file, sha, tree, repository, branch, injectionSha] = process.argv.slice(2);
 const metadata = JSON.parse(fs.readFileSync(file, 'utf8'));
+const transport = metadata.transport?.kind;
 const localTiming = metadata.deployment?.localTiming;
 const localTimingKeys = 'releaseAttemptCount,releaseProcessSeconds,releaseProcessStartedAt,tenantSyncSeconds';
 const validLocalTiming = localTiming
@@ -960,6 +962,7 @@ if (metadata.schemaVersion !== 1
   || metadata.releaseCandidate?.command !== 'ops/publish.sh prepare'
   || metadata.releaseCandidate?.sourceSha !== sha
   || metadata.releaseCandidate?.treeSha !== tree
+  || !['cnb', 'local'].includes(transport)
   || JSON.stringify(metadata.releaseCandidate?.checks) !== JSON.stringify([
     'cnb-release-config',
     'tenant-config-dry-run',
@@ -1039,6 +1042,7 @@ const values = [
   String(databaseReplacement?.database?.migrationCount ?? ''),
   databaseReplacement?.database?.migrationSetSha256 ?? '',
   databaseReplacement?.preparedAt ?? '',
+  transport,
 ];
 process.stdout.write(values.join('\n'));
 NODE
@@ -1076,7 +1080,8 @@ NODE
     RELEASE_DATABASE_REPLACEMENT_MIGRATION_SET="$(printf '%s\n' "$metadata_values" | sed -n '22p')"
     RELEASE_DATABASE_REPLACEMENT_PREPARED_AT="$(printf '%s\n' "$metadata_values" | sed -n '23p')"
   fi
-  echo "==> 已验证 CNB source: ${RELEASE_SOURCE_SHA:0:12} via ${RELEASE_CNB_INJECTION_SHA:0:12}"
+  RELEASE_TRANSPORT="$(printf '%s\n' "$metadata_values" | sed -n '24p')"
+  echo "==> 已验证 ${RELEASE_TRANSPORT} source: ${RELEASE_SOURCE_SHA:0:12} via ${RELEASE_CNB_INJECTION_SHA:0:12}"
 }
 
 run_local_checks() {
@@ -1931,7 +1936,8 @@ NODE
           --runtime-tree '$RELEASE_SOURCE_TREE' \
           --cnb-injection '$RELEASE_CNB_INJECTION_SHA' \
           --artifact-sha '$ARTIFACT_SHA' \
-          --release-dir \"\$release_dir\"
+          --release-dir \"\$release_dir\" \
+          --transport '$RELEASE_TRANSPORT'
         then
           release_committed=1
           commit_database_replacement_state
@@ -2539,6 +2545,7 @@ PY
     pm2 save
     node '$REMOTE_RELEASE_RECEIPT_TOOL' write \
       --file '$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json' \
+      --transport '$RELEASE_TRANSPORT' \
       --runtime-source '$RELEASE_SOURCE_SHA' \
       --runtime-tree '$RELEASE_SOURCE_TREE' \
       --canonical-source '$RELEASE_CANONICAL_SOURCE_SHA' \
@@ -2662,4 +2669,4 @@ else
 fi
 
 echo ""
-echo "==> CNB 产物部署完成"
+echo "==> ${RELEASE_TRANSPORT} 产物部署完成"

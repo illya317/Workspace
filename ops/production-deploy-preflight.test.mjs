@@ -48,7 +48,7 @@ function createRepository(context) {
     canonicalSource: { commitSha: production.sha, treeSha: production.tree },
     artifact: { sha256: digest("1"), manifestSha256: digest("2") },
     migration: { setSha256: digest("3") },
-    transport: { kind: "cnb" },
+    transport: { kind: "local" },
     cnb: { repository: "example-owner/example-repo", sourceBranch: "main", injectionSha },
     deployment: { releaseId: `20260718010000-${production.sha.slice(0, 8)}` },
   })}\n`);

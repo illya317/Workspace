@@ -17,6 +17,7 @@ const buildCnbReleaseTarget = readFileSync(new URL("./build-cnb-release-target.s
 const deployCnbReleaseTarget = readFileSync(new URL("./deploy-cnb-release-target.sh", import.meta.url), "utf8");
 const installCnbReleaseDependencies = readFileSync(new URL("./install-cnb-release-dependencies.sh", import.meta.url), "utf8");
 const runCnbReleaseGate = readFileSync(new URL("./run-cnb-release-gate.sh", import.meta.url), "utf8");
+const runLocalReleaseAction = readFileSync(new URL("./run-local-release-action.sh", import.meta.url), "utf8");
 const cnbRelease = readFileSync(new URL("./cnb-release.yml", import.meta.url), "utf8");
 const uploadDataRelease = readFileSync(new URL("./upload-data-release.sh", import.meta.url), "utf8");
 const prepareDatabaseReplacement = readFileSync(new URL("./prepare-database-replacement.sh", import.meta.url), "utf8");
@@ -120,6 +121,15 @@ test("CNB release identity is source parent plus exact injection files", () => {
   assert.match(releaseToCnb, /git rev-parse HEAD\^/);
   assert.match(deploy, /\.cnb-release\.json\\n\.cnb\.yml/);
   assert.match(deploy, /RELEASE_CNB_INJECTION_SHA/);
+});
+
+test("release metadata preserves whether immutable validation runs locally or on CNB", () => {
+  assert.match(publishCnb, /RELEASE_TRANSPORT="local"/);
+  assert.match(publishCnb, /transport: \{ kind: process\.env\.RELEASE_TRANSPORT \}/);
+  assert.match(releaseToCnb, /metadata\.transport\?\.kind !== 'cnb'/);
+  assert.match(runLocalReleaseAction, /metadata\.transport\?\.kind !== 'local'/);
+  assert.match(deploy, /!\['cnb', 'local'\]\.includes\(transport\)/);
+  assert.match(deploy, /--transport '\$RELEASE_TRANSPORT'/);
 });
 
 test("validation runs once and CNB or direct deploy only consumes its immutable artifact", () => {

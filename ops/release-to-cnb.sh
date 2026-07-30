@@ -159,6 +159,7 @@ const validLocalTiming = localTiming
 if (metadata.schemaVersion !== 1
   || metadata.source?.commitSha !== sha
   || metadata.source?.treeSha !== tree
+  || metadata.transport?.kind !== 'cnb'
   || metadata.releaseCandidate?.schemaVersion !== 1
   || metadata.releaseCandidate?.kind !== 'workspace-release-candidate'
   || metadata.releaseCandidate?.status !== 'prepared'
