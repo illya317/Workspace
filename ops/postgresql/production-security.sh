@@ -423,14 +423,18 @@ runtime_rw_targets() {
 }
 runtime_ro_targets() {
   local relative target
-  for relative in config/pharma-qc config/tenant config/hr data/reference runtime/kimi-agent runtime/kimi-agent-bootstrap; do
+  for relative in config/pharma-qc config/tenant config/hr data/reference assets/brand/company \
+    runtime/kimi-agent runtime/kimi-agent-bootstrap; do
     target="$CONFIG_ROOT/$relative"
     [ ! -e "$target" ] || printf '%s\n' "$target"
   done
 }
 runtime_traverse_only_targets() {
-  local target="$CONFIG_ROOT/data"
-  [ ! -e "$target" ] || printf '%s\n' "$target"
+  local relative target
+  for relative in data assets assets/brand; do
+    target="$CONFIG_ROOT/$relative"
+    [ ! -e "$target" ] || printf '%s\n' "$target"
+  done
 }
 protected_data_directories() {
   local target="$CONFIG_ROOT/data/backups"
@@ -447,7 +451,8 @@ protected_control_paths() {
   local target
   for target in "$CONTROL_ENV_TARGET" "$FINANCE_ENV_TARGET" "$STATE_ROOT" "$BACKUP_ROOT" \
     "$CONFIG_ROOT/.deployment" "$CONFIG_ROOT/deployment-history" "$CONFIG_ROOT/data-release-manifests" \
-    "$CONFIG_ROOT/data-release-sources" "$CONFIG_ROOT/internal-unit-identities" "$REMOTE_ROOT/.workspace.backups"; do
+    "$CONFIG_ROOT/data-release-sources" "$CONFIG_ROOT/internal-unit-identities" \
+    "$CONFIG_ROOT/security-hardening-inputs" "$REMOTE_ROOT/.workspace.backups"; do
     [ ! -e "$target" ] || printf '%s\n' "$target"
   done
   [ ! -d "$CONFIG_ROOT" ] || find "$CONFIG_ROOT" -maxdepth 1 -type f -name '.env*' -print
@@ -518,7 +523,10 @@ verify_runtime_permissions() {
   runuser -u "$RUNTIME_USER" -- test -r "$RUNTIME_ENV_TARGET"
   while IFS= read -r target; do
     runuser -u "$RUNTIME_USER" -- test -x "$target"
-    if runuser -u "$RUNTIME_USER" -- test -r "$target"; then echo "[错误] runtime 用户可列举 traverse-only 路径: $target" >&2; exit 1; fi
+    if runuser -u "$RUNTIME_USER" -- test -r "$target" || runuser -u "$RUNTIME_USER" -- test -w "$target"; then
+      echo "[错误] runtime 用户可读取或写入 traverse-only 路径: $target" >&2
+      exit 1
+    fi
   done < <(runtime_traverse_only_targets)
   while IFS= read -r target; do
     runuser -u "$RUNTIME_USER" -- test -r "$target"
@@ -527,7 +535,11 @@ verify_runtime_permissions() {
   done < <(runtime_rw_targets)
   while IFS= read -r target; do
     runuser -u "$RUNTIME_USER" -- test -r "$target"
-    runuser -u "$RUNTIME_USER" -- test -x "$target"
+    [ ! -d "$target" ] || runuser -u "$RUNTIME_USER" -- test -x "$target"
+    if runuser -u "$RUNTIME_USER" -- test -w "$target"; then
+      echo "[错误] runtime 用户可写只读路径: $target" >&2
+      exit 1
+    fi
   done < <(runtime_ro_targets)
   while IFS= read -r target; do
     if runuser -u "$RUNTIME_USER" -- test -r "$target"; then
@@ -730,13 +742,13 @@ else
   runuser -u postgres -- psql -X -v ON_ERROR_STOP=1 -d postgres -f "$SCRIPT_DIR/production-rollback.sql" >/dev/null
   restore_runtime_env_links "$backup_dir/runtime-env-links.before"
   install_hba before "$backup_dir"
+  setfacl --restore="$backup_dir/workspace-acl.before"
   rollback_runner="$LEGACY_RUNNER"
   [ -x "$rollback_runner" ] || rollback_runner="$SCRIPT_DIR/production-legacy-pm2.sh"
   while IFS= read -r name; do legacy_pm2 delete "$name" >/dev/null 2>&1 || true; done < <(managed_process_names "$backup_dir/pm2-plan.json")
   node "$SCRIPT_DIR/production-pm2-plan.mjs" apply --plan "$backup_dir/pm2-plan.json" --runner "$rollback_runner"
   legacy_pm2 save >/dev/null
   [ ! -f "$backup_dir/pm2-dump.before" ] || install -o ubuntu -g ubuntu -m 0600 "$backup_dir/pm2-dump.before" /home/ubuntu/.pm2/dump.pm2
-  setfacl --restore="$backup_dir/workspace-acl.before"
   finance_bot_contract rollback
   restore_optional_file "$backup_dir" runtime.env.before "$RUNTIME_ENV_TARGET" root "$RUNTIME_USER" 0640
   restore_optional_file "$backup_dir" control-plane.env.before "$CONTROL_ENV_TARGET" root root 0600

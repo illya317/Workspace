@@ -113,15 +113,21 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
   assert.ok(rollbackStart > 0);
   assert.ok(
     rollbackBranch.indexOf('install_hba before "$backup_dir"')
-      < rollbackBranch.indexOf('production-pm2-plan.mjs" apply'),
-    "rollback must restore the legacy HBA before starting legacy PM2",
+      < rollbackBranch.indexOf('setfacl --restore="$backup_dir/workspace-acl.before"')
+      && rollbackBranch.indexOf('setfacl --restore="$backup_dir/workspace-acl.before"')
+        < rollbackBranch.indexOf('production-pm2-plan.mjs" apply'),
+    "rollback must restore legacy HBA and ACLs before starting legacy PM2",
   );
   assert.match(security, /install -d -o root -g root -m 0755 \/etc\/workspace/);
   assert.match(security, /url\.searchParams\.get\("sslmode"\) !== "verify-full"/);
   assert.match(security, /url\.searchParams\.get\("sslrootcert"\) !== "\/etc\/workspace\/postgresql\/ca\.pem"/);
   assert.match(security, /data\/docs-editor\/templates/);
   assert.match(security, /data\/backups/);
-  assert.doesNotMatch(security, /for relative in[^\n]*\bdata\b(?:\s|$)/);
+  const runtimeRwTargets = security.slice(
+    security.indexOf("runtime_rw_targets() {"),
+    security.indexOf("runtime_ro_targets() {"),
+  );
+  assert.doesNotMatch(runtimeRwTargets, /for relative in[^\n]*\bdata\b(?:\s|$)/);
   assert.doesNotMatch(security, /MONITOR_USER|workspace-monitor/);
   assert.doesNotMatch(service, /ReadWritePaths=.*\.workspace\/data(?:\s|$)/);
   assert.match(service, /ReadWritePaths=-\/home\/ubuntu\/workspace\/\.workspace\/cache\/production\/qc/);
@@ -162,6 +168,7 @@ test("runtime control-plane roots use one reversible deny list", () => {
     "$CONFIG_ROOT/data-release-manifests",
     "$CONFIG_ROOT/data-release-sources",
     "$CONFIG_ROOT/internal-unit-identities",
+    "$CONFIG_ROOT/security-hardening-inputs",
     "$REMOTE_ROOT/.workspace.backups",
   ]) {
     assert.match(protectedBody, new RegExp(target.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
@@ -177,6 +184,39 @@ test("runtime control-plane roots use one reversible deny list", () => {
   assert.match(security, /install -d -o root -g root -m 0700 "\$STATE_ROOT" "\$BACKUP_ROOT"/);
   assert.match(security, /install -d -o root -g root -m 0700 "\$backup_dir"/);
   assert.match(security, /setfacl --restore="\$backup_dir\/workspace-acl\.before"/);
+});
+
+test("company brand assets are read-only through traverse-only parents", () => {
+  const security = read("production-security.sh");
+  const rwStart = security.indexOf("runtime_rw_targets() {");
+  const roStart = security.indexOf("runtime_ro_targets() {");
+  const traverseStart = security.indexOf("runtime_traverse_only_targets() {");
+  const protectedStart = security.indexOf("protected_data_directories() {");
+  const backupStart = security.indexOf("backup_runtime_acls() {");
+  const installStart = security.indexOf("install_runtime_permissions() {");
+  const verifyStart = security.indexOf("verify_runtime_permissions() {");
+  const hbaStart = security.indexOf("install_hba() {");
+  const rwBody = security.slice(rwStart, roStart);
+  const roBody = security.slice(roStart, traverseStart);
+  const traverseBody = security.slice(traverseStart, protectedStart);
+  const backupBody = security.slice(backupStart, security.indexOf("backup_optional_file() {"));
+  const installBody = security.slice(installStart, verifyStart);
+  const verifyBody = security.slice(verifyStart, hbaStart);
+
+  assert.doesNotMatch(rwBody, /assets\/brand(?:\/company)?/);
+  assert.match(roBody, /assets\/brand\/company/);
+  assert.doesNotMatch(roBody, /(?:^|\s)assets(?:\s|$)/m);
+  assert.match(traverseBody, /for relative in data assets assets\/brand/);
+  assert.doesNotMatch(traverseBody, /assets\/brand\/company/);
+  assert.match(backupBody, /getfacl -p "\$target"[\s\S]*runtime_traverse_only_targets/);
+  assert.match(backupBody, /getfacl -Rp "\$target"[\s\S]*runtime_ro_targets/);
+  assert.match(installBody, /setfacl -m "u:\$RUNTIME_USER:--x" "\$target"[\s\S]*runtime_traverse_only_targets/);
+  assert.match(installBody, /setfacl -Rm "u:\$RUNTIME_USER:rX" "\$target"[\s\S]*runtime_ro_targets/);
+  assert.doesNotMatch(installBody, /assets(?:\/brand)?[^\n]*rwX/);
+  assert.match(verifyBody, /test -x "\$target"[\s\S]*test -r "\$target"[\s\S]*test -w "\$target"[\s\S]*runtime_traverse_only_targets/);
+  assert.match(verifyBody, /runtime 用户可读取或写入 traverse-only 路径/);
+  assert.match(verifyBody, /test -r "\$target"[\s\S]*test -x "\$target"[\s\S]*test -w "\$target"[\s\S]*runtime_ro_targets/);
+  assert.match(verifyBody, /runtime 用户可写只读路径/);
 });
 
 test("production tooling installer pins root ownership and postgres-readable SQL", () => {
