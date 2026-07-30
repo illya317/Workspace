@@ -54,11 +54,10 @@ test("workflow exposes forced exact-SHA CI and no deployment responsibilities", 
   assert.doesNotMatch(workflow, /gh release|production deployment|CI \/ release evidence|CI \/ artifact retention/i);
 });
 
-test("root genesis pushes bootstrap only when the missing base leads to a parentless commit", () => {
+test("push CI refuses to invent an affected range when the remote base is unavailable", () => {
   assert.match(workflow, /! git cat-file -e "\$\{base_sha\}\^\{commit\}" 2>\/dev\/null/);
-  assert.match(workflow, /git rev-list --parents -n 1 "\$head_sha" \| awk '\{print NF\}'/);
-  assert.match(workflow, /only an auditable root commit may self-bootstrap CI/);
-  assert.equal([...workflow.matchAll(/git rev-parse --verify "\$\{head_sha\}\^"/g)].length, 2);
+  assert.match(workflow, /affected base\/head CI cannot be proven/);
+  assert.doesNotMatch(workflow, /self-bootstrap CI/);
 });
 
 test("PostgreSQL smoke validates the sanitized baseline receipt", () => {
@@ -66,7 +65,7 @@ test("PostgreSQL smoke validates the sanitized baseline receipt", () => {
   assert.doesNotMatch(postgresqlSmoke, /20260713000000_postgresql_baseline/);
 });
 
-test("adaptive diff and hidden canonical artifacts remain usable on GitHub runners", () => {
+test("affected diff and hidden canonical artifacts remain usable on GitHub runners", () => {
   assert.match(
     workflow,
     new RegExp(
@@ -75,18 +74,15 @@ test("adaptive diff and hidden canonical artifacts remain usable on GitHub runne
     ),
   );
   assert.match(workflow, /name: Upload canonical standalone artifact[\s\S]*?include-hidden-files: true/);
-  assert.match(workflow, /name: Enforce canonical npm install input\n\s+run: test ! -e npm-shrinkwrap\.json/);
-  assert.match(
-    workflow,
-    /name: Dependency-free documentation consistency\n\s+if: \$\{\{ needs\.classify\.outputs\.risk_class == 'C0' \}\}\n\s+run: node scripts\/check\/check-architecture-docs\.js/,
-  );
+  assert.doesNotMatch(workflow, /Enforce canonical npm install input/);
+  assert.doesNotMatch(workflow, /Dependency-free documentation consistency|check-architecture-docs\.js/);
 });
 
-test("data contracts have one owner per risk plan", () => {
-  assert.match(
-    workflow,
-    /name: Data contracts when the PostgreSQL lane is skipped\n\s+if: \$\{\{ needs\.classify\.outputs\.risk_class != 'C0' && needs\.classify\.outputs\.run_postgresql != 'true' \}\}/,
-  );
+test("static CI contains no unrelated global source gates", () => {
+  assert.doesNotMatch(workflow, /Static gates and shared contracts|Data contracts when the PostgreSQL lane is skipped/);
+  assert.doesNotMatch(workflow, /npm run check:blockers|npm run env:check|npm run db:path:check/);
+  assert.match(workflow, /Generated documentation consistency when submitted/);
+  assert.match(workflow, /Enforce migration compatibility policy\n\s+if: \$\{\{ contains\(needs\.classify\.outputs\.changed_files_json, 'prisma\/migrations\/'\) \}\}/);
   assert.match(workflow, /name: Validate schema and migration parity\n\s+run: npm run check:data/);
 });
 
@@ -170,18 +166,18 @@ test("quality executors and every workflow are code-owner protected", () => {
   }
 });
 
-test("local push and E2E tier scripts remain wired", () => {
+test("push delegates source enforcement to remote affected CI and E2E tiers remain available explicitly", () => {
   assert.equal(packageJson.scripts["check:push"], "node scripts/ci/run-local-push.mjs");
   assert.match(packageJson.scripts["test:e2e:critical"], /--grep @critical/);
   assert.match(packageJson.scripts["test:e2e:nightly"], /--grep @nightly/);
   assert.match(packageJson.scripts["test:e2e:latency"], /--grep @latency/);
-  assert.match(prePush, /npm run check:push/);
-  assert.match(prePush, /ci_tree:\$ci_base:/);
+  assert.match(prePush, /remote base\/head affected CI/);
+  assert.doesNotMatch(prePush, /npm run check:push|PRE_PUSH_FULL|ci_tree/);
 });
 
-test("full pre-commit records only the exact staged tree", () => {
-  assert.match(preCommit, /PRE_COMMIT_FULL/);
-  assert.match(preCommit, /git diff --quiet --ignore-submodules/);
-  assert.match(preCommit, /git ls-files --others --exclude-standard/);
-  assert.match(preCommit, /local-full-ci-receipt\.mjs create --tree "\$ci_tree"/);
+test("pre-commit runs only the exact staged-tree snapshot", () => {
+  assert.equal(packageJson.scripts["check:precommit"], "node scripts/check/run-staged-precommit.mjs");
+  assert.match(preCommit, /exact staged-tree pre-commit checks/);
+  assert.match(preCommit, /npm run check:precommit/);
+  assert.doesNotMatch(preCommit, /PRE_COMMIT_FULL|git diff --quiet|git ls-files --others/);
 });

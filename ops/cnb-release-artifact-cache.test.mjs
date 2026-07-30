@@ -19,10 +19,13 @@ function run(command, paths) {
       ...process.env,
       RELEASE_SOURCE_SHA: sourceSha,
       RELEASE_SOURCE_TREE: sourceTree,
+      RELEASE_VALIDATION_BASE_SHA: sourceSha,
       CNB_RELEASE_ARTIFACT_CACHE_ROOT: paths.cache,
       CNB_RELEASE_ARTIFACT_HIT_MARKER: paths.marker,
       STANDALONE_ARTIFACT_PATH: paths.artifact,
       STANDALONE_MANIFEST_PATH: paths.manifest,
+      STANDALONE_DEPLOY_GRAPH_PATH: paths.graph,
+      CNB_RELEASE_GATE_RECEIPT_FILE: paths.receipt,
     },
   });
 }
@@ -34,10 +37,24 @@ test("CNB artifact cache restores only exact source/tree and verified bytes", ()
     marker: path.join(root, "cache-hit"),
     artifact: path.join(root, "workspace-standalone.tgz"),
     manifest: path.join(root, "workspace-standalone.manifest.json"),
+    receipt: path.join(root, "release-validation.json"),
+    graph: path.join(root, "deploy-graph.json"),
   };
   try {
     const artifact = Buffer.from("verified immutable artifact");
     writeFileSync(paths.artifact, artifact);
+    const graph = execFileSync(process.execPath, [
+      "--conditions=react-server",
+      "--import", "tsx",
+      "scripts/deploy/check-deploy-graph.ts",
+      "--json",
+    ], { cwd: repositoryRoot });
+    writeFileSync(paths.graph, graph);
+    const graphDigest = execFileSync(process.execPath, [
+      "ops/gateway-generation.mjs",
+      "graph-digest",
+      "--graph", paths.graph,
+    ], { cwd: repositoryRoot, encoding: "utf8" }).trim();
     writeFileSync(paths.manifest, `${JSON.stringify({
       schemaVersion: 1,
       source: { commitSha: sourceSha, treeSha: sourceTree },
@@ -46,11 +63,34 @@ test("CNB artifact cache restores only exact source/tree and verified bytes", ()
         sizeBytes: artifact.length,
       },
       build: { buildId: sourceSha },
+      inputs: { deployGraphSha256: graphDigest },
+    })}\n`);
+    writeFileSync(paths.receipt, `${JSON.stringify({
+      schemaVersion: 2,
+      kind: "workspace-release-validation",
+      status: "passed",
+      command: "ops/run-cnb-release-gate.sh validate",
+      runner: "local",
+      baseSha: sourceSha,
+      sourceSha,
+      treeSha: sourceTree,
+      scope: "git-base-head-with-dependency-closure",
+      checks: [
+        "git-base-head",
+        "affected-source-checks",
+        "affected-dependency-closure",
+        "selected-postgresql",
+        "selected-playwright-when-applicable",
+        "artifact-identity",
+      ],
+      completedAt: "2026-07-30T00:00:00.000Z",
     })}\n`);
     const stored = run("store", paths);
     assert.equal(stored.status, 0, stored.stderr);
     rmSync(paths.artifact);
     rmSync(paths.manifest);
+    rmSync(paths.receipt);
+    rmSync(paths.graph);
     const restored = run("restore", paths);
     assert.equal(restored.status, 0, restored.stderr);
     assert.equal(readFileSync(paths.artifact, "utf8"), "verified immutable artifact");

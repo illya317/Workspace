@@ -7,17 +7,17 @@ values, and thin wrappers that load `.env` before executing these tracked script
 second source of release logic. Tenant-specific CNB imports, server paths, and health target live in
 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml`.
 
-`ops/publish.sh deploy` is the public Full and single-unit deployment command. `publish-cnb.sh`,
+`ops/publish.sh validate` freezes one base/head-scoped verified artifact. `ops/publish.sh deploy` is the public Full and single-unit command that only consumes it. `publish-cnb.sh`,
 `release-to-cnb.sh`, and `deploy.sh` are internal stages covered by the publish/runtime contract
 tests; their separate names do not represent alternative release paths. Profile/Fleet commands are
 trusted pipeline internals rather than local alternatives to this operator entry.
 
-Production release requires an exact-tree candidate receipt, then goes directly to CNB. GitHub
+Production release requires an exact-tree candidate receipt, then one CNB or local validation. GitHub
 PR/CI remains available for collaboration but is not queried or awaited by the deploy path.
 Only `publish.sh prepare` may fast-forward the dedicated release worktree from `main`; it validates
-private configuration but does not compile locally. The subsequent `deploy` freezes that prepared
-release HEAD and runs one target-independent collect-all CI/build/E2E gate in CNB before either the
-Full or single-unit artifact path, even if `main` advances in between.
+private configuration but does not compile locally. `validate` compares the production Git base with
+the candidate head, checks the affected owners plus dependency consumers, and freezes the selected
+target artifact. `deploy` only verifies and consumes that same artifact, even if `main` advances.
 
 Repository-owned runtime dependency contracts:
 
@@ -43,7 +43,7 @@ Repository-owned runtime dependency contracts:
 
 `database-replace` is a separate Full-monolith deployment mode for an explicitly reconciled local
 PostgreSQL database that must become the next production database. Application source, candidate
-freezing, tenant configuration, CNB collect-all CI/build/E2E, artifact verification, resource seed,
+freezing, tenant configuration, one affected-scope validation, artifact verification, resource seed,
 candidate warmup, public cutover, release receipt, and final health/version checks remain the same as
 an ordinary Full deployment. Only the database mutation stage changes from incremental migration to
 an immutable custom-format dump restored into a new database and atomically renamed into the active
@@ -54,6 +54,9 @@ database name.
 OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace prepare
 
 # After reviewing the receipt, trigger the same CNB release path with the bound dump.
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace validate
+
+# Consume the already validated Full artifact and apply the bound dump.
 OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace deploy
 
 # Read-only local receipt status.

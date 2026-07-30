@@ -16,7 +16,6 @@ CNB_REAL_CNB_YML="${CNB_REAL_CNB_YML:-$WORKSPACE_CONFIG_DIR/config/tenant/cnb-re
 
 : "${SOURCE_DIR:?SOURCE_DIR not set in $OPS_ENV_FILE}"
 : "${RELEASE_BRANCH:?RELEASE_BRANCH not set in $OPS_ENV_FILE}"
-: "${CNB_REMOTE:?CNB_REMOTE not set in $OPS_ENV_FILE}"
 : "${CNB_REPO:?CNB_REPO not set in $OPS_ENV_FILE}"
 : "${SERVER:?SERVER not set in $OPS_ENV_FILE}"
 : "${REMOTE_DIR:?REMOTE_DIR not set in $OPS_ENV_FILE}"
@@ -31,6 +30,8 @@ BOOTSTRAP_LEGACY_RUNTIME_VERSION=""
 BOOTSTRAP_LEGACY_BUILD_ID=""
 GENESIS_PRODUCTION_BASE=""
 PRINT_COMMAND_ONLY=0
+RELEASE_ACTION="deploy"
+DIRECT_RELEASE=0
 DEPLOY_UNIT_ID=""
 DEPLOY_UNIT_MODE=""
 DATABASE_REPLACEMENT_RECEIPT_FILE=""
@@ -68,11 +69,14 @@ usage() {
   --database-replacement-receipt FILE
                       Full monolith 使用已冻结的整库替换 receipt
   --print-command
+  --release-action validate|deploy
+  --direct            使用本地验证缓存直接部署；不触发 CNB
 EOF
 }
 
 record_failed_deploy_attempt() {
   local exit_code="$1"
+  [ "$RELEASE_ACTION" = "deploy" ] || return 0
   [ "$PRINT_COMMAND_ONLY" = "0" ] || return 0
   [ "$DEPLOY_ATTEMPT_RECORDED" = "0" ] || return 0
   [ -n "${SERVER_READ_KEY:-}" ] && [ -f "$SERVER_READ_KEY" ] || return 0
@@ -281,11 +285,24 @@ while [ "$#" -gt 0 ]; do
       shift; DATABASE_REPLACEMENT_RECEIPT_FILE="${1:-}"
       ;;
     --print-command) PRINT_COMMAND_ONLY=1 ;;
+    --release-action) shift; RELEASE_ACTION="${1:-}" ;;
+    --direct) DIRECT_RELEASE=1 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "[错误] 未知参数: $1"; usage; exit 1 ;;
   esac
   shift
 done
+
+case "$RELEASE_ACTION" in
+  validate|deploy) ;;
+  *) echo "[错误] --release-action 只能是 validate 或 deploy"; exit 2 ;;
+esac
+[ "$DIRECT_RELEASE" = "0" ] || [ "$PRINT_COMMAND_ONLY" = "0" ] || {
+  echo "[错误] --direct 不能与 --print-command 同时使用"; exit 2;
+}
+if [ "$DIRECT_RELEASE" = "0" ]; then
+  : "${CNB_REMOTE:?CNB_REMOTE not set in $OPS_ENV_FILE}"
+fi
 
 if [ -n "$DEPLOY_UNIT_ID" ] && ! printf '%s' "$DEPLOY_UNIT_ID" | grep -Eq '^[a-z][a-z0-9-]*$'; then
   echo "[错误] deploy unit id 无效: $DEPLOY_UNIT_ID"
@@ -470,9 +487,26 @@ if [ "$PRINT_COMMAND_ONLY" = "0" ] && [ -z "$BOOTSTRAP_PRODUCTION_BASE" ]; then
   ' "$PREFLIGHT_RESULT_FILE"
 fi
 
+if [ -n "$BOOTSTRAP_PRODUCTION_BASE" ]; then
+  RELEASE_VALIDATION_BASE_SHA="$BOOTSTRAP_PRODUCTION_BASE"
+elif [ -n "${PREFLIGHT_RESULT_FILE:-}" ] && [ -f "$PREFLIGHT_RESULT_FILE" ]; then
+  RELEASE_VALIDATION_BASE_SHA="$(node -e 'const r=require(process.argv[1]); process.stdout.write(r.production.deployedSha)' "$PREFLIGHT_RESULT_FILE")"
+elif [ -n "${RELEASE_VALIDATION_BASE_SHA:-}" ]; then
+  :
+else
+  echo "[错误] 无法确定部署验证的 Git base SHA" >&2
+  exit 1
+fi
+git cat-file -e "${RELEASE_VALIDATION_BASE_SHA}^{commit}" 2>/dev/null || {
+  echo "[错误] 本地仓库缺少 validation base: $RELEASE_VALIDATION_BASE_SHA" >&2; exit 1;
+}
+git merge-base --is-ancestor "$RELEASE_VALIDATION_BASE_SHA" "$SOURCE_SHA" || {
+  echo "[错误] validation base 不是 candidate 的祖先" >&2; exit 1;
+}
+
 LOCAL_PREFLIGHT_DURATION_SECONDS="$(($(date +%s) - LOCAL_PREFLIGHT_STARTED_EPOCH_SECONDS))"
 
-echo "==> 已验证当前 tree 的 prepare 候选回执；完整 CI、编译和 E2E 将由 CNB 统一运行。"
+echo "==> 已验证 prepare 回执；$RELEASE_ACTION 将使用 ${RELEASE_VALIDATION_BASE_SHA:0:12}..${SOURCE_SHA:0:12} 的受影响依赖闭包。"
 
 if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   echo "==> 同步并校验本次部署使用的租户配置..."
@@ -553,6 +587,7 @@ NODE
 fi
 
 SOURCE_SHA="$SOURCE_SHA" SOURCE_TREE="$SOURCE_TREE" CNB_REPO="$CNB_REPO" RELEASE_BRANCH="$RELEASE_BRANCH" \
+RELEASE_ACTION="$RELEASE_ACTION" RELEASE_VALIDATION_BASE_SHA="$RELEASE_VALIDATION_BASE_SHA" \
 BOOTSTRAP_PRODUCTION_BASE="$BOOTSTRAP_PRODUCTION_BASE" BOOTSTRAP_LEGACY_CNB_COMMIT="$BOOTSTRAP_LEGACY_CNB_COMMIT" \
 BOOTSTRAP_LEGACY_RELEASE_ID="$BOOTSTRAP_LEGACY_RELEASE_ID" BOOTSTRAP_LEGACY_CNB_BUILD_SN="$BOOTSTRAP_LEGACY_CNB_BUILD_SN" \
 BOOTSTRAP_LEGACY_RUNTIME_VERSION="$BOOTSTRAP_LEGACY_RUNTIME_VERSION" BOOTSTRAP_LEGACY_BUILD_ID="$BOOTSTRAP_LEGACY_BUILD_ID" \
@@ -584,6 +619,7 @@ const metadata = {
   source: { commitSha: process.env.SOURCE_SHA, treeSha: process.env.SOURCE_TREE },
   releaseCandidate,
   cnb: { repository: process.env.CNB_REPO, sourceBranch: process.env.RELEASE_BRANCH },
+  validation: { action: process.env.RELEASE_ACTION, baseSha: process.env.RELEASE_VALIDATION_BASE_SHA },
   deployment: {
     startedAtEpochSeconds,
     localTiming: {
@@ -629,6 +665,18 @@ if (process.env.DATABASE_REPLACEMENT_RECEIPT_FILE) {
 fs.writeFileSync(process.env.METADATA_FILE, `${JSON.stringify(metadata, null, 2)}\n`, { mode: 0o600 });
 NODE
 
+if [ "$DIRECT_RELEASE" = "1" ]; then
+  RELEASE_VALIDATION_RUNTIME=local \
+  RELEASE_ACTION="$RELEASE_ACTION" \
+  RELEASE_VALIDATION_BASE_SHA="$RELEASE_VALIDATION_BASE_SHA" \
+  RELEASE_SOURCE_SHA="$SOURCE_SHA" RELEASE_SOURCE_TREE="$SOURCE_TREE" \
+  RELEASE_SOURCE_DIR="$SOURCE_DIR" CNB_REAL_CNB_YML="$CNB_REAL_CNB_YML" \
+  CNB_REPO="$CNB_REPO" RELEASE_BRANCH="$RELEASE_BRANCH" \
+  bash "$SCRIPT_DIR/run-local-release-action.sh" "$RELEASE_ACTION" "$METADATA_FILE"
+  [ "$RELEASE_ACTION" = "validate" ] || complete_release_process_session
+  exit 0
+fi
+
 release_args=(--metadata "$METADATA_FILE" --result-file "$RESULT_FILE")
 [ "$PRINT_COMMAND_ONLY" = "0" ] || release_args+=(--print-command)
 if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
@@ -640,7 +688,7 @@ RELEASE_TRIGGER_DURATION_SECONDS="$(($(date +%s) - RELEASE_TRIGGER_STARTED_EPOCH
 [ "$PRINT_COMMAND_ONLY" = "0" ] || exit 0
 
 CNB_SN="$(node -e 'const r=require(process.argv[1]); process.stdout.write(r.sn);' "$RESULT_FILE")"
-echo "==> 等待 CNB $CNB_SN 与生产版本 ${SOURCE_SHA:0:12}（最长 ${DEPLOY_WAIT_SECONDS}s）..."
+echo "==> 等待 CNB ${CNB_SN} 完成 ${RELEASE_ACTION}（最长 ${DEPLOY_WAIT_SECONDS}s）..."
 
 deadline=$(( $(date +%s) + DEPLOY_WAIT_SECONDS ))
 while [ "$(date +%s)" -le "$deadline" ]; do
@@ -649,6 +697,10 @@ while [ "$(date +%s)" -le "$deadline" ]; do
   if env -u CNB_TOKEN cnb build get-build-status --repo "$CNB_REPO" --sn "$CNB_SN" --verbose > "$status_file" 2>/dev/null; then
     cnb_state="$(node scripts/ci/cnb-build-state.mjs classify-status --input "$status_file" 2>/dev/null || true)"
     [ "$cnb_state" != "failure" ] || { echo "[错误] CNB build $CNB_SN 已终止失败"; exit 1; }
+  fi
+  if [ "$RELEASE_ACTION" = "validate" ] && [ "$cnb_state" = "success" ]; then
+    echo "==> CNB validate 完成：$SOURCE_SHA ($CNB_SN)；生产未变更"
+    exit 0
   fi
   if [ -n "$DEPLOY_UNIT_ID" ]; then
     if [ "$DEPLOY_UNIT_MODE" = "activate" ]; then

@@ -230,7 +230,14 @@ if (genesis) {
     throw new Error('deployment genesis metadata is invalid');
   }
 }
-process.stdout.write(`${target.kind}\n${target.unitId ?? ''}\n${target.mode ?? ''}\n`);
+const validation = metadata.validation;
+if (!validation
+  || !['validate', 'deploy'].includes(validation.action)
+  || !/^[0-9a-f]{40}$/.test(validation.baseSha ?? '')
+  || Object.keys(validation).sort().join(',') !== 'action,baseSha') {
+  throw new Error('release validation metadata is invalid');
+}
+process.stdout.write(`${target.kind}\n${target.unitId ?? ''}\n${target.mode ?? ''}\n${validation.action}\n${validation.baseSha}\n`);
 if (metadata.deploymentBootstrap) {
   process.stdout.write(`${metadata.deploymentBootstrap.baselineSha}\n${metadata.deploymentBootstrap.legacy.cnbCommitSha}\n`);
 }
@@ -239,8 +246,10 @@ NODE
 deployment_target_kind="$(printf '%s\n' "$metadata_values" | sed -n '1p')"
 deployment_target_unit="$(printf '%s\n' "$metadata_values" | sed -n '2p')"
 deployment_target_mode="$(printf '%s\n' "$metadata_values" | sed -n '3p')"
-bootstrap_baseline="$(printf '%s\n' "$metadata_values" | sed -n '4p')"
-bootstrap_legacy_commit="$(printf '%s\n' "$metadata_values" | sed -n '5p')"
+release_action="$(printf '%s\n' "$metadata_values" | sed -n '4p')"
+validation_base_sha="$(printf '%s\n' "$metadata_values" | sed -n '5p')"
+bootstrap_baseline="$(printf '%s\n' "$metadata_values" | sed -n '6p')"
+bootstrap_legacy_commit="$(printf '%s\n' "$metadata_values" | sed -n '7p')"
 if [ -n "$bootstrap_baseline" ]; then
   if [ "$PRINT_COMMAND_ONLY" = "1" ]; then
     echo "[错误] production bootstrap metadata 禁止 --print-command"
@@ -261,7 +270,7 @@ git branch -D "$cnb_release_branch" 2>/dev/null || true
 git checkout -b "$cnb_release_branch"
 
 echo "==> 注入真实 CNB CD 配置..."
-render_args=(--input "$CNB_REAL_CNB_YML" --output .cnb.yml)
+render_args=(--input "$CNB_REAL_CNB_YML" --output .cnb.yml --release-action "$release_action" --validation-base "$validation_base_sha")
 if [ "$deployment_target_kind" = "unit" ]; then
   render_args+=(--deploy-unit "$deployment_target_unit" --deploy-unit-mode "$deployment_target_mode")
 fi

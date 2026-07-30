@@ -20,6 +20,9 @@ case "$COMMAND" in
     OPS_ENV_FILE="$OPS_ENV_FILE" DATABASE_REPLACEMENT_RECEIPT_FILE="$RECEIPT_FILE" \
       "$SCRIPT_DIR/prepare-database-replacement.sh"
     ;;
+  validate)
+    exec env OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/publish.sh" validate "$@"
+    ;;
   deploy)
     exec env OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/publish.sh" deploy \
       --database-replacement-receipt "$RECEIPT_FILE" "$@"
@@ -37,12 +40,14 @@ case "$COMMAND" in
     cat <<'EOF'
 用法:
   OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace prepare
+  OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace validate [--local]
   OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace deploy
   OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace status
 
 prepare 复用普通候选冻结，再从已停写的本地 PostgreSQL 生成、校验并上传不可变 dump。
-deploy 复用相同 CNB collect-all、构建和发布流程，只在服务器数据库阶段执行原子整库替换。
+validate 对 Git base/head 的受影响依赖闭包验证一次并冻结 Full artifact；可用 --local。
+deploy 只消费该 artifact，并在服务器数据库阶段执行原子整库替换。
 EOF
     ;;
-  *) echo "[错误] database-replace 命令必须是 prepare、deploy 或 status"; exit 2 ;;
+  *) echo "[错误] database-replace 命令必须是 prepare、validate、deploy 或 status"; exit 2 ;;
 esac

@@ -11,10 +11,12 @@ const CANDIDATE_CHECKS = [
   "tenant-permission-docs",
 ];
 const CNB_GATE_CHECKS = [
-  "full-ci",
-  "disposable-postgresql-migrations",
-  "resource-seed",
-  "playwright-e2e",
+  "git-base-head",
+  "affected-source-checks",
+  "affected-dependency-closure",
+  "selected-postgresql",
+  "selected-playwright-when-applicable",
+  "artifact-identity",
 ];
 
 function requireSha(value, label) {
@@ -39,6 +41,11 @@ function requireIdentity(receipt, { sourceSha, treeSha }) {
   }
   requireIsoTimestamp(receipt.completedAt);
   return receipt;
+}
+
+function requireRunner(value) {
+  if (value !== "cnb" && value !== "local") throw new Error("validation runner must be cnb or local");
+  return value;
 }
 
 export function createReleaseCandidateReceipt({
@@ -71,18 +78,22 @@ export function validateReleaseCandidateReceipt(receipt, identity = {}) {
 }
 
 export function createCnbReleaseGateReceipt({
+  baseSha,
   sourceSha,
   treeSha,
+  runner = "cnb",
   completedAt = new Date().toISOString(),
 } = {}) {
   return {
-    schemaVersion: 1,
-    kind: "workspace-cnb-release-gate",
+    schemaVersion: 2,
+    kind: "workspace-release-validation",
     status: "passed",
-    command: "ops/run-cnb-release-gate.sh",
+    command: "ops/run-cnb-release-gate.sh validate",
+    runner: requireRunner(runner),
+    baseSha: requireSha(baseSha, "validation base SHA"),
     sourceSha: requireSha(sourceSha, "source SHA"),
     treeSha: requireSha(treeSha, "tree SHA"),
-    scope: "full-and-unit",
+    scope: "git-base-head-with-dependency-closure",
     checks: CNB_GATE_CHECKS,
     completedAt: requireIsoTimestamp(completedAt),
   };
@@ -90,11 +101,13 @@ export function createCnbReleaseGateReceipt({
 
 export function validateCnbReleaseGateReceipt(receipt, identity = {}) {
   requireIdentity(receipt, identity);
-  if (receipt.schemaVersion !== 1
-    || receipt.kind !== "workspace-cnb-release-gate"
+  if (receipt.schemaVersion !== 2
+    || receipt.kind !== "workspace-release-validation"
     || receipt.status !== "passed"
-    || receipt.command !== "ops/run-cnb-release-gate.sh"
-    || receipt.scope !== "full-and-unit"
+    || receipt.command !== "ops/run-cnb-release-gate.sh validate"
+    || receipt.baseSha !== requireSha(identity.baseSha, "validation base SHA")
+    || !["cnb", "local"].includes(receipt.runner)
+    || receipt.scope !== "git-base-head-with-dependency-closure"
     || JSON.stringify(receipt.checks) !== JSON.stringify(CNB_GATE_CHECKS)) {
     throw new Error("CNB release gate receipt contract is invalid");
   }
@@ -150,15 +163,17 @@ export function main(argv = process.argv.slice(2)) {
   }
   if (options.mode === "cnb-create") {
     if (!options.output) throw new Error("cnb-create requires --output");
-    const receipt = createCnbReleaseGateReceipt(identity);
+    if (!options.base) throw new Error("cnb-create requires --base");
+    const receipt = createCnbReleaseGateReceipt({ ...identity, baseSha: options.base, runner: options.runner ?? "cnb" });
     atomicWriteJson(options.output, receipt);
     return receipt;
   }
   if (options.mode === "cnb-verify") {
     if (!options.file) throw new Error("cnb-verify requires --file");
-    return validateCnbReleaseGateReceipt(readJson(options.file), identity);
+    if (!options.base) throw new Error("cnb-verify requires --base");
+    return validateCnbReleaseGateReceipt(readJson(options.file), { ...identity, baseSha: options.base });
   }
-  throw new Error("usage: release-gate-receipt.mjs candidate-create|candidate-verify|cnb-create|cnb-verify --source SHA --tree SHA --output|--file PATH");
+  throw new Error("usage: release-gate-receipt.mjs candidate-create|candidate-verify|cnb-create|cnb-verify --base SHA --source SHA --tree SHA --output|--file PATH [--runner cnb|local]");
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

@@ -56,7 +56,49 @@ export function discoverNodeTests(repositoryRoot = defaultRoot) {
     .sort();
 }
 
-export function selectNodeTests(allTests, suite) {
+function jsonStringArray(value, label) {
+  if (!value) return [];
+  const parsed = JSON.parse(value);
+  if (!Array.isArray(parsed) || parsed.some((item) => typeof item !== "string")) {
+    throw new Error(`${label} must be a JSON string array`);
+  }
+  return parsed;
+}
+
+export function selectAffectedNodeTests(allTests, { changedFiles = [], affectedModules = [] } = {}) {
+  const normalizedChanges = [...new Set(changedFiles)].sort();
+  const packageIds = new Set(affectedModules);
+  for (const file of normalizedChanges) {
+    const packageMatch = file.match(/^packages\/([^/]+)\//);
+    if (packageMatch) packageIds.add(packageMatch[1]);
+  }
+  const fullTestClosure = normalizedChanges.some((file) => (
+    [".node-version", "package.json", "package-lock.json"].includes(file)
+    || file.startsWith("scripts/testing/run-node-tests.")
+  ));
+  if (fullTestClosure) return allTests;
+  const fullPackageClosure = normalizedChanges.some((file) => (
+    file.startsWith("packages/core/")
+    || file.startsWith("packages/platform/")
+    || file.startsWith("prisma/")
+    || file === "app/layout.tsx"
+    || file === "app/error.tsx"
+    || file === "app/globals.css"
+  ));
+
+  return allTests.filter((file) => {
+    if (normalizedChanges.includes(file)) return true;
+    const packageMatch = file.match(/^packages\/([^/]+)\//);
+    if (fullPackageClosure && (packageMatch || file.startsWith("app/"))) return true;
+    if (packageMatch && packageIds.has(packageMatch[1])) return true;
+    if (file.startsWith("ops/") && normalizedChanges.some((changed) => changed.startsWith("ops/"))) return true;
+    if (file.startsWith("app/") && normalizedChanges.some((changed) => changed.startsWith("app/"))) return true;
+    const scriptArea = file.match(/^scripts\/([^/]+)\//)?.[1];
+    return Boolean(scriptArea && normalizedChanges.some((changed) => changed.startsWith(`scripts/${scriptArea}/`)));
+  });
+}
+
+export function selectNodeTests(allTests, suite, context = {}) {
   switch (suite) {
     case "all":
       return allTests;
@@ -79,6 +121,8 @@ export function selectNodeTests(allTests, suite) {
       return allTests.filter((file) => workPlanGovernanceTests.has(file));
     case "scalability-contract":
       return allTests.filter((file) => scalabilityContractTests.has(file));
+    case "affected":
+      return selectAffectedNodeTests(allTests, context);
     default:
       throw new Error(`Unknown node test suite: ${suite}`);
   }
@@ -92,12 +136,19 @@ export function main(
   const allTests = discoverNodeTests(repositoryRoot);
   let tests;
   try {
-    tests = selectNodeTests(allTests, suite);
+    tests = selectNodeTests(allTests, suite, {
+      changedFiles: jsonStringArray(process.env.WORKSPACE_CHANGED_FILES_JSON, "WORKSPACE_CHANGED_FILES_JSON"),
+      affectedModules: jsonStringArray(process.env.WORKSPACE_AFFECTED_MODULES_JSON, "WORKSPACE_AFFECTED_MODULES_JSON"),
+    });
   } catch (error) {
     stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     return 2;
   }
 
+  if (tests.length === 0 && suite === "affected") {
+    stdout.write("No affected node:test files; skipped.\n");
+    return 0;
+  }
   if (tests.length === 0) {
     stderr.write(`No node:test files found for suite: ${suite}\n`);
     return 1;

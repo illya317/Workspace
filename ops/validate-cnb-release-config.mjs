@@ -102,11 +102,19 @@ function requireExactScript(value, expected, label) {
 export function validateCnbReleaseConfig(source, options = {}) {
   const deployUnitId = options.deployUnitId ?? "";
   const deployUnitMode = options.deployUnitMode ?? "shadow";
+  const releaseAction = options.releaseAction ?? "";
+  const validationBaseSha = options.validationBaseSha ?? "";
   if (typeof deployUnitId !== "string" || (deployUnitId && !/^[a-z][a-z0-9-]*$/.test(deployUnitId))) {
     throw new Error("deploy unit id is invalid");
   }
   if (deployUnitMode !== "shadow" && deployUnitMode !== "activate") {
     throw new Error("CNB publish supports only shadow or activate unit deployment");
+  }
+  if (releaseAction && !["validate", "deploy"].includes(releaseAction)) {
+    throw new Error("release action must be validate or deploy");
+  }
+  if (releaseAction && !/^[0-9a-f]{40}$/.test(validationBaseSha)) {
+    throw new Error("rendered release config requires a full validation base SHA");
   }
   let document;
   try {
@@ -124,7 +132,12 @@ export function validateCnbReleaseConfig(source, options = {}) {
   if (pipeline.name !== "deploy-prod") throw new Error("tenant CNB release config pipeline must be deploy-prod");
   requireExactStringMap(
     pipeline.env,
-    { ...REQUIRED_PIPELINE_ENV, DEPLOY_UNIT_ID: deployUnitId, DEPLOY_UNIT_MODE: deployUnitMode },
+    {
+      ...REQUIRED_PIPELINE_ENV,
+      DEPLOY_UNIT_ID: deployUnitId,
+      DEPLOY_UNIT_MODE: deployUnitMode,
+      ...(releaseAction ? { RELEASE_ACTION: releaseAction, RELEASE_VALIDATION_BASE_SHA: validationBaseSha } : {}),
+    },
     "deploy-prod.env",
   );
 
@@ -154,25 +167,32 @@ export function validateCnbReleaseConfig(source, options = {}) {
   requireExactStringMap(releaseGate.env, REQUIRED_BUILD_ENV, "release-gate.env");
   requireExactKeys(buildStandalone, ["name", "env", "script"], "deploy-prod stage build-release-target");
   requireExactStringMap(buildStandalone.env, REQUIRED_BUILD_ENV, "build-release-target.env");
-  requireExactKeys(deployToServer, ["name", "imports", "env", "script"], "deploy-prod stage deploy-to-server");
-  const deployImports = requireStringArray(deployToServer.imports, "deploy-to-server.imports");
-  if (deployImports.length !== 1 || !/^https:\/\/cnb\.cool\/.+\/-\/blob\/main\/server-prod\.yaml$/.test(deployImports[0])) {
-    throw new Error("deploy-to-server must import exactly one governed server-prod.yaml");
-  }
-  const deployEnv = requireObject(deployToServer.env, "deploy-to-server.env");
-  const unexpectedDeployEnv = Object.keys(deployEnv).filter((key) => !ALLOWED_DEPLOY_ENV_KEYS.includes(key));
-  if (unexpectedDeployEnv.length > 0) {
-    throw new Error(`deploy-to-server.env contains unsupported key: ${unexpectedDeployEnv[0]}`);
-  }
-  for (const [key, value] of Object.entries(deployEnv)) {
-    if (typeof value !== "string") throw new Error(`deploy-to-server.env.${key} must be a string`);
-  }
-  for (const key of ["EXPECTED_CNB_REPOSITORY", "HEALTHCHECK_URL", "INSTALL_LIBRARY_RUNTIME_DEPS", "REMOTE_DIR", "REMOTE_WORKSPACE_CONFIG_DIR"]) {
-    if (!Object.hasOwn(deployEnv, key)) throw new Error(`deploy-to-server.env.${key} is required`);
+  if (releaseAction === "validate") {
+    requireExactKeys(deployToServer, ["name", "script"], "deploy-prod validate stage deploy-to-server");
+  } else {
+    requireExactKeys(deployToServer, ["name", "imports", "env", "script"], "deploy-prod stage deploy-to-server");
+    const deployImports = requireStringArray(deployToServer.imports, "deploy-to-server.imports");
+    if (deployImports.length !== 1 || !/^https:\/\/cnb\.cool\/.+\/-\/blob\/main\/server-prod\.yaml$/.test(deployImports[0])) {
+      throw new Error("deploy-to-server must import exactly one governed server-prod.yaml");
+    }
+    const deployEnv = requireObject(deployToServer.env, "deploy-to-server.env");
+    const unexpectedDeployEnv = Object.keys(deployEnv).filter((key) => !ALLOWED_DEPLOY_ENV_KEYS.includes(key));
+    if (unexpectedDeployEnv.length > 0) {
+      throw new Error(`deploy-to-server.env contains unsupported key: ${unexpectedDeployEnv[0]}`);
+    }
+    for (const [key, value] of Object.entries(deployEnv)) {
+      if (typeof value !== "string") throw new Error(`deploy-to-server.env.${key} must be a string`);
+    }
+    for (const key of ["EXPECTED_CNB_REPOSITORY", "HEALTHCHECK_URL", "INSTALL_LIBRARY_RUNTIME_DEPS", "REMOTE_DIR", "REMOTE_WORKSPACE_CONFIG_DIR"]) {
+      if (!Object.hasOwn(deployEnv, key)) throw new Error(`deploy-to-server.env.${key} is required`);
+    }
   }
   for (const name of REQUIRED_STAGE_NAMES) {
     const stage = pipeline.stages.find((candidate) => candidate.name === name);
-    requireExactScript(stage.script, REQUIRED_STAGE_SCRIPTS[name], `deploy-prod stage ${name}`);
+    const expectedScript = name === "deploy-to-server" && releaseAction === "validate"
+      ? REQUIRED_STAGE_SCRIPTS[name].split("\n").at(-1)
+      : REQUIRED_STAGE_SCRIPTS[name];
+    requireExactScript(stage.script, expectedScript, `deploy-prod stage ${name}`);
   }
   return pipeline;
 }

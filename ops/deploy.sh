@@ -230,7 +230,10 @@ start_ssh_master() {
 sync_remote_deploy_tools() {
   echo "==> 同步部署凭证与 Full Gateway 收口工具..."
   FULL_DEPLOY_GRAPH_TMP="$(mktemp "${TMPDIR:-/tmp}/workspace-full-deploy-graph.XXXXXX")"
-  node --conditions=react-server --import tsx scripts/deploy/check-deploy-graph.ts --json > "$FULL_DEPLOY_GRAPH_TMP"
+  : "${RELEASE_DEPLOY_GRAPH_FILE:?RELEASE_DEPLOY_GRAPH_FILE is required from the validated artifact bundle}"
+  cp "$RELEASE_DEPLOY_GRAPH_FILE" "$FULL_DEPLOY_GRAPH_TMP"
+  expected_graph_sha="$(node -e 'const m=require(process.argv[1]); process.stdout.write(m.inputs?.deployGraphSha256 ?? "")' "$ARTIFACT_MANIFEST_PATH")"
+  node ops/gateway-generation.mjs graph-assert --graph "$FULL_DEPLOY_GRAPH_TMP" --digest "$expected_graph_sha" >/dev/null
   node ops/gateway-generation.mjs graph-digest --graph "$FULL_DEPLOY_GRAPH_TMP" >/dev/null
   ssh_cmd "mkdir -p '$REMOTE_DEPLOY_TOOL_DIR'"
   rsync -az -e "$RSYNC_SSH_COMMAND" \
@@ -2626,12 +2629,7 @@ else
   echo "==> 跳过本地静态检查（RUN_LOCAL_CHECKS=${RUN_LOCAL_CHECKS}）"
 fi
 
-echo "==> 强制校验 Prisma migrations..."
-if [ "$RUN_LOCAL_CHECKS" = "1" ]; then
-  run_deploy_stage migration.static npm run db:migration:check
-else
-  run_deploy_stage migration.static node scripts/check/check-prisma-migrations.js --static
-fi
+echo "==> 源码与 migration 静态门禁已由 validate receipt 证明；deploy 只校验生产 migration 区间"
 
 run_deploy_stage artifact.verify build_artifact
 

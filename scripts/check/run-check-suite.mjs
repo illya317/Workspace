@@ -114,7 +114,7 @@ const SUITES = {
     "db-migration-changed",
     "playwright-processes",
   ],
-  precommit: ["@changed"],
+  precommit: ["lint-changed", "domain-changed", "db-migration-changed"],
   refactor: ["split-quality", "lint-changed", "@contracts"],
   data: ["db-validate", "schema", "db-migration-check", "data-release", "import-reference", "docs-editor-templates"],
   docs: ["docs-architecture", "docs-action-contracts", "docs-permission-actions", "business-code-hardcoding"],

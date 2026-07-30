@@ -7,7 +7,7 @@
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
 - **数据库**: Prisma ORM + PostgreSQL 15+（PrismaPg adapter）
 - **认证**: JWT Cookie + Open API Bearer Client
-- **CI/CD**: GitHub Actions 负责 PR/合并质量与按风险选择的 E2E；生产由本地精确 tree 的一次全量 CI 凭证放行，CNB 构建 canonical Linux standalone 并部署
+- **CI/CD**: GitHub Actions 按远端 base/head 的改动 owner 与依赖闭包负责 PR/合并质量；生产在本地或 CNB 对相同 affected scope 验证并构建一次，部署只消费该 canonical artifact
 
 ## 2. 部署与运行态同步
 
@@ -17,7 +17,7 @@
 - 不把 `cnb/main` 当发布源码入口。正式发布时，底层脚本在当前已提交 source 的 child commit 中只注入由 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 产生的 `.cnb.yml` 与发布元数据，然后触发 `cnb-release` 的 `api_trigger_manual`；仓库内 `ops/cnb-release.yml` 只保留通用形状。
 - 生产维护尽量在本地完成代码、migration、文档和检查。`publish.sh deploy` 是唯一生产发布入口；不要在服务器 `current` 上手改源码、生成物或数据库结构，也不要通过 SSH 建立旁路发布入口。
 - 生产发布必须先 commit 且工作区干净；GitHub PR/CI 可以继续用于协作质量，但 `deploy` 不调用 GitHub API、Actions、Release 或 GitHub token。
-- `publish.sh deploy` 对精确 source tree 运行或复用一次 `npm run check:ci` 并把凭证写入 release request；CNB 校验 request/tree/凭证后运行 `build-standalone-artifact.sh`，复核 manifest/digest 并上传服务器。
+- `publish.sh validate`（或 `validate --local`）按生产 base 与候选 head 运行受影响依赖闭包检查、构建一次并冻结 artifact；`publish.sh deploy`（或 `deploy --direct`）只复验并消费相同 base/source/tree 的 artifact。
 - 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、文档/资料/QC 文件、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先做 PostgreSQL `pg_dump` 并备份该目录。
 - `data/` 中的文件型运行态以服务器为准：本地 `data/` 不上传覆盖服务器；业务关系数据只存 PostgreSQL。
 - 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL` / `DIRECT_URL` 连接 PostgreSQL，通过 `WORKSPACE_CONFIG_DIR` 定位文件型运行态。
@@ -41,7 +41,8 @@ OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh push
 OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
 ```
 
-2. `publish.sh deploy` 将当前已提交 source SHA/tree、本地全量 CI 凭证和可选的一次性 production bootstrap context 写入 CNB release request，触发 CNB 后轮询同一个 SN；CNB 只做 Linux 打包、digest 校验和部署。成功后本地复验 schema-v3 `deployed-release.json` 的 runtime/canonical source、CNB/artifact、PM2、health 与版本。诊断时使用同一个 SN 拉日志，不要额外 push 制造第二条部署记录。
+2. `publish.sh validate` 以生产 deployed source 为 base，只校验候选 head 的受影响 owner 与依赖消费者，构建并缓存不可变 artifact；修复会改变 source/tree，必须重新 validate。
+3. `publish.sh deploy` 复用该 artifact 触发 CNB；`deploy --direct` 可直接消费本地 validate 缓存。两者都不再运行源码门禁或构建。成功后复验 schema-v3 `deployed-release.json` 的 runtime/canonical source、CNB/artifact、PM2、health 与版本。
 
 生产服务器地址、SSH 密钥路径和 `CNB_REPO` 在桌面私有 ops `.env` 中维护。本机只读诊断时使用私有 ops `.env` 中的 `KEY`，只引用路径，不打印、不复制、不提交密钥内容。部署流水线使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
 

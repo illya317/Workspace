@@ -119,12 +119,14 @@ fi
   exit 1
 }
 
-while IFS= read -r scope; do
-  npm run typecheck:scope -- "$scope"
-done < <(node -e '
+if [ "${DEPLOY_UNIT_SKIP_TYPECHECK:-0}" != "1" ]; then
+  while IFS= read -r scope; do
+    npm run typecheck:scope -- "$scope"
+  done < <(node -e '
 const c=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8"));
 for (const scope of c.compiler.typecheckScopes) console.log(scope);
 ' "$CONTRACT_FILE")
+fi
 
 if ! npm run source-code-analysis:snapshot:optional; then
   echo "[警告] 源码分析 snapshot 未生成；继续 deploy-unit 构建" >&2

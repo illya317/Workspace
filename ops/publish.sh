@@ -15,16 +15,18 @@ usage() {
 用法:
   OPS_ENV_FILE=/path/to/ops/.env publish.sh push
   OPS_ENV_FILE=/path/to/ops/.env publish.sh prepare
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh validate [--local] [CNB 部署目标选项]
   OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy
-  OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy [CNB 部署选项]
-  OPS_ENV_FILE=/path/to/ops/.env publish.sh database-replace prepare|deploy|status
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy [--direct] [CNB 部署选项]
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh database-replace prepare|validate|deploy|status
   OPS_ENV_FILE=/path/to/ops/.env publish.sh data upload|verify|status --id RELEASE_ID
   OPS_ENV_FILE=/path/to/ops/.env publish.sh timing pause|resume|status
 
 模式:
-  push           对当前提交跑自适应本地 gate；GitHub bot 创建候选 PR
+  push           推送候选；GitHub 以远端 base/head 运行受影响依赖闭包 CI
   prepare        冻结 release tree 并校验私有配置，生成 CNB 候选回执；不在本机编译
-  deploy         消费 prepare 回执；CNB 对 Full/单模块运行同一完整门禁后构建并部署
+  validate       在 CNB（或 --local）对 base/head 受影响依赖闭包验证一次并冻结制品
+  deploy         仅消费同一 base/source/tree 的已验证制品；可走 CNB 或 --direct
   data           校验并上传私有数据发布源；上传只进入受控暂存区，不执行数据库写入
   timing         在处理 main 前暂停 Ops 计时；恢复 release 工作时继续累计
 
@@ -110,7 +112,7 @@ case "${1:-}" in
     node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
       --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
       --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null
-    echo "==> prepare 完成：候选与私有配置已冻结；完整 CI、编译和 E2E 将在 CNB collect-all 运行。"
+    echo "==> prepare 完成：候选与私有配置已冻结；下一步选择 validate --local 或 CNB validate。"
     exit 0
     ;;
   data)
@@ -138,7 +140,8 @@ case "${1:-}" in
 esac
 
 case "${1:-}" in
-  deploy)
+  deploy|validate)
+    release_action="$1"
     shift
     load_prepared_release_worktree
     validate_local_release_inputs
@@ -152,7 +155,12 @@ case "${1:-}" in
     fi
     export RELEASE_CANDIDATE_RECEIPT_FILE
     RELEASE_PROCESS_TIMING_FILE="${RELEASE_PROCESS_TIMING_FILE:-$RELEASE_WORKTREE/.cache/release-process-timing.json}"
-    deploy_args=("$@")
+    deploy_args=(--release-action "$release_action")
+    if [ "$release_action" = "validate" ] && [ "${1:-}" = "--local" ]; then
+      deploy_args+=(--direct)
+      shift
+    fi
+    deploy_args+=("$@")
     candidate_sha="$RELEASE_SOURCE_SHA"
     if [ -f "$RELEASE_PROCESS_TIMING_FILE" ]; then
       node "$RELEASE_SCRIPT_DIR/release-process-timing.mjs" resume --file "$RELEASE_PROCESS_TIMING_FILE" >/dev/null
@@ -166,9 +174,6 @@ case "${1:-}" in
       const session = JSON.parse(process.argv[1]);
       console.log(`==> release 流程计时：第 ${session.releaseAttemptCount} 次尝试，完整累计 ${session.releaseProcessSeconds}s`);
     ' "$release_session"
-    if [ "${#deploy_args[@]}" -eq 0 ]; then
-      exec "$RELEASE_SCRIPT_DIR/publish-cnb.sh"
-    fi
     exec "$RELEASE_SCRIPT_DIR/publish-cnb.sh" "${deploy_args[@]}"
     ;;
 esac
@@ -192,7 +197,7 @@ with_github_proxy() {
 case "${1:-}" in
   push) shift ;;
   -h|--help) usage; exit 0 ;;
-  *) echo "[错误] 请指定模式: push、prepare 或 deploy"; usage; exit 1 ;;
+  *) echo "[错误] 请指定模式: push、prepare、validate 或 deploy"; usage; exit 1 ;;
 esac
 [ "$#" = "0" ] || { echo "[错误] push 不接受额外参数"; exit 1; }
 
@@ -225,7 +230,7 @@ fi
 staging_branch="codex/staging-main"
 candidate_branch="codex/candidate-main"
 staging_before="$(with_github_proxy git ls-remote --heads "$GITHUB_REMOTE_NAME" "refs/heads/$staging_branch" | awk '{print $1}')"
-echo "==> 运行候选提交的自适应本地 gate 并更新稳定 staging ref $staging_branch..."
+echo "==> 更新稳定 staging ref ${staging_branch}；源码门禁由远端 base/head affected CI 执行..."
 WORKSPACE_DIFF_BASE="$remote_main_sha" \
 WORKSPACE_DIFF_HEAD="$head_sha" \
   with_github_proxy git push "$GITHUB_REMOTE_NAME" \

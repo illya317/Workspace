@@ -19,18 +19,15 @@ on:
         required: false
         type: string
       force_full:
-        description: Force C3 with every CI lane and full E2E
+        description: Explicitly force every repository CI lane and full E2E
         required: true
-        default: true
+        default: false
         type: boolean
       publish_artifact:
         description: Upload a canonical standalone artifact for this CI run after full verification
         required: true
         default: false
         type: boolean
-  schedule:
-    - cron: "17 18 * * *"
-
 permissions:
   contents: read
 
@@ -61,15 +58,16 @@ jobs:
       run_static: ${{ steps.risk.outputs.run_static || 'true' }}
       run_node: ${{ steps.risk.outputs.run_node || 'true' }}
       run_type: ${{ steps.risk.outputs.run_type || 'true' }}
-      type_mode: ${{ steps.risk.outputs.type_mode || 'full' }}
+      type_mode: ${{ steps.risk.outputs.type_mode || 'affected' }}
       changed_files_json: ${{ steps.risk.outputs.changed_files_json || '[]' }}
-      run_postgresql: ${{ steps.risk.outputs.run_postgresql || 'true' }}
-      run_build: ${{ steps.risk.outputs.run_build || 'true' }}
-      run_e2e: ${{ steps.risk.outputs.run_e2e || 'true' }}
-      e2e_mode: ${{ steps.risk.outputs.e2e_mode || 'full' }}
+      affected_modules_json: ${{ steps.risk.outputs.affected_modules_json || '[]' }}
+      run_postgresql: ${{ steps.risk.outputs.run_postgresql || 'false' }}
+      run_build: ${{ steps.risk.outputs.run_build || 'false' }}
+      run_e2e: ${{ steps.risk.outputs.run_e2e || 'false' }}
+      e2e_mode: ${{ steps.risk.outputs.e2e_mode || 'none' }}
       e2e_specs_json: ${{ steps.risk.outputs.e2e_specs_json || '[]' }}
       required_suites_json: ${{ steps.risk.outputs.required_suites_json || '[]' }}
-      classification_json: ${{ steps.risk.outputs.classification_json || '{"schemaVersion":1,"riskClass":"C3","e2eMode":"full","requiredSuites":[],"e2eSpecs":[],"reasonCodes":["trusted-classifier-bootstrap"]}' }}
+      classification_json: ${{ steps.risk.outputs.classification_json || '{"schemaVersion":1,"riskClass":"C3","e2eMode":"none","requiredSuites":[],"e2eSpecs":[],"reasonCodes":["classifier-missing"]}' }}
       publish_artifact: ${{ steps.risk.outputs.publish_artifact || steps.refs.outputs.publish_requested }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -119,13 +117,8 @@ jobs:
               if ! [[ "$base_sha" =~ $full_sha ]] \
                 || [ "$base_sha" = "0000000000000000000000000000000000000000" ] \
                 || ! git cat-file -e "${base_sha}^{commit}" 2>/dev/null; then
-                if [ "$(git rev-list --parents -n 1 "$head_sha" | awk '{print NF}')" != "1" ]; then
-                  echo "push before SHA is unavailable; only an auditable root commit may self-bootstrap CI" >&2
-                  exit 1
-                fi
-                base_sha="$head_sha"
-                trusted_sha="$head_sha"
-                force_full=true
+                echo "push before SHA is unavailable; affected base/head CI cannot be proven" >&2
+                exit 1
               fi
               if [ "$EVENT_REF" = "refs/heads/main" ]; then publish_requested=true; fi
               ;;
@@ -165,13 +158,9 @@ jobs:
                 base_sha="$(git rev-parse --verify "${head_sha}^" 2>/dev/null || printf '%s' "$head_sha")"
                 trusted_sha="$head_sha"
               fi
-              force_full="${INPUT_FORCE_FULL:-true}"
+              force_full="${INPUT_FORCE_FULL:-false}"
               publish_requested="${INPUT_PUBLISH_ARTIFACT:-false}"
               if [ "$publish_requested" = "true" ]; then
-                if [ "$force_full" != "true" ]; then
-                  echo "workflow_dispatch publishing requires force_full=true" >&2
-                  exit 1
-                fi
                 if [ "$EVENT_REF" != "refs/heads/main" ]; then
                   echo "workflow_dispatch publishing is restricted to refs/heads/main" >&2
                   exit 1
@@ -183,12 +172,6 @@ jobs:
                   exit 1
                 fi
               fi
-              ;;
-            schedule)
-              head_sha="$EVENT_SHA"
-              base_sha="$(git rev-parse --verify "${head_sha}^" 2>/dev/null || printf '%s' "$head_sha")"
-              trusted_sha="$head_sha"
-              force_full=true
               ;;
             *)
               echo "unsupported GitHub event: $EVENT_NAME" >&2
@@ -228,8 +211,8 @@ jobs:
           set -euo pipefail
           trusted_classifier="$RUNNER_TEMP/classify-risk.mjs"
           if ! git show "${TRUSTED_SHA}:scripts/ci/classify-risk.mjs" > "$trusted_classifier"; then
-            echo "Trusted base has no classifier yet; bootstrap defaults all lanes to C3/full." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
+            echo "Trusted base has no affected classifier; refusing an unscoped CI run." >&2
+            exit 1
           fi
           args=(
             --base "$BASE_SHA"
@@ -258,9 +241,8 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      - name: Enforce canonical npm install input
-        run: test ! -e npm-shrinkwrap.json
       - name: Enforce migration compatibility policy
+        if: ${{ contains(needs.classify.outputs.changed_files_json, 'prisma/migrations/') }}
         env:
           BASE_SHA: ${{ needs.classify.outputs.base_sha }}
           HEAD_SHA: ${{ needs.classify.outputs.head_sha }}
@@ -285,53 +267,31 @@ jobs:
       - name: Install dependencies for code-bearing static checks
         if: ${{ needs.classify.outputs.risk_class != 'C0' }}
         run: npm ci --no-audit --fund=false
-      - name: Dependency-free documentation consistency
-        if: ${{ needs.classify.outputs.risk_class == 'C0' }}
-        run: node scripts/check/check-architecture-docs.js
-      - name: Documentation and generated contract consistency
+      - name: Generated documentation consistency when submitted
         if: ${{ needs.classify.outputs.risk_class != 'C0' }}
-        run: npm run docs:check
-      - name: Static gates and shared contracts
-        if: ${{ needs.classify.outputs.risk_class != 'C0' }}
+        env:
+          WORKSPACE_CHANGED_FILES_JSON: ${{ needs.classify.outputs.changed_files_json }}
         run: |
-          npm run playwright:lifecycle:check
-          npm run check:blockers
-          npm run env:check
-          npm run db:path:check
-      - name: Data contracts when the PostgreSQL lane is skipped
-        if: ${{ needs.classify.outputs.risk_class != 'C0' && needs.classify.outputs.run_postgresql != 'true' }}
-        run: |
-          npm run db:validate
-          npm run schema:check
-          node scripts/check/with-check-lock.js -- node scripts/check/check-prisma-migrations.js --static
-          npm run docs-editor:official-templates:check
-      - name: Lint full C3 diff
-        if: ${{ needs.classify.outputs.risk_class == 'C3' }}
-        run: npm run lint:full
+          if node -e 'const f=JSON.parse(process.env.WORKSPACE_CHANGED_FILES_JSON); process.exit(f.some((p) => p.startsWith("docs/generated/")) ? 0 : 1)'; then
+            npm run docs:check
+          else
+            echo "No generated documentation changes; skipped."
+          fi
       - name: Lint explicit changed range
-        if: ${{ needs.classify.outputs.risk_class != 'C0' && needs.classify.outputs.risk_class != 'C3' }}
+        if: ${{ needs.classify.outputs.risk_class != 'C0' }}
         env:
           WORKSPACE_DIFF_BASE: ${{ needs.classify.outputs.base_sha }}
           WORKSPACE_DIFF_HEAD: ${{ needs.classify.outputs.head_sha }}
         run: npm run lint:changed
-      - name: Hygiene report
-        if: ${{ needs.classify.outputs.risk_class != 'C0' && github.event_name != 'schedule' }}
-        run: npm run check:hygiene:warn
-      - name: Scheduled strict Hygiene review
-        if: ${{ needs.classify.outputs.risk_class != 'C0' && github.event_name == 'schedule' }}
-        run: npm run check:hygiene
-      - name: Verify Playwright process cleanup
-        if: ${{ always() && needs.classify.outputs.risk_class != 'C0' }}
-        run: npm run playwright:processes:check
-      - name: Retain migration policy evidence
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: migration-policy-${{ needs.classify.outputs.source_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .ci/migration-policy.json
-          if-no-files-found: error
-          retention-days: 30
-
+      - name: Validate submitted domain and migration changes
+        if: ${{ needs.classify.outputs.risk_class != 'C0' }}
+        env:
+          WORKSPACE_DIFF_BASE: ${{ needs.classify.outputs.base_sha }}
+          WORKSPACE_DIFF_HEAD: ${{ needs.classify.outputs.head_sha }}
+        run: |
+          npm run db:generate
+          npm run domain:changed
+          npm run db:migration:changed
   node:
     name: CI / node
     needs: classify
@@ -346,7 +306,11 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --fund=false
       - run: npm run db:generate
-      - run: npm run test:node
+      - name: Run affected Node tests
+        env:
+          WORKSPACE_CHANGED_FILES_JSON: ${{ needs.classify.outputs.changed_files_json }}
+          WORKSPACE_AFFECTED_MODULES_JSON: ${{ needs.classify.outputs.affected_modules_json }}
+        run: npm run test:node:affected
 
   type:
     name: CI / type

@@ -54,12 +54,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 9. **删除要闭环**：删 L1/L2、route、API、registry child/resource、docs、seed resource 要同步，不能留下 stale 入口。
 10. **不为兼容污染协议**：破坏式收敛时，不要因为兼容旧调用点而在公开 contract、声明项或 kind 分支里增加额外选项；不兼容应暴露出来并通过迁移解决。
 11. **Playwright/Chrome 生命周期必须闭环**：默认使用 `npm run test:e2e` 和 `@playwright/test` fixture；禁止在 `tsx -e`、shell one-liner 或业务脚本中直接调用 `chromium/firefox/webkit.launch()`。确需手动启动 Browser 时只能经过 `scripts/testing/with-playwright.ts`，并保证 `try/finally`、`SIGINT/SIGTERM` 和最终 `browser.close()`；任务收尾必须通过 Playwright 进程检查。
-12. **提交只收本任务**：提交前必须看 `git status --short`，只 stage 本任务文件；不要回滚、格式化或提交别人的改动。
+12. **提交先 stage 本任务**：开始提交检查前先看 `git status --short` 并只 stage 本任务文件；pre-commit 只验证该 index 快照。不要回滚、格式化或提交别人的改动。
 13. **本地 dev 固定 3000 且全机单实例**：统一使用 `npm run dev`，禁止传端口参数或改用 3100 等其他端口；3000 已占用时复用现有 Workspace 实例，不得再启动一个。浏览器调试、E2E 或本地写入流程需要端口连续性时，agent 必须先用 `npm run dev:guard -- pause 30m --reason "<用途>"` 取得自动重启抑制租约，完成后用返回的 lease ID 释放；状态统一通过 `npm run dev:status` 查看。
 14. **本机任务默认串行**：除非用户对当前任务明确要求并行或多 agent，不启动 subagent，不并发执行 npm 检查、测试、构建、Prisma generate 或 dev server。同一时间只允许一个重任务；发现已有同类进程时等待或复用，不再启动第二个。
-15. **本地类型检查默认不运行**：普通开发、修复、review 和 commit 收口都不主动运行任何 `typecheck:*`。只在用户明确要求、任务直接修改 TypeScript 工程/类型基础设施或正在定位具体编译错误时做本地诊断，CI/发布门禁依然保留权威类型检查。例外执行前必须先告知用户，且只串行跑一次最小 `typecheck:scope`；无法界定单一 scope 时才使用 `typecheck:quick`，`typecheck:full` 只用于 CI/发布。禁止直接调用 TypeScript CLI 或绕过项目锁。
+15. **本地类型检查默认不运行**：普通开发、修复、review 和 commit 收口都不主动运行任何 `typecheck:*`。只在用户明确要求、任务直接修改 TypeScript 工程/类型基础设施或正在定位具体编译错误时做本地诊断，CI/发布验证按 base/head 保留受影响依赖闭包的权威类型检查。例外执行前必须先告知用户，且只串行跑一次最小 `typecheck:scope`；无法界定单一 scope 时才使用 `typecheck:quick`，`typecheck:full` 仅在用户显式要求全量诊断时运行。禁止直接调用 TypeScript CLI 或绕过项目锁。
 16. **本地检查内存硬上限 4GB**：本机 lint、typecheck、build、test、Prisma generate 和其他检查的 Node old-space 上限不得超过 `4096 MiB`；禁止因 OOM 提高内存或绕过检查锁重试。锁等待不足时可以提高 `CHECK_LOCK_TIMEOUT_MS` 或命令等待时间；在 `4096 MiB` 内仍无法完成则停止并报告，交由 CI/发布门禁处理。
 17. **UI 文案默认克制**：字段标签和选项已经能表达语义时，不再补解释、实现路径或技术细节；仅在防误操作、不可逆后果、合规要求或非显然约束下保留必要提示。
-18. **CNB 发布门禁必须完整收集**：`ops/publish.sh prepare` 只冻结 release tree、校验私有配置并生成候选回执，不在本机编译；`ops/publish.sh deploy` 触发 CNB 后，Full 与单模块必须先经过同一个目标无关的 collect-all 完整 CI、production build、一次性 PostgreSQL migration/seed 和全量 E2E 门禁。门禁应尽可能收集全部可执行错误并在末尾汇总，不能遇到首错就停止或为了逐个暴露错误反复触发 CNB；拿到完整结果后先回到 main 修复并提交，再重新 prepare/deploy。
+18. **发布验证与部署必须分离**：`ops/publish.sh prepare` 只冻结 release tree 和私有配置；随后用 `publish.sh validate`（CNB）或 `publish.sh validate --local` 对生产 Git base 到候选 head 的改动项目及依赖闭包验证一次并生成 immutable artifact。`publish.sh deploy` / `--direct` 只能消费同一 validation base、source SHA、tree SHA 和 artifact digest 的结果，禁止重新运行源码门禁或现场重建。部署阶段仅保留生产身份/顺序、migration 区间、锁、备份、传输 digest、健康检查、原子切换和回滚。除用户显式要求外，不得增加其他门禁或自动升级全量检查。
 
 检查命令按 `docs/engineering/checks.md` 选择，本地默认串行执行。如用户例外启用多 agent，由 Coordinator/Integrator 按顺序做一次最终统一验证，各 agent 不重复跑重检查。

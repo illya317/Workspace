@@ -4,7 +4,12 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { discoverNodeTests, main, selectNodeTests } from "./run-node-tests.mjs";
+import {
+  discoverNodeTests,
+  main,
+  selectAffectedNodeTests,
+  selectNodeTests,
+} from "./run-node-tests.mjs";
 
 function writeFixture(repositoryRoot, relativePath) {
   const absolutePath = path.join(repositoryRoot, relativePath);
@@ -94,4 +99,36 @@ test("tooling main passes the exact sorted ops and scripts test contract to node
   } finally {
     fs.rmSync(repositoryRoot, { recursive: true, force: true });
   }
+});
+
+test("affected selection keeps changed packages, dependency closure, and matching tooling areas", () => {
+  const tests = [
+    "packages/core/value.test.ts",
+    "packages/finance/server/ledger.test.ts",
+    "packages/hr/server/roster.test.ts",
+    "ops/release.test.mjs",
+    "scripts/ci/classifier.test.mjs",
+    "scripts/check/lint.test.mjs",
+  ];
+  assert.deepEqual(selectAffectedNodeTests(tests, {
+    changedFiles: ["packages/core/value.ts", "scripts/ci/classifier.mjs"],
+    affectedModules: ["finance", "hr"],
+  }), [
+    "packages/core/value.test.ts",
+    "packages/finance/server/ledger.test.ts",
+    "packages/hr/server/roster.test.ts",
+    "scripts/ci/classifier.test.mjs",
+  ]);
+});
+
+test("shared Core changes include every package consumer test", () => {
+  const tests = [
+    "packages/core/value.test.ts",
+    "packages/finance/server/ledger.test.ts",
+    "packages/hr/server/roster.test.ts",
+    "ops/release.test.mjs",
+  ];
+  assert.deepEqual(selectAffectedNodeTests(tests, {
+    changedFiles: ["packages/core/value.ts"],
+  }), tests.slice(0, 3));
 });

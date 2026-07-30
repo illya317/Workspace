@@ -105,7 +105,7 @@ test("C0 accepts only explicit documentation paths", () => {
     map: impactMap(),
   });
   assert.equal(result.riskClass, "C0");
-  assert.equal(result.runStatic, true);
+  assert.equal(result.runStatic, false);
   assert.equal(result.runBuild, false);
   assert.equal(result.publishArtifact, false);
 });
@@ -115,8 +115,10 @@ test("generated documentation is not eligible for the dependency-free C0 lane", 
     changedPaths: ["docs/generated/action-contracts.md"],
     map: impactMap(),
   });
-  assert.equal(result.riskClass, "C3");
+  assert.equal(result.riskClass, "C2");
   assert.equal(result.runStatic, true);
+  assert.equal(result.runNode, false);
+  assert.equal(result.runBuild, false);
 });
 
 test("C1 is an allowlist for static presentation assets", () => {
@@ -147,7 +149,7 @@ test("C1 does not include Core, Platform, app-global, or public assets", () => {
   }
 });
 
-test("documentation mixed with presentation assets fails closed instead of bypassing docs checks", () => {
+test("documentation mixed with presentation assets runs only checks selected by those paths", () => {
   const result = classifyChangedPaths({
     changedPaths: ["app/(modules)/hr/ARCHITECTURE.md", "packages/hr/ui/employee/styles.css"],
     map: impactMap(),
@@ -155,8 +157,9 @@ test("documentation mixed with presentation assets fails closed instead of bypas
   assert.equal(result.riskClass, "C3");
   assert.deepEqual(result.reasonCodes, ["mixed-documentation-presentation-fail-closed"]);
   assert.equal(result.runStatic, true);
-  assert.equal(result.runNode, true);
-  assert.equal(result.runType, true);
+  assert.equal(result.runNode, false);
+  assert.equal(result.runType, false);
+  assert.equal(result.runBuild, true);
 });
 
 test("mapped C1 code and final candidates keep affected typecheck", () => {
@@ -171,7 +174,7 @@ test("mapped C1 code and final candidates keep affected typecheck", () => {
   assert.equal(mapped.runNode, true);
   assert.equal(mapped.runType, true);
   assert.equal(mapped.typeMode, "affected");
-  assert.equal(mapped.runBuild, false);
+  assert.equal(mapped.runBuild, true);
 
   const finalMapped = classifyChangedPaths({
     changedPaths: ["packages/settings/ui/account/Label.tsx"],
@@ -179,7 +182,7 @@ test("mapped C1 code and final candidates keep affected typecheck", () => {
     finalCandidate: true,
   });
   assert.equal(finalMapped.typeMode, "affected");
-  assert.equal(finalMapped.runBuild, false);
+  assert.equal(finalMapped.runBuild, true);
 
   const ready = classifyChangedPaths({
     changedPaths: ["packages/hr/ui/styles.css"],
@@ -204,14 +207,14 @@ test("covered module code selects C2 and its exact E2E spec", () => {
   assert.deepEqual(result.e2eSpecs, ["e2e/settings-save.spec.ts"]);
 });
 
-test("known module code without a coverage rule fails closed to C3", () => {
+test("known module code without a coverage rule stays limited to its affected code lanes", () => {
   const result = classifyChangedPaths({
     changedPaths: ["packages/settings/ui/UnknownPanel.tsx"],
     map: impactMap(),
   });
   assert.equal(result.riskClass, "C3");
-  assert.equal(result.runPostgresql, true);
-  assert.equal(result.e2eMode, "full");
+  assert.equal(result.runPostgresql, false);
+  assert.equal(result.e2eMode, "none");
   assert.deepEqual(result.unmappedModulePaths, ["packages/settings/ui/UnknownPanel.tsx"]);
 });
 
@@ -224,10 +227,10 @@ test("unknown infrastructure paths fail closed to C3", () => {
   assert.equal(result.publishArtifact, false);
 });
 
-test("large source or line diffs escalate to C3", () => {
+test("large source or line diagnostics do not expand the selected gates", () => {
   const sourcePaths = Array.from({ length: 21 }, (_, index) => `packages/settings/ui/account/File${index}.tsx`);
   const manyFiles = classifyChangedPaths({ changedPaths: sourcePaths, map: impactMap() });
-  assert.equal(manyFiles.riskClass, "C3");
+  assert.equal(manyFiles.riskClass, "C2");
   assert.ok(manyFiles.escalationReasons.includes("source-file-count-over-20"));
 
   const manyLines = classifyChangedPaths({
@@ -236,11 +239,11 @@ test("large source or line diffs escalate to C3", () => {
     lineStats: [{ path: "docs/engineering/checks.md", additions: 501, deletions: 0 }],
     map: impactMap(),
   });
-  assert.equal(manyLines.riskClass, "C3");
+  assert.equal(manyLines.riskClass, "C0");
   assert.ok(manyLines.escalationReasons.includes("changed-lines-over-500"));
 });
 
-test("non-presentation binary changes always escalate to C3", () => {
+test("non-presentation binary diagnostics do not expand the selected gates", () => {
   const result = classifyChangedPaths({
     changedPaths: ["packages/settings/ui/account/model.wasm"],
     changes: [{ status: "A", paths: ["packages/settings/ui/account/model.wasm"] }],
@@ -253,27 +256,27 @@ test("non-presentation binary changes always escalate to C3", () => {
     }],
     map: impactMap(),
   });
-  assert.equal(result.riskClass, "C3");
+  assert.equal(result.riskClass, "C2");
   assert.ok(result.escalationReasons.includes("non-presentation-binary-change"));
 });
 
-test("two business modules escalate even when both are presentation-only", () => {
+test("multiple presentation modules remain presentation-only", () => {
   const result = classifyChangedPaths({
     changedPaths: ["packages/hr/ui/a.css", "packages/finance/ui/b.css"],
     map: impactMap(),
   });
-  assert.equal(result.riskClass, "C3");
+  assert.equal(result.riskClass, "C1");
   assert.ok(result.escalationReasons.includes("multiple-business-modules"));
 });
 
-test("large or mass presentation assets escalate to full CI", () => {
+test("large or mass presentation diagnostics do not expand to full CI", () => {
   const large = classifyChangedPaths({
     changedPaths: ["packages/hr/ui/hero.png"],
     changes: [{ status: "A", paths: ["packages/hr/ui/hero.png"] }],
     lineStats: [{ path: "packages/hr/ui/hero.png", additions: 0, deletions: 0, binary: true, sizeBytes: 2 * 1024 * 1024 + 1 }],
     map: impactMap(),
   });
-  assert.equal(large.riskClass, "C3");
+  assert.equal(large.riskClass, "C1");
   assert.ok(large.escalationReasons.includes("presentation-file-over-2mb"));
 
   const largeText = classifyChangedPaths({
@@ -288,12 +291,12 @@ test("large or mass presentation assets escalate to full CI", () => {
     }],
     map: impactMap(),
   });
-  assert.equal(largeText.riskClass, "C3");
+  assert.equal(largeText.riskClass, "C1");
   assert.ok(largeText.escalationReasons.includes("presentation-file-over-2mb"));
 
   const manyPaths = Array.from({ length: 21 }, (_, index) => `packages/hr/ui/assets/icon-${index}.svg`);
   const many = classifyChangedPaths({ changedPaths: manyPaths, map: impactMap() });
-  assert.equal(many.riskClass, "C3");
+  assert.equal(many.riskClass, "C1");
   assert.ok(many.escalationReasons.includes("presentation-file-count-over-20"));
 });
 
@@ -327,7 +330,7 @@ test("repository size accounting includes single-line text presentation assets",
   }
 });
 
-test("test deletion, runner edits, and public-contract shape changes explicitly escalate", () => {
+test("test deletion, runner edits, and public-contract shape changes stay diagnostic-only", () => {
   const cases = [
     {
       path: "packages/settings/ui/account/Label.test.tsx",
@@ -366,9 +369,20 @@ test("test deletion, runner edits, and public-contract shape changes explicitly 
       changes: [item.change],
       map: impactMap(),
     });
-    assert.equal(result.riskClass, "C3");
     assert.ok(result.escalationReasons.includes(item.reason));
+    assert.notEqual(result.e2eMode, "full");
   }
+});
+
+test("shared Core changes select all module and E2E dependency consumers", () => {
+  const result = classifyChangedPaths({
+    changedPaths: ["packages/core/ui/PageSurface.tsx"],
+    map: impactMap(),
+  });
+  assert.deepEqual(result.affectedModules, ["settings"]);
+  assert.deepEqual(result.requiredSuites, ["settings-save"]);
+  assert.deepEqual(result.e2eSpecs, ["e2e/settings-save.spec.ts"]);
+  assert.equal(result.e2eMode, "targeted");
 });
 
 test("forced classification always selects the full matrix", () => {

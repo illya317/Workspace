@@ -19,6 +19,8 @@ fi
 
 export RELEASE_SOURCE_SHA="${RELEASE_SOURCE_SHA:-$(git rev-parse HEAD^)}"
 export RELEASE_SOURCE_TREE="${RELEASE_SOURCE_TREE:-$(git rev-parse "${RELEASE_SOURCE_SHA}^{tree}")}"
+: "${RELEASE_ACTION:?RELEASE_ACTION is required from rendered release metadata}"
+: "${RELEASE_VALIDATION_BASE_SHA:?RELEASE_VALIDATION_BASE_SHA is required from rendered release metadata}"
 export RELEASE_TIMING_FILE="${RELEASE_TIMING_FILE:-$PWD/.cache/release-timing/${RELEASE_SOURCE_SHA}.ndjson}"
 export RELEASE_TIMING_RELEASE_ID="${RELEASE_TIMING_RELEASE_ID:-$RELEASE_SOURCE_SHA}"
 

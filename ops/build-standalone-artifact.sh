@@ -284,9 +284,15 @@ if [ "$STANDALONE_SKIP_NEXT_BUILD" = "1" ]; then
 else
   echo "==> 构建 Next standalone 产物..."
   ensure_build_deps
-  run_artifact_stage next.build \
-    env NEXT_PUBLIC_BUILD_VERSION="$SOURCE_SHA" BUILD_VERSION="$SOURCE_SHA" \
-    npm run build
+  if [ "${STANDALONE_EXTERNAL_TYPECHECK:-0}" = "1" ]; then
+    run_artifact_stage next.build \
+      env NEXT_PUBLIC_BUILD_VERSION="$SOURCE_SHA" BUILD_VERSION="$SOURCE_SHA" \
+      bash -c 'npm run db:generate:inner && npm run build:next:after-typecheck'
+  else
+    run_artifact_stage next.build \
+      env NEXT_PUBLIC_BUILD_VERSION="$SOURCE_SHA" BUILD_VERSION="$SOURCE_SHA" \
+      npm run build
+  fi
 fi
 
 if [ ! -f .cache/source-code-analysis/snapshot.json ]; then
@@ -413,10 +419,15 @@ process.stdout.write(hash.digest("hex"));
 NODE
 )"
 
+DEPLOY_GRAPH_PATH="${STANDALONE_DEPLOY_GRAPH_PATH:-.next/workspace-deploy-graph.json}"
+node --conditions=react-server --import tsx scripts/deploy/check-deploy-graph.ts --json > "$DEPLOY_GRAPH_PATH"
+deploy_graph_sha="$(node ops/gateway-generation.mjs graph-digest --graph "$DEPLOY_GRAPH_PATH")"
+
 SOURCE_SHA="$SOURCE_SHA" \
 SOURCE_TREE="$SOURCE_TREE" \
 PACKAGE_LOCK_SHA="$package_lock_sha" \
 MIGRATION_SET_SHA="$migration_set_sha" \
+DEPLOY_GRAPH_SHA="$deploy_graph_sha" \
 ARTIFACT_PATH="$ARTIFACT_PATH" \
 ARTIFACT_SHA="$artifact_sha" \
 MANIFEST_PATH="$MANIFEST_PATH" \
@@ -471,6 +482,7 @@ const manifest = {
   inputs: {
     packageLockSha256: process.env.PACKAGE_LOCK_SHA,
     migrationSetSha256: process.env.MIGRATION_SET_SHA,
+    deployGraphSha256: process.env.DEPLOY_GRAPH_SHA,
   },
   artifact: {
     fileName: basename(process.env.ARTIFACT_PATH),

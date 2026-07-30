@@ -5,18 +5,15 @@ import test from "node:test";
 const build = readFileSync(new URL("./build-cnb-release-target.sh", import.meta.url), "utf8");
 const deploy = readFileSync(new URL("./deploy-cnb-release-target.sh", import.meta.url), "utf8");
 
-test("CNB target builder defaults to monolith and delegates exact unit builds", () => {
-  assert.match(build, /release-gate-receipt\.mjs cnb-verify/);
+test("CNB target builder restores first and builds only during validate", () => {
   assert.match(build, /cnb-release-artifact-cache\.sh restore/);
-  assert.ok(
-    build.indexOf("release-gate-receipt.mjs cnb-verify")
-      < build.indexOf("cnb-release-artifact-cache.sh restore"),
-  );
+  assert.match(build, /deploy 只能消费已验证 artifact，禁止现场构建/);
   assert.match(build, /if \[ -z "\$UNIT_ID" \]/);
-  assert.match(build, /STANDALONE_SKIP_NEXT_BUILD=1 bash \.\/ops\/build-standalone-artifact\.sh/);
+  assert.match(build, /bash \.\/ops\/build-standalone-artifact\.sh/);
   assert.match(build, /bash \.\/ops\/build-deploy-unit-artifact\.sh "\$UNIT_ID"/);
   assert.match(build, /bash \.\/ops\/cnb-release-artifact-cache\.sh store/);
   assert.match(build, /ALLOW_CNB_RELEASE_INJECTION=1/);
+  assert.match(build, /--base "\$\{RELEASE_VALIDATION_BASE_SHA/);
 });
 
 test("CNB target deploy defaults to monolith and unit release is trusted but shadow-first", () => {

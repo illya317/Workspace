@@ -43,4 +43,9 @@ unset SHADOW_DATABASE_URL
 
 npx prisma migrate deploy --schema=./prisma >/dev/null
 npm run db:seed:resources >/dev/null
-PLAYWRIGHT_STANDALONE_SKIP_BUILD=1 PLAYWRIGHT_STANDALONE_COMMIT="$SOURCE_SHA" CI=1 npm run test:e2e
+if [ "${E2E_MODE:-full}" = "full" ]; then
+  PLAYWRIGHT_STANDALONE_SKIP_BUILD=1 PLAYWRIGHT_STANDALONE_COMMIT="$SOURCE_SHA" CI=1 npm run test:e2e
+else
+  PLAYWRIGHT_STANDALONE_SKIP_BUILD=1 PLAYWRIGHT_STANDALONE_COMMIT="$SOURCE_SHA" CI=1 \
+    node scripts/ci/run-selected-e2e.mjs
+fi

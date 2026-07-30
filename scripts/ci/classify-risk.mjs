@@ -25,7 +25,6 @@ const BUSINESS_MODULE_IDS = new Set([
 const BUSINESS_UI_PREFIX_PATTERN = /^packages\/(?:administration|capital-securities|external|finance|hr|inventory|library|production|work)\/ui\//;
 const SOURCE_EXTENSION_PATTERN = /\.(?:cjs|css|cts|js|jsx|less|mjs|mts|prisma|sass|scss|ts|tsx)$/i;
 const TEST_PATH_PATTERN = /(?:^e2e\/|(?:^|\/)(?:__tests__|test|tests|fixtures)\/|\.(?:spec|test)\.[cm]?[jt]sx?$)/i;
-
 const ROOT_DOCUMENT_FILES = new Set([
   "AGENTS.md",
   "CHANGELOG.md",
@@ -56,14 +55,12 @@ const PRESENTATION_EXTENSIONS = new Set([
   ".woff",
   ".woff2",
 ]);
-
 function objectAt(value, location) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new Error(`${location} must be an object`);
   }
   return value;
 }
-
 function exactKeys(record, keys, location) {
   const expected = new Set(keys);
   const missing = keys.filter((key) => !(key in record));
@@ -71,14 +68,12 @@ function exactKeys(record, keys, location) {
   if (missing.length > 0) throw new Error(`${location} is missing: ${missing.join(", ")}`);
   if (unknown.length > 0) throw new Error(`${location} has unknown keys: ${unknown.join(", ")}`);
 }
-
 function stringAt(value, location) {
   if (typeof value !== "string" || value.length === 0 || value !== value.trim()) {
     throw new Error(`${location} must be a non-empty trimmed string`);
   }
   return value;
 }
-
 function stringArrayAt(value, location, { allowEmpty = false } = {}) {
   if (!Array.isArray(value)) throw new Error(`${location} must be an array`);
   const values = value.map((item, index) => stringAt(item, `${location}[${index}]`));
@@ -86,7 +81,6 @@ function stringArrayAt(value, location, { allowEmpty = false } = {}) {
   if (new Set(values).size !== values.length) throw new Error(`${location} must not contain duplicates`);
   return values;
 }
-
 function repositoryPathAt(value, location, kind) {
   const repositoryPath = stringAt(value, location);
   if (
@@ -105,7 +99,6 @@ function repositoryPathAt(value, location, kind) {
   }
   return repositoryPath;
 }
-
 function pathSetAt(value, location) {
   const record = objectAt(value, location);
   exactKeys(record, ["prefixes", "files"], location);
@@ -118,13 +111,11 @@ function pathSetAt(value, location) {
   }
   return { prefixes, files };
 }
-
 function idAt(value, location) {
   const id = stringAt(value, location);
   if (!ID_PATTERN.test(id)) throw new Error(`${location} must match ${ID_PATTERN}`);
   return id;
 }
-
 export function validateTrustedImpactMap(value) {
   const record = objectAt(value, "module impact map");
   exactKeys(record, ["schemaVersion", "policies", "suites", "modules", "rules"], "module impact map");
@@ -411,18 +402,16 @@ function escalationReasons({ normalizedPaths, changes, lineStats, affectedModule
 
 function finalizeClassification(base, context) {
   const escalation = escalationReasons({ ...context, affectedModules: base.affectedModules });
-  if (escalation.reasons.length === 0) {
-    return { ...base, ...escalation, escalationReasons: [] };
-  }
-  return {
-    ...base,
-    riskClass: "C3",
-    reasonCodes: [...new Set([...base.reasonCodes, "size-or-contract-escalation"])],
-    ...fullJobMatrix(),
-    publishArtifact: context.publishRequested,
-    ...escalation,
-    escalationReasons: escalation.reasons,
-  };
+  return { ...base, ...escalation, escalationReasons: escalation.reasons };
+}
+
+function requiresFullDependencyClosure(repositoryPath) {
+  return repositoryPath.startsWith("packages/core/")
+    || repositoryPath.startsWith("packages/platform/")
+    || repositoryPath.startsWith("prisma/")
+    || repositoryPath.startsWith("generated/prisma/")
+    || ["package.json", "package-lock.json", ".node-version", "next.config.ts", "app/layout.tsx", "app/error.tsx", "app/globals.css"].includes(repositoryPath)
+    || /^tsconfig(?:\.[a-z0-9-]+)?\.json$/.test(repositoryPath);
 }
 
 export function classifyChangedPaths({
@@ -473,7 +462,14 @@ export function classifyChangedPaths({
       unmappedModulePaths: [],
       unmappedWritePaths: [],
       e2eSpecs: [],
-      ...fullJobMatrix(),
+      runStatic: true,
+      runNode: true,
+      runType: true,
+      runPostgresql: false,
+      runBuild: true,
+      runE2e: false,
+      e2eMode: "none",
+      typeMode: "affected",
       publishArtifact: publishRequested,
       eventName,
     }, { normalizedPaths, changes, lineStats, publishRequested });
@@ -481,6 +477,33 @@ export function classifyChangedPaths({
 
   const documentationPaths = normalizedPaths.filter(isDocumentationPath);
   const nonDocumentationPaths = normalizedPaths.filter((item) => !isDocumentationPath(item));
+  if (normalizedPaths.every((repositoryPath) => repositoryPath.startsWith("docs/generated/"))) {
+    return finalizeClassification({
+      schemaVersion: 1,
+      riskClass: "C2",
+      reasonCodes: ["generated-documentation-only"],
+      changedFiles: normalizedPaths,
+      documentationPaths: [],
+      presentationPaths: [],
+      affectedModules: [],
+      matchedRuleIds: [],
+      requiredSuites: [],
+      traits: [],
+      unmappedModulePaths: [],
+      unmappedWritePaths: [],
+      e2eSpecs: [],
+      runStatic: true,
+      runNode: false,
+      runType: false,
+      runPostgresql: false,
+      runBuild: false,
+      runE2e: false,
+      e2eMode: "none",
+      typeMode: "none",
+      publishArtifact: false,
+      eventName,
+    }, { normalizedPaths, changes, lineStats, publishRequested });
+  }
   if (nonDocumentationPaths.length === 0) {
     return finalizeClassification({
       schemaVersion: 1,
@@ -496,7 +519,7 @@ export function classifyChangedPaths({
       unmappedModulePaths: [],
       unmappedWritePaths: [],
       e2eSpecs: [],
-      runStatic: true,
+      runStatic: false,
       runNode: false,
       runType: false,
       runPostgresql: false,
@@ -526,7 +549,14 @@ export function classifyChangedPaths({
       unmappedModulePaths: [],
       unmappedWritePaths: [],
       e2eSpecs: [],
-      ...fullJobMatrix(),
+      runStatic: true,
+      runNode: false,
+      runType: false,
+      runPostgresql: false,
+      runBuild: true,
+      runE2e: false,
+      e2eMode: "none",
+      typeMode: "none",
       publishArtifact: publishRequested,
       eventName,
     }, { normalizedPaths, changes, lineStats, publishRequested });
@@ -564,10 +594,15 @@ export function classifyChangedPaths({
   const impact = resolveTrustedImpact(map, impactPaths);
   const presentationModules = presentationPaths.map((item) => item.split("/")[1]);
   impact.affectedModules = [...new Set([...impact.affectedModules, ...presentationModules])].sort();
+  if (impactPaths.some(requiresFullDependencyClosure)) {
+    impact.affectedModules = map.modules.map((moduleDefinition) => moduleDefinition.id).sort();
+    impact.requiredSuites = map.suites.map((suite) => suite.id).sort();
+    impact.e2eSpecs = [...new Set(map.suites.flatMap((suite) => suite.specs))].sort();
+  }
   const riskClass = impact.riskFloor ?? "C3";
-  const failClosed = riskClass === "C3" || impact.failClosed;
-  const targetedE2e = riskClass === "C2" && impact.e2eSpecs.length > 0;
-  const runBuild = riskClass === "C2" || riskClass === "C3" || (publishRequested && finalCandidate);
+  const failClosed = impact.failClosed;
+  const targetedE2e = impact.e2eSpecs.length > 0;
+  const runBuild = true;
   const base = {
     schemaVersion: 1,
     riskClass,
@@ -579,12 +614,12 @@ export function classifyChangedPaths({
     runStatic: true,
     runNode: true,
     runType: true,
-    runPostgresql: riskClass === "C3"
-      || (riskClass === "C2" && impact.traits.some((trait) => trait === "server" || trait === "write")),
+    runPostgresql: impact.traits.some((trait) => trait === "server" || trait === "write")
+      || impactPaths.some((file) => file.startsWith("prisma/")),
     runBuild,
-    runE2e: riskClass === "C3" || targetedE2e,
-    e2eMode: riskClass === "C3" ? "full" : targetedE2e ? "targeted" : "none",
-    typeMode: riskClass === "C3" ? "full" : "affected",
+    runE2e: targetedE2e,
+    e2eMode: targetedE2e ? "targeted" : "none",
+    typeMode: "affected",
     publishArtifact: publishRequested && runBuild,
     eventName,
   };
@@ -758,7 +793,6 @@ export function classifyRepositoryDiff({
     });
   }
 }
-
 function parseArguments(argv) {
   const options = {
     cwd: process.cwd(),
@@ -847,6 +881,7 @@ export function main(argv = process.argv.slice(2)) {
   const options = parseArguments(argv);
   const classification = classifyRepositoryDiff(options);
   process.stdout.write(`${JSON.stringify(classification, null, 2)}\n`);
+  if (classification.failureReason) throw new Error(classification.failureReason);
   if (options.githubOutput) {
     const lines = Object.entries(githubOutputs(classification)).map(([key, value]) => `${key}=${value}`);
     fs.appendFileSync(options.githubOutput, `${lines.join("\n")}\n`);

@@ -8,11 +8,14 @@ COMMAND="${1:-}"
 UNIT_ID="${DEPLOY_UNIT_ID:-}"
 SOURCE_SHA="${RELEASE_SOURCE_SHA:-$(git rev-parse HEAD)}"
 SOURCE_TREE="${RELEASE_SOURCE_TREE:-$(git rev-parse "${SOURCE_SHA}^{tree}")}"
+VALIDATION_BASE_SHA="${RELEASE_VALIDATION_BASE_SHA:?RELEASE_VALIDATION_BASE_SHA is required}"
 CACHE_ROOT="${CNB_RELEASE_ARTIFACT_CACHE_ROOT:-.cache/release-artifacts}"
 HIT_MARKER="${CNB_RELEASE_ARTIFACT_HIT_MARKER:-.cache/release-artifact-cache-hit}"
+RECEIPT_FILE="${CNB_RELEASE_GATE_RECEIPT_FILE:-$PWD/.cache/release-check/cnb-release-gate.json}"
 
 [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "[错误] artifact cache source SHA 无效" >&2; exit 2; }
 [[ "$SOURCE_TREE" =~ ^[0-9a-f]{40}$ ]] || { echo "[错误] artifact cache source tree 无效" >&2; exit 2; }
+[[ "$VALIDATION_BASE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "[错误] artifact cache validation base SHA 无效" >&2; exit 2; }
 if [ -n "$UNIT_ID" ] && [[ ! "$UNIT_ID" =~ ^[a-z][a-z0-9-]*$ ]]; then
   echo "[错误] artifact cache unit id 无效" >&2
   exit 2
@@ -45,18 +48,25 @@ NODE
 
 restore_cache() {
   rm -f "$HIT_MARKER"
+  local cached_receipt="$CACHE_DIR/release-validation.json"
+  [ -f "$cached_receipt" ] || { echo "==> CNB artifact cache miss: $TARGET_ID ${SOURCE_TREE:0:12}"; return 1; }
   if [ -z "$UNIT_ID" ]; then
     local artifact="$CACHE_DIR/workspace-standalone.tgz"
     local manifest="$CACHE_DIR/workspace-standalone.manifest.json"
-    if [ ! -f "$artifact" ] || [ ! -f "$manifest" ] || ! verify_monolith "$artifact" "$manifest"; then
+    local graph="$CACHE_DIR/deploy-graph.json"
+    if [ ! -f "$artifact" ] || [ ! -f "$manifest" ] || [ ! -f "$graph" ] || ! verify_monolith "$artifact" "$manifest" \
+      || ! node ops/gateway-generation.mjs graph-assert --graph "$graph" \
+        --digest "$(node -e 'const m=require(process.argv[1]); process.stdout.write(m.inputs.deployGraphSha256)' "$manifest")" >/dev/null; then
       echo "==> CNB artifact cache miss: monolith ${SOURCE_TREE:0:12}"
       return 1
     fi
     local output_artifact="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
     local output_manifest="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"
-    mkdir -p "$(dirname "$output_artifact")" "$(dirname "$output_manifest")" "$(dirname "$HIT_MARKER")"
+    local output_graph="${STANDALONE_DEPLOY_GRAPH_PATH:-.cache/release-check/deploy-graph.json}"
+    mkdir -p "$(dirname "$output_artifact")" "$(dirname "$output_manifest")" "$(dirname "$output_graph")" "$(dirname "$HIT_MARKER")"
     cp "$artifact" "$output_artifact"
     cp "$manifest" "$output_manifest"
+    cp "$graph" "$output_graph"
     verify_monolith "$output_artifact" "$output_manifest"
   else
     local artifact="$CACHE_DIR/$UNIT_ID-standalone.tgz"
@@ -87,6 +97,10 @@ NODE
     cp "$contract" "$output_root/deploy-unit-contract.json"
     cp "$graph" "$output_root/deploy-graph.json"
   fi
+  mkdir -p "$(dirname "$RECEIPT_FILE")"
+  cp "$cached_receipt" "$RECEIPT_FILE"
+  node ops/release-gate-receipt.mjs cnb-verify \
+    --base "$VALIDATION_BASE_SHA" --source "$SOURCE_SHA" --tree "$SOURCE_TREE" --file "$RECEIPT_FILE" >/dev/null
   printf '%s\n' "$TARGET_ID:$SOURCE_SHA:$SOURCE_TREE" > "$HIT_MARKER"
   chmod 600 "$HIT_MARKER"
   echo "==> CNB artifact cache hit: $TARGET_ID ${SOURCE_TREE:0:12}"
@@ -97,12 +111,19 @@ store_cache() {
   mkdir -p "$(dirname "$temporary")"
   rm -rf "$temporary"
   mkdir -m 700 "$temporary"
+  node ops/release-gate-receipt.mjs cnb-verify \
+    --base "$VALIDATION_BASE_SHA" --source "$SOURCE_SHA" --tree "$SOURCE_TREE" --file "$RECEIPT_FILE" >/dev/null
+  cp "$RECEIPT_FILE" "$temporary/release-validation.json"
   if [ -z "$UNIT_ID" ]; then
     local artifact="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
     local manifest="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"
+    local graph="${STANDALONE_DEPLOY_GRAPH_PATH:-.next/workspace-deploy-graph.json}"
     verify_monolith "$artifact" "$manifest"
+    node ops/gateway-generation.mjs graph-assert --graph "$graph" \
+      --digest "$(node -e 'const m=require(process.argv[1]); process.stdout.write(m.inputs.deployGraphSha256)' "$manifest")" >/dev/null
     cp "$artifact" "$temporary/workspace-standalone.tgz"
     cp "$manifest" "$temporary/workspace-standalone.manifest.json"
+    cp "$graph" "$temporary/deploy-graph.json"
   else
     local output_root="${DEPLOY_UNIT_OUTPUT_ROOT:-.cache/deploy-units/$UNIT_ID}"
     node ops/deploy-unit-release.mjs artifact-assert \

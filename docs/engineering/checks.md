@@ -4,7 +4,7 @@
 
 `apps/*` 是由部署图生成的独立 Next App 镜像，不是第二份源码事实源。ESLint 只扫描 `app/`、`packages/` 和工具源码；生成 App 由 `deploy:apps:check` 做逐字一致性校验，避免 full lint 重复扫描每个 L1 及其 `.next` 构建目录。
 
-本地多 agent 并行时，确定性的静态检查和 Node 测试以“同一台机器、同一代码快照、同一命令成功一次”为准。每个 agent 都可以收口自己的任务，但检查结果是工作区级别共享的：谁先跑通都算，后续同快照同命令直接复用。`scripts/check/with-check-lock.js` 默认只在最外层计算一次包含 HEAD、staged、unstaged、untracked 和相关环境的快照，子进程继承快照 key；结束时重新取样，工作区漂移就拒绝本轮结果。pre-commit hook 是显式例外：它设置 `CHECK_WORKSPACE_SNAPSHOT_SCOPE=committed`，缓存身份和结束复验只绑定 `HEAD + staged index + 检查环境`，其他 agent 的 unstaged/untracked 变化不参与该次提交检查。成功结果默认可复用 6 小时，`build`、Prisma generate、环境和 Playwright 残留进程等依赖外部状态的任务不缓存。
+本地多 agent 并行时，确定性的静态检查和 Node 测试以“同一台机器、同一代码快照、同一命令成功一次”为准。`scripts/check/with-check-lock.js` 默认计算包含 HEAD、staged、unstaged、untracked 和相关环境的快照。pre-commit 是显式例外：必须先 stage 本任务，入口把 index 写成临时 Git tree/commit，并在 detached 临时 worktree 内执行；后续 worktree 修改和其他 agent 的文件从执行内容中物理隔离。
 
 复合检查统一由 `scripts/check/run-check-suite.mjs` 展开为有序 DAG。一个 suite 在整个执行期只持有一次项目检查锁；嵌套 suite 会被摊平，相同叶子只执行一次，全量 lint/type/UI gate 会覆盖对应增量步骤；full domain 只有在没有 staged-only 视图、两者读取同一 worktree 时才覆盖 changed domain。changed lint、domain 和 migration 共享一次文件集合计算，多个 structure gate 共享一次结构报告。只要快照没漂移，即使后续步骤失败，之前成功的部分结果也会留下供下一轮复用。不要同时启动 `check:blockers`、`gate:domain`、`gate:ui` 或 `arch:structure:*` 来“加速”，总入口已经包含对应叶子，额外启动只会等待 suite 锁。收到终止信号时，锁包装器会终止整棵子进程树并释放锁。
 
@@ -17,8 +17,8 @@
 | 当前改动的直接 TypeScript 工程 | `npm run typecheck:quick` | 只选择直接 package/App scope，不展开所有下游消费者；编译器/构建输入变化时直接拒绝，不会暗中升级到全图。 |
 | 受影响 TypeScript 闭包 | `WORKSPACE_CHANGED_FILES_JSON='[...]' npm run typecheck:affected` | 按 deploy graph 选择 owner unit 及其反向消费者的 package/App scopes；未知、共享或部署协议变化 fail closed 到全部受治理 scopes。 |
 | TypeScript 工程图治理 | `npm run typecheck:references:check` | 锁定根 project references、源码 ownership 与 CI 声明/build-info 成对缓存契约；不执行编译。 |
-| 本地提交默认检查 | `npm run check:precommit` | pre-commit 默认入口，只跑 staged/changed 增量，不自动运行全库 TypeScript；hook 的 committed 快照不会纳入其他 agent 的 unstaged/untracked 文件。全量本地提交用 `PRE_COMMIT_FULL=1 git commit ...`。 |
-| 本地推送自适应检查 | `npm run check:push` | 按 `origin/main..HEAD` 的完整 diff 分类：C0 只跑无依赖文档检查，纯业务展示资源 C1 只跑 migration policy，映射到 C1 的代码仍跑去重后的代码 suite；C2/C3 把 blockers、changed 和 Node 摊平成同一 suite。显式全量用 `npm run check:push:full`。当前 HEAD tree 已有本地 full-CI 通过记录时，只补 base-dependent migration policy；调用方 Node 小版本、平台和架构不参与复用判断。 |
+| 本地提交默认检查 | `npm run check:precommit` | 只验证 exact staged tree 的 changed lint、domain 与 migration；不读取未 stage 内容，不自动加全量或 TypeScript 门禁。 |
+| 推送门禁 | GitHub `CI / required` | pre-push 不重复执行源码门禁。远端从可信 Git base/head 选择改动项目，并通过 deploy graph / impact map 扩展反向依赖；只执行该范围的 lint、Node、type、PostgreSQL、build 与已登记 E2E。`npm run check:push` 仅保留为用户显式请求的本地诊断命令。 |
 | 清债/重构改动 | `npm run check:refactor` | 跑拆分质量、changed lint 和静态 contract；类型检查留到显式诊断或 CI/发布。 |
 | 仅检查本次总行数预算 | `npm run complexity:line-budget` | 检查 staged diff；没有 staged diff 时检查 tracked changed + untracked。默认净增必须 `<= 0`。 |
 | 仅检查拆分质量 | `npm run complexity:split-quality` | 防止为过 `max-lines` 把大文件随便搬家。 |
@@ -38,7 +38,7 @@
 | 可扩展性契约 | `npm run test:scalability-contract` | 用 mock/fixture 阻断全量读取、内存分页和调用次数爆炸；不把它当作真实延迟测试。 |
 | PostgreSQL integration | `npm run test:integration:postgresql` | 在一次性 `*_ci` 库执行真实 PostgreSQL runtime/constraint、并发通知读取与并发写入 capacity smoke。 |
 | 关键浏览器保存闭环 | `npm run test:e2e:critical` | 先拒绝非一次性数据库并 seed 身份，再执行页面操作 → 保存 → API/DB 回读 → 刷新保留；账户页暖重载超过 `10 s` 会阻断。 |
-| 全量 CI / CNB 发布门禁核心 | `npm run check:ci` | 入口自动切换到 `.node-version` 的仓库 Node 主版本，串行执行去重后的静态门禁、全部 Node 测试、full type 和 production build；某个独立步骤失败后继续收集其余步骤，最后一次性汇总全部阻断项。日常可本地诊断，正式发布由 CNB 的目标无关 release-gate 调用，并在 build 可用时继续一次性 PostgreSQL migration/seed 与全量 E2E。 |
+| 显式全量诊断 | `npm run check:ci` | 仅在用户明确要求全量时运行；不是 pre-commit、push 或 deploy 的默认门禁。发布验证使用 `scripts/ci/run-affected-validation.mjs` 的 base/head 受影响闭包。 |
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
 | 周期性清债 | `npm run check:hygiene` | 强制巡检租户硬编码和简单 structure hygiene 债务；active baseline 固定为零，定时 CI 每晚 strict 执行，Hygiene 至少每周复查结果。 |
@@ -80,13 +80,13 @@
 
 `typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。Workspace 的根编译 solution 由 `tsconfig.json`、公共 `tsconfig.base.json`、各 `packages/*/tsconfig.json`、`tsconfig.app.json`、`tsconfig.prisma-client.json` 和 `tsconfig.tooling.json` 组成。根 solution 继承 base 供仓库 `tsx` 运行时解析 alias，但保持 `files: []`，不拥有源码。Core 没有 Workspace 上游；Platform 只引用 Core 和生成的 Prisma Client；每个业务 package 只引用 Core 和 Platform；App 与 tooling 引用全部 package。每个生成的 `apps/<unit>/tsconfig.json` 另形成 `app-<unit>` deploy scope，由 deploy contract/builder 显式消费，不手工并入根 solution。`typecheck:references:check` 锁定根工程图、源码 ownership 和缓存契约，禁止通过新增 reference 合法化反向或跨业务依赖，也禁止新增无人负责检查的 TS/TSX/MTS/CTS；生成 App 的文件精确性另由 `deploy:apps:check` 负责，已退出运行面的 `scripts/migrate/sqlite-legacy/` 是唯一显式源码排除。
 
-`npm run typecheck:scope -- production` 这类 scoped 检查只构建目标工程及其上游，适合单模块开发；`typecheck:quick` 从当前 staged/working-tree 变更选择直接 package/App scope，不检查反向下游，也绝不自动升级为全图；`typecheck:affected` 用于 CI 从可信 changed-files evidence 选择 owner unit 及反向消费者；`typecheck:full` 才构建根 solution，只作 CI/发布权威入口。这些入口共享 project-reference 增量产物：声明文件固定输出到 `.cache/types/`，build info 固定输出到 `.cache/tsbuild/`，不会写入源码目录或进入 Next 的 source include。CI 必须同时缓存两者，不能只恢复 build info 而缺少下游需要的声明输出。不要为了触发“干净检查”删除 `.cache`；本地入口的 Node old-space 硬上限为 `4096 MiB`，不得通过提高内存重试。
+`npm run typecheck:scope -- production` 只构建目标工程及其上游；`typecheck:quick` 选择直接 package/App scope；`typecheck:affected` 从可信 changed-files evidence 选择 owner unit 及反向消费者，是 CI/发布验证的默认权威入口；`typecheck:full` 仅用于显式全量诊断。这些入口共享 `.cache/types/` 与 `.cache/tsbuild/`，本地 Node old-space 硬上限为 `4096 MiB`。
 
-根 monolith 的 Next 通过 `next.config.ts#typescript.tsconfigPath` 使用 `tsconfig.app.json` 检查路由壳。当前 Next 16 会提示 project references 尚未完全支持，并尝试自己的 incremental build；因此 Next build 不能替代 `typecheck:full` 对完整工程图的权威检查。CI/发布必须先通过 `typecheck:full`，随后使用 `build:next:after-typecheck` 显式设置外部类型权威标记，只跳过 Next 重复且不完整的 project-reference 类型遍历；普通 `build` 与 `build:next` 不设置该标记，仍保留 Next 自身检查。独立 unit builder 同样先运行 deploy graph 派生的全部 package 与 `app-<unit>` scopes，生成的 unit Next config 设置 `ignoreBuildErrors`，避免重复类型遍历。
+根 monolith 的 Next 通过 `tsconfig.app.json` 检查路由壳，但不能替代 project-reference 类型权威。CI/发布 validate 先运行 `typecheck:affected`；若该 lane 被选择，artifact builder 使用 `build:next:after-typecheck` 跳过 Next 重复遍历，unit builder 也不再重复相同 scopes。未选择 type lane 的纯文档/展示 artifact build 保留 Next 自身检查。
 
 所有入口都必须经过 `scripts/check/with-check-lock.js -> scripts/check/run-typecheck.js`。专用 runner 会校验当前活锁及其 owner，直接执行 runner 会在加载编译器前失败；`typecheck:entrypoints:check` 同时扫描 package scripts、CI/ops/scripts 和现行 agent/工程文档，阻止裸 TypeScript CLI 命令重新进入仓库。锁包装器会把 `SIGINT`、`SIGTERM` 和终端挂断的 `SIGHUP` 转发到独立子进程组，等待子进程退出后才释放锁；宽限期后仍未退出则强制终止整个进程组。
 
-日常 `check:changed`、`check:refactor`、`check:quick`、`check:precommit` 和 `check:push` 都不自动运行 TypeScript。普通局部修改不需要另外启动类型检查；需要本地诊断时优先用单 scope，多直接工程才用 `typecheck:quick`。CI/发布通过 `typecheck:full` 保留权威类型门禁。
+日常 `check:changed`、`check:refactor`、`check:quick` 和 `check:precommit` 都不自动运行 TypeScript。普通局部修改需要诊断时优先单 scope；远端 CI 与发布 validate 使用 `typecheck:affected`。
 
 ### blockers
 
@@ -155,7 +155,7 @@
 
 GitHub Actions 先对完整 base/head diff 做 C0–C3 分类，再并行执行 static、Node、type、PostgreSQL 和 build。没有 E2E 且不要求整站 artifact 时，build job 生成受影响 unit 计划并构建对应独立 artifacts；需要 E2E 或显式整站 artifact 时才构建 canonical monolith，E2E 独立 job 只下载并启动同一个 canonical 产物。`CI / required` 最后验证哪些 job 必须成功、哪些必须跳过。详细分级、覆盖映射和同 SHA 发布契约见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
-生产发布不等待或查询 GitHub。Git hooks 与本地 `ops/publish*.sh` / `release-to-cnb.sh` 入口统一通过 `scripts/runtime/run-with-repo-node.sh` 选择 `.node-version` 指定的 Node；`npm run check:ci` 的可执行入口也会自举到同一 Node 主版本，并把 `TMPDIR` 固定到工作区忽略目录 `.cache/runtime-tmp`，避免调用方 PATH 漂移。仓库 TypeScript 脚本统一使用 `node --import tsx`，不启动受限环境会拒绝的 `tsx` CLI IPC server。`ops/publish.sh prepare` 在干净 release worktree 只写入精确 source/tree 的候选回执；`ops/publish.sh deploy` 验证该回执后触发 CNB。CNB 对 Full/单模块调用同一个 collect-all release-gate，运行 `check:ci`，在 production build 可用时继续一次性数据库 migration/seed 与全量 E2E，全部通过才写 `full-and-unit` 门禁回执；目标 artifact builder 与 deploy adapter 都复验该回执。Library/Qwen/ONLYOFFICE runtime 快速路径仍必须先通过 identity/version/health 复验。
+生产发布不等待或查询 GitHub。`ops/publish.sh prepare` 冻结 source/tree；`publish.sh validate` 或 `validate --local` 以生产 deployed source 为 base，只验证 base/head 改动项目和反向依赖，构建目标 artifact，并把 validation base、source、tree、receipt 与 artifact digest 原子缓存。`publish.sh deploy` 或 `deploy --direct` 只恢复和复验该缓存，随后进入 migration/锁/备份/健康/切换/回滚等部署安全检查，不再运行源码门禁或构建。
 
 ### scalability contract 与真实容量
 

@@ -1,57 +1,46 @@
 # CI/CD 与测试分级
 
-本文是 Workspace 合并和生产发布的执行真源。目标不是每次提交都跑全量，而是让风险判断可复现、未知变更默认从严，并让静态 gate、Node、PostgreSQL、build 与浏览器 E2E 各自给出独立证据。
+本文是 Workspace 合并和生产发布的执行真源。默认范围只来自 Git base/head 的提交内容及其依赖闭包；风险标签、文件数量、行数和二进制大小可以作为诊断信息，但不得自动增加门禁。
 
 ## 质量边界
 
-- 分类器读取完整 base..head diff，不读取提交信息，也不把代码里的“纯文案”当成可证明的文案变更。
-- 条件 job 只有在分类器明确允许时才能跳过；`CI / required` 会同时校验应成功和应跳过的 job。
-- 分类器、CI runner、Playwright runner、影响映射、公开 contract 或测试删除本身都按 C3 处理。
+- pre-commit 先把 index 写成临时 Git tree/commit，只对 exact staged content 跑 changed lint、domain 和 migration。
+- pre-push 不重复执行源码门禁；GitHub 从可信 remote base/head 解析 changed files，再通过 deploy graph、package ownership 和 impact map 加入反向依赖。
+- 条件 job 只有在依赖闭包需要时才运行；`CI / required` 同时校验应成功和应跳过的 job。
 - 启用分支保护后，受保护 `main` 的精确 `CI / required`（GitHub Actions App）仍是 GitHub 合并门禁，但不参与生产发布判定。
-- 生产门禁在 CNB Linux Builder 对当前 Git tree 实际执行一次 collect-all 完整 CI、production build 和全部已注册 Playwright E2E。它不读取 GitHub 状态；Full 与单 unit 在目标制品分叉前使用同一门禁范围。门禁通过后，Full 复用 canonical monolith standalone，单 unit 再构建 graph 约束的独立 artifact；服务器都不从源码重建。
+- 生产先执行一次 `validate`：从当前生产 deployed source 到 candidate 的 base/head 选择源码检查，加入依赖闭包并构建目标 artifact。validation receipt 绑定 base/source/tree，artifact manifest 绑定 digest。后续 `deploy` 只消费这组 immutable evidence，不重新检查源码或构建。
 
-## 风险等级
+## 受影响范围
 
-| 等级 | 可证明范围 | 必需证据 |
+| 变更 | 选择规则 | 默认证据 |
 |---|---|---|
-| C0 文档 | 根目录约定文档、`docs/**/*.md(x)`、文本说明、模块内约定文档和 GitHub 模板；不包含 `.ts/.tsx` 中的文案，也不包含 `docs/generated/**` | dependency-free migration marker 与架构文档一致性、聚合门禁；不安装依赖，不跑 Node test、type、PostgreSQL、build、E2E，不生产运行包 |
-| C1 展示补丁 | 仅业务模块 `packages/<module>/ui/**` 下的 CSS、字体、图像等展示资源；不得涉及 Core、Platform、`app/`、`public/` 或代码 | PR 只做分类与聚合，main 发布候选才补 production build；不跑 static、Node、type、PostgreSQL 或 E2E。影响映射明确降到 C1 的代码仍跑 static、全部 Node 和 affected type，但普通 PR 不跑 build |
-| C2 已覆盖改动 | 受信任影响映射中有明确只读或写入覆盖的标准单模块改动 | static/changed lint、全部 Node、affected type 和 build；server/write 加 PostgreSQL；存在映射 suite 时运行目标 E2E |
-| C3 全量 | 高风险、跨模块、未知、未覆盖或超过规模阈值的变更 | full static/lint、全部 Node、full type、PostgreSQL、build、全部已注册 Playwright |
+| 普通业务 package | owner package / deploy unit，加 contributor graph 的反向消费者 | changed lint、受影响 Node、affected type、owner unit build；登记为 server/write 时加 PostgreSQL，登记 suite 时加目标 E2E |
+| Core、Platform、schema、共享构建输入 | deploy graph 的全部消费者 | 全部受治理 unit 的受影响 Node/type/build 与已登记 E2E；这是依赖闭包，不是风险升级 |
+| 文档 | 提交的文档路径 | dependency-free 文档一致性；`docs/generated/**` 只补生成文档一致性 |
+| 展示资源 | 对应业务 owner | owner build；不因文件数量或大小自动增加源码门禁 |
+| 无法证明 base/head 或 owner | 不猜测范围 | 分类失败，先修正远端证据或 ownership mapping |
 
-以下任一条件会升级到 C3：
-
-- Prisma schema/migration、认证、RBAC、共享 Core/Platform、CI/CD、测试 runner 或影响映射变化；
-- API/公开 contract 的新增、删除、重命名或形状变化，或者删除/移出测试；
-- 任意未映射模块路径，或可能写入但没有明确 `write`/`read-only` 归属的 UI、API、server 路径；
-- 同时影响至少两个业务模块；
-- 非测试、非生成源码超过 20 个文件，或非生成 diff 超过 500 行；
-- 单个展示资源 blob 超过 2 MiB、展示资源 blob 总变化超过 5 MiB，或展示资源超过 20 个文件；文本和二进制都计入；
-- 任意非展示二进制文件变化；这类产物无法用行数证明影响范围，直接全量；
-- base/head、生产基线或远端证据不能被严格证明；
-- 人工 `force_full`，用于指定 SHA 的完整 CI 诊断。
-
-阈值只负责升级，不负责降级。一行 migration 仍是 C3；大量生成文件不会单独把普通变更误判成大改。
+用户显式请求 `force_full` 时可以运行全量诊断；它不属于默认协作或发布流程。
 
 ## 流水线
 
 ```text
 classify
-├── static       C0 无依赖 docs/migration policy；代码变更跑 lint / architecture / contracts
-├── node         packages / scripts / app / ops 的 Node 测试
-├── type         展示资源 C1 跳过；映射代码 C1/C2 affected；仅 C3/显式全量 full
-├── PostgreSQL   C2 server/write 或 C3：migration / seed / integration
-└── build        无 E2E/整站发布时按 deploy graph 构建受影响 unit；其余过渡车道构建 canonical monolith tgz
-      └── E2E    C2 映射 suite 或 C3：下载并启动同一个 canonical tgz
+├── static       changed lint / submitted migration policy / submitted generated-doc consistency
+├── node         changed owner 与依赖消费者的 Node tests
+├── type         deploy graph affected scopes
+├── PostgreSQL   changed server/write/schema paths
+└── build        deploy graph affected units
+      └── E2E    impact map selected specs
 
 所有预期结果 -> CI / required
 
-production: local candidate freeze -> CNB shared full gate + Linux build/full E2E -> target artifact -> production
+production: prepare -> validate(local or CNB, once) -> immutable artifact -> deploy(CNB or direct, no source gates)
 ```
 
 同一 event + 稳定 ref（或同一 PR）的连续 push/触发会取消旧 CI，只保留最新 SHA 的运行。候选过程固定复用 `codex/staging-main`、`codex/candidate-main` 和同一个 bot PR，因此第二次 push 会更新同一 ref/PR 并取消旧候选 CI。不同 PR、main push 与手工任务不会互相取消。已经进入生产 backup/migration/switch 临界区的部署不使用这组可取消 concurrency；服务器互斥锁保证一次只有一个部署。
 
-缓存只加速输入：npm 下载、project-reference 的 `.cache/types` + `.cache/tsbuild`、`.next/cache`、`.cache/next-units` 和 Playwright 浏览器。缓存不能替代当次 CNB 公共门禁或把旧目标 artifact 当成门禁通过结论；即使 artifact cache 命中，也必须先重新生成精确 source/tree 的 `full-and-unit` 门禁回执。PostgreSQL lane 运行时，schema/migration contract 由它唯一负责，static 不再重复；standalone tgz 是带 manifest/digest 的发布 artifact，不是普通构建缓存。
+普通 build cache 只加速输入。release artifact cache 则是 validate 的正式输出：目录按目标和 source tree 不可变保存 artifact、manifest 与 validation receipt；restore 必须同时复验 validation base、source SHA、tree SHA 和 artifact digest。任何一项不匹配都必须重新 validate，不能在 deploy 中补跑或重建。
 
 Build lane 会用同一 changed-files evidence 生成 `.ci/deploy-unit-build-plan.json`。没有 E2E 且不发布整站 artifact 时，`deploy:affected:build` 只构建 owner unit；Finance 私有变化不会重建其他 L1。Core、Platform、schema、lockfile、deploy protocol 或未知代码路径会选择全部 12 个 unit。需要当前 E2E 或过渡期整站发布时仍构建 canonical monolith，避免在生产 Gateway 尚未启用前伪装成 fleet E2E。
 
@@ -106,16 +95,16 @@ npm run test:e2e:latency
 
 ## 从提交到发布
 
-1. pre-commit 只检查 staged/changed 范围，不隐式运行全库 TypeScript；日常 changed/refactor/quick/push 同样不自动运行 TypeScript。普通局部改动不另跑类型检查；需要诊断时，单模块显式使用 `npm run typecheck:scope -- <package>`，多直接工程使用 `typecheck:quick`，CI/发布才使用 `typecheck:full`。hook 和 `npm run check:ci` 可执行入口都会先按 `.node-version` 自动选择 Node，并把一般运行时临时目录固定到工作区 `.cache/runtime-tmp`。TypeScript 检查通过受锁 runner 加载编译器，不启动 `tsx` CLI IPC server。显式设置 `PRE_COMMIT_FULL=1` 会运行全量并为 staged tree 写入发布可复用通过记录。
-2. Git 跟踪的 `ops/publish.sh push`（桌面私有目录只保留加载 `.env` 的薄 wrapper）以 `origin/main..HEAD` 运行自适应本地 gate，把 staging SHA 交给受信任的 `Promote candidate` workflow；workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上显式触发 CI，不直推 `main` 或 CNB。
+1. 提交前先只 stage 本任务。pre-commit 把 index 转成临时 tree/commit，并在隔离 worktree 只运行 changed lint、domain 与 migration；不读取 unstaged/untracked，也不自动增加 TypeScript 或全量检查。
+2. `ops/publish.sh push` 只更新 staging SHA 并交给受信任的 `Promote candidate` workflow；pre-push hook 不运行源码门禁。GitHub candidate PR 以 remote base/head 运行 affected dependency-closure CI。
 3. 对命中 CODEOWNERS 的质量策略路径，由 repository owner 审批 bot-authored PR；这解决单 owner 对自己所开 PR 无法批准的问题，但不虚构“独立第二人”审查。旧批准会在后续 push 后失效；配置未要求通用批准数或 last-push 第二人批准。
 4. PR/merge-group 按受保护 base 分类并由 `CI / required` 聚合。GitHub Actions 在无 E2E/整站发布请求时上传受影响 unit artifacts；需要 E2E 或整站 artifact 时上传 canonical monolith，并只在同一 CI run 内交给 E2E。这些 CI artifacts 不发布 prerelease，也不参与生产部署。
 5. `publish.sh prepare` 是正式发布前唯一候选冻结入口。它快进专用 `release` worktree，校验私有 CNB YAML、租户运行配置与派生权限文档，只写入 source/tree 绑定的 candidate receipt；不在本机运行 compile、full type 或 E2E。
-6. `publish.sh deploy` 是 Full/单 unit 的唯一生产 operator 入口；Profile/Fleet 只经受信内部入口运行。它不再快进候选，而是校验并冻结使用现有的干净 release HEAD；即使 `prepare` 后 main 又有提交，本次 deploy 仍只消费已 prepare 候选的精确回执。CNB 先执行目标无关的 `ops/run-cnb-release-gate.sh`：`check:ci` 以 collect-all 汇总静态、Node、type 与 build 错误；只要 production build 可用，即使其他检查失败也继续运行一次性 PostgreSQL migration/seed 和全量 E2E，最后统一返回。全部通过才写 `scope=full-and-unit` 回执。
+6. `publish.sh validate`（CNB）或 `publish.sh validate --local` 从生产 receipt 取 validation base，对 `base..candidate` 选择改动 owner 和依赖消费者，串行运行必要源码检查、构建目标 artifact，并缓存 schema v2 validation receipt。修复后 source/tree 改变，旧缓存自动失效。
 7. Git 跟踪的 `ops/cnb-release.yml` 只定义可复用流水线形状；租户实际的 CNB env import、服务器目录和健康检查地址由 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 管理。发布脚本读取并校验该租户文件；`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
-8. CNB 在 injection checkout 中恢复或安装依赖，先运行公共门禁并复验其回执，再按 release metadata 构建 Full canonical standalone 或单 unit artifact。Full 复用门禁产生的 monolith build，单 unit 只额外编译目标 App。packager 绑定 parent source SHA/tree、目标、BUILD_ID、contract/graph，生成可跨同 source 重试复用的 manifest/tgz；统一部署 adapter 在上传前再次复验本次门禁、manifest、artifact hash、migration set 和注入身份，全程不访问 GitHub。
+8. `publish.sh deploy` 或 `publish.sh deploy --direct` 必须恢复 validate 生成的同目标 artifact。cache miss、validation base/source/tree 不同或 digest 失败立即阻断；deploy 禁止运行 classifier、源码检查和 build。统一部署 adapter 仍复验 injection identity、manifest、artifact hash 与 migration set，全程不访问 GitHub。
 9. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准。candidate 必须是 bootstrap baseline 或已部署 source 的后代，同 source 是 no-op，回退或分叉直接阻断。
-10. `publish.sh` 在专用 release worktree 维护跨失败重试的流程计时会话。单次部署尝试从 candidate receipt 和本地廉价 preflight 通过后开始，经过只读生产预检、CNB 公共门禁、目标构建、传输和切换，直到成功、失败或取消；三种结果都会写服务器 Bot 事件和部署历史。CNB 门禁失败时不构建或部署目标制品；应先按完整汇总修复并提交，再重新 prepare/deploy。
+10. `publish.sh` 在专用 release worktree 维护跨失败重试的流程计时。validate 失败时回 main 修复并重新 prepare/validate；deploy 只统计生产预检、制品恢复、传输、migration、切换和健康结果。
 11. 当前部署历史覆盖 Full、单 unit shadow/activate/rollback 和 Profile promotion：事件追加到生产 `.workspace/deployment-history/deployments.ndjson`，同时保留逐次 JSON 与 `latest.json`。Profile promotion 当前只记录目标范围与本次 promotion duration，没有接入 `publish.sh` 的跨重试 release-process timing；Profile rollback 当前只切回上一 Gateway generation，尚未写部署事件或历史，这是通知/审计缺口，不能描述成已经完整留痕。Operations 不运行定时分析，只在用户要求时按需查询。生产记录按相应事件保存可用的 CNB/source/artifact/Gateway 证据，不创建 GitHub Deployment。
 
 生产基线不可读、不是候选祖先、migration 区间无法证明、manifest 或 artifact hash 不匹配时一律阻断。
@@ -126,8 +115,14 @@ npm run test:e2e:latency
 # 本地冻结候选并校验私有配置；不编译、不运行 E2E
 OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare
 
-# 消费 candidate receipt；CNB 完整门禁通过后执行 Full 生产发布
+# 在 CNB 验证 base/head affected closure 并冻结制品；也可加 --local
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh validate
+
+# CNB 只消费已验证制品后执行 Full 生产发布
 OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy
+
+# 本地验证后可直接进入同一部署 adapter，不触发 CNB
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy --direct
 
 # active 单元公开部署并切换公网 Gateway
 OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy --deploy-unit external
@@ -209,14 +204,14 @@ CNB 和生产服务器不保存 GitHub token，也不读取 GitHub API、Actions
 
 ## 速度策略、预算与观察
 
-发布提速来自删除本机 production build、合并 Full/模块重复门禁，并复用 CNB 的 npm、Next、type 和 artifact 输入缓存。artifact cache 命中只能跳过目标制品重建，不能跳过当次公共完整门禁；服务器不重建。
+发布提速来自把 source validation/build 与 production deploy 解耦。validate 成功后，CNB deploy 或 direct deploy 都只复验并消费 immutable artifact；服务器不重建。只有 base、source、tree、目标或 digest 变化才需要重新 validate。
 
 历史观测中，一次成功 CNB build 总耗时约 `405.55 s`（约 `6 分 46 秒`）；这是单次历史样本，不是中位数、p95 或当前 SLA。旧 GitHub 串行链路曾观测约 5 分 28 秒。拆分后的预算仍是 C0 约 1 分钟、局部补丁约 2 分钟获得主要反馈、C3 wall time 约 4–5 分钟；CNB 先以低于历史样本为优化方向，达到稳定 p50/p95 前不宣称 3–5 分钟已经实现。
 
 ### Stage 1 Builder、缓存与计时契约
 
 - CNB release 使用 `ops/cnb-builder.Dockerfile` 预装 Node 24、ripgrep、PostgreSQL server/client 与 Linux 构建/传输工具；Node 基础镜像按 digest 固定，`.node-version` 与 Dockerfile 同时作为 Builder 版本输入。流水线开始时由 `ops/verify-cnb-builder.sh` 复验 Node 主版本和工具集合，不在每次发布热路径执行 `apt-get`。
-- 公共门禁在完整 CI 前只启动一次 Builder 内的一次性 PostgreSQL cluster，并准备固定的 `workspace_ci` / `workspace_ci_shadow` 数据库；migration consistency 与随后的一次性 migration/seed、全量 E2E 共用该 cluster。门禁 stage 的计时只包裹顶层命令，不得通过 `RELEASE_TIMING_*` 环境变量改变 CI 或 E2E 内部子进程行为。
+- validate 只有在 affected plan 选择 PostgreSQL 或 monolith E2E 时才启动 Builder 内的一次性 cluster；未选中的 lane 不运行。部署 action 只恢复 receipt/artifact，不启动数据库测试环境。
 - 仓库模板和 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 都必须通过 `node ops/validate-cnb-release-config.mjs <path>`。校验器只允许一个 `deploy-prod` pipeline 和五个有序、精确命令的 stage，其中 `release-gate` 必须位于依赖安装之后、目标构建之前；要求 npm、Next 和成对的 TypeScript declaration/build-info copy-on-write cache，拒绝额外 pipeline/stage、变体 volume、`node_modules`、standalone tgz 或冷安装工具阶段。
 - `server-prod.yaml` 只能由 `deploy-to-server` stage 导入。pipeline、Builder 验证、`npm ci` 和 Next build 均不得接触 SSH key、生产服务器地址或其他部署 secret；构建仅使用固定的非生产 Prisma generation 环境。
 - 本地检查缓存不做 source hash 失效：`.next/cache`、`.cache/types`、`.cache/tsbuild`、Playwright 浏览器目录均直接复用；每次入口清理超过 7 天的文件，并在总量超过 12 GiB 时从最旧文件开始回收。缓存完全缺失时仍能完成真实 build/E2E。生产在线状态、artifact digest、版本和健康检查属于实时事实，不能用缓存跳过。

@@ -35,19 +35,19 @@ test("prepare freezes a candidate and deploy has one CNB-gated production path",
   assert.ok(dispatch >= 0 && dispatch < githubSetup);
   assert.match(publish, /prepare\)[\s\S]*?release-gate-receipt\.mjs" candidate-create/);
   assert.doesNotMatch(publish.slice(publish.indexOf("  prepare)"), publish.indexOf("  data)")), /npm run check:ci|build:next|test:e2e/);
-  assert.match(publish, /deploy\)[\s\S]*?release-gate-receipt\.mjs" candidate-verify[\s\S]*?exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh" "\$\{deploy_args\[@\]\}"/);
-  assert.doesNotMatch(publish.slice(publish.indexOf("deploy)")), /upload-data-release\.sh/);
+  assert.match(publish, /deploy\|validate\)[\s\S]*?release-gate-receipt\.mjs" candidate-verify[\s\S]*?exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh" "\$\{deploy_args\[@\]\}"/);
+  assert.doesNotMatch(publish.slice(publish.indexOf("deploy|validate)")), /upload-data-release\.sh/);
   assert.doesNotMatch(publish, /--full|hotfix|publish-hotfix/i);
   assert.equal(existsSync(new URL("./publish-hotfix.sh", import.meta.url)), false);
   assert.equal(existsSync(new URL("./hotfix-remote-build.sh", import.meta.url)), false);
-  assert.match(publish, /if \[ "\$\{#deploy_args\[@\]\}" -eq 0 \]; then\s+exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);
+  assert.match(publish, /deploy_args=\(--release-action "\$release_action"\)/);
 });
 
 test("prepare alone promotes main into the dedicated release worktree by fast-forward only", () => {
   const promote = publish.indexOf('"$SCRIPT_DIR/promote-release-branch.sh" promote');
   const prepareFunction = publish.indexOf("prepare_release_worktree() {");
   assert.ok(prepareFunction >= 0 && prepareFunction < promote);
-  const deploy = publish.slice(publish.indexOf("  deploy)"));
+  const deploy = publish.slice(publish.indexOf("  deploy|validate)"));
   assert.match(deploy, /load_prepared_release_worktree/);
   assert.doesNotMatch(deploy, /prepare_release_worktree/);
   assert.match(promoteRelease, /promote\|verify/);
@@ -122,23 +122,25 @@ test("CNB release identity is source parent plus exact injection files", () => {
   assert.match(deploy, /RELEASE_CNB_INJECTION_SHA/);
 });
 
-test("CNB runs one target-independent collect-all gate before either artifact path", () => {
+test("validation runs once and CNB or direct deploy only consumes its immutable artifact", () => {
   assert.doesNotMatch(publish, /npm run check:ci|npm run test:e2e|local-release-gate\.sh/);
-  assert.match(runCnbReleaseGate, /npm run check:ci/);
-  assert.match(runCnbReleaseGate, /ci_status=\$\?/);
-  assert.match(runCnbReleaseGate, /run-release-e2e\.sh/);
-  assert.match(runCnbReleaseGate, /e2e_status=\$\?/);
-  assert.match(runCnbReleaseGate, /scope: "full-and-unit"|cnb-create/);
+  assert.match(runCnbReleaseGate, /classify-risk\.mjs[\s\S]*?--base "\$RELEASE_VALIDATION_BASE_SHA"[\s\S]*?run-affected-validation\.mjs/);
+  assert.match(runCnbReleaseGate, /ACTION" = "deploy"[\s\S]*?cnb-release-artifact-cache\.sh restore[\s\S]*?exit 0/);
   assert.ok(cnbRelease.indexOf("- name: release-gate") < cnbRelease.indexOf("- name: build-release-target"));
-  assert.match(buildCnbReleaseTarget, /release-gate-receipt\.mjs cnb-verify/);
+  assert.match(buildCnbReleaseTarget, /release-gate-receipt\.mjs cnb-create/);
   assert.match(buildCnbReleaseTarget, /cnb-release-artifact-cache\.sh restore/);
   assert.match(deployCnbReleaseTarget, /release-gate-receipt\.mjs cnb-verify/);
   assert.doesNotMatch(installCnbReleaseDependencies, /cnb-release-artifact-cache\.sh restore/);
   assert.doesNotMatch(buildStandaloneArtifact, /\.cnb-release-gate\.json/);
   assert.doesNotMatch(buildDeployUnitArtifact, /\.cnb-release-gate\.json/);
-  assert.match(publish.slice(publish.indexOf("  deploy)")), /exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);
+  assert.match(publish.slice(publish.indexOf("  deploy|validate)")), /exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);
   assert.match(publishCnb, /release-gate-receipt\.mjs" candidate-verify/);
-  assert.match(publishCnb, /完整 CI、编译和 E2E 将由 CNB 统一运行/);
+  assert.match(publishCnb, /run-local-release-action\.sh/);
+  assert.match(publishCnb, /CNB validate 完成/);
+  assert.match(installCnbReleaseDependencies, /RELEASE_ACTION:-deploy\}" = "deploy"[\s\S]*?跳过 npm ci/);
+  assert.match(buildStandaloneArtifact, /workspace-deploy-graph\.json[\s\S]*?deployGraphSha256/);
+  assert.match(deploy, /RELEASE_DEPLOY_GRAPH_FILE[\s\S]*?graph-assert/);
+  assert.doesNotMatch(deploy, /migration\.static/);
   for (const source of [releaseToCnb, deploy]) {
     assert.match(source, /metadata\.releaseCandidate\?\.schemaVersion !== 1/);
     assert.match(source, /metadata\.releaseCandidate\?\.sourceSha !== sha/);
@@ -191,6 +193,7 @@ test("private data transfer is an explicit command outside deployment", () => {
 test("database replacement is a separately selected Full deployment mode bound to the normal CNB gate", () => {
   assert.match(publish, /database-replace\)[\s\S]*?publish-database-replacement\.sh/);
   assert.match(publishDatabaseReplacement, /publish\.sh" prepare[\s\S]*?prepare-database-replacement\.sh/);
+  assert.match(publishDatabaseReplacement, /validate\)[\s\S]*?publish\.sh" validate/);
   assert.match(
     publishDatabaseReplacement,
     /publish\.sh" deploy[\s\S]*?--database-replacement-receipt/,

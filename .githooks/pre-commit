@@ -1,48 +1,15 @@
 #!/bin/sh
-# Pre-commit hook: keep local commits incremental and cache-friendly.
-# Use PRE_COMMIT_FULL=1 git commit ... to mirror GitHub CI locally.
+# Pre-commit hook: validate the exact staged tree only.
 
 if [ "${WORKSPACE_REPO_RUNTIME_READY:-0}" != "1" ]; then
   repository_root="$(cd "$(dirname "$0")/.." && pwd)"
   exec "$repository_root/scripts/runtime/run-with-repo-node.sh" "$0" "$@"
 fi
 
-if [ "${PRE_COMMIT_FULL:-0}" = "1" ]; then
-  assert_index_snapshot_only() {
-    if ! git diff --quiet --ignore-submodules -- \
-      || [ -n "$(git ls-files --others --exclude-standard)" ]; then
-      echo "✗ PRE_COMMIT_FULL requires no unstaged or untracked files so the checked tree is exact."
-      exit 1
-    fi
-  }
-
-  assert_index_snapshot_only
-  echo "→ Running full CI checks before commit..."
-  npm run check:ci || {
-    echo "✗ CI checks failed. Commit aborted."
-    exit 1
-  }
-  assert_index_snapshot_only
-
-  ci_tree="$(git write-tree)"
-  ci_stamp="$(git rev-parse --git-path workspace-check-ci-ok)"
-  printf '%s\n' "$ci_tree" > "$ci_stamp"
-  ci_receipt="$(git rev-parse --git-path workspace-local-full-ci.json)"
-  node scripts/ci/local-full-ci-receipt.mjs create --tree "$ci_tree" --output "$ci_receipt"
-
-  echo "✓ Pre-commit full CI checks passed."
-  exit 0
-fi
-
-echo "→ Running incremental pre-commit checks..."
-node scripts/check/check-core-ui-guard.js --staged || {
-  echo "✗ Core UI guard failed. Commit aborted."
+echo "→ Running exact staged-tree pre-commit checks..."
+npm run check:precommit || {
+  echo "✗ Staged-tree pre-commit checks failed. Commit aborted."
   exit 1
 }
 
-CHECK_WORKSPACE_SNAPSHOT_SCOPE=committed npm run check:precommit || {
-  echo "✗ Incremental pre-commit checks failed. Commit aborted."
-  exit 1
-}
-
-echo "✓ Incremental pre-commit checks passed."
+echo "✓ Staged-tree pre-commit checks passed."
