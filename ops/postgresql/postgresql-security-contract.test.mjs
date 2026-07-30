@@ -16,10 +16,15 @@ test("backup is private, atomic, verified, retained, and provider-neutral", () =
   assert.match(source, /sha256sum --check/);
   assert.match(source, /\.incomplete-/);
   assert.match(source, /WORKSPACE_POSTGRESQL_OFFSITE_COMMAND/);
+  assert.match(source, /WORKSPACE_POSTGRESQL_BACKUP_URL is required/);
+  assert.match(source, /WORKSPACE_POSTGRESQL_ALLOW_LOCAL_PEER_FALLBACK/);
+  assert.match(source, /PGPASSWORD="\$backup_password" pg_dump/);
+  assert.match(source, /--dbname="\$backup_connection_url"/);
+  assert.doesNotMatch(source, /--dbname="\$backup_url"/);
   assert.match(source, /daily_keep.*7/);
   assert.match(source, /weekly_keep.*4/);
   assert.match(source, /monthly_keep.*6/);
-  assert.doesNotMatch(source, /PASSWORD\s*=/i);
+  assert.doesNotMatch(source, /PGPASSWORD=["'][^$]/);
 });
 
 test("restore drill is isolated and destroys only labeled temporary resources", () => {
@@ -29,6 +34,10 @@ test("restore drill is isolated and destroys only labeled temporary resources", 
   assert.match(source, /--no-owner/);
   assert.match(source, /--no-privileges/);
   assert.match(source, /--exit-on-error/);
+  assert.match(source, /grep -xc .*CREATE ROLE postgres/);
+  assert.match(source, /sed .*CREATE ROLE postgres.*psql .*ON_ERROR_STOP=1/);
+  assert.match(source, /restoredWorkspaceRoleCount/);
+  assert.match(source, /restored database has no users/);
   assert.match(source, /postgresql-restore-drill/);
   assert.match(source, /actual.*suffix/);
   assert.match(source, /invalid_constraint_count/);
@@ -43,6 +52,9 @@ test("TLS bootstrap produces a private key and verified hostname certificate", (
   assert.match(source, /IP Address:/);
   assert.match(source, /openssl verify/);
   assert.match(source, /openssl x509 -checkend/);
+  assert.match(source, /server key does not match certificate/);
+  assert.match(source, /server key owner is invalid/);
+  assert.match(source, /mv -Tf .*server_current_link/);
   assert.match(source, /install -m 0600/);
   assert.doesNotMatch(source, /cat .*server\.key/);
 });
@@ -86,7 +98,18 @@ test("backup and restore timers are persistent", () => {
   const restoreTimer = read("../systemd/workspace-postgresql-restore-drill.timer");
   assert.match(backupService, /User=postgres/);
   assert.match(backupService, /UMask=0077/);
+  assert.match(backupService, /EnvironmentFile=\/etc\/workspace\/postgresql\/backup\.env/);
+  assert.doesNotMatch(backupService, /EnvironmentFile=-/);
   assert.match(backupTimer, /Persistent=true/);
   assert.match(restoreService, /User=root/);
   assert.match(restoreTimer, /Persistent=true/);
+});
+
+test("compatibility rollback restores legacy deploy ownership and disables hardened logins", () => {
+  const source = read("./production-rollback.sql");
+  assert.match(source, /ALTER DATABASE workspace OWNER TO workspace_app/);
+  assert.match(source, /REASSIGN OWNED BY workspace_owner TO workspace_app/);
+  assert.match(source, /ALTER ROLE workspace_runtime NOLOGIN/);
+  assert.match(source, /ALTER ROLE workspace_migrator NOLOGIN/);
+  assert.match(source, /GRANT SELECT,INSERT,UPDATE,DELETE ON TABLE public\."_prisma_migrations" TO workspace_app/);
 });

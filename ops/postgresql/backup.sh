@@ -5,6 +5,7 @@ umask 077
 backup_root="${WORKSPACE_POSTGRESQL_BACKUP_ROOT:-/var/backups/workspace/postgresql}"
 database_name="${WORKSPACE_POSTGRESQL_DATABASE:-workspace}"
 backup_url="${WORKSPACE_POSTGRESQL_BACKUP_URL:-}"
+allow_local_peer_fallback="${WORKSPACE_POSTGRESQL_ALLOW_LOCAL_PEER_FALLBACK:-0}"
 offsite_command="${WORKSPACE_POSTGRESQL_OFFSITE_COMMAND:-}"
 require_offsite="${WORKSPACE_POSTGRESQL_REQUIRE_OFFSITE:-0}"
 daily_keep="${WORKSPACE_POSTGRESQL_DAILY_KEEP:-7}"
@@ -27,6 +28,33 @@ for value in "$daily_keep" "$weekly_keep" "$monthly_keep"; do
   [[ "$value" =~ ^[0-9]+$ ]] || fail "retention values must be integers"
 done
 case "$require_offsite" in 0|1) ;; *) fail "WORKSPACE_POSTGRESQL_REQUIRE_OFFSITE must be 0 or 1" ;; esac
+case "$allow_local_peer_fallback" in 0|1) ;; *) fail "WORKSPACE_POSTGRESQL_ALLOW_LOCAL_PEER_FALLBACK must be 0 or 1" ;; esac
+if [ -z "$backup_url" ] && [ "$allow_local_peer_fallback" != 1 ]; then
+  fail "WORKSPACE_POSTGRESQL_BACKUP_URL is required; local peer fallback must be explicitly enabled"
+fi
+backup_connection_url=""
+backup_password=""
+if [ -n "$backup_url" ]; then
+  mapfile -d '' -t connection_parts < <(WORKSPACE_BACKUP_URL_VALUE="$backup_url" python3 - <<'PY'
+import os
+import sys
+from urllib.parse import quote, unquote, urlsplit, urlunsplit
+
+value = urlsplit(os.environ["WORKSPACE_BACKUP_URL_VALUE"])
+if value.scheme not in {"postgres", "postgresql"} or value.username is None or value.password is None or value.hostname is None:
+    raise SystemExit("backup URL must include PostgreSQL scheme, username, password, and host")
+host = f"[{value.hostname}]" if ":" in value.hostname else value.hostname
+port = f":{value.port}" if value.port is not None else ""
+netloc = f"{quote(unquote(value.username), safe='')}@{host}{port}"
+sanitized = urlunsplit((value.scheme, netloc, value.path, value.query, value.fragment))
+sys.stdout.buffer.write(sanitized.encode() + b"\0" + unquote(value.password).encode() + b"\0")
+PY
+  )
+  [ "${#connection_parts[@]}" -eq 2 ] || fail "could not parse WORKSPACE_POSTGRESQL_BACKUP_URL"
+  backup_connection_url="${connection_parts[0]}"
+  backup_password="${connection_parts[1]}"
+  [ -n "$backup_password" ] || fail "WORKSPACE_POSTGRESQL_BACKUP_URL password is empty"
+fi
 
 install -d -m 0700 "$backup_root" "$backup_root/daily" "$backup_root/weekly" "$backup_root/monthly"
 exec 9>"$backup_root/.backup.lock"
@@ -56,8 +84,9 @@ globals_file="$stage_dir/globals.sql"
 manifest_file="$stage_dir/manifest.json"
 
 if [ -n "$backup_url" ]; then
-  PGDATABASE="$backup_url" pg_isready >/dev/null
-  PGDATABASE="$backup_url" pg_dump \
+  PGPASSWORD="$backup_password" pg_isready --dbname="$backup_connection_url" >/dev/null
+  PGPASSWORD="$backup_password" pg_dump \
+    --dbname="$backup_connection_url" \
     --format=custom \
     --compress=9 \
     --no-owner \
@@ -79,9 +108,9 @@ env -u PGDATABASE -u PGPASSWORD pg_dumpall --globals-only --no-role-passwords >"
 chmod 0600 "$dump_file" "$catalog_file" "$globals_file"
 
 if [ -n "$backup_url" ]; then
-  server_version="$(PGDATABASE="$backup_url" psql -X -Atqc 'show server_version')"
-  database_size="$(PGDATABASE="$backup_url" psql -X -Atqc 'select pg_database_size(current_database())')"
-  end_lsn="$(PGDATABASE="$backup_url" psql -X -Atqc 'select pg_current_wal_lsn()')"
+  server_version="$(PGPASSWORD="$backup_password" psql -X --dbname="$backup_connection_url" -Atqc 'show server_version')"
+  database_size="$(PGPASSWORD="$backup_password" psql -X --dbname="$backup_connection_url" -Atqc 'select pg_database_size(current_database())')"
+  end_lsn="$(PGPASSWORD="$backup_password" psql -X --dbname="$backup_connection_url" -Atqc 'select pg_current_wal_lsn()')"
 else
   server_version="$(psql -X --dbname="$database_name" -Atqc 'show server_version')"
   database_size="$(psql -X --dbname="$database_name" -Atqc 'select pg_database_size(current_database())')"

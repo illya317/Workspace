@@ -28,17 +28,23 @@ done
 
 ca_key="$client_dir/ca.key"
 ca_cert="$client_dir/ca.pem"
-server_key="$server_dir/server.key"
-server_cert="$server_dir/server.crt"
+server_releases_dir="$server_dir/releases"
+server_current_link="$server_dir/current"
+server_key="$server_current_link/server.key"
+server_cert="$server_current_link/server.crt"
 
-check_certificate() {
+check_certificate_pair() {
+  local key_path="$1" cert_path="$2" quiet="${3:-0}"
   [ -r "$ca_cert" ] || fail "CA certificate is missing"
-  [ -r "$server_cert" ] || fail "server certificate is missing"
-  [ -r "$server_key" ] || fail "server key is missing"
-  openssl verify -CAfile "$ca_cert" "$server_cert" >/dev/null
-  openssl x509 -checkend "$renew_before_seconds" -noout -in "$server_cert" >/dev/null \
+  [ -r "$cert_path" ] || fail "server certificate is missing"
+  [ -r "$key_path" ] || fail "server key is missing"
+  openssl verify -CAfile "$ca_cert" "$cert_path" >/dev/null
+  openssl x509 -checkend "$renew_before_seconds" -noout -in "$cert_path" >/dev/null \
     || fail "server certificate expires within the configured threshold"
-  cert_text="$(openssl x509 -in "$server_cert" -noout -text)"
+  key_public_sha="$(openssl pkey -in "$key_path" -pubout 2>/dev/null | openssl pkey -pubin -outform DER 2>/dev/null | sha256sum | awk '{print $1}')"
+  cert_public_sha="$(openssl x509 -in "$cert_path" -pubkey -noout | openssl pkey -pubin -outform DER 2>/dev/null | sha256sum | awk '{print $1}')"
+  [ -n "$key_public_sha" ] && [ "$key_public_sha" = "$cert_public_sha" ] || fail "server key does not match certificate"
+  cert_text="$(openssl x509 -in "$cert_path" -noout -text)"
   IFS=',' read -ra dns_values <<<"$dns_names"
   for value in "${dns_values[@]}"; do
     value="${value//[[:space:]]/}"
@@ -49,9 +55,18 @@ check_certificate() {
     value="${value//[[:space:]]/}"
     [ -z "$value" ] || grep -Fq "IP Address:$value" <<<"$cert_text" || fail "certificate is missing IP SAN $value"
   done
-  key_mode="$(stat -c '%a' "$server_key")"
+  key_mode="$(stat -c '%a' "$key_path")"
   [ "$key_mode" = 600 ] || fail "server key mode must be 600"
-  printf '[postgres-tls] certificate check passed\n'
+  [ "$(stat -c '%U:%G' "$key_path")" = "$server_owner:$server_group" ] || fail "server key owner is invalid"
+  [ "$(stat -c '%U:%G' "$cert_path")" = "$server_owner:$server_group" ] || fail "server certificate owner is invalid"
+  [ "$quiet" = 1 ] || printf '[postgres-tls] certificate check passed\n'
+}
+
+check_certificate() {
+  [ -L "$server_current_link" ] || fail "server TLS current release link is missing"
+  current_release="$(readlink -f "$server_current_link")"
+  case "$current_release" in "$server_releases_dir"/*) ;; *) fail "server TLS current link escapes the releases directory" ;; esac
+  check_certificate_pair "$server_key" "$server_cert"
 }
 
 if [ "$command" = check ]; then
@@ -61,13 +76,30 @@ fi
 
 install -d -m 0755 -o root -g root "$client_dir"
 install -d -m 0700 -o "$server_owner" -g "$server_group" "$server_dir"
-if [ "$command" = install ] && { [ -e "$server_key" ] || [ -e "$server_cert" ]; }; then
+install -d -m 0700 -o "$server_owner" -g "$server_group" "$server_releases_dir"
+if [ "$command" = install ] && { [ -e "$server_current_link" ] || [ -e "$server_dir/server.key" ] || [ -e "$server_dir/server.crt" ]; }; then
   fail "server TLS material already exists; use rotate explicitly"
 fi
 
 temporary="$(mktemp -d "$client_dir/.tls-build.XXXXXXXX")"
+swapped=0
+committed=0
+previous_target=""
+release_dir=""
 cleanup() {
+  if [ "$swapped" = 1 ] && [ "$committed" = 0 ]; then
+    rollback_link="$server_dir/.current-rollback-$$"
+    if [ -n "$previous_target" ]; then
+      ln -s "$previous_target" "$rollback_link"
+      mv -Tf "$rollback_link" "$server_current_link"
+    elif [ "$(readlink -f "$server_current_link" 2>/dev/null || true)" = "$release_dir" ]; then
+      rm -f -- "$server_current_link"
+    fi
+  fi
   case "$temporary" in "$client_dir"/.tls-build.*) rm -rf -- "$temporary" ;; esac
+  if [ "$committed" = 0 ] && [ -n "$release_dir" ] && [ -d "$release_dir" ]; then
+    case "$release_dir" in "$server_releases_dir"/*) rm -rf -- "$release_dir" ;; esac
+  fi
 }
 trap cleanup EXIT
 
@@ -116,18 +148,24 @@ openssl x509 -req -sha256 -days "$valid_days" \
   -extensions extensions \
   -out "$temporary/server.crt" >/dev/null
 openssl verify -CAfile "$ca_cert" "$temporary/server.crt" >/dev/null
+release_id="$(date -u +%Y%m%dT%H%M%SZ)-$$"
+release_dir="$server_releases_dir/$release_id"
+[ ! -e "$release_dir" ] || fail "TLS release already exists"
+install -d -m 0700 -o "$server_owner" -g "$server_group" "$release_dir"
+install -m 0600 -o "$server_owner" -g "$server_group" "$temporary/server.key" "$release_dir/server.key"
+install -m 0644 -o "$server_owner" -g "$server_group" "$temporary/server.crt" "$release_dir/server.crt"
+check_certificate_pair "$release_dir/server.key" "$release_dir/server.crt" 1
 
-if [ -e "$server_key" ] || [ -e "$server_cert" ]; then
-  backup_dir="$server_dir/archive/$(date -u +%Y%m%dT%H%M%SZ)"
-  install -d -m 0700 -o root -g root "$backup_dir"
-  [ ! -e "$server_key" ] || install -m 0600 -o root -g root "$server_key" "$backup_dir/server.key"
-  [ ! -e "$server_cert" ] || install -m 0600 -o root -g root "$server_cert" "$backup_dir/server.crt"
+if [ -L "$server_current_link" ]; then
+  previous_target="$(readlink "$server_current_link")"
+elif [ -e "$server_current_link" ]; then
+  fail "server TLS current path exists but is not a symlink"
 fi
-
-install -m 0600 -o "$server_owner" -g "$server_group" "$temporary/server.key" "$server_dir/server.key.new"
-install -m 0644 -o "$server_owner" -g "$server_group" "$temporary/server.crt" "$server_dir/server.crt.new"
-mv -f "$server_dir/server.key.new" "$server_key"
-mv -f "$server_dir/server.crt.new" "$server_cert"
+next_link="$server_dir/.current-$release_id"
+ln -s "releases/$release_id" "$next_link"
+mv -Tf "$next_link" "$server_current_link"
+swapped=1
 rm -f "$client_dir/ca.srl"
 check_certificate
+committed=1
 printf '[postgres-tls] installed server certificate without changing PostgreSQL configuration\n'

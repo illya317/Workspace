@@ -97,16 +97,20 @@ for attempt in $(seq 1 90); do
   sleep 1
 done
 
-docker exec "$container" createdb -U postgres restore_drill
+docker exec "$container" createdb -U postgres "$database_name"
+docker exec "$container" sh -ceu \
+  'test "$(grep -xc "CREATE ROLE postgres;" /backup/globals.sql)" -eq 1'
+docker exec "$container" sh -ceu \
+  'sed "/^CREATE ROLE postgres;$/d" /backup/globals.sql | psql -X -U postgres -d postgres -v ON_ERROR_STOP=1'
 docker exec "$container" pg_restore \
   -U postgres \
-  -d restore_drill \
+  -d "$database_name" \
   --no-owner \
   --no-privileges \
   --exit-on-error \
   "/backup/${database_name}.dump"
 
-validation="$(docker exec -i "$container" psql -X -U postgres -d restore_drill -v ON_ERROR_STOP=1 -At -F '|' <<'SQL'
+validation="$(docker exec -i "$container" psql -X -U postgres -d "$database_name" -v ON_ERROR_STOP=1 -At -F '|' <<'SQL'
 select current_setting('server_version'),
        (select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('r','p')),
        (select count(*) from "_prisma_migrations" where finished_at is not null and rolled_back_at is null),
@@ -118,6 +122,25 @@ IFS='|' read -r server_version table_count migration_count invalid_constraint_co
 [ "$table_count" -gt 0 ] || fail "restored database has no public tables"
 [ "$migration_count" -gt 0 ] || fail "restored database has no applied migrations"
 [ "$invalid_constraint_count" -eq 0 ] || fail "restored database has invalid constraints"
+[ "$user_count" -gt 0 ] || fail "restored database has no users"
+
+role_validation="$(docker exec -i "$container" psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 -At -F '|' <<'SQL'
+select count(*) filter (where rolname in ('workspace_owner','workspace_runtime','workspace_migrator','workspace_backup','workspace_monitor')),
+       count(*) filter (where rolname='workspace_owner' and not rolcanlogin and not rolsuper and not rolcreatedb and not rolcreaterole and not rolreplication and not rolbypassrls),
+       count(*) filter (where rolname='workspace_runtime' and rolcanlogin and not rolsuper and not rolcreatedb and not rolcreaterole and not rolreplication and not rolbypassrls),
+       count(*) filter (where rolname='workspace_migrator' and rolcanlogin and not rolinherit and not rolsuper and not rolcreatedb and not rolcreaterole and not rolreplication and not rolbypassrls),
+       count(*) filter (where rolname in ('workspace_backup','workspace_monitor') and rolcanlogin and not rolsuper and not rolcreatedb and not rolcreaterole and not rolreplication and not rolbypassrls),
+       (select count(*) from pg_auth_members m join pg_roles granted on granted.oid=m.roleid join pg_roles member on member.oid=m.member where granted.rolname='workspace_owner' and member.rolname='workspace_migrator' and m.set_option)
+from pg_roles;
+SQL
+)"
+IFS='|' read -r restored_role_count owner_role_count runtime_role_count migrator_role_count readonly_role_count owner_membership_count <<<"$role_validation"
+[ "$restored_role_count" -eq 5 ] || fail "required Workspace roles were not restored"
+[ "$owner_role_count" -eq 1 ] || fail "workspace_owner attributes were not restored"
+[ "$runtime_role_count" -eq 1 ] || fail "workspace_runtime attributes were not restored"
+[ "$migrator_role_count" -eq 1 ] || fail "workspace_migrator attributes were not restored"
+[ "$readonly_role_count" -eq 2 ] || fail "backup/monitor role attributes were not restored"
+[ "$owner_membership_count" -eq 1 ] || fail "workspace_migrator SET membership was not restored"
 
 image_id="$(docker image inspect "$image" --format '{{.Id}}')"
 network_mode="$(docker inspect "$container" --format '{{.HostConfig.NetworkMode}}')"
@@ -126,7 +149,7 @@ port_bindings="$(docker inspect "$container" --format '{{json .HostConfig.PortBi
 [ "$port_bindings" = '{}' ] || fail "restore container unexpectedly publishes ports"
 finished_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 receipt="$receipt_root/${stamp}-$$.json"
-python3 - "$receipt" "$started_at" "$finished_at" "$backup_dir" "$image" "$image_id" "$server_version" "$table_count" "$migration_count" "$invalid_constraint_count" "$user_count" <<'PY'
+python3 - "$receipt" "$started_at" "$finished_at" "$backup_dir" "$image" "$image_id" "$server_version" "$table_count" "$migration_count" "$invalid_constraint_count" "$user_count" "$restored_role_count" <<'PY'
 import json
 import os
 import sys
@@ -142,6 +165,7 @@ import sys
     migration_count,
     invalid_constraint_count,
     user_count,
+    restored_role_count,
 ) = sys.argv[1:]
 payload = {
     "schemaVersion": 1,
@@ -160,6 +184,9 @@ payload = {
         "appliedMigrationCount": int(migration_count),
         "invalidConstraintCount": int(invalid_constraint_count),
         "userCount": int(user_count),
+        "restoredWorkspaceRoleCount": int(restored_role_count),
+        "workspaceRoleAttributesValidated": True,
+        "workspaceOwnerMembershipValidated": True,
     },
 }
 temporary = path + ".tmp"
