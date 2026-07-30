@@ -680,6 +680,7 @@ if [ "$COMMAND" = apply ]; then
   systemctl reset-failed workspace-runtime-pm2.service
   systemctl start workspace-runtime-pm2.service
   verify_runtime_systemd_pm2_daemon
+  node "$SCRIPT_DIR/production-pm2-plan.mjs" reconcile --plan "$backup_dir/pm2-plan.json" --runner "$RUNTIME_RUNNER"
   runuser -u postgres -- env WORKSPACE_RUNTIME_DATABASE_PASSWORD="$WORKSPACE_RUNTIME_DATABASE_PASSWORD" \
     WORKSPACE_MIGRATOR_DATABASE_PASSWORD="$WORKSPACE_MIGRATOR_DATABASE_PASSWORD" \
     WORKSPACE_BACKUP_DATABASE_PASSWORD="$WORKSPACE_BACKUP_DATABASE_PASSWORD" \

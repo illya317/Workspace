@@ -33,6 +33,30 @@ const safeStderrFirstLine = (value) => {
 };
 const safeArgument = (value) => !/postgres(?:ql)?:\/\/[^\s:]+:[^\s@]+@/i.test(value)
   && !/(?:password|secret|token|api[_-]?key)=/i.test(value);
+const runnerPlan = () => {
+  const plan = readJson(valueAfter("--plan"));
+  const runner = valueAfter("--runner");
+  if (plan?.kind !== "workspace-production-pm2-migration" || !Array.isArray(plan.processes) || !runner) {
+    fail("plan/runner 无效");
+  }
+  const names = plan.processes.map((entry) => String(entry?.name ?? ""));
+  if (names.some((name) => !managedName(name)) || new Set(names).size !== REQUIRED_NAMES.size) fail("plan 进程名称无效");
+  for (const required of REQUIRED_NAMES) {
+    if (names.filter((name) => name === required).length !== 1) fail("plan 必须且只能有一个 " + required);
+  }
+  return { plan, runner };
+};
+const runtimeProcesses = (runner) => {
+  const result = spawnSync(runner, ["jlist"], {
+    encoding: "utf8",
+    env: { PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" },
+  });
+  if (result.status !== 0) fail("无法读取隔离 PM2 状态");
+  let actual;
+  try { actual = JSON.parse(result.stdout || "[]"); } catch { fail("隔离 PM2 状态不是合法 JSON"); }
+  if (!Array.isArray(actual)) fail("隔离 PM2 状态不是数组");
+  return actual;
+};
 if (command === "create") {
   const input = valueAfter("--input");
   const output = valueAfter("--output");
@@ -79,10 +103,32 @@ if (command === "create") {
   const match = /^([1-9][0-9]*)\n?$/.exec(value);
   if (!match || !Number.isSafeInteger(Number(match[1]))) fail("PM2 PID 文件格式无效");
   process.stdout.write(match[1]);
+} else if (command === "reconcile") {
+  const { plan, runner } = runnerPlan();
+  const expectedNames = new Set(plan.processes.map((entry) => entry.name));
+  const actual = runtimeProcesses(runner);
+  const unexpected = actual.map((entry) => String(entry?.name ?? ""))
+    .filter((name) => name.startsWith("workspace") && !expectedNames.has(name));
+  if (unexpected.length) fail("隔离 PM2 存在 receipt 外 Workspace 进程: " + unexpected.sort().join(", "));
+  let deleted = 0;
+  for (const processSpec of plan.processes) {
+    if (!actual.some((entry) => entry?.name === processSpec.name)) continue;
+    const result = spawnSync(runner, ["delete", processSpec.name], {
+      encoding: "utf8",
+      env: { PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" },
+    });
+    if (result.status !== 0) {
+      const status = Number.isInteger(result.status) ? result.status : "signal";
+      fail("reconcile delete " + processSpec.name + " 失败 exit=" + status + " stderr=" + safeStderrFirstLine(result.stderr));
+    }
+    deleted += 1;
+  }
+  const remaining = runtimeProcesses(runner).map((entry) => String(entry?.name ?? ""))
+    .filter((name) => name.startsWith("workspace"));
+  if (remaining.length) fail("隔离 PM2 reconcile 后仍有 Workspace 进程: " + remaining.sort().join(", "));
+  process.stdout.write("reconciled " + deleted + " stale Workspace process(es)\n");
 } else if (command === "apply" || command === "delete") {
-  const plan = readJson(valueAfter("--plan"));
-  const runner = valueAfter("--runner");
-  if (plan?.kind !== "workspace-production-pm2-migration" || !runner) fail("plan/runner 无效");
+  const { plan, runner } = runnerPlan();
   for (const processSpec of plan.processes) {
     const args = command === "delete" ? ["delete", processSpec.name]
       : [
@@ -100,12 +146,8 @@ if (command === "create") {
     }
   }
 } else if (command === "verify" || command === "pids") {
-  const plan = readJson(valueAfter("--plan"));
-  const runner = valueAfter("--runner");
-  if (plan?.kind !== "workspace-production-pm2-migration" || !Array.isArray(plan.processes) || !runner) fail("plan/runner 无效");
-  const result = spawnSync(runner, ["jlist"], { encoding: "utf8", env: { PATH: process.env.PATH ?? "/usr/bin" } });
-  if (result.status !== 0) fail("无法读取隔离 PM2 状态");
-  const actual = JSON.parse(result.stdout || "[]");
+  const { plan, runner } = runnerPlan();
+  const actual = runtimeProcesses(runner);
   const unexpected = actual.map((entry) => String(entry?.name ?? ""))
     .filter((name) => name.startsWith("workspace") && !managedName(name));
   if (unexpected.length) fail("隔离 PM2 存在额外 Workspace 进程: " + unexpected.sort().join(", "));
@@ -129,5 +171,5 @@ if (command === "create") {
     ? pids.join("\n") + "\n"
     : "verified " + plan.processes.length + " Workspace process(es)\n");
 } else {
-  fail("用法: production-pm2-plan.mjs create|read-pid|apply|delete|verify|pids ...");
+  fail("用法: production-pm2-plan.mjs create|read-pid|reconcile|apply|delete|verify|pids ...");
 }

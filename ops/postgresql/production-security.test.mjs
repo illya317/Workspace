@@ -100,6 +100,14 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
       < security.indexOf('production-pm2-plan.mjs" apply'),
     "systemd must own the PM2 daemon before applying the process plan",
   );
+  const applyBranchStart = security.indexOf('if [ "$COMMAND" = apply ]; then');
+  const verifyBranchStart = security.indexOf('elif [ "$COMMAND" = verify ]; then');
+  const applyBranch = security.slice(applyBranchStart, verifyBranchStart);
+  const daemonVerified = applyBranch.indexOf("verify_runtime_systemd_pm2_daemon");
+  const reconciled = applyBranch.indexOf('production-pm2-plan.mjs" reconcile');
+  const rolesApplied = applyBranch.indexOf('production-roles.sql');
+  const planApplied = applyBranch.indexOf('production-pm2-plan.mjs" apply');
+  assert.ok(daemonVerified >= 0 && daemonVerified < reconciled && reconciled < rolesApplied && rolesApplied < planApplied);
   const rollbackStart = security.indexOf('else\n  [ "$EXECUTE" = 1 ] || { echo "[错误] rollback');
   const rollbackBranch = security.slice(rollbackStart);
   assert.ok(rollbackStart > 0);
@@ -334,6 +342,88 @@ test("PM2 PID reader accepts no trailing newline and rejects ambiguous content",
       assert.match(result.stderr, /PM2 PID 文件格式无效/);
       assert.doesNotMatch(result.stderr, /435312|435313|not-a-pid/);
     }
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
+});
+
+test("PM2 reconcile removes only stale receipt names, tolerates absence, and rejects extras", () => {
+  const temporary = mkdtempSync(path.join(tmpdir(), "workspace-pm2-reconcile-"));
+  try {
+    const planFile = path.join(temporary, "plan.json");
+    const stateFile = path.join(temporary, "state.json");
+    const captureFile = path.join(temporary, "runner-argv.ndjson");
+    const runner = path.join(temporary, "runner.mjs");
+    const plan = {
+      schemaVersion: 1,
+      kind: "workspace-production-pm2-migration",
+      processes: ["workspace", "workspace-wecom-agent"].map((name) => ({
+        name,
+        executable: process.execPath,
+        cwd: temporary,
+        args: [],
+        env: {},
+      })),
+    };
+    writeFileSync(planFile, JSON.stringify(plan));
+    writeFileSync(
+      runner,
+      `#!/usr/bin/env node
+import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
+const args = process.argv.slice(2);
+appendFileSync(${JSON.stringify(captureFile)}, JSON.stringify(args) + "\\n");
+const stateFile = ${JSON.stringify(stateFile)};
+const state = JSON.parse(readFileSync(stateFile, "utf8"));
+if (args[0] === "jlist" && args.length === 1) process.stdout.write(JSON.stringify(state));
+else if (args[0] === "delete" && args.length === 2) writeFileSync(stateFile, JSON.stringify(state.filter((entry) => entry.name !== args[1])));
+else process.exit(9);
+`,
+      { mode: 0o755 },
+    );
+    const reconcile = () => spawnSync(process.execPath, [
+      path.join(directory, "production-pm2-plan.mjs"),
+      "reconcile",
+      "--plan", planFile,
+      "--runner", runner,
+    ], { encoding: "utf8" });
+
+    writeFileSync(stateFile, JSON.stringify([
+      { name: "workspace" },
+      { name: "workspace-wecom-agent" },
+      { name: "natsu-api" },
+    ]));
+    writeFileSync(captureFile, "");
+    const stale = reconcile();
+    assert.equal(stale.status, 0, stale.stderr);
+    assert.match(stale.stdout, /reconciled 2 stale Workspace process/);
+    assert.deepEqual(JSON.parse(readFileSync(stateFile, "utf8")), [{ name: "natsu-api" }]);
+    assert.deepEqual(readFileSync(captureFile, "utf8").trim().split("\n").map(JSON.parse), [
+      ["jlist"],
+      ["delete", "workspace"],
+      ["delete", "workspace-wecom-agent"],
+      ["jlist"],
+    ]);
+
+    writeFileSync(stateFile, JSON.stringify([{ name: "natsu-api" }]));
+    writeFileSync(captureFile, "");
+    const missing = reconcile();
+    assert.equal(missing.status, 0, missing.stderr);
+    assert.match(missing.stdout, /reconciled 0 stale Workspace process/);
+    assert.deepEqual(readFileSync(captureFile, "utf8").trim().split("\n").map(JSON.parse), [["jlist"], ["jlist"]]);
+
+    const unexpectedState = [
+      { name: "workspace" },
+      { name: "workspace-wecom-agent" },
+      { name: "workspace-candidate" },
+      { name: "natsu-api" },
+    ];
+    writeFileSync(stateFile, JSON.stringify(unexpectedState));
+    writeFileSync(captureFile, "");
+    const unexpected = reconcile();
+    assert.notEqual(unexpected.status, 0);
+    assert.match(unexpected.stderr, /receipt 外 Workspace 进程: workspace-candidate/);
+    assert.deepEqual(JSON.parse(readFileSync(stateFile, "utf8")), unexpectedState);
+    assert.deepEqual(readFileSync(captureFile, "utf8").trim().split("\n").map(JSON.parse), [["jlist"]]);
   } finally {
     rmSync(temporary, { recursive: true, force: true });
   }
