@@ -88,7 +88,7 @@ async function createFixture(): Promise<Fixture> {
     prisma.user.create({ data: { username: `${token}recipient`, canLogin: true } }),
   ]);
   const project = await prisma.project.create({
-    data: { code: `PG-${token}`, name: `PG notification durability ${token}` },
+    data: { name: `PG notification durability ${token}` },
     select: {
       id: true,
       code: true,

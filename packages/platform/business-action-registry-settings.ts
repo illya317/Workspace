@@ -33,6 +33,7 @@ export const SETTINGS_BUSINESS_ACTION_REGISTRATIONS = [
     directPermissionAction: "create",
     apiRoutes: [
       route("POST", "/api/modules/settings/notifications/publications", "通过已发布定义幂等创建通知。"),
+      route("POST", "/api/modules/settings/notifications/group-publications", "通过已启用的受管群策略幂等创建企业微信群投递。"),
     ],
     notes: "调用方仅提交定义键、模板变量与受控受众输入；actor、投递策略和幂等账本由服务端持有。",
   },

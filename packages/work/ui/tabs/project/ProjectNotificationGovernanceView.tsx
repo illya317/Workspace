@@ -48,7 +48,7 @@ import {
   type ProjectNotificationPredicate,
   type ProjectNotificationRuleDraft,
 } from "./notification-governance-model";
-import { createProjectNotificationQueueFailureSection } from "./notification-governance-queue";
+import { useProjectNotificationQueueFailureSection } from "./use-project-notification-queue-failure-section";
 
 export default function ProjectNotificationGovernanceView({
   projectId,
@@ -418,6 +418,9 @@ export default function ProjectNotificationGovernanceView({
       : queue?.backlogCount
         ? "muted" as const
         : "success" as const;
+  const queueFailureSection = useProjectNotificationQueueFailureSection(
+    data?.queueHealth.recentFailures ?? [], loading, canConfigure, busy, redriveTarget, redriveReason, setRedriveReason, setRedriveTarget, () => void redriveFailedSignal(),
+  );
 
   const body = error
     ? createPageBody([createMessageSection("project-notification-access-error", {
@@ -475,24 +478,7 @@ export default function ProjectNotificationGovernanceView({
           presentation: { density: "compact" },
         })],
       })] : []),
-      ...(data?.permissions.canAudit ? [createProjectNotificationQueueFailureSection({
-        rows: data.queueHealth.recentFailures,
-        loading,
-        canConfigure,
-        busy,
-        redriveTarget,
-        redriveReason,
-        onRedriveReasonChange: setRedriveReason,
-        onSelectRedrive: (row) => {
-          setRedriveTarget(row);
-          setRedriveReason("");
-        },
-        onCancelRedrive: () => {
-          setRedriveTarget(null);
-          setRedriveReason("");
-        },
-        onConfirmRedrive: () => void redriveFailedSignal(),
-      })] : []),
+      ...(data?.permissions.canAudit ? [queueFailureSection] : []),
     ]);
 
   return <PageSurface kind="standard" tabbar={tabbar} body={body} />;

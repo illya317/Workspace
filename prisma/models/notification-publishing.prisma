@@ -220,3 +220,59 @@ model NotificationDeliveryWorkerRequest {
   @@unique([endpointId, requestId])
   @@index([expiresAt])
 }
+
+/// 企业微信群目录；providerConversationRef 仅供服务端投递，任何控制台 DTO 都不得返回。
+model NotificationManagedGroup {
+  id                      Int                       @id @default(autoincrement())
+  groupKey                String                    @unique
+  provider                String                    @default("wecom")
+  providerConversationRef String
+  displayName             String?
+  status                  String                    @default("discovered")
+  ownerUserId             Int?
+  ownerPositionId         Int?
+  verificationStatus      String                    @default("pending")
+  discoveredAt            DateTime                  @default(now())
+  lastSeenAt              DateTime                  @default(now())
+  lastVerifiedAt          DateTime?
+  claimedAt               DateTime?
+  claimedByUserId         Int?
+  version                 Int                       @default(1)
+  ownerUser               User?                     @relation("NotificationManagedGroupOwner", fields: [ownerUserId], references: [id], onDelete: SetNull, map: "NotificationManagedGroup_ownerUser_fkey")
+  ownerPosition           Position?                 @relation("NotificationManagedGroupOwnerPosition", fields: [ownerPositionId], references: [id], onDelete: SetNull, map: "NotificationManagedGroup_ownerPosition_fkey")
+  claimedBy               User?                     @relation("NotificationManagedGroupClaimer", fields: [claimedByUserId], references: [id], onDelete: SetNull, map: "NotificationManagedGroup_claimedBy_fkey")
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @default(now()) @updatedAt
+  policies                NotificationGroupPolicy[]
+
+  @@unique([provider, providerConversationRef], map: "NotificationManagedGroup_provider_ref_key")
+  @@index([status, verificationStatus], map: "NotificationManagedGroup_status_verification_idx")
+  @@index([ownerUserId], map: "NotificationManagedGroup_ownerUser_idx")
+  @@index([ownerPositionId], map: "NotificationManagedGroup_ownerPosition_idx")
+}
+
+/// 每个受管群的发送条件；策略只引用稳定 groupKey 对应的目录记录。
+model NotificationGroupPolicy {
+  id                    String                   @id
+  key                   String                   @unique
+  groupId               Int
+  definitionKey         String
+  label                 String
+  dataScopeJson         String                   @db.Text
+  scheduleJson          String                   @db.Text
+  weeklyAgentKey        String?
+  enabled               Boolean                  @default(false)
+  version               Int                      @default(1)
+  createdByUserId       Int
+  updatedByUserId       Int
+  createdBy             User                     @relation("NotificationGroupPolicyCreator", fields: [createdByUserId], references: [id], onDelete: Restrict, map: "NotificationGroupPolicy_createdBy_fkey")
+  updatedBy             User                     @relation("NotificationGroupPolicyUpdater", fields: [updatedByUserId], references: [id], onDelete: Restrict, map: "NotificationGroupPolicy_updatedBy_fkey")
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @default(now()) @updatedAt
+  group                 NotificationManagedGroup @relation(fields: [groupId], references: [id], onDelete: Restrict, map: "NotificationGroupPolicy_group_fkey")
+
+  @@unique([groupId, definitionKey, key], map: "NotificationGroupPolicy_group_definition_key_key")
+  @@index([groupId, enabled], map: "NotificationGroupPolicy_group_enabled_idx")
+  @@index([definitionKey, enabled], map: "NotificationGroupPolicy_definition_enabled_idx")
+  @@index([weeklyAgentKey, enabled], map: "NotificationGroupPolicy_weeklyAgent_enabled_idx")
+}

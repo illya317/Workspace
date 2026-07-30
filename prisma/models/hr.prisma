@@ -125,6 +125,7 @@ model Position {
   effectiveReportees      PositionEffectiveVersion[]          @relation("PositionEffectiveVersionReportTo")
   effectiveManagedDepartments DepartmentEffectiveVersion[]    @relation("DepartmentEffectiveVersionManagerPosition")
   effectiveOverrideReports PositionReportOverrideEffectiveVersion[] @relation("PositionReportOverrideVersionReportTo")
+  ownedNotificationManagedGroups NotificationManagedGroup[]   @relation("NotificationManagedGroupOwnerPosition")
 
   @@unique([positionDescriptionId])
   @@index([code])

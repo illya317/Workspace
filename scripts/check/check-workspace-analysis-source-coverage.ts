@@ -311,6 +311,7 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/settings/admin/workflow-ledger": "controlPlane",
   "/api/settings/admin/workflow-policies": "controlPlane",
   "/api/settings/api/open/clients": "controlPlane",
+  "/api/settings/api/open/group-notifications": "controlPlane",
   "/api/settings/api/open/overview": "controlPlane",
 };
 
