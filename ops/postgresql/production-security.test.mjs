@@ -133,7 +133,20 @@ test("PM2 wrappers preserve only allowlisted process values and strip control UR
   const runtime = read("production-runtime-pm2.sh");
   assert.match(runtime, /process_environment=\(\)/);
   assert.match(runtime, /WORKSPACE_PM2_PROCESS_\$key/);
-  assert.match(runtime, /unset DIRECT_URL SHADOW_DATABASE_URL/);
+  assert.match(runtime, /unset DIRECT_URL SHADOW_DATABASE_URL WORKSPACE_BACKUP_DATABASE_URL WORKSPACE_MONITOR_DATABASE_URL/);
+  assert.match(runtime, /unset PGPASSWORD PGPASSFILE PGSERVICE PGSERVICEFILE PGOPTIONS PGUSER PGHOST PGDATABASE/);
   assert.match(runtime, /export \"\$key=\$value\"/);
   assert.doesNotMatch(runtime, /env -i[^\n]*DIRECT_URL/);
+});
+
+test("runtime env and PM2 verification reject alternate PostgreSQL credentials", () => {
+  const security = read("production-security.sh");
+  const runtime = read("production-runtime-pm2.sh");
+  const plan = read("production-pm2-plan.mjs");
+  for (const key of ["WORKSPACE_BACKUP_DATABASE_URL", "WORKSPACE_MONITOR_DATABASE_URL", "PGPASSWORD", "PGPASSFILE", "PGOPTIONS", "PGUSER"]) {
+    assert.match(security, new RegExp(key));
+    assert.match(runtime, new RegExp(key));
+    assert.match(plan, new RegExp(key));
+  }
+  assert.match(plan, /Object\.hasOwn\(processEnv, key\)/);
 });

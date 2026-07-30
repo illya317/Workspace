@@ -105,8 +105,8 @@ NODE
 load_and_validate_urls() {
   local runtime_url direct_url backup_url monitor_url
   runtime_url="$(env_value "$RUNTIME_ENV_INPUT" DATABASE_URL)" || { echo "[错误] runtime env 缺少 DATABASE_URL" >&2; exit 1; }
-  if grep -Eq '^[[:space:]]*(export[[:space:]]+)?(DIRECT_URL|SHADOW_DATABASE_URL)=' "$RUNTIME_ENV_INPUT"; then
-    echo "[错误] runtime env 禁止 DIRECT_URL/SHADOW_DATABASE_URL" >&2; exit 1
+  if grep -Eq '^[[:space:]]*(export[[:space:]]+)?(DIRECT_URL|SHADOW_DATABASE_URL|WORKSPACE_BACKUP_DATABASE_URL|WORKSPACE_MONITOR_DATABASE_URL|PGPASSWORD|PGPASSFILE|PGSERVICE|PGSERVICEFILE|PGOPTIONS|PGUSER|PGHOST|PGDATABASE)=' "$RUNTIME_ENV_INPUT"; then
+    echo "[错误] runtime env 禁止 control-plane URL 或替代 PostgreSQL 身份变量" >&2; exit 1
   fi
   direct_url="$(env_value "$CONTROL_ENV_INPUT" DIRECT_URL)" || { echo "[错误] control env 缺少 DIRECT_URL" >&2; exit 1; }
   backup_url="$(env_value "$CONTROL_ENV_INPUT" WORKSPACE_BACKUP_DATABASE_URL)" || { echo "[错误] control env 缺少 WORKSPACE_BACKUP_DATABASE_URL" >&2; exit 1; }

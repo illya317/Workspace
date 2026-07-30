@@ -19,6 +19,10 @@ const SAFE_ENV = new Set([
   "WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE", "WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE",
   "WORKSPACE_INTERNAL_REPLAY_DIRECTORY", "WECHAT_BOT_BRIDGE_URL",
 ]);
+const FORBIDDEN_DATABASE_ENV = [
+  "DIRECT_URL", "SHADOW_DATABASE_URL", "WORKSPACE_BACKUP_DATABASE_URL", "WORKSPACE_MONITOR_DATABASE_URL",
+  "PGPASSWORD", "PGPASSFILE", "PGSERVICE", "PGSERVICEFILE", "PGOPTIONS", "PGUSER", "PGHOST", "PGDATABASE",
+];
 const safeArgument = (value) => !/postgres(?:ql)?:\/\/[^\s:]+:[^\s@]+@/i.test(value)
   && !/(?:password|secret|token|api[_-]?key)=/i.test(value);
 if (command === "create") {
@@ -87,7 +91,8 @@ if (command === "create") {
     const match = matches[0];
     if (match?.pm2_env?.status !== "online") fail(expected.name + " 未 online");
     const processEnv = { ...(match.pm2_env.env ?? {}), ...match.pm2_env };
-    if (processEnv.DIRECT_URL || processEnv.SHADOW_DATABASE_URL) fail(expected.name + " 泄露 control-plane URL");
+    const leaked = FORBIDDEN_DATABASE_ENV.filter((key) => Object.hasOwn(processEnv, key));
+    if (leaked.length) fail(expected.name + " 泄露 control-plane PostgreSQL 环境: " + leaked.join(", "));
     let user = "";
     try { user = decodeURIComponent(new URL(String(processEnv.DATABASE_URL || "")).username); } catch {}
     if (user !== "workspace_runtime") fail(expected.name + " 未使用 workspace_runtime");
