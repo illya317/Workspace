@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
-import { chmodSync, mkdtempSync, mkdirSync, readFileSync, readlinkSync, rmSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, readlinkSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -24,6 +24,9 @@ test("backup is private, atomic, verified, retained, and provider-neutral", () =
   assert.match(source, /PGPASSWORD="\$backup_password" pg_dump/);
   assert.match(source, /--dbname="\$backup_connection_url"/);
   assert.doesNotMatch(source, /--dbname="\$backup_url"/);
+  assert.match(source, /parser_pid=\$!/);
+  assert.match(source, /if ! wait "\$parser_pid"/);
+  assert.match(source, /unset WORKSPACE_POSTGRESQL_BACKUP_URL/);
   assert.match(source, /daily_keep.*7/);
   assert.match(source, /weekly_keep.*4/);
   assert.match(source, /monthly_keep.*6/);
@@ -35,25 +38,29 @@ test("backup strips Prisma schema while preserving verified libpq TLS without le
   const bin = path.join(temporary, "bin");
   const backupRoot = path.join(temporary, "backups");
   const capture = path.join(temporary, "capture.log");
+  const secretFile = path.join(temporary, "secret");
   const secret = "backupPasswordSentinel";
   mkdirSync(bin);
+  writeFileSync(secretFile, `${secret}\n`, { mode: 0o600 });
   const fakeDatabaseCommand = `#!/bin/sh
 set -eu
 command_name=\${0##*/}
+IFS= read -r expected_secret < "$TEST_SECRET_FILE"
+[ "\${WORKSPACE_POSTGRESQL_BACKUP_URL+x}" != x ] || exit 80
 for argument in "$@"; do
   case "$argument" in
-    *"$TEST_SECRET"*|*schema=*|*password=*) exit 81 ;;
+    *"$expected_secret"*|*schema=*|*password=*) exit 81 ;;
   esac
 done
 case "$command_name" in
   pg_isready|pg_dump|psql)
-    [ "\${PGPASSWORD-}" = "$TEST_SECRET" ] || exit 82
+    [ "\${PGPASSWORD-}" = "$expected_secret" ] || exit 82
     case "$*" in
-      *sslmode=verify-full*sslrootcert=/etc/workspace/postgresql/ca.pem*application_name=workspace_backup*) ;;
+      *sslmode=verify-full*sslrootcert=/etc/workspace/postgresql/ca.pem*application_name=workspace-backup*) ;;
       *) exit 83 ;;
     esac
     ;;
-  pg_dumpall|pg_restore)
+  pg_dumpall|pg_restore|sha256sum)
     [ "\${PGPASSWORD+x}" != x ] || exit 84
     ;;
 esac
@@ -67,6 +74,7 @@ case "$command_name" in
     ;;
   pg_restore) printf 'fake catalog\\n' ;;
   pg_dumpall) printf 'CREATE ROLE example;\\n' ;;
+  sha256sum) exec /usr/bin/sha256sum "$@" ;;
   psql)
     case "$*" in
       *server_version*) printf '16.14\\n' ;;
@@ -77,50 +85,83 @@ case "$command_name" in
     ;;
 esac
 `;
-  for (const command of ["pg_isready", "pg_dump", "pg_restore", "pg_dumpall", "psql"]) {
+  for (const command of ["pg_isready", "pg_dump", "pg_restore", "pg_dumpall", "psql", "sha256sum"]) {
     const target = path.join(bin, command);
     writeFileSync(target, fakeDatabaseCommand);
     chmodSync(target, 0o755);
   }
+  const pythonWrapper = path.join(bin, "python3");
+  writeFileSync(pythonWrapper, `#!/bin/sh
+set -eu
+[ "\${WORKSPACE_POSTGRESQL_BACKUP_URL+x}" != x ] || exit 87
+[ "\${PGPASSWORD+x}" != x ] || exit 88
+if [ "\${WORKSPACE_BACKUP_URL_VALUE+x}" = x ]; then
+  printf 'python3:parser\\n' >> "$TEST_CAPTURE"
+else
+  printf 'python3:manifest\\n' >> "$TEST_CAPTURE"
+fi
+exec /usr/bin/python3 "$@"
+`);
+  chmodSync(pythonWrapper, 0o755);
   const baseEnvironment = {
     ...process.env,
     PATH: `${bin}:${process.env.PATH}`,
     TEST_CAPTURE: capture,
-    TEST_SECRET: secret,
+    TEST_SECRET_FILE: secretFile,
     WORKSPACE_POSTGRESQL_BACKUP_ROOT: backupRoot,
     WORKSPACE_POSTGRESQL_REQUIRE_OFFSITE: "0",
   };
-  const validUrl = `postgresql://workspace_backup:${secret}@127.0.0.1:5432/workspace?schema=public&sslmode=verify-full&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace_backup`;
+  delete baseEnvironment.PGPASSWORD;
+  delete baseEnvironment.WORKSPACE_BACKUP_URL_VALUE;
+  const validUrl = `postgresql://workspace_backup:${secret}@127.0.0.1:5432/workspace?schema=public&sslmode=verify-full&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace-backup`;
   try {
-    execFileSync("bash", [new URL("./backup.sh", import.meta.url).pathname], {
+    const completed = spawnSync("bash", [new URL("./backup.sh", import.meta.url).pathname], {
       env: { ...baseEnvironment, WORKSPACE_POSTGRESQL_BACKUP_URL: validUrl },
-      stdio: "pipe",
+      encoding: "utf8",
     });
+    assert.equal(completed.status, 0);
+    assert.equal(completed.stdout.includes(secret), false);
+    assert.equal(completed.stderr.includes(secret), false);
+    assert.equal(completed.stdout.includes(validUrl), false);
+    assert.equal(completed.stderr.includes(validUrl), false);
     const latest = readlinkSync(path.join(backupRoot, "latest"));
     assert.match(latest, /^daily\/[0-9]{8}T[0-9]{6}Z$/);
     const commandEvidence = readFileSync(capture, "utf8");
-    for (const command of ["pg_isready", "pg_dump", "pg_restore", "pg_dumpall", "psql"]) {
+    for (const command of ["pg_isready", "pg_dump", "pg_restore", "pg_dumpall", "psql", "sha256sum"]) {
       assert.match(commandEvidence, new RegExp(`^${command}:ok$`, "m"));
     }
+    assert.match(commandEvidence, /^python3:parser$/m);
+    assert.match(commandEvidence, /^python3:manifest$/m);
 
-    for (const query of [
-      "schema=private&sslmode=verify-full&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace_backup",
-      "schema=public&sslmode=require&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace_backup",
-      "schema=public&sslmode=verify-full&sslrootcert=%2Ftmp%2Fother.pem&application_name=workspace_backup",
-      "schema=public&sslmode=verify-full&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace_backup&password=override",
-      "schema=public&schema=public&sslmode=verify-full&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace_backup",
-    ]) {
+    const rejectedUrls = [
+      `postgresql://workspace_backup:${secret}@127.0.0.1:5432/workspace?schema=private&sslmode=verify-full&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace-backup`,
+      `postgresql://workspace_backup:${secret}@127.0.0.1:5432/workspace?schema=public&sslmode=require&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace-backup`,
+      `postgresql://workspace_backup:${secret}@127.0.0.1:5432/workspace?schema=public&sslmode=verify-full&sslrootcert=%2Ftmp%2Fother.pem&application_name=workspace-backup`,
+      `postgresql://workspace_backup:${secret}@127.0.0.1:5432/workspace?schema=public&sslmode=verify-full&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace-backup&password=override`,
+      `postgresql://workspace_backup:${secret}@127.0.0.1:5432/workspace?schema=public&schema=public&sslmode=verify-full&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace-backup`,
+      `postgresql://workspace_backup:${secret}@127.0.0.1/workspace?schema=public&sslmode=verify-full&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace-backup`,
+      `postgresql://workspace_backup:${secret}@127.0.0.1:5432/workspace?schema=public&sslmode=verify-full&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace_backup`,
+      `postgresql://workspace_backup:${secret}@127.0.0.1:5432/workspace?schema=public&sslmode=verify-full&sslrootcert=%2Fetc%2Fworkspace%2Fpostgresql%2Fca.pem&application_name=workspace-backup&connect_timeout=999999999999999999999999`,
+      `postgresql://workspace_backup:${secret}@127.0.0.1:5432/workspace?schema=public&sslmode=verify-full&sslrootcert=%ZZ&application_name=workspace-backup`,
+    ];
+    for (const [index, rejectedUrl] of rejectedUrls.entries()) {
+      const rejectedCapture = path.join(temporary, `rejected-${index}.log`);
       const rejected = spawnSync("bash", [new URL("./backup.sh", import.meta.url).pathname], {
         env: {
           ...baseEnvironment,
-          WORKSPACE_POSTGRESQL_BACKUP_ROOT: path.join(temporary, `rejected-${Math.random().toString(16).slice(2)}`),
-          WORKSPACE_POSTGRESQL_BACKUP_URL: `postgresql://workspace_backup:${secret}@127.0.0.1:5432/workspace?${query}`,
+          TEST_CAPTURE: rejectedCapture,
+          WORKSPACE_POSTGRESQL_BACKUP_ROOT: path.join(temporary, `rejected-${index}`),
+          WORKSPACE_POSTGRESQL_BACKUP_URL: rejectedUrl,
         },
         encoding: "utf8",
       });
       assert.notEqual(rejected.status, 0);
       assert.equal(rejected.stdout.includes(secret), false);
       assert.equal(rejected.stderr.includes(secret), false);
+      assert.equal(rejected.stdout.includes(rejectedUrl), false);
+      assert.equal(rejected.stderr.includes(rejectedUrl), false);
+      assert.equal(existsSync(rejectedCapture), true);
+      assert.equal(readFileSync(rejectedCapture, "utf8"), "python3:parser\n");
     }
   } finally {
     rmSync(temporary, { recursive: true, force: true });

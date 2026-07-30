@@ -32,8 +32,10 @@ case "$allow_local_peer_fallback" in 0|1) ;; *) fail "WORKSPACE_POSTGRESQL_ALLOW
 if [ -z "$backup_url" ] && [ "$allow_local_peer_fallback" != 1 ]; then
   fail "WORKSPACE_POSTGRESQL_BACKUP_URL is required; local peer fallback must be explicitly enabled"
 fi
+unset WORKSPACE_POSTGRESQL_BACKUP_URL
 backup_connection_url=""
 backup_password=""
+use_backup_url=0
 if [ -n "$backup_url" ]; then
   mapfile -d '' -t connection_parts < <(WORKSPACE_BACKUP_URL_VALUE="$backup_url" WORKSPACE_BACKUP_DATABASE_NAME="$database_name" python3 - <<'PY'
 import os
@@ -62,7 +64,7 @@ if (
     or username != "workspace_backup"
     or not password
     or hostname not in {"127.0.0.1", "localhost", "::1"}
-    or port_number not in {None, 5432}
+    or port_number != 5432
     or value.path != f"/{os.environ['WORKSPACE_BACKUP_DATABASE_NAME']}"
     or value.fragment
     or any(ord(character) < 32 or ord(character) == 127 for character in password)
@@ -85,11 +87,11 @@ if seen.get("schema") not in {None, "public"}:
     reject("backup URL schema contract is invalid")
 if seen.get("sslmode") != "verify-full" or seen.get("sslrootcert") != "/etc/workspace/postgresql/ca.pem":
     reject("backup URL TLS contract is invalid")
-if not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", seen.get("application_name", "")):
+if seen.get("application_name") != "workspace-backup":
     reject("backup URL application name contract is invalid")
 if "connect_timeout" in seen:
     timeout = seen["connect_timeout"]
-    if not timeout.isascii() or not timeout.isdecimal() or not 2 <= int(timeout) <= 60:
+    if len(timeout) > 2 or not timeout.isascii() or not timeout.isdecimal() or not 2 <= int(timeout) <= 60:
         reject("backup URL timeout contract is invalid")
 
 filtered_query = [(key, item) for key, item in query if key != "schema"]
@@ -100,11 +102,18 @@ sanitized = urlunsplit((value.scheme, netloc, value.path, urlencode(filtered_que
 sys.stdout.buffer.write(sanitized.encode() + b"\0" + password.encode() + b"\0")
 PY
   )
+  parser_pid=$!
+  if ! wait "$parser_pid"; then
+    connection_parts=()
+    fail "could not parse WORKSPACE_POSTGRESQL_BACKUP_URL"
+  fi
   [ "${#connection_parts[@]}" -eq 2 ] || fail "could not parse WORKSPACE_POSTGRESQL_BACKUP_URL"
   backup_connection_url="${connection_parts[0]}"
   backup_password="${connection_parts[1]}"
   [ -n "$backup_password" ] || fail "WORKSPACE_POSTGRESQL_BACKUP_URL password is empty"
+  use_backup_url=1
 fi
+backup_url=""
 
 install -d -m 0700 "$backup_root" "$backup_root/daily" "$backup_root/weekly" "$backup_root/monthly"
 exec 9>"$backup_root/.backup.lock"
@@ -133,7 +142,7 @@ catalog_file="$stage_dir/${database_name}.dump.catalog"
 globals_file="$stage_dir/globals.sql"
 manifest_file="$stage_dir/manifest.json"
 
-if [ -n "$backup_url" ]; then
+if [ "$use_backup_url" = 1 ]; then
   PGPASSWORD="$backup_password" pg_isready --dbname="$backup_connection_url" >/dev/null
   PGPASSWORD="$backup_password" pg_dump \
     --dbname="$backup_connection_url" \
@@ -157,7 +166,7 @@ pg_restore --list "$dump_file" >"$catalog_file"
 env -u PGDATABASE -u PGPASSWORD pg_dumpall --globals-only --no-role-passwords >"$globals_file"
 chmod 0600 "$dump_file" "$catalog_file" "$globals_file"
 
-if [ -n "$backup_url" ]; then
+if [ "$use_backup_url" = 1 ]; then
   server_version="$(PGPASSWORD="$backup_password" psql -X --dbname="$backup_connection_url" -Atqc 'show server_version')"
   database_size="$(PGPASSWORD="$backup_password" psql -X --dbname="$backup_connection_url" -Atqc 'select pg_database_size(current_database())')"
   end_lsn="$(PGPASSWORD="$backup_password" psql -X --dbname="$backup_connection_url" -Atqc 'select pg_current_wal_lsn()')"
