@@ -203,6 +203,35 @@ test("PM2 plan migrates exactly two processes and drops secret environment", () 
     ], { encoding: "utf8" }).trim().split("\n");
     assert.deepEqual(pidRows, ["workspace|4100", "workspace-wecom-agent|4101"]);
 
+    const applyPlan = JSON.parse(planText);
+    const workspaceSpec = applyPlan.processes.find((entry) => entry.name === "workspace");
+    const wecomSpec = applyPlan.processes.find((entry) => entry.name === "workspace-wecom-agent");
+    workspaceSpec.args = [];
+    wecomSpec.args = ["server.js", "--worker"];
+    writeFileSync(output, JSON.stringify(applyPlan));
+    const captureFile = path.join(temporary, "runner-argv.ndjson");
+    const captureRunner = path.join(temporary, "capture-runner.mjs");
+    writeFileSync(
+      captureRunner,
+      `#!/usr/bin/env node\nimport { appendFileSync } from "node:fs";\nappendFileSync(${JSON.stringify(captureFile)}, JSON.stringify(process.argv.slice(2)) + "\\n");\n`,
+      { mode: 0o755 },
+    );
+    execFileSync(process.execPath, [
+      path.join(directory, "production-pm2-plan.mjs"),
+      "apply",
+      "--plan", output,
+      "--runner", captureRunner,
+    ]);
+    const capturedArgs = readFileSync(captureFile, "utf8").trim().split("\n").map((line) => JSON.parse(line));
+    const argsByName = new Map(capturedArgs.map((args) => [args[args.indexOf("--name") + 1], args]));
+    assert.deepEqual(argsByName.get("workspace"), [
+      "start", workspaceSpec.executable, "--name", "workspace", "--cwd", workspaceSpec.cwd, "--update-env",
+    ]);
+    assert.deepEqual(argsByName.get("workspace-wecom-agent"), [
+      "start", wecomSpec.executable, "--name", "workspace-wecom-agent", "--cwd", wecomSpec.cwd, "--update-env",
+      "--", "server.js", "--worker",
+    ]);
+
     const failingRunner = path.join(temporary, "failing-runner.mjs");
     writeFileSync(
       failingRunner,

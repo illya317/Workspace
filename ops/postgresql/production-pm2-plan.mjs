@@ -77,7 +77,11 @@ if (command === "create") {
   if (plan?.kind !== "workspace-production-pm2-migration" || !runner) fail("plan/runner 无效");
   for (const processSpec of plan.processes) {
     const args = command === "delete" ? ["delete", processSpec.name]
-      : ["start", processSpec.executable, "--name", processSpec.name, "--cwd", processSpec.cwd, "--update-env", "--", ...processSpec.args];
+      : [
+          "start", processSpec.executable, "--name", processSpec.name,
+          "--cwd", processSpec.cwd, "--update-env",
+          ...(processSpec.args.length > 0 ? ["--", ...processSpec.args] : []),
+        ];
     const result = spawnSync(runner, args, {
       encoding: "utf8",
       env: { PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", ...processSpec.env },
