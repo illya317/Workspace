@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cleanup() {
+  unset DATABASE_URL DIRECT_URL SHADOW_DATABASE_URL PGPASSWORD
+}
+trap cleanup EXIT
+
+cd /workspace
+/bin/bash /workspace-dev/install-node-deps.sh
+
+export DIRECT_URL
+DIRECT_URL="$(
+  node /workspace-dev/render-database-url.mjs \
+    workspace_dev_migrator \
+    workspace_dev \
+    /run/secrets/workspace_dev_migrator_password \
+    workspace-dev-migrator
+)"
+export DATABASE_URL="${DIRECT_URL}"
+export SHADOW_DATABASE_URL
+SHADOW_DATABASE_URL="$(
+  node /workspace-dev/render-database-url.mjs \
+    workspace_dev_migrator \
+    workspace_dev_shadow \
+    /run/secrets/workspace_dev_migrator_password \
+    workspace-dev-migrator
+)"
+export PGSSLMODE=verify-full
+export PGSSLROOTCERT=/run/secrets/postgres_ca
+export PGOPTIONS="-c role=workspace_dev_owner"
+
+npm run db:migrate:dev
+node node_modules/prisma/build/index.js db execute \
+  --schema=./prisma \
+  --file=/workspace-dev/post-migrate-grants.sql

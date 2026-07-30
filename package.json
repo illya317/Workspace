@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "node scripts/runtime/start-local-dev.mjs",
+    "db:migrate:dev": "node scripts/runtime/migrate-local-dev.mjs",
     "dev:guard": "node scripts/runtime/local-dev-guard-cli.mjs",
     "dev:status": "node scripts/runtime/local-dev-guard-cli.mjs status",
     "build": "node scripts/check/with-check-lock.js -- npm run build:inner",

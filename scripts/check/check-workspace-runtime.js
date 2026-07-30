@@ -9,7 +9,6 @@
 const fs = require("fs");
 const path = require("path");
 const { spawnSync } = require("child_process");
-const { Client } = require("pg");
 
 const ROOT = path.resolve(__dirname, "..", "..");
 const REPO_ENV_FILE = path.join(ROOT, ".env");
@@ -77,6 +76,59 @@ function parseKeyValueFile(filePath) {
     values.set(key, value);
   }
   return values;
+}
+
+function parsePostgresqlUrl(value, label, errors) {
+  const configured = value?.trim() || "";
+  if (!/^postgres(?:ql)?:\/\//.test(configured)) {
+    errors.push(`${label} must use PostgreSQL`);
+    return null;
+  }
+  try {
+    const url = new URL(configured);
+    if (!url.hostname || url.pathname === "/") {
+      errors.push(`${label} must include host and database name`);
+      return null;
+    }
+    return url;
+  } catch {
+    errors.push(`${label} is invalid`);
+    return null;
+  }
+}
+
+function databaseEnvironmentContract(workspaceEnv, runtimeEnv = {}, runtimeDatabaseOnly = false) {
+  const errors = [];
+  const fileDatabaseUrl = workspaceEnv.get("DATABASE_URL") || "";
+  const databaseUrl = runtimeDatabaseOnly
+    ? runtimeEnv.DATABASE_URL?.trim() || fileDatabaseUrl
+    : fileDatabaseUrl;
+
+  if (runtimeDatabaseOnly) {
+    for (const key of ["DIRECT_URL", "SHADOW_DATABASE_URL"]) {
+      if (runtimeEnv[key]?.trim() || workspaceEnv.get(key)?.trim()) {
+        errors.push(`${key} is forbidden in runtime database-only mode`);
+      }
+    }
+    const runtimeUrl = parsePostgresqlUrl(databaseUrl, "DATABASE_URL", errors);
+    return {
+      databaseUrl: runtimeUrl ? databaseUrl : "",
+      errors,
+      successMessage: "DATABASE_URL selects the PostgreSQL runtime database without migration credentials",
+    };
+  }
+
+  const directUrl = workspaceEnv.get("DIRECT_URL") || "";
+  const pooled = parsePostgresqlUrl(databaseUrl, "DATABASE_URL", errors);
+  const direct = parsePostgresqlUrl(directUrl, "DIRECT_URL", errors);
+  if (pooled && direct && pooled.pathname !== direct.pathname) {
+    errors.push("DATABASE_URL and DIRECT_URL must select the same database");
+  }
+  return {
+    databaseUrl: errors.length === 0 ? directUrl : "",
+    errors,
+    successMessage: "DATABASE_URL and DIRECT_URL select the same PostgreSQL database",
+  };
 }
 
 function resolveWorkspaceDir(repoEnv) {
@@ -169,7 +221,8 @@ function validateTenantConfiguration(workspaceDir) {
   );
 }
 
-async function validateDatabase(databaseUrl, workspaceDir) {
+async function validateDatabase(databaseUrl, workspaceDir, { runtimeDatabaseOnly = false } = {}) {
+  const { Client } = require("pg");
   const client = new Client({ connectionString: databaseUrl, application_name: "workspace-runtime-check" });
   try {
     await client.connect();
@@ -192,12 +245,16 @@ async function validateDatabase(databaseUrl, workspaceDir) {
       FROM "User"
     `);
     ok(`Database users: ${users.rows[0].users}; WeCom-linked users: ${users.rows[0].wx_users}`);
-    const failedMigrations = await client.query(`
-      SELECT migration_name FROM "_prisma_migrations"
-      WHERE finished_at IS NULL AND rolled_back_at IS NULL
-    `);
-    if (failedMigrations.rowCount > 0) fail(`PostgreSQL has failed migrations: ${failedMigrations.rows.map((row) => row.migration_name).join(", ")}`);
-    else ok("PostgreSQL migration history has no failed entries");
+    if (runtimeDatabaseOnly) {
+      ok("PostgreSQL migration history remains isolated from the runtime role");
+    } else {
+      const failedMigrations = await client.query(`
+        SELECT migration_name FROM "_prisma_migrations"
+        WHERE finished_at IS NULL AND rolled_back_at IS NULL
+      `);
+      if (failedMigrations.rowCount > 0) fail(`PostgreSQL has failed migrations: ${failedMigrations.rows.map((row) => row.migration_name).join(", ")}`);
+      else ok("PostgreSQL migration history has no failed entries");
+    }
     await validateDocsEditorContentRefs(client, workspaceDir);
   } catch (error) {
     fail(`Cannot validate PostgreSQL database: ${error.message}`);
@@ -257,13 +314,19 @@ async function validateDocsEditorContentRefs(client, workspaceDir) {
 }
 
 function validateEnv(workspaceDir, workspaceEnv) {
+  const runtimeDatabaseOnly = process.env.WORKSPACE_RUNTIME_DATABASE_ONLY === "1";
   const requiredKeys = [
-    "DATABASE_URL",
-    "DIRECT_URL",
     "NEXTAUTH_SECRET",
     "WORKSPACE_CONFIG_DIR",
     "NEXT_PUBLIC_BASE_PATH",
   ];
+  if (runtimeDatabaseOnly) {
+    const databaseUrl = process.env.DATABASE_URL?.trim() || workspaceEnv.get("DATABASE_URL");
+    if (!databaseUrl) fail("DATABASE_URL missing from runtime environment");
+    else ok("DATABASE_URL is present in runtime environment");
+  } else {
+    requiredKeys.unshift("DATABASE_URL", "DIRECT_URL");
+  }
   for (const key of requiredKeys) {
     if (!workspaceEnv.get(key)) {
       fail(`${key} missing from workspace .env`);
@@ -284,29 +347,11 @@ function validateEnv(workspaceDir, workspaceEnv) {
     }
   }
 
-  const databaseUrl = workspaceEnv.get("DATABASE_URL") || "";
-  const directUrl = workspaceEnv.get("DIRECT_URL") || "";
-  if (!/^postgres(?:ql)?:\/\//.test(databaseUrl) || !/^postgres(?:ql)?:\/\//.test(directUrl)) {
-    fail("DATABASE_URL and DIRECT_URL must use PostgreSQL");
-    return "";
-  }
-  try {
-    const pooled = new URL(databaseUrl);
-    const direct = new URL(directUrl);
-    if (!pooled.hostname || !direct.hostname || pooled.pathname === "/" || direct.pathname === "/") {
-      fail("PostgreSQL URLs must include host and database name");
-      return "";
-    }
-    if (pooled.pathname !== direct.pathname) {
-      fail("DATABASE_URL and DIRECT_URL must select the same database");
-      return "";
-    }
-  } catch {
-    fail("DATABASE_URL or DIRECT_URL is invalid");
-    return "";
-  }
-  ok("DATABASE_URL and DIRECT_URL select the same PostgreSQL database");
-  return directUrl;
+  const contract = databaseEnvironmentContract(workspaceEnv, process.env, runtimeDatabaseOnly);
+  for (const error of contract.errors) fail(error);
+  if (contract.errors.length > 0) return "";
+  ok(contract.successMessage);
+  return contract.databaseUrl;
 }
 
 async function main() {
@@ -377,7 +422,8 @@ async function main() {
 
   const workspaceEnv = parseKeyValueFile(workspaceEnvPath);
   const databaseUrl = validateEnv(workspaceDir, workspaceEnv);
-  if (databaseUrl) await validateDatabase(databaseUrl, workspaceDir);
+  const runtimeDatabaseOnly = process.env.WORKSPACE_RUNTIME_DATABASE_ONLY === "1";
+  if (databaseUrl) await validateDatabase(databaseUrl, workspaceDir, { runtimeDatabaseOnly });
 
   if (options.strict && warnings.length > 0) {
     fail(`Strict mode treats ${warnings.length} warning(s) as failures`);
@@ -391,7 +437,11 @@ async function main() {
   process.exit(exitCode);
 }
 
-main().catch((error) => {
-  fail(error.stack || error.message);
-  process.exit(exitCode || 1);
-});
+module.exports = { databaseEnvironmentContract };
+
+if (require.main === module) {
+  main().catch((error) => {
+    fail(error.stack || error.message);
+    process.exit(exitCode || 1);
+  });
+}

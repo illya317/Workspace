@@ -1,0 +1,19 @@
+[Unit]
+Description=Verified Workspace development PostgreSQL backup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/workspace-dev/postgresql-security
+ExecStartPre=/usr/bin/test -r /home/ubuntu/workspace-dev/postgresql-security/.env
+ExecStartPre=/usr/bin/test -r /home/ubuntu/workspace-dev/postgresql-security/compose.yaml
+ExecStart=/usr/bin/docker compose --project-name workspace-dev-secure --env-file /home/ubuntu/workspace-dev/postgresql-security/.env --file /home/ubuntu/workspace-dev/postgresql-security/compose.yaml --profile backup run --rm --no-deps backup
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=workspace-dev-postgresql-backup
+
+[Install]
+WantedBy=multi-user.target
