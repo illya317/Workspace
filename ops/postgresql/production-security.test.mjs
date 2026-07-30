@@ -68,6 +68,8 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
   assert.match(security, /runtimeEnvLinksSha256/);
   assert.match(security, /mv -Tf -- "\$temporary" "\$link"/);
   assert.match(security, /install -d -o root -g root -m 0755 \/etc\/workspace/);
+  assert.match(security, /url\.searchParams\.get\("sslmode"\) !== "verify-full"/);
+  assert.match(security, /url\.searchParams\.get\("sslrootcert"\) !== "\/etc\/workspace\/postgresql\/ca\.pem"/);
   assert.match(security, /data\/docs-editor\/templates/);
   assert.match(security, /data\/backups/);
   assert.doesNotMatch(security, /for relative in[^\n]*\bdata\b(?:\s|$)/);

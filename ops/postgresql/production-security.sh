@@ -94,7 +94,8 @@ if (!["postgres:","postgresql:"].includes(url.protocol)
     || decodeURIComponent(url.username) !== process.env.EXPECTED_USER
     || decodeURIComponent(url.pathname) !== "/workspace"
     || !["127.0.0.1","localhost","::1","[::1]"].includes(url.hostname)
-    || !["require","verify-ca","verify-full"].includes(url.searchParams.get("sslmode") || "")) process.exit(3);
+    || url.searchParams.get("sslmode") !== "verify-full"
+    || url.searchParams.get("sslrootcert") !== "/etc/workspace/postgresql/ca.pem") process.exit(3);
 if (process.env.REQUIRE_OWNER_ROLE === "1" && !/(?:^|\s)-c\s*role=workspace_owner(?:\s|$)/.test(url.searchParams.get("options") || "")) process.exit(4);
 if (process.env.REQUIRE_OWNER_ROLE === "0" && /(?:^|\s)-c\s*role=/i.test(url.searchParams.get("options") || "")) process.exit(4);
 const password = decodeURIComponent(url.password);
