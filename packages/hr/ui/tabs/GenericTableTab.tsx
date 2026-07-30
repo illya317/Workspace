@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuditLogModal } from "../audit/AuditLogModal";
-import { createPageBody, PageSurface, useFeedback, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, useFeedback, type BodySurfaceSectionSpec, type PageSurfaceCreateSpec } from "@workspace/core/ui";
 import { createGenericEditInputSpec, createGenericInputControl } from "../components/GenericFieldInput";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
 import {
@@ -341,14 +341,9 @@ export default function GenericTableTab({
   });
   const auditLogModal = useAuditLogModal({ open: showHistory, onClose: () => setShowHistory(false), entityType: config.entityType, onRestored: load });
 
-  const createSection: BodySurfaceSectionSpec | null = crudCapabilities.canCreate ? {
-    key: "generic-create",
-    body: {
-      kind: "create",
-      create: {
+  const pageCreate: PageSurfaceCreateSpec | undefined = crudCapabilities.canCreate ? {
         id: `generic-create-${config.entityType}`,
-        trigger: "toolbar",
-        presentation: "modal",
+        presentation: "modal" as const,
         title: `新增${config.title}`,
         open: createDraft !== null,
         canCreate: crudCapabilities.canCreate,
@@ -378,18 +373,16 @@ export default function GenericTableTab({
         },
         onOpenChange: (open) => setCreateDraft(open ? emptyGenericTabCreateDraft(createFields) : null),
         onCancel: () => setCreateDraft(null),
-      },
-    },
-  } : null;
+  } : undefined;
 
   const sections: BodySurfaceSectionSpec[] = [
-    ...(createSection ? [createSection] : []),
     tableSection,
   ];
 
   return (
     <PageSurface kind="standard"
       {...surface}
+      create={pageCreate}
       toolbar={{ items: toolbarItems, onSubmit: load }}
       body={createPageBody([...sections, auditLogModal])}
       footer={pagination ? { pagination } : undefined}

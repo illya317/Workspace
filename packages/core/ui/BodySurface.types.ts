@@ -1,6 +1,6 @@
 import type { ReactNode, Ref } from "react";
 import type { DataSurfaceLooseRow, DataSurfaceProps } from "./DataSurface.types";
-import type { CreateSurfaceProps, CreateSurfaceSurfaceProps, CreateSurfaceToolbarProps } from "./CreateSurface.types";
+import type { CreateSurfaceSurfaceProps } from "./CreateSurface.types";
 import type { DocumentSurfaceProps } from "./DocumentSurface";
 import type { FormSurfaceLooseItem, FormSurfaceProps } from "./FormSurface.types";
 import type { SurfacePaginationSpec } from "./SurfaceContractTypes";
@@ -204,8 +204,7 @@ export interface BodySurfaceSectionSpec {
 }
 
 export type BodySurfaceDataProps<T = DataSurfaceLooseRow> = { kind: "data"; data: DataSurfaceProps<T> };
-export type BodySurfaceCreateProps<T = FormSurfaceLooseItem> = { kind: "create"; create: CreateSurfaceProps<T> };
-export type BodySurfaceToolbarCreateProps<T = FormSurfaceLooseItem> = { kind: "create"; create: CreateSurfaceToolbarProps<T> };
+export type BodySurfaceCreateProps<T = FormSurfaceLooseItem> = { kind: "create"; create: CreateSurfaceSurfaceProps<T> };
 export type BodySurfaceCreateAnchorProps = { kind: "create-anchor"; anchor: string };
 export type BodySurfaceDocumentProps = { kind: "document"; document: DocumentSurfaceProps };
 export type BodySurfaceFormProps<T = FormSurfaceLooseItem> = { kind: "form"; form: FormSurfaceProps<T> };
@@ -213,8 +212,8 @@ export type BodySurfaceSelectorProps = { kind: "selector"; selector: SelectorSur
 export type BodySurfaceVisualizationProps = { kind: "visualization"; visualization: VisualizationSurfaceProps };
 
 export type BodySurfaceSectionBodyProps<TData = DataSurfaceLooseRow, TForm = FormSurfaceLooseItem> =
-  | BodySurfaceToolbarCreateProps<TForm>
   | BodySurfaceCreateAnchorProps
+  | BodySurfaceCreateProps<TForm>
   | BodySurfaceDataProps<TData>
   | BodySurfaceDocumentProps
   | BodySurfaceFormProps<TForm>

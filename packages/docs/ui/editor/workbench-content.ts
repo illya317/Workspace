@@ -6,6 +6,7 @@ import {
   type BodySurfaceCommandSpec,
   type CreateSurfaceSubmissionSpec,
   type FormSurfaceItemSpec,
+  type PageSurfaceCreateSpec,
 } from "@workspace/core/ui";
 import type { DocumentEditorCanvasProps, EditorDocument, FieldModel } from "@workspace/platform/document-editor";
 import type {
@@ -77,6 +78,24 @@ export function docsEditorBody(input: {
   onCreateTitleChange: (title: string) => void;
   onCreateOpenChange: (open: boolean) => void;
 }) {
+  const create: PageSurfaceCreateSpec | undefined = input.createSubmission ? {
+    id: "docs-editor-create-template",
+    presentation: "inline",
+    title: "新建模板",
+    open: input.createOpen,
+    content: { kind: "form", form: { items: [{
+      key: "title",
+      label: "文件名",
+      required: true,
+      spec: { valueType: "string", control: "text", validation: { required: true } },
+      value: input.createTitle,
+      placeholder: "请输入文件名",
+      onChange: (value: unknown) => input.onCreateTitleChange(String(value ?? "")),
+    } satisfies FormSurfaceItemSpec], layout: { columns: 2 } } },
+    submission: input.createSubmission,
+    onOpenChange: input.onCreateOpenChange,
+    onCancel: () => input.onCreateTitleChange(""),
+  } : undefined;
   const templateEditorSection = createSectionSection("docs-editor-template-editor", {
     title: input.detail ? input.detail.title : input.activeSpace ? `${input.activeSpace.title}编辑器` : "模板编辑器",
     actions: input.detailHeaderActions,
@@ -85,31 +104,6 @@ export function docsEditorBody(input: {
         content: input.message,
         tone: input.message.includes("失败") ? "danger" as const : "success" as const,
       })] : []),
-      ...(input.createSubmission ? [{
-        key: "docs-editor-create-template",
-        body: {
-          kind: "create" as const,
-          create: {
-            id: "docs-editor-create-template",
-            trigger: "toolbar" as const,
-            presentation: "inline" as const,
-            title: "新建模板",
-            open: input.createOpen,
-            content: { kind: "form" as const, form: { items: [{
-            key: "title",
-            label: "文件名",
-            required: true,
-            spec: { valueType: "string", control: "text", validation: { required: true } },
-            value: input.createTitle,
-            placeholder: "请输入文件名",
-            onChange: (value: unknown) => input.onCreateTitleChange(String(value ?? "")),
-            } satisfies FormSurfaceItemSpec], layout: { columns: 2 as const } } },
-            submission: input.createSubmission,
-            onOpenChange: input.onCreateOpenChange,
-            onCancel: () => input.onCreateTitleChange(""),
-          },
-        },
-      }] : []),
       createEditorDetailSection({
         detail: input.detail,
         detailLoading: input.detailLoading,
@@ -124,5 +118,5 @@ export function docsEditorBody(input: {
     ],
   });
 
-  return createPageBody([templateEditorSection]);
+  return { body: createPageBody([templateEditorSection]), create };
 }

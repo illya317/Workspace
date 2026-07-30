@@ -65,8 +65,8 @@ export function assetPolicyFormSections(input: {
           key: "reviewRequired",
           label: "录入前复核",
           spec: { valueType: "string", control: "choice", options: { source: "static", items: [
-            { value: "false", label: "不要求" },
-            { value: "true", label: "要求" },
+            { value: "false", label: "不要求（直接录入）" },
+            { value: "true", label: "要求（独立审批）" },
           ] } },
           value: String(draft.reviewRequired),
           disabled: readOnly,

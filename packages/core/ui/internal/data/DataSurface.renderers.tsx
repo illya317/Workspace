@@ -258,7 +258,7 @@ function renderCell(value: ReactNode | DataSurfaceCellSpec): ReactNode {
   if (value.kind === "form") return <FormSurface {...value.form} />;
   if (value.kind === "create-trigger") return <CreateSurface {...value.create} />;
   if (value.kind === "create-anchor") return <CreateSurfaceAnchorTarget anchor={value.anchor} />;
-  if (value.kind === "interactive") return <div role="button" tabIndex={0} aria-label={value.ariaLabel} onClick={(event) => { event.stopPropagation(); value.onClick(); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); value.onClick(); } }}>{renderCell(value.content)}</div>;
+  if (value.kind === "interactive") return <div role="button" tabIndex={0} aria-label={value.ariaLabel} onClick={(event) => { event.stopPropagation(); value.onClick(); }} onMouseEnter={value.onMouseEnter} onMouseLeave={value.onMouseLeave} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); value.onClick(); } }}>{renderCell(value.content)}</div>;
   if (value.kind === "action") return renderCellAction(value.action);
   if (value.kind === "actions") {
     const alignClass = value.align === "center" ? "justify-center" : value.align === "right" ? "justify-end" : "justify-start";

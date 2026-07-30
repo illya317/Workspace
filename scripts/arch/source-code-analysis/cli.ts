@@ -2,13 +2,16 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import {
+  isSourceCodeAnalysisSnapshot,
+  type SourceCodeAnalysisSnapshot,
+} from "../../../packages/platform/source-code-analysis-contract";
 import { analyzeSourceCode } from "./analyzer";
 
 export const DEFAULT_SOURCE_CODE_ANALYSIS_SNAPSHOT = ".cache/source-code-analysis/snapshot.json";
-type SourceCodeAnalysisSnapshot = Awaited<ReturnType<typeof analyzeSourceCode>>;
 type BlockingDiagnosticsSummary = Pick<
   SourceCodeAnalysisSnapshot["summary"],
-  "unclassifiedFileCount" | "ambiguousFileCount" | "missingInterfaceCount" | "dependencyCycleCount" | "mixedResponsibilityFileCount"
+  "unclassifiedFileCount" | "ambiguousFileCount" | "missingInterfaceCount" | "dependencyCycleCount" | "dependencyFileCycleCount" | "mixedResponsibilityFileCount"
 >;
 
 export function hasBlockingSourceCodeAnalysisDiagnostics(snapshot: { summary: BlockingDiagnosticsSummary }) {
@@ -16,17 +19,8 @@ export function hasBlockingSourceCodeAnalysisDiagnostics(snapshot: { summary: Bl
     || snapshot.summary.ambiguousFileCount > 0
     || snapshot.summary.missingInterfaceCount > 0
     || snapshot.summary.dependencyCycleCount > 0
+    || (snapshot.summary.dependencyFileCycleCount ?? 0) > 0
     || snapshot.summary.mixedResponsibilityFileCount > 0;
-}
-
-async function skipOptionalSnapshot(outputPath: string, error: unknown) {
-  try {
-    await fs.rm(outputPath, { force: true });
-  } catch {
-    // The snapshot is diagnostic-only. Cleanup failure must not affect the application lifecycle.
-  }
-  console.warn(`[source-code-analysis] snapshot 生成失败，已跳过且不影响应用启动/构建: ${error instanceof Error ? error.message : error}`);
-  return 0;
 }
 
 function printDiagnostics(snapshot: Awaited<ReturnType<typeof analyzeSourceCode>>) {
@@ -38,45 +32,69 @@ function printDiagnostics(snapshot: Awaited<ReturnType<typeof analyzeSourceCode>
     console.error(`[source-code-analysis] 模块 interface 不存在: ${item.moduleKey} -> ${item.path}`);
   }
   for (const cycle of snapshot.dependencyCycles) {
-    console.error(`[source-code-analysis] 依赖循环: ${cycle.join(" -> ")}`);
+    console.error(`[source-code-analysis] 模块依赖循环: ${cycle.join(" -> ")}`);
+  }
+  for (const cycle of snapshot.dependencyFileCycles) {
+    console.error(`[source-code-analysis] ${cycle.classification === "runtime" ? "运行时" : "类型"}文件依赖循环: ${cycle.paths.join(" -> ")}`);
   }
   for (const item of snapshot.diagnostics.mixedResponsibilityFiles) {
     console.error(`[source-code-analysis] 未解耦混合职责: ${item.path} -> ${item.roles.join(" + ")}`);
   }
 }
 
+export async function writeSourceCodeAnalysisSnapshot(outputPath: string, snapshot: SourceCodeAnalysisSnapshot) {
+  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+  const temporaryPath = `${outputPath}.${process.pid}.${Date.now()}.tmp`;
+  try {
+    await fs.writeFile(temporaryPath, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8");
+    const parsed = JSON.parse(await fs.readFile(temporaryPath, "utf8")) as unknown;
+    if (!isSourceCodeAnalysisSnapshot(parsed)) throw new Error("生成的源码分析 snapshot 不符合当前 contract");
+    await fs.rename(temporaryPath, outputPath);
+  } finally {
+    await fs.rm(temporaryPath, { force: true });
+  }
+}
+
+async function readValidSnapshot(outputPath: string) {
+  try {
+    const snapshot = JSON.parse(await fs.readFile(outputPath, "utf8")) as unknown;
+    return isSourceCodeAnalysisSnapshot(snapshot) ? snapshot : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function runSourceCodeAnalysis(args = process.argv.slice(2), repositoryRoot = process.cwd()) {
-  const write = args.includes("--write");
+  const ensure = args.includes("--ensure");
+  const write = args.includes("--write") || ensure;
   const check = args.includes("--check");
   const json = args.includes("--json");
-  const optional = args.includes("--optional");
   const outputArg = args.find((argument) => argument.startsWith("--output="));
   const outputPath = path.resolve(repositoryRoot, outputArg?.slice("--output=".length) || DEFAULT_SOURCE_CODE_ANALYSIS_SNAPSHOT);
-  let snapshot: Awaited<ReturnType<typeof analyzeSourceCode>>;
-  try {
-    snapshot = await analyzeSourceCode(repositoryRoot);
-  } catch (error) {
-    if (!optional) throw error;
-    return skipOptionalSnapshot(outputPath, error);
+  let snapshot: Awaited<ReturnType<typeof analyzeSourceCode>> | null = null;
+  if (ensure) {
+    const existingSnapshot = await readValidSnapshot(outputPath);
+    if (existingSnapshot) {
+      snapshot = await analyzeSourceCode(repositoryRoot);
+      if (existingSnapshot.sourceDigest === snapshot.sourceDigest) {
+        console.log(`source code analysis snapshot ready: ${path.relative(repositoryRoot, outputPath)}`);
+        return 0;
+      }
+    }
   }
+  snapshot ??= await analyzeSourceCode(repositoryRoot);
   const failed = hasBlockingSourceCodeAnalysisDiagnostics(snapshot);
 
-  if (write) {
-    try {
-      await fs.mkdir(path.dirname(outputPath), { recursive: true });
-      await fs.writeFile(outputPath, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8");
-    } catch (error) {
-      if (!optional) throw error;
-      return skipOptionalSnapshot(outputPath, error);
-    }
-    console.log(`source code analysis snapshot: ${path.relative(repositoryRoot, outputPath)}`);
-  }
   if (json) console.log(JSON.stringify(snapshot));
   if (failed) printDiagnostics(snapshot);
   if (check && failed) return 1;
+  if (write) {
+    await writeSourceCodeAnalysisSnapshot(outputPath, snapshot);
+    console.log(`source code analysis snapshot: ${path.relative(repositoryRoot, outputPath)}`);
+  }
   if (!json) {
     console.log(
-      `source code analysis: ${snapshot.summary.fileCount} files, ${snapshot.summary.lines} lines, ${snapshot.summary.coveragePercent}% declared, ${snapshot.summary.dependencyCycleCount} dependency cycles`,
+      `source code analysis: ${snapshot.summary.fileCount} files, ${snapshot.summary.lines} lines, ${snapshot.summary.coveragePercent}% declared, ${snapshot.summary.dependencyCycleCount} module cycles, ${snapshot.summary.dependencyFileCycleCount} file cycles`,
     );
   }
   return 0;

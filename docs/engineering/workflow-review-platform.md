@@ -157,7 +157,7 @@ ActionContract 把过去混在一个开关里的三件事显式拆开：
 
 Platform UI 的 `actionRuntimeCommands()` 只把 runtime action 映射为语义 command，不声明 icon、variant 或顺序；表单再交给 `workflowActionSurfaceActions()` 生成 `FormSurface.actions`。图标、样式和固定排序始终由 Core Action registry / FormSurface 渲染层决定。Work 工作节点、HR 组织单元、HR 绩效和 Docs 模板是 runtime + FormSurface 的贯通样板；不适用流程的动作继续 direct，workflow eligible 动作自动随有效策略切换。HR 绩效属于 workflow-only 多阶段写入：新建/编辑仍只进入本地写入态，最终由 request runtime 映射提交、再次提交、通过或驳回，撤回/取消申请才是列表上的显式生命周期动作。
 
-标准新建流统一声明 `CreateSurface`，不另设 workflow-inline 版本。Platform UI 的 `actionRuntimeCreateSubmission()` 将 direct runtime 映射为 `save`，将 workflow runtime 映射为 `submit`。`trigger` 只决定 `+` 位于 Toolbar 或所属 Surface，`presentation` 只决定 inline/block/modal；流程语义与二者无关。
+标准页面级新建流统一声明 `PageSurface.create`，局部新建流声明 `CreateSurface trigger="surface"`，不另设 workflow-inline 版本。Platform UI 的 `actionRuntimeCreateSubmission()` 将 direct runtime 映射为 `save`，将 workflow runtime 映射为 `submit`。入口归属和 presentation 不改变流程语义。
 
 创建类型需要预选时使用 `CreateSurface flow.kind="two-stage"`。第一段只有选择字段，第二段仍按最终业务 action runtime 决定保存或提交；第一段不得另设保存动作或独立布局。
 

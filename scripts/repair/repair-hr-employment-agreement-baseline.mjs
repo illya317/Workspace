@@ -2,7 +2,6 @@
 
 import "dotenv/config";
 
-import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -13,6 +12,11 @@ import {
   employmentAgreementBaselineMissingFields,
 } from "../../packages/hr/employment-agreement-baseline-contract.mjs";
 import { requireDatabaseUrl } from "../lib/database-url.js";
+import {
+  parseEmploymentLegacyItems,
+  sha256,
+  stableJson,
+} from "./hr-employment-legacy-projection.mjs";
 
 const INPUT_KIND = "hr-employment-agreement-baseline";
 const BASELINE_KEY_PATTERN = /^[a-z0-9]+(?:[.-][a-z0-9]+)*$/;
@@ -40,44 +44,6 @@ function strictDate(value) {
 function text(value) {
   if (value == null || value === "") return null;
   return String(value).trim() || null;
-}
-
-function stableJson(value) {
-  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
-  if (value && typeof value === "object") {
-    return `{${Object.entries(value)
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(([key, item]) => `${JSON.stringify(key)}:${stableJson(item)}`)
-      .join(",")}}`;
-  }
-  return JSON.stringify(value ?? null);
-}
-
-function sha256(value) {
-  return createHash("sha256").update(value).digest("hex");
-}
-
-function normalizeLegacyRecord(record) {
-  return Object.fromEntries(Object.entries(record).map(([key, value]) => [key, value === "" ? null : value]));
-}
-
-function parseLegacyRecords(contracts, employmentId) {
-  let parsed;
-  try {
-    parsed = JSON.parse(contracts);
-  } catch {
-    fail(`Employment ${employmentId} contracts is not valid JSON`);
-  }
-  const records = Array.isArray(parsed) ? parsed : parsed && typeof parsed === "object" ? [parsed] : [];
-  if (records.length === 0 || records.some((record) => !record || typeof record !== "object" || Array.isArray(record))) {
-    fail(`Employment ${employmentId} contracts does not contain agreement objects`);
-  }
-  const normalized = records.map(normalizeLegacyRecord);
-  const fingerprints = normalized.map((record) => sha256(stableJson(record)).slice(0, 24));
-  if (new Set(fingerprints).size !== fingerprints.length) {
-    fail(`Employment ${employmentId} contains duplicate agreements without stable identities`);
-  }
-  return normalized.map((record, index) => ({ record, fingerprint: fingerprints[index] }));
 }
 
 function optionalDate(value, label) {
@@ -117,7 +83,7 @@ function agreementTerms(record, sourceRef) {
   }];
 }
 
-function agreementContent(record) {
+function agreementContent(record, rawRecord) {
   return {
     company: text(record.company),
     insuranceStatus: text(record.insuranceStatus),
@@ -126,15 +92,15 @@ function agreementContent(record) {
     employmentForm: text(record.employmentForm),
     confidentialityDate: optionalDate(record.confidentialityDate, "confidentialityDate"),
     nonCompeteDate: optionalDate(record.nonCompeteDate, "nonCompeteDate"),
-    legacyBaseline: record,
+    legacyBaseline: rawRecord,
   };
 }
 
 export function buildEmploymentAgreementBaselinePlan(sources) {
-  const agreements = sources.flatMap((source) => parseLegacyRecords(source.contracts, source.employmentId).map(({ record, fingerprint }) => {
+  const agreements = sources.flatMap((source) => parseEmploymentLegacyItems(source.contracts, source.employmentId).map(({ rawRecord, record, fingerprint }) => {
     const sourceRef = `employment:${source.employmentId}:${fingerprint}`;
     const terms = agreementTerms(record, sourceRef);
-    const content = agreementContent(record);
+    const content = agreementContent(record, rawRecord);
     const missingFields = employmentAgreementBaselineMissingFields(content, terms);
     return {
       employmentId: source.employmentId,

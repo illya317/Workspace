@@ -1,5 +1,6 @@
 import { defineActionContractMetadataList, type ActionMutationDomainBindingReference } from "./action-contract";
 import { registeredActionFacts, registeredLifecycle, registeredWrite } from "./action-contract-registry-helpers";
+import { APPROVAL_REQUEST_STATUSES, APPROVAL_REQUEST_TRANSITIONS } from "./workflow-request-contract";
 
 const d = (validatorKey: string, commitKey: string): ActionMutationDomainBindingReference => ({ validatorKey, commitKey });
 const financeValidation = (name: string) => `packages/finance/server/domain/finance-validation.${name}`;
@@ -53,7 +54,98 @@ export const FINANCE_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetad
   registeredWrite({ key: "finance.ledger.close.refresh", activeEntity: "FinanceCloseRun", domain: d("packages/finance/server/close/route-commands.buildRefreshFinanceCloseRouteCommand", "packages/finance/server/close/route-commands.executeRefreshFinanceCloseRouteCommand"), shape: "change_set", target: "existing_record", commitMode: "native_transition" }),
   registeredWrite({ key: "finance.ledger.close.workpaper.save", activeEntity: "FinanceCloseWorkpaper", domain: d("packages/finance/server/close/workpaper-route-commands.buildSaveFinanceCloseWorkpaperRouteCommand", "packages/finance/server/close/workpaper-route-commands.executeSaveFinanceCloseWorkpaperRouteCommand"), shape: "full_record", target: "mixed", commitMode: "native_transition" }),
   registeredLifecycle({ key: "finance.ledger.close.workpaper.review", activeEntity: "FinanceCloseWorkpaper", operation: "approve", versionKey: "expectedVersion", domain: d("packages/finance/server/close/workpaper-route-commands.buildReviewFinanceCloseWorkpaperRouteCommand", "packages/finance/server/close/workpaper-route-commands.executeReviewFinanceCloseWorkpaperRouteCommand"), auditPolicy: "event" }),
-  registeredWrite({ key: "finance.assets.asset.create", activeEntity: "FinanceAssetCard", domain: d("packages/finance/server/assets/route-commands.buildCreateFinanceAssetCardRouteCommand", "packages/finance/server/assets/route-commands.executeCreateFinanceAssetCardRouteCommand"), shape: "full_record", target: "new_record", commitMode: "activate" }),
+  {
+    ...registeredActionFacts("finance.assets.asset.create"),
+    kind: "write",
+    payload: {
+      cardinality: "single",
+      shape: "full_record",
+      target: "new_record",
+      notes: "申请保存完整的资产卡片快照；审批时必须重新解析公司年度分类政策、科目和业务编码。",
+    },
+    persistence: {
+      strategy: "approval_payload",
+      activeEntity: "FinanceAssetCard",
+      draftEntity: "ApprovalRequest",
+      supportedPersistenceModes: ["active", "workflowDraft"],
+      defaultMode: "workflowDraft",
+      commitMode: "copy_to_active",
+      notes: "普通分类直接创建 FinanceAssetCard；需复核分类在通过前只保存 ApprovalRequest.latestPayload，不产生可用卡片。",
+    },
+    form: {
+      adapterKey: "finance.assets.asset.create",
+      payloadVersion: 1,
+      supportedPersistenceModes: ["active", "workflowDraft"],
+      supportedModes: ["direct", "workflow"],
+      notes: "同一建卡表单根据已保存分类政策映射为保存或提交审批，不同时暴露两个持久化出口。",
+    },
+    domain: d(
+      "packages/finance/server/assets/route-commands.buildCreateFinanceAssetCardRouteCommand",
+      "packages/finance/server/assets/route-commands.executeCreateFinanceAssetCardRouteCommand",
+    ),
+    api: {
+      commandRoute: "POST /api/modules/finance/assets",
+      directRoutes: ["POST /api/modules/finance/assets"],
+      workflowRoutes: [
+        "POST /api/modules/finance/assets",
+        "GET /api/modules/finance/assets/submissions",
+        "POST /api/modules/finance/assets/submissions/:id/approve",
+        "POST /api/modules/finance/assets/submissions/:id/reject",
+        "POST /api/modules/finance/assets/submissions/:id/withdraw",
+        "POST /api/modules/finance/assets/submissions/:id/cancel",
+      ],
+      envelopeVersion: 1,
+    },
+    workflow: {
+      kind: "configurable",
+      defaultExecutionMode: "workflow",
+      canDisable: false,
+      whenDisabled: "direct_write",
+      entrySemantics: "form_finalization",
+      statuses: APPROVAL_REQUEST_STATUSES,
+      transitions: APPROVAL_REQUEST_TRANSITIONS,
+      mutationPolicy: {
+        handlerCanRevise: false,
+        requestCanWithdraw: true,
+        requestCanRevise: false,
+        requestCanCancel: true,
+        requestCanResubmit: false,
+      },
+      routing: {
+        handlerSource: "permission",
+        separationPolicy: "independent_required",
+        approvalMode: "any_one",
+      },
+      defaultDefinition: {
+        version: 1,
+        nodes: [{
+          key: "finance-asset-card-create-approval",
+          label: "资产建卡审批",
+          kind: "approval",
+          assignee: { kind: "permission_holders", resourceKey: "finance.assets", action: "approve" },
+          approvalMode: "any_one",
+          separationPolicy: "independent_required",
+          bypassable: false,
+        }],
+      },
+      configuration: {
+        nodeKinds: ["approval"],
+        assigneeKinds: ["permission_holders"],
+        approvalModes: ["any_one"],
+        separationPolicies: ["independent_required"],
+        allowNodeAddRemove: false,
+        allowBypassConditions: false,
+        maxNodes: 1,
+      },
+      validateOn: ["draft", "submit", "commit"],
+      notes: "仅 reviewRequired=true 的已解析分类进入此流程；不允许发起人处理自己的建卡申请。whenDisabled=direct_write 只用于 reviewRequired=false 的不适用分支，政策本身 canDisable=false。",
+    },
+    display: {
+      titleTemplate: "资产建卡：{name}",
+      summaryTemplate: "{companyCode} · {name}",
+      hrefPattern: "/finance/assets?view=cards&approvalId={requestId}",
+    },
+  },
   registeredWrite({ key: "finance.assets.asset.update", activeEntity: "FinanceAssetCard", domain: d("packages/finance/server/assets/route-commands.buildUpdateFinanceAssetCardRouteCommand", "packages/finance/server/assets/route-commands.executeUpdateFinanceAssetCardRouteCommand") }),
   registeredWrite({ key: "finance.assets.categoryPolicy.update", activeEntity: "FinanceAssetCategoryPolicy", domain: d("packages/finance/server/assets/route-commands.buildUpdateFinanceAssetCategoryPolicyRouteCommand", "packages/finance/server/assets/route-commands.executeUpdateFinanceAssetCategoryPolicyRouteCommand") }),
   registeredLifecycle({ key: "finance.assets.categoryPolicy.delete", activeEntity: "FinanceAssetCategoryPolicy", operation: "delete", targetIdKey: "categoryId", versionKey: "version", deleteMode: "hard", domain: d("packages/finance/server/assets/route-commands.buildDeleteFinanceAssetCategoryPolicyRouteCommand", "packages/finance/server/assets/route-commands.executeDeleteFinanceAssetCategoryPolicyRouteCommand"), referencePolicy: "domain", auditPolicy: "none" }),

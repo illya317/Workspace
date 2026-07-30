@@ -73,7 +73,7 @@ export const page_api_registry_entries = [
               { name: "link", description: "表格内语义链接；声明 label、href 与是否外部打开，不允许业务手写 anchor 样式。" },
               { name: "expandedRow", description: "结构化展开行；返回 DataSurface cell/data/form 声明，不接收 JSX；Core 自动高亮纵向展开触发行和详情区域。" },
               { name: "embedded", description: "单元格或展开区内嵌 data/form Surface 声明。" },
-              { name: "interactive", description: "可激活单元格；声明 content、onClick 与 ariaLabel，交互壳由 DataSurface 渲染。" },
+              { name: "interactive", description: "可激活单元格；声明 content、onClick、可选悬停进入/离开回调与 ariaLabel，交互壳由 DataSurface 渲染。" },
               { name: "rowKey", description: "行主键解析。" },
               { name: "rowActions", description: "行级动作。" },
             ],

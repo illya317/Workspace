@@ -14,7 +14,237 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
           children: [
             {
               name: "create",
-              description: "引用 CreateSurfaceProps 声明。",
+              description: "类型：CreateSurfaceSurfaceProps<TForm>。",
+              children: [
+                {
+                  name: "id",
+                  description: "类型：string。",
+                },
+                {
+                  name: "title",
+                  description: "类型：string。",
+                },
+                {
+                  name: "open",
+                  description: "类型：boolean。",
+                },
+                {
+                  name: "canCreate",
+                  description: "类型：boolean。",
+                },
+                {
+                  name: "disabled",
+                  description: "类型：boolean。",
+                },
+                {
+                  name: "submission",
+                  description: "类型：CreateSurfaceSubmissionSpec。",
+                  children: [
+                    {
+                      name: "action",
+                      description: "可选值：save / submit。",
+                      children: [
+                        {
+                          name: "save",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "submit",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
+                    {
+                      name: "disabled",
+                      description: "类型：boolean。",
+                    },
+                    {
+                      name: "execute",
+                      description: "类型：() => void | CreateSurfaceSubmissionResult | Promise<void | CreateSurfaceSubmissionResult>。",
+                    },
+                  ],
+                },
+                {
+                  name: "feedback",
+                  description: "类型：CreateSurfaceFeedbackSpec。",
+                  children: [
+                    {
+                      name: "saved",
+                      description: "类型：string。",
+                    },
+                    {
+                      name: "submitted",
+                      description: "类型：string。",
+                    },
+                    {
+                      name: "error",
+                      description: "类型：string。",
+                    },
+                  ],
+                },
+                {
+                  name: "onOpenChange",
+                  description: "类型：(open: boolean) => void。",
+                },
+                {
+                  name: "onCancel",
+                  description: "类型：() => void。",
+                },
+                {
+                  name: "content",
+                  description: "类型：CreateSurfaceContentSpec<TForm>。",
+                  children: [
+                    {
+                      name: "kind",
+                      description: "可选值：form / sections。",
+                      children: [
+                        {
+                          name: "form",
+                          description: "form 分支声明。",
+                          children: [
+                            {
+                              name: "form",
+                              description: "引用 CreateSurfaceFormSpec 声明。",
+                            },
+                            {
+                              name: "flow",
+                              description: "类型：CreateSurfaceTwoStageSpec<TForm>。",
+                              children: [
+                                {
+                                  name: "stage",
+                                  description: "可选值：first / second。",
+                                  children: [
+                                    {
+                                      name: "first",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "second",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "first",
+                                  description: "引用 CreateSurfaceFormSpec 声明。",
+                                },
+                                {
+                                  name: "kind",
+                                  description: "可选值：two-stage。",
+                                  children: [
+                                    {
+                                      name: "two-stage",
+                                      description: "two-stage 分支声明。",
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          name: "sections",
+                          description: "sections 分支声明。",
+                          children: [
+                            {
+                              name: "sections",
+                              description: "类型：CreateSurfaceSectionSpec<TForm>[]。",
+                              children: [
+                                {
+                                  name: "key",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "title",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "items",
+                                  description: "类型：FormSurfaceItemSpec<TForm>[]。",
+                                },
+                                {
+                                  name: "layout",
+                                  description: "类型：CreateSurfaceFormLayoutSpec。",
+                                  children: [
+                                    {
+                                      name: "columns",
+                                      description: "可选值：1 / 2 / 3 / 4 / 6。",
+                                      children: [
+                                        {
+                                          name: "1",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "2",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "3",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "4",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "6",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "density",
+                                      description: "可选值：compact / normal。",
+                                      children: [
+                                        {
+                                          name: "compact",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "normal",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  name: "presentation",
+                  description: "可选值：block / modal。",
+                  children: [
+                    {
+                      name: "block",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "modal",
+                      description: "字面量取值。",
+                    },
+                  ],
+                },
+                {
+                  name: "anchor",
+                  description: "类型：string | never。",
+                },
+                {
+                  name: "trigger",
+                  description: "可选值：surface。",
+                  children: [
+                    {
+                      name: "surface",
+                      description: "字面量取值。",
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
@@ -713,11 +943,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                             },
                             {
-                              name: "__@iterator@108",
+                              name: "__@iterator@11195",
                               description: "Iterator",
                             },
                             {
-                              name: "__@unscopables@110",
+                              name: "__@unscopables@11197",
                               description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                             },
                           ],
@@ -953,7 +1183,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                 },
                                 {
-                                  name: "__@iterator@108",
+                                  name: "__@iterator@11195",
                                   description: "Iterator",
                                 },
                                 {
@@ -1207,7 +1437,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                             },
                             {
-                              name: "__@iterator@108",
+                              name: "__@iterator@11195",
                               description: "Iterator",
                             },
                             {
@@ -1437,7 +1667,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                             },
                             {
-                              name: "__@iterator@108",
+                              name: "__@iterator@11195",
                               description: "Iterator",
                             },
                             {
@@ -1967,7 +2197,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                 },
                                 {
-                                  name: "__@iterator@108",
+                                  name: "__@iterator@11195",
                                   description: "Iterator",
                                 },
                                 {
@@ -2693,6 +2923,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                   ],
                                 },
                                 {
+                                  name: "density",
+                                  description: "可选值：compact / normal。",
+                                  children: [
+                                    {
+                                      name: "compact",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "normal",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
                                   name: "rows",
                                   description: "类型：number。",
                                 },
@@ -2813,20 +3057,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 {
                                   name: "placeholder",
                                   description: "类型：string。",
-                                },
-                                {
-                                  name: "density",
-                                  description: "可选值：compact / normal。",
-                                  children: [
-                                    {
-                                      name: "compact",
-                                      description: "字面量取值。",
-                                    },
-                                    {
-                                      name: "normal",
-                                      description: "字面量取值。",
-                                    },
-                                  ],
                                 },
                                 {
                                   name: "autoGrow",
@@ -3089,6 +3319,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                   ],
                                 },
                                 {
+                                  name: "density",
+                                  description: "可选值：compact / normal。",
+                                  children: [
+                                    {
+                                      name: "compact",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "normal",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
                                   name: "size",
                                   description: "可选值：lg / md / sm。",
                                   children: [
@@ -3151,20 +3395,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 {
                                   name: "placeholder",
                                   description: "类型：ReactNode。",
-                                },
-                                {
-                                  name: "density",
-                                  description: "可选值：compact / normal。",
-                                  children: [
-                                    {
-                                      name: "compact",
-                                      description: "字面量取值。",
-                                    },
-                                    {
-                                      name: "normal",
-                                      description: "字面量取值。",
-                                    },
-                                  ],
                                 },
                                 {
                                   name: "textAlign",
@@ -4643,6 +4873,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           ],
                                         },
                                         {
+                                          name: "density",
+                                          description: "可选值：compact / normal。",
+                                          children: [
+                                            {
+                                              name: "compact",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "normal",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
+                                        },
+                                        {
                                           name: "rows",
                                           description: "类型：number。",
                                         },
@@ -4763,20 +5007,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         {
                                           name: "placeholder",
                                           description: "类型：string。",
-                                        },
-                                        {
-                                          name: "density",
-                                          description: "可选值：compact / normal。",
-                                          children: [
-                                            {
-                                              name: "compact",
-                                              description: "字面量取值。",
-                                            },
-                                            {
-                                              name: "normal",
-                                              description: "字面量取值。",
-                                            },
-                                          ],
                                         },
                                         {
                                           name: "autoGrow",
@@ -5435,16 +5665,16 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                   ],
                                 },
                                 {
+                                  name: "items",
+                                  description: "类型：TForm[]。",
+                                },
+                                {
                                   name: "className",
                                   description: "类型：string。",
                                 },
                                 {
                                   name: "disabled",
                                   description: "类型：boolean。",
-                                },
-                                {
-                                  name: "items",
-                                  description: "类型：TForm[]。",
                                 },
                                 {
                                   name: "maxLength",
@@ -7089,6 +7319,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                       description: "类型：never。",
                     },
                     {
+                      name: "sections",
+                      description: "引用 BodySurfaceSectionSpec 声明。",
+                    },
+                    {
                       name: "title",
                       description: "类型：ReactNode。",
                     },
@@ -7157,10 +7391,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     {
                       name: "actions",
                       description: "类型：BodySurfaceCommandSpec[]。",
-                    },
-                    {
-                      name: "sections",
-                      description: "引用 BodySurfaceSectionSpec 声明。",
                     },
                     {
                       name: "unread",
@@ -8215,6 +8445,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                       description: "类型：never。",
                     },
                     {
+                      name: "sections",
+                      description: "引用 BodySurfaceSectionSpec 声明。",
+                    },
+                    {
                       name: "title",
                       description: "类型：ReactNode。",
                     },
@@ -8283,10 +8517,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     {
                       name: "actions",
                       description: "类型：BodySurfaceCommandSpec[]。",
-                    },
-                    {
-                      name: "sections",
-                      description: "引用 BodySurfaceSectionSpec 声明。",
                     },
                     {
                       name: "unread",
@@ -8492,7 +8722,237 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                           children: [
                             {
                               name: "create",
-                              description: "引用 CreateSurfaceProps 声明。",
+                              description: "类型：CreateSurfaceSurfaceProps<any>。",
+                              children: [
+                                {
+                                  name: "id",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "title",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "open",
+                                  description: "类型：boolean。",
+                                },
+                                {
+                                  name: "canCreate",
+                                  description: "类型：boolean。",
+                                },
+                                {
+                                  name: "disabled",
+                                  description: "类型：boolean。",
+                                },
+                                {
+                                  name: "submission",
+                                  description: "类型：CreateSurfaceSubmissionSpec。",
+                                  children: [
+                                    {
+                                      name: "action",
+                                      description: "可选值：save / submit。",
+                                      children: [
+                                        {
+                                          name: "save",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "submit",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "disabled",
+                                      description: "类型：boolean。",
+                                    },
+                                    {
+                                      name: "execute",
+                                      description: "类型：() => void | CreateSurfaceSubmissionResult | Promise<void | CreateSurfaceSubmissionResult>。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "feedback",
+                                  description: "类型：CreateSurfaceFeedbackSpec。",
+                                  children: [
+                                    {
+                                      name: "saved",
+                                      description: "类型：string。",
+                                    },
+                                    {
+                                      name: "submitted",
+                                      description: "类型：string。",
+                                    },
+                                    {
+                                      name: "error",
+                                      description: "类型：string。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "onOpenChange",
+                                  description: "类型：(open: boolean) => void。",
+                                },
+                                {
+                                  name: "onCancel",
+                                  description: "类型：() => void。",
+                                },
+                                {
+                                  name: "content",
+                                  description: "类型：CreateSurfaceContentSpec<any>。",
+                                  children: [
+                                    {
+                                      name: "kind",
+                                      description: "可选值：form / sections。",
+                                      children: [
+                                        {
+                                          name: "form",
+                                          description: "form 分支声明。",
+                                          children: [
+                                            {
+                                              name: "form",
+                                              description: "引用 CreateSurfaceFormSpec 声明。",
+                                            },
+                                            {
+                                              name: "flow",
+                                              description: "类型：CreateSurfaceTwoStageSpec<any>。",
+                                              children: [
+                                                {
+                                                  name: "stage",
+                                                  description: "可选值：first / second。",
+                                                  children: [
+                                                    {
+                                                      name: "first",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "second",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "first",
+                                                  description: "引用 CreateSurfaceFormSpec 声明。",
+                                                },
+                                                {
+                                                  name: "kind",
+                                                  description: "可选值：two-stage。",
+                                                  children: [
+                                                    {
+                                                      name: "two-stage",
+                                                      description: "two-stage 分支声明。",
+                                                    },
+                                                  ],
+                                                },
+                                              ],
+                                            },
+                                          ],
+                                        },
+                                        {
+                                          name: "sections",
+                                          description: "sections 分支声明。",
+                                          children: [
+                                            {
+                                              name: "sections",
+                                              description: "类型：CreateSurfaceSectionSpec<any>[]。",
+                                              children: [
+                                                {
+                                                  name: "key",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "title",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "items",
+                                                  description: "类型：FormSurfaceItemSpec<any>[]。",
+                                                },
+                                                {
+                                                  name: "layout",
+                                                  description: "类型：CreateSurfaceFormLayoutSpec。",
+                                                  children: [
+                                                    {
+                                                      name: "columns",
+                                                      description: "可选值：1 / 2 / 3 / 4 / 6。",
+                                                      children: [
+                                                        {
+                                                          name: "1",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "2",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "3",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "4",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "6",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      name: "density",
+                                                      description: "可选值：compact / normal。",
+                                                      children: [
+                                                        {
+                                                          name: "compact",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "normal",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                  ],
+                                                },
+                                              ],
+                                            },
+                                          ],
+                                        },
+                                      ],
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "presentation",
+                                  description: "可选值：block / modal。",
+                                  children: [
+                                    {
+                                      name: "block",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "modal",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "anchor",
+                                  description: "类型：string | never。",
+                                },
+                                {
+                                  name: "trigger",
+                                  description: "可选值：surface。",
+                                  children: [
+                                    {
+                                      name: "surface",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                              ],
                             },
                           ],
                         },
@@ -9191,11 +9651,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@11195",
                                               description: "Iterator",
                                             },
                                             {
-                                              name: "__@unscopables@110",
+                                              name: "__@unscopables@11197",
                                               description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                             },
                                           ],
@@ -9431,7 +9891,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                 },
                                                 {
-                                                  name: "__@iterator@108",
+                                                  name: "__@iterator@11195",
                                                   description: "Iterator",
                                                 },
                                                 {
@@ -9685,7 +10145,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@11195",
                                               description: "Iterator",
                                             },
                                             {
@@ -9915,7 +10375,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@11195",
                                               description: "Iterator",
                                             },
                                             {
@@ -10445,7 +10905,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                 },
                                                 {
-                                                  name: "__@iterator@108",
+                                                  name: "__@iterator@11195",
                                                   description: "Iterator",
                                                 },
                                                 {
@@ -11171,6 +11631,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   ],
                                                 },
                                                 {
+                                                  name: "density",
+                                                  description: "可选值：compact / normal。",
+                                                  children: [
+                                                    {
+                                                      name: "compact",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "normal",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
                                                   name: "rows",
                                                   description: "类型：number。",
                                                 },
@@ -11291,20 +11765,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 {
                                                   name: "placeholder",
                                                   description: "类型：string。",
-                                                },
-                                                {
-                                                  name: "density",
-                                                  description: "可选值：compact / normal。",
-                                                  children: [
-                                                    {
-                                                      name: "compact",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "normal",
-                                                      description: "字面量取值。",
-                                                    },
-                                                  ],
                                                 },
                                                 {
                                                   name: "autoGrow",
@@ -11567,6 +12027,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   ],
                                                 },
                                                 {
+                                                  name: "density",
+                                                  description: "可选值：compact / normal。",
+                                                  children: [
+                                                    {
+                                                      name: "compact",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "normal",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
                                                   name: "size",
                                                   description: "可选值：lg / md / sm。",
                                                   children: [
@@ -11629,20 +12103,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 {
                                                   name: "placeholder",
                                                   description: "类型：ReactNode。",
-                                                },
-                                                {
-                                                  name: "density",
-                                                  description: "可选值：compact / normal。",
-                                                  children: [
-                                                    {
-                                                      name: "compact",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "normal",
-                                                      description: "字面量取值。",
-                                                    },
-                                                  ],
                                                 },
                                                 {
                                                   name: "textAlign",
@@ -13121,6 +13581,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           ],
                                                         },
                                                         {
+                                                          name: "density",
+                                                          description: "可选值：compact / normal。",
+                                                          children: [
+                                                            {
+                                                              name: "compact",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "normal",
+                                                              description: "字面量取值。",
+                                                            },
+                                                          ],
+                                                        },
+                                                        {
                                                           name: "rows",
                                                           description: "类型：number。",
                                                         },
@@ -13241,20 +13715,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         {
                                                           name: "placeholder",
                                                           description: "类型：string。",
-                                                        },
-                                                        {
-                                                          name: "density",
-                                                          description: "可选值：compact / normal。",
-                                                          children: [
-                                                            {
-                                                              name: "compact",
-                                                              description: "字面量取值。",
-                                                            },
-                                                            {
-                                                              name: "normal",
-                                                              description: "字面量取值。",
-                                                            },
-                                                          ],
                                                         },
                                                         {
                                                           name: "autoGrow",
@@ -13913,16 +14373,16 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   ],
                                                 },
                                                 {
+                                                  name: "items",
+                                                  description: "类型：any[]。",
+                                                },
+                                                {
                                                   name: "className",
                                                   description: "类型：string。",
                                                 },
                                                 {
                                                   name: "disabled",
                                                   description: "类型：boolean。",
-                                                },
-                                                {
-                                                  name: "items",
-                                                  description: "类型：any[]。",
                                                 },
                                                 {
                                                   name: "maxLength",
@@ -15557,6 +16017,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                       description: "类型：never。",
                                     },
                                     {
+                                      name: "sections",
+                                      description: "引用 BodySurfaceSectionSpec 声明。",
+                                    },
+                                    {
                                       name: "title",
                                       description: "类型：ReactNode。",
                                     },
@@ -15625,10 +16089,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     {
                                       name: "actions",
                                       description: "类型：BodySurfaceCommandSpec[]。",
-                                    },
-                                    {
-                                      name: "sections",
-                                      description: "引用 BodySurfaceSectionSpec 声明。",
                                     },
                                     {
                                       name: "unread",
@@ -16673,6 +17133,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                       description: "类型：never。",
                                     },
                                     {
+                                      name: "sections",
+                                      description: "引用 BodySurfaceSectionSpec 声明。",
+                                    },
+                                    {
                                       name: "title",
                                       description: "类型：ReactNode。",
                                     },
@@ -16741,10 +17205,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     {
                                       name: "actions",
                                       description: "类型：BodySurfaceCommandSpec[]。",
-                                    },
-                                    {
-                                      name: "sections",
-                                      description: "引用 BodySurfaceSectionSpec 声明。",
                                     },
                                     {
                                       name: "unread",
@@ -18606,7 +19066,237 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                           children: [
                             {
                               name: "create",
-                              description: "引用 CreateSurfaceProps 声明。",
+                              description: "类型：CreateSurfaceSurfaceProps<any>。",
+                              children: [
+                                {
+                                  name: "id",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "title",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "open",
+                                  description: "类型：boolean。",
+                                },
+                                {
+                                  name: "canCreate",
+                                  description: "类型：boolean。",
+                                },
+                                {
+                                  name: "disabled",
+                                  description: "类型：boolean。",
+                                },
+                                {
+                                  name: "submission",
+                                  description: "类型：CreateSurfaceSubmissionSpec。",
+                                  children: [
+                                    {
+                                      name: "action",
+                                      description: "可选值：save / submit。",
+                                      children: [
+                                        {
+                                          name: "save",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "submit",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "disabled",
+                                      description: "类型：boolean。",
+                                    },
+                                    {
+                                      name: "execute",
+                                      description: "类型：() => void | CreateSurfaceSubmissionResult | Promise<void | CreateSurfaceSubmissionResult>。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "feedback",
+                                  description: "类型：CreateSurfaceFeedbackSpec。",
+                                  children: [
+                                    {
+                                      name: "saved",
+                                      description: "类型：string。",
+                                    },
+                                    {
+                                      name: "submitted",
+                                      description: "类型：string。",
+                                    },
+                                    {
+                                      name: "error",
+                                      description: "类型：string。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "onOpenChange",
+                                  description: "类型：(open: boolean) => void。",
+                                },
+                                {
+                                  name: "onCancel",
+                                  description: "类型：() => void。",
+                                },
+                                {
+                                  name: "content",
+                                  description: "类型：CreateSurfaceContentSpec<any>。",
+                                  children: [
+                                    {
+                                      name: "kind",
+                                      description: "可选值：form / sections。",
+                                      children: [
+                                        {
+                                          name: "form",
+                                          description: "form 分支声明。",
+                                          children: [
+                                            {
+                                              name: "form",
+                                              description: "引用 CreateSurfaceFormSpec 声明。",
+                                            },
+                                            {
+                                              name: "flow",
+                                              description: "类型：CreateSurfaceTwoStageSpec<any>。",
+                                              children: [
+                                                {
+                                                  name: "stage",
+                                                  description: "可选值：first / second。",
+                                                  children: [
+                                                    {
+                                                      name: "first",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "second",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "first",
+                                                  description: "引用 CreateSurfaceFormSpec 声明。",
+                                                },
+                                                {
+                                                  name: "kind",
+                                                  description: "可选值：two-stage。",
+                                                  children: [
+                                                    {
+                                                      name: "two-stage",
+                                                      description: "two-stage 分支声明。",
+                                                    },
+                                                  ],
+                                                },
+                                              ],
+                                            },
+                                          ],
+                                        },
+                                        {
+                                          name: "sections",
+                                          description: "sections 分支声明。",
+                                          children: [
+                                            {
+                                              name: "sections",
+                                              description: "类型：CreateSurfaceSectionSpec<any>[]。",
+                                              children: [
+                                                {
+                                                  name: "key",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "title",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "items",
+                                                  description: "类型：FormSurfaceItemSpec<any>[]。",
+                                                },
+                                                {
+                                                  name: "layout",
+                                                  description: "类型：CreateSurfaceFormLayoutSpec。",
+                                                  children: [
+                                                    {
+                                                      name: "columns",
+                                                      description: "可选值：1 / 2 / 3 / 4 / 6。",
+                                                      children: [
+                                                        {
+                                                          name: "1",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "2",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "3",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "4",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "6",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      name: "density",
+                                                      description: "可选值：compact / normal。",
+                                                      children: [
+                                                        {
+                                                          name: "compact",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "normal",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                  ],
+                                                },
+                                              ],
+                                            },
+                                          ],
+                                        },
+                                      ],
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "presentation",
+                                  description: "可选值：block / modal。",
+                                  children: [
+                                    {
+                                      name: "block",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "modal",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "anchor",
+                                  description: "类型：string | never。",
+                                },
+                                {
+                                  name: "trigger",
+                                  description: "可选值：surface。",
+                                  children: [
+                                    {
+                                      name: "surface",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                              ],
                             },
                           ],
                         },
@@ -19305,11 +19995,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@11195",
                                               description: "Iterator",
                                             },
                                             {
-                                              name: "__@unscopables@110",
+                                              name: "__@unscopables@11197",
                                               description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                             },
                                           ],
@@ -19545,7 +20235,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                 },
                                                 {
-                                                  name: "__@iterator@108",
+                                                  name: "__@iterator@11195",
                                                   description: "Iterator",
                                                 },
                                                 {
@@ -19799,7 +20489,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@11195",
                                               description: "Iterator",
                                             },
                                             {
@@ -20029,7 +20719,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@11195",
                                               description: "Iterator",
                                             },
                                             {
@@ -20559,7 +21249,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                 },
                                                 {
-                                                  name: "__@iterator@108",
+                                                  name: "__@iterator@11195",
                                                   description: "Iterator",
                                                 },
                                                 {
@@ -21285,6 +21975,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   ],
                                                 },
                                                 {
+                                                  name: "density",
+                                                  description: "可选值：compact / normal。",
+                                                  children: [
+                                                    {
+                                                      name: "compact",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "normal",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
                                                   name: "rows",
                                                   description: "类型：number。",
                                                 },
@@ -21405,20 +22109,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 {
                                                   name: "placeholder",
                                                   description: "类型：string。",
-                                                },
-                                                {
-                                                  name: "density",
-                                                  description: "可选值：compact / normal。",
-                                                  children: [
-                                                    {
-                                                      name: "compact",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "normal",
-                                                      description: "字面量取值。",
-                                                    },
-                                                  ],
                                                 },
                                                 {
                                                   name: "autoGrow",
@@ -21681,6 +22371,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   ],
                                                 },
                                                 {
+                                                  name: "density",
+                                                  description: "可选值：compact / normal。",
+                                                  children: [
+                                                    {
+                                                      name: "compact",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "normal",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
                                                   name: "size",
                                                   description: "可选值：lg / md / sm。",
                                                   children: [
@@ -21743,20 +22447,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 {
                                                   name: "placeholder",
                                                   description: "类型：ReactNode。",
-                                                },
-                                                {
-                                                  name: "density",
-                                                  description: "可选值：compact / normal。",
-                                                  children: [
-                                                    {
-                                                      name: "compact",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "normal",
-                                                      description: "字面量取值。",
-                                                    },
-                                                  ],
                                                 },
                                                 {
                                                   name: "textAlign",
@@ -23235,6 +23925,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           ],
                                                         },
                                                         {
+                                                          name: "density",
+                                                          description: "可选值：compact / normal。",
+                                                          children: [
+                                                            {
+                                                              name: "compact",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "normal",
+                                                              description: "字面量取值。",
+                                                            },
+                                                          ],
+                                                        },
+                                                        {
                                                           name: "rows",
                                                           description: "类型：number。",
                                                         },
@@ -23355,20 +24059,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         {
                                                           name: "placeholder",
                                                           description: "类型：string。",
-                                                        },
-                                                        {
-                                                          name: "density",
-                                                          description: "可选值：compact / normal。",
-                                                          children: [
-                                                            {
-                                                              name: "compact",
-                                                              description: "字面量取值。",
-                                                            },
-                                                            {
-                                                              name: "normal",
-                                                              description: "字面量取值。",
-                                                            },
-                                                          ],
                                                         },
                                                         {
                                                           name: "autoGrow",
@@ -24027,16 +24717,16 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   ],
                                                 },
                                                 {
+                                                  name: "items",
+                                                  description: "类型：any[]。",
+                                                },
+                                                {
                                                   name: "className",
                                                   description: "类型：string。",
                                                 },
                                                 {
                                                   name: "disabled",
                                                   description: "类型：boolean。",
-                                                },
-                                                {
-                                                  name: "items",
-                                                  description: "类型：any[]。",
                                                 },
                                                 {
                                                   name: "maxLength",
@@ -25671,6 +26361,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                       description: "类型：never。",
                                     },
                                     {
+                                      name: "sections",
+                                      description: "引用 BodySurfaceSectionSpec 声明。",
+                                    },
+                                    {
                                       name: "title",
                                       description: "类型：ReactNode。",
                                     },
@@ -25739,10 +26433,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     {
                                       name: "actions",
                                       description: "类型：BodySurfaceCommandSpec[]。",
-                                    },
-                                    {
-                                      name: "sections",
-                                      description: "引用 BodySurfaceSectionSpec 声明。",
                                     },
                                     {
                                       name: "unread",
@@ -26787,6 +27477,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                       description: "类型：never。",
                                     },
                                     {
+                                      name: "sections",
+                                      description: "引用 BodySurfaceSectionSpec 声明。",
+                                    },
+                                    {
                                       name: "title",
                                       description: "类型：ReactNode。",
                                     },
@@ -26855,10 +27549,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     {
                                       name: "actions",
                                       description: "类型：BodySurfaceCommandSpec[]。",
-                                    },
-                                    {
-                                      name: "sections",
-                                      description: "引用 BodySurfaceSectionSpec 声明。",
                                     },
                                     {
                                       name: "unread",
@@ -28768,7 +29458,237 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                       children: [
                         {
                           name: "create",
-                          description: "引用 CreateSurfaceProps 声明。",
+                          description: "类型：CreateSurfaceSurfaceProps<any>。",
+                          children: [
+                            {
+                              name: "id",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "title",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "open",
+                              description: "类型：boolean。",
+                            },
+                            {
+                              name: "canCreate",
+                              description: "类型：boolean。",
+                            },
+                            {
+                              name: "disabled",
+                              description: "类型：boolean。",
+                            },
+                            {
+                              name: "submission",
+                              description: "类型：CreateSurfaceSubmissionSpec。",
+                              children: [
+                                {
+                                  name: "action",
+                                  description: "可选值：save / submit。",
+                                  children: [
+                                    {
+                                      name: "save",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "submit",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "disabled",
+                                  description: "类型：boolean。",
+                                },
+                                {
+                                  name: "execute",
+                                  description: "类型：() => void | CreateSurfaceSubmissionResult | Promise<void | CreateSurfaceSubmissionResult>。",
+                                },
+                              ],
+                            },
+                            {
+                              name: "feedback",
+                              description: "类型：CreateSurfaceFeedbackSpec。",
+                              children: [
+                                {
+                                  name: "saved",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "submitted",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "error",
+                                  description: "类型：string。",
+                                },
+                              ],
+                            },
+                            {
+                              name: "onOpenChange",
+                              description: "类型：(open: boolean) => void。",
+                            },
+                            {
+                              name: "onCancel",
+                              description: "类型：() => void。",
+                            },
+                            {
+                              name: "content",
+                              description: "类型：CreateSurfaceContentSpec<any>。",
+                              children: [
+                                {
+                                  name: "kind",
+                                  description: "可选值：form / sections。",
+                                  children: [
+                                    {
+                                      name: "form",
+                                      description: "form 分支声明。",
+                                      children: [
+                                        {
+                                          name: "form",
+                                          description: "引用 CreateSurfaceFormSpec 声明。",
+                                        },
+                                        {
+                                          name: "flow",
+                                          description: "类型：CreateSurfaceTwoStageSpec<any>。",
+                                          children: [
+                                            {
+                                              name: "stage",
+                                              description: "可选值：first / second。",
+                                              children: [
+                                                {
+                                                  name: "first",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "second",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "first",
+                                              description: "引用 CreateSurfaceFormSpec 声明。",
+                                            },
+                                            {
+                                              name: "kind",
+                                              description: "可选值：two-stage。",
+                                              children: [
+                                                {
+                                                  name: "two-stage",
+                                                  description: "two-stage 分支声明。",
+                                                },
+                                              ],
+                                            },
+                                          ],
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "sections",
+                                      description: "sections 分支声明。",
+                                      children: [
+                                        {
+                                          name: "sections",
+                                          description: "类型：CreateSurfaceSectionSpec<any>[]。",
+                                          children: [
+                                            {
+                                              name: "key",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "title",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "items",
+                                              description: "类型：FormSurfaceItemSpec<any>[]。",
+                                            },
+                                            {
+                                              name: "layout",
+                                              description: "类型：CreateSurfaceFormLayoutSpec。",
+                                              children: [
+                                                {
+                                                  name: "columns",
+                                                  description: "可选值：1 / 2 / 3 / 4 / 6。",
+                                                  children: [
+                                                    {
+                                                      name: "1",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "2",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "3",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "4",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "6",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "density",
+                                                  description: "可选值：compact / normal。",
+                                                  children: [
+                                                    {
+                                                      name: "compact",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "normal",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                              ],
+                                            },
+                                          ],
+                                        },
+                                      ],
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                            {
+                              name: "presentation",
+                              description: "可选值：block / modal。",
+                              children: [
+                                {
+                                  name: "block",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "modal",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
+                              name: "anchor",
+                              description: "类型：string | never。",
+                            },
+                            {
+                              name: "trigger",
+                              description: "可选值：surface。",
+                              children: [
+                                {
+                                  name: "surface",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                          ],
                         },
                       ],
                     },
@@ -29467,11 +30387,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                         },
                                         {
-                                          name: "__@iterator@108",
+                                          name: "__@iterator@11195",
                                           description: "Iterator",
                                         },
                                         {
-                                          name: "__@unscopables@110",
+                                          name: "__@unscopables@11197",
                                           description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                         },
                                       ],
@@ -29707,7 +30627,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@11195",
                                               description: "Iterator",
                                             },
                                             {
@@ -29961,7 +30881,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                         },
                                         {
-                                          name: "__@iterator@108",
+                                          name: "__@iterator@11195",
                                           description: "Iterator",
                                         },
                                         {
@@ -30191,7 +31111,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                         },
                                         {
-                                          name: "__@iterator@108",
+                                          name: "__@iterator@11195",
                                           description: "Iterator",
                                         },
                                         {
@@ -30721,7 +31641,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@11195",
                                               description: "Iterator",
                                             },
                                             {
@@ -31447,6 +32367,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               ],
                                             },
                                             {
+                                              name: "density",
+                                              description: "可选值：compact / normal。",
+                                              children: [
+                                                {
+                                                  name: "compact",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "normal",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                            {
                                               name: "rows",
                                               description: "类型：number。",
                                             },
@@ -31567,20 +32501,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             {
                                               name: "placeholder",
                                               description: "类型：string。",
-                                            },
-                                            {
-                                              name: "density",
-                                              description: "可选值：compact / normal。",
-                                              children: [
-                                                {
-                                                  name: "compact",
-                                                  description: "字面量取值。",
-                                                },
-                                                {
-                                                  name: "normal",
-                                                  description: "字面量取值。",
-                                                },
-                                              ],
                                             },
                                             {
                                               name: "autoGrow",
@@ -31843,6 +32763,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               ],
                                             },
                                             {
+                                              name: "density",
+                                              description: "可选值：compact / normal。",
+                                              children: [
+                                                {
+                                                  name: "compact",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "normal",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                            {
                                               name: "size",
                                               description: "可选值：lg / md / sm。",
                                               children: [
@@ -31905,20 +32839,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             {
                                               name: "placeholder",
                                               description: "类型：ReactNode。",
-                                            },
-                                            {
-                                              name: "density",
-                                              description: "可选值：compact / normal。",
-                                              children: [
-                                                {
-                                                  name: "compact",
-                                                  description: "字面量取值。",
-                                                },
-                                                {
-                                                  name: "normal",
-                                                  description: "字面量取值。",
-                                                },
-                                              ],
                                             },
                                             {
                                               name: "textAlign",
@@ -33397,6 +34317,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                       ],
                                                     },
                                                     {
+                                                      name: "density",
+                                                      description: "可选值：compact / normal。",
+                                                      children: [
+                                                        {
+                                                          name: "compact",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "normal",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
                                                       name: "rows",
                                                       description: "类型：number。",
                                                     },
@@ -33517,20 +34451,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     {
                                                       name: "placeholder",
                                                       description: "类型：string。",
-                                                    },
-                                                    {
-                                                      name: "density",
-                                                      description: "可选值：compact / normal。",
-                                                      children: [
-                                                        {
-                                                          name: "compact",
-                                                          description: "字面量取值。",
-                                                        },
-                                                        {
-                                                          name: "normal",
-                                                          description: "字面量取值。",
-                                                        },
-                                                      ],
                                                     },
                                                     {
                                                       name: "autoGrow",
@@ -34189,16 +35109,16 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               ],
                                             },
                                             {
+                                              name: "items",
+                                              description: "类型：any[]。",
+                                            },
+                                            {
                                               name: "className",
                                               description: "类型：string。",
                                             },
                                             {
                                               name: "disabled",
                                               description: "类型：boolean。",
-                                            },
-                                            {
-                                              name: "items",
-                                              description: "类型：any[]。",
                                             },
                                             {
                                               name: "maxLength",
@@ -35843,6 +36763,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                   description: "类型：never。",
                                 },
                                 {
+                                  name: "sections",
+                                  description: "引用 BodySurfaceSectionSpec 声明。",
+                                },
+                                {
                                   name: "title",
                                   description: "类型：ReactNode。",
                                 },
@@ -35911,10 +36835,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 {
                                   name: "actions",
                                   description: "类型：BodySurfaceCommandSpec[]。",
-                                },
-                                {
-                                  name: "sections",
-                                  description: "引用 BodySurfaceSectionSpec 声明。",
                                 },
                                 {
                                   name: "unread",
@@ -36969,6 +37889,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                   description: "类型：never。",
                                 },
                                 {
+                                  name: "sections",
+                                  description: "引用 BodySurfaceSectionSpec 声明。",
+                                },
+                                {
                                   name: "title",
                                   description: "类型：ReactNode。",
                                 },
@@ -37037,10 +37961,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 {
                                   name: "actions",
                                   description: "类型：BodySurfaceCommandSpec[]。",
-                                },
-                                {
-                                  name: "sections",
-                                  description: "引用 BodySurfaceSectionSpec 声明。",
                                 },
                                 {
                                   name: "unread",
@@ -40740,32 +41660,136 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
     },
     {
       name: "content",
-      description: "类型：{ kind: 'form'; form: CreateSurfaceFormSpec<T>; flow?: CreateSurfaceTwoStageSpec<T> | undefined; } | CreateSurfaceContentSpec<T>。",
-    },
-    {
-      name: "trigger",
-      description: "可选值：surface / toolbar。",
+      description: "类型：CreateSurfaceContentSpec<T>。",
       children: [
         {
-          name: "surface",
-          description: "字面量取值。",
-        },
-        {
-          name: "toolbar",
-          description: "字面量取值。",
+          name: "kind",
+          description: "可选值：form / sections。",
+          children: [
+            {
+              name: "form",
+              description: "form 分支声明。",
+              children: [
+                {
+                  name: "form",
+                  description: "引用 CreateSurfaceFormSpec 声明。",
+                },
+                {
+                  name: "flow",
+                  description: "类型：CreateSurfaceTwoStageSpec<T>。",
+                  children: [
+                    {
+                      name: "stage",
+                      description: "可选值：first / second。",
+                      children: [
+                        {
+                          name: "first",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "second",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
+                    {
+                      name: "first",
+                      description: "引用 CreateSurfaceFormSpec 声明。",
+                    },
+                    {
+                      name: "kind",
+                      description: "可选值：two-stage。",
+                      children: [
+                        {
+                          name: "two-stage",
+                          description: "two-stage 分支声明。",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "sections",
+              description: "sections 分支声明。",
+              children: [
+                {
+                  name: "sections",
+                  description: "类型：CreateSurfaceSectionSpec<T>[]。",
+                  children: [
+                    {
+                      name: "key",
+                      description: "类型：string。",
+                    },
+                    {
+                      name: "title",
+                      description: "类型：string。",
+                    },
+                    {
+                      name: "items",
+                      description: "类型：FormSurfaceItemSpec<T>[]。",
+                    },
+                    {
+                      name: "layout",
+                      description: "类型：CreateSurfaceFormLayoutSpec。",
+                      children: [
+                        {
+                          name: "columns",
+                          description: "可选值：1 / 2 / 3 / 4 / 6。",
+                          children: [
+                            {
+                              name: "1",
+                              description: "字面量取值。",
+                            },
+                            {
+                              name: "2",
+                              description: "字面量取值。",
+                            },
+                            {
+                              name: "3",
+                              description: "字面量取值。",
+                            },
+                            {
+                              name: "4",
+                              description: "字面量取值。",
+                            },
+                            {
+                              name: "6",
+                              description: "字面量取值。",
+                            },
+                          ],
+                        },
+                        {
+                          name: "density",
+                          description: "可选值：compact / normal。",
+                          children: [
+                            {
+                              name: "compact",
+                              description: "字面量取值。",
+                            },
+                            {
+                              name: "normal",
+                              description: "字面量取值。",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
         },
       ],
     },
     {
       name: "presentation",
-      description: "可选值：block / inline / modal。",
+      description: "可选值：block / modal。",
       children: [
         {
           name: "block",
-          description: "字面量取值。",
-        },
-        {
-          name: "inline",
           description: "字面量取值。",
         },
         {
@@ -40776,7 +41800,17 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
     },
     {
       name: "anchor",
-      description: "类型：never | string。",
+      description: "类型：string | never。",
+    },
+    {
+      name: "trigger",
+      description: "可选值：surface。",
+      children: [
+        {
+          name: "surface",
+          description: "字面量取值。",
+        },
+      ],
     },
   ],
   DataSurface: [
@@ -41457,11 +42491,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                   description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                 },
                 {
-                  name: "__@iterator@108",
+                  name: "__@iterator@11195",
                   description: "Iterator",
                 },
                 {
-                  name: "__@unscopables@110",
+                  name: "__@unscopables@11197",
                   description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                 },
               ],
@@ -41697,7 +42731,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                       description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                     },
                     {
-                      name: "__@iterator@108",
+                      name: "__@iterator@11195",
                       description: "Iterator",
                     },
                     {
@@ -41951,7 +42985,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                 },
                 {
-                  name: "__@iterator@108",
+                  name: "__@iterator@11195",
                   description: "Iterator",
                 },
                 {
@@ -42181,7 +43215,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                   description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                 },
                 {
-                  name: "__@iterator@108",
+                  name: "__@iterator@11195",
                   description: "Iterator",
                 },
                 {
@@ -43603,7 +44637,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                       description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                     },
                     {
-                      name: "__@iterator@108",
+                      name: "__@iterator@11195",
                       description: "Iterator",
                     },
                     {
@@ -44763,6 +45797,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               ],
                             },
                             {
+                              name: "density",
+                              description: "可选值：compact / normal。",
+                              children: [
+                                {
+                                  name: "compact",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "normal",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "rows",
                               description: "类型：number。",
                             },
@@ -44883,20 +45931,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             {
                               name: "placeholder",
                               description: "类型：string。",
-                            },
-                            {
-                              name: "density",
-                              description: "可选值：compact / normal。",
-                              children: [
-                                {
-                                  name: "compact",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "normal",
-                                  description: "字面量取值。",
-                                },
-                              ],
                             },
                             {
                               name: "autoGrow",
@@ -45159,6 +46193,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               ],
                             },
                             {
+                              name: "density",
+                              description: "可选值：compact / normal。",
+                              children: [
+                                {
+                                  name: "compact",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "normal",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "size",
                               description: "可选值：lg / md / sm。",
                               children: [
@@ -45221,20 +46269,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             {
                               name: "placeholder",
                               description: "类型：ReactNode。",
-                            },
-                            {
-                              name: "density",
-                              description: "可选值：compact / normal。",
-                              children: [
-                                {
-                                  name: "compact",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "normal",
-                                  description: "字面量取值。",
-                                },
-                              ],
                             },
                             {
                               name: "textAlign",
@@ -46713,6 +47747,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                       ],
                                     },
                                     {
+                                      name: "density",
+                                      description: "可选值：compact / normal。",
+                                      children: [
+                                        {
+                                          name: "compact",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "normal",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
                                       name: "rows",
                                       description: "类型：number。",
                                     },
@@ -46833,20 +47881,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     {
                                       name: "placeholder",
                                       description: "类型：string。",
-                                    },
-                                    {
-                                      name: "density",
-                                      description: "可选值：compact / normal。",
-                                      children: [
-                                        {
-                                          name: "compact",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "normal",
-                                          description: "字面量取值。",
-                                        },
-                                      ],
                                     },
                                     {
                                       name: "autoGrow",
@@ -47505,16 +48539,16 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               ],
                             },
                             {
+                              name: "items",
+                              description: "类型：T[]。",
+                            },
+                            {
                               name: "className",
                               description: "类型：string。",
                             },
                             {
                               name: "disabled",
                               description: "类型：boolean。",
-                            },
-                            {
-                              name: "items",
-                              description: "类型：T[]。",
                             },
                             {
                               name: "maxLength",
@@ -48459,6 +49493,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               ],
                             },
                             {
+                              name: "density",
+                              description: "可选值：compact / normal。",
+                              children: [
+                                {
+                                  name: "compact",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "normal",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "rows",
                               description: "类型：number。",
                             },
@@ -48579,20 +49627,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             {
                               name: "placeholder",
                               description: "类型：string。",
-                            },
-                            {
-                              name: "density",
-                              description: "可选值：compact / normal。",
-                              children: [
-                                {
-                                  name: "compact",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "normal",
-                                  description: "字面量取值。",
-                                },
-                              ],
                             },
                             {
                               name: "autoGrow",
@@ -48855,6 +49889,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               ],
                             },
                             {
+                              name: "density",
+                              description: "可选值：compact / normal。",
+                              children: [
+                                {
+                                  name: "compact",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "normal",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "size",
                               description: "可选值：lg / md / sm。",
                               children: [
@@ -48917,20 +49965,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             {
                               name: "placeholder",
                               description: "类型：ReactNode。",
-                            },
-                            {
-                              name: "density",
-                              description: "可选值：compact / normal。",
-                              children: [
-                                {
-                                  name: "compact",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "normal",
-                                  description: "字面量取值。",
-                                },
-                              ],
                             },
                             {
                               name: "textAlign",
@@ -50409,6 +51443,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                       ],
                                     },
                                     {
+                                      name: "density",
+                                      description: "可选值：compact / normal。",
+                                      children: [
+                                        {
+                                          name: "compact",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "normal",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
                                       name: "rows",
                                       description: "类型：number。",
                                     },
@@ -50529,20 +51577,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     {
                                       name: "placeholder",
                                       description: "类型：string。",
-                                    },
-                                    {
-                                      name: "density",
-                                      description: "可选值：compact / normal。",
-                                      children: [
-                                        {
-                                          name: "compact",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "normal",
-                                          description: "字面量取值。",
-                                        },
-                                      ],
                                     },
                                     {
                                       name: "autoGrow",
@@ -51201,16 +52235,16 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               ],
                             },
                             {
+                              name: "items",
+                              description: "类型：T[]。",
+                            },
+                            {
                               name: "className",
                               description: "类型：string。",
                             },
                             {
                               name: "disabled",
                               description: "类型：boolean。",
-                            },
-                            {
-                              name: "items",
-                              description: "类型：T[]。",
                             },
                             {
                               name: "maxLength",
@@ -52273,6 +53307,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               ],
                             },
                             {
+                              name: "density",
+                              description: "可选值：compact / normal。",
+                              children: [
+                                {
+                                  name: "compact",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "normal",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "rows",
                               description: "类型：number。",
                             },
@@ -52393,20 +53441,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             {
                               name: "placeholder",
                               description: "类型：string。",
-                            },
-                            {
-                              name: "density",
-                              description: "可选值：compact / normal。",
-                              children: [
-                                {
-                                  name: "compact",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "normal",
-                                  description: "字面量取值。",
-                                },
-                              ],
                             },
                             {
                               name: "autoGrow",
@@ -52669,6 +53703,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               ],
                             },
                             {
+                              name: "density",
+                              description: "可选值：compact / normal。",
+                              children: [
+                                {
+                                  name: "compact",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "normal",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "size",
                               description: "可选值：lg / md / sm。",
                               children: [
@@ -52731,20 +53779,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             {
                               name: "placeholder",
                               description: "类型：ReactNode。",
-                            },
-                            {
-                              name: "density",
-                              description: "可选值：compact / normal。",
-                              children: [
-                                {
-                                  name: "compact",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "normal",
-                                  description: "字面量取值。",
-                                },
-                              ],
                             },
                             {
                               name: "textAlign",
@@ -54223,6 +55257,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                       ],
                                     },
                                     {
+                                      name: "density",
+                                      description: "可选值：compact / normal。",
+                                      children: [
+                                        {
+                                          name: "compact",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "normal",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
                                       name: "rows",
                                       description: "类型：number。",
                                     },
@@ -54343,20 +55391,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     {
                                       name: "placeholder",
                                       description: "类型：string。",
-                                    },
-                                    {
-                                      name: "density",
-                                      description: "可选值：compact / normal。",
-                                      children: [
-                                        {
-                                          name: "compact",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "normal",
-                                          description: "字面量取值。",
-                                        },
-                                      ],
                                     },
                                     {
                                       name: "autoGrow",
@@ -55015,16 +56049,16 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               ],
                             },
                             {
+                              name: "items",
+                              description: "类型：T[]。",
+                            },
+                            {
                               name: "className",
                               description: "类型：string。",
                             },
                             {
                               name: "disabled",
                               description: "类型：boolean。",
-                            },
-                            {
-                              name: "items",
-                              description: "类型：T[]。",
                             },
                             {
                               name: "maxLength",
@@ -56173,6 +57207,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               ],
                             },
                             {
+                              name: "density",
+                              description: "可选值：compact / normal。",
+                              children: [
+                                {
+                                  name: "compact",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "normal",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "rows",
                               description: "类型：number。",
                             },
@@ -56293,20 +57341,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             {
                               name: "placeholder",
                               description: "类型：string。",
-                            },
-                            {
-                              name: "density",
-                              description: "可选值：compact / normal。",
-                              children: [
-                                {
-                                  name: "compact",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "normal",
-                                  description: "字面量取值。",
-                                },
-                              ],
                             },
                             {
                               name: "autoGrow",
@@ -56569,6 +57603,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               ],
                             },
                             {
+                              name: "density",
+                              description: "可选值：compact / normal。",
+                              children: [
+                                {
+                                  name: "compact",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "normal",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "size",
                               description: "可选值：lg / md / sm。",
                               children: [
@@ -56631,20 +57679,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             {
                               name: "placeholder",
                               description: "类型：ReactNode。",
-                            },
-                            {
-                              name: "density",
-                              description: "可选值：compact / normal。",
-                              children: [
-                                {
-                                  name: "compact",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "normal",
-                                  description: "字面量取值。",
-                                },
-                              ],
                             },
                             {
                               name: "textAlign",
@@ -58123,6 +59157,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                       ],
                                     },
                                     {
+                                      name: "density",
+                                      description: "可选值：compact / normal。",
+                                      children: [
+                                        {
+                                          name: "compact",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "normal",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
                                       name: "rows",
                                       description: "类型：number。",
                                     },
@@ -58243,20 +59291,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     {
                                       name: "placeholder",
                                       description: "类型：string。",
-                                    },
-                                    {
-                                      name: "density",
-                                      description: "可选值：compact / normal。",
-                                      children: [
-                                        {
-                                          name: "compact",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "normal",
-                                          description: "字面量取值。",
-                                        },
-                                      ],
                                     },
                                     {
                                       name: "autoGrow",
@@ -58915,16 +59949,16 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                               ],
                             },
                             {
+                              name: "items",
+                              description: "类型：T[]。",
+                            },
+                            {
                               name: "className",
                               description: "类型：string。",
                             },
                             {
                               name: "disabled",
                               description: "类型：boolean。",
-                            },
-                            {
-                              name: "items",
-                              description: "类型：T[]。",
                             },
                             {
                               name: "maxLength",
@@ -60204,7 +61238,237 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                       children: [
                         {
                           name: "create",
-                          description: "引用 CreateSurfaceProps 声明。",
+                          description: "类型：CreateSurfaceSurfaceProps<any>。",
+                          children: [
+                            {
+                              name: "id",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "title",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "open",
+                              description: "类型：boolean。",
+                            },
+                            {
+                              name: "canCreate",
+                              description: "类型：boolean。",
+                            },
+                            {
+                              name: "disabled",
+                              description: "类型：boolean。",
+                            },
+                            {
+                              name: "submission",
+                              description: "类型：CreateSurfaceSubmissionSpec。",
+                              children: [
+                                {
+                                  name: "action",
+                                  description: "可选值：save / submit。",
+                                  children: [
+                                    {
+                                      name: "save",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "submit",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "disabled",
+                                  description: "类型：boolean。",
+                                },
+                                {
+                                  name: "execute",
+                                  description: "类型：() => void | CreateSurfaceSubmissionResult | Promise<void | CreateSurfaceSubmissionResult>。",
+                                },
+                              ],
+                            },
+                            {
+                              name: "feedback",
+                              description: "类型：CreateSurfaceFeedbackSpec。",
+                              children: [
+                                {
+                                  name: "saved",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "submitted",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "error",
+                                  description: "类型：string。",
+                                },
+                              ],
+                            },
+                            {
+                              name: "onOpenChange",
+                              description: "类型：(open: boolean) => void。",
+                            },
+                            {
+                              name: "onCancel",
+                              description: "类型：() => void。",
+                            },
+                            {
+                              name: "content",
+                              description: "类型：CreateSurfaceContentSpec<any>。",
+                              children: [
+                                {
+                                  name: "kind",
+                                  description: "可选值：form / sections。",
+                                  children: [
+                                    {
+                                      name: "form",
+                                      description: "form 分支声明。",
+                                      children: [
+                                        {
+                                          name: "form",
+                                          description: "引用 CreateSurfaceFormSpec 声明。",
+                                        },
+                                        {
+                                          name: "flow",
+                                          description: "类型：CreateSurfaceTwoStageSpec<any>。",
+                                          children: [
+                                            {
+                                              name: "stage",
+                                              description: "可选值：first / second。",
+                                              children: [
+                                                {
+                                                  name: "first",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "second",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "first",
+                                              description: "引用 CreateSurfaceFormSpec 声明。",
+                                            },
+                                            {
+                                              name: "kind",
+                                              description: "可选值：two-stage。",
+                                              children: [
+                                                {
+                                                  name: "two-stage",
+                                                  description: "two-stage 分支声明。",
+                                                },
+                                              ],
+                                            },
+                                          ],
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "sections",
+                                      description: "sections 分支声明。",
+                                      children: [
+                                        {
+                                          name: "sections",
+                                          description: "类型：CreateSurfaceSectionSpec<any>[]。",
+                                          children: [
+                                            {
+                                              name: "key",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "title",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "items",
+                                              description: "类型：FormSurfaceItemSpec<any>[]。",
+                                            },
+                                            {
+                                              name: "layout",
+                                              description: "类型：CreateSurfaceFormLayoutSpec。",
+                                              children: [
+                                                {
+                                                  name: "columns",
+                                                  description: "可选值：1 / 2 / 3 / 4 / 6。",
+                                                  children: [
+                                                    {
+                                                      name: "1",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "2",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "3",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "4",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "6",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "density",
+                                                  description: "可选值：compact / normal。",
+                                                  children: [
+                                                    {
+                                                      name: "compact",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "normal",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                              ],
+                                            },
+                                          ],
+                                        },
+                                      ],
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                            {
+                              name: "presentation",
+                              description: "可选值：block / modal。",
+                              children: [
+                                {
+                                  name: "block",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "modal",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
+                              name: "anchor",
+                              description: "类型：string | never。",
+                            },
+                            {
+                              name: "trigger",
+                              description: "可选值：surface。",
+                              children: [
+                                {
+                                  name: "surface",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                          ],
                         },
                       ],
                     },
@@ -60903,11 +62167,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                         },
                                         {
-                                          name: "__@iterator@108",
+                                          name: "__@iterator@11195",
                                           description: "Iterator",
                                         },
                                         {
-                                          name: "__@unscopables@110",
+                                          name: "__@unscopables@11197",
                                           description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                         },
                                       ],
@@ -61143,7 +62407,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@11195",
                                               description: "Iterator",
                                             },
                                             {
@@ -61397,7 +62661,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                         },
                                         {
-                                          name: "__@iterator@108",
+                                          name: "__@iterator@11195",
                                           description: "Iterator",
                                         },
                                         {
@@ -61627,7 +62891,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                         },
                                         {
-                                          name: "__@iterator@108",
+                                          name: "__@iterator@11195",
                                           description: "Iterator",
                                         },
                                         {
@@ -62157,7 +63421,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                             },
                                             {
-                                              name: "__@iterator@108",
+                                              name: "__@iterator@11195",
                                               description: "Iterator",
                                             },
                                             {
@@ -62883,6 +64147,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               ],
                                             },
                                             {
+                                              name: "density",
+                                              description: "可选值：compact / normal。",
+                                              children: [
+                                                {
+                                                  name: "compact",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "normal",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                            {
                                               name: "rows",
                                               description: "类型：number。",
                                             },
@@ -63003,20 +64281,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             {
                                               name: "placeholder",
                                               description: "类型：string。",
-                                            },
-                                            {
-                                              name: "density",
-                                              description: "可选值：compact / normal。",
-                                              children: [
-                                                {
-                                                  name: "compact",
-                                                  description: "字面量取值。",
-                                                },
-                                                {
-                                                  name: "normal",
-                                                  description: "字面量取值。",
-                                                },
-                                              ],
                                             },
                                             {
                                               name: "autoGrow",
@@ -63279,6 +64543,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               ],
                                             },
                                             {
+                                              name: "density",
+                                              description: "可选值：compact / normal。",
+                                              children: [
+                                                {
+                                                  name: "compact",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "normal",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                            {
                                               name: "size",
                                               description: "可选值：lg / md / sm。",
                                               children: [
@@ -63341,20 +64619,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             {
                                               name: "placeholder",
                                               description: "类型：ReactNode。",
-                                            },
-                                            {
-                                              name: "density",
-                                              description: "可选值：compact / normal。",
-                                              children: [
-                                                {
-                                                  name: "compact",
-                                                  description: "字面量取值。",
-                                                },
-                                                {
-                                                  name: "normal",
-                                                  description: "字面量取值。",
-                                                },
-                                              ],
                                             },
                                             {
                                               name: "textAlign",
@@ -64833,6 +66097,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                       ],
                                                     },
                                                     {
+                                                      name: "density",
+                                                      description: "可选值：compact / normal。",
+                                                      children: [
+                                                        {
+                                                          name: "compact",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "normal",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
                                                       name: "rows",
                                                       description: "类型：number。",
                                                     },
@@ -64953,20 +66231,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                     {
                                                       name: "placeholder",
                                                       description: "类型：string。",
-                                                    },
-                                                    {
-                                                      name: "density",
-                                                      description: "可选值：compact / normal。",
-                                                      children: [
-                                                        {
-                                                          name: "compact",
-                                                          description: "字面量取值。",
-                                                        },
-                                                        {
-                                                          name: "normal",
-                                                          description: "字面量取值。",
-                                                        },
-                                                      ],
                                                     },
                                                     {
                                                       name: "autoGrow",
@@ -65625,16 +66889,16 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               ],
                                             },
                                             {
+                                              name: "items",
+                                              description: "类型：any[]。",
+                                            },
+                                            {
                                               name: "className",
                                               description: "类型：string。",
                                             },
                                             {
                                               name: "disabled",
                                               description: "类型：boolean。",
-                                            },
-                                            {
-                                              name: "items",
-                                              description: "类型：any[]。",
                                             },
                                             {
                                               name: "maxLength",
@@ -67279,6 +68543,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                   description: "类型：never。",
                                 },
                                 {
+                                  name: "sections",
+                                  description: "引用 BodySurfaceSectionSpec 声明。",
+                                },
+                                {
                                   name: "title",
                                   description: "类型：ReactNode。",
                                 },
@@ -67347,10 +68615,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 {
                                   name: "actions",
                                   description: "类型：BodySurfaceCommandSpec[]。",
-                                },
-                                {
-                                  name: "sections",
-                                  description: "引用 BodySurfaceSectionSpec 声明。",
                                 },
                                 {
                                   name: "unread",
@@ -68405,6 +69669,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                   description: "类型：never。",
                                 },
                                 {
+                                  name: "sections",
+                                  description: "引用 BodySurfaceSectionSpec 声明。",
+                                },
+                                {
                                   name: "title",
                                   description: "类型：ReactNode。",
                                 },
@@ -68473,10 +69741,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 {
                                   name: "actions",
                                   description: "类型：BodySurfaceCommandSpec[]。",
-                                },
-                                {
-                                  name: "sections",
-                                  description: "引用 BodySurfaceSectionSpec 声明。",
                                 },
                                 {
                                   name: "unread",
@@ -68682,7 +69946,237 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                       children: [
                                         {
                                           name: "create",
-                                          description: "引用 CreateSurfaceProps 声明。",
+                                          description: "类型：CreateSurfaceSurfaceProps<any>。",
+                                          children: [
+                                            {
+                                              name: "id",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "title",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "open",
+                                              description: "类型：boolean。",
+                                            },
+                                            {
+                                              name: "canCreate",
+                                              description: "类型：boolean。",
+                                            },
+                                            {
+                                              name: "disabled",
+                                              description: "类型：boolean。",
+                                            },
+                                            {
+                                              name: "submission",
+                                              description: "类型：CreateSurfaceSubmissionSpec。",
+                                              children: [
+                                                {
+                                                  name: "action",
+                                                  description: "可选值：save / submit。",
+                                                  children: [
+                                                    {
+                                                      name: "save",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "submit",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "disabled",
+                                                  description: "类型：boolean。",
+                                                },
+                                                {
+                                                  name: "execute",
+                                                  description: "类型：() => void | CreateSurfaceSubmissionResult | Promise<void | CreateSurfaceSubmissionResult>。",
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "feedback",
+                                              description: "类型：CreateSurfaceFeedbackSpec。",
+                                              children: [
+                                                {
+                                                  name: "saved",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "submitted",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "error",
+                                                  description: "类型：string。",
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "onOpenChange",
+                                              description: "类型：(open: boolean) => void。",
+                                            },
+                                            {
+                                              name: "onCancel",
+                                              description: "类型：() => void。",
+                                            },
+                                            {
+                                              name: "content",
+                                              description: "类型：CreateSurfaceContentSpec<any>。",
+                                              children: [
+                                                {
+                                                  name: "kind",
+                                                  description: "可选值：form / sections。",
+                                                  children: [
+                                                    {
+                                                      name: "form",
+                                                      description: "form 分支声明。",
+                                                      children: [
+                                                        {
+                                                          name: "form",
+                                                          description: "引用 CreateSurfaceFormSpec 声明。",
+                                                        },
+                                                        {
+                                                          name: "flow",
+                                                          description: "类型：CreateSurfaceTwoStageSpec<any>。",
+                                                          children: [
+                                                            {
+                                                              name: "stage",
+                                                              description: "可选值：first / second。",
+                                                              children: [
+                                                                {
+                                                                  name: "first",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "second",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
+                                                            {
+                                                              name: "first",
+                                                              description: "引用 CreateSurfaceFormSpec 声明。",
+                                                            },
+                                                            {
+                                                              name: "kind",
+                                                              description: "可选值：two-stage。",
+                                                              children: [
+                                                                {
+                                                                  name: "two-stage",
+                                                                  description: "two-stage 分支声明。",
+                                                                },
+                                                              ],
+                                                            },
+                                                          ],
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      name: "sections",
+                                                      description: "sections 分支声明。",
+                                                      children: [
+                                                        {
+                                                          name: "sections",
+                                                          description: "类型：CreateSurfaceSectionSpec<any>[]。",
+                                                          children: [
+                                                            {
+                                                              name: "key",
+                                                              description: "类型：string。",
+                                                            },
+                                                            {
+                                                              name: "title",
+                                                              description: "类型：string。",
+                                                            },
+                                                            {
+                                                              name: "items",
+                                                              description: "类型：FormSurfaceItemSpec<any>[]。",
+                                                            },
+                                                            {
+                                                              name: "layout",
+                                                              description: "类型：CreateSurfaceFormLayoutSpec。",
+                                                              children: [
+                                                                {
+                                                                  name: "columns",
+                                                                  description: "可选值：1 / 2 / 3 / 4 / 6。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "1",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "2",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "3",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "4",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "6",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                  ],
+                                                                },
+                                                                {
+                                                                  name: "density",
+                                                                  description: "可选值：compact / normal。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "compact",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "normal",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                  ],
+                                                                },
+                                                              ],
+                                                            },
+                                                          ],
+                                                        },
+                                                      ],
+                                                    },
+                                                  ],
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "presentation",
+                                              description: "可选值：block / modal。",
+                                              children: [
+                                                {
+                                                  name: "block",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "modal",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "anchor",
+                                              description: "类型：string | never。",
+                                            },
+                                            {
+                                              name: "trigger",
+                                              description: "可选值：surface。",
+                                              children: [
+                                                {
+                                                  name: "surface",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                          ],
                                         },
                                       ],
                                     },
@@ -69381,11 +70875,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@11195",
                                                           description: "Iterator",
                                                         },
                                                         {
-                                                          name: "__@unscopables@110",
+                                                          name: "__@unscopables@11197",
                                                           description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                                         },
                                                       ],
@@ -69621,7 +71115,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                             },
                                                             {
-                                                              name: "__@iterator@108",
+                                                              name: "__@iterator@11195",
                                                               description: "Iterator",
                                                             },
                                                             {
@@ -69875,7 +71369,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@11195",
                                                           description: "Iterator",
                                                         },
                                                         {
@@ -70105,7 +71599,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@11195",
                                                           description: "Iterator",
                                                         },
                                                         {
@@ -70635,7 +72129,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                             },
                                                             {
-                                                              name: "__@iterator@108",
+                                                              name: "__@iterator@11195",
                                                               description: "Iterator",
                                                             },
                                                             {
@@ -71361,6 +72855,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               ],
                                                             },
                                                             {
+                                                              name: "density",
+                                                              description: "可选值：compact / normal。",
+                                                              children: [
+                                                                {
+                                                                  name: "compact",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "normal",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
+                                                            {
                                                               name: "rows",
                                                               description: "类型：number。",
                                                             },
@@ -71481,20 +72989,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             {
                                                               name: "placeholder",
                                                               description: "类型：string。",
-                                                            },
-                                                            {
-                                                              name: "density",
-                                                              description: "可选值：compact / normal。",
-                                                              children: [
-                                                                {
-                                                                  name: "compact",
-                                                                  description: "字面量取值。",
-                                                                },
-                                                                {
-                                                                  name: "normal",
-                                                                  description: "字面量取值。",
-                                                                },
-                                                              ],
                                                             },
                                                             {
                                                               name: "autoGrow",
@@ -71757,6 +73251,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               ],
                                                             },
                                                             {
+                                                              name: "density",
+                                                              description: "可选值：compact / normal。",
+                                                              children: [
+                                                                {
+                                                                  name: "compact",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "normal",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
+                                                            {
                                                               name: "size",
                                                               description: "可选值：lg / md / sm。",
                                                               children: [
@@ -71819,20 +73327,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             {
                                                               name: "placeholder",
                                                               description: "类型：ReactNode。",
-                                                            },
-                                                            {
-                                                              name: "density",
-                                                              description: "可选值：compact / normal。",
-                                                              children: [
-                                                                {
-                                                                  name: "compact",
-                                                                  description: "字面量取值。",
-                                                                },
-                                                                {
-                                                                  name: "normal",
-                                                                  description: "字面量取值。",
-                                                                },
-                                                              ],
                                                             },
                                                             {
                                                               name: "textAlign",
@@ -73311,6 +74805,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                       ],
                                                                     },
                                                                     {
+                                                                      name: "density",
+                                                                      description: "可选值：compact / normal。",
+                                                                      children: [
+                                                                        {
+                                                                          name: "compact",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                        {
+                                                                          name: "normal",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                      ],
+                                                                    },
+                                                                    {
                                                                       name: "rows",
                                                                       description: "类型：number。",
                                                                     },
@@ -73431,20 +74939,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     {
                                                                       name: "placeholder",
                                                                       description: "类型：string。",
-                                                                    },
-                                                                    {
-                                                                      name: "density",
-                                                                      description: "可选值：compact / normal。",
-                                                                      children: [
-                                                                        {
-                                                                          name: "compact",
-                                                                          description: "字面量取值。",
-                                                                        },
-                                                                        {
-                                                                          name: "normal",
-                                                                          description: "字面量取值。",
-                                                                        },
-                                                                      ],
                                                                     },
                                                                     {
                                                                       name: "autoGrow",
@@ -74103,16 +75597,16 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               ],
                                                             },
                                                             {
+                                                              name: "items",
+                                                              description: "类型：any[]。",
+                                                            },
+                                                            {
                                                               name: "className",
                                                               description: "类型：string。",
                                                             },
                                                             {
                                                               name: "disabled",
                                                               description: "类型：boolean。",
-                                                            },
-                                                            {
-                                                              name: "items",
-                                                              description: "类型：any[]。",
                                                             },
                                                             {
                                                               name: "maxLength",
@@ -75747,6 +77241,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "类型：never。",
                                                 },
                                                 {
+                                                  name: "sections",
+                                                  description: "引用 BodySurfaceSectionSpec 声明。",
+                                                },
+                                                {
                                                   name: "title",
                                                   description: "类型：ReactNode。",
                                                 },
@@ -75815,10 +77313,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 {
                                                   name: "actions",
                                                   description: "类型：BodySurfaceCommandSpec[]。",
-                                                },
-                                                {
-                                                  name: "sections",
-                                                  description: "引用 BodySurfaceSectionSpec 声明。",
                                                 },
                                                 {
                                                   name: "unread",
@@ -76863,6 +78357,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "类型：never。",
                                                 },
                                                 {
+                                                  name: "sections",
+                                                  description: "引用 BodySurfaceSectionSpec 声明。",
+                                                },
+                                                {
                                                   name: "title",
                                                   description: "类型：ReactNode。",
                                                 },
@@ -76931,10 +78429,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 {
                                                   name: "actions",
                                                   description: "类型：BodySurfaceCommandSpec[]。",
-                                                },
-                                                {
-                                                  name: "sections",
-                                                  description: "引用 BodySurfaceSectionSpec 声明。",
                                                 },
                                                 {
                                                   name: "unread",
@@ -78796,7 +80290,237 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                       children: [
                                         {
                                           name: "create",
-                                          description: "引用 CreateSurfaceProps 声明。",
+                                          description: "类型：CreateSurfaceSurfaceProps<any>。",
+                                          children: [
+                                            {
+                                              name: "id",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "title",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "open",
+                                              description: "类型：boolean。",
+                                            },
+                                            {
+                                              name: "canCreate",
+                                              description: "类型：boolean。",
+                                            },
+                                            {
+                                              name: "disabled",
+                                              description: "类型：boolean。",
+                                            },
+                                            {
+                                              name: "submission",
+                                              description: "类型：CreateSurfaceSubmissionSpec。",
+                                              children: [
+                                                {
+                                                  name: "action",
+                                                  description: "可选值：save / submit。",
+                                                  children: [
+                                                    {
+                                                      name: "save",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "submit",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "disabled",
+                                                  description: "类型：boolean。",
+                                                },
+                                                {
+                                                  name: "execute",
+                                                  description: "类型：() => void | CreateSurfaceSubmissionResult | Promise<void | CreateSurfaceSubmissionResult>。",
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "feedback",
+                                              description: "类型：CreateSurfaceFeedbackSpec。",
+                                              children: [
+                                                {
+                                                  name: "saved",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "submitted",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "error",
+                                                  description: "类型：string。",
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "onOpenChange",
+                                              description: "类型：(open: boolean) => void。",
+                                            },
+                                            {
+                                              name: "onCancel",
+                                              description: "类型：() => void。",
+                                            },
+                                            {
+                                              name: "content",
+                                              description: "类型：CreateSurfaceContentSpec<any>。",
+                                              children: [
+                                                {
+                                                  name: "kind",
+                                                  description: "可选值：form / sections。",
+                                                  children: [
+                                                    {
+                                                      name: "form",
+                                                      description: "form 分支声明。",
+                                                      children: [
+                                                        {
+                                                          name: "form",
+                                                          description: "引用 CreateSurfaceFormSpec 声明。",
+                                                        },
+                                                        {
+                                                          name: "flow",
+                                                          description: "类型：CreateSurfaceTwoStageSpec<any>。",
+                                                          children: [
+                                                            {
+                                                              name: "stage",
+                                                              description: "可选值：first / second。",
+                                                              children: [
+                                                                {
+                                                                  name: "first",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "second",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
+                                                            {
+                                                              name: "first",
+                                                              description: "引用 CreateSurfaceFormSpec 声明。",
+                                                            },
+                                                            {
+                                                              name: "kind",
+                                                              description: "可选值：two-stage。",
+                                                              children: [
+                                                                {
+                                                                  name: "two-stage",
+                                                                  description: "two-stage 分支声明。",
+                                                                },
+                                                              ],
+                                                            },
+                                                          ],
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      name: "sections",
+                                                      description: "sections 分支声明。",
+                                                      children: [
+                                                        {
+                                                          name: "sections",
+                                                          description: "类型：CreateSurfaceSectionSpec<any>[]。",
+                                                          children: [
+                                                            {
+                                                              name: "key",
+                                                              description: "类型：string。",
+                                                            },
+                                                            {
+                                                              name: "title",
+                                                              description: "类型：string。",
+                                                            },
+                                                            {
+                                                              name: "items",
+                                                              description: "类型：FormSurfaceItemSpec<any>[]。",
+                                                            },
+                                                            {
+                                                              name: "layout",
+                                                              description: "类型：CreateSurfaceFormLayoutSpec。",
+                                                              children: [
+                                                                {
+                                                                  name: "columns",
+                                                                  description: "可选值：1 / 2 / 3 / 4 / 6。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "1",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "2",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "3",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "4",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "6",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                  ],
+                                                                },
+                                                                {
+                                                                  name: "density",
+                                                                  description: "可选值：compact / normal。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "compact",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "normal",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                  ],
+                                                                },
+                                                              ],
+                                                            },
+                                                          ],
+                                                        },
+                                                      ],
+                                                    },
+                                                  ],
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "presentation",
+                                              description: "可选值：block / modal。",
+                                              children: [
+                                                {
+                                                  name: "block",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "modal",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "anchor",
+                                              description: "类型：string | never。",
+                                            },
+                                            {
+                                              name: "trigger",
+                                              description: "可选值：surface。",
+                                              children: [
+                                                {
+                                                  name: "surface",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                          ],
                                         },
                                       ],
                                     },
@@ -79495,11 +81219,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@11195",
                                                           description: "Iterator",
                                                         },
                                                         {
-                                                          name: "__@unscopables@110",
+                                                          name: "__@unscopables@11197",
                                                           description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                                         },
                                                       ],
@@ -79735,7 +81459,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                             },
                                                             {
-                                                              name: "__@iterator@108",
+                                                              name: "__@iterator@11195",
                                                               description: "Iterator",
                                                             },
                                                             {
@@ -79989,7 +81713,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@11195",
                                                           description: "Iterator",
                                                         },
                                                         {
@@ -80219,7 +81943,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@11195",
                                                           description: "Iterator",
                                                         },
                                                         {
@@ -80749,7 +82473,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                             },
                                                             {
-                                                              name: "__@iterator@108",
+                                                              name: "__@iterator@11195",
                                                               description: "Iterator",
                                                             },
                                                             {
@@ -81475,6 +83199,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               ],
                                                             },
                                                             {
+                                                              name: "density",
+                                                              description: "可选值：compact / normal。",
+                                                              children: [
+                                                                {
+                                                                  name: "compact",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "normal",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
+                                                            {
                                                               name: "rows",
                                                               description: "类型：number。",
                                                             },
@@ -81595,20 +83333,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             {
                                                               name: "placeholder",
                                                               description: "类型：string。",
-                                                            },
-                                                            {
-                                                              name: "density",
-                                                              description: "可选值：compact / normal。",
-                                                              children: [
-                                                                {
-                                                                  name: "compact",
-                                                                  description: "字面量取值。",
-                                                                },
-                                                                {
-                                                                  name: "normal",
-                                                                  description: "字面量取值。",
-                                                                },
-                                                              ],
                                                             },
                                                             {
                                                               name: "autoGrow",
@@ -81871,6 +83595,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               ],
                                                             },
                                                             {
+                                                              name: "density",
+                                                              description: "可选值：compact / normal。",
+                                                              children: [
+                                                                {
+                                                                  name: "compact",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "normal",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
+                                                            {
                                                               name: "size",
                                                               description: "可选值：lg / md / sm。",
                                                               children: [
@@ -81933,20 +83671,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                             {
                                                               name: "placeholder",
                                                               description: "类型：ReactNode。",
-                                                            },
-                                                            {
-                                                              name: "density",
-                                                              description: "可选值：compact / normal。",
-                                                              children: [
-                                                                {
-                                                                  name: "compact",
-                                                                  description: "字面量取值。",
-                                                                },
-                                                                {
-                                                                  name: "normal",
-                                                                  description: "字面量取值。",
-                                                                },
-                                                              ],
                                                             },
                                                             {
                                                               name: "textAlign",
@@ -83425,6 +85149,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                       ],
                                                                     },
                                                                     {
+                                                                      name: "density",
+                                                                      description: "可选值：compact / normal。",
+                                                                      children: [
+                                                                        {
+                                                                          name: "compact",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                        {
+                                                                          name: "normal",
+                                                                          description: "字面量取值。",
+                                                                        },
+                                                                      ],
+                                                                    },
+                                                                    {
                                                                       name: "rows",
                                                                       description: "类型：number。",
                                                                     },
@@ -83545,20 +85283,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                     {
                                                                       name: "placeholder",
                                                                       description: "类型：string。",
-                                                                    },
-                                                                    {
-                                                                      name: "density",
-                                                                      description: "可选值：compact / normal。",
-                                                                      children: [
-                                                                        {
-                                                                          name: "compact",
-                                                                          description: "字面量取值。",
-                                                                        },
-                                                                        {
-                                                                          name: "normal",
-                                                                          description: "字面量取值。",
-                                                                        },
-                                                                      ],
                                                                     },
                                                                     {
                                                                       name: "autoGrow",
@@ -84217,16 +85941,16 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                               ],
                                                             },
                                                             {
+                                                              name: "items",
+                                                              description: "类型：any[]。",
+                                                            },
+                                                            {
                                                               name: "className",
                                                               description: "类型：string。",
                                                             },
                                                             {
                                                               name: "disabled",
                                                               description: "类型：boolean。",
-                                                            },
-                                                            {
-                                                              name: "items",
-                                                              description: "类型：any[]。",
                                                             },
                                                             {
                                                               name: "maxLength",
@@ -85861,6 +87585,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "类型：never。",
                                                 },
                                                 {
+                                                  name: "sections",
+                                                  description: "引用 BodySurfaceSectionSpec 声明。",
+                                                },
+                                                {
                                                   name: "title",
                                                   description: "类型：ReactNode。",
                                                 },
@@ -85929,10 +87657,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 {
                                                   name: "actions",
                                                   description: "类型：BodySurfaceCommandSpec[]。",
-                                                },
-                                                {
-                                                  name: "sections",
-                                                  description: "引用 BodySurfaceSectionSpec 声明。",
                                                 },
                                                 {
                                                   name: "unread",
@@ -86977,6 +88701,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                   description: "类型：never。",
                                                 },
                                                 {
+                                                  name: "sections",
+                                                  description: "引用 BodySurfaceSectionSpec 声明。",
+                                                },
+                                                {
                                                   name: "title",
                                                   description: "类型：ReactNode。",
                                                 },
@@ -87045,10 +88773,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                 {
                                                   name: "actions",
                                                   description: "类型：BodySurfaceCommandSpec[]。",
-                                                },
-                                                {
-                                                  name: "sections",
-                                                  description: "引用 BodySurfaceSectionSpec 声明。",
                                                 },
                                                 {
                                                   name: "unread",
@@ -88958,7 +90682,237 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                   children: [
                                     {
                                       name: "create",
-                                      description: "引用 CreateSurfaceProps 声明。",
+                                      description: "类型：CreateSurfaceSurfaceProps<any>。",
+                                      children: [
+                                        {
+                                          name: "id",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "title",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "open",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "canCreate",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "disabled",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "submission",
+                                          description: "类型：CreateSurfaceSubmissionSpec。",
+                                          children: [
+                                            {
+                                              name: "action",
+                                              description: "可选值：save / submit。",
+                                              children: [
+                                                {
+                                                  name: "save",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "submit",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "disabled",
+                                              description: "类型：boolean。",
+                                            },
+                                            {
+                                              name: "execute",
+                                              description: "类型：() => void | CreateSurfaceSubmissionResult | Promise<void | CreateSurfaceSubmissionResult>。",
+                                            },
+                                          ],
+                                        },
+                                        {
+                                          name: "feedback",
+                                          description: "类型：CreateSurfaceFeedbackSpec。",
+                                          children: [
+                                            {
+                                              name: "saved",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "submitted",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "error",
+                                              description: "类型：string。",
+                                            },
+                                          ],
+                                        },
+                                        {
+                                          name: "onOpenChange",
+                                          description: "类型：(open: boolean) => void。",
+                                        },
+                                        {
+                                          name: "onCancel",
+                                          description: "类型：() => void。",
+                                        },
+                                        {
+                                          name: "content",
+                                          description: "类型：CreateSurfaceContentSpec<any>。",
+                                          children: [
+                                            {
+                                              name: "kind",
+                                              description: "可选值：form / sections。",
+                                              children: [
+                                                {
+                                                  name: "form",
+                                                  description: "form 分支声明。",
+                                                  children: [
+                                                    {
+                                                      name: "form",
+                                                      description: "引用 CreateSurfaceFormSpec 声明。",
+                                                    },
+                                                    {
+                                                      name: "flow",
+                                                      description: "类型：CreateSurfaceTwoStageSpec<any>。",
+                                                      children: [
+                                                        {
+                                                          name: "stage",
+                                                          description: "可选值：first / second。",
+                                                          children: [
+                                                            {
+                                                              name: "first",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "second",
+                                                              description: "字面量取值。",
+                                                            },
+                                                          ],
+                                                        },
+                                                        {
+                                                          name: "first",
+                                                          description: "引用 CreateSurfaceFormSpec 声明。",
+                                                        },
+                                                        {
+                                                          name: "kind",
+                                                          description: "可选值：two-stage。",
+                                                          children: [
+                                                            {
+                                                              name: "two-stage",
+                                                              description: "two-stage 分支声明。",
+                                                            },
+                                                          ],
+                                                        },
+                                                      ],
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "sections",
+                                                  description: "sections 分支声明。",
+                                                  children: [
+                                                    {
+                                                      name: "sections",
+                                                      description: "类型：CreateSurfaceSectionSpec<any>[]。",
+                                                      children: [
+                                                        {
+                                                          name: "key",
+                                                          description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "title",
+                                                          description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "items",
+                                                          description: "类型：FormSurfaceItemSpec<any>[]。",
+                                                        },
+                                                        {
+                                                          name: "layout",
+                                                          description: "类型：CreateSurfaceFormLayoutSpec。",
+                                                          children: [
+                                                            {
+                                                              name: "columns",
+                                                              description: "可选值：1 / 2 / 3 / 4 / 6。",
+                                                              children: [
+                                                                {
+                                                                  name: "1",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "2",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "3",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "4",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "6",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
+                                                            {
+                                                              name: "density",
+                                                              description: "可选值：compact / normal。",
+                                                              children: [
+                                                                {
+                                                                  name: "compact",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "normal",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
+                                                          ],
+                                                        },
+                                                      ],
+                                                    },
+                                                  ],
+                                                },
+                                              ],
+                                            },
+                                          ],
+                                        },
+                                        {
+                                          name: "presentation",
+                                          description: "可选值：block / modal。",
+                                          children: [
+                                            {
+                                              name: "block",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "modal",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
+                                        },
+                                        {
+                                          name: "anchor",
+                                          description: "类型：string | never。",
+                                        },
+                                        {
+                                          name: "trigger",
+                                          description: "可选值：surface。",
+                                          children: [
+                                            {
+                                              name: "surface",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
+                                        },
+                                      ],
                                     },
                                   ],
                                 },
@@ -89657,11 +91611,11 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                       description: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array.",
                                                     },
                                                     {
-                                                      name: "__@iterator@108",
+                                                      name: "__@iterator@11195",
                                                       description: "Iterator",
                                                     },
                                                     {
-                                                      name: "__@unscopables@110",
+                                                      name: "__@unscopables@11197",
                                                       description: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement.",
                                                     },
                                                   ],
@@ -89897,7 +91851,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@11195",
                                                           description: "Iterator",
                                                         },
                                                         {
@@ -90151,7 +92105,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                       description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                     },
                                                     {
-                                                      name: "__@iterator@108",
+                                                      name: "__@iterator@11195",
                                                       description: "Iterator",
                                                     },
                                                     {
@@ -90381,7 +92335,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                       description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                     },
                                                     {
-                                                      name: "__@iterator@108",
+                                                      name: "__@iterator@11195",
                                                       description: "Iterator",
                                                     },
                                                     {
@@ -90911,7 +92865,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           description: "Returns a string where all lone or out-of-order surrogates have been replaced by the Unicode replacement character (U+FFFD).",
                                                         },
                                                         {
-                                                          name: "__@iterator@108",
+                                                          name: "__@iterator@11195",
                                                           description: "Iterator",
                                                         },
                                                         {
@@ -91637,6 +93591,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           ],
                                                         },
                                                         {
+                                                          name: "density",
+                                                          description: "可选值：compact / normal。",
+                                                          children: [
+                                                            {
+                                                              name: "compact",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "normal",
+                                                              description: "字面量取值。",
+                                                            },
+                                                          ],
+                                                        },
+                                                        {
                                                           name: "rows",
                                                           description: "类型：number。",
                                                         },
@@ -91757,20 +93725,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         {
                                                           name: "placeholder",
                                                           description: "类型：string。",
-                                                        },
-                                                        {
-                                                          name: "density",
-                                                          description: "可选值：compact / normal。",
-                                                          children: [
-                                                            {
-                                                              name: "compact",
-                                                              description: "字面量取值。",
-                                                            },
-                                                            {
-                                                              name: "normal",
-                                                              description: "字面量取值。",
-                                                            },
-                                                          ],
                                                         },
                                                         {
                                                           name: "autoGrow",
@@ -92033,6 +93987,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           ],
                                                         },
                                                         {
+                                                          name: "density",
+                                                          description: "可选值：compact / normal。",
+                                                          children: [
+                                                            {
+                                                              name: "compact",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "normal",
+                                                              description: "字面量取值。",
+                                                            },
+                                                          ],
+                                                        },
+                                                        {
                                                           name: "size",
                                                           description: "可选值：lg / md / sm。",
                                                           children: [
@@ -92095,20 +94063,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                         {
                                                           name: "placeholder",
                                                           description: "类型：ReactNode。",
-                                                        },
-                                                        {
-                                                          name: "density",
-                                                          description: "可选值：compact / normal。",
-                                                          children: [
-                                                            {
-                                                              name: "compact",
-                                                              description: "字面量取值。",
-                                                            },
-                                                            {
-                                                              name: "normal",
-                                                              description: "字面量取值。",
-                                                            },
-                                                          ],
                                                         },
                                                         {
                                                           name: "textAlign",
@@ -93587,6 +95541,20 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                   ],
                                                                 },
                                                                 {
+                                                                  name: "density",
+                                                                  description: "可选值：compact / normal。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "compact",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "normal",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                  ],
+                                                                },
+                                                                {
                                                                   name: "rows",
                                                                   description: "类型：number。",
                                                                 },
@@ -93707,20 +95675,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                                 {
                                                                   name: "placeholder",
                                                                   description: "类型：string。",
-                                                                },
-                                                                {
-                                                                  name: "density",
-                                                                  description: "可选值：compact / normal。",
-                                                                  children: [
-                                                                    {
-                                                                      name: "compact",
-                                                                      description: "字面量取值。",
-                                                                    },
-                                                                    {
-                                                                      name: "normal",
-                                                                      description: "字面量取值。",
-                                                                    },
-                                                                  ],
                                                                 },
                                                                 {
                                                                   name: "autoGrow",
@@ -94379,16 +96333,16 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                                           ],
                                                         },
                                                         {
+                                                          name: "items",
+                                                          description: "类型：any[]。",
+                                                        },
+                                                        {
                                                           name: "className",
                                                           description: "类型：string。",
                                                         },
                                                         {
                                                           name: "disabled",
                                                           description: "类型：boolean。",
-                                                        },
-                                                        {
-                                                          name: "items",
-                                                          description: "类型：any[]。",
                                                         },
                                                         {
                                                           name: "maxLength",
@@ -96033,6 +97987,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "类型：never。",
                                             },
                                             {
+                                              name: "sections",
+                                              description: "引用 BodySurfaceSectionSpec 声明。",
+                                            },
+                                            {
                                               name: "title",
                                               description: "类型：ReactNode。",
                                             },
@@ -96101,10 +98059,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             {
                                               name: "actions",
                                               description: "类型：BodySurfaceCommandSpec[]。",
-                                            },
-                                            {
-                                              name: "sections",
-                                              description: "引用 BodySurfaceSectionSpec 声明。",
                                             },
                                             {
                                               name: "unread",
@@ -97159,6 +99113,10 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                               description: "类型：never。",
                                             },
                                             {
+                                              name: "sections",
+                                              description: "引用 BodySurfaceSectionSpec 声明。",
+                                            },
+                                            {
                                               name: "title",
                                               description: "类型：ReactNode。",
                                             },
@@ -97227,10 +99185,6 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             {
                                               name: "actions",
                                               description: "类型：BodySurfaceCommandSpec[]。",
-                                            },
-                                            {
-                                              name: "sections",
-                                              description: "引用 BodySurfaceSectionSpec 声明。",
                                             },
                                             {
                                               name: "unread",
@@ -100887,6 +102841,112 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                       description: "类型：boolean。",
                     },
                   ],
+                },
+              ],
+            },
+            {
+              name: "create",
+              description: "类型：PageSurfaceCreateSpec。",
+              children: [
+                {
+                  name: "id",
+                  description: "类型：string。",
+                },
+                {
+                  name: "title",
+                  description: "类型：string。",
+                },
+                {
+                  name: "open",
+                  description: "类型：boolean。",
+                },
+                {
+                  name: "canCreate",
+                  description: "类型：boolean。",
+                },
+                {
+                  name: "disabled",
+                  description: "类型：boolean。",
+                },
+                {
+                  name: "submission",
+                  description: "类型：CreateSurfaceSubmissionSpec。",
+                  children: [
+                    {
+                      name: "action",
+                      description: "可选值：save / submit。",
+                      children: [
+                        {
+                          name: "save",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "submit",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
+                    {
+                      name: "disabled",
+                      description: "类型：boolean。",
+                    },
+                    {
+                      name: "execute",
+                      description: "类型：() => void | CreateSurfaceSubmissionResult | Promise<void | CreateSurfaceSubmissionResult>。",
+                    },
+                  ],
+                },
+                {
+                  name: "feedback",
+                  description: "类型：CreateSurfaceFeedbackSpec。",
+                  children: [
+                    {
+                      name: "saved",
+                      description: "类型：string。",
+                    },
+                    {
+                      name: "submitted",
+                      description: "类型：string。",
+                    },
+                    {
+                      name: "error",
+                      description: "类型：string。",
+                    },
+                  ],
+                },
+                {
+                  name: "onOpenChange",
+                  description: "类型：(open: boolean) => void。",
+                },
+                {
+                  name: "onCancel",
+                  description: "类型：() => void。",
+                },
+                {
+                  name: "content",
+                  description: "类型：{ kind: 'form'; form: CreateSurfaceFormSpec<any>; flow?: CreateSurfaceTwoStageSpec<any> | undefined; } | CreateSurfaceContentSpec<any>。",
+                },
+                {
+                  name: "presentation",
+                  description: "可选值：block / inline / modal。",
+                  children: [
+                    {
+                      name: "block",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "inline",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "modal",
+                      description: "字面量取值。",
+                    },
+                  ],
+                },
+                {
+                  name: "anchor",
+                  description: "类型：never。",
                 },
               ],
             },

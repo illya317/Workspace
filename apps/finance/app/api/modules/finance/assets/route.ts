@@ -2,12 +2,11 @@
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import {
-  buildCreateFinanceAssetCardRouteCommand,
   buildUpdateFinanceAssetCardRouteCommand,
-  executeCreateFinanceAssetCardRouteCommand,
   executeListFinanceAssetWorkspaceCommand,
   executeUpdateFinanceAssetCardRouteCommand,
 } from "@workspace/finance/server/assets/route-commands";
+import { executeCreateFinanceAssetCardWithWorkflow } from "@workspace/finance/server/assets/approvals";
 import { createFinanceAssetCardSchema, financeAssetScopeSchema, updateFinanceAssetCardSchema } from "@workspace/finance/server/assets/schemas";
 
 export const GET = createCommandRoute({
@@ -20,8 +19,8 @@ export const GET = createCommandRoute({
 export const POST = createCommandRoute({
   bodySchema: createFinanceAssetCardSchema,
   bodyError: "资产卡片参数无效",
-  buildCommand: ({ body, user }) => buildCreateFinanceAssetCardRouteCommand(body, user.userId),
-  action: executeCreateFinanceAssetCardRouteCommand,
+  buildCommand: ({ body, user }) => okCommand({ input: body, userId: user.userId }),
+  action: executeCreateFinanceAssetCardWithWorkflow,
 });
 
 export const PUT = createCommandRoute({

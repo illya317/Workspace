@@ -24,8 +24,8 @@
 | 仅检查拆分质量 | `npm run complexity:split-quality` | 防止为过 `max-lines` 把大文件随便搬家。 |
 | 当前变更阻断项 | `npm run check:blockers` | 跑业务阻断和 UI 阻断；这些问题由当前改动 agent 自己修。 |
 | 业务阻断 | `npm run gate:domain` | API、route、resource、RBAC、domain validation、app route 和包边界。 |
-| 源码模块声明 | `npm run source-code-analysis:check` | 校验每个受治理源码文件唯一归属 declared module + role、模块 interface 路径存在、declared module 依赖图无环，并要求高置信度单文件混合职责为零；同一检查已进入 `gate:domain`。 |
-| 源码分析 snapshot | `npm run source-code-analysis:snapshot` / `npm run source-code-analysis:report` | 写入 `.cache/source-code-analysis/snapshot.json` 或输出 JSON；dev、build 和 deploy artifact 会尽力自动生成，但生成/读取失败不得阻断原功能。严格失败只在显式声明检查中发生。 |
+| 源码模块声明 | `npm run source-code-analysis:check` | 校验每个受治理源码文件唯一归属 declared module + role、模块 interface 路径存在、declared module 依赖图无环，并要求高置信度单文件混合职责为零；通过后同时原子刷新 snapshot，缺失目录/文件会自动建立。同一检查已进入 `gate:domain`。 |
+| 源码分析 snapshot | `npm run source-code-analysis:snapshot` / `npm run source-code-analysis:snapshot:ensure` / `npm run source-code-analysis:report` | `snapshot` 原子重建 `.cache/source-code-analysis/snapshot.json`，`snapshot:ensure` 仅在文件缺失或 contract 无效时重建；dev、build 和 artifact 组装必须从源码自动建立缺失目录/文件，生成或复制失败即阻断对应生命周期。运行时请求只读不可变快照，意外缺失时仍不拖垮左侧模块管理；声明违规严格失败仍由显式 `source-code-analysis:check` 负责。 |
 | UI 阻断 | `npm run gate:ui` | Core UI 唯一入口、PageSurface 协议、Toolbar/Input/Selector 等结构性 UI 边界。 |
 | 架构兼容入口 | `npm run check:arch` | 等价于 `npm run check:blockers`。`npm run arch:gate` 保留为兼容总入口。 |
 | Prisma schema、model、migration | `npm run check:data` | 跑 schema 合法性、schema governance 和 migration diff。 |
@@ -141,7 +141,7 @@
 
 ### build
 
-`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再生成源码分析 snapshot 并执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 snapshot + Next 生产构建，避免重复 generate。本地两个入口都固定给 Next 构建进程 `4096 MiB` Node old-space；检查锁会拒绝更高配置。若构建需要更多时间，只能提高 `CHECK_LOCK_TIMEOUT_MS` 或调用端等待时间，不能提高内存；在上限内仍无法完成时停止本地重试并交由 CI/发布门禁。Full 与 deploy-unit packager 会把 snapshot 复制到实际 `server.js` 入口旁，运行时不扫描源码。Agent/企微路由不携带源码读取依赖；standalone 只能包含模型 runtime、会话存储和受保护业务 API connector 所需闭包。
+`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再强制生成并校验源码分析 snapshot，然后执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 snapshot + Next 生产构建，避免重复 generate。本地两个入口都固定给 Next 构建进程 `4096 MiB` Node old-space；检查锁会拒绝更高配置。若构建需要更多时间，只能提高 `CHECK_LOCK_TIMEOUT_MS` 或调用端等待时间，不能提高内存；在上限内仍无法完成时停止本地重试并交由 CI/发布门禁。Full 与 deploy-unit packager 必须把非空 snapshot 复制到实际 `server.js` 入口旁，否则 artifact 组装失败；运行时不扫描源码。Agent/企微路由不携带源码读取依赖；standalone 只能包含模型 runtime、会话存储和受保护业务 API connector 所需闭包。
 
 ### tests
 

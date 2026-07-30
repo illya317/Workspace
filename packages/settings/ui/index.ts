@@ -8,5 +8,5 @@ export type {
 export {
   SettingsAccountPage,
   SettingsApiPage,
-  SettingsUiPage,
+  SettingsGovernancePage,
 } from "./settings/pages";

@@ -11,7 +11,7 @@ import {
   PageSurface,
   useFeedback,
 } from "@workspace/core/ui";
-import type { FormSurfaceSectionSpec, PageSurfaceTabBarItemSpec, SelectorSurfaceProps } from "@workspace/core/ui";
+import type { FormSurfaceSectionSpec, PageSurfaceCreateSpec, PageSurfaceTabBarItemSpec, SelectorSurfaceProps } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { directCommandFetch } from "@workspace/platform/ui/api-client";
 import {
@@ -319,25 +319,19 @@ export default function ContractsClient({
       }))
     : [];
 
+  const pageCreate: PageSurfaceCreateSpec = {
+    id: "contract-create",
+    presentation: "block",
+    title: "新增合同",
+    open: editorMode === "create",
+    canCreate,
+    disabled: saving,
+    content: { kind: "sections", sections: contractFormSections(editing, updateField, { locations, categories }) },
+    submission: { action: "save", disabled: saving || !editing.name || !editing.categoryId, execute: createContract },
+    onOpenChange: (open) => { if (open) openCreate(); else closeEditor(); },
+  };
+
   const detailBody = createPageBody([
-    {
-      key: "contract-create",
-      body: {
-        kind: "create",
-        create: {
-          id: "contract-create",
-          trigger: "toolbar",
-          presentation: "block",
-          title: "新增合同",
-          open: editorMode === "create",
-          canCreate,
-          disabled: saving,
-          content: { kind: "sections", sections: contractFormSections(editing, updateField, { locations, categories }) },
-          submission: { action: "save", disabled: saving || !editing.name || !editing.categoryId, execute: createContract },
-          onOpenChange: (open) => { if (open) openCreate(); else closeEditor(); },
-        },
-      },
-    },
     ...(editorMode === "create" ? [] : editorMode === "edit"
       ? [createFieldsSection("contract-edit", editSections, {
           header: {
@@ -362,6 +356,7 @@ export default function ContractsClient({
   return (
     <PageSurface
       kind="standard"
+      create={pageCreate}
       tabbar={createPageTabBar({
         items: [CONTRACT_LEDGER_TAB],
         active: CONTRACT_LEDGER_TAB.key,

@@ -250,8 +250,8 @@ const SURFACE_DECLARE_RULES: Record<string, {
     topLevel: ["kind", "layout", "placement", "state"],
   },
   PageSurface: {
-    topLevel: ["kind", "tabbar", "toolbar", "body", "footer"],
-    maxTotalDeclares: 24,
+    topLevel: ["kind", "tabbar", "toolbar", "create", "body", "footer"],
+    maxTotalDeclares: 26,
     deprecatedPaths: ["body.content"],
   },
   SelectorSurface: {

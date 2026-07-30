@@ -6,6 +6,7 @@ import {
   type BodySurfaceProps,
   type BodySurfaceSelectorProps,
   type PageSurfaceFooterSpec,
+  type PageSurfaceCreateSpec,
   type PageSurfaceTabBarSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
@@ -54,11 +55,13 @@ export function useDepartmentHomeViewLayout() {
 
 export function DepartmentHomeViewSurface({
   right,
+  create,
   toolbarItems = [],
   footer,
   assistant = true,
 }: {
   right: BodySurfaceProps;
+  create?: PageSurfaceCreateSpec;
   toolbarItems?: SurfaceToolbarItems;
   footer?: PageSurfaceFooterSpec;
   assistant?: boolean;
@@ -67,6 +70,7 @@ export function DepartmentHomeViewSurface({
   return (
     <PageSurface
       kind="standard"
+      create={create}
       tabbar={layout.tabbar}
       toolbar={{ items: [...layout.toolbarItems, ...toolbarItems], assistant }}
       body={createSpaceWorkbenchBody({

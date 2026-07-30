@@ -18,6 +18,7 @@ test("production runtime owns ops and release/runtime script source", () => {
   assert.deepEqual(declaredModuleKeys("scripts/import/import-product-master.mjs"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/repair/repair-finance-consolidation-entry.mjs"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/check/check-prisma-deploy-status.js"), ["operations"]);
+  assert.deepEqual(declaredModuleKeys("scripts/ci/verify-artifact-manifest.mjs"), ["operations"]);
 });
 
 test("every registered production script resolves only to production runtime", () => {

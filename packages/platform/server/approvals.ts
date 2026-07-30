@@ -39,6 +39,7 @@ export type {
   ApprovalWorkflowPolicySnapshot,
 } from "./approvals/types";
 export { describeApprovalRequestFromContract, renderDescriptionTemplate } from "./approvals/contract-description";
+export { parseApprovalRequestStatusList } from "../workflow-request-contract";
 import type {
   ApprovalAdapter,
   ApprovalOperation,

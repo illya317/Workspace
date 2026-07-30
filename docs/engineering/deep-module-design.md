@@ -145,25 +145,26 @@ human/code intent
 - 没有归属、多重归属、模块声明的 interface 路径不存在或出现模块级依赖循环，`gate:domain` 直接失败。
 - 默认使用集中式路径声明，而不是在每个文件写可漂移的注释标签；只有路径无法稳定表达所有权时，才收窄或增加显式声明规则。
 - 自动生成源码和 `apps/*` 部署镜像不进入人工源码统计，避免重复或生成噪声淹没真实实现。
-- snapshot 统计非空、非纯注释源码行，并同时保留 `module + role -> module + role` 的源码 import 边、跨模块依赖与模块级循环；职责边用于管理矩阵的格子级关系分析，模块级循环仍只按生产源码的跨模块边判定。这些数字和关系是诊断证据，不是 depth score。
+- snapshot 统计非空、非纯注释源码行，并同时保留 `module + role -> module + role` 的源码 import 边、跨模块依赖、模块级循环和生产文件强连通分量。文件 SCC 才是“无法单向排序”的权威事实；role 两侧都出现 import 只叫聚合互引，用于发现仍需细分的 source unit，不能冒充真实循环。这些数字和关系是诊断证据，不是 depth score。
 - 管理矩阵的全部代码体量统一使用“万行”：零值显示 `—`，1–999 行显示 `<0.1`，1000 行及以上保留两位小数，例如 `0.12 / 1.12 / 5.23`；文件数和依赖数必须明确作为数量展示，不能与代码行混用。两位小数采用只影响显示的守恒舍入：原始整数行数不变，表内分配 0.01 万行的舍入尾差，使每一行的总代码等于右侧职责之和，末行每列等于上方模块之和，且末行总代码同时等于末行职责之和；`<0.1` 是区间提示，不参与肉眼小数加总。
-- snapshot 继续保存全部原始 role，治理、门禁和下钻不得消费合并后的展示值。管理矩阵默认按职责相近度聚合为：`UI`；`边界 = 输入 + 领域校验 + 契约`；`业务`；`数据访问`；`其他 = 外部集成 + 组合壳 + 模块测试 + 工程实现`。可展开的聚合列在列头声明下钻动作：点击保留聚合列并在其右侧展开原始 role，同一时间只展开一组，再次点击收起。因此默认矩阵保持紧凑，同时任一聚合列都与其明细严格同口径、无遗漏。小项只在展示层进入“其他”，不得修改源码归属或后端统计口径。
-- 管理矩阵按职责格选择关系：蓝色表示来源格引用选中格，橙色表示目标格被选中格引用，绿色表示两个格双向引用；自引用同时满足两个方向，因此同样显示绿色。选中格额外使用中性描边，无关的非空职责格弱化。关系始终从原始 role import 边聚合，当前展开明细沿用所属聚合列整体状态，不把展示折叠规则写回后端数据。
+- snapshot 继续保存全部原始 role，治理、门禁和下钻不得消费合并后的展示值。管理矩阵按默认依赖方向从左到右聚合为：`入口 = 组合壳 + UI + 输入` -> `业务 = 业务实现 + 领域校验` -> `适配 = 数据访问 + 外部集成` -> `契约`，最后单列 `保障 = 模块测试 + 工程实现`。可展开的聚合列在列头声明下钻动作：点击保留聚合列并在其右侧展开原始 role，同一时间只展开一组，再次点击收起。聚合只影响显示，不改变后端事实。
+- 管理矩阵按职责格选择关系：蓝色表示来源格引用选中格，橙色表示目标格被选中格引用；折叠范围内两侧都有 import 但尚未证明为循环时仍只按普通方向提示，不升级为双向状态；绿色只表示后端文件 SCC 证明的真实循环。选中格和自引用保持中性，不允许用同一条 self edge 同时满足两个方向。展开明细时选择会精确到 raw role；折叠后绿色只能由所含 raw role 的同一真实 SCC 向上投影，不能分别聚合两条无关边后制造绿色。
 - 每个文件只计入一个主要 role；同时执行“单文件单职责”硬门禁。高置信度跨界包括：输入解析同文件直连 Prisma、domain validator 同文件读取或写入 Prisma、集成 adapter 同文件声明输入 schema 并实现传输、React UI 同文件声明 Zod 输入或直接挂第三方 SDK。命中项必须拆到模块私有的 `*-input`、`*-reference-adapter`、transport adapter 或 UI host，`source-code-analysis:check` 要求未解耦项为零。
 - application service 可以在同一事务内组合授权后的 command、持久化、审计和幂等，因为这是一个原子 use case；不要为了消除词法信号增加透传 repository。纯规则、输入 schema、DTO 映射或第三方 SDK 生命周期若可独立变化，仍须移出 service。`policy`、`workflow`、`service` 或目录名本身不构成混合证据，type-only Prisma import 也不算数据访问。
-- 现有 package boundary gate 继续作为非法依赖的权威门禁。一个候选细粒度模块若与外部形成循环，应先移动 seam、合并错误边界或完成解耦，不能只靠声明把它包装成“模块”。
+- 现有 package boundary gate 继续作为非法依赖的权威门禁。生产文件和声明模块默认都必须可拓扑排序；当前不维护循环白名单。未来只有外部标准强制的互递归协议、且拆分会引入更大治理面时，才允许增加精确到文件 SCC、带 owner/理由/复核期限的例外；普通 type-only import、barrel、测试便利或历史兼容都不构成白名单理由。一个候选细粒度模块若与外部形成循环，应先移动 seam、合并错误边界或完成解耦，不能只靠声明把它包装成“模块”。
 
 运行入口：
 
 ```bash
 npm run source-code-analysis:check
 npm run source-code-analysis:snapshot
+npm run source-code-analysis:snapshot:ensure
 npm run source-code-analysis:report
 ```
 
-`npm run dev` 和 production build 会自动写入 `.cache/source-code-analysis/snapshot.json`；Full 与独立 deploy-unit artifact 会把同一 snapshot 放到运行入口旁。管理后台 `/settings/admin` 的“模块管理”右栏只读取该不可变 snapshot，不在请求时扫描生产文件系统。
+`npm run dev` 会在数据库预检之前自动、原子地写入 `.cache/source-code-analysis/snapshot.json`，production build 同样强制生成；缺失父目录由生成器递归建立。Full 与独立 deploy-unit artifact 必须把同一非空 snapshot 放到运行入口旁，否则组装失败。平台治理 `/settings/governance` 的“模块管理”右栏只读取该不可变 snapshot，不在请求时扫描生产文件系统。
 
-快照生命周期必须 **fail-open**：生成、复制或读取失败，只允许让右栏显示“源码分析暂不可用”，不得阻断 dev、业务 build、deploy、运行时请求或左侧模块管理。严格失败只属于显式执行的 `source-code-analysis:check`（以及包含它的 `gate:domain`）；声明遗漏、循环依赖和未解耦混合职责都会失败。业务代码不得依赖 snapshot 才能工作。
+快照生命周期按阶段分层：有完整源码的 dev、build 和 artifact 组装属于生成门禁，生成、contract 校验或复制失败必须阻断该阶段，不能交付缺失快照；生产运行时只读已装配的不可变文件，意外读取失败保持 fail-open，只让源码分析区域不可用，不拖垮运行时请求或左侧模块管理。内容层的声明遗漏、循环依赖和未解耦混合职责仍由显式 `source-code-analysis:check`（以及包含它的 `gate:domain`）严格失败；检查通过后同一 gate 原子刷新 snapshot，因而干净 CI 工作区也会从源码自动建立目录和 JSON。业务代码不得依赖 snapshot 才能工作。
 
 ## 8. 与现有 Workspace 规则的关系
 

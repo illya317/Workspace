@@ -1,13 +1,11 @@
 import type { ReactNode } from "react";
 import BodySurface from "../../BodySurface";
-import CreateSurface from "../../CreateSurface";
 import type {
   BodySurfaceEmptySpec,
   BodySurfaceProps,
   BodySurfaceSectionSpec,
   BodySurfaceSplitSectionProps,
 } from "../../BodySurface.types";
-import type { CreateSurfaceToolbarProps } from "../../CreateSurface.types";
 import type { SurfaceToolbarItems } from "../../SurfaceContractTypes";
 import { EmptyStateCard, ModuleCard } from "../common/Card";
 import type { BodySurfaceSplitRuntime } from "./BodySurfaceSplitContext";
@@ -23,24 +21,6 @@ function visitBodySurface(body: BodySurfaceProps | undefined, visitor: (body: Bo
       || visitBodySurface(body.detail, visitor);
   }
   return Boolean(body.sections?.some((section) => visitBodySurface(section.body, visitor)));
-}
-
-function collectToolbarCreateSurfaces(body?: BodySurfaceProps): CreateSurfaceToolbarProps[] {
-  if (!body) return [];
-  if (body.kind === "create") {
-    return body.create.trigger === "toolbar" && body.create.canCreate !== false ? [body.create] : [];
-  }
-  if (body.kind !== "section") return [];
-  if (body.layout === "split") {
-    return [body.master.body, body.master.mobileBody, body.detail].flatMap((child) => collectToolbarCreateSurfaces(child));
-  }
-  return (body.sections ?? []).flatMap((section) => collectToolbarCreateSurfaces(section.body));
-}
-
-function toolbarCreateSurface(body?: BodySurfaceProps) {
-  const surfaces = collectToolbarCreateSurfaces(body);
-  if (surfaces.length > 1) throw new Error("PageSurface 只允许声明一个 toolbar CreateSurface");
-  return surfaces[0];
 }
 
 function collectSplitToolbarSources(body?: BodySurfaceProps): BodySurfaceSplitSectionProps[] {
@@ -73,21 +53,7 @@ export function bodySurfacePageToolbarItems(
   body: BodySurfaceProps | undefined,
   splitRuntime: BodySurfaceSplitRuntime | null = null,
 ): SurfaceToolbarItems {
-  const create = toolbarCreateSurface(body);
-  const createItems: SurfaceToolbarItems = create ? [{
-    kind: "create",
-    key: create.id,
-    label: "新增",
-    active: create.open,
-    disabled: create.disabled,
-    onClick: () => create.onOpenChange(true),
-  }] : [];
-  return [...splitPageToolbarItems(body, splitRuntime), ...createItems];
-}
-
-export function renderBodySurfaceAfterToolbar(body?: BodySurfaceProps) {
-  const create = toolbarCreateSurface(body);
-  return create?.presentation === "inline" ? <CreateSurface {...create} /> : null;
+  return splitPageToolbarItems(body, splitRuntime);
 }
 
 export function bodySurfaceHasLoginForm(body?: BodySurfaceProps) {

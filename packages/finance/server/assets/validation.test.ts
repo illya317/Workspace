@@ -66,6 +66,20 @@ test("builds a create command with a UUID and saved category policy", async () =
   assert.equal(result.data.category.code, "FA-MACHINERY");
 });
 
+test("keeps review-required categories valid without a self-authored review conclusion", async () => {
+  const result = await buildCreateFinanceAssetCardCommand({
+    ...validInput,
+    idempotencyKey: createIdempotencyKey,
+    note: null,
+  }, 7, {
+    findCategory: async () => ({ ...fixedCategory, reviewRequired: true }),
+  });
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.data.category.reviewRequired, true);
+  assert.equal(result.data.input.note, null);
+});
+
 test("rejects a create command without a UUID idempotency key", async () => {
   const result = await buildCreateFinanceAssetCardCommand({ ...validInput, idempotencyKey: "asset-create-1" }, 7, validationDependencies);
   assert.equal(result.ok, false);

@@ -6,7 +6,6 @@ export type {
   CreateSurfaceFeedbackSpec,
   CreateSurfaceFormLayoutSpec,
   CreateSurfaceFormSpec,
-  CreateSurfaceInlineProps,
   CreateSurfaceModalProps,
   CreateSurfacePresentation,
   CreateSurfaceProps,
@@ -16,7 +15,6 @@ export type {
   CreateSurfaceSubmissionResult,
   CreateSurfaceSubmissionSpec,
   CreateSurfaceSurfaceProps,
-  CreateSurfaceToolbarProps,
   CreateSurfaceTwoStageSpec,
   CreateSurfaceTrigger,
 } from "./CreateSurface";
@@ -53,7 +51,6 @@ export type {
   BodySurfaceSplitSectionProps,
   BodySurfaceSplitMasterFooterSpec,
   BodySurfaceStatusSpec,
-  BodySurfaceToolbarCreateProps,
   BodySurfaceVisualizationProps,
 } from "./BodySurface";
 export { default as DataSurface } from "./DataSurface";
@@ -211,6 +208,7 @@ export type { NavigationSurfaceSelectorSpec } from "./NavigationSurface.types";
 export { default as PageSurface } from "./PageSurface";
 export type {
   PageSurfaceBodySpec,
+  PageSurfaceCreateSpec,
   PageSurfaceFooterSpec,
   PageSurfaceKind,
   PageSurfaceTabBarItemSpec,

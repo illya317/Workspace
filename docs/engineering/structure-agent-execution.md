@@ -94,7 +94,7 @@ boundary corruption > validation weakness > abstraction gap > migration debt > d
 
 通常不需要。只有下面三类需要进入 registry 或 gate 相关清单：
 
-1. **新增 Core UI 公共入口**：从 `packages/core/ui/index.ts` 导出的组件、页面骨架、primitive，必须登记到 `packages/core/ui/registry/component-registry.ts`，填写中文 `description`，公共声明入口补 `declares`，内部组合关系补 `composes`。`/settings/ui` 会自动收录有 `declares` 的封装组件。
+1. **新增 Core UI 公共入口**：从 `packages/core/ui/index.ts` 导出的组件、页面骨架、primitive，必须登记到 `packages/core/ui/registry/component-registry.ts`，填写中文 `description`，公共声明入口补 `declares`，内部组合关系补 `composes`。`/settings/governance` 的 UI Tab 会自动收录有 `declares` 的封装组件。
 2. **新增模块/API 权威入口**：模块定义、API contract、权限资源等必须通过 Platform registry 或 API registry 暴露。
 3. **新增 gate 例外或非组件导出**：只能由 Architecture 在对应脚本中显式说明，不能由 Feature/Data/Ops 私自补 allowlist。
 

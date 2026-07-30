@@ -39,7 +39,9 @@ npm run workspace:init -- --root /absolute/path/to/.workspace
 npm run workspace:check -- --ops-env /absolute/path/to/private/ops/.env
 ```
 
-本地 `npm run dev` 会先运行同一工作区检查，再对 `.env` 指向的开发库执行已提交的 `prisma migrate deploy --schema=./prisma`；配置检查或 migration 失败时服务都不会启动，因此不会等到用户点击页面才暴露缺表、缺列或原始文件读取错误。`npm run db:generate` 只生成 Prisma Client，不会修改数据库，不能把它当成 migration 已执行。若 3000 上的 dev server 已经在运行，而当前分支新合入了 `prisma/migrations/*`，必须重启 `npm run dev`，或先显式运行 `scripts/runtime/run-with-repo-node.sh npx --no-install prisma migrate deploy --schema=./prisma`，再验证新功能。生产部署同样在启动候选和公开切换前验证私有配置。可选能力在未配置时应返回受控的 unavailable 状态；必需租户配置始终 fail closed，不在 UI 请求过程中临时生成。
+本地 `npm run dev` 会先从源码自动、原子地建立 `.cache/source-code-analysis/snapshot.json`，再运行同一工作区检查，并对 `.env` 指向的开发库执行已提交的 `prisma migrate deploy --schema=./prisma`；源码生成物、配置检查或 migration 失败时服务都不会启动，因此不会等到用户点击页面才暴露缺失文件、缺表、缺列或原始文件读取错误。`npm run db:generate` 只生成 Prisma Client，不会修改数据库，不能把它当成 migration 已执行。若 3000 上的 dev server 已经在运行，而当前分支新合入了 `prisma/migrations/*`，必须重启 `npm run dev`，或先显式运行 `scripts/runtime/run-with-repo-node.sh npx --no-install prisma migrate deploy --schema=./prisma`，再验证新功能。生产部署同样在启动候选和公开切换前验证私有配置。可选能力在未配置时应返回受控的 unavailable 状态；必需租户配置始终 fail closed，不在 UI 请求过程中临时生成。
+
+“缺失时自动建立”只适用于能由源码或已校验输入确定性重建的登记生成物和运行目录：生成器必须递归创建父目录、原子写入并校验结果，dev/build/artifact 门禁必须验证它已经装配。租户 secret、数据库连接、主体身份、业务台账及客户提供的品牌文件不允许凭空生成；这些人工配置仍由 `workspace:provision`、`workspace:init` 和 `workspace:check` 分别负责默认值、目录与完整性。
 
 在 macOS 本地开发中，同一启动器还负责监测 port 3000 listener 的物理内存 footprint。启动后 3 分钟为保护期，之后每 30 秒采样；硬阈值为 `min(8 GiB, max(5 GiB, 物理内存的 68%))`，连续两次越线才会安静重启 Next 子进程。自动重启后冷却 15 分钟，一小时最多两次；超过后熔断并保留当前进程供人工检查。软阈值仅写入状态，不会触发重启。状态与 generation 写入 `.cache/runtime/local-dev-status.json`，用 `npm run dev:status` 查看。
 

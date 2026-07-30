@@ -16,5 +16,5 @@ test("resolves L2 and deep-route mobile strategies by the longest matching path"
   assert.equal(resolveMobileExperience("/finance/statements").strategy, "landscape");
   assert.equal(resolveMobileExperience("/docs/editor").strategy, "native");
   assert.equal(resolveMobileExperience("/docs/editor/templates/8").strategy, "landscape");
-  assert.equal(resolveMobileExperience("/settings/ui").strategy, "unavailable");
+  assert.equal(resolveMobileExperience("/settings/governance").strategy, "unavailable");
 });

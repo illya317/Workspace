@@ -1,4 +1,4 @@
-export const SOURCE_CODE_ANALYSIS_SCHEMA_VERSION = 3 as const;
+export const SOURCE_CODE_ANALYSIS_SCHEMA_VERSION = 4 as const;
 
 export const SOURCE_CODE_ANALYSIS_MODULE_CATEGORIES = [
   "product",
@@ -50,12 +50,63 @@ export const SOURCE_CODE_ANALYSIS_ROLE_LABELS: Record<SourceCodeAnalysisRole, st
 
 export type SourceCodeAnalysisRoleCounts = Record<SourceCodeAnalysisRole, number>;
 
+export const SOURCE_CODE_ANALYSIS_DEPENDENCY_KINDS = [
+  "valueImport",
+  "typeOnlyImport",
+  "dynamicImport",
+  "reExport",
+  "typeOnlyReExport",
+] as const;
+
+export type SourceCodeAnalysisDependencyKind = (typeof SOURCE_CODE_ANALYSIS_DEPENDENCY_KINDS)[number];
+
+export interface SourceCodeAnalysisDependencyEvidence {
+  sourcePath: string;
+  targetPath: string;
+  kind: SourceCodeAnalysisDependencyKind;
+}
+
 export interface SourceCodeAnalysisDependencyEdge {
   sourceModuleKey: string;
   sourceRole: SourceCodeAnalysisRole;
   targetModuleKey: string;
   targetRole: SourceCodeAnalysisRole;
   importCount: number;
+  valueImportCount?: number;
+  typeOnlyImportCount?: number;
+  dynamicImportCount?: number;
+  reExportCount?: number;
+  typeOnlyReExportCount?: number;
+}
+
+export interface SourceCodeAnalysisDependencyCell {
+  moduleKey: string;
+  role: SourceCodeAnalysisRole;
+}
+
+export interface SourceCodeAnalysisDependencyDirection {
+  importCount: number;
+  valueImportCount: number;
+  typeOnlyImportCount: number;
+  dynamicImportCount: number;
+  reExportCount: number;
+  typeOnlyReExportCount: number;
+  evidence: SourceCodeAnalysisDependencyEvidence[];
+}
+
+export interface SourceCodeAnalysisReciprocalRoleDependency {
+  left: SourceCodeAnalysisDependencyCell;
+  right: SourceCodeAnalysisDependencyCell;
+  classification: "runtime" | "type-assisted";
+  leftToRight: SourceCodeAnalysisDependencyDirection;
+  rightToLeft: SourceCodeAnalysisDependencyDirection;
+}
+
+export interface SourceCodeAnalysisDependencyFileCycle {
+  classification: "runtime" | "type-assisted";
+  paths: string[];
+  cells: SourceCodeAnalysisDependencyCell[];
+  evidence: SourceCodeAnalysisDependencyEvidence[];
 }
 
 export interface SourceCodeAnalysisModuleRow {
@@ -90,9 +141,17 @@ export interface SourceCodeAnalysisSnapshot {
     missingInterfaceCount: number;
     dependencyCycleCount: number;
     mixedResponsibilityFileCount: number;
+    reciprocalRoleDependencyCount?: number;
+    runtimeReciprocalRoleDependencyCount?: number;
+    typeAssistedReciprocalRoleDependencyCount?: number;
+    dependencyFileCycleCount?: number;
+    runtimeDependencyFileCycleCount?: number;
+    typeAssistedDependencyFileCycleCount?: number;
   };
   modules: SourceCodeAnalysisModuleRow[];
   dependencyEdges: SourceCodeAnalysisDependencyEdge[];
+  reciprocalRoleDependencies?: SourceCodeAnalysisReciprocalRoleDependency[];
+  dependencyFileCycles?: SourceCodeAnalysisDependencyFileCycle[];
   dependencyCycles: string[][];
   diagnostics: {
     unclassifiedFiles: string[];
@@ -100,4 +159,19 @@ export interface SourceCodeAnalysisSnapshot {
     missingInterfaces: Array<{ moduleKey: string; path: string }>;
     mixedResponsibilityFiles: Array<{ path: string; moduleKey: string; roles: SourceCodeAnalysisRole[] }>;
   };
+}
+
+export function isSourceCodeAnalysisSnapshot(value: unknown): value is SourceCodeAnalysisSnapshot {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const candidate = value as Partial<SourceCodeAnalysisSnapshot>;
+  return candidate.schemaVersion === SOURCE_CODE_ANALYSIS_SCHEMA_VERSION
+    && typeof candidate.generatedAt === "string"
+    && typeof candidate.sourceDigest === "string"
+    && Boolean(candidate.summary && typeof candidate.summary.lines === "number")
+    && typeof candidate.summary?.dependencyFileCycleCount === "number"
+    && Array.isArray(candidate.modules)
+    && Array.isArray(candidate.dependencyEdges)
+    && Array.isArray(candidate.reciprocalRoleDependencies)
+    && Array.isArray(candidate.dependencyFileCycles)
+    && candidate.dependencyFileCycles.every((cycle) => Array.isArray(cycle.cells));
 }

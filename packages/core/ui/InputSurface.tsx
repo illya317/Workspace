@@ -240,7 +240,7 @@ export function InputSurfaceRenderer({
         className={className}
         style={style}
         rows={rows}
-        autoGrow={autoGrow}
+        autoGrow={autoGrow ?? true}
         onChange={(next) => onChange?.(next)}
         onKeyDown={onKeyDown as never}
       />

@@ -160,7 +160,7 @@ export function useAssetPolicyWorkbench(input: {
         title: category.name,
         code: category.code,
         subtitle: accountPolicySummary(category),
-        metaLine: category.reviewRequired ? "录入前复核" : "按规则直接录入",
+        metaLine: category.reviewRequired ? "需独立审批后录入" : "按规则直接录入",
         status: policyStatus(category, policyScope),
         tone: "amber",
       },

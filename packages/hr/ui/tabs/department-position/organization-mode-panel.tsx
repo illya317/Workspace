@@ -241,9 +241,8 @@ export function OrganizationModePanel({
   }
   const toolbarItems: SurfaceToolbarItems = [];
   toolbarItems.push(...rosterAssistantToolbarItems(surface));
-  const rightSections = [
-    { key: "department-create", body: { kind: "create" as const, create: createDepartmentSurface } },
-    ...(createPanel === "department" ? [] : [createPanelSection("organization-mode", {
+  const rightSections = createPanel === "department" ? [] : [
+    createPanelSection("organization-mode", {
         title: organizationPanelTitle,
         actions: organizationHeaderDepartment && onOpenDepartmentDetails ? [{
           key: "open-department",
@@ -253,14 +252,14 @@ export function OrganizationModePanel({
           presentation: "icon",
         }] : undefined,
         sections: panelSections,
-      })]),
+      }),
   ];
   const body: BodySurfaceProps = createMasterDetailBody({
     master: { label: "全部组织层级", presentation: "compact", body: { kind: "selector", selector } },
     detail: createPageBody(rightSections),
   });
   const pageProps: PageSurfaceStandardProps = surface
-    ? { ...surface, toolbar: toolbarItems.length ? { items: toolbarItems } : undefined, body }
-    : { body };
+    ? { ...surface, create: createDepartmentSurface, toolbar: toolbarItems.length ? { items: toolbarItems } : undefined, body }
+    : { create: createDepartmentSurface, body };
   return <PageSurface {...pageProps} />;
 }

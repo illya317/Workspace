@@ -11,6 +11,7 @@ import {
 import type {
   SourceCodeAnalysisModuleCategory,
   SourceCodeAnalysisDependencyEdge,
+  SourceCodeAnalysisDependencyFileCycle,
   SourceCodeAnalysisModuleRow,
   SourceCodeAnalysisRole,
   SourceCodeAnalysisRoleCounts,
@@ -59,12 +60,14 @@ export interface SourceCodeAnalysisColumnDisclosure {
 
 interface SourceCodeAnalysisCellRelations {
   dependencyEdges: readonly SourceCodeAnalysisDependencyEdge[];
+  dependencyFileCycles: readonly SourceCodeAnalysisDependencyFileCycle[];
   selection: SourceCodeAnalysisRelationSelection;
 }
 
 function selectableAnalysisCell(
   row: AnalysisTableRow,
   group: SourceCodeAnalysisDisplayGroup,
+  role: SourceCodeAnalysisRole | null,
   content: string | DataSurfaceCellSpec,
   relations?: SourceCodeAnalysisCellRelations,
 ): string | DataSurfaceCellSpec {
@@ -72,8 +75,14 @@ function selectableAnalysisCell(
   return {
     kind: "interactive",
     content: typeof content === "string" ? { kind: "text", value: content } : content,
-    ariaLabel: `分析${row.label}${group.label}的引用关系`,
-    onClick: () => relations.selection.onSelectCell({ moduleKey: row.key, groupKey: group.key }),
+    ariaLabel: `分析${row.label}${role ? SOURCE_CODE_ANALYSIS_ROLE_LABELS[role] : group.label}的引用关系`,
+    onClick: () => relations.selection.onSelectCell({ moduleKey: row.key, groupKey: group.key, role }),
+    onMouseEnter: relations.selection.onHoverCell
+      ? () => relations.selection.onHoverCell?.({ moduleKey: row.key, groupKey: group.key, role })
+      : undefined,
+    onMouseLeave: relations.selection.onHoverCell
+      ? () => relations.selection.onHoverCell?.(null)
+      : undefined,
   };
 }
 
@@ -91,12 +100,15 @@ function roleColumn(
     cellState: (row) => sourceCodeAnalysisRelationCellState(
       row,
       group,
+      role,
       relations?.dependencyEdges ?? [],
+      relations?.dependencyFileCycles ?? [],
       relations?.selection.selectedCell ?? null,
     ),
     cellSelected: (row) => sourceCodeAnalysisCellSelected(
       row,
       group,
+      role,
       relations?.selection.selectedCell ?? null,
     ),
     cell: (row) => row.rowKind === "section"
@@ -104,6 +116,7 @@ function roleColumn(
       : selectableAnalysisCell(
           row,
           group,
+          role,
           codeVolumeDisplay(row.displayRoles[role], row.roles[role]),
           relations,
         ),
@@ -166,12 +179,15 @@ export function createSourceCodeAnalysisColumns(
       cellState: (row) => sourceCodeAnalysisRelationCellState(
         row,
         group,
+        null,
         relations?.dependencyEdges ?? [],
+        relations?.dependencyFileCycles ?? [],
         relations?.selection.selectedCell ?? null,
       ),
       cellSelected: (row) => sourceCodeAnalysisCellSelected(
         row,
         group,
+        null,
         relations?.selection.selectedCell ?? null,
       ),
       cell: (row) => row.rowKind === "section"
@@ -179,6 +195,7 @@ export function createSourceCodeAnalysisColumns(
         : selectableAnalysisCell(
             row,
             group,
+            null,
             codeVolumeDisplay(
               displayGroupLines(row.displayRoles, group),
               displayGroupLines(row.roles, group),
@@ -285,6 +302,7 @@ export function createSourceCodeAnalysisSection(
   const selectedCell = relationSelection?.selectedCell && selectedGroup
     && rows.some((row) => row.rowKind === "module"
       && row.key === relationSelection.selectedCell?.moduleKey
+      && (!relationSelection.selectedCell.role || selectedGroup.roles.includes(relationSelection.selectedCell.role))
       && displayGroupLines(row.roles, selectedGroup) > 0)
     ? relationSelection.selectedCell
     : null;
@@ -296,6 +314,7 @@ export function createSourceCodeAnalysisSection(
     maxModuleLines,
     snapshot && relationSelection ? {
       dependencyEdges: snapshot.dependencyEdges,
+      dependencyFileCycles: snapshot.dependencyFileCycles ?? [],
       selection: { ...relationSelection, selectedCell },
     } : undefined,
   );
@@ -305,7 +324,7 @@ export function createSourceCodeAnalysisSection(
         { key: "lines", label: "总代码", value: `${formatCodeVolumeInTenThousands(snapshot.summary.lines)} 万行` },
         { key: "files", label: "源码文件", value: snapshot.summary.fileCount.toLocaleString("zh-CN") },
         { key: "mixed", label: "未解耦混合职责", value: snapshot.summary.mixedResponsibilityFileCount },
-        { key: "cycles", label: "依赖循环", value: snapshot.summary.dependencyCycleCount },
+        { key: "cycles", label: "真实依赖循环", value: snapshot.summary.dependencyFileCycleCount ?? 0 },
       ],
     }),
     {
@@ -331,7 +350,7 @@ export function createSourceCodeAnalysisSection(
           ...(selectedCell ? [
             { key: "incoming", label: "引用选中格", tone: "info" as const },
             { key: "outgoing", label: "被选中格引用", tone: "warning" as const },
-            { key: "bidirectional", label: "双向", tone: "success" as const },
+            { key: "bidirectional", label: "真实循环", tone: "success" as const },
           ] : []),
         ],
       },

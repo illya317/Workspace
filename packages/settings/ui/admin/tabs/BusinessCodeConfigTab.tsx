@@ -9,7 +9,7 @@ import {
   useFeedback,
   type BodySurfaceSectionSpec,
   type BodySurfaceProps,
-  type CreateSurfaceToolbarProps,
+  type PageSurfaceCreateSpec,
   type SelectorSurfaceProps,
   type SurfaceToolbarItem,
 } from "@workspace/core/ui";
@@ -41,7 +41,7 @@ import {
 } from "./BusinessCodeTemplateApplications";
 type SystemConfigResponse = { businessCodeConfig: BusinessCodeConfig };
 type UseBusinessCodeConfigTabInput = { enabled: boolean; showToast: (message: string, type?: "success" | "error") => void };
-type BusinessCodeConfigTabState = { body: BodySurfaceProps; toolbarItems: SurfaceToolbarItem[] };
+type BusinessCodeConfigTabState = { body: BodySurfaceProps; toolbarItems: SurfaceToolbarItem[]; create?: PageSurfaceCreateSpec };
 type TemplateSelection = {
   kind: "system" | "custom";
   key: string;
@@ -186,9 +186,8 @@ export function useBusinessCodeConfigTab({
     },
   };
 
-  const createTemplateSurface: CreateSurfaceToolbarProps = {
+  const createTemplateSurface: PageSurfaceCreateSpec = {
     id: "business-code-template-create",
-    trigger: "toolbar",
     presentation: "block",
     title: "新增编码模板",
     open: createOpen,
@@ -225,12 +224,7 @@ export function useBusinessCodeConfigTab({
     },
   };
 
-  const detailSections: BodySurfaceSectionSpec[] = [
-    {
-      key: "business-code-template-create",
-      body: { kind: "create" as const, create: createTemplateSurface },
-    },
-  ];
+  const detailSections: BodySurfaceSectionSpec[] = [];
 
   if (createOpen) {
     // The block editor owns the detail pane while creating; do not stack the selected template below it.
@@ -347,6 +341,7 @@ export function useBusinessCodeConfigTab({
 
   return {
     toolbarItems,
+    create: createTemplateSurface,
     body: createMasterDetailBody({
       master: {
         label: "编码模板",

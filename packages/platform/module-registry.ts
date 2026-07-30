@@ -475,7 +475,7 @@ export const registeredModuleDefinitions = [
         { key: "account", label: "账号与接入", desc: "账号资料、通知订阅和个人 API 接入", href: "/settings/account", iconKey: "account", color: "blue", resourceKey: "settings.account", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/settings/account"] },
         { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", iconKey: "shieldCheck", color: "indigo", resourceKey: "settings.admin", mobileExperience: { strategy: "native" }, pageAccess: "adminManage", apiPrefixes: ["/api/settings/admin"] },
         { key: "api", label: "API 接入", desc: "Open API Client、Scope 授权和调用日志", href: "/settings/api", iconKey: "api", color: "purple", resourceKey: "settings.api", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/settings/api"] },
-        { key: "ui", label: "UI 组件库", desc: "查看核心 UI 组件注册表", href: "/settings/ui", iconKey: "ui", color: "emerald", resourceKey: "settings.ui", mobileExperience: { strategy: "unavailable", reason: "组件注册表是开发与治理工具，手机端不提供入口。" }, noApiReason: "纯客户端组件浏览页面，无服务端 API" },
+        { key: "governance", label: "平台治理", desc: "UI、数据关系、模块运行和运维记录", href: "/settings/governance", iconKey: "ui", color: "emerald", resourceKey: "settings.governance", mobileExperience: { strategy: "unavailable", reason: "平台治理工具只在桌面端开放。" }, apiPrefixes: ["/api/settings/governance"] },
       ],
     },
     resourceDefs: [
@@ -500,6 +500,7 @@ export const registeredModuleDefinitions = [
       ...apiResourceGuards("/api/settings/admin", ["GET", "POST", "PUT", "PATCH", "DELETE"], {
         migrationNote: "Legacy settings URL; migrate to /api/modules/settings/admin.",
       }),
+      ...apiResourceGuards("/api/settings/governance", ["GET", "PATCH"], { migrationNote: "Legacy settings URL; migrate to /api/modules/settings/governance." }),
       ...apiResourceGuards("/api/settings/api", ["GET"], {
         migrationNote: "Legacy settings URL; migrate to /api/modules/settings/api.",
       }),

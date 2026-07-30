@@ -3,8 +3,8 @@ import { activeModuleDefinitions } from "@workspace/platform/effective-module-re
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import SettingsClient from "./SettingsClient";
 import SettingsApiClient from "./SettingsApiClient";
-import UiComponentsShowcase from "@workspace/core/showcase/UiComponentsShowcase";
 import { type ApiAccessModuleRow } from "./ApiAccessClient";
+import PlatformGovernanceClient from "../governance/PlatformGovernanceClient";
 
 function buildApiAccessModules(): ApiAccessModuleRow[] {
   const modules: ApiAccessModuleRow[] = activeModuleDefinitions
@@ -60,11 +60,11 @@ export function SettingsApiPage({
   });
 }
 
-export function SettingsUiPage({ user }: { user: SessionUser }) {
+export function SettingsGovernancePage({ user }: { user: SessionUser }) {
   return renderAppShellPage({
-    title: "UI 组件库",
+    title: "平台治理",
     backHref: "/settings",
     user,
-    children: <UiComponentsShowcase />,
+    children: <PlatformGovernanceClient isSuperAdmin={Boolean(user.isSuperAdmin)} />,
   });
 }

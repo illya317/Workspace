@@ -11,6 +11,8 @@ test("canonical packager embeds the source code analysis snapshot beside the run
   const source = readFileSync(path.join(repositoryRoot, "ops/build-standalone-artifact.sh"), "utf8");
   assert.match(source, /source-code-analysis\/snapshot\.json/);
   assert.match(source, /standalone_app_dir\/\.workspace\/source-code-analysis/);
+  assert.match(source, /禁止组装 standalone artifact/);
+  assert.doesNotMatch(source, /source-code-analysis:snapshot:optional/);
 });
 
 test("canonical packager refuses to reuse a build whose BUILD_ID is not the source SHA", () => {

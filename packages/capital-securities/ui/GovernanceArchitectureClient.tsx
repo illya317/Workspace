@@ -12,10 +12,10 @@ import {
   setSelectorTreeNodeExpanded,
   useFeedback,
   type BodySurfaceSectionSpec,
-  type CreateSurfaceToolbarProps,
   type CreateSurfaceSectionSpec,
   type FormSurfaceItemSpec,
   type PageSurfaceTabBarSpec,
+  type PageSurfaceCreateSpec,
   type SelectorSurfaceProps,
   type SelectorSurfaceStructuredTreeItemSpec,
 } from "@workspace/core/ui";
@@ -442,9 +442,8 @@ export default function GovernanceArchitectureClient({
     ? positionSections()
     : selection?.type === "new" ? [] : organizationSections();
 
-  const createSurface: CreateSurfaceToolbarProps = {
+  const pageCreate: PageSurfaceCreateSpec = {
     id: "governance-organization-create",
-    trigger: "toolbar",
     presentation: "block",
     title: "新建治理组织",
     open: selection?.type === "new",
@@ -479,13 +478,11 @@ export default function GovernanceArchitectureClient({
         content: loading ? "加载治理架构中" : "选择组织或岗位查看详情",
       }),
     ];
-  const rightSections: BodySurfaceSectionSpec[] = [
-    { key: "governance-organization-create", body: { kind: "create", create: createSurface } },
-    ...(selection?.type === "new" ? [] : detailSections),
-  ];
+  const rightSections: BodySurfaceSectionSpec[] = selection?.type === "new" ? [] : detailSections;
 
   return (
     <PageSurface kind="standard"
+      create={pageCreate}
       tabbar={navigation}
       body={createMasterDetailBody({
         master: { label: "治理组织", presentation: "compact", body: { kind: "selector", selector } },

@@ -9,6 +9,7 @@ import {
   createPageBody,
   useFeedback,
   type BodySurfaceSectionSpec,
+  type PageSurfaceCreateSpec,
   type SelectorSurfaceProps,
 } from "@workspace/core/ui";
 import type { TreasuryLoanDto, TreasuryPrincipalEventDto } from "../../types/treasury";
@@ -64,21 +65,18 @@ export function useLoansView({ workspace, canCreate, canUpdate, mutate }: Treasu
     onSelect: (loan) => { void selectLoan(loan); },
   };
 
-  return createMasterDetailBody({
+  const create = createSpec();
+  const body = createMasterDetailBody({
     master: { label: "借款合同", presentation: "compact", body: { kind: "selector", selector } },
-    detail: createPageBody([createSection(), ...detailSections()]),
+    detail: createPageBody(detailSections()),
     desktop: { ratio: [1, 2] },
   });
+  return { body, create };
 
-  function createSection(): BodySurfaceSectionSpec {
+  function createSpec(): PageSurfaceCreateSpec {
     const current = createDraft ?? emptyLoanDraft(workspace.scope, randomToken());
     return {
-      key: "loan-create",
-      body: {
-        kind: "create",
-        create: {
           id: "treasury-loan-create",
-          trigger: "toolbar",
           presentation: "block",
           title: "新建借款合同",
           open: Boolean(createDraft),
@@ -100,8 +98,6 @@ export function useLoansView({ workspace, canCreate, canUpdate, mutate }: Treasu
           },
           onOpenChange: (open) => setCreateDraft(open ? emptyLoanDraft(workspace.scope, randomToken()) : null),
           onCancel: () => setCreateDraft(null),
-        },
-      },
     };
   }
 
@@ -133,7 +129,7 @@ export function useLoansView({ workspace, canCreate, canUpdate, mutate }: Treasu
         kind: "create",
         create: {
           id: "treasury-principal-event-create",
-          trigger: "toolbar",
+          trigger: "surface",
           presentation: "modal",
           title: "记录本金变动",
           open: Boolean(eventDraft),

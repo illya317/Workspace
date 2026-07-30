@@ -60,6 +60,13 @@ test("agreement baseline records optional missing content without marking the ag
   assert.equal(plan.agreements[0].incomplete, false);
 });
 
+test("agreement baseline keeps the exact raw item while normalizing typed fields", () => {
+  const raw = { company: "", contractType: "固定期限", futureLegacyField: "原样保留" };
+  const plan = buildEmploymentAgreementBaselinePlan([source(JSON.stringify([raw]))]);
+  assert.equal(plan.agreements[0].content.company, null);
+  assert.deepEqual(plan.agreements[0].content.legacyBaseline, raw);
+});
+
 test("agreement baseline input pins every source version and JSON digest", () => {
   const contracts = JSON.stringify([{ company: "测试公司" }]);
   const sources = [source(contracts, { contractsSha256: createHash("sha256").update(contracts).digest("hex") })];

@@ -4,12 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { workspaceBasePath } from "@workspace/core/routing";
 import BodySurface from "./BodySurface";
+import CreateSurface from "./CreateSurface";
 import {
   bodySurfaceHasDirectoryContent,
   bodySurfaceHasLoginForm,
   bodySurfaceHasSplit,
   bodySurfacePageToolbarItems,
-  renderBodySurfaceAfterToolbar,
   renderBodySurfaceDirectory,
   renderBodySurfaceLoginForm,
 } from "./internal/body/BodySurfacePageIntegration";
@@ -22,15 +22,18 @@ import { PAGE_SURFACE_STACK_CLASS } from "./internal/page/PageSurface.spacing";
 import { usePageAssistant, type PageAssistantOpenInput } from "./services/PageAssistantProvider";
 import type {
   PageSurfaceDirectoryProps,
+  PageSurfaceCreateSpec,
   PageSurfaceTabBarSpec,
   PageSurfaceProps,
   PageSurfaceToolbarSpec,
 } from "./PageSurface.types";
+import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
 
 type PageAssistantDefault = false | Pick<PageAssistantOpenInput, "contextLabel" | "sourceContext">;
 
 export type {
   PageSurfaceBodySpec,
+  PageSurfaceCreateSpec,
   PageSurfaceFooterSpec,
   PageSurfaceKind,
   PageSurfaceLoginBrandSpec,
@@ -101,12 +104,24 @@ function renderPageToolbar(
   splitRuntime: { open: boolean; onOpenChange: (open: boolean) => void } | null,
 ) {
   if (props.toolbar?.hidden) return null;
-  const derivedCreateItems = bodySurfacePageToolbarItems(props.body, splitRuntime);
+  const pageCreateItems: SurfaceToolbarItems = props.create?.canCreate === false ? [] : props.create ? [{
+    kind: "create",
+    key: props.create.id,
+    label: "新增",
+    active: props.create.open,
+    disabled: props.create.disabled,
+    onClick: () => props.create?.onOpenChange(true),
+  }] : [];
+  const derivedCreateItems = [...bodySurfacePageToolbarItems(props.body, splitRuntime), ...pageCreateItems];
   const derivedKeys = new Set(derivedCreateItems.map((item) => item.key));
   const declaredItems = (props.toolbar?.items ?? []).filter((item) => !derivedKeys.has(item.key));
   const items = [...derivedCreateItems, ...declaredItems];
   if (!items.length) return null;
   return renderToolbar({ ...props.toolbar, items }, defaultAssistantForPage(props));
+}
+
+function renderPageCreate(create?: PageSurfaceCreateSpec) {
+  return create ? <CreateSurface {...create} trigger="toolbar" /> : null;
 }
 
 function normalizeWorkspaceRoute(pathname: string) {
@@ -244,7 +259,7 @@ export default function PageSurface(props: PageSurfaceProps) {
       <DatabasePageFrame
         navigation={renderTabBar(props.tabbar)}
         toolbar={renderPageToolbar(props, splitRuntime)}
-        afterToolbar={renderBodySurfaceAfterToolbar(props.body)}
+        afterToolbar={renderPageCreate(props.create)}
         footer={renderFooter(props.footer)}
       >
         {props.body ? <BodySurface {...props.body} /> : null}

@@ -12,6 +12,7 @@ import {
 } from "@workspace/core/ui";
 import type {
   BodySurfaceSectionSpec,
+  PageSurfaceCreateSpec,
   PageSurfaceTabBarSpec,
   SurfaceToolbarItems,
 } from "@workspace/core/ui";
@@ -424,11 +425,8 @@ export default function GroupAccountTab({
             content: "从左侧选择集团科目查看详情",
             presentation: "card",
           })];
-  const createSections = canRevise && selectedVersionIsCurrent ? [{
-      key: "group-account-create",
-      body: { kind: "create" as const, create: {
+  const pageCreate: PageSurfaceCreateSpec | undefined = canRevise && selectedVersionIsCurrent ? {
         id: "finance-group-account-catalog-create",
-        trigger: "toolbar" as const,
         presentation: "block" as const,
         title: "新增集团科目",
         open: createDraft !== null,
@@ -448,17 +446,16 @@ export default function GroupAccountTab({
         },
         onOpenChange: (open: boolean) => setCreateDraft(open ? emptyGroupAccountCatalogCreateDraft() : null),
         onCancel: () => setCreateDraft(null),
-      } },
-    }] : [];
+      } : undefined;
   const sections = [
     ...lifecycleBlocks,
-    ...createSections,
     ...detailContent,
   ];
 
   return (
     <PageSurface
       kind="standard"
+      create={pageCreate}
       tabbar={navigation}
       toolbar={{ items: toolbarItems }}
       body={createMasterDetailBody({

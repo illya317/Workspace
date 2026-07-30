@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useEffectEvent, useMemo, useState, type ReactNode } from "react";
 import {
   createMasterDetailBody,
   createEmptySection,
@@ -65,6 +65,7 @@ export interface WorkflowRequestPayloadSectionsContext<TRequest extends Workflow
 
 export interface WorkflowRequestsPanelProps<TRequest extends WorkflowRequestRecordLike> {
   endpoint: string;
+  reloadToken?: string | number;
   responseKey?: string;
   title?: ReactNode;
   emptyText?: string;
@@ -115,6 +116,7 @@ export function useWorkflowRequestsSection<TRequest extends WorkflowRequestRecor
 
 function useWorkflowRequestsPageModel<TRequest extends WorkflowRequestRecordLike>({
   endpoint,
+  reloadToken,
   responseKey = "requests",
   emptyText = "暂无流程记录",
   currentUserId,
@@ -160,7 +162,7 @@ function useWorkflowRequestsPageModel<TRequest extends WorkflowRequestRecordLike
 
   useEffect(() => {
     void loadRequests();
-  }, [loadRequests]);
+  }, [loadRequests, reloadToken]);
 
   const visibleRequests = useMemo(
     () => filterRequests ? filterRequests(requests) : requests,
@@ -168,18 +170,22 @@ function useWorkflowRequestsPageModel<TRequest extends WorkflowRequestRecordLike
   );
   const selectedRequest = visibleRequests.find((request) => request.id === selectedId) ?? visibleRequests[0] ?? null;
 
-  useEffect(() => {
-    if (!selectedRequest) {
+  const resetDraftPayload = useEffectEvent((request: TRequest | null) => {
+    if (!request) {
       setDraftPayloadValue({});
       setDraftPayloadText("");
       setPayloadError(null);
       return;
     }
-    const nextValue = payloadValue ? payloadValue(selectedRequest) : payloadValueFromText(payloadText(selectedRequest));
+    const nextValue = payloadValue ? payloadValue(request) : payloadValueFromText(payloadText(request));
     setDraftPayloadValue(nextValue);
-    setDraftPayloadText(payloadText(selectedRequest));
+    setDraftPayloadText(payloadText(request));
     setPayloadError(null);
-  }, [payloadText, payloadValue, selectedRequest]);
+  });
+
+  useEffect(() => {
+    resetDraftPayload(selectedRequest);
+  }, [selectedRequest]);
 
   async function runAction(request: TRequest, action: WorkflowRequestAction) {
     setSaving(true);

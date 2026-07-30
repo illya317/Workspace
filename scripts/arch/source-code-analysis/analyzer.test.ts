@@ -3,7 +3,7 @@ import path from "node:path";
 import test from "node:test";
 
 import { SOURCE_CODE_ANALYSIS_ROLES } from "../../../packages/platform/source-code-analysis-contract";
-import { analyzeSourceCode, detectMixedResponsibilityRoles } from "./analyzer";
+import { analyzeSourceCode, classifySourceCodeRole, detectMixedResponsibilityRoles } from "./analyzer";
 
 const repositoryRoot = path.resolve(import.meta.dirname, "../../..");
 
@@ -15,6 +15,26 @@ test("source code analysis assigns every governed file to one declared module an
   assert.equal(snapshot.summary.missingInterfaceCount, 0);
   assert.equal(snapshot.summary.dependencyCycleCount, 0);
   assert.equal(snapshot.summary.mixedResponsibilityFileCount, 0);
+  assert.equal(snapshot.summary.reciprocalRoleDependencyCount, snapshot.reciprocalRoleDependencies.length);
+  assert.equal(
+    snapshot.summary.runtimeReciprocalRoleDependencyCount,
+    snapshot.reciprocalRoleDependencies.filter((dependency) => dependency.classification === "runtime").length,
+  );
+  assert.equal(
+    snapshot.summary.typeAssistedReciprocalRoleDependencyCount,
+    snapshot.reciprocalRoleDependencies.filter((dependency) => dependency.classification === "type-assisted").length,
+  );
+  assert.ok(snapshot.reciprocalRoleDependencies.every((dependency) =>
+    dependency.left.moduleKey !== dependency.right.moduleKey || dependency.left.role !== dependency.right.role));
+  assert.ok(snapshot.reciprocalRoleDependencies.every((dependency) =>
+    dependency.left.role !== "test"
+    && dependency.left.role !== "tooling"
+    && dependency.right.role !== "test"
+    && dependency.right.role !== "tooling"));
+  assert.equal(snapshot.summary.dependencyFileCycleCount, snapshot.dependencyFileCycles.length);
+  assert.equal(snapshot.summary.runtimeDependencyFileCycleCount, 0);
+  assert.equal(snapshot.summary.typeAssistedDependencyFileCycleCount, 0);
+  assert.deepEqual(snapshot.dependencyFileCycles, []);
   assert.deepEqual(snapshot.dependencyCycles, []);
   assert.equal(snapshot.summary.coveragePercent, 100);
   assert.ok(snapshot.modules.some((module) => module.key === "settings"));
@@ -113,5 +133,32 @@ test("mixed responsibility gate targets high-confidence single-file role crossin
       'import { useEffect } from "react";\nexport function useExampleData() { useEffect(() => { void fetch("/api/modules/work/example"); }, []); }',
     ),
     [],
+  );
+});
+
+test("primary roles follow owned UI paths and distinguish application services from data adapters", () => {
+  assert.equal(
+    classifySourceCodeRole(
+      "packages/finance/ui/assets/asset-model.ts",
+      "finance",
+      'import type { Asset } from "../../types";\nexport const rows: Asset[] = [];',
+    ),
+    "ui",
+  );
+  assert.equal(
+    classifySourceCodeRole(
+      "packages/hr/server/employee-service.ts",
+      "hr",
+      'import { prisma } from "@workspace/platform/server/prisma";\nexport async function save() { return prisma.employee.findMany(); }',
+    ),
+    "domain",
+  );
+  assert.equal(
+    classifySourceCodeRole(
+      "packages/hr/server/employee-reference-adapter.ts",
+      "hr",
+      'import { prisma } from "@workspace/platform/server/prisma";\nexport async function load() { return prisma.employee.findMany(); }',
+    ),
+    "persistence",
   );
 });

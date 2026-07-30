@@ -235,11 +235,11 @@ export function useOperationalAnalysisPage(
     body: createPageBody([
       ...content,
       workspace.lifecycleModalSection,
-      workspace.assistantCreateSection,
     ], {
       layout: (revisionPreviewRuntime.data?.layout ?? workspaceSourcesRuntime.data?.layout ?? selectedDefinition?.layout) === "grid" ? "grid" : "stack",
       gridColumns: 2,
     }),
+    create: workspace.assistantCreate,
     footer: salesDefinition?.blocks.some((block) => block.kind === "salesDetails")
       ? shipmentSurface.footer
       : undefined,

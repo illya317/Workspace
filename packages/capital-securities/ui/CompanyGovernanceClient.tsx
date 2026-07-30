@@ -11,8 +11,7 @@ import {
   createPageTableSection,
   PageSurface,
   useFeedback,
-  type BodySurfaceSectionSpec,
-  type CreateSurfaceToolbarProps,
+  type PageSurfaceCreateSpec,
   type PageSurfaceTabBarSpec,
   type SelectorSurfaceProps,
 } from "@workspace/core/ui";
@@ -99,6 +98,7 @@ export default function CompanyGovernanceClient({
   return (
     <PageSurface
       kind="standard"
+      create={companyCreateSurface()}
       tabbar={navigation}
       toolbar={{
         items: [
@@ -123,16 +123,11 @@ export default function CompanyGovernanceClient({
   );
 
   function rightBody() {
-    const createSection: BodySurfaceSectionSpec = {
-      key: "company-create",
-      body: { kind: "create", create: companyCreateSurface() },
-    };
     if (companyDraft && !companyDraft.id) {
-      return createPageBody([createSection]);
+      return createPageBody([]);
     }
     if (!companyDraft || !selectedCompany) {
       return createPageBody([
-        createSection,
         createEmptySection("company-empty", {
           presentation: "plain",
           content: loading ? "正在加载公司信息" : "选择左侧公司维护资料",
@@ -194,10 +189,9 @@ export default function CompanyGovernanceClient({
     });
   }
 
-  function companyCreateSurface(): CreateSurfaceToolbarProps {
+  function companyCreateSurface(): PageSurfaceCreateSpec {
     return {
       id: "company-create",
-      trigger: "toolbar",
       presentation: "block",
       title: "新增公司",
       open: Boolean(companyDraft && !companyDraft.id),

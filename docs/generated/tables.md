@@ -1155,8 +1155,20 @@
 | `residualRate` | Decimal | * |  |  |
 | `usefulLifeMonths` | Int |  |  |  |
 | `method` | String | * |  |  |
+| `initializationMode` | String | * |  |  |
 | `openingAccumulatedAmount` | Decimal | * |  |  |
+| `openingImpairmentAmount` | Decimal | * |  |  |
+| `openingNetBookValue` | Decimal |  |  |  |
 | `openingAsOfDate` | String |  |  |  |
+| `cutoverDate` | String |  |  |  |
+| `remainingUsefulLifeMonthsAtCutover` | Int |  |  |  |
+| `cutoverResidualValue` | Decimal |  |  |  |
+| `cutoverAllocationStatus` | String |  |  |  |
+| `cutoverReconciliationFingerprint` | String |  |  |  |
+| `cutoverPeriodId` | Int |  | FK | → FinancePeriod.id |
+| `cutoverAssetBalanceId` | Int |  | FK | → FinanceAccountBalance.id |
+| `cutoverAccumulatedBalanceId` | Int |  | FK | → FinanceAccountBalance.id |
+| `cutoverImpairmentBalanceId` | Int |  | FK | → FinanceAccountBalance.id |
 | `status` | String | * |  |  |
 | `nonAmortizationReason` | String |  |  |  |
 | `note` | String |  |  |  |
@@ -1171,7 +1183,7 @@
 | `disposal` | FinanceAssetDisposal |  |  |  |
 | `acquisitionEvidence` | FinanceAssetAcquisitionEvidence |  |  |  |
 
-→ Depends on: [1-48 FinanceAssetCategory](#financeassetcategory), [1-118 FinanceAccount](#financeaccount), [1-118 FinanceAccount](#financeaccount), [1-153 Company](#company)
+→ Depends on: [1-48 FinanceAssetCategory](#financeassetcategory), [1-118 FinanceAccount](#financeaccount), [1-118 FinanceAccount](#financeaccount), [1-119 FinancePeriod](#financeperiod), [1-122 FinanceAccountBalance](#financeaccountbalance), [1-122 FinanceAccountBalance](#financeaccountbalance), [1-122 FinanceAccountBalance](#financeaccountbalance), [1-153 Company](#company)
 
 ← Referenced by: [1-51 FinanceAssetAcquisitionEvidence](#financeassetacquisitionevidence), [1-52 FinanceAssetCostLine](#financeassetcostline), [1-53 FinanceAssetExpenseAllocation](#financeassetexpenseallocation), [1-55 FinanceAssetPeriodEntry](#financeassetperiodentry), [1-56 FinanceAssetAdjustment](#financeassetadjustment), [1-58 FinanceAssetImpairmentAllocation](#financeassetimpairmentallocation), [1-59 FinanceAssetDisposal](#financeassetdisposal)
 
@@ -1248,8 +1260,15 @@
 | `importedBy` | Int |  |  |  |
 | `importedAt` | DateTime | * |  |  |
 | `note` | String |  |  |  |
+| `cutoverDate` | String |  |  |  |
+| `cutoverPeriodId` | Int |  | FK | → FinancePeriod.id |
+| `ledgerReconciliationFingerprint` | String |  |  |  |
+| `ledgerNetBookValue` | Decimal |  |  |  |
+| `importedNetBookValue` | Decimal |  |  |  |
+| `unallocatedNetBookValue` | Decimal |  |  |  |
+| `reconciliationStatus` | String |  |  |  |
 
-→ Depends on: [1-153 Company](#company)
+→ Depends on: [1-153 Company](#company), [1-119 FinancePeriod](#financeperiod)
 
 ← Referenced by: [1-51 FinanceAssetAcquisitionEvidence](#financeassetacquisitionevidence)
 
@@ -2778,7 +2797,7 @@
 
 → Depends on: [1-153 Company](#company)
 
-← Referenced by: [1-51 FinanceAssetAcquisitionEvidence](#financeassetacquisitionevidence), [1-55 FinanceAssetPeriodEntry](#financeassetperiodentry), [1-56 FinanceAssetAdjustment](#financeassetadjustment), [1-57 FinanceAssetImpairmentAssessment](#financeassetimpairmentassessment), [1-59 FinanceAssetDisposal](#financeassetdisposal), [1-64 FinanceCashFlowAllocation](#financecashflowallocation), [1-66 FinanceCloseRun](#financecloserun), [1-70 FinanceCloseWorkpaper](#financecloseworkpaper), [1-96 FinanceAuxiliaryBalance](#financeauxiliarybalance), [1-98 FinanceOpenItem](#financeopenitem), [1-111 FinanceSourcePeriodStatus](#financesourceperiodstatus), [1-115 FinanceSourceAccountBalance](#financesourceaccountbalance), [1-120 FinanceVoucher](#financevoucher), [1-122 FinanceAccountBalance](#financeaccountbalance), [1-127 ReclassResult](#reclassresult), [1-135 FinanceTaxFiling](#financetaxfiling), [1-138 FinanceTaxReconciliationSnapshot](#financetaxreconciliationsnapshot), [1-141 FinanceTaxWorkpaper](#financetaxworkpaper), [1-143 FinanceBankReconciliation](#financebankreconciliation), [1-145 FinanceInterestWorkpaper](#financeinterestworkpaper)
+← Referenced by: [1-50 FinanceAssetCard](#financeassetcard), [1-51 FinanceAssetAcquisitionEvidence](#financeassetacquisitionevidence), [1-54 FinanceAssetImportBatch](#financeassetimportbatch), [1-55 FinanceAssetPeriodEntry](#financeassetperiodentry), [1-56 FinanceAssetAdjustment](#financeassetadjustment), [1-57 FinanceAssetImpairmentAssessment](#financeassetimpairmentassessment), [1-59 FinanceAssetDisposal](#financeassetdisposal), [1-64 FinanceCashFlowAllocation](#financecashflowallocation), [1-66 FinanceCloseRun](#financecloserun), [1-70 FinanceCloseWorkpaper](#financecloseworkpaper), [1-96 FinanceAuxiliaryBalance](#financeauxiliarybalance), [1-98 FinanceOpenItem](#financeopenitem), [1-111 FinanceSourcePeriodStatus](#financesourceperiodstatus), [1-115 FinanceSourceAccountBalance](#financesourceaccountbalance), [1-120 FinanceVoucher](#financevoucher), [1-122 FinanceAccountBalance](#financeaccountbalance), [1-127 ReclassResult](#reclassresult), [1-135 FinanceTaxFiling](#financetaxfiling), [1-138 FinanceTaxReconciliationSnapshot](#financetaxreconciliationsnapshot), [1-141 FinanceTaxWorkpaper](#financetaxworkpaper), [1-143 FinanceBankReconciliation](#financebankreconciliation), [1-145 FinanceInterestWorkpaper](#financeinterestworkpaper)
 
 ### 1-120 FinanceVoucher
 
@@ -2862,7 +2881,7 @@
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
-| `id` | Int | * | PK |  |
+| `id` | Int | * | PK+REF |  |
 | `accountId` | Int | * | cUK+FK | → FinanceAccount.id |
 | `periodId` | Int | * | cUK+FK | → FinancePeriod.id |
 | `openingDebit` | Float | * |  |  |
@@ -2877,6 +2896,8 @@
 | `updatedAt` | DateTime | * |  |  |
 
 → Depends on: [1-119 FinancePeriod](#financeperiod), [1-118 FinanceAccount](#financeaccount), [1-153 Company](#company)
+
+← Referenced by: [1-50 FinanceAssetCard](#financeassetcard), [1-50 FinanceAssetCard](#financeassetcard), [1-50 FinanceAssetCard](#financeassetcard)
 
 ### 1-123 FinanceReclassRule
 

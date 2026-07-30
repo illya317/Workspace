@@ -11,7 +11,7 @@ export function checkModules() {
     ["Relation Policy coverage", "node", ["--conditions=react-server", "--import", "tsx", "scripts/check/check-relation-policy-coverage.ts"]],
     ["Module page gates", "node", ["scripts/check/check-module-page-gates.js"]],
     ["Package boundaries", "node", ["scripts/check/check-package-boundaries.js"]],
-    ["Source code module declarations", "node", ["--import", "tsx", "scripts/arch/source-code-analysis/cli.ts", "--check"]],
+    ["Source code module declarations", "node", ["--import", "tsx", "scripts/arch/source-code-analysis/cli.ts", "--check", "--write"]],
     ["API route governance", "node", ["scripts/check/check-api-routes.js"]],
     ["Architecture governance docs", "node", ["scripts/check/check-architecture-governance.js"]],
   ];

@@ -9,6 +9,7 @@ import {
   createPageBody,
   useFeedback,
   type SelectorSurfaceProps,
+  type PageSurfaceCreateSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
 import type { ExternalParty, ExternalPartyCategory, ExternalPartyDraft } from "@workspace/external/types";
@@ -212,39 +213,32 @@ export default function ExternalPartyClient({
     { kind: "text", key: "total", content: `共 ${data.total} 条` },
   ];
 
-  const createSection = {
-    key: "external-party-create",
-    body: {
-      kind: "create" as const,
-      create: {
-        id: `external-${category}-create`,
-        trigger: "toolbar" as const,
-        presentation: "block" as const,
-        title: `新增${labels.singular}`,
-        open: Boolean(createDraft),
-        canCreate,
-        disabled: saving,
-        content: {
-          kind: "sections" as const,
-          sections: externalPartyFormSections(category, createDraft ?? emptyExternalPartyDraft(), updateCreateDraft, {
-            autoGenerateCode: true,
-            existingCandidates: otherApiPath
-              ? candidates.items.filter((party) => !party.roles.includes(category))
-              : undefined,
-            candidatesLoading: candidates.loading,
-            candidatesError: candidates.error,
-            onExistingPartyChange: selectExistingParty,
-          }),
-        },
-        submission: {
-          action: "save" as const,
-          disabled: saving || !createDraft?.name.trim() || !createDraft.identityNumber.trim(),
-          execute: saveCreate,
-        },
-        onOpenChange: (open: boolean) => setCreateDraft(open ? emptyExternalPartyDraft() : null),
-        onCancel: () => setCreateDraft(null),
-      },
+  const pageCreate: PageSurfaceCreateSpec = {
+    id: `external-${category}-create`,
+    presentation: "block",
+    title: `新增${labels.singular}`,
+    open: Boolean(createDraft),
+    canCreate,
+    disabled: saving,
+    content: {
+      kind: "sections",
+      sections: externalPartyFormSections(category, createDraft ?? emptyExternalPartyDraft(), updateCreateDraft, {
+        autoGenerateCode: true,
+        existingCandidates: otherApiPath
+          ? candidates.items.filter((party) => !party.roles.includes(category))
+          : undefined,
+        candidatesLoading: candidates.loading,
+        candidatesError: candidates.error,
+        onExistingPartyChange: selectExistingParty,
+      }),
     },
+    submission: {
+      action: "save",
+      disabled: saving || !createDraft?.name.trim() || !createDraft.identityNumber.trim(),
+      execute: saveCreate,
+    },
+    onOpenChange: (open: boolean) => setCreateDraft(open ? emptyExternalPartyDraft() : null),
+    onCancel: () => setCreateDraft(null),
   };
 
   const detailSection = detailDraft && selected
@@ -273,13 +267,11 @@ export default function ExternalPartyClient({
   return (
     <PageSurface
       kind="standard"
+      create={pageCreate}
       toolbar={{ items: toolbarItems }}
       body={createMasterDetailBody({
         master: { label: `${labels.singular}目录`, presentation: "compact", body: { kind: "selector", selector } },
-        detail: createPageBody([
-          createSection,
-          ...(createDraft ? [] : [detailSection]),
-        ]),
+        detail: createPageBody(createDraft ? [] : [detailSection]),
         desktop: { ratio: [1, 3] },
       })}
       footer={{

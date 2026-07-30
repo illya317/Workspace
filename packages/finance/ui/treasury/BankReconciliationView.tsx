@@ -8,7 +8,7 @@ import {
   createMessageSection,
   createPageBody,
   useFeedback,
-  type BodySurfaceSectionSpec,
+  type PageSurfaceCreateSpec,
   type SelectorSurfaceProps,
 } from "@workspace/core/ui";
 import type { TreasuryBankReconciliationDto } from "../../types/treasury";
@@ -70,27 +70,24 @@ export function useBankReconciliationView({ workspace, canCreate, canUpdate, mut
     onSelect: (row) => { void selectRow(row); },
   };
 
-  return createMasterDetailBody({
+  const create = createSpec();
+  const body = createMasterDetailBody({
     master: { label: "银行对账", presentation: "compact", body: { kind: "selector", selector } },
-    detail: createPageBody([createSection(), ...detailSections()]),
+    detail: createPageBody(detailSections()),
     desktop: { ratio: [1, 2] },
   });
+  return { body, create };
 
   function accountName(id: number) {
     const account = workspace.bankAccounts.find((item) => item.id === id);
     return account?.sourceName ?? "未识别银行账户";
   }
 
-  function createSection(): BodySurfaceSectionSpec {
+  function createSpec(): PageSurfaceCreateSpec {
     const current = createDraft ?? emptyReconciliationDraft(workspace.scope, workspace.bankAccounts[0]?.id ?? null);
     const unavailable = !workspace.scope.periodId || workspace.scope.isClosed || workspace.bankAccounts.length === 0;
     return {
-      key: "bank-reconciliation-create",
-      body: {
-        kind: "create",
-        create: {
           id: "treasury-bank-reconciliation-create",
-          trigger: "toolbar",
           presentation: "block",
           title: "新建银行对账",
           open: Boolean(createDraft),
@@ -112,8 +109,6 @@ export function useBankReconciliationView({ workspace, canCreate, canUpdate, mut
           },
           onOpenChange: (open) => setCreateDraft(open ? emptyReconciliationDraft(workspace.scope, workspace.bankAccounts[0]?.id ?? null) : null),
           onCancel: () => setCreateDraft(null),
-        },
-      },
     };
   }
 

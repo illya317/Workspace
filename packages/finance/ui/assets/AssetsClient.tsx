@@ -2,23 +2,35 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import { matchSearchFields } from "@workspace/platform/search";
-import { PageSurface, createEmptySection, createFieldsSection, createMasterDetailBody, createPageBody, createPageTabBar, createStatusSection, useFeedback, type BodySurfaceSectionSpec, type FormSurfaceSectionSpec, type SurfaceToolbarItems } from "@workspace/core/ui";
+import { actionRuntimeCreateSubmission } from "@workspace/platform/ui";
+import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
+import { PageSurface, createEmptySection, createFieldsSection, createMasterDetailBody, createPageBody, createPageTabBar, createStatusSection, useFeedback, type BodySurfaceSectionSpec, type FormSurfaceSectionSpec, type PageSurfaceCreateSpec, type SurfaceToolbarItems } from "@workspace/core/ui";
 import type { ConfirmFinanceAssetImpairmentAssessmentInput, ConfirmFinanceAssetDisposalInput, CreateFinanceAssetCardInput, DeleteFinanceAssetCategoryPolicyInput, FinanceAssetCardDto, FinanceAssetWorkspaceDto, LinkFinanceAssetPeriodVoucherInput, UpdateFinanceAssetCategoryPolicyInput, UpdateFinanceAssetCardInput } from "../../types/assets";
 import type { SessionUser } from "@workspace/platform/types";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 import type { FinanceLedgerDefaultScope } from "../ledger/defaultScope";
-import { disposalFormSections, assetFormSections, emptyAssetDraft, emptyDisposalDraft, editAssetDraft, formatFinanceAmount, impairmentAssessmentDraft, impairmentAssessmentFormSections, periodVoucherLinkDraft, periodVoucherLinkFormSections, KIND_LABELS } from "./assetScheduleUi";
+import { disposalFormSections, assetFormSections, emptyAssetDraft, emptyDisposalDraft, editAssetDraft, formatFinanceAmount, impairmentAssessmentDraft, periodVoucherLinkDraft, periodVoucherLinkFormSections, KIND_LABELS } from "./assetScheduleUi";
 import { useAssetExportAction } from "./useAssetExportAction";
 import { useAssetPolicyWorkbench } from "./useAssetPolicyWorkbench";
 import { useAssetCodePreview } from "./useAssetCodePreview";
+import { useFinanceAssetApprovalSection } from "./asset-workflow";
+import { createFinanceAssetImpairmentSection, updateFinanceAssetImpairmentDraft } from "./asset-impairment-section";
 import { createLatestRequestGate, financeUiRequestScopeKey, financeUiResponseMatchesScope, type FinanceUiRequestScope } from "../components/latest-request-gate";
 import { assetLocationFromSearch, assetLocationSearch, type AssetPolicyScope, type AssetWorkspaceView } from "./asset-location";
 import { applyAssetCategorySelection, assetDraftDisplayValues, assetPeriodDraftMatchesScope, assetViewLabel, assetViewShowsCompanyFilter, buildAssetViewSections, categoryHasAccountPolicy, createAssetCardSelector, deleteJson, errorMessage, firstAssetView, firstPolicyScope, isAbortError, isAssetPolicyScope, isAssetView, periodStateText, postJson, putJson } from "./asset-client-model";
 
 type AssetView = AssetWorkspaceView;
-type AssetsClientProps = { canCreate: boolean; canUpdate: boolean; canRevise: boolean; canExport: boolean; defaultScope: FinanceLedgerDefaultScope | null; user: SessionUser };
-export default function AssetsClient({ canCreate, canUpdate, canRevise, canExport, defaultScope, user }: AssetsClientProps) {
+type AssetsClientProps = {
+  canCreate: boolean;
+  canUpdate: boolean;
+  canRevise: boolean;
+  canExport: boolean;
+  defaultScope: FinanceLedgerDefaultScope | null;
+  assetCreateActionRuntimes: { direct: ActionRuntime; review: ActionRuntime };
+  user: SessionUser;
+};
+export default function AssetsClient({ canCreate, canUpdate, canRevise, canExport, defaultScope, assetCreateActionRuntimes, user }: AssetsClientProps) {
   const viewTabs = useMemo(() => getFinancePageViewTabs("assets", user), [user]);
   const [activeView, setActiveView] = useState<AssetView>(() => firstAssetView(viewTabs));
   const [activePolicyScope, setActivePolicyScope] = useState<AssetPolicyScope>(() => firstPolicyScope(viewTabs));
@@ -57,8 +69,10 @@ export default function AssetsClient({ canCreate, canUpdate, canRevise, canExpor
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [saving, setSaving] = useState(false);
+  const [workflowReloadToken, setWorkflowReloadToken] = useState(0);
   const [loadGate] = useState(createLatestRequestGate);
   const [mutationGate] = useState(createLatestRequestGate);
+  const [locationRevision, setLocationRevision] = useState(0);
   const requestScope = useMemo<FinanceUiRequestScope | null>(() => {
     const nextYear = Number(year);
     const nextMonth = Number(month);
@@ -111,8 +125,19 @@ export default function AssetsClient({ canCreate, canUpdate, canRevise, canExpor
       if (loadGate.isCurrent(ticket)) setLoading(false);
     }
   }, [loadGate, requestScope]);
+  const assetApprovalSection = useFinanceAssetApprovalSection({
+    currentUserId: user.id,
+    categories: workspace?.categories ?? [],
+    reloadToken: workflowReloadToken,
+    onCommitted: async () => { await load(); },
+    notify: ({ message, type }) => type === "success" ? feedback.success(message) : feedback.error(message),
+  });
 
-  useEffect(() => { void load(requestScope); return () => loadGate.invalidate(); }, [load, loadGate, requestScope]);
+  useEffect(() => {
+    if (!locationRevision) return;
+    void load(requestScope);
+    return () => loadGate.invalidate();
+  }, [load, loadGate, locationRevision, requestScope]);
   const invalidateAssetScope = useCallback(() => {
     loadGate.invalidate();
     mutationGate.invalidate();
@@ -137,6 +162,7 @@ export default function AssetsClient({ canCreate, canUpdate, canRevise, canExpor
       if (location.companyCode) setCompanyCode(location.companyCode);
       if (location.year) setYear(String(location.year));
       if (location.month) setMonth(String(location.month));
+      setLocationRevision((current) => current + 1);
     };
     applyLocation();
     window.addEventListener("popstate", applyLocation);
@@ -148,12 +174,19 @@ export default function AssetsClient({ canCreate, canUpdate, canRevise, canExpor
     const ticket = mutationGate.begin(financeUiRequestScopeKey(requestScope));
     setSaving(true);
     try {
-      const created = await postJson<{ id: number }>("/api/modules/finance/assets", assetDraft, ticket.signal);
+      const mutation = await postJson<
+        | { executionMode: "direct"; result: { id: number } }
+        | { executionMode: "workflow"; request: { id: number } }
+      >("/api/modules/finance/assets", assetDraft, ticket.signal);
       if (!mutationGate.isCurrent(ticket)) return;
       setAssetDraft(null);
+      if (mutation.executionMode === "workflow") {
+        setWorkflowReloadToken((current) => current + 1);
+        return { outcome: "submitted" as const, message: "建卡申请已提交；审批通过前不会生成可用资产卡片" };
+      }
       const refreshed = await load(requestScope);
       if (!mutationGate.isCurrent(ticket)) return;
-      const createdCard = refreshed?.cards.find((card) => card.id === created.id) ?? null;
+      const createdCard = refreshed?.cards.find((card) => card.id === mutation.result.id) ?? null;
       if (createdCard) {
         setSelectedAssetId(createdCard.id);
         setEditingAssetDraft(editAssetDraft(createdCard, Number(year)));
@@ -337,100 +370,77 @@ export default function AssetsClient({ canCreate, canUpdate, canRevise, canExpor
     ...(loading ? [createStatusSection("asset-loading", { kind: "loading", content: "正在加载资产折旧摊销" })] : []),
     ...(error ? [createStatusSection("asset-error", { kind: "error", content: error })] : []),
     ...(!loading && !error && activeView !== "cards" && activeView !== "policies" ? buildAssetViewSections({ view: activeView, workspace, periodRows, page, pageSize }) : []),
-    ...(activeView === "adjustments" && impairmentDraft ? [impairmentAssessmentSection()] : []),
-    ...(activeView === "adjustments" ? [disposalCreateSection()] : []),
-    ...(activeView === "period" && periodVoucherDraft ? [periodVoucherLinkSection()] : []),
+    ...(activeView === "adjustments" && impairmentDraft ? [createFinanceAssetImpairmentSection({
+      draft: impairmentDraft,
+      canRevise,
+      workspace,
+      saving,
+      onChange: updateImpairmentDraft,
+      onSave: saveImpairmentAssessment,
+    })] : []),
   ];
 
   const body = activeView === "cards" ? assetCardsBody() : activeView === "policies" ? policyWorkbench.body : createPageBody(standardSections);
+  const pageCreate = activeView === "cards"
+    ? assetCreate()
+    : activeView === "adjustments"
+      ? disposalCreate()
+      : activeView === "period" && periodVoucherDraft
+        ? periodVoucherLinkCreate()
+        : undefined;
 
-  return <PageSurface kind="standard" tabbar={navigation} toolbar={{ items: toolbarItems }} body={body} footer={activeView === "cards" || activeView === "policies" ? undefined : { pagination: { page, totalPages, total, onPageChange: setPage } }} />;
+  return <PageSurface kind="standard" create={pageCreate} tabbar={navigation} toolbar={{ items: toolbarItems }} body={body} footer={activeView === "cards" || activeView === "policies" ? undefined : { pagination: { page, totalPages, total, onPageChange: setPage } }} />;
 
   function assetCardsBody() {
     const selector = createAssetCardSelector({ cards, page, pageSize, selectedAssetId, loading, error, workspace, onSelect: (card) => { void selectAsset(card); } });
     const detailSections = [
       ...lifecycleBlocks,
-      assetCreateSection(),
       ...(assetDraft ? [] : loading
         ? [createStatusSection("asset-card-loading", { kind: "loading", content: "正在加载资产卡片" })]
         : error
           ? [createStatusSection("asset-card-error", { kind: "error", content: error })]
           : [assetDetailSection()]),
+      assetApprovalSection,
     ];
 
     return createMasterDetailBody({ master: { label: "资产卡片", presentation: "compact", body: { kind: "selector", selector }, footer: { pagination: { page, totalPages, total, onPageChange: setPage, compact: true } } }, detail: createPageBody(detailSections), desktop: { ratio: [1, 2] }, mobile: { detailActive: assetDetailOpen, onNavigateToList: () => setAssetDetailOpen(false) } });
   }
-
-  function assetCreateSection(): BodySurfaceSectionSpec {
+  function assetCreate(): PageSurfaceCreateSpec {
     const draft = assetDraft ?? emptyAssetDraft(companyCode, Number(year));
-    return { key: "asset-create", body: { kind: "create", create: {
-      id: "finance-asset-create", trigger: "toolbar", presentation: "block", title: "新建资产卡片", open: Boolean(assetDraft), canCreate: canCreate && Boolean(companyCode), disabled: saving || !companyCode,
+    const selectedCategory = workspace?.categories.find((category) => category.id === draft.categoryId) ?? null;
+    const actionRuntime = selectedCategory?.reviewRequired ? assetCreateActionRuntimes.review : assetCreateActionRuntimes.direct;
+    const submitDisabled = saving || assetCodePreview.loading || Boolean(assetCodePreview.error) || !assetDraft?.assetCode || !assetDraft.idempotencyKey || !assetDraft.name || !categoryHasAccountPolicy(assetDraft, workspace);
+    const submission = actionRuntimeCreateSubmission(actionRuntime, { disabled: submitDisabled, execute: saveAsset })
+      ?? { action: "save" as const, disabled: true, execute: saveAsset };
+    return {
+      id: "finance-asset-create", presentation: "block", title: "新建资产卡片", open: Boolean(assetDraft), canCreate: Boolean(companyCode) && (canCreate || assetCreateActionRuntimes.review.editability === "editable"), disabled: saving || !companyCode,
       content: { kind: "sections", sections: assetFormSections(draft, updateNewAssetDraft, false, { ...assetDraftDisplayValues(draft, workspace, null), assetCodePlaceholder: assetCodePreview.loading ? "正在生成..." : assetCodePreview.error ? "编码规则不可用" : "选择资产分类后生成" }) },
-      submission: { action: "save", disabled: saving || assetCodePreview.loading || Boolean(assetCodePreview.error) || !assetDraft?.assetCode || !assetDraft.idempotencyKey || !assetDraft.name || !categoryHasAccountPolicy(assetDraft, workspace), execute: saveAsset },
+      submission,
       onOpenChange: (open) => { setAssetDraft(open ? emptyAssetDraft(companyCode, Number(year)) : null); if (open) setAssetDetailOpen(true); },
       onCancel: () => setAssetDraft(null),
-    } } };
+    };
   }
-
-  function disposalCreateSection(): BodySurfaceSectionSpec {
-    return { key: "asset-disposal-create", body: { kind: "create", create: {
-      id: "finance-asset-disposal-create", trigger: "toolbar", presentation: "modal", title: "确认资产处置", open: Boolean(disposalDraft), canCreate: canRevise, disabled: saving || Boolean(workspace?.scope.isClosed),
+  function disposalCreate(): PageSurfaceCreateSpec {
+    return {
+      id: "finance-asset-disposal-create", presentation: "modal", title: "确认资产处置", open: Boolean(disposalDraft), canCreate: canRevise, disabled: saving || Boolean(workspace?.scope.isClosed),
       content: { kind: "sections", sections: disposalFormSections(disposalDraft ?? emptyDisposalDraft(companyCode, Number(year), Number(month)), workspace?.cards ?? [], (key, value) => setDisposalDraft((current) => ({ ...(current ?? emptyDisposalDraft(companyCode, Number(year), Number(month))), [key]: value }) as ConfirmFinanceAssetDisposalInput)) },
       submission: { action: "save", disabled: saving || !disposalDraft?.assetId || !disposalDraft.disposalDate || !disposalDraft.voucherNo || !disposalDraft.evidenceRef || !disposalDraft.reason, execute: saveDisposal },
       onOpenChange: (open) => setDisposalDraft(open ? emptyDisposalDraft(companyCode, Number(year), Number(month)) : null), onCancel: () => setDisposalDraft(null),
-    } } };
+    };
   }
-
-  function periodVoucherLinkSection(): BodySurfaceSectionSpec {
+  function periodVoucherLinkCreate(): PageSurfaceCreateSpec {
     const draft = periodVoucherDraft!;
-    return { key: "asset-period-voucher-link", body: { kind: "create", create: {
-      id: "finance-asset-period-voucher-link", trigger: "toolbar", presentation: "modal", title: "关联折旧摊销专用凭证", open: periodVoucherOpen, canCreate: canRevise, disabled: saving || Boolean(workspace?.scope.isClosed),
+    return {
+      id: "finance-asset-period-voucher-link", presentation: "modal", title: "关联折旧摊销专用凭证", open: periodVoucherOpen, canCreate: canRevise, disabled: saving || Boolean(workspace?.scope.isClosed),
       content: { kind: "sections", sections: periodVoucherLinkFormSections(draft, (voucherNo) => setPeriodVoucherDraft((current) => current ? { ...current, voucherNo } : current)) },
       submission: { action: "save", disabled: saving || !draft.voucherNo, execute: savePeriodVoucherLink },
       onOpenChange: (open) => { setPeriodVoucherOpen(open); if (open) setPeriodVoucherDraft(periodVoucherLinkDraft(companyCode, Number(year), Number(month), workspace?.periodVoucherLink.linkFingerprint ?? draft.expectedLinkFingerprint)); },
       onCancel: () => { setPeriodVoucherOpen(false); setPeriodVoucherDraft((current) => current ? { ...current, voucherNo: "" } : current); },
-    } } };
+    };
   }
-
-  function impairmentAssessmentSection(): BodySurfaceSectionSpec {
-    const draft = impairmentDraft!;
-    const formSections = impairmentAssessmentFormSections(draft, updateImpairmentDraft, !canRevise || Boolean(workspace?.scope.isClosed), workspace?.cards ?? [])
-      .map<FormSurfaceSectionSpec>((section) => ({ kind: "section", ...section, chrome: "divider" }));
-    const recorded = draft.conclusion === "impairment_recorded";
-    return createFieldsSection("asset-impairment-assessment", formSections, {
-      kind: canRevise ? "fields" : "detail",
-      header: {
-        title: "资产减值评估",
-        description: workspace?.impairmentAssessment
-          ? `已确认 · 资产范围 ${workspace.impairmentAssessment.assetCount} 项`
-          : "确认后纳入本期关账证据",
-      },
-      actions: canRevise ? [{
-        key: "save-impairment-assessment",
-        action: "save",
-        label: saving ? "保存中..." : "确认评估",
-        disabled: saving || Boolean(workspace?.scope.isClosed) || !draft.basis || !draft.evidenceRef
-          || (recorded && (draft.impairmentAmount <= 0 || !draft.voucherNo
-            || Math.abs(draft.allocations.reduce((sum, row) => sum + row.amount, 0) - draft.impairmentAmount) > 0.01)),
-        onClick: () => void saveImpairmentAssessment(),
-      }] : [],
-      submit: canRevise ? { onSubmit: () => void saveImpairmentAssessment() } : undefined,
-    });
-  }
-
   function updateImpairmentDraft(key: keyof ConfirmFinanceAssetImpairmentAssessmentInput, value: unknown) {
-    setImpairmentDraft((current) => {
-      if (!current) return current;
-      if (key === "conclusion") {
-        const conclusion = String(value) as ConfirmFinanceAssetImpairmentAssessmentInput["conclusion"];
-        return conclusion === "impairment_recorded"
-          ? { ...current, conclusion }
-          : { ...current, conclusion, impairmentAmount: 0, voucherNo: null, allocations: [] };
-      }
-      return { ...current, [key]: value };
-    });
+    setImpairmentDraft((current) => updateFinanceAssetImpairmentDraft(current, key, value));
   }
-
   function assetDetailSection(): BodySurfaceSectionSpec {
     if (!selectedAsset || !editingAssetDraft) return createEmptySection("asset-card-empty", { content: "从左侧选择资产卡片查看详情", presentation: "card" });
     const formSections = assetFormSections(editingAssetDraft, updateAssetDraft, !canUpdate, assetDraftDisplayValues(editingAssetDraft, workspace, selectedAsset)).map<FormSurfaceSectionSpec>((section) => ({ kind: "section", ...section, chrome: "divider" }));
@@ -444,7 +454,6 @@ export default function AssetsClient({ canCreate, canUpdate, canRevise, canExpor
       submit: canUpdate ? { onSubmit: () => void saveAssetEdit() } : undefined,
     });
   }
-
   function updateAssetDraft(key: keyof CreateFinanceAssetCardInput, value: unknown) {
     if (!canUpdate) return;
     setEditingAssetDraft((current) => current

@@ -74,14 +74,16 @@ function roleSignals(relativePath: string, moduleKey: string, text: string) {
   const filename = path.posix.basename(normalized);
   const isAppSource = normalized.startsWith("app/");
   const isStyleSource = normalized.endsWith(".css") || normalized.endsWith(".scss");
+  const hasInputSignal = /(?:schema|route-input|route-command|request-shape)/.test(filename)
+    || (!filename.endsWith(".tsx") && /(?:^|[-.])input(?:[-.]|$)/.test(filename))
+    || /\bz\s*\.\s*object\s*\(/.test(text);
+  const hasExplicitIntegrationSignal = isDedicatedIntegrationSource(relativePath);
   const isUiSource = isStyleSource || (!isAppSource && (
-    normalized.endsWith(".tsx")
+    (normalized.includes("/ui/") && !hasInputSignal && !hasExplicitIntegrationSignal)
+    || normalized.endsWith(".tsx")
     || (/^use-[^.]+\.(?:ts|tsx)$/.test(filename) && normalized.includes("/ui/"))
     || /from\s+["']react["']/.test(text)
   ));
-  const hasInputSignal = /(?:schema|route-input|route-command|request-shape)/.test(filename)
-    || /\bz\s*\.\s*object\s*\(/.test(text);
-  const hasDirectPersistenceSignal = hasDirectPersistenceAccess(text);
   const signals = new Set<SourceCodeAnalysisRole>();
 
   if (TEST_FILE_PATTERN.test(normalized)) return new Set<SourceCodeAnalysisRole>(["test"]);
@@ -105,11 +107,10 @@ function roleSignals(relativePath: string, moduleKey: string, text: string) {
     signals.add("domainValidation");
   }
   if (
-    hasDirectPersistenceSignal
-    || (!isUiSource && (
-      /(?:prisma|repository|persistence|data-access|store|database|db\.)/.test(filename)
+    !isUiSource && (
+      /(?:prisma|repository|persistence|data-access|reference-adapter|store|database|db\.|-data\.|-facts\.|-rows\.|-records\.|-query\.)/.test(filename)
       || normalized.includes("/dal/")
-    ))
+    )
   ) {
     signals.add("persistence");
   }
@@ -153,6 +154,10 @@ function primaryRole(signals: Set<SourceCodeAnalysisRole>): SourceCodeAnalysisRo
     "domain",
   ];
   return precedence.find((role) => signals.has(role)) ?? "domain";
+}
+
+export function classifySourceCodeRole(relativePath: string, moduleKey: string, text: string) {
+  return primaryRole(roleSignals(relativePath, moduleKey, text));
 }
 
 export function detectMixedResponsibilityRoles(
@@ -295,6 +300,12 @@ export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceC
   }
 
   const cycles = dependencyAnalysis.cycles;
+  const reciprocalRoleDependencies = dependencyAnalysis.reciprocalRoleDependencies;
+  const runtimeReciprocalRoleDependencyCount = reciprocalRoleDependencies
+    .filter((dependency) => dependency.classification === "runtime").length;
+  const dependencyFileCycles = dependencyAnalysis.dependencyFileCycles;
+  const runtimeDependencyFileCycleCount = dependencyFileCycles
+    .filter((cycle) => cycle.classification === "runtime").length;
   const declaredFileCount = files.length;
   const totalFileCount = governedFileCount;
   const totalLines = [...rows.values()].reduce((sum, row) => sum + row.lines, 0);
@@ -319,9 +330,17 @@ export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceC
       missingInterfaceCount: missingInterfaces.length,
       dependencyCycleCount: cycles.length,
       mixedResponsibilityFileCount: mixedResponsibilityFiles.length,
+      reciprocalRoleDependencyCount: reciprocalRoleDependencies.length,
+      runtimeReciprocalRoleDependencyCount,
+      typeAssistedReciprocalRoleDependencyCount: reciprocalRoleDependencies.length - runtimeReciprocalRoleDependencyCount,
+      dependencyFileCycleCount: dependencyFileCycles.length,
+      runtimeDependencyFileCycleCount,
+      typeAssistedDependencyFileCycleCount: dependencyFileCycles.length - runtimeDependencyFileCycleCount,
     },
     modules: [...rows.values()],
     dependencyEdges: dependencyAnalysis.dependencyEdges,
+    reciprocalRoleDependencies,
+    dependencyFileCycles,
     dependencyCycles: cycles,
     diagnostics: { unclassifiedFiles, ambiguousFiles, missingInterfaces, mixedResponsibilityFiles },
   };

@@ -28,12 +28,22 @@ test("collapsed display totals preserve all detailed role lines", () => {
   assert.equal(displayedTotal, detailedTotal);
 });
 
-test("frontend merges small roles into other without merging backend roles", () => {
-  const other = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "other");
-  assert.deepEqual(other?.roles, ["integration", "composition", "test", "tooling"]);
-  assert.deepEqual(other?.roles.map((role) => SOURCE_CODE_ANALYSIS_ROLE_LABELS[role]), [
-    "外部集成",
+test("display groups follow the default dependency direction without merging backend roles", () => {
+  assert.deepEqual(SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.map((group) => group.key), [
+    "entry",
+    "business",
+    "adapter",
+    "contract",
+    "assurance",
+  ]);
+  const entry = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "entry");
+  assert.deepEqual(entry?.roles.map((role) => SOURCE_CODE_ANALYSIS_ROLE_LABELS[role]), [
     "组合壳",
+    "UI",
+    "输入",
+  ]);
+  const assurance = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "assurance");
+  assert.deepEqual(assurance?.roles.map((role) => SOURCE_CODE_ANALYSIS_ROLE_LABELS[role]), [
     "模块测试",
     "工程实现",
   ]);

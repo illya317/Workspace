@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { listModuleManagement, setModuleRuntimeEnabled } from "@workspace/settings/server/module-management";
-import { requireAdminApiAccess, isSuperAdmin } from "@workspace/platform/server/auth";
+import { requireApiAccess, isSuperAdmin } from "@workspace/platform/server/auth";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const updateModuleSchema = z.object({
@@ -12,7 +12,7 @@ const updateModuleSchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const auth = await requireAdminApiAccess(request);
+  const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
   const payload = auth.user;
 
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const auth = await requireAdminApiAccess(request);
+  const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
   const payload = auth.user;
 

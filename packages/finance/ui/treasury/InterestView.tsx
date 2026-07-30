@@ -8,7 +8,7 @@ import {
   createMessageSection,
   createPageBody,
   useFeedback,
-  type BodySurfaceSectionSpec,
+  type PageSurfaceCreateSpec,
   type SelectorSurfaceProps,
 } from "@workspace/core/ui";
 import type { TreasuryInterestWorkpaperDto } from "../../types/treasury";
@@ -71,28 +71,25 @@ export function useInterestView({ workspace, canCreate, canUpdate, mutate, targe
     onSelect: (row) => { void selectRow(row); },
   };
 
-  return createMasterDetailBody({
+  const create = createSpec();
+  const body = createMasterDetailBody({
     master: { label: "利息底稿", presentation: "compact", body: { kind: "selector", selector } },
-    detail: createPageBody([createSection(), ...detailSections()]),
+    detail: createPageBody(detailSections()),
     desktop: { ratio: [1, 2] },
   });
+  return { body, create };
 
   function loanName(id: number) {
     const loan = workspace.loans.find((item) => item.id === id);
     return loan ? `${loan.loanNo} · ${loan.name}` : "未识别借款合同";
   }
 
-  function createSection(): BodySurfaceSectionSpec {
+  function createSpec(): PageSurfaceCreateSpec {
     const firstLoan = workspace.loans.find((loan) => uniqueLoanConvention(loan)) ?? null;
     const current = createDraft ?? emptyInterestDraft(workspace.scope, firstLoan);
     const unavailable = !workspace.scope.periodId || workspace.scope.isClosed || !firstLoan;
     return {
-      key: "interest-create",
-      body: {
-        kind: "create",
-        create: {
           id: "treasury-interest-create",
-          trigger: "toolbar",
           presentation: "block",
           title: "新建利息底稿",
           open: Boolean(createDraft),
@@ -114,8 +111,6 @@ export function useInterestView({ workspace, canCreate, canUpdate, mutate, targe
           },
           onOpenChange: (open) => setCreateDraft(open ? emptyInterestDraft(workspace.scope, firstLoan) : null),
           onCancel: () => setCreateDraft(null),
-        },
-      },
     };
   }
 

@@ -1,6 +1,14 @@
 import type { ApiMethod } from "./api-contract-types";
 
 const PERMISSION_ONLY = { eligibility: "permission_only" } as const;
+const REQUIRED_APPROVAL_INDEPENDENT = {
+  eligibility: "workflow_required",
+  flowType: "approval",
+  separationPolicy: "independent_required",
+  submitPermissionAction: "submit",
+    processPermissionAction: "approve",
+    workflowCategoryKey: "finance",
+} as const;
 const FINANCE_ASSETS = { moduleKey: "finance", resourceKey: "finance.assets", originHrefPattern: "/finance/assets" } as const;
 const FINANCE_TREASURY = { moduleKey: "finance", resourceKey: "finance.treasury", originHrefPattern: "/finance/treasury" } as const;
 const FINANCE_TAX = { moduleKey: "finance", resourceKey: "finance.tax", originHrefPattern: "/finance/tax" } as const;
@@ -10,7 +18,24 @@ function route(method: ApiMethod, path: string, notes?: string) {
 }
 
 export const FINANCE_OPERATIONS_BUSINESS_ACTION_REGISTRATIONS = [
-  { ...FINANCE_ASSETS, ...PERMISSION_ONLY, key: "finance.assets.asset.create", label: "创建资产卡片", writeKind: "create", targetKind: "FinanceAssetCard", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/assets")] },
+  {
+    ...FINANCE_ASSETS,
+    ...REQUIRED_APPROVAL_INDEPENDENT,
+    key: "finance.assets.asset.create",
+    label: "创建资产卡片",
+    writeKind: "create",
+    targetKind: "FinanceAssetCard",
+    directPermissionAction: "create",
+    apiRoutes: [
+      route("POST", "/api/modules/finance/assets"),
+      route("GET", "/api/modules/finance/assets/submissions"),
+      route("POST", "/api/modules/finance/assets/submissions/:id/approve"),
+      route("POST", "/api/modules/finance/assets/submissions/:id/reject"),
+      route("POST", "/api/modules/finance/assets/submissions/:id/withdraw"),
+      route("POST", "/api/modules/finance/assets/submissions/:id/cancel"),
+    ],
+    notes: "仅当已解析的公司年度资产分类政策要求录入前复核时启用审批；其他分类保持直接保存。",
+  },
   { ...FINANCE_ASSETS, ...PERMISSION_ONLY, key: "finance.assets.asset.update", label: "更新资产卡片", writeKind: "update", targetKind: "FinanceAssetCard", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/finance/assets")] },
   { ...FINANCE_ASSETS, ...PERMISSION_ONLY, key: "finance.assets.categoryPolicy.update", label: "更新资产会计政策", writeKind: "update", targetKind: "FinanceAssetCategoryPolicy", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/finance/assets/policies")] },
   { ...FINANCE_ASSETS, ...PERMISSION_ONLY, key: "finance.assets.categoryPolicy.delete", label: "删除资产会计政策覆盖", writeKind: "delete", targetKind: "FinanceAssetCategoryPolicy", directPermissionAction: "update", apiRoutes: [route("DELETE", "/api/modules/finance/assets/policies")] },

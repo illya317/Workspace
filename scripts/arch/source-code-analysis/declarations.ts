@@ -72,6 +72,7 @@ export const PRODUCTION_RUNTIME_SCRIPT_REGISTRATIONS = [
   "scripts/check/check-permission-action-grants.mjs",
   "scripts/check/check-prisma-deploy-status.js",
   "scripts/ci/check-migration-policy.mjs",
+  "scripts/ci/verify-artifact-manifest.mjs",
   "scripts/provision-agent-workforce.mjs",
   "scripts/runtime/run-with-repo-node.sh",
   "scripts/runtime/wecom-agent-bot.mjs",

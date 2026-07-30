@@ -254,10 +254,10 @@ app/* route shell
 Core UI registry 治理：
 
 - Core UI registry 保留三组核心口径：`declares` 是 agent 可声明能力，`contract` 是生成契约详情，`composes` 是内部组合关系。旧 `category/subcategory`、`role`、`exposure`、`verified` 不再作为 registry 字段。
-- 业务和普通 agent 默认只能使用公共 runtime 入口、helper 或 Surface spec；正文二级 Surface 通过 `BodySurface` 声明，不作为业务直引 renderer。`/settings/ui` 只自动展示有 `declares` 的封装组件，分类派生为 `页面布局 / 页面内容 / 通用`。
-- 标准新建流只有一个声明入口 `CreateSurface`，通过 `BodySurface kind="create"` 使用。Agent 分别选择 toolbar/surface trigger、inline/block/modal presentation、可选 block anchor 与 form/sections content；这些维度不得互相改变语义或非 inline 表单格式。内部 renderer 不得挂 public `declares`，按钮位置、样式和顺序不得进入业务 contract。
+- 业务和普通 agent 默认只能使用公共 runtime 入口、helper 或 Surface spec；正文二级 Surface 通过 `BodySurface` 声明，不作为业务直引 renderer。`/settings/governance` 的 UI Tab 只自动展示有 `declares` 的封装组件，分类派生为 `页面布局 / 页面内容 / 通用`。
+- 标准页面级新建流只有一个 `PageSurface.create` slot；局部新建通过 `BodySurface kind="create"` 使用 `CreateSurface trigger="surface"`。业务不得声明 toolbar trigger。内部 renderer 不得挂 public `declares`，按钮位置、样式和顺序不得进入业务 contract。
 - Platform runtime 使用 Core UI 时只能走公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent L1 使用 Platform `ModuleHomePage`；三个 L2 分别通过公开的 `PageSurface` / `BodySurface` contract 组合配置、分析和汇报视图。
-- 改 `packages/core/ui/**`、Core UI registry 或 `/settings/ui` 声明能力页必须是 UI-system/Architecture 任务，并通过 `CORE_UI_CHANGE=1` 或明确 change request 授权。
+- 改 `packages/core/ui/**`、Core UI registry 或 `/settings/governance` 的 UI 声明能力页必须是 UI-system/Architecture 任务，并通过 `CORE_UI_CHANGE=1` 或明确 change request 授权。
 
 页面组件注册表：
 

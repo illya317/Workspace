@@ -2,8 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPageBody, createPageTabBar, PageSurface, useFeedback, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
-import { useModuleManagementSection } from "./tabs/ModuleManagementTab";
+import { createPageTabBar, PageSurface, useFeedback, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import { usePermissionsTabBody } from "./tabs/PermissionsTab";
 import { useSpacePermissionsTabBody, type SpaceFilter } from "./tabs/SpacePermissionsTab";
 import { usePermissionLedgerTab } from "./tabs/PermissionLedgerTab";
@@ -11,7 +10,6 @@ import { useWorkflowLedgerTab } from "./tabs/WorkflowLedgerTab";
 import { useWorkflowPoliciesTab } from "./tabs/WorkflowPoliciesTab";
 import { useAgentPermissionPolicyTab } from "./tabs/AgentPermissionPolicyTab";
 import { useBusinessCodeConfigTab } from "./tabs/BusinessCodeConfigTab";
-import { useDatabaseRelationsTab } from "./tabs/DatabaseRelationsTab";
 import { usePermissionsTab } from "./hooks/usePermissionsTab";
 import { flattenTree } from "./lib";
 
@@ -23,7 +21,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   const isSuperAdmin = user.isSuperAdmin ?? false;
   const canUseResourcePermissions = isSuperAdmin || (user.manageableResourceKeys?.length ?? 0) > 0;
   const canUseWorkflowAdmin = isSuperAdmin || (user.adminResourceKeys ?? []).some(isWorkflowManagementResourceKey);
-  const [activeTab, setActiveTab] = useState<"permissions" | "ledger" | "workflowPolicies" | "workflowLedger" | "codes" | "dataRelations" | "agentPolicy" | "modules">(
+  const [activeTab, setActiveTab] = useState<"permissions" | "ledger" | "workflowPolicies" | "workflowLedger" | "codes" | "agentPolicy">(
     () => canUseWorkflowAdmin ? "workflowPolicies" : "permissions",
   );
   const [permissionSubjectType, setPermissionSubjectType] = useState<SubjectType>("user");
@@ -48,7 +46,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
       setActiveTab("permissions");
       return;
     }
-    if (key === "codes" || key === "dataRelations" || key === "agentPolicy" || key === "modules") setActiveTab(key);
+    if (key === "codes" || key === "agentPolicy") setActiveTab(key);
   }, []);
   const capabilities = useMemo(
     () => Object.values(capabilitiesByOwner).flatMap(flattenTree),
@@ -252,9 +250,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
       children: [...subjectTabs, { key: "ledger", label: "台账" }],
     }] : []),
     ...(isSuperAdmin ? [{ key: "codes" as const, label: "编码管理" }] : []),
-    ...(isSuperAdmin ? [{ key: "dataRelations" as const, label: "数据关系" }] : []),
     ...(isSuperAdmin ? [{ key: "agentPolicy" as const, label: "智能体" }] : []),
-    ...(isSuperAdmin ? [{ key: "modules" as const, label: "模块管理" }] : []),
   ];
 
   const permissionsBody = usePermissionsTabBody({
@@ -288,17 +284,9 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     enabled: activeTab === "codes" && isSuperAdmin,
     showToast,
   });
-  const databaseRelationsTab = useDatabaseRelationsTab({
-    enabled: activeTab === "dataRelations" && isSuperAdmin,
-    showToast,
-  });
-  const modulesSection = useModuleManagementSection({
-    showToast,
-    enabled: activeTab === "modules",
-  });
-
   return (
 	    <PageSurface kind="standard"
+	      create={activeTab === "codes" ? businessCodeConfigTab.create : undefined}
 	      tabbar={createPageTabBar({
 	        items: tabs,
 	        active: activePrimaryTab,
@@ -328,8 +316,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
             ? { items: workflowLedgerTab.toolbarItems }
           : activeTab === "codes"
             ? { items: businessCodeConfigTab.toolbarItems }
-          : activeTab === "dataRelations"
-            ? { items: databaseRelationsTab.toolbarItems }
           : undefined}
       footer={canUseResourcePermissions && activeTab === "permissions" ? permissionFooter : activeTab === "ledger" ? ledgerTab.footer : activeTab === "workflowLedger" ? workflowLedgerTab.footer : undefined}
 		      body={resourcesLoading && canUseResourcePermissions && activeTab === "permissions" && permissionResourceMode === "normal"
@@ -344,11 +330,9 @@ export default function AdminClient({ user }: { user: SessionUser }) {
                 ? workflowLedgerTab.body
               : activeTab === "codes"
                 ? businessCodeConfigTab.body
-              : activeTab === "dataRelations"
-                ? databaseRelationsTab.body
               : activeTab === "agentPolicy"
                 ? agentPolicyTab.body
-              : createPageBody([modulesSection])}
+                : undefined}
 	    />
   );
 }

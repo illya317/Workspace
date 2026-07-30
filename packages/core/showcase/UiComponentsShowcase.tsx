@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createMasterDetailBody, PageSurface, type BodySurfaceProps, type SurfaceToolbarItem } from "@workspace/core/ui";
+import { createMasterDetailBody, PageSurface, type BodySurfaceProps, type PageSurfaceTabBarSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import {
   coreUiDeclarationCategoryMeta,
   coreUiComponentRegistry,
@@ -23,7 +23,7 @@ const CATEGORY_OPTIONS: Array<{ value: UiComponentCategoryFilter; label: string 
   { value: "common", label: coreUiDeclarationCategoryMeta.common.label },
 ];
 
-export default function UiComponentsShowcase() {
+export default function UiComponentsShowcase({ tabbar }: { tabbar?: PageSurfaceTabBarSpec } = {}) {
   const [categoryValue, setCategoryValue] = useState<UiComponentCategoryFilter>(ALL_CATEGORY);
   const [query, setQuery] = useState("");
   const treeRoots = useMemo(() => buildCoreUiComponentTree(), []);
@@ -78,6 +78,7 @@ export default function UiComponentsShowcase() {
   return (
     <PageSurface
       kind="standard"
+      tabbar={tabbar}
       toolbar={{ items: toolbarItems }}
       body={createMasterDetailBody({
         master: { label: "声明目录", presentation: "compact", body: { kind: "selector", selector: {

@@ -369,8 +369,8 @@ export default function DocsEditorWorkbench({ currentUserId, initialTemplateId =
       pushTemplateHistory(item.id);
     },
   });
-  const right = activeTab === "workflow"
-    ? createPageBody([workflowSection])
+  const rightSurface = activeTab === "workflow"
+    ? { body: createPageBody([workflowSection]), create: undefined }
     : docsEditorBody({
         activeSpace,
         message,
@@ -389,10 +389,12 @@ export default function DocsEditorWorkbench({ currentUserId, initialTemplateId =
         onCreateTitleChange: setCreateTitle,
         onCreateOpenChange: setCreateOpen,
       });
+  const right = rightSurface.body;
 
   return (
     <PageSurface
       kind="standard"
+      create={rightSurface.create}
       tabbar={activeSpace && spaceKindOptions.length > 0 ? createSpaceKindNavigation({
         items: spaceKindOptions,
         active: activeSpaceNavigationKey ?? spaceKindOptions[0]?.key ?? "personal",

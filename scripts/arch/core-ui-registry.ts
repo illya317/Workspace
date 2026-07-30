@@ -284,7 +284,7 @@ export function validateCoreUiRegistry() {
   }
 
   // 0. 声明式 Surface 只能暴露 declares；contract/capabilities 不是业务/Agent 可声明协议。
-  //    composes 是内部依赖图，保留给 registry 关系校验和 /settings/ui 关系阅读。
+  //    composes 是内部依赖图，保留给 registry 关系校验和 /settings/governance UI Tab 关系阅读。
   for (const registration of byName.values()) {
     if (!registration.name.endsWith("Surface")) continue;
     if ((registration.declares?.length ?? 0) === 0) continue;

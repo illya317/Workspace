@@ -1,6 +1,7 @@
 import {
   describeApprovalRequestFromContract,
   listRequests,
+  parseApprovalRequestStatusList,
   type ApprovalAdapter,
   type ApprovalHandlerSource,
   type ApprovalOperation,
@@ -8,7 +9,6 @@ import {
   type ApprovalRequestRecord,
   type ApprovalStatus,
 } from "@workspace/platform/server/approvals";
-import { parseApprovalRequestStatusList } from "@workspace/platform";
 import { bindApprovalLifecycle } from "@workspace/platform/server/approval-lifecycle";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import {

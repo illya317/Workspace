@@ -143,18 +143,18 @@ async function runDevelopmentMigrations() {
   }
 }
 
-async function runSourceCodeAnalysisSnapshot() {
-  const child = spawn(process.execPath, ["--import", "tsx", sourceCodeAnalysisPath, "--write", "--optional"], {
+async function runSourceCodeAnalysisSnapshot(mode = "--write") {
+  const child = spawn(process.execPath, ["--import", "tsx", sourceCodeAnalysisPath, mode], {
     cwd: repositoryRoot,
     env: process.env,
     stdio: "inherit",
   });
-  const result = await new Promise((resolve) => {
-    child.once("error", (error) => resolve({ code: 1, signal: null, error }));
+  const result = await new Promise((resolve, reject) => {
+    child.once("error", reject);
     child.once("exit", (code, signal) => resolve({ code, signal }));
   });
   if (result.code !== 0) {
-    console.warn("[警告] 源码分析 snapshot 未生成；本地应用继续启动，严格声明检查由 gate:domain 负责。", result.error ?? "");
+    throw new Error("源码分析 snapshot 未生成，dev server 未启动；生成物目录和文件必须可从当前源码自动建立。");
   }
 }
 
@@ -170,15 +170,18 @@ async function runNextDev() {
 export async function main(args = process.argv.slice(2)) {
   assertFixedDevArguments(args);
 
-  if (!(await isPortAvailable())) throw new Error(occupiedPortMessage());
+  if (!(await isPortAvailable())) {
+    await runSourceCodeAnalysisSnapshot("--ensure");
+    throw new Error(occupiedPortMessage());
+  }
 
   const releaseLock = await acquireDevServerLock();
   try {
     if (!(await isPortAvailable())) throw new Error(occupiedPortMessage());
 
+    await runSourceCodeAnalysisSnapshot();
     await runWorkspacePreflight();
     await runDevelopmentMigrations();
-    await runSourceCodeAnalysisSnapshot();
     await fs.rm(path.join(repositoryRoot, ".next"), { recursive: true, force: true });
     const result = await runNextDev();
     if (result.code !== null) return result.code;

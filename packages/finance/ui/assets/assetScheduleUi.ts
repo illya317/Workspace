@@ -249,7 +249,7 @@ export function assetFormSections(
       numberField("residualRatePercent", "残值率（%）", draft, onChange, { min: 0, max: 99, step: 1, readOnly }),
       numberField("openingAccumulatedAmount", "期初累计金额", draft, onChange, { min: 0, step: 0.01, readOnly }),
     ] },
-    { key: "notes", title: "说明", layout: { columns: 1, density: "compact" }, items: [{ ...textField("note", displayValues.reviewRequired ? "复核结论" : "备注", draft, onChange, Boolean(displayValues.reviewRequired), readOnly), spec: { valueType: "string", control: "text", multiline: true, validation: displayValues.reviewRequired ? { required: true } : undefined }, rows: 2 }] },
+    { key: "notes", title: "说明", layout: { columns: 1, density: "compact" }, items: [{ ...textField("note", "备注", draft, onChange, false, readOnly), spec: { valueType: "string", control: "text", multiline: true }, rows: 2 }] },
   ];
 }
 

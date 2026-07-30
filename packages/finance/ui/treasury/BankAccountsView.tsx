@@ -7,7 +7,7 @@ import {
   createMasterDetailBody,
   createPageBody,
   useFeedback,
-  type BodySurfaceSectionSpec,
+  type PageSurfaceCreateSpec,
   type SelectorSurfaceProps,
 } from "@workspace/core/ui";
 import type { TreasuryBankAccountDto } from "../../types/treasury";
@@ -58,21 +58,18 @@ export function useBankAccountsView({ workspace, canCreate, canUpdate, mutate }:
     onSelect: (account) => { void selectAccount(account); },
   };
 
-  return createMasterDetailBody({
+  const create = createSpec();
+  const body = createMasterDetailBody({
     master: { label: "银行账户", presentation: "compact", body: { kind: "selector", selector } },
-    detail: createPageBody([createSection(), detailSection()]),
+    detail: createPageBody([detailSection()]),
     desktop: { ratio: [1, 2] },
   });
+  return { body, create };
 
-  function createSection(): BodySurfaceSectionSpec {
+  function createSpec(): PageSurfaceCreateSpec {
     const current = createDraft ?? emptyBankAccountDraft(workspace.scope, randomToken());
     return {
-      key: "bank-account-create",
-      body: {
-        kind: "create",
-        create: {
           id: "treasury-bank-account-create",
-          trigger: "toolbar",
           presentation: "block",
           title: "新建银行账户",
           open: Boolean(createDraft),
@@ -94,8 +91,6 @@ export function useBankAccountsView({ workspace, canCreate, canUpdate, mutate }:
           },
           onOpenChange: (open) => setCreateDraft(open ? emptyBankAccountDraft(workspace.scope, randomToken()) : null),
           onCancel: () => setCreateDraft(null),
-        },
-      },
     };
   }
 

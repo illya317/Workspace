@@ -191,7 +191,7 @@ export function useDatabaseRelationsTab({ enabled, showToast }: UseDatabaseRelat
     if (!enabled || catalog) return undefined;
     const controller = new AbortController();
     setLoading(true);
-    void fetch(workspacePath("/api/settings/admin/database-schema"), { signal: controller.signal })
+    void fetch(workspacePath("/api/settings/governance/database-schema"), { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error(String(response.status));
         setCatalog(await response.json() as DatabaseSchemaCatalog);

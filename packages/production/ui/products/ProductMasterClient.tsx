@@ -13,14 +13,15 @@ import {
   useFeedback,
   type BodySurfaceSectionSpec,
   type DataSurfaceColumnSpec,
+  type PageSurfaceCreateSpec,
   type SelectorSurfaceProps,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
 import type { ProductDraft, ProductRecord, ProductSkuDraft, ProductSkuRecord, ProductSourceMappingRecord } from "@workspace/production/types";
 import { emptyProductDraft, emptySkuDraft, productEditSections, productFormSections, skuFormSections } from "./product-form";
+import { resolveProductMasterCreateKind, type ProductMasterView } from "./product-master-view";
 import { useProducts } from "./useProducts";
 
-type View = "product" | "skus" | "mappings";
 const skuColumns: DataSurfaceColumnSpec<ProductSkuRecord>[] = [
   { key: "code", label: "SKU 编码", required: true, font: "mono", cell: (row) => row.code },
   { key: "specification", label: "销售/库存规格", required: true, cell: (row) => row.specification || "—" },
@@ -43,7 +44,7 @@ const mappingColumns: DataSurfaceColumnSpec<ProductSourceMappingRecord>[] = [
 export default function ProductMasterClient({ canCreate, canUpdate }: { canCreate: boolean; canUpdate: boolean }) {
   const products = useProducts();
   const feedback = useFeedback();
-  const [view, setView] = useState<View>("product");
+  const [view, setView] = useState<ProductMasterView>("product");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [productDraft, setProductDraft] = useState<ProductDraft | null>(null);
   const [createDraft, setCreateDraft] = useState<ProductDraft | null>(null);
@@ -63,7 +64,7 @@ export default function ProductMasterClient({ canCreate, canUpdate }: { canCreat
     setProductDraft(toDraft(selected));
   }, [dirty, selected]);
 
-  const tabbar = useMemo(() => createPageTabBar({ items: [{ key: "product", label: "产品信息" }, { key: "skus", label: "SKU包装" }, { key: "mappings", label: "来源映射" }], active: view, onChange: (key) => setView(key as View), ariaLabel: "产品主档视图" }), [view]);
+  const tabbar = useMemo(() => createPageTabBar({ items: [{ key: "product", label: "产品信息" }, { key: "skus", label: "SKU包装" }, { key: "mappings", label: "来源映射" }], active: view, onChange: (key) => setView(key as ProductMasterView), ariaLabel: "产品主档视图" }), [view]);
 
   const selector: SelectorSurfaceProps<ProductRecord> = {
     kind: "list",
@@ -81,19 +82,26 @@ export default function ProductMasterClient({ canCreate, canUpdate }: { canCreat
     { kind: "text", key: "total", content: `产品 ${products.total} · 待关联 ${products.pendingMappingCount}` },
   ];
 
-  const createSection: BodySurfaceSectionSpec = { key: "product-create", body: { kind: "create", create: {
-    id: "production-product-create", trigger: "toolbar", presentation: "modal", title: "新增产品", open: Boolean(createDraft), canCreate, disabled: saving,
+  const productCreate: PageSurfaceCreateSpec = {
+    id: "production-product-create", presentation: "modal", title: "新增产品", open: Boolean(createDraft), canCreate, disabled: saving,
     content: { kind: "sections", sections: productFormSections(createDraft ?? emptyProductDraft(), (key, value) => setCreateDraft((current) => current ? { ...current, [key]: value } as ProductDraft : current)) },
     submission: { action: "save", disabled: saving || !createDraft?.code.trim() || !createDraft.name.trim(), execute: saveNewProduct },
     onOpenChange: (open) => setCreateDraft(open ? emptyProductDraft() : null), onCancel: () => setCreateDraft(null),
-  } } };
+  };
 
-  return <PageSurface kind="standard" tabbar={tabbar} toolbar={{ items: toolbarItems }} body={createMasterDetailBody({ master: { label: "产品目录", presentation: "compact", body: { kind: "selector", selector } }, detail: createPageBody([createSection, ...detailSections()]), desktop: { ratio: [1, 3] } })} />;
+  const createKind = resolveProductMasterCreateKind(view, Boolean(selected));
+  const pageCreate = createKind === "product"
+    ? productCreate
+    : createKind === "sku"
+      ? skuCreate()
+      : undefined;
+
+  return <PageSurface kind="standard" create={pageCreate} tabbar={tabbar} toolbar={{ items: toolbarItems }} body={createMasterDetailBody({ master: { label: "产品目录", presentation: "compact", body: { kind: "selector", selector } }, detail: createPageBody(detailSections()), desktop: { ratio: [1, 3] } })} />;
 
   function detailSections(): BodySurfaceSectionSpec[] {
     if (!selected) return [createEmptySection("product-empty", { content: "从左侧选择产品查看详情", presentation: "card" })];
     if (view === "product") return [createFieldsSection("product-detail", productEditSections(productDraft ?? toDraft(selected), (key, value) => { if (!canUpdate) return; setProductDraft((current) => current ? { ...current, [key]: value } as ProductDraft : current); setDirty(true); }, !canUpdate), { header: { title: selected.name, description: `${selected.code}${selected.strength ? ` · ${selected.strength}` : ""}` }, actions: canUpdate ? [{ key: "reset", action: "reset", label: "撤销修改", disabled: saving || !dirty, onClick: () => { setProductDraft(toDraft(selected)); setDirty(false); } }, { key: "save", action: "save", label: saving ? "保存中..." : "保存", disabled: saving || !dirty || !productDraft?.code.trim() || !productDraft.name.trim(), onClick: () => void saveProduct() }] : [] })];
-    if (view === "skus") return [skuCreateSection(), createPageTableSection("product-skus", { rows: selected.skus, columns: skuColumns, visibleColumns: skuColumns.map((column) => column.key), rowKey: (row) => row.id, rowActions: canUpdate ? (row) => [{ key: "edit", label: "编辑", kind: "edit", onClick: () => { setSkuId(row.id); setSkuDraft({ ...row }); } }] : undefined, actionsColumn: canUpdate ? { label: "操作" } : undefined, emptyText: "暂无 SKU，请先导入产成品入库表", presentation: { density: "compact" }, scroll: { x: true } })];
+    if (view === "skus") return [createPageTableSection("product-skus", { rows: selected.skus, columns: skuColumns, visibleColumns: skuColumns.map((column) => column.key), rowKey: (row) => row.id, rowActions: canUpdate ? (row) => [{ key: "edit", label: "编辑", kind: "edit", onClick: () => { setSkuId(row.id); setSkuDraft({ ...row }); } }] : undefined, actionsColumn: canUpdate ? { label: "操作" } : undefined, emptyText: "暂无 SKU，请先导入产成品入库表", presentation: { density: "compact" }, scroll: { x: true } })];
     const confirmed = selected.sourceMappings;
     return [
       ...(products.pendingMappingCount ? [createMessageSection("pending-source-note", { tone: "warning", content: `还有 ${products.pendingMappingCount} 个来源名称/规格未能唯一匹配。它们会保留原文，不会猜测性写入产品 FK。` })] : []),
@@ -102,9 +110,9 @@ export default function ProductMasterClient({ canCreate, canUpdate }: { canCreat
     ];
   }
 
-  function skuCreateSection(): BodySurfaceSectionSpec {
+  function skuCreate(): PageSurfaceCreateSpec {
     const editing = skuId !== null;
-    return { key: "sku-create", body: { kind: "create", create: { id: "production-sku-create", trigger: "toolbar", presentation: "modal", title: editing ? "编辑 SKU" : "新增 SKU", open: Boolean(skuDraft), canCreate: editing ? canUpdate : canCreate, disabled: saving, content: { kind: "sections", sections: skuFormSections(skuDraft ?? emptySkuDraft(selected?.name ?? ""), (key, value) => setSkuDraft((current) => current ? { ...current, [key]: value } as ProductSkuDraft : current)) }, submission: { action: "save", disabled: saving || !skuDraft?.code.trim() || !skuDraft.name.trim() || !skuDraft.baseUnit.trim(), execute: saveSku }, onOpenChange: (open) => { setSkuId(null); setSkuDraft(open ? emptySkuDraft(selected?.name ?? "") : null); }, onCancel: () => { setSkuId(null); setSkuDraft(null); } } } };
+    return { id: "production-sku-create", presentation: "modal", title: editing ? "编辑 SKU" : "新增 SKU", open: Boolean(skuDraft), canCreate: editing ? canUpdate : canCreate, disabled: saving, content: { kind: "sections", sections: skuFormSections(skuDraft ?? emptySkuDraft(selected?.name ?? ""), (key, value) => setSkuDraft((current) => current ? { ...current, [key]: value } as ProductSkuDraft : current)) }, submission: { action: "save", disabled: saving || !skuDraft?.code.trim() || !skuDraft.name.trim() || !skuDraft.baseUnit.trim(), execute: saveSku }, onOpenChange: (open) => { setSkuId(null); setSkuDraft(open ? emptySkuDraft(selected?.name ?? "") : null); }, onCancel: () => { setSkuId(null); setSkuDraft(null); } };
   }
 
   async function saveNewProduct() { if (!createDraft) return; setSaving(true); try { const result = await products.saveProduct(createDraft); if (!result.ok) return feedback.error(result.error); setCreateDraft(null); feedback.success("产品已创建"); } finally { setSaving(false); } }

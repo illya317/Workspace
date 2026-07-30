@@ -127,7 +127,6 @@ function renderBodyModals(modals?: BodySurfaceModalSpec[]) {
 }
 
 function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, stackPosition?: BodySectionStackPosition, frameDepth = 0) {
-  if (section.body.kind === "create" && section.body.create.presentation === "inline") return null;
   const stretchClassName = stretch ? "h-full" : "";
   const chrome = resolveBodySurfaceSectionChrome(section, frameDepth);
   const declaredCreate = section.header?.create;
@@ -374,7 +373,7 @@ export default function BodySurface(props: BodySurfaceProps) {
   const splitRuntime = useBodySurfaceSplitRuntime();
   assertNoSurfaceExplanatoryText(props);
   if (props.kind === "create") {
-    return props.create.presentation === "inline" ? null : <CreateSurface {...props.create} />;
+    return <CreateSurface {...props.create} />;
   }
   if (props.kind === "create-anchor") return <CreateSurfaceAnchorTarget anchor={props.anchor} />;
   if (props.kind === "data") return <DataSurface {...props.data} />;

@@ -2,7 +2,7 @@
 
 # 全项目权限 Action 授权手册
 
-当前共 20 个 permission action、104 个资源策略、212 个已注册 BusinessAction。
+当前共 20 个 permission action、105 个资源策略、212 个已注册 BusinessAction。
 
 事实来源：`action-registry.ts`、`permission-resource-policy.ts`、`module-registry.ts` 与 `business-action-registry.ts`。业务写入的状态、校验和持久化细节继续以 `action-contracts.md` 为准。
 
@@ -59,6 +59,7 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | 完整权限 | 资源 | 直接动作 / 流程资格 | 建议授权对象 | 配置方式 |
 |---|---|---|---|---|
 | `docs.editor.approve` | 模板编辑器 | 流程处理资格：可作为“创建文档模板草稿”所发起流程的处理人（`docs.editor.template.draft.create`；具体处理接口和对象范围仍由 workflow/service 决定）<br>流程处理资格：可作为“保存文档模板草稿”所发起流程的处理人（`docs.editor.template.draft.save`；具体处理接口和对象范围仍由 workflow/service 决定）<br>流程处理资格：可作为“发布文档模板”所发起流程的处理人（`docs.editor.template.publish`；具体处理接口和对象范围仍由 workflow/service 决定） | 对应组织空间内的模板审批或发布责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
+| `finance.assets.approve` | 资产会计 | 流程处理资格：可作为“创建资产卡片”所发起流程的处理人（`finance.assets.asset.create`；具体处理接口和对象范围仍由 workflow/service 决定） | 该资源的正式审批/复核责任人；需结合对象范围和职责分离配置。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
 | `finance.budget.approve` | 预算管理 | 直接执行：启用预算版本（`finance.budget.version.activate`；POST /api/modules/finance/budget/versions/:id/activate） | 有权启用预算版本的预算负责人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
 | `finance.ledger.approve` | 总账会计 | 直接执行：复核集团科目（`finance.ledger.groupAccount.review`；POST /api/modules/finance/ledger/group-accounts/:id/review）<br>直接执行：复核关账底稿（`finance.ledger.close.workpaper.review`；POST /api/modules/finance/ledger/closing/workpapers/review） | 集团科目或总账治理的复核责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
 | `finance.statements.approve` | 财务报表 | 直接执行：通过合并抵销分录（`finance.statements.consolidationEntry.approve`；POST /api/modules/finance/statements/consolidation/batches/:batchId/entries/:entryId/approve）<br>直接执行：独立复核合并批次（`finance.statements.consolidationBatch.review`；POST /api/modules/finance/statements/consolidation/batches/:batchId/review）<br>直接执行：发布合并报表（`finance.statements.consolidationBatch.publish`；POST /api/modules/finance/statements/consolidation/batches/:batchId/publish） | 合并抵销、合并批次复核与报表发布责任人。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 |
@@ -608,15 +609,19 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `settings.api.manage.revise`<br>修订 | 对已生效、已提交或有历史版本的对象进行受控修订、重开或更正。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `settings.api.manage.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
-#### UI 组件库（`settings.ui`）
+#### 平台治理（`settings.governance`）
 
-类型：文档资源 · 页面：`/settings/ui` · scope：全局
+类型：业务资源 · 页面：`/settings/governance` · scope：全局
+
+资源说明：Platform governance owns Core UI declarations, database relations, module runtime controls, source analysis, and operational records.
 
 | Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
 |---|---|---|---|---|
-| `settings.ui.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
-| `settings.ui.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
-| `settings.ui.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+| `settings.governance.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
+| `settings.governance.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
+| `settings.governance.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+| `settings.governance.configure`<br>配置 | 修改规则、流程或系统配置；默认不自动包含业务数据读写。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
+| `settings.governance.audit`<br>审计 | 查看审计、变更或权限台账；默认不自动包含业务数据读写。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
 ### 财务管理（`finance`）
 
@@ -647,15 +652,19 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 
 类型：业务资源 · 页面：`/finance/assets` · scope：全局
 
-资源说明：Asset accounting owns asset cards, period depreciation and amortization, impairment and disposal evidence, read-only historical adjustments, and its workbook export independently from the general ledger; source reconciliation is limited to the initial import gate.
+资源说明：Asset accounting owns asset cards, period depreciation and amortization, impairment and disposal evidence, read-only historical adjustments, and its workbook export independently from the general ledger; review-required asset categories use submit/approve/reject before a formal card is created; source reconciliation is limited to the initial import gate.
 
 | Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
 |---|---|---|---|---|
 | `finance.assets.entry`<br>进入 | 进入资源对应的页面、菜单或功能入口。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | 无 |
 | `finance.assets.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
-| `finance.assets.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：创建资产卡片（`finance.assets.asset.create`；POST /api/modules/finance/assets） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
+| `finance.assets.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：创建资产卡片（`finance.assets.asset.create`；POST /api/modules/finance/assets、GET /api/modules/finance/assets/submissions、POST /api/modules/finance/assets/submissions/:id/approve、POST /api/modules/finance/assets/submissions/:id/reject、POST /api/modules/finance/assets/submissions/:id/withdraw、POST /api/modules/finance/assets/submissions/:id/cancel） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `finance.assets.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新资产卡片（`finance.assets.asset.update`；PUT /api/modules/finance/assets）<br>直接执行：更新资产会计政策（`finance.assets.categoryPolicy.update`；PUT /api/modules/finance/assets/policies）<br>直接执行：删除资产会计政策覆盖（`finance.assets.categoryPolicy.delete`；DELETE /api/modules/finance/assets/policies） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `finance.assets.revise`<br>修订 | 对已生效、已提交或有历史版本的对象进行受控修订、重开或更正。 | 直接执行：重算折旧摊销期间（`finance.assets.assetPeriod.recalculate`；POST /api/modules/finance/assets/periods/recalculate）<br>直接执行：关联折旧摊销凭证（`finance.assets.assetPeriod.linkVoucher`；PUT /api/modules/finance/assets/periods/voucher-link）<br>直接执行：确认资产取得证据（`finance.assets.acquisitionEvidence.confirm`；POST /api/modules/finance/assets/acquisition-evidence）<br>直接执行：确认资产减值评估（`finance.assets.impairmentAssessment.confirm`；PUT /api/modules/finance/assets/impairment-assessment）<br>直接执行：确认资产处置（`finance.assets.disposal.confirm`；POST /api/modules/finance/assets/disposals） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `finance.assets.reverse`<br>撤销 | 撤销、作废、冲销或执行反向业务处理；具体结果必须看资源内的业务动作。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `finance.assets.submit`<br>提交 | 提交、确认或发起业务流程；不代表有权处理或通过该流程。 | 流程发起资格：可发起“创建资产卡片”对应流程（`finance.assets.asset.create`；具体对象范围仍由 workflow/service 决定） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `finance.assets.approve`<br>审批通过 | 对该资源执行通过、复核、启用、发布或关闭等生效决策；必须结合完整 resource.action 和下方业务绑定理解。 | 流程处理资格：可作为“创建资产卡片”所发起流程的处理人（`finance.assets.asset.create`；具体处理接口和对象范围仍由 workflow/service 决定） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `finance.assets.reject`<br>审批驳回 | 驳回流程或业务申请；approve 不会自动包含 reject。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `finance.assets.export`<br>导出 | 导出、下载、打印或对外发送该资源数据。 | 直接执行：下载资产会计 Excel（`finance.assets.workspace.export`；GET /api/modules/finance/assets/export） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `finance.assets.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
@@ -850,6 +859,7 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `settings.admin.workflow.action.docs.editor.template.draft.create` | 创建文档模板草稿 | 独立 capability | `configure` | `settings.admin` |
 | `settings.admin.workflow.action.docs.editor.template.draft.save` | 保存文档模板草稿 | 独立 capability | `configure` | `settings.admin` |
 | `settings.admin.workflow.action.docs.editor.template.publish` | 发布文档模板 | 独立 capability | `configure` | `settings.admin` |
+| `settings.admin.workflow.action.finance.assets.asset.create` | 创建资产卡片 | 独立 capability | `configure` | `settings.admin` |
 | `settings.admin.workflow.action.hr.performance.review.evaluate` | 发起绩效评审 | 独立 capability | `configure` | `settings.admin` |
 | `settings.admin.workflow.action.hr.roster.department.create` | 创建部门 | 独立 capability | `configure` | `settings.admin` |
 | `settings.admin.workflow.action.hr.roster.department.update` | 更新部门 | 独立 capability | `configure` | `settings.admin` |

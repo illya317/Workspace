@@ -10,7 +10,10 @@ import {
 } from "@workspace/core/ui";
 import type { SourceCodeAnalysisSnapshot } from "@workspace/platform/source-code-analysis-contract";
 import { createSourceCodeAnalysisSection } from "./SourceCodeAnalysisSection";
-import type { SourceCodeAnalysisCellKey } from "./source-code-analysis-relations";
+import {
+  sourceCodeAnalysisSelectionAfterClick,
+  type SourceCodeAnalysisCellKey,
+} from "./source-code-analysis-relations";
 
 type ModuleStatus = "enabled" | "hidden" | "disabled";
 type StatusTone = "success" | "warning" | "muted";
@@ -101,6 +104,7 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
   const [selectedResourceKey, setSelectedResourceKey] = useState<string | null>(null);
   const [expandedAnalysisGroupKey, setExpandedAnalysisGroupKey] = useState<string | null>(null);
   const [selectedAnalysisCell, setSelectedAnalysisCell] = useState<SourceCodeAnalysisCellKey | null>(null);
+  const [hoveredAnalysisCell, setHoveredAnalysisCell] = useState<SourceCodeAnalysisCellKey | null>(null);
   const [data, setData] = useState<ModuleManagementResponse | null>(null);
 
   useEffect(() => {
@@ -108,7 +112,7 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
     let cancelled = false;
     async function load() {
       try {
-        const res = await fetch(workspacePath("/api/settings/admin/modules"));
+        const res = await fetch(workspacePath("/api/settings/governance/modules"));
         if (!res.ok) {
           showToast("加载模块管理失败: " + res.status, "error");
           return;
@@ -175,7 +179,7 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
   async function updateModuleEnabled(module: ModuleNode, enabled: boolean) {
     setSaving(true);
     try {
-      const res = await fetch(workspacePath("/api/settings/admin/modules"), {
+      const res = await fetch(workspacePath("/api/settings/governance/modules"), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resourceKey: module.resourceKey, enabled }),
@@ -247,14 +251,12 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
             setExpandedAnalysisGroupKey((current) => current === groupKey ? null : groupKey);
           },
         }, {
-          selectedCell: selectedAnalysisCell,
+          selectedCell: selectedAnalysisCell ?? hoveredAnalysisCell,
           onSelectCell: (cell) => {
-            setSelectedAnalysisCell((current) => current
-              && current.moduleKey === cell.moduleKey
-              && current.groupKey === cell.groupKey
-              ? null
-              : cell);
+            setSelectedAnalysisCell((current) => sourceCodeAnalysisSelectionAfterClick(current, cell));
+            setHoveredAnalysisCell(null);
           },
+          onHoverCell: selectedAnalysisCell ? undefined : setHoveredAnalysisCell,
         })]),
         desktop: { ratio: [3, 7] },
       }),

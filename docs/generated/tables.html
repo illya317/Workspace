@@ -5026,7 +5026,22 @@
           <td class="field-comment"></td>
         </tr>
 <tr class="">
+          <td><span class="field-name">initializationMode</span> <span class="field-required">*</span></td>
+          <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="">
           <td><span class="field-name">openingAccumulatedAmount</span> <span class="field-required">*</span></td>
+          <td><span class="field-type" style="background:#6b728015;color:#6b7280">decimal</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="">
+          <td><span class="field-name">openingImpairmentAmount</span> <span class="field-required">*</span></td>
+          <td><span class="field-type" style="background:#6b728015;color:#6b7280">decimal</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="">
+          <td><span class="field-name">openingNetBookValue</span></td>
           <td><span class="field-type" style="background:#6b728015;color:#6b7280">decimal</span></td>
           <td class="field-comment"></td>
         </tr>
@@ -5034,6 +5049,51 @@
           <td><span class="field-name">openingAsOfDate</span></td>
           <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
           <td class="field-comment"></td>
+        </tr>
+<tr class="">
+          <td><span class="field-name">cutoverDate</span></td>
+          <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="">
+          <td><span class="field-name">remainingUsefulLifeMonthsAtCutover</span></td>
+          <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="">
+          <td><span class="field-name">cutoverResidualValue</span></td>
+          <td><span class="field-type" style="background:#6b728015;color:#6b7280">decimal</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="">
+          <td><span class="field-name">cutoverAllocationStatus</span></td>
+          <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="">
+          <td><span class="field-name">cutoverReconciliationFingerprint</span></td>
+          <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="fk-underline">
+          <td><span class="field-name">cutoverPeriodId</span></td>
+          <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+          <td class="field-comment">→ FinancePeriod.id <span style="font-size:11px;color:#d97706">→ <a href="#FinancePeriod" class="dep-link">FinancePeriod</a></span></td>
+        </tr>
+<tr class="fk-underline">
+          <td><span class="field-name">cutoverAssetBalanceId</span></td>
+          <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+          <td class="field-comment">→ FinanceAccountBalance.id <span style="font-size:11px;color:#d97706">→ <a href="#FinanceAccountBalance" class="dep-link">FinanceAccountBalance</a></span></td>
+        </tr>
+<tr class="fk-underline">
+          <td><span class="field-name">cutoverAccumulatedBalanceId</span></td>
+          <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+          <td class="field-comment">→ FinanceAccountBalance.id <span style="font-size:11px;color:#d97706">→ <a href="#FinanceAccountBalance" class="dep-link">FinanceAccountBalance</a></span></td>
+        </tr>
+<tr class="fk-underline">
+          <td><span class="field-name">cutoverImpairmentBalanceId</span></td>
+          <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+          <td class="field-comment">→ FinanceAccountBalance.id <span style="font-size:11px;color:#d97706">→ <a href="#FinanceAccountBalance" class="dep-link">FinanceAccountBalance</a></span></td>
         </tr>
 <tr class="">
           <td><span class="field-name">status</span> <span class="field-required">*</span></td>
@@ -5106,6 +5166,10 @@
 <a href="#FinanceAssetCategory" class="dep-link">1-48 FinanceAssetCategory</a>
 <a href="#FinanceAccount" class="dep-link">1-118 FinanceAccount</a>
 <a href="#FinanceAccount" class="dep-link">1-118 FinanceAccount</a>
+<a href="#FinancePeriod" class="dep-link">1-119 FinancePeriod</a>
+<a href="#FinanceAccountBalance" class="dep-link">1-122 FinanceAccountBalance</a>
+<a href="#FinanceAccountBalance" class="dep-link">1-122 FinanceAccountBalance</a>
+<a href="#FinanceAccountBalance" class="dep-link">1-122 FinanceAccountBalance</a>
 <a href="#Company" class="dep-link">1-153 Company</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
@@ -5407,10 +5471,46 @@
           <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
           <td class="field-comment"></td>
         </tr>
+<tr class="">
+          <td><span class="field-name">cutoverDate</span></td>
+          <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="fk-underline">
+          <td><span class="field-name">cutoverPeriodId</span></td>
+          <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+          <td class="field-comment">→ FinancePeriod.id <span style="font-size:11px;color:#d97706">→ <a href="#FinancePeriod" class="dep-link">FinancePeriod</a></span></td>
+        </tr>
+<tr class="">
+          <td><span class="field-name">ledgerReconciliationFingerprint</span></td>
+          <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="">
+          <td><span class="field-name">ledgerNetBookValue</span></td>
+          <td><span class="field-type" style="background:#6b728015;color:#6b7280">decimal</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="">
+          <td><span class="field-name">importedNetBookValue</span></td>
+          <td><span class="field-type" style="background:#6b728015;color:#6b7280">decimal</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="">
+          <td><span class="field-name">unallocatedNetBookValue</span></td>
+          <td><span class="field-type" style="background:#6b728015;color:#6b7280">decimal</span></td>
+          <td class="field-comment"></td>
+        </tr>
+<tr class="">
+          <td><span class="field-name">reconciliationStatus</span></td>
+          <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+          <td class="field-comment"></td>
+        </tr>
 </tbody></table>
 <div class="table-footer">
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <a href="#Company" class="dep-link">1-153 Company</a>
+<a href="#FinancePeriod" class="dep-link">1-119 FinancePeriod</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <a href="#FinanceAssetAcquisitionEvidence" class="dep-link">1-51 FinanceAssetAcquisitionEvidence</a>
@@ -11590,7 +11690,9 @@
 <a href="#Company" class="dep-link">1-153 Company</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
+<a href="#FinanceAssetCard" class="dep-link">1-50 FinanceAssetCard</a>
 <a href="#FinanceAssetAcquisitionEvidence" class="dep-link">1-51 FinanceAssetAcquisitionEvidence</a>
+<a href="#FinanceAssetImportBatch" class="dep-link">1-54 FinanceAssetImportBatch</a>
 <a href="#FinanceAssetPeriodEntry" class="dep-link">1-55 FinanceAssetPeriodEntry</a>
 <a href="#FinanceAssetAdjustment" class="dep-link">1-56 FinanceAssetAdjustment</a>
 <a href="#FinanceAssetImpairmentAssessment" class="dep-link">1-57 FinanceAssetImpairmentAssessment</a>
@@ -12043,7 +12145,9 @@
 <a href="#Company" class="dep-link">1-153 Company</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
-<span class="dep-none">无</span>
+<a href="#FinanceAssetCard" class="dep-link">1-50 FinanceAssetCard</a>
+<a href="#FinanceAssetCard" class="dep-link">1-50 FinanceAssetCard</a>
+<a href="#FinanceAssetCard" class="dep-link">1-50 FinanceAssetCard</a>
 </div>
 </div>
 </div>

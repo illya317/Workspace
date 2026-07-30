@@ -9,14 +9,14 @@ export interface SourceCodeAnalysisDisplayGroup {
   roles: readonly SourceCodeAnalysisRole[];
 }
 
-export type SourceCodeAnalysisDisplayGroupKey = "ui" | "boundary" | "domain" | "persistence" | "other";
+export type SourceCodeAnalysisDisplayGroupKey = "entry" | "business" | "adapter" | "contract" | "assurance";
 
 export const SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS: readonly SourceCodeAnalysisDisplayGroup[] = [
-  { key: "ui", label: "UI", roles: ["ui"] },
-  { key: "boundary", label: "边界", roles: ["input", "domainValidation", "contract"] },
-  { key: "domain", label: "业务", roles: ["domain"] },
-  { key: "persistence", label: "数据访问", roles: ["persistence"] },
-  { key: "other", label: "其他", roles: ["integration", "composition", "test", "tooling"] },
+  { key: "entry", label: "入口", roles: ["composition", "ui", "input"] },
+  { key: "business", label: "业务", roles: ["domain", "domainValidation"] },
+  { key: "adapter", label: "适配", roles: ["persistence", "integration"] },
+  { key: "contract", label: "契约", roles: ["contract"] },
+  { key: "assurance", label: "保障", roles: ["test", "tooling"] },
 ];
 
 export function displayGroupLines(

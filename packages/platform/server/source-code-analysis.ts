@@ -4,7 +4,7 @@ import { readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 import {
-  SOURCE_CODE_ANALYSIS_SCHEMA_VERSION,
+  isSourceCodeAnalysisSnapshot,
   type SourceCodeAnalysisSnapshot,
 } from "../source-code-analysis-contract";
 
@@ -26,17 +26,6 @@ function snapshotCandidates() {
   ].filter((candidate): candidate is string => Boolean(candidate)))];
 }
 
-function isSnapshot(value: unknown): value is SourceCodeAnalysisSnapshot {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  const candidate = value as Partial<SourceCodeAnalysisSnapshot>;
-  return candidate.schemaVersion === SOURCE_CODE_ANALYSIS_SCHEMA_VERSION
-    && typeof candidate.generatedAt === "string"
-    && typeof candidate.sourceDigest === "string"
-    && Boolean(candidate.summary && typeof candidate.summary.lines === "number")
-    && Array.isArray(candidate.modules)
-    && Array.isArray(candidate.dependencyEdges);
-}
-
 export function readSourceCodeAnalysisSnapshot() {
   for (const candidate of snapshotCandidates()) {
     try {
@@ -45,7 +34,7 @@ export function readSourceCodeAnalysisSnapshot() {
         return snapshotCache.snapshot;
       }
       const parsed = JSON.parse(readFileSync(candidate, "utf8")) as unknown;
-      if (!isSnapshot(parsed)) continue;
+      if (!isSourceCodeAnalysisSnapshot(parsed)) continue;
       snapshotCache = { path: candidate, modifiedAt: stat.mtimeMs, snapshot: parsed };
       return parsed;
     } catch (error) {

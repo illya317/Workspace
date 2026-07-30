@@ -150,9 +150,6 @@ async function buildAssetCardBaseCommand(
   if (body.usefulLifeMonths != null && category.maximumUsefulLifeMonths != null && body.usefulLifeMonths > category.maximumUsefulLifeMonths) {
     return failCommand(`当前分类的期限不得超过 ${category.maximumUsefulLifeMonths} 个月`, 400, "usefulLifeMonths");
   }
-  if (category.reviewRequired && !text(body.note)) {
-    return failCommand("当前分类要求填写复核结论", 400, "note");
-  }
   if (body.depreciationStartDate && !DATE_PATTERN.test(body.depreciationStartDate)) {
     return failCommand("起算日期必须为 YYYY-MM-DD", 400, "depreciationStartDate");
   }

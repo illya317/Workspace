@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPageBody, BodySurface, type CreateSurfaceToolbarProps, type FormSurfaceItemSpec } from "@workspace/core/ui";
+import { createPageBody, BodySurface, type FormSurfaceItemSpec, type PageSurfaceCreateSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { postDirectCommandJson } from "@workspace/platform/ui/api-client";
 import { actionRuntimeCreateSubmission } from "@workspace/platform/ui";
@@ -60,7 +60,7 @@ export function useDepartmentCreateSurface({
   actionRuntime,
   open,
   onOpenChange,
-}: DepartmentCreatePanelProps & { open: boolean; onOpenChange: (open: boolean) => void }): CreateSurfaceToolbarProps {
+}: DepartmentCreatePanelProps & { open: boolean; onOpenChange: (open: boolean) => void }): PageSurfaceCreateSpec & { presentation: "block" } {
   const operatingCommitteeCode = useTenantConfig().organization.operatingCommittee.departmentCode;
   const defaultManagementRootParentId = useMemo(
     () => Array.from(departmentById.values()).find((department) => isOperatingCommittee(department, operatingCommitteeCode))?.id ?? null,
@@ -235,7 +235,6 @@ export function useDepartmentCreateSurface({
 
   return {
     id: "department-create",
-    trigger: "toolbar",
     presentation: "block",
     title: "新建组织",
     open,
@@ -255,6 +254,6 @@ export function useDepartmentCreateSurface({
 export function DepartmentCreatePanel(props: DepartmentCreatePanelProps & { open: boolean; onOpenChange: (open: boolean) => void }) {
   const create = useDepartmentCreateSurface(props);
   return (
-    <BodySurface {...createPageBody([{ key: "department-create", body: { kind: "create", create } }])} />
+    <BodySurface {...createPageBody([{ key: "department-create", body: { kind: "create", create: { ...create, trigger: "surface" } } }])} />
   );
 }

@@ -12,6 +12,7 @@ import {
   createStatusSection,
   useFeedback,
   type BodySurfaceSectionSpec,
+  type PageSurfaceCreateSpec,
 } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -185,7 +186,6 @@ export default function TaxClient({
 
   const sections: BodySurfaceSectionSpec[] = [
     ...lifecycleBlocks,
-    createSection(),
     ...(loading ? [createStatusSection("tax-loading", { kind: "loading", content: "正在加载税务工作区" })] : []),
     ...(error ? [createStatusSection("tax-error", { kind: "error", content: error })] : []),
     ...(!loading && !error && (!companyCode || !year || !month)
@@ -200,25 +200,22 @@ export default function TaxClient({
     ...viewSections(),
   ];
   const editModal = createEditModal();
+  const pageCreate = createSpec();
 
   return (
     <PageSurface
       kind="standard"
+      create={pageCreate}
       tabbar={navigation}
       toolbar={{ items: toolbarItems }}
       body={createPageBody([...sections, ...(editModal ? [editModal] : [])])}
     />
   );
 
-  function createSection(): BodySurfaceSectionSpec {
+  function createSpec(): PageSurfaceCreateSpec {
     const draft = createDraft ?? createTaxDraft(defaultCreateKind(activeView, workspace), scope);
     return {
-      key: "tax-create",
-      body: {
-        kind: "create",
-        create: {
           id: "finance-tax-create",
-          trigger: "toolbar",
           presentation: "modal",
           title: "新建税务事项",
           open: Boolean(createDraft),
@@ -233,8 +230,6 @@ export default function TaxClient({
           feedback: { saved: "税务事项已创建", error: "税务事项创建失败" },
           onOpenChange: (open) => setCreateDraft(open ? draft : null),
           onCancel: () => setCreateDraft(null),
-        },
-      },
     };
   }
 

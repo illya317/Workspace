@@ -14,12 +14,13 @@ import {
   createStatusSection,
   createVisualizationSection,
   PageSurface,
+  useFeedback,
   type SelectorSurfaceProps,
   type VisualizationNetworkSpec,
 } from "@workspace/core/ui";
 import { requestJson } from "@workspace/platform/ui/api-client";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
-import type { InvestorRelationshipView, OwnershipStructureGraph, ShareholderPosition } from "../types";
+import type { InvestorRelationshipView, ShareholderPosition } from "../types";
 import {
   CAPITAL_TRANSACTION_COLUMNS,
   CAPITAL_TRANSACTION_VISIBLE_COLUMNS,
@@ -31,6 +32,7 @@ import {
   SHAREHOLDER_COLUMNS,
   SHAREHOLDER_VISIBLE_COLUMNS,
 } from "./investor-relationships-ui";
+import { downloadOwnershipStructurePdf } from "./ownership-structure-pdf";
 
 const ENDPOINT = "/api/modules/capitalSecurities/investors";
 
@@ -52,6 +54,8 @@ export default function InvestorsClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [mobileDetailActive, setMobileDetailActive] = useState(false);
+  const [exportingStructure, setExportingStructure] = useState(false);
+  const feedback = useFeedback();
 
   useEffect(() => {
     let active = true;
@@ -244,10 +248,10 @@ export default function InvestorsClient() {
             key: "structure-actions",
             actions: [{
               key: "export",
-              label: "下载 CSV",
+              label: "下载 PDF",
               kind: "export" as const,
-              disabled: !data?.ownershipStructure || loading,
-              onClick: downloadOwnershipStructure,
+              disabled: !data?.ownershipStructure || loading || exportingStructure,
+              onClick: () => { void downloadOwnershipStructure(); },
             }],
           }] : []),
         ],
@@ -403,9 +407,17 @@ export default function InvestorsClient() {
     window.location.assign(workspacePath(`${ENDPOINT}/export?${params.toString()}`));
   }
 
-  function downloadOwnershipStructure() {
+  async function downloadOwnershipStructure() {
     if (!data?.ownershipStructure) return;
-    downloadOwnershipStructureCsv(data.ownershipStructure);
+    setExportingStructure(true);
+    try {
+      await downloadOwnershipStructurePdf(data.ownershipStructure);
+      feedback.success("股权结构图 PDF 已下载");
+    } catch (cause: unknown) {
+      feedback.error(cause instanceof Error ? cause.message : "股权结构图 PDF 下载失败");
+    } finally {
+      setExportingStructure(false);
+    }
   }
 }
 
@@ -416,44 +428,4 @@ function currentBusinessDate(timeZone: string) {
     month: "2-digit",
     day: "2-digit",
   }).format(new Date());
-}
-
-function ownershipStructureName(graph: InvestorRelationshipView["ownershipStructure"]) {
-  if (!graph) return "股权";
-  return graph.nodes.find((node) => node.key === graph.rootNodeKey)?.label ?? "股权";
-}
-
-function downloadOwnershipStructureCsv(graph: OwnershipStructureGraph) {
-  const nodeNames = new Map(graph.nodes.map((node) => [node.key, node.label]));
-  const rows = [
-    ["关系类型", "持股方", "被持股方", "持股比例", "变更前持股比例", "状态", "并表口径", "基准日"],
-    ...graph.edges.map((edge) => [
-      edge.relationType === "share_capital" ? "主角公司股本" : "集团股权关系",
-      nodeNames.get(edge.source) ?? edge.source,
-      nodeNames.get(edge.target) ?? edge.target,
-      csvRatio(edge.shareRatio),
-      csvRatio(edge.previousShareRatio),
-      edge.recordStatus === "confirmed" ? "已确认" : "待变更",
-      edge.isConsolidated ? "纳入并表" : "不纳入并表",
-      graph.asOf,
-    ]),
-  ];
-  const content = rows.map((row) => row.map(csvCell).join(",")).join("\n");
-  const blob = new Blob([`\uFEFF${content}`], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `${ownershipStructureName(graph)}-股权关系-${graph.asOf}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
-function csvRatio(value: number | null) {
-  return value === null ? "" : `${(value * 100).toFixed(4).replace(/\.?0+$/, "")}%`;
-}
-
-function csvCell(value: string) {
-  return `"${value.replaceAll('"', '""')}"`;
 }

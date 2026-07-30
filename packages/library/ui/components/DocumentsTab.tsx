@@ -19,7 +19,7 @@ import {
   PageSurface,
   useFeedback,
 } from "@workspace/core/ui";
-import type { DataSurfaceProps, BodySurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { DataSurfaceProps, BodySurfaceSectionSpec, PageSurfaceCreateSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import type { DirectoryNode, LibraryDocumentItem } from "@workspace/library/types";
 import {
   LIBRARY_DOCUMENT_CONFIDENTIALITY_FILTER_OPTIONS,
@@ -313,15 +313,9 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
     deletingDocumentId,
     onDelete: (document) => void deleteDocument(document),
   });
-  const sections: BodySurfaceSectionSpec[] = [
-    ...(canConfigure ? [{
-      key: "library-folder-create",
-      body: {
-        kind: "create" as const,
-        create: {
+  const pageCreate: PageSurfaceCreateSpec | undefined = canConfigure ? {
           id: "library-folder-create",
-          trigger: "toolbar" as const,
-          presentation: "modal" as const,
+          presentation: "modal",
           title: "新建文件夹",
           open: folderEditor?.mode === "create",
           content: { kind: "form" as const, form: { layout: { columns: 1 as const }, items: [{
@@ -336,9 +330,8 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
           submission: { action: "save" as const, disabled: !folderName.trim(), execute: createFolder },
           feedback: { saved: "文件夹已创建" },
           onOpenChange: (open: boolean) => { if (open) openCreateFolder(); else closeFolderEditor(); },
-        },
-      },
-    }] : []),
+        } : undefined;
+  const sections: BodySurfaceSectionSpec[] = [
     ...(error
       ? [createEmptySection("error", {
           compact: true,
@@ -385,6 +378,7 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
   return (
     <>
       <PageSurface kind="standard"
+        create={pageCreate}
         toolbar={{ items: toolbarItems }}
         body={createPageBody([{
           key: "library-documents-workspace",

@@ -2,13 +2,13 @@
 
 import "dotenv/config";
 
-import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { Client } from "pg";
 
 import { requireDatabaseUrl } from "../lib/database-url.js";
+import { parseEmploymentLegacyItems, sha256, stableJson } from "./hr-employment-legacy-projection.mjs";
 
 const KIND = "hr-social-insurance-baseline";
 const STATUS = new Map([
@@ -22,68 +22,66 @@ function fail(message) {
   throw new Error(message);
 }
 
-function sha256(value) {
-  return createHash("sha256").update(value).digest("hex");
-}
-
-function stableJson(value) {
-  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
-  if (value && typeof value === "object") {
-    return `{${Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([key, item]) => `${JSON.stringify(key)}:${stableJson(item)}`).join(",")}}`;
-  }
-  return JSON.stringify(value ?? null);
-}
-
 function text(value) {
   return value == null ? null : String(value).trim() || null;
 }
 
-function records(contracts, employmentId) {
-  let parsed;
-  try {
-    parsed = JSON.parse(contracts);
-  } catch {
-    fail(`Employment ${employmentId} contracts is not valid JSON`);
-  }
-  const list = Array.isArray(parsed) ? parsed : [parsed];
-  return list.filter((item) => item && typeof item === "object" && !Array.isArray(item));
-}
-
 export function buildHrSocialInsuranceBaselinePlan(sources, companies) {
   const companyByName = new Map(companies.map((company) => [company.name, company.id]));
-  const rows = sources.flatMap((source) => records(source.contracts, source.employmentId).flatMap((record) => {
-    const legacyStatus = text(record.insuranceStatus);
-    const insuranceStatus = STATUS.get(legacyStatus);
-    if (!insuranceStatus) return [];
-    const companyNameSnapshot = text(record.company);
-    const companyId = companyNameSnapshot ? companyByName.get(companyNameSnapshot) ?? null : null;
-    const missingFields = [];
-    if ((insuranceStatus === "insured" || insuranceStatus === "stopped") && !companyId) missingFields.push("companyId");
-    if (insuranceStatus === "insured" || insuranceStatus === "stopped") missingFields.push("startMonth");
-    if (insuranceStatus === "stopped") missingFields.push("endMonth", "stopReason");
-    const fingerprint = sha256(stableJson(record)).slice(0, 24);
-    return [{
-      employeeId: source.employeeId,
-      employmentId: source.employmentId,
-      sourceRef: `employment:${source.employmentId}:${fingerprint}:social-insurance`,
-      insuranceStatus,
-      companyId,
-      companyNameSnapshot,
-      startMonth: null,
-      endMonth: null,
-      stopReason: null,
-      missingFields,
-    }];
-  }));
+  const rows = [];
+  const quarantine = [];
+  for (const source of sources) {
+    for (const item of parseEmploymentLegacyItems(source.contracts, source.employmentId)) {
+      const record = item.record;
+      const legacyStatus = text(record.insuranceStatus);
+      const insuranceStatus = STATUS.get(legacyStatus);
+      const sourceRef = `employment:${source.employmentId}:${item.fingerprint}:social-insurance`;
+      if (!insuranceStatus) {
+        quarantine.push({
+          employmentId: source.employmentId,
+          employeeId: source.employeeId,
+          sourceRef,
+          reasonCode: legacyStatus ? "invalid-required-field" : "missing-required-field",
+          missingFields: ["insuranceStatus"],
+          rawRecord: item.rawRecord,
+          fieldProjection: item.fieldProjection,
+        });
+        continue;
+      }
+      const companyNameSnapshot = text(record.company);
+      const companyId = companyNameSnapshot ? companyByName.get(companyNameSnapshot) ?? null : null;
+      const missingFields = [];
+      if ((insuranceStatus === "insured" || insuranceStatus === "stopped") && !companyId) missingFields.push("companyId");
+      if (insuranceStatus === "insured" || insuranceStatus === "stopped") missingFields.push("startMonth");
+      if (insuranceStatus === "stopped") missingFields.push("endMonth", "stopReason");
+      rows.push({
+        employeeId: source.employeeId,
+        employmentId: source.employmentId,
+        sourceRef,
+        insuranceStatus,
+        companyId,
+        companyNameSnapshot,
+        startMonth: null,
+        endMonth: null,
+        stopReason: null,
+        missingFields,
+        rawRecord: item.rawRecord,
+        fieldProjection: item.fieldProjection,
+      });
+    }
+  }
   const counts = Object.fromEntries(["insured", "stopped", "uninsured", "retired"].map((status) => [
     status,
     rows.filter((row) => row.insuranceStatus === status).length,
   ]));
   return {
     rows,
+    quarantine,
     summary: {
       employments: sources.length,
+      sourceItems: rows.length + quarantine.length,
       rows: rows.length,
+      quarantined: quarantine.length,
       missingCompany: rows.filter((row) => row.missingFields.includes("companyId")).length,
       ...counts,
     },
@@ -91,7 +89,7 @@ export function buildHrSocialInsuranceBaselinePlan(sources, companies) {
 }
 
 export function validateHrSocialInsuranceBaselineInput(value) {
-  const expectedKeys = ["employments", "insured", "missingCompany", "retired", "rows", "stopped", "uninsured"];
+  const expectedKeys = ["employments", "insured", "missingCompany", "quarantined", "retired", "rows", "sourceItems", "stopped", "uninsured"];
   if (!value || value.schemaVersion !== 1 || value.kind !== KIND
     || typeof value.baselineKey !== "string" || !/^[a-z0-9]+(?:[.-][a-z0-9]+)*$/.test(value.baselineKey)
     || !Number.isInteger(value.actorUserId) || value.actorUserId <= 0
@@ -110,6 +108,51 @@ export function validateHrSocialInsuranceBaselineInput(value) {
     ids.add(source.employmentId);
   }
   return value;
+}
+
+function parsedMissingFields(value, sourceRef) {
+  try {
+    const fields = JSON.parse(value);
+    if (!Array.isArray(fields) || fields.some((field) => typeof field !== "string")) throw new Error("invalid");
+    return fields;
+  } catch {
+    fail(`existing social insurance baseline ${sourceRef} has invalid missingFieldsJson`);
+  }
+}
+
+export function assertExistingSocialInsuranceRowsMatch(existingRows, plannedRows) {
+  if (existingRows.length !== plannedRows.length) {
+    fail(`existing social insurance baseline has ${existingRows.length} rows; expected ${plannedRows.length}`);
+  }
+  const existingBySourceRef = new Map(existingRows.map((row) => [row.sourceRef, row]));
+  if (existingBySourceRef.size !== existingRows.length) fail("existing social insurance baseline repeats a sourceRef");
+  for (const planned of plannedRows) {
+    const existing = existingBySourceRef.get(planned.sourceRef);
+    if (!existing) fail(`existing social insurance baseline is missing ${planned.sourceRef}`);
+    const actual = {
+      employeeId: existing.employeeId,
+      insuranceStatus: existing.insuranceStatus,
+      companyId: existing.companyId,
+      companyNameSnapshot: existing.companyNameSnapshot,
+      startMonth: existing.startMonth,
+      endMonth: existing.endMonth,
+      stopReason: existing.stopReason,
+      missingFields: parsedMissingFields(existing.missingFieldsJson, planned.sourceRef),
+    };
+    const expected = {
+      employeeId: planned.employeeId,
+      insuranceStatus: planned.insuranceStatus,
+      companyId: planned.companyId,
+      companyNameSnapshot: planned.companyNameSnapshot,
+      startMonth: planned.startMonth,
+      endMonth: planned.endMonth,
+      stopReason: planned.stopReason,
+      missingFields: planned.missingFields,
+    };
+    if (stableJson(actual) !== stableJson(expected)) {
+      fail(`existing social insurance baseline differs from the projection at ${planned.sourceRef}`);
+    }
+  }
 }
 
 async function lockedSources(client, input) {
@@ -164,6 +207,17 @@ async function insertRow(client, row, input) {
   ]);
 }
 
+async function existingBaselineRows(client) {
+  const result = await client.query(`
+    SELECT "sourceRef", "employeeId", "insuranceStatus", "companyId", "companyNameSnapshot",
+           "startMonth", "endMonth", "stopReason", "missingFieldsJson"
+    FROM "EmployeeSocialInsurancePeriod"
+    WHERE "sourceKind" = 'legacy-baseline'
+    FOR UPDATE
+  `);
+  return result.rows;
+}
+
 export async function repairHrSocialInsuranceBaseline(client, input) {
   const markerKey = `data.repair.hr.social-insurance.${input.baselineKey}`;
   const digest = sha256(JSON.stringify(input));
@@ -183,7 +237,9 @@ export async function repairHrSocialInsuranceBaseline(client, input) {
     if (Object.keys(plan.summary).some((key) => plan.summary[key] !== input.expected[key])) {
       fail("HR social insurance baseline counts changed after preparation");
     }
-    for (const row of plan.rows) await insertRow(client, row, input);
+    const existingRows = await existingBaselineRows(client);
+    if (existingRows.length > 0) assertExistingSocialInsuranceRowsMatch(existingRows, plan.rows);
+    else for (const row of plan.rows) await insertRow(client, row, input);
     await client.query(`INSERT INTO "SystemConfig" ("key", "value") VALUES ($1, $2)`, [
       markerKey,
       JSON.stringify({ inputDigest: digest, result: plan.summary, appliedAt: new Date().toISOString() }),

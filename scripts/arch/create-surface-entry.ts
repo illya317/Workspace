@@ -18,7 +18,7 @@ const CREATE_ENTRY_LABEL = /新建|新增|创建/;
 export type CreateSurfaceEntryViolation = {
   file: string;
   line: number;
-  kind: "legacy-create-renderer" | "manual-create-command" | "toolbar-create";
+  kind: "legacy-create-renderer" | "manual-create-command" | "toolbar-create" | "toolbar-trigger";
   detail: string;
 };
 
@@ -118,6 +118,10 @@ export function findCreateSurfaceEntryViolationsInSource(fileName: string, text:
         return;
       }
       const kinds = objectValues(node, "kind");
+      const triggers = objectValues(node, "trigger");
+      if (triggers.includes("toolbar")) {
+        add(node, "toolbar-trigger", "trigger=toolbar must move to the single PageSurface.create slot");
+      }
       const toolbarCreate = kinds.includes("create")
         && !hasProperty(node, "create")
         && hasProperty(node, "key")
@@ -148,12 +152,20 @@ export function checkCreateSurfaceEntries() {
       { key: "collapse", label: "收起", icon: "tree-collapse" },
       { key: "increment", label: "增加", icon: "add" },
       { key: "decrement", label: "减少", icon: "delete-minus" },
-      { kind: "create", create: { trigger: "toolbar", presentation: "inline" } },
+      { create: { presentation: "inline" } },
+      { kind: "create", create: { trigger: "surface", presentation: "modal" } },
       { kind: "create", agreementUid: "", employmentId: null },
     ];
   `);
   if (safeRegression.length) {
     console.error("✗ CreateSurface entry gate regression: fold/disclosure/numeric controls were misclassified.");
+    return false;
+  }
+  const toolbarTriggerRegression = findCreateSurfaceEntryViolationsInSource("legacy-toolbar-create.tsx", `
+    const section = { kind: "create", create: { trigger: "toolbar", presentation: "modal" } };
+  `);
+  if (!toolbarTriggerRegression.some((violation) => violation.kind === "toolbar-trigger")) {
+    console.error("✗ CreateSurface entry gate regression: recursive toolbar trigger was not rejected.");
     return false;
   }
   const violations = findCreateSurfaceEntryViolations();
@@ -162,7 +174,7 @@ export function checkCreateSurfaceEntries() {
     return true;
   }
   console.error(`✗ CreateSurface entry gate: ${violations.length} manual create entr${violations.length === 1 ? "y" : "ies"} found.`);
-  console.error("  Standard create entry must be declared through BodySurface kind=create / CreateSurface.");
+  console.error("  Page-level create must use PageSurface.create; local create must use BodySurface kind=create with trigger=surface.");
   console.error("  Fold, tree expand/collapse, disclosure, and numeric +/- controls are not scanned by this rule.");
   for (const violation of violations) {
     console.error(`  - ${violation.file}:${violation.line} [${violation.kind}] ${violation.detail}`);

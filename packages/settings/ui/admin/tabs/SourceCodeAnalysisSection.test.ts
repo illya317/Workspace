@@ -7,6 +7,7 @@ import type {
   SourceCodeAnalysisSnapshot,
 } from "@workspace/platform/source-code-analysis-contract";
 import {
+  SOURCE_CODE_ANALYSIS_SCHEMA_VERSION,
   SOURCE_CODE_ANALYSIS_ROLES,
 } from "@workspace/platform/source-code-analysis-contract";
 import {
@@ -17,6 +18,7 @@ import { SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS } from "./source-code-analysis-disp
 import {
   sourceCodeAnalysisCellSelected,
   sourceCodeAnalysisRelationCellState,
+  sourceCodeAnalysisSelectionAfterClick,
 } from "./source-code-analysis-relations";
 
 function roleCounts(role: keyof SourceCodeAnalysisRoleCounts, lines: number): SourceCodeAnalysisRoleCounts {
@@ -39,7 +41,7 @@ function analysisSnapshot(): SourceCodeAnalysisSnapshot {
     mixedResponsibilityFileCount: 0,
   }));
   return {
-    schemaVersion: 3,
+    schemaVersion: SOURCE_CODE_ANALYSIS_SCHEMA_VERSION,
     generatedAt: "2026-07-30T00:00:00.000Z",
     sourceRevision: null,
     sourceDigest: "test",
@@ -73,6 +75,7 @@ function analysisSnapshot(): SourceCodeAnalysisSnapshot {
         importCount: 1,
       },
     ],
+    dependencyFileCycles: [],
     dependencyCycles: [],
     diagnostics: {
       unclassifiedFiles: [],
@@ -91,33 +94,33 @@ test("source analysis columns stay compact until an aggregate column is expanded
   assert.deepEqual(collapsed.map((column) => column.key), [
     "module",
     "total",
-    "ui",
-    "boundary",
-    "domain",
-    "persistence",
-    "other",
+    "entry",
+    "business",
+    "adapter",
+    "contract",
+    "assurance",
   ]);
 
   const expanded = createSourceCodeAnalysisColumns({
-    expandedGroupKey: "boundary",
+    expandedGroupKey: "entry",
     onToggleGroup: () => undefined,
   });
   assert.deepEqual(expanded.map((column) => column.key), [
     "module",
     "total",
-    "ui",
-    "boundary",
-    "boundary:input",
-    "boundary:domainValidation",
-    "boundary:contract",
-    "domain",
-    "persistence",
-    "other",
+    "entry",
+    "entry:composition",
+    "entry:ui",
+    "entry:input",
+    "business",
+    "adapter",
+    "contract",
+    "assurance",
   ]);
-  assert.deepEqual(expanded.slice(4, 7).map((column) => column.label), [
+  assert.deepEqual(expanded.slice(3, 6).map((column) => column.label), [
+    "组合壳",
+    "UI",
     "输入",
-    "领域校验",
-    "契约",
   ]);
 });
 
@@ -130,9 +133,9 @@ test("clicking an expandable column delegates its group key", () => {
     },
   });
 
-  columns.find((column) => column.key === "other")?.onHeaderClick?.();
-  assert.equal(toggledGroupKey, "other");
-  assert.equal(columns.find((column) => column.key === "ui")?.onHeaderClick, undefined);
+  columns.find((column) => column.key === "assurance")?.onHeaderClick?.();
+  assert.equal(toggledGroupKey, "assurance");
+  assert.equal(columns.find((column) => column.key === "contract")?.onHeaderClick, undefined);
 });
 
 test("analysis rows add visual groups without changing module data", () => {
@@ -151,37 +154,49 @@ test("analysis rows add visual groups without changing module data", () => {
   assert.equal(rows.at(-1)?.displayLines, 8_500);
 });
 
-test("selected cell distinguishes outgoing, incoming, bidirectional, and self references", () => {
+test("selected raw role distinguishes directions, aggregate reciprocity, real cycles, and self", () => {
   const snapshot = analysisSnapshot();
   const rows = analysisTableRows(analysisSnapshot());
   const work = rows.find((row) => row.key === "work");
   const settings = rows.find((row) => row.key === "settings");
   const core = rows.find((row) => row.key === "core");
   const operations = rows.find((row) => row.key === "operations");
-  const ui = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "ui");
-  const domain = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "domain");
-  const other = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "other");
+  const entry = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "entry");
+  const business = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "business");
+  const assurance = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "assurance");
   assert.ok(work);
   assert.ok(settings);
   assert.ok(core);
   assert.ok(operations);
-  assert.ok(ui);
-  assert.ok(domain);
-  assert.ok(other);
+  assert.ok(entry);
+  assert.ok(business);
+  assert.ok(assurance);
 
-  const selectedCell = { moduleKey: "work", groupKey: "ui" as const };
-  assert.equal(sourceCodeAnalysisRelationCellState(work, ui, snapshot.dependencyEdges, selectedCell), "normal");
-  assert.equal(sourceCodeAnalysisCellSelected(work, ui, selectedCell), true);
-  assert.equal(sourceCodeAnalysisRelationCellState(core, domain, snapshot.dependencyEdges, selectedCell), "warning");
-  assert.equal(sourceCodeAnalysisRelationCellState(operations, other, snapshot.dependencyEdges, selectedCell), "info");
-  assert.equal(sourceCodeAnalysisRelationCellState(settings, ui, snapshot.dependencyEdges, selectedCell), "muted");
+  const selectedCell = { moduleKey: "work", groupKey: "entry" as const, role: "ui" as const };
+  assert.equal(sourceCodeAnalysisRelationCellState(work, entry, "ui", snapshot.dependencyEdges, [], selectedCell), "normal");
+  assert.equal(sourceCodeAnalysisRelationCellState(work, entry, null, snapshot.dependencyEdges, [], selectedCell), "normal");
+  assert.equal(sourceCodeAnalysisCellSelected(work, entry, "ui", selectedCell), true);
+  assert.equal(sourceCodeAnalysisRelationCellState(core, business, "domain", snapshot.dependencyEdges, [], selectedCell), "warning");
+  assert.equal(sourceCodeAnalysisRelationCellState(operations, assurance, "tooling", snapshot.dependencyEdges, [], selectedCell), "info");
+  assert.equal(sourceCodeAnalysisRelationCellState(settings, entry, "ui", snapshot.dependencyEdges, [], selectedCell), "muted");
 
   const bidirectionalEdges = [
     ...snapshot.dependencyEdges,
     { sourceModuleKey: "work", sourceRole: "ui" as const, targetModuleKey: "settings", targetRole: "ui" as const, importCount: 1 },
     { sourceModuleKey: "settings", sourceRole: "ui" as const, targetModuleKey: "work", targetRole: "ui" as const, importCount: 1 },
   ];
-  assert.equal(sourceCodeAnalysisRelationCellState(settings, ui, bidirectionalEdges, selectedCell), "success");
+  assert.equal(sourceCodeAnalysisRelationCellState(settings, entry, "ui", bidirectionalEdges, [], selectedCell), "warning");
+
+  const fileCycles = [{
+    classification: "runtime" as const,
+    paths: ["packages/work/ui.ts", "packages/settings/ui.ts"],
+    cells: [
+      { moduleKey: "work", role: "ui" as const },
+      { moduleKey: "settings", role: "ui" as const },
+    ],
+    evidence: [],
+  }];
+  assert.equal(sourceCodeAnalysisRelationCellState(settings, entry, "ui", bidirectionalEdges, fileCycles, selectedCell), "success");
 
   const selfEdges = [
     ...snapshot.dependencyEdges,
@@ -189,15 +204,53 @@ test("selected cell distinguishes outgoing, incoming, bidirectional, and self re
   ];
   assert.equal(sourceCodeAnalysisRelationCellState(
     operations,
-    other,
+    assurance,
+    null,
     selfEdges,
-    { moduleKey: "operations", groupKey: "other" },
-  ), "success");
+    fileCycles,
+    { moduleKey: "operations", groupKey: "assurance", role: null },
+  ), "normal");
   assert.equal(sourceCodeAnalysisCellSelected(
     operations,
-    other,
-    { moduleKey: "operations", groupKey: "other" },
+    assurance,
+    null,
+    { moduleKey: "operations", groupKey: "assurance", role: null },
   ), true);
+});
+
+test("interactive analysis cells expose hover relation callbacks", () => {
+  const snapshot = analysisSnapshot();
+  const rows = analysisTableRows(snapshot);
+  const work = rows.find((row) => row.key === "work");
+  assert.ok(work);
+  const hovered: Array<{ moduleKey: string; groupKey: string } | null> = [];
+  const columns = createSourceCodeAnalysisColumns(undefined, 5_000, {
+    dependencyEdges: snapshot.dependencyEdges,
+    dependencyFileCycles: [],
+    selection: {
+      selectedCell: null,
+      onSelectCell: () => undefined,
+      onHoverCell: (cell) => hovered.push(cell),
+    },
+  });
+  const cell = columns.find((column) => column.key === "entry")?.cell(work);
+  assert.ok(typeof cell === "object" && cell && "kind" in cell && cell.kind === "interactive");
+
+  cell.onMouseEnter?.();
+  cell.onMouseLeave?.();
+
+  assert.deepEqual(hovered, [
+    { moduleKey: "work", groupKey: "entry", role: null },
+    null,
+  ]);
+});
+
+test("raw-role selection switches within one expanded group and only exact repeat cancels", () => {
+  const ui = { moduleKey: "work", groupKey: "entry" as const, role: "ui" as const };
+  const input = { moduleKey: "work", groupKey: "entry" as const, role: "input" as const };
+
+  assert.deepEqual(sourceCodeAnalysisSelectionAfterClick(ui, input), input);
+  assert.equal(sourceCodeAnalysisSelectionAfterClick(input, input), null);
 });
 
 test("total-code cells use a relative meter while small role values stay muted", () => {
@@ -215,7 +268,7 @@ test("total-code cells use a relative meter while small role values stay muted",
     label: "0.50",
     title: "工作管理：0.50 万行",
   });
-  assert.deepEqual(columns.find((column) => column.key === "other")?.cell(operations), {
+  assert.deepEqual(columns.find((column) => column.key === "assurance")?.cell(operations), {
     kind: "text",
     value: "<0.1",
     tone: "muted",

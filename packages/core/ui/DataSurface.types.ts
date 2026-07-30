@@ -145,6 +145,8 @@ export interface DataSurfaceCellInteractiveSpec {
   kind: "interactive";
   content: DataSurfaceCellSpec;
   onClick: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   ariaLabel: string;
 }
 

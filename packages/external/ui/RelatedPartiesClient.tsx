@@ -8,6 +8,7 @@ import {
   createStatusSection,
   useFeedback,
   type DataSurfaceColumnSpec,
+  type PageSurfaceCreateSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
 import type { ExternalRelatedParty, ExternalPartyRelatedPartyType } from "@workspace/external/types";
@@ -162,39 +163,32 @@ export default function RelatedPartiesClient({ canCreate, canDelete }: { canCrea
     { kind: "action-group", key: "actions", actions: [{ key: "refresh", kind: "refresh", label: "刷新", onClick: () => void data.load() }] },
     { kind: "text", key: "total", content: `共 ${data.total} 个关联方` },
   ];
-  const sections = [
-    {
-      key: "related-party-create",
-      body: {
-        kind: "create" as const,
-        create: {
-          id: "external-related-party-create",
-          trigger: "toolbar" as const,
-          presentation: "block" as const,
-          title: "新增关联方",
-          open: Boolean(createDraft),
-          canCreate,
-          disabled: saving,
-          content: {
-            kind: "sections" as const,
-            sections: relatedPartyCreateSections(
-              createDraft ?? emptyRelatedPartyCreateDraft(),
-              candidates.items,
-              candidates.loading,
-              candidates.error,
-              updateCreateDraft,
-            ),
-          },
-          submission: {
-            action: "save" as const,
-            disabled: saving || candidates.loading || !createDraft?.partyId || !createDraft.relatedPartyType,
-            execute: saveCreate,
-          },
-          onOpenChange: (open: boolean) => setCreateDraft(open ? emptyRelatedPartyCreateDraft() : null),
-          onCancel: () => setCreateDraft(null),
-        },
-      },
+  const pageCreate: PageSurfaceCreateSpec = {
+    id: "external-related-party-create",
+    presentation: "block",
+    title: "新增关联方",
+    open: Boolean(createDraft),
+    canCreate,
+    disabled: saving,
+    content: {
+      kind: "sections",
+      sections: relatedPartyCreateSections(
+        createDraft ?? emptyRelatedPartyCreateDraft(),
+        candidates.items,
+        candidates.loading,
+        candidates.error,
+        updateCreateDraft,
+      ),
     },
+    submission: {
+      action: "save",
+      disabled: saving || candidates.loading || !createDraft?.partyId || !createDraft.relatedPartyType,
+      execute: saveCreate,
+    },
+    onOpenChange: (open: boolean) => setCreateDraft(open ? emptyRelatedPartyCreateDraft() : null),
+    onCancel: () => setCreateDraft(null),
+  };
+  const sections = [
     ...(data.error ? [createStatusSection("related-party-error", { kind: "error", content: data.error })] : []),
     ...(!data.error ? [createPageTableSection("related-party-directory", {
       rows: data.items,
@@ -223,6 +217,7 @@ export default function RelatedPartiesClient({ canCreate, canDelete }: { canCrea
   ];
   return <PageSurface
     kind="standard"
+    create={pageCreate}
     toolbar={{ items: toolbarItems }}
     body={createPageBody(sections)}
     footer={data.total > 0 ? { pagination: { page: data.page, totalPages: data.totalPages, total: data.total, onPageChange: data.setPage } } : undefined}

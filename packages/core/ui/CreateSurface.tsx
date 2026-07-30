@@ -6,12 +6,12 @@ import type { FormSurfaceLooseItem } from "./FormSurface.types";
 import InlineCreatePanel from "./internal/create/InlineCreatePanel";
 import CreatePresentationPanel from "./internal/create/CreatePresentationPanel";
 import { useFeedback } from "./services/FeedbackProvider";
-import type { CreateSurfaceProps } from "./CreateSurface.types";
+import type { CreateSurfaceRuntimeProps } from "./CreateSurface.types";
 
 export type * from "./CreateSurface.types";
 
 export default function CreateSurface<T = FormSurfaceLooseItem>(
-  props: CreateSurfaceProps<T>,
+  props: CreateSurfaceRuntimeProps<T>,
 ) {
   const feedback = useFeedback();
   const [submitting, setSubmitting] = useState(false);

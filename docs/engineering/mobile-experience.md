@@ -44,7 +44,7 @@ Workspace 的移动端不是桌面页面的缩小版。紧凑屏幕用“时间�
 | 设置 | 账号与接入 | native | 分章节设置 |
 | 设置 | 系统管理 | native | 管理对象列表；权限矩阵与 BPMN 节点画布桌面专用 |
 | 设置 | API 接入 | native | Client/Scope 列表进入详情 |
-| 设置 | UI 组件库 | unavailable | 开发治理工具只在桌面端开放 |
+| 设置 | 平台治理 | unavailable | UI、数据关系、模块运行和运维记录只在桌面端开放 |
 
 当前计数：26 个 L2 原生竖屏、1 个 L2 横屏、1 个 L2 手机端不开放，共 28 个 L2；ERP 流程尽调采用原生竖屏章节填报；另有模板详情和甘特图保留局部横屏。复杂 section 独立裁剪，不再因为 DataSurface 是矩阵就默认暴露手机横屏入口。
 
@@ -87,5 +87,5 @@ Workspace 的移动端不是桌面页面的缩小版。紧凑屏幕用“时间�
 
 - 代表性竖屏宽度：360、390、430；同时验证短屏底部栏和 safe area。
 - 横屏工作台至少验证 667×375 和 844×390；确认 AppShell 底栏被覆盖、关键列可横向浏览、旋回竖屏后回到说明页。
-- 每类至少覆盖一个 L2：native（批次检验/项目）、landscape（财务报表）、unavailable（UI 组件库）。
+- 每类至少覆盖一个 L2：native（批次检验/项目）、landscape（财务报表）、unavailable（平台治理）。
 - Core 结构变更执行 `CORE_UI_CHANGE=1 npm run gate:ui`、`npm run gate:domain`、`npm run typecheck:quick` 和相关 E2E。

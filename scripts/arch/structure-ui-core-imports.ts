@@ -4,7 +4,11 @@ import {
   coreUiComponentRegistry,
   registeredCoreUiComponentNames,
 } from "../../packages/core/ui/registry/component-registry";
-import type { SourceInfo } from "./structure-ui";
+
+type SourceInfo = {
+  relPath: string;
+  sourceFile: ts.SourceFile;
+};
 
 export type UnregisteredCoreUiImport = {
   file: string;

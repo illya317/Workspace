@@ -51,8 +51,18 @@ export const page_api_registry_entries = [
         ],
       },
       {
+        name: "create",
+        description: "标准业务页唯一的页面级新建声明；PageSurface 固定派生一个 Toolbar + 并渲染对应的新建内容，业务不得在 BodySurface 递归声明 toolbar trigger。",
+        children: [
+          { name: "presentation", description: "页面级新建的 inline、block 或 modal 呈现。" },
+          { name: "content", description: "单 form 或多 sections 的 typed 新建内容。" },
+          { name: "submission", description: "save/submit 语义与 execute，由 Core 统一反馈和关闭。" },
+          { name: "state", description: "受控 open、canCreate、disabled、onOpenChange 与 onCancel。" },
+        ],
+      },
+      {
         name: "toolbar",
-        description: "页面级唯一工具区：搜索、筛选、刷新、导出、新建等都进入这里。",
+        description: "页面级唯一工具区：搜索、筛选、刷新、导出等显式工具进入这里；新建 + 只能由 PageSurface.create 派生。",
         children: [
           {
             name: "items",

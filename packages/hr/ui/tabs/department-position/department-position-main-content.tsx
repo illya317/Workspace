@@ -59,7 +59,7 @@ export function DepartmentPositionMainContent({
     },
     assistantAction: surface?.assistantAction,
   });
-  const workspaceBlocks = useDepartmentPositionDetailSections({
+  const workspace = useDepartmentPositionDetailSections({
     createPanel,
     departments,
     codeConfig,
@@ -77,7 +77,8 @@ export function DepartmentPositionMainContent({
   return (
     <DepartmentPositionActiveWorkspace
       selector={treeSelector}
-      sections={workspaceBlocks}
+      create={workspace.create}
+      sections={workspace.sections}
       toolbarItems={toolbarItems}
       surface={surface}
     />

@@ -10,6 +10,7 @@ import {
   createStatusSection,
   type BodySurfaceSectionBodyProps,
   type BodySurfaceSectionSpec,
+  type PageSurfaceCreateSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
@@ -253,15 +254,15 @@ function TreasuryWorkspacePage({
   workspace: TreasuryWorkspaceDto;
 }) {
   const props = { workspace, canCreate, canUpdate, mutate, targetEntityId };
-  const bankAccountsBody = useBankAccountsView(props);
-  const reconciliationBody = useBankReconciliationView(props);
-  const loansBody = useLoansView(props);
-  const interestBody = useInterestView(props);
-  const bodies: Record<TreasuryView, BodySurfaceSectionBodyProps> = {
-    "bank-accounts": bankAccountsBody,
-    "bank-reconciliation": reconciliationBody,
-    loans: loansBody,
-    interest: interestBody,
+  const bankAccountsView = useBankAccountsView(props);
+  const reconciliationView = useBankReconciliationView(props);
+  const loansView = useLoansView(props);
+  const interestView = useInterestView(props);
+  const views: Record<TreasuryView, { body: BodySurfaceSectionBodyProps; create: PageSurfaceCreateSpec }> = {
+    "bank-accounts": bankAccountsView,
+    "bank-reconciliation": reconciliationView,
+    loans: loansView,
+    interest: interestView,
   };
   const blockerSections = workspace.blockers.length ? [treasuryBlockerSection(workspace.blockers, (blocker) => {
     if (blocker.entityKind === "bank_reconciliation") onActiveViewChange("bank-reconciliation");
@@ -271,12 +272,13 @@ function TreasuryWorkspacePage({
   return (
     <PageSurface
       kind="standard"
+      create={views[activeView].create}
       tabbar={tabbar}
       toolbar={{ items: toolbarItems }}
       body={createPageBody([
         ...statusSections,
         ...blockerSections,
-        { key: `treasury-${activeView}`, body: bodies[activeView] },
+        { key: `treasury-${activeView}`, body: views[activeView].body },
       ])}
     />
   );
