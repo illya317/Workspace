@@ -43,12 +43,16 @@ test("SQL settings catalog groups safe runtime configuration for the 3:7 workben
     row("full_page_writes", "on"),
   ], "2026-07-31T00:00:00.000Z");
 
-  assert.deepEqual(catalog.groups.map((group) => group.key), ["connection", "session", "audit", "recovery"]);
+  assert.deepEqual(catalog.groups.map((group) => group.key), ["credentials", "connection", "session", "audit", "recovery"]);
   assert.deepEqual(SQL_SETTINGS_DESKTOP_RATIO, [3, 7]);
   assert.equal(catalog.transport.protocol, "TLSv1.3");
+  assert.equal(catalog.groups[0]?.items.find((item) => item.key === "runtime_password")?.currentValue, "已配置（不回显）");
   assert.equal(catalog.groups[0]?.items.find((item) => item.key === "password_encryption")?.status, "aligned");
-  assert.equal(catalog.groups[1]?.items.find((item) => item.key === "statement_timeout")?.source, "user");
-  assert.equal(catalog.groups[3]?.items.find((item) => item.key === "archive_mode")?.status, "informational");
+  assert.equal(catalog.groups[2]?.items.find((item) => item.key === "statement_timeout")?.source, "user");
+  assert.equal(catalog.groups[2]?.items.find((item) => item.key === "statement_timeout")?.managementMode, "runtime-setting");
+  assert.equal(catalog.groups[2]?.items.find((item) => item.key === "statement_timeout")?.currentValueMs, 30000);
+  assert.equal(catalog.groups[2]?.items.find((item) => item.key === "idle_session_timeout")?.managementMode, "host-operation");
+  assert.equal(catalog.groups[4]?.items.find((item) => item.key === "archive_mode")?.status, "informational");
 });
 
 test("unlimited settings require review while privilege-hidden settings stay explicit", () => {

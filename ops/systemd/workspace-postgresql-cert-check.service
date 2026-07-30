@@ -1,0 +1,22 @@
+[Unit]
+Description=Check Workspace PostgreSQL certificate validity
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/lib/workspace-postgresql/tls-bootstrap.sh check
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+LockPersonality=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

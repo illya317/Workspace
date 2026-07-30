@@ -1,0 +1,11 @@
+[Unit]
+Description=Check Workspace PostgreSQL certificate daily
+
+[Timer]
+OnCalendar=*-*-* 08:10:00 Asia/Shanghai
+RandomizedDelaySec=10m
+Persistent=true
+Unit=workspace-postgresql-cert-check.service
+
+[Install]
+WantedBy=timers.target

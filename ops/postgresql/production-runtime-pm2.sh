@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+set -euo pipefail
+RUNTIME_USER="${WORKSPACE_RUNTIME_OS_USER:-workspace-runtime}"
+RUNTIME_HOME="${WORKSPACE_RUNTIME_HOME:-/var/lib/workspace-runtime}"
+RUNTIME_ENV_FILE="${WORKSPACE_RUNTIME_ENV_FILE:-/home/ubuntu/workspace/.workspace/runtime.env}"
+PM2_BINARY="${WORKSPACE_PM2_BINARY:-/usr/bin/pm2}"
+[ "$(id -u)" -eq 0 ] || { echo "[错误] 必须由 root/sudo 调用" >&2; exit 77; }
+[ -r "$RUNTIME_ENV_FILE" ] || { echo "[错误] runtime env 不可读: $RUNTIME_ENV_FILE" >&2; exit 1; }
+if grep -Eq '^[[:space:]]*(export[[:space:]]+)?(DIRECT_URL|SHADOW_DATABASE_URL|WORKSPACE_BACKUP_DATABASE_URL|WORKSPACE_MONITOR_DATABASE_URL|WORKSPACE_DATABASE_URL|WORKSPACE_RUNTIME_DATABASE_PASSWORD|WORKSPACE_MIGRATOR_DATABASE_PASSWORD|WORKSPACE_BACKUP_DATABASE_PASSWORD|WORKSPACE_MONITOR_DATABASE_PASSWORD|PGPASSWORD|PGPASSFILE|PGSERVICE|PGSERVICEFILE|PGOPTIONS|PGUSER|PGHOST|PGDATABASE)=' "$RUNTIME_ENV_FILE"; then
+  echo "[错误] runtime env 禁止包含 control-plane URL 或替代 PostgreSQL 身份变量" >&2
+  exit 1
+fi
+grep -Eq '^[[:space:]]*(export[[:space:]]+)?DATABASE_URL=' "$RUNTIME_ENV_FILE" || { echo "[错误] runtime env 缺少 DATABASE_URL" >&2; exit 1; }
+process_environment=()
+for key in PORT HOSTNAME BUILD_VERSION NEXT_PUBLIC_BUILD_VERSION NEXT_PUBLIC_BASE_PATH PG_POOL_MAX PG_APPLICATION_NAME \
+  WORKSPACE_CONFIG_DIR WORKSPACE_DEPLOY_UNIT_ID WORKSPACE_DEPLOY_SLOT WORKSPACE_DEPLOY_CURRENT_STATE_FILE WORKSPACE_INTERNAL_ORIGIN \
+  WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE \
+  WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE WORKSPACE_INTERNAL_REPLAY_DIRECTORY WECHAT_BOT_BRIDGE_URL \
+  PROJECT_NOTIFICATION_SCHEDULER_DISABLED; do
+  value="${!key-}"
+  [ -z "$value" ] || process_environment+=("WORKSPACE_PM2_PROCESS_$key=$value")
+done
+process_name=""
+case "${1:-}" in
+  start)
+    previous=""
+    for argument in "$@"; do
+      if [ "$previous" = "--name" ]; then process_name="$argument"; break; fi
+      previous="$argument"
+    done
+    ;;
+  restart|reload)
+    process_name="${2:-}"
+    ;;
+esac
+database_target=0
+case "$process_name" in workspace|workspace-candidate) database_target=1 ;; esac
+exec runuser -u "$RUNTIME_USER" -- env -i \
+  HOME="$RUNTIME_HOME" USER="$RUNTIME_USER" LOGNAME="$RUNTIME_USER" \
+  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+  PM2_HOME="$RUNTIME_HOME/.pm2" WORKSPACE_RUNTIME_ENV_FILE="$RUNTIME_ENV_FILE" \
+  WORKSPACE_PM2_DATABASE_TARGET="$database_target" \
+  "${process_environment[@]}" \
+  /bin/bash -c '
+    set -euo pipefail
+    database_target="$WORKSPACE_PM2_DATABASE_TARGET"
+    unset WORKSPACE_PM2_DATABASE_TARGET
+    runtime_home="$HOME"
+    runtime_user="$USER"
+    runtime_pm2_home="$PM2_HOME"
+    declare -A process_values=()
+    for key in PORT HOSTNAME BUILD_VERSION NEXT_PUBLIC_BUILD_VERSION NEXT_PUBLIC_BASE_PATH PG_POOL_MAX PG_APPLICATION_NAME \
+      WORKSPACE_CONFIG_DIR WORKSPACE_DEPLOY_UNIT_ID WORKSPACE_DEPLOY_SLOT WORKSPACE_DEPLOY_CURRENT_STATE_FILE WORKSPACE_INTERNAL_ORIGIN \
+      WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE \
+      WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE WORKSPACE_INTERNAL_REPLAY_DIRECTORY WECHAT_BOT_BRIDGE_URL \
+      PROJECT_NOTIFICATION_SCHEDULER_DISABLED; do
+      prefixed="WORKSPACE_PM2_PROCESS_$key"
+      process_values["$key"]="${!prefixed-}"
+      unset "$prefixed"
+    done
+    set -a
+    . "$WORKSPACE_RUNTIME_ENV_FILE"
+    set +a
+    unset DIRECT_URL SHADOW_DATABASE_URL WORKSPACE_BACKUP_DATABASE_URL WORKSPACE_MONITOR_DATABASE_URL
+    unset WORKSPACE_DATABASE_URL WORKSPACE_RUNTIME_DATABASE_PASSWORD WORKSPACE_MIGRATOR_DATABASE_PASSWORD
+    unset WORKSPACE_BACKUP_DATABASE_PASSWORD WORKSPACE_MONITOR_DATABASE_PASSWORD
+    unset PGPASSWORD PGPASSFILE PGSERVICE PGSERVICEFILE PGOPTIONS PGUSER PGHOST PGDATABASE
+    for key in PORT HOSTNAME BUILD_VERSION NEXT_PUBLIC_BUILD_VERSION NEXT_PUBLIC_BASE_PATH PG_POOL_MAX PG_APPLICATION_NAME \
+      WORKSPACE_CONFIG_DIR WORKSPACE_DEPLOY_UNIT_ID WORKSPACE_DEPLOY_SLOT WORKSPACE_DEPLOY_CURRENT_STATE_FILE WORKSPACE_INTERNAL_ORIGIN \
+      WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE \
+      WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE WORKSPACE_INTERNAL_REPLAY_DIRECTORY WECHAT_BOT_BRIDGE_URL \
+      PROJECT_NOTIFICATION_SCHEDULER_DISABLED; do
+      value="${process_values[$key]-}"
+      [ -z "$value" ] || export "$key=$value"
+    done
+    if [ "$database_target" = 1 ]; then
+      exec "$0" "${@:1}"
+    fi
+    bot_environment=(
+      "HOME=$runtime_home" "USER=$runtime_user" "LOGNAME=$runtime_user"
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      "PM2_HOME=$runtime_pm2_home"
+    )
+    for key in NODE_ENV WECHAT_BOT_ID WECHAT_BOT_SECRET WECOM_WORKER_BRIDGE_SECRET \
+      WECHAT_REDIRECT_ORIGIN WORKSPACE_PUBLIC_ORIGIN \
+      PORT BUILD_VERSION NEXT_PUBLIC_BUILD_VERSION NEXT_PUBLIC_BASE_PATH WORKSPACE_CONFIG_DIR \
+      WORKSPACE_DEPLOY_UNIT_ID WORKSPACE_DEPLOY_SLOT WORKSPACE_DEPLOY_CURRENT_STATE_FILE WORKSPACE_INTERNAL_ORIGIN \
+      WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE \
+      WORKSPACE_INTERNAL_REPLAY_DIRECTORY WECHAT_BOT_BRIDGE_URL PROJECT_NOTIFICATION_SCHEDULER_DISABLED; do
+      value="${!key-}"
+      [ -z "$value" ] || bot_environment+=("$key=$value")
+    done
+    exec /usr/bin/env -i "${bot_environment[@]}" "$0" "${@:1}"
+  ' "$PM2_BINARY" "$@"
