@@ -202,6 +202,7 @@ test("TLS bootstrap produces a private key and verified hostname certificate", (
 
 test("security logging avoids SQL and parameter literals", () => {
   const config = read("./postgresql-security.conf");
+  const logrotate = read("./postgresql-logrotate");
   assert.match(config, /log_connections = on/);
   assert.match(config, /log_disconnections = on/);
   assert.match(config, /log_lock_waits = on/);
@@ -210,6 +211,8 @@ test("security logging avoids SQL and parameter literals", () => {
   assert.match(config, /log_parameter_max_length_on_error = 0/);
   assert.match(config, /log_min_error_statement = 'panic'/);
   assert.doesNotMatch(config, /archive_mode\s*=\s*(?:on|always)/);
+  assert.match(logrotate, /\/var\/log\/postgresql\/postgresql-16-main\.log/);
+  assert.match(logrotate, /^\s*su postgres adm$/m);
 });
 
 test("DDL audit logs metadata without raw SQL", () => {

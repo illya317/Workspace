@@ -1,4 +1,5 @@
 /var/log/postgresql/postgresql-16-main.log {
+    su postgres adm
     daily
     rotate 30
     maxsize 100M
