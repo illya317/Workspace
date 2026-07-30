@@ -6,12 +6,29 @@ const TRANSIENT_STATES = new Set<State>(["active", "hovered", "inactive", "outgo
 
 type MapTransientState = "active" | "hovered" | "inactive" | "outgoing" | "incoming";
 
+export interface MapNetworkLabelSelection {
+  rootNodeKey: string;
+  relatedNodeKeys: string[];
+}
+
+interface MapNetworkInteractionOptions {
+  onNodeSelect?: (nodeKey: string) => void;
+  onNavigateBack?: () => void;
+  showEdgeDirection?: boolean;
+  showRelatedLabels?: boolean;
+  onLabelSelectionChange?: (selection: MapNetworkLabelSelection | null) => void;
+}
+
 export function bindMapNetworkInteractions(
   graph: G6Graph,
   container: HTMLElement,
-  onNodeSelect?: (nodeKey: string) => void,
-  onNavigateBack?: () => void,
-  showEdgeDirection = false,
+  {
+    onNodeSelect,
+    onNavigateBack,
+    showEdgeDirection = false,
+    showRelatedLabels = false,
+    onLabelSelectionChange,
+  }: MapNetworkInteractionOptions = {},
 ) {
   let hoveredNodeKey: string | null = null;
   let hasTransientState = false;
@@ -20,6 +37,7 @@ export function bindMapNetworkInteractions(
     if (!hasTransientState) return;
     hoveredNodeKey = null;
     hasTransientState = false;
+    onLabelSelectionChange?.(null);
     void graph.setElementState(mapElementStates(graph, () => []), false);
   };
 
@@ -29,6 +47,7 @@ export function bindMapNetworkInteractions(
     hasTransientState = true;
 
     const transientStates = new Map<string, MapTransientState[]>([[nodeKey, ["active", "hovered"]]]);
+    const outgoingNodeKeys = new Set<string>();
     for (const node of graph.getNeighborNodesData(nodeKey)) transientStates.set(node.id, ["active"]);
     for (const edge of graph.getRelatedEdgesData(nodeKey)) {
       if (!edge.id) continue;
@@ -39,9 +58,15 @@ export function bindMapNetworkInteractions(
         const relatedNodeKey = outgoing ? edge.target : edge.source;
         if (relatedNodeKey !== nodeKey) {
           transientStates.set(relatedNodeKey, ["active", outgoing ? "outgoing" : "incoming"]);
+          if (outgoing) outgoingNodeKeys.add(relatedNodeKey);
         }
       }
     }
+
+    onLabelSelectionChange?.({
+      rootNodeKey: nodeKey,
+      relatedNodeKeys: showRelatedLabels ? [...outgoingNodeKeys].sort() : [],
+    });
 
     void graph.setElementState(mapElementStates(graph, (elementKey) => {
       return transientStates.get(elementKey) ?? ["inactive"];

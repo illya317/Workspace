@@ -79,41 +79,12 @@ export function mapNodeStyle(datum: NodeData) {
     fill: "#626262",
     stroke: data.selfReference ? "#8b6a3f" : "#595959",
     lineWidth: data.selfReference ? 1.5 : 0.8,
-    labelText: compactMapNodeLabel(data.spec.label),
-    labelPlacement: "bottom" as const,
-    labelOffsetY: data.diameter / 2 + 8,
-    labelFill: "#566170",
-    labelFontFamily: "ui-sans-serif, system-ui, sans-serif",
-    labelFontSize: 9,
-    labelFontWeight: data.degree >= 8 ? 600 : 520,
-    labelLineHeight: 11,
-    labelTextAlign: "center" as const,
-    labelWordWrap: true,
-    labelMaxWidth: 96,
-    labelMaxLines: 2,
-    labelOpacity: 0,
-    labelPointerEvents: "none" as const,
-    labelBackground: true,
-    labelBackgroundFill: "#fbfbfa",
-    labelBackgroundFillOpacity: 0.96,
-    labelBackgroundPadding: [2, 4, 2, 4],
-    labelBackgroundPointerEvents: "none" as const,
+    label: false,
     haloPointerEvents: "none" as const,
     cursor: "pointer" as const,
     port: false,
     zIndex: 2,
   };
-}
-
-function compactMapNodeLabel(label: string) {
-  if (label.length <= 16 || /[\s\n]/.test(label) || /\p{Script=Han}/u.test(label)) return label;
-  const boundaries = [...label.matchAll(/(?<=[a-z0-9])(?=[A-Z])/g)].map((match) => match.index);
-  if (boundaries.length === 0) return label;
-  const midpoint = label.length / 2;
-  const splitAt = boundaries.sort((left, right) => (
-    Math.abs(left - midpoint) - Math.abs(right - midpoint)
-  ))[0];
-  return `${label.slice(0, splitAt)}\n${label.slice(splitAt)}`;
 }
 
 export const MAP_NODE_STATES = {
@@ -127,8 +98,6 @@ export const MAP_NODE_STATES = {
     zIndex: 8,
   },
   hovered: {
-    labelOpacity: 1,
-    labelFontWeight: 650,
     halo: true,
     haloLineWidth: 9,
     haloStrokeOpacity: 0.16,
@@ -138,23 +107,18 @@ export const MAP_NODE_STATES = {
     fill: "#c77a32",
     stroke: "#9b5a20",
     haloStroke: "#c77a32",
-    labelOpacity: 1,
-    labelFontWeight: 550,
     zIndex: 8,
   },
   incoming: {
     fill: "#5f82ad",
     stroke: "#46698f",
     haloStroke: "#5f82ad",
-    labelOpacity: 0,
     zIndex: 8,
   },
   selected: {
     fillOpacity: 1,
     strokeOpacity: 1,
     lineWidth: 2.5,
-    labelOpacity: 0,
-    labelFontWeight: 700,
     halo: true,
     haloLineWidth: 12,
     haloStrokeOpacity: 0.2,
@@ -163,7 +127,6 @@ export const MAP_NODE_STATES = {
   inactive: {
     fillOpacity: 0.09,
     strokeOpacity: 0.08,
-    labelOpacity: 0,
     zIndex: 0,
   },
 };

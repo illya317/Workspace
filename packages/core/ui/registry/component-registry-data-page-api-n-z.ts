@@ -150,7 +150,7 @@ export const page_api_registry_entries = [
           { name: "visual.tree", description: "树形层级可视化。" },
           { name: "visual.network", description: "自动布局的有向关系图。" },
           { name: "visual.network.presentation", description: "diagram 用于结构图；map 用于力导向拓扑探索。" },
-          { name: "visual.network.map", description: "大规模关系地图：Core 统一负责拓扑社区、节点碰撞、圆形外环、方向悬停、局部返回和最小缩放，调用方只声明节点、边与交互意图。" },
+          { name: "visual.network.map", description: "大规模关系地图：Core 统一负责拓扑社区、节点碰撞、圆形外环、方向悬停、恒定字号的屏幕标签、密度避让、局部返回和最小缩放；大图只显示悬停本体标签，聚焦详情才显示出向关联标签。" },
           { name: "frame", description: "chart 专属面板标题和外框声明。" },
         ],
       },

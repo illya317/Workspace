@@ -34,6 +34,10 @@ import {
   createMapNetworkViewport,
   fitMapNetworkView,
 } from "./VisualizationNetworkMapViewport";
+import {
+  VisualizationNetworkMapLabels,
+} from "./VisualizationNetworkMapLabels";
+import type { MapNetworkLabelSelection } from "./VisualizationNetworkMapInteraction";
 
 type NetworkDatum = PositionedNetworkNodeData;
 
@@ -45,6 +49,8 @@ export default function VisualizationNetwork({ visual }: { visual: Visualization
   const containerRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<G6Graph | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [mapHost, setMapHost] = useState<{ graph: G6Graph; container: HTMLDivElement } | null>(null);
+  const [mapLabelSelection, setMapLabelSelection] = useState<MapNetworkLabelSelection | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -53,6 +59,8 @@ export default function VisualizationNetwork({ visual }: { visual: Visualization
     let graph: G6Graph | null = null;
     let unbindMapInteractions: (() => void) | undefined;
     setStatus("loading");
+    setMapHost(null);
+    setMapLabelSelection(null);
 
     void import("@antv/g6").then(async ({ Graph }) => {
       if (!active) return;
@@ -109,10 +117,15 @@ export default function VisualizationNetwork({ visual }: { visual: Visualization
         unbindMapInteractions = bindMapNetworkInteractions(
           graph,
           container,
-          visual.onNodeSelect,
-          visual.backNavigation?.onActivate,
-          Boolean(visual.edgeDirectionLegend),
+          {
+            onNodeSelect: visual.onNodeSelect,
+            onNavigateBack: visual.backNavigation?.onActivate,
+            showEdgeDirection: Boolean(visual.edgeDirectionLegend),
+            showRelatedLabels: Boolean(visual.focusNodeKey),
+            onLabelSelectionChange: setMapLabelSelection,
+          },
         );
+        setMapHost({ graph, container });
       }
       if (active) setStatus("ready");
     }).catch((error: unknown) => {
@@ -135,16 +148,24 @@ export default function VisualizationNetwork({ visual }: { visual: Visualization
   return (
     <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white" style={{ height: visual.height ?? 760 }}>
       <div ref={containerRef} className="size-full" aria-label="关系结构图" />
+      {status === "ready" && visual.presentation === "map" ? (
+        <VisualizationNetworkMapLabels
+          graph={mapHost?.graph ?? null}
+          container={mapHost?.container ?? null}
+          selection={mapLabelSelection}
+          reserveBackNavigation={Boolean(visual.backNavigation)}
+          reserveDirectionLegend={Boolean(visual.edgeDirectionLegend)}
+        />
+      ) : null}
       {status === "ready" && visual.presentation === "map" && visual.backNavigation ? (
         <button
           type="button"
-          className="absolute left-3 top-3 flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white/95 px-3 text-xs font-medium text-slate-600 shadow-sm backdrop-blur transition hover:border-slate-300 hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
+          className="absolute left-3 top-3 grid size-9 place-items-center rounded-lg border border-slate-200 bg-white/95 text-slate-600 shadow-sm backdrop-blur transition hover:border-slate-300 hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
+          aria-label={visual.backNavigation.label}
           title={`${visual.backNavigation.label}（桌面端可右键）`}
           onClick={visual.backNavigation.onActivate}
         >
           <ActionGlyph kind="back" className="size-4" />
-          <span>{visual.backNavigation.label}</span>
-          <span className="hidden border-l border-slate-200 pl-2 text-[10px] font-normal text-slate-400 lg:inline">右键</span>
         </button>
       ) : null}
       {status === "ready" && visual.presentation === "map" && visual.edgeDirectionLegend ? (

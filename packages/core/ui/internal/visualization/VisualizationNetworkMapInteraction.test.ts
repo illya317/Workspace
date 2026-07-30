@@ -84,7 +84,7 @@ function pointerEvent(nodeKey: string, shape: "key" | "label", targetType: IPoin
 test("controlled map hover owns one directed neighborhood and clears it unconditionally on leave", () => {
   const graph = new FakeGraph();
   const container = new EventTarget() as unknown as HTMLElement;
-  bindMapNetworkInteractions(graph as unknown as G6Graph, container, undefined, undefined, true);
+  bindMapNetworkInteractions(graph as unknown as G6Graph, container, { showEdgeDirection: true });
 
   graph.emit("node:pointerenter", pointerEvent("center", "key"));
   assert.deepEqual(graph.getElementState("center"), ["selected", "active", "hovered"]);
@@ -142,7 +142,7 @@ test("map click only selects the visible node circle and cleanup removes all lis
   const cleanup = bindMapNetworkInteractions(
     graph as unknown as G6Graph,
     container,
-    (nodeKey) => selected.push(nodeKey),
+    { onNodeSelect: (nodeKey) => selected.push(nodeKey) },
   );
 
   graph.emit("node:click", pointerEvent("center", "label"));
@@ -165,8 +165,7 @@ test("right click inside a focused map clears hover and navigates back", () => {
   bindMapNetworkInteractions(
     graph as unknown as G6Graph,
     container,
-    undefined,
-    () => { backCount += 1; },
+    { onNavigateBack: () => { backCount += 1; } },
   );
 
   graph.emit("node:pointerenter", pointerEvent("center", "key"));
@@ -190,4 +189,29 @@ test("right click keeps the native context menu when the map has no back target"
 
   assert.equal(dispatched, true);
   assert.equal(contextMenu.defaultPrevented, false);
+});
+
+test("overview labels only expose the hovered node while focused maps add outgoing targets", () => {
+  const graph = new FakeGraph();
+  const container = new EventTarget() as unknown as HTMLElement;
+  const overviewSelections: Array<{ rootNodeKey: string; relatedNodeKeys: string[] } | null> = [];
+  const focusedSelections: Array<{ rootNodeKey: string; relatedNodeKeys: string[] } | null> = [];
+
+  const clearOverview = bindMapNetworkInteractions(graph as unknown as G6Graph, container, {
+    showEdgeDirection: true,
+    onLabelSelectionChange: (selection) => overviewSelections.push(selection),
+  });
+  graph.emit("node:pointerenter", pointerEvent("center", "key"));
+  assert.deepEqual(overviewSelections.at(-1), { rootNodeKey: "center", relatedNodeKeys: [] });
+  clearOverview();
+
+  bindMapNetworkInteractions(graph as unknown as G6Graph, container, {
+    showEdgeDirection: true,
+    showRelatedLabels: true,
+    onLabelSelectionChange: (selection) => focusedSelections.push(selection),
+  });
+  graph.emit("node:pointerenter", pointerEvent("center", "key"));
+  assert.deepEqual(focusedSelections.at(-1), { rootNodeKey: "center", relatedNodeKeys: ["neighbor"] });
+  graph.emit("canvas:pointermove", pointerEvent("center", "key", "canvas"));
+  assert.equal(focusedSelections.at(-1), null);
 });

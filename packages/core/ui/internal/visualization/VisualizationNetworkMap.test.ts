@@ -127,7 +127,7 @@ test("map coarsens many tiny Louvain results into a readable number of communiti
   assert.ok(communityCount <= 4);
 });
 
-test("map nodes stay as unlabeled circles until hover regardless of degree", () => {
+test("map nodes delegate labels to the fixed-size screen overlay", () => {
   const nodes = Array.from({ length: 40 }, (_, index) => ({
     key: `node-${index}`,
     label: `Node ${index}`,
@@ -146,12 +146,11 @@ test("map nodes stay as unlabeled circles until hover regardless of degree", () 
   const hubStyle = mapNodeStyle({ data: nodeData(visual, "node-0") } as unknown as NodeData);
   const leafStyle = mapNodeStyle({ data: nodeData(visual, "node-39") } as unknown as NodeData);
 
-  assert.equal(hubStyle.labelOpacity, 0);
-  assert.equal(leafStyle.labelOpacity, 0);
-  assert.equal(hubStyle.labelPlacement, "bottom");
-  assert.equal(MAP_NODE_STATES.selected.labelOpacity, 0);
-  assert.equal(MAP_NODE_STATES.hovered.labelOpacity, 1);
-  assert.equal(MAP_NODE_STATES.outgoing.labelOpacity, 1);
+  assert.equal(hubStyle.label, false);
+  assert.equal(leafStyle.label, false);
+  assert.equal("labelOpacity" in MAP_NODE_STATES.selected, false);
+  assert.equal("labelOpacity" in MAP_NODE_STATES.hovered, false);
+  assert.equal("labelOpacity" in MAP_NODE_STATES.outgoing, false);
   assert.equal(MAP_NODE_STATES.outgoing.fill, "#c77a32");
   assert.equal(MAP_NODE_STATES.incoming.fill, "#5f82ad");
 });
@@ -179,7 +178,7 @@ test("self references use an orange node border instead of a visual loop", () =>
   assert.equal(style.fill, "#626262");
   assert.equal(style.stroke, "#8b6a3f");
   assert.equal(style.lineWidth, 1.5);
-  assert.equal(style.labelText, "SelfReference");
+  assert.equal(style.label, false);
 });
 
 test("map uses Obsidian-like neutral circles instead of business-domain colors", () => {
@@ -217,10 +216,7 @@ test("focused local maps keep the focus size degree-driven without a default lab
   };
 
   assert.equal(nodeData(visual, "center").diameter, mapNodeDiameter(2));
-  assert.equal(
-    mapNodeStyle({ data: nodeData(visual, "center") } as unknown as NodeData).labelOpacity,
-    0,
-  );
+  assert.equal(mapNodeStyle({ data: nodeData(visual, "center") } as unknown as NodeData).label, false);
 });
 
 test("map node diameter follows FK degree on a soft saturation curve", () => {
@@ -253,7 +249,7 @@ test("map keeps a readable minimum zoom instead of shrinking the topology to a t
   assert.equal(MAP_MIN_ZOOM, 0.5);
 });
 
-test("map labels and halos do not expand the node hit area", () => {
+test("map halos do not expand the node hit area", () => {
   const datum = nodeData({
     kind: "network",
     presentation: "map",
@@ -262,25 +258,7 @@ test("map labels and halos do not expand the node hit area", () => {
   }, "node");
   const style = mapNodeStyle({ data: datum } as unknown as NodeData);
 
-  assert.equal(style.labelPointerEvents, "none");
-  assert.equal(style.labelBackgroundPointerEvents, "none");
   assert.equal(style.haloPointerEvents, "none");
-});
-
-test("map labels stay compact and clear the highlighted node", () => {
-  const datum = nodeData({
-    kind: "network",
-    presentation: "map",
-    nodes: [{ key: "node", label: "DepartmentCollaboration" }],
-    edges: [],
-  }, "node");
-  const style = mapNodeStyle({ data: datum } as unknown as NodeData);
-
-  assert.equal(style.labelText, "Department\nCollaboration");
-  assert.equal(style.labelFontSize, 9);
-  assert.equal(style.labelMaxLines, 2);
-  assert.equal(style.labelOffsetY, datum.diameter / 2 + 8);
-  assert.equal(style.labelBackgroundFillOpacity, 0.96);
 });
 
 test("map edges remain readable before hover without becoming visually heavy", () => {
