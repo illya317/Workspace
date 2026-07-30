@@ -50,7 +50,7 @@ test("role SQL is split, monitor-limited, legacy-clean, and contains no RLS poli
   assert.match(verify, /monitor may select a non-allowlisted relation/);
   assert.match(verify, /pg_shdepend/);
   assert.match(verify, /RLS baseline changed; RLS is outside this cutover/);
-  assert.doesNotMatch(roles + verify, /CREATE POLICY|ENABLE ROW LEVEL SECURITY|FORCE ROW LEVEL SECURITY/i);
+  assert.doesNotMatch(roles + verify + read("production-security.sh"), /CREATE POLICY|ENABLE ROW LEVEL SECURITY|FORCE ROW LEVEL SECURITY/i);
 });
 
 test("orchestrator is receipt-bound, health/version-gated, narrow, and reversible", () => {
@@ -131,6 +131,44 @@ test("orchestrator is receipt-bound, health/version-gated, narrow, and reversibl
   assert.match(service, /if \[ -s \/var\/lib\/workspace-runtime\/\.pm2\/dump\.pm2 \]/);
   assert.match(service, /ExecStartPost=.*pm2\.pid/);
   assert.match(service, /ExecStop=\/usr\/bin\/pm2 kill/);
+});
+
+test("runtime control-plane roots use one reversible deny list", () => {
+  const security = read("production-security.sh");
+  const protectedStart = security.indexOf("protected_control_paths() {");
+  const denyStart = security.indexOf("deny_runtime_control_paths() {");
+  const backupStart = security.indexOf("backup_runtime_acls() {");
+  const installStart = security.indexOf("install_runtime_permissions() {");
+  const verifyStart = security.indexOf("verify_runtime_permissions() {");
+  assert.ok(protectedStart >= 0 && denyStart > protectedStart && backupStart > denyStart);
+  assert.ok(installStart > backupStart && verifyStart > installStart);
+
+  const protectedBody = security.slice(protectedStart, denyStart);
+  for (const target of [
+    "$CONTROL_ENV_TARGET",
+    "$FINANCE_ENV_TARGET",
+    "$STATE_ROOT",
+    "$BACKUP_ROOT",
+    "$CONFIG_ROOT/.deployment",
+    "$CONFIG_ROOT/deployment-history",
+    "$CONFIG_ROOT/data-release-manifests",
+    "$CONFIG_ROOT/data-release-sources",
+    "$CONFIG_ROOT/internal-unit-identities",
+    "$REMOTE_ROOT/.workspace.backups",
+  ]) {
+    assert.match(protectedBody, new RegExp(target.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  assert.match(protectedBody, /find "\$CONFIG_ROOT" -maxdepth 1 -type f -name '\.env\*'/);
+
+  const denyBody = security.slice(denyStart, backupStart);
+  assert.match(denyBody, /setfacl -m "u:\$RUNTIME_USER:---" "\$target"/);
+  assert.doesNotMatch(denyBody, /setfacl -R/);
+  assert.match(security.slice(backupStart, installStart), /protected_control_paths/);
+  assert.match(security.slice(installStart, verifyStart), /deny_runtime_control_paths/);
+  assert.match(security.slice(verifyStart, security.indexOf("install_hba() {")), /protected_control_paths/);
+  assert.match(security, /install -d -o root -g root -m 0700 "\$STATE_ROOT" "\$BACKUP_ROOT"/);
+  assert.match(security, /install -d -o root -g root -m 0700 "\$backup_dir"/);
+  assert.match(security, /setfacl --restore="\$backup_dir\/workspace-acl\.before"/);
 });
 
 test("production tooling installer pins root ownership and postgres-readable SQL", () => {

@@ -207,7 +207,7 @@ write_receipt() {
   tooling_sha="$(sha256sum "$backup_dir/tooling.sha256" | awk '{print $1}')"
   finance_hook_sha=""
   [ -z "$FINANCE_BOT_HOOK" ] || finance_hook_sha="$(sha256sum "$FINANCE_BOT_HOOK" | awk '{print $1}')"
-  mkdir -p "$STATE_ROOT"
+  secure_state_directories
   STATUS="$status" RECEIPT_FILE="$RECEIPT_FILE" BACKUP_DIR="$backup_dir" \
     RUNTIME_INPUT="$RUNTIME_ENV_INPUT" CONTROL_INPUT="$CONTROL_ENV_INPUT" \
     RUNTIME_SHA="$runtime_sha" CONTROL_SHA="$control_sha" HBA_SHA="$hba_sha" PLAN_SHA="$plan_sha" LINKS_SHA="$links_sha" \
@@ -440,6 +440,24 @@ protected_data_files() {
   [ ! -d "$CONFIG_ROOT/data" ] || find "$CONFIG_ROOT/data" -maxdepth 1 -type f \
     \( -name '*.db' -o -name '*.db.*' -o -name '*.sqlite' -o -name '*.sqlite.*' -o -name '*.bak' -o -name '*.backup*' \) -print
 }
+secure_state_directories() {
+  install -d -o root -g root -m 0700 "$STATE_ROOT" "$BACKUP_ROOT"
+}
+protected_control_paths() {
+  local target
+  for target in "$CONTROL_ENV_TARGET" "$FINANCE_ENV_TARGET" "$STATE_ROOT" "$BACKUP_ROOT" \
+    "$CONFIG_ROOT/.deployment" "$CONFIG_ROOT/deployment-history" "$CONFIG_ROOT/data-release-manifests" \
+    "$CONFIG_ROOT/data-release-sources" "$CONFIG_ROOT/internal-unit-identities" "$REMOTE_ROOT/.workspace.backups"; do
+    [ ! -e "$target" ] || printf '%s\n' "$target"
+  done
+  [ ! -d "$CONFIG_ROOT" ] || find "$CONFIG_ROOT" -maxdepth 1 -type f -name '.env*' -print
+}
+deny_runtime_control_paths() {
+  local target
+  while IFS= read -r target; do
+    setfacl -m "u:$RUNTIME_USER:---" "$target"
+  done < <(protected_control_paths)
+}
 backup_runtime_acls() {
   local output=$1 target
   getfacl -p "$CONFIG_ROOT" > "$output"
@@ -448,6 +466,7 @@ backup_runtime_acls() {
   while IFS= read -r target; do getfacl -Rp "$target" >> "$output"; done < <(runtime_rw_targets)
   while IFS= read -r target; do getfacl -Rp "$target" >> "$output"; done < <(protected_data_directories)
   while IFS= read -r target; do getfacl -p "$target" >> "$output"; done < <(protected_data_files)
+  while IFS= read -r target; do getfacl -p "$target" >> "$output"; done < <(protected_control_paths)
 }
 backup_optional_file() {
   local source=$1 label=$2 destination=$3
@@ -492,9 +511,10 @@ install_runtime_permissions() {
   while IFS= read -r target; do
     setfacl -Rm "u:$RUNTIME_USER:---" "$target"
   done < <(protected_data_directories)
+  deny_runtime_control_paths
 }
 verify_runtime_permissions() {
-  local target forbidden
+  local target
   runuser -u "$RUNTIME_USER" -- test -r "$RUNTIME_ENV_TARGET"
   while IFS= read -r target; do
     runuser -u "$RUNTIME_USER" -- test -x "$target"
@@ -523,19 +543,12 @@ verify_runtime_permissions() {
   done < <(protected_data_directories)
   target="$CONFIG_ROOT/cache/production/qc/.postgresql-security-probe.$$"
   runuser -u "$RUNTIME_USER" -- env PROBE_FILE="$target" /bin/sh -c 'umask 077; : > "$PROBE_FILE"; rm -f "$PROBE_FILE"'
-  while IFS= read -r forbidden; do
-    if runuser -u "$RUNTIME_USER" -- test -r "$forbidden"; then
-      echo "[错误] runtime 用户可读取共享 env: $forbidden" >&2
+  while IFS= read -r target; do
+    if runuser -u "$RUNTIME_USER" -- test -r "$target" || runuser -u "$RUNTIME_USER" -- test -x "$target"; then
+      echo "[错误] runtime 用户可访问控制面路径: $target" >&2
       exit 1
     fi
-  done < <(find "$CONFIG_ROOT" -maxdepth 1 -type f -name '.env*' -print)
-  for forbidden in "$CONTROL_ENV_TARGET" "$FINANCE_ENV_TARGET" "$STATE_ROOT" "$CONFIG_ROOT/.deployment" \
-    "$CONFIG_ROOT/deployment-history" "$CONFIG_ROOT/data-release-manifests" "$CONFIG_ROOT/data-release-sources" \
-    "$CONFIG_ROOT/internal-unit-identities" "$REMOTE_ROOT/.workspace.backups"; do
-    [ ! -e "$forbidden" ] || ! runuser -u "$RUNTIME_USER" -- test -r "$forbidden" || {
-      echo "[错误] runtime 用户可读取控制面路径: $forbidden" >&2; exit 1;
-    }
-  done
+  done < <(protected_control_paths)
 }
 install_hba() {
   local mode=$1 directory=$2 source previous hba_errors=""
@@ -596,8 +609,9 @@ if [ "$COMMAND" = prepare ]; then
   [ "$(runuser -u postgres -- psql -X -d postgres -Atc 'SHOW ssl')" = on ] || { echo "[错误] PostgreSQL 未启用 TLS" >&2; exit 1; }
   case "$(receipt_status)" in missing|rolled-back) ;; *) echo "[错误] 已存在未完成的 PostgreSQL security receipt" >&2; exit 1 ;; esac
   stamp="$(date -u +%Y%m%dT%H%M%SZ)-$$"
+  secure_state_directories
   backup_dir="$BACKUP_ROOT/$stamp"
-  install -d -m 0700 "$backup_dir"
+  install -d -o root -g root -m 0700 "$backup_dir"
   finance_bot_contract prepare
   install -m 0600 "$HBA_FILE" "$backup_dir/pg_hba.before"
   "$SCRIPT_DIR/production-hba.sh" transition > "$backup_dir/pg_hba.transition"
@@ -657,6 +671,7 @@ if [ "$COMMAND" = apply ]; then
   printf 'WORKSPACE_DATABASE_URL=%s\n' "$MONITOR_URL" > "$FINANCE_ENV_TARGET"
   chown root:root "$FINANCE_ENV_TARGET"
   chmod 0600 "$FINANCE_ENV_TARGET"
+  deny_runtime_control_paths
   install -o root -g root -m 0755 "$SCRIPT_DIR/production-runtime-pm2.sh" "$RUNTIME_RUNNER"
   install -o root -g root -m 0755 "$SCRIPT_DIR/production-legacy-pm2.sh" "$LEGACY_RUNNER"
   install -o root -g root -m 0644 "$SCRIPT_DIR/production-workspace-runtime.service" "$RUNTIME_SERVICE"
