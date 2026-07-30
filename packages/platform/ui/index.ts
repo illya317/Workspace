@@ -6,6 +6,12 @@ export { default as NavLink } from "./NavLink";
 export { useDeployUnitNavigation } from "./useDeployUnitNavigation";
 export { default as PortalClient } from "./PortalClient";
 export {
+  createCategoryDirectItemSection,
+  createCategoryItemDetailBody,
+  type CategoryDirectItemSectionSpec,
+  type CategoryItemDetailWorkspaceSpec,
+} from "./category-item-detail-workspace";
+export {
   createBusinessTemporalView,
   type BusinessTemporalViewBaseSpec,
   type BusinessTemporalViewItemSpec,

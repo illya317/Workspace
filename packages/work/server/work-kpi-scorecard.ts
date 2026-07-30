@@ -1,5 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/server/api";
+import { runSerializableTransaction } from "@workspace/platform/server/serializable-transaction";
 import { validateWorkKpiScorecardCommand, type WorkKpiScorecardEntryCommand } from "./domain/work-kpi-scorecard-validation";
 import { validateWorkKpiMeasurementsCommand } from "./domain/work-kpi-result-validation";
 import { canUpdateWorkTaskAction, canViewWorkTaskTarget } from "./access";
@@ -9,6 +10,12 @@ import type { WorkKpiScoringRule } from "./work-kpi-types";
 import { toWorkKpiAssignmentDto, workKpiAssignmentInclude } from "./work-kpi-dto";
 import { approveObjectiveReview, recordDirectObjectiveConfirmation } from "./work-okr-stage";
 import { getWorkPlanOkrGovernance } from "./work-plan-governance";
+import {
+  buildAuditedWorkMutationImpactEngine,
+  mutationImpactServiceError,
+  workItemMutationRoot,
+  type WorkMutationImpactContext,
+} from "./work-mutation-impact";
 
 type ScorecardDto = Awaited<ReturnType<typeof loadKpiScorecardDto>>;
 
@@ -79,17 +86,72 @@ export async function saveKpiScorecardDraft(input: {
   const context = await validateScorecardRelations(plan, command.data.entries, input.ownerEligibilityUserId ?? input.actorUserId);
   if (!context.ok) return context;
   try {
-    await prisma.$transaction(async (tx) => {
+    await runSerializableTransaction(async (tx) => {
       const existing = await tx.workKpiAssignment.findMany({
         where: { workPlanId: plan.id },
-        select: { id: true, workItemId: true, version: true, _count: { select: { resultSnapshots: true } } },
+        select: {
+          id: true,
+          workItemId: true,
+          version: true,
+          _count: { select: { resultSnapshots: true } },
+          workItem: {
+            select: {
+              id: true,
+              content: true,
+              updatedAt: true,
+              status: true,
+              isArchived: true,
+              planId: true,
+              parentWorkItemId: true,
+            },
+          },
+        },
       });
       const incomingIds = new Set(command.data.entries.flatMap((entry) => entry.id ? [entry.id] : []));
       const removed = existing.filter((entry) => !incomingIds.has(entry.id));
       if (removed.some((entry) => entry._count.resultSnapshots > 0)) throw new KpiConflict("已有结算快照的 KPI 不能删除");
       if (removed.length) {
-        await tx.workKpiAssignment.deleteMany({ where: { id: { in: removed.map((entry) => entry.id) }, workPlanId: plan.id } });
-        await tx.workItem.deleteMany({ where: { id: { in: removed.map((entry) => entry.workItemId) }, planId: plan.id } });
+        const impactContext: WorkMutationImpactContext = {
+          tx,
+          actorUserId: input.actorUserId,
+          scopeType: plan.targetType,
+          scopeId: String(plan.targetId),
+        };
+        const impactEngine = buildAuditedWorkMutationImpactEngine(impactContext);
+        for (const entry of removed) {
+          await impactEngine.execute({
+            context: impactContext,
+            actorKey: `user:${input.actorUserId}`,
+            scopeKey: `${plan.targetType}:${plan.targetId}`,
+            root: {
+              entity: "WorkKpiAssignment",
+              id: String(entry.id),
+              label: entry.workItem.content,
+              intent: "delete",
+              expectedVersion: entry.version,
+            },
+            commitRoot: async () => {
+              const changed = await tx.workKpiAssignment.deleteMany({
+                where: { id: entry.id, workPlanId: plan.id, version: entry.version },
+              });
+              if (changed.count !== 1) throw new KpiConflict("KPI 计分卡已被其他人更新，请刷新后重试");
+              return entry.id;
+            },
+          });
+          await impactEngine.execute({
+            context: impactContext,
+            actorKey: `user:${input.actorUserId}`,
+            scopeKey: `${plan.targetType}:${plan.targetId}`,
+            root: workItemMutationRoot({ item: entry.workItem, intent: "delete" }),
+            commitRoot: async () => {
+              const changed = await tx.workItem.deleteMany({
+                where: { id: entry.workItemId, planId: plan.id, updatedAt: entry.workItem.updatedAt },
+              });
+              if (changed.count !== 1) throw new KpiConflict("KPI 工作项已被其他人更新，请刷新后重试");
+              return entry.workItemId;
+            },
+          });
+        }
       }
       for (const [index, entry] of command.data.entries.entries()) {
         const definition = context.data.definitions.get(entry.definitionId)!;
@@ -168,6 +230,10 @@ export async function saveKpiScorecardDraft(input: {
     });
   } catch (error) {
     if (error instanceof KpiConflict) return serviceError(error.message, 409);
+    const impactError = mutationImpactServiceError(error);
+    if (impactError) {
+      return serviceError(impactError.error, impactError.status, impactError.details);
+    }
     if (isUniqueConstraintError(error)) return serviceError("同一计分卡不能重复关联同一指标或 KR", 409);
     throw error;
   }

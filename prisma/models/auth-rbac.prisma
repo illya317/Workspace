@@ -26,6 +26,8 @@ model User {
   recordedEmployeeSocialInsuranceRevisions EmployeeSocialInsurancePeriodRevision[] @relation("EmployeeSocialInsuranceRevisionRecorder")
   createdContractRecords            ContractRecord[]                    @relation("ContractRecordCreator")
   editHistories                     EditHistory[]                       @relation("EditHistoryEditor")
+  updatedRelationPolicyConfigs      RelationPolicyConfig[]              @relation("RelationPolicyConfigUpdater")
+  recordedRelationPolicyRevisions   RelationPolicyRevision[]            @relation("RelationPolicyRevisionActor")
   employees                          Employee[]                          @relation("EmployeeUser")
   agentProfile                     AgentProfile?                       @relation("AgentProfileActor")
   editedFinanceAccounts             FinanceAccount[]                    @relation("FinanceAccountEditor")

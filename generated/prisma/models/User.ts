@@ -311,6 +311,8 @@ export type UserWhereInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionListRelationFilter
   createdContractRecords?: Prisma.ContractRecordListRelationFilter
   editHistories?: Prisma.EditHistoryListRelationFilter
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigListRelationFilter
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionListRelationFilter
   employees?: Prisma.EmployeeListRelationFilter
   agentProfile?: Prisma.XOR<Prisma.AgentProfileNullableScalarRelationFilter, Prisma.AgentProfileWhereInput> | null
   editedFinanceAccounts?: Prisma.FinanceAccountListRelationFilter
@@ -398,6 +400,8 @@ export type UserOrderByWithRelationInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionOrderByRelationAggregateInput
   createdContractRecords?: Prisma.ContractRecordOrderByRelationAggregateInput
   editHistories?: Prisma.EditHistoryOrderByRelationAggregateInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigOrderByRelationAggregateInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionOrderByRelationAggregateInput
   employees?: Prisma.EmployeeOrderByRelationAggregateInput
   agentProfile?: Prisma.AgentProfileOrderByWithRelationInput
   editedFinanceAccounts?: Prisma.FinanceAccountOrderByRelationAggregateInput
@@ -488,6 +492,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionListRelationFilter
   createdContractRecords?: Prisma.ContractRecordListRelationFilter
   editHistories?: Prisma.EditHistoryListRelationFilter
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigListRelationFilter
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionListRelationFilter
   employees?: Prisma.EmployeeListRelationFilter
   agentProfile?: Prisma.XOR<Prisma.AgentProfileNullableScalarRelationFilter, Prisma.AgentProfileWhereInput> | null
   editedFinanceAccounts?: Prisma.FinanceAccountListRelationFilter
@@ -618,6 +624,8 @@ export type UserCreateInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -705,6 +713,8 @@ export type UserUncheckedCreateInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -791,6 +801,8 @@ export type UserUpdateInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -878,6 +890,8 @@ export type UserUncheckedUpdateInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -1939,6 +1953,38 @@ export type UserUpdateOneRequiredWithoutNotificationSubscriptionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationSubscriptionsInput, Prisma.UserUpdateWithoutNotificationSubscriptionsInput>, Prisma.UserUncheckedUpdateWithoutNotificationSubscriptionsInput>
 }
 
+export type UserCreateNestedOneWithoutUpdatedRelationPolicyConfigsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUpdatedRelationPolicyConfigsInput, Prisma.UserUncheckedCreateWithoutUpdatedRelationPolicyConfigsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUpdatedRelationPolicyConfigsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutUpdatedRelationPolicyConfigsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUpdatedRelationPolicyConfigsInput, Prisma.UserUncheckedCreateWithoutUpdatedRelationPolicyConfigsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUpdatedRelationPolicyConfigsInput
+  upsert?: Prisma.UserUpsertWithoutUpdatedRelationPolicyConfigsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUpdatedRelationPolicyConfigsInput, Prisma.UserUpdateWithoutUpdatedRelationPolicyConfigsInput>, Prisma.UserUncheckedUpdateWithoutUpdatedRelationPolicyConfigsInput>
+}
+
+export type UserCreateNestedOneWithoutRecordedRelationPolicyRevisionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRecordedRelationPolicyRevisionsInput, Prisma.UserUncheckedCreateWithoutRecordedRelationPolicyRevisionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRecordedRelationPolicyRevisionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutRecordedRelationPolicyRevisionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRecordedRelationPolicyRevisionsInput, Prisma.UserUncheckedCreateWithoutRecordedRelationPolicyRevisionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRecordedRelationPolicyRevisionsInput
+  upsert?: Prisma.UserUpsertWithoutRecordedRelationPolicyRevisionsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRecordedRelationPolicyRevisionsInput, Prisma.UserUpdateWithoutRecordedRelationPolicyRevisionsInput>, Prisma.UserUncheckedUpdateWithoutRecordedRelationPolicyRevisionsInput>
+}
+
 export type UserCreateNestedOneWithoutCreatedDepartmentCollaborationsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedDepartmentCollaborationsInput, Prisma.UserUncheckedCreateWithoutCreatedDepartmentCollaborationsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedDepartmentCollaborationsInput
@@ -2141,6 +2187,8 @@ export type UserCreateWithoutErpDueDiligenceSubmissionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -2227,6 +2275,8 @@ export type UserUncheckedCreateWithoutErpDueDiligenceSubmissionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -2328,6 +2378,8 @@ export type UserUpdateWithoutErpDueDiligenceSubmissionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -2414,6 +2466,8 @@ export type UserUncheckedUpdateWithoutErpDueDiligenceSubmissionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -2499,6 +2553,8 @@ export type UserCreateWithoutAgentProfileInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
@@ -2585,6 +2641,8 @@ export type UserUncheckedCreateWithoutAgentProfileInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
@@ -2686,6 +2744,8 @@ export type UserUpdateWithoutAgentProfileInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
@@ -2772,6 +2832,8 @@ export type UserUncheckedUpdateWithoutAgentProfileInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
@@ -2857,6 +2919,8 @@ export type UserCreateWithoutSubmittedApprovalRequestsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -2943,6 +3007,8 @@ export type UserUncheckedCreateWithoutSubmittedApprovalRequestsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -3033,6 +3099,8 @@ export type UserCreateWithoutResolvedApprovalRequestsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -3119,6 +3187,8 @@ export type UserUncheckedCreateWithoutResolvedApprovalRequestsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -3220,6 +3290,8 @@ export type UserUpdateWithoutSubmittedApprovalRequestsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -3306,6 +3378,8 @@ export type UserUncheckedUpdateWithoutSubmittedApprovalRequestsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -3402,6 +3476,8 @@ export type UserUpdateWithoutResolvedApprovalRequestsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -3488,6 +3564,8 @@ export type UserUncheckedUpdateWithoutResolvedApprovalRequestsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -3573,6 +3651,8 @@ export type UserCreateWithoutApprovalEventsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -3659,6 +3739,8 @@ export type UserUncheckedCreateWithoutApprovalEventsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -3760,6 +3842,8 @@ export type UserUpdateWithoutApprovalEventsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -3846,6 +3930,8 @@ export type UserUncheckedUpdateWithoutApprovalEventsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -3931,6 +4017,8 @@ export type UserCreateWithoutResourceActionGrantsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -4017,6 +4105,8 @@ export type UserUncheckedCreateWithoutResourceActionGrantsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -4118,6 +4208,8 @@ export type UserUpdateWithoutResourceActionGrantsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -4204,6 +4296,8 @@ export type UserUncheckedUpdateWithoutResourceActionGrantsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -4289,6 +4383,8 @@ export type UserCreateWithoutPermissionGrantLedgerEventsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -4375,6 +4471,8 @@ export type UserUncheckedCreateWithoutPermissionGrantLedgerEventsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -4476,6 +4574,8 @@ export type UserUpdateWithoutPermissionGrantLedgerEventsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -4562,6 +4662,8 @@ export type UserUncheckedUpdateWithoutPermissionGrantLedgerEventsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -4647,6 +4749,8 @@ export type UserCreateWithoutNotificationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -4733,6 +4837,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -4823,6 +4929,8 @@ export type UserCreateWithoutCreatedNotificationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -4909,6 +5017,8 @@ export type UserUncheckedCreateWithoutCreatedNotificationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -5010,6 +5120,8 @@ export type UserUpdateWithoutNotificationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -5096,6 +5208,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -5192,6 +5306,8 @@ export type UserUpdateWithoutCreatedNotificationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -5278,6 +5394,8 @@ export type UserUncheckedUpdateWithoutCreatedNotificationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -5362,6 +5480,8 @@ export type UserCreateWithoutEditedContractsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -5448,6 +5568,8 @@ export type UserUncheckedCreateWithoutEditedContractsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -5538,6 +5660,8 @@ export type UserCreateWithoutArchivedContractsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -5624,6 +5748,8 @@ export type UserUncheckedCreateWithoutArchivedContractsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -5725,6 +5851,8 @@ export type UserUpdateWithoutEditedContractsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -5811,6 +5939,8 @@ export type UserUncheckedUpdateWithoutEditedContractsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -5907,6 +6037,8 @@ export type UserUpdateWithoutArchivedContractsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -5993,6 +6125,8 @@ export type UserUncheckedUpdateWithoutArchivedContractsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -6078,6 +6212,8 @@ export type UserCreateWithoutUploadedContractAttachmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -6164,6 +6300,8 @@ export type UserUncheckedCreateWithoutUploadedContractAttachmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -6254,6 +6392,8 @@ export type UserCreateWithoutRemovedContractAttachmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -6340,6 +6480,8 @@ export type UserUncheckedCreateWithoutRemovedContractAttachmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -6441,6 +6583,8 @@ export type UserUpdateWithoutUploadedContractAttachmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -6527,6 +6671,8 @@ export type UserUncheckedUpdateWithoutUploadedContractAttachmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -6623,6 +6769,8 @@ export type UserUpdateWithoutRemovedContractAttachmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -6709,6 +6857,8 @@ export type UserUncheckedUpdateWithoutRemovedContractAttachmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -6794,6 +6944,8 @@ export type UserCreateWithoutCreatedContractRecordsInput = {
   updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutUpdaterInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -6880,6 +7032,8 @@ export type UserUncheckedCreateWithoutCreatedContractRecordsInput = {
   updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutUpdaterInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -6981,6 +7135,8 @@ export type UserUpdateWithoutCreatedContractRecordsInput = {
   updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutUpdaterNestedInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -7067,6 +7223,8 @@ export type UserUncheckedUpdateWithoutCreatedContractRecordsInput = {
   updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutUpdaterNestedInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -7153,6 +7311,8 @@ export type UserCreateWithoutRequestedDataQualityRunsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -7239,6 +7399,8 @@ export type UserUncheckedCreateWithoutRequestedDataQualityRunsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -7340,6 +7502,8 @@ export type UserUpdateWithoutRequestedDataQualityRunsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -7426,6 +7590,8 @@ export type UserUncheckedUpdateWithoutRequestedDataQualityRunsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -7511,6 +7677,8 @@ export type UserCreateWithoutFinanceAssetAcquisitionsConfirmedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -7597,6 +7765,8 @@ export type UserUncheckedCreateWithoutFinanceAssetAcquisitionsConfirmedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -7698,6 +7868,8 @@ export type UserUpdateWithoutFinanceAssetAcquisitionsConfirmedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -7784,6 +7956,8 @@ export type UserUncheckedUpdateWithoutFinanceAssetAcquisitionsConfirmedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -7869,6 +8043,8 @@ export type UserCreateWithoutFinanceAssetImpairmentAssessmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -7955,6 +8131,8 @@ export type UserUncheckedCreateWithoutFinanceAssetImpairmentAssessmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -8056,6 +8234,8 @@ export type UserUpdateWithoutFinanceAssetImpairmentAssessmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -8142,6 +8322,8 @@ export type UserUncheckedUpdateWithoutFinanceAssetImpairmentAssessmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -8227,6 +8409,8 @@ export type UserCreateWithoutFinanceAssetDisposalsConfirmedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -8313,6 +8497,8 @@ export type UserUncheckedCreateWithoutFinanceAssetDisposalsConfirmedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -8414,6 +8600,8 @@ export type UserUpdateWithoutFinanceAssetDisposalsConfirmedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -8500,6 +8688,8 @@ export type UserUncheckedUpdateWithoutFinanceAssetDisposalsConfirmedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -8585,6 +8775,8 @@ export type UserCreateWithoutFinanceCloseRunsStartedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -8671,6 +8863,8 @@ export type UserUncheckedCreateWithoutFinanceCloseRunsStartedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -8772,6 +8966,8 @@ export type UserUpdateWithoutFinanceCloseRunsStartedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -8858,6 +9054,8 @@ export type UserUncheckedUpdateWithoutFinanceCloseRunsStartedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -8943,6 +9141,8 @@ export type UserCreateWithoutFinanceCloseEventsActedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -9029,6 +9229,8 @@ export type UserUncheckedCreateWithoutFinanceCloseEventsActedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -9130,6 +9332,8 @@ export type UserUpdateWithoutFinanceCloseEventsActedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -9216,6 +9420,8 @@ export type UserUncheckedUpdateWithoutFinanceCloseEventsActedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -9301,6 +9507,8 @@ export type UserCreateWithoutFinanceCloseWorkpapersPreparedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -9387,6 +9595,8 @@ export type UserUncheckedCreateWithoutFinanceCloseWorkpapersPreparedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -9477,6 +9687,8 @@ export type UserCreateWithoutFinanceCloseWorkpapersReviewedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -9563,6 +9775,8 @@ export type UserUncheckedCreateWithoutFinanceCloseWorkpapersReviewedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -9664,6 +9878,8 @@ export type UserUpdateWithoutFinanceCloseWorkpapersPreparedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -9750,6 +9966,8 @@ export type UserUncheckedUpdateWithoutFinanceCloseWorkpapersPreparedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -9846,6 +10064,8 @@ export type UserUpdateWithoutFinanceCloseWorkpapersReviewedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -9932,6 +10152,8 @@ export type UserUncheckedUpdateWithoutFinanceCloseWorkpapersReviewedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -10017,6 +10239,8 @@ export type UserCreateWithoutFinanceCloseWorkpaperEventsActedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -10103,6 +10327,8 @@ export type UserUncheckedCreateWithoutFinanceCloseWorkpaperEventsActedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -10204,6 +10430,8 @@ export type UserUpdateWithoutFinanceCloseWorkpaperEventsActedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -10290,6 +10518,8 @@ export type UserUncheckedUpdateWithoutFinanceCloseWorkpaperEventsActedInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -10375,6 +10605,8 @@ export type UserCreateWithoutLedgerImportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -10461,6 +10693,8 @@ export type UserUncheckedCreateWithoutLedgerImportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -10562,6 +10796,8 @@ export type UserUpdateWithoutLedgerImportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -10648,6 +10884,8 @@ export type UserUncheckedUpdateWithoutLedgerImportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -10733,6 +10971,8 @@ export type UserCreateWithoutSnapshotImportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -10819,6 +11059,8 @@ export type UserUncheckedCreateWithoutSnapshotImportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -10909,6 +11151,8 @@ export type UserCreateWithoutSnapshotEditsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -10995,6 +11239,8 @@ export type UserUncheckedCreateWithoutSnapshotEditsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -11096,6 +11342,8 @@ export type UserUpdateWithoutSnapshotImportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -11182,6 +11430,8 @@ export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -11278,6 +11528,8 @@ export type UserUpdateWithoutSnapshotEditsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -11364,6 +11616,8 @@ export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -11449,6 +11703,8 @@ export type UserCreateWithoutEditedFinanceAccountsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
@@ -11535,6 +11791,8 @@ export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
@@ -11636,6 +11894,8 @@ export type UserUpdateWithoutEditedFinanceAccountsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
@@ -11722,6 +11982,8 @@ export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
@@ -11807,6 +12069,8 @@ export type UserCreateWithoutEditedFinanceVouchersInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -11893,6 +12157,8 @@ export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -11994,6 +12260,8 @@ export type UserUpdateWithoutEditedFinanceVouchersInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -12080,6 +12348,8 @@ export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -12165,6 +12435,8 @@ export type UserCreateWithoutConfirmedReclassRulesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -12251,6 +12523,8 @@ export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -12352,6 +12626,8 @@ export type UserUpdateWithoutConfirmedReclassRulesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -12438,6 +12714,8 @@ export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -12523,6 +12801,8 @@ export type UserCreateWithoutReviewedReclassResultsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -12609,6 +12889,8 @@ export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -12710,6 +12992,8 @@ export type UserUpdateWithoutReviewedReclassResultsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -12796,6 +13080,8 @@ export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -12881,6 +13167,8 @@ export type UserCreateWithoutEditedWorkpapersInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -12967,6 +13255,8 @@ export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -13068,6 +13358,8 @@ export type UserUpdateWithoutEditedWorkpapersInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -13154,6 +13446,8 @@ export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -13238,6 +13532,8 @@ export type UserCreateWithoutEditHistoriesInput = {
   updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutUpdaterInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -13324,6 +13620,8 @@ export type UserUncheckedCreateWithoutEditHistoriesInput = {
   updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutUpdaterInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -13425,6 +13723,8 @@ export type UserUpdateWithoutEditHistoriesInput = {
   updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutUpdaterNestedInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -13511,6 +13811,8 @@ export type UserUncheckedUpdateWithoutEditHistoriesInput = {
   updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutUpdaterNestedInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -13596,6 +13898,8 @@ export type UserCreateWithoutUploadedEmploymentAgreementAttachmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -13682,6 +13986,8 @@ export type UserUncheckedCreateWithoutUploadedEmploymentAgreementAttachmentsInpu
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -13772,6 +14078,8 @@ export type UserCreateWithoutRemovedEmploymentAgreementAttachmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -13858,6 +14166,8 @@ export type UserUncheckedCreateWithoutRemovedEmploymentAgreementAttachmentsInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -13959,6 +14269,8 @@ export type UserUpdateWithoutUploadedEmploymentAgreementAttachmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -14045,6 +14357,8 @@ export type UserUncheckedUpdateWithoutUploadedEmploymentAgreementAttachmentsInpu
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -14141,6 +14455,8 @@ export type UserUpdateWithoutRemovedEmploymentAgreementAttachmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -14227,6 +14543,8 @@ export type UserUncheckedUpdateWithoutRemovedEmploymentAgreementAttachmentsInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -14313,6 +14631,8 @@ export type UserCreateWithoutRecordedEmploymentAgreementChangesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -14399,6 +14719,8 @@ export type UserUncheckedCreateWithoutRecordedEmploymentAgreementChangesInput = 
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -14500,6 +14822,8 @@ export type UserUpdateWithoutRecordedEmploymentAgreementChangesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -14586,6 +14910,8 @@ export type UserUncheckedUpdateWithoutRecordedEmploymentAgreementChangesInput = 
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -14671,6 +14997,8 @@ export type UserCreateWithoutRecordedEmployeeLifecycleEventsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -14757,6 +15085,8 @@ export type UserUncheckedCreateWithoutRecordedEmployeeLifecycleEventsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -14858,6 +15188,8 @@ export type UserUpdateWithoutRecordedEmployeeLifecycleEventsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -14944,6 +15276,8 @@ export type UserUncheckedUpdateWithoutRecordedEmployeeLifecycleEventsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -15029,6 +15363,8 @@ export type UserCreateWithoutRecordedEmployeePeriodRevisionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -15115,6 +15451,8 @@ export type UserUncheckedCreateWithoutRecordedEmployeePeriodRevisionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -15216,6 +15554,8 @@ export type UserUpdateWithoutRecordedEmployeePeriodRevisionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -15302,6 +15642,8 @@ export type UserUncheckedUpdateWithoutRecordedEmployeePeriodRevisionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -15386,6 +15728,8 @@ export type UserCreateWithoutCreatedEmployeeSocialInsurancePeriodsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -15472,6 +15816,8 @@ export type UserUncheckedCreateWithoutCreatedEmployeeSocialInsurancePeriodsInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -15562,6 +15908,8 @@ export type UserCreateWithoutUpdatedEmployeeSocialInsurancePeriodsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -15648,6 +15996,8 @@ export type UserUncheckedCreateWithoutUpdatedEmployeeSocialInsurancePeriodsInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -15749,6 +16099,8 @@ export type UserUpdateWithoutCreatedEmployeeSocialInsurancePeriodsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -15835,6 +16187,8 @@ export type UserUncheckedUpdateWithoutCreatedEmployeeSocialInsurancePeriodsInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -15931,6 +16285,8 @@ export type UserUpdateWithoutUpdatedEmployeeSocialInsurancePeriodsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -16017,6 +16373,8 @@ export type UserUncheckedUpdateWithoutUpdatedEmployeeSocialInsurancePeriodsInput
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -16102,6 +16460,8 @@ export type UserCreateWithoutRecordedEmployeeSocialInsuranceRevisionsInput = {
   updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutUpdaterInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -16188,6 +16548,8 @@ export type UserUncheckedCreateWithoutRecordedEmployeeSocialInsuranceRevisionsIn
   updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutUpdaterInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -16289,6 +16651,8 @@ export type UserUpdateWithoutRecordedEmployeeSocialInsuranceRevisionsInput = {
   updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutUpdaterNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -16375,6 +16739,8 @@ export type UserUncheckedUpdateWithoutRecordedEmployeeSocialInsuranceRevisionsIn
   updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutUpdaterNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -16461,6 +16827,8 @@ export type UserCreateWithoutEmployeesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
@@ -16547,6 +16915,8 @@ export type UserUncheckedCreateWithoutEmployeesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
@@ -16648,6 +17018,8 @@ export type UserUpdateWithoutEmployeesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
@@ -16734,6 +17106,8 @@ export type UserUncheckedUpdateWithoutEmployeesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
@@ -16819,6 +17193,8 @@ export type UserCreateWithoutEditedStockRawMaterialsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -16905,6 +17281,8 @@ export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -17006,6 +17384,8 @@ export type UserUpdateWithoutEditedStockRawMaterialsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -17092,6 +17472,8 @@ export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -17177,6 +17559,8 @@ export type UserCreateWithoutEditedStockPackagingsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -17263,6 +17647,8 @@ export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -17364,6 +17750,8 @@ export type UserUpdateWithoutEditedStockPackagingsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -17450,6 +17838,8 @@ export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -17535,6 +17925,8 @@ export type UserCreateWithoutEditedStockFinishedGoodsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -17621,6 +18013,8 @@ export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -17722,6 +18116,8 @@ export type UserUpdateWithoutEditedStockFinishedGoodsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -17808,6 +18204,8 @@ export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -17893,6 +18291,8 @@ export type UserCreateWithoutStockOperationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -17979,6 +18379,8 @@ export type UserUncheckedCreateWithoutStockOperationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -18080,6 +18482,8 @@ export type UserUpdateWithoutStockOperationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -18166,6 +18570,8 @@ export type UserUncheckedUpdateWithoutStockOperationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -18251,6 +18657,8 @@ export type UserCreateWithoutReviewedLibraryTagCandidatesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -18337,6 +18745,8 @@ export type UserUncheckedCreateWithoutReviewedLibraryTagCandidatesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -18438,6 +18848,8 @@ export type UserUpdateWithoutReviewedLibraryTagCandidatesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -18524,6 +18936,8 @@ export type UserUncheckedUpdateWithoutReviewedLibraryTagCandidatesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -18609,6 +19023,8 @@ export type UserCreateWithoutReviewedLibraryMetadataCandidatesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -18695,6 +19111,8 @@ export type UserUncheckedCreateWithoutReviewedLibraryMetadataCandidatesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -18796,6 +19214,8 @@ export type UserUpdateWithoutReviewedLibraryMetadataCandidatesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -18882,6 +19302,8 @@ export type UserUncheckedUpdateWithoutReviewedLibraryMetadataCandidatesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -18967,6 +19389,8 @@ export type UserCreateWithoutCreatedLibraryEvaluationCasesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -19053,6 +19477,8 @@ export type UserUncheckedCreateWithoutCreatedLibraryEvaluationCasesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -19143,6 +19569,8 @@ export type UserCreateWithoutReviewedLibraryEvaluationCasesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -19229,6 +19657,8 @@ export type UserUncheckedCreateWithoutReviewedLibraryEvaluationCasesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -19330,6 +19760,8 @@ export type UserUpdateWithoutCreatedLibraryEvaluationCasesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -19416,6 +19848,8 @@ export type UserUncheckedUpdateWithoutCreatedLibraryEvaluationCasesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -19512,6 +19946,8 @@ export type UserUpdateWithoutReviewedLibraryEvaluationCasesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -19598,6 +20034,8 @@ export type UserUncheckedUpdateWithoutReviewedLibraryEvaluationCasesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -19683,6 +20121,8 @@ export type UserCreateWithoutRequestedLibraryExportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -19769,6 +20209,8 @@ export type UserUncheckedCreateWithoutRequestedLibraryExportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -19870,6 +20312,8 @@ export type UserUpdateWithoutRequestedLibraryExportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -19956,6 +20400,8 @@ export type UserUncheckedUpdateWithoutRequestedLibraryExportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -20041,6 +20487,8 @@ export type UserCreateWithoutEditedLibraryDocumentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -20127,6 +20575,8 @@ export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -20217,6 +20667,8 @@ export type UserCreateWithoutOwnedLibraryDocumentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -20303,6 +20755,8 @@ export type UserUncheckedCreateWithoutOwnedLibraryDocumentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -20393,6 +20847,8 @@ export type UserCreateWithoutReviewedLibraryDocumentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -20479,6 +20935,8 @@ export type UserUncheckedCreateWithoutReviewedLibraryDocumentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -20580,6 +21038,8 @@ export type UserUpdateWithoutEditedLibraryDocumentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -20666,6 +21126,8 @@ export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -20762,6 +21224,8 @@ export type UserUpdateWithoutOwnedLibraryDocumentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -20848,6 +21312,8 @@ export type UserUncheckedUpdateWithoutOwnedLibraryDocumentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -20944,6 +21410,8 @@ export type UserUpdateWithoutReviewedLibraryDocumentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -21030,6 +21498,8 @@ export type UserUncheckedUpdateWithoutReviewedLibraryDocumentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -21115,6 +21585,8 @@ export type UserCreateWithoutCreatedLibraryVersionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -21201,6 +21673,8 @@ export type UserUncheckedCreateWithoutCreatedLibraryVersionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -21302,6 +21776,8 @@ export type UserUpdateWithoutCreatedLibraryVersionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -21388,6 +21864,8 @@ export type UserUncheckedUpdateWithoutCreatedLibraryVersionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -21473,6 +21951,8 @@ export type UserCreateWithoutCreatedLibraryDocumentTagsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -21559,6 +22039,8 @@ export type UserUncheckedCreateWithoutCreatedLibraryDocumentTagsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -21660,6 +22142,8 @@ export type UserUpdateWithoutCreatedLibraryDocumentTagsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -21746,6 +22230,8 @@ export type UserUncheckedUpdateWithoutCreatedLibraryDocumentTagsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -21831,6 +22317,8 @@ export type UserCreateWithoutMutationImpactBatchesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -21917,6 +22405,8 @@ export type UserUncheckedCreateWithoutMutationImpactBatchesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -22018,6 +22508,8 @@ export type UserUpdateWithoutMutationImpactBatchesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -22104,6 +22596,8 @@ export type UserUncheckedUpdateWithoutMutationImpactBatchesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -22189,6 +22683,8 @@ export type UserCreateWithoutNotificationSubscriptionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -22275,6 +22771,8 @@ export type UserUncheckedCreateWithoutNotificationSubscriptionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -22376,6 +22874,8 @@ export type UserUpdateWithoutNotificationSubscriptionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -22462,6 +22962,8 @@ export type UserUncheckedUpdateWithoutNotificationSubscriptionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -22521,6 +23023,738 @@ export type UserUncheckedUpdateWithoutNotificationSubscriptionsInput = {
   financeAssetAcquisitionsConfirmed?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateManyWithoutConfirmerNestedInput
 }
 
+export type UserCreateWithoutUpdatedRelationPolicyConfigsInput = {
+  wxUserId?: string | null
+  username: string
+  password?: string | null
+  avatar?: string | null
+  alias?: string | null
+  phone?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  preferredProjectIds?: string | null
+  portalSlots?: string | null
+  canLogin?: boolean
+  apiKeyHash?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  archivedContracts?: Prisma.ContractCreateNestedManyWithoutArchivedByUserInput
+  uploadedContractAttachments?: Prisma.ContractAttachmentCreateNestedManyWithoutUploaderInput
+  removedContractAttachments?: Prisma.ContractAttachmentCreateNestedManyWithoutRemoverInput
+  uploadedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentCreateNestedManyWithoutUploaderInput
+  removedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentCreateNestedManyWithoutRemoverInput
+  createdEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCreatorInput
+  updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutUpdaterInput
+  recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
+  createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutOwnerInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutReviewerInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutCreatorInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutCreatorInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutReviewerInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutReviewerInput
+  requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutCreatedByInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutRespondedByInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  notificationSubscriptions?: Prisma.NotificationSubscriptionCreateNestedManyWithoutUserInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutSubmitterInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutResolverInput
+  approvalEvents?: Prisma.ApprovalEventCreateNestedManyWithoutActorInput
+  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
+  recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
+  recordedEmployeePeriodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutRecordedByInput
+  requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
+  financeCloseRunsStarted?: Prisma.FinanceCloseRunCreateNestedManyWithoutStartedByUserInput
+  financeCloseEventsActed?: Prisma.FinanceCloseEventCreateNestedManyWithoutActorUserInput
+  financeCloseWorkpapersPrepared?: Prisma.FinanceCloseWorkpaperCreateNestedManyWithoutPreparedByInput
+  financeCloseWorkpapersReviewed?: Prisma.FinanceCloseWorkpaperCreateNestedManyWithoutReviewedByInput
+  financeCloseWorkpaperEventsActed?: Prisma.FinanceCloseWorkpaperEventCreateNestedManyWithoutActorInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentCreateNestedManyWithoutAssessorInput
+  financeAssetDisposalsConfirmed?: Prisma.FinanceAssetDisposalCreateNestedManyWithoutConfirmerInput
+  financeAssetAcquisitionsConfirmed?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedManyWithoutConfirmerInput
+}
+
+export type UserUncheckedCreateWithoutUpdatedRelationPolicyConfigsInput = {
+  id?: number
+  wxUserId?: string | null
+  username: string
+  password?: string | null
+  avatar?: string | null
+  alias?: string | null
+  phone?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  preferredProjectIds?: string | null
+  portalSlots?: string | null
+  canLogin?: boolean
+  apiKeyHash?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  archivedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutArchivedByUserInput
+  uploadedContractAttachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutUploaderInput
+  removedContractAttachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutRemoverInput
+  uploadedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentUncheckedCreateNestedManyWithoutUploaderInput
+  removedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentUncheckedCreateNestedManyWithoutRemoverInput
+  createdEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCreatorInput
+  updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutUpdaterInput
+  recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
+  createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutOwnerInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutReviewerInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutCreatorInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutCreatorInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutReviewerInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutReviewerInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutCreatedByInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutRespondedByInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  notificationSubscriptions?: Prisma.NotificationSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutSubmitterInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutResolverInput
+  approvalEvents?: Prisma.ApprovalEventUncheckedCreateNestedManyWithoutActorInput
+  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
+  recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
+  recordedEmployeePeriodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutRecordedByInput
+  requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
+  financeCloseRunsStarted?: Prisma.FinanceCloseRunUncheckedCreateNestedManyWithoutStartedByUserInput
+  financeCloseEventsActed?: Prisma.FinanceCloseEventUncheckedCreateNestedManyWithoutActorUserInput
+  financeCloseWorkpapersPrepared?: Prisma.FinanceCloseWorkpaperUncheckedCreateNestedManyWithoutPreparedByInput
+  financeCloseWorkpapersReviewed?: Prisma.FinanceCloseWorkpaperUncheckedCreateNestedManyWithoutReviewedByInput
+  financeCloseWorkpaperEventsActed?: Prisma.FinanceCloseWorkpaperEventUncheckedCreateNestedManyWithoutActorInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUncheckedCreateNestedManyWithoutAssessorInput
+  financeAssetDisposalsConfirmed?: Prisma.FinanceAssetDisposalUncheckedCreateNestedManyWithoutConfirmerInput
+  financeAssetAcquisitionsConfirmed?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedManyWithoutConfirmerInput
+}
+
+export type UserCreateOrConnectWithoutUpdatedRelationPolicyConfigsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUpdatedRelationPolicyConfigsInput, Prisma.UserUncheckedCreateWithoutUpdatedRelationPolicyConfigsInput>
+}
+
+export type UserUpsertWithoutUpdatedRelationPolicyConfigsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUpdatedRelationPolicyConfigsInput, Prisma.UserUncheckedUpdateWithoutUpdatedRelationPolicyConfigsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUpdatedRelationPolicyConfigsInput, Prisma.UserUncheckedCreateWithoutUpdatedRelationPolicyConfigsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUpdatedRelationPolicyConfigsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUpdatedRelationPolicyConfigsInput, Prisma.UserUncheckedUpdateWithoutUpdatedRelationPolicyConfigsInput>
+}
+
+export type UserUpdateWithoutUpdatedRelationPolicyConfigsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  archivedContracts?: Prisma.ContractUpdateManyWithoutArchivedByUserNestedInput
+  uploadedContractAttachments?: Prisma.ContractAttachmentUpdateManyWithoutUploaderNestedInput
+  removedContractAttachments?: Prisma.ContractAttachmentUpdateManyWithoutRemoverNestedInput
+  uploadedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentUpdateManyWithoutUploaderNestedInput
+  removedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentUpdateManyWithoutRemoverNestedInput
+  createdEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCreatorNestedInput
+  updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutUpdaterNestedInput
+  recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
+  createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutOwnerNestedInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutReviewerNestedInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUpdateManyWithoutCreatorNestedInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutReviewerNestedInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutReviewerNestedInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutCreatedByNestedInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutRespondedByNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  notificationSubscriptions?: Prisma.NotificationSubscriptionUpdateManyWithoutUserNestedInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutSubmitterNestedInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutResolverNestedInput
+  approvalEvents?: Prisma.ApprovalEventUpdateManyWithoutActorNestedInput
+  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
+  recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
+  recordedEmployeePeriodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutRecordedByNestedInput
+  requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
+  financeCloseRunsStarted?: Prisma.FinanceCloseRunUpdateManyWithoutStartedByUserNestedInput
+  financeCloseEventsActed?: Prisma.FinanceCloseEventUpdateManyWithoutActorUserNestedInput
+  financeCloseWorkpapersPrepared?: Prisma.FinanceCloseWorkpaperUpdateManyWithoutPreparedByNestedInput
+  financeCloseWorkpapersReviewed?: Prisma.FinanceCloseWorkpaperUpdateManyWithoutReviewedByNestedInput
+  financeCloseWorkpaperEventsActed?: Prisma.FinanceCloseWorkpaperEventUpdateManyWithoutActorNestedInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUpdateManyWithoutAssessorNestedInput
+  financeAssetDisposalsConfirmed?: Prisma.FinanceAssetDisposalUpdateManyWithoutConfirmerNestedInput
+  financeAssetAcquisitionsConfirmed?: Prisma.FinanceAssetAcquisitionEvidenceUpdateManyWithoutConfirmerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUpdatedRelationPolicyConfigsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  archivedContracts?: Prisma.ContractUncheckedUpdateManyWithoutArchivedByUserNestedInput
+  uploadedContractAttachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutUploaderNestedInput
+  removedContractAttachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutRemoverNestedInput
+  uploadedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentUncheckedUpdateManyWithoutUploaderNestedInput
+  removedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentUncheckedUpdateManyWithoutRemoverNestedInput
+  createdEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCreatorNestedInput
+  updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutUpdaterNestedInput
+  recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
+  createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutOwnerNestedInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutReviewerNestedInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutCreatorNestedInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutReviewerNestedInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutReviewerNestedInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutCreatedByNestedInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutRespondedByNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  notificationSubscriptions?: Prisma.NotificationSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutResolverNestedInput
+  approvalEvents?: Prisma.ApprovalEventUncheckedUpdateManyWithoutActorNestedInput
+  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
+  recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
+  recordedEmployeePeriodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutRecordedByNestedInput
+  requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
+  financeCloseRunsStarted?: Prisma.FinanceCloseRunUncheckedUpdateManyWithoutStartedByUserNestedInput
+  financeCloseEventsActed?: Prisma.FinanceCloseEventUncheckedUpdateManyWithoutActorUserNestedInput
+  financeCloseWorkpapersPrepared?: Prisma.FinanceCloseWorkpaperUncheckedUpdateManyWithoutPreparedByNestedInput
+  financeCloseWorkpapersReviewed?: Prisma.FinanceCloseWorkpaperUncheckedUpdateManyWithoutReviewedByNestedInput
+  financeCloseWorkpaperEventsActed?: Prisma.FinanceCloseWorkpaperEventUncheckedUpdateManyWithoutActorNestedInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUncheckedUpdateManyWithoutAssessorNestedInput
+  financeAssetDisposalsConfirmed?: Prisma.FinanceAssetDisposalUncheckedUpdateManyWithoutConfirmerNestedInput
+  financeAssetAcquisitionsConfirmed?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateManyWithoutConfirmerNestedInput
+}
+
+export type UserCreateWithoutRecordedRelationPolicyRevisionsInput = {
+  wxUserId?: string | null
+  username: string
+  password?: string | null
+  avatar?: string | null
+  alias?: string | null
+  phone?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  preferredProjectIds?: string | null
+  portalSlots?: string | null
+  canLogin?: boolean
+  apiKeyHash?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  archivedContracts?: Prisma.ContractCreateNestedManyWithoutArchivedByUserInput
+  uploadedContractAttachments?: Prisma.ContractAttachmentCreateNestedManyWithoutUploaderInput
+  removedContractAttachments?: Prisma.ContractAttachmentCreateNestedManyWithoutRemoverInput
+  uploadedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentCreateNestedManyWithoutUploaderInput
+  removedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentCreateNestedManyWithoutRemoverInput
+  createdEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutCreatorInput
+  updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodCreateNestedManyWithoutUpdaterInput
+  recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
+  createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutOwnerInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutReviewerInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutCreatorInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutCreatorInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutReviewerInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutReviewerInput
+  requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutCreatedByInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutRespondedByInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  notificationSubscriptions?: Prisma.NotificationSubscriptionCreateNestedManyWithoutUserInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutSubmitterInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutResolverInput
+  approvalEvents?: Prisma.ApprovalEventCreateNestedManyWithoutActorInput
+  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
+  recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
+  recordedEmployeePeriodRevisions?: Prisma.EmployeePeriodRevisionCreateNestedManyWithoutRecordedByInput
+  requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
+  financeCloseRunsStarted?: Prisma.FinanceCloseRunCreateNestedManyWithoutStartedByUserInput
+  financeCloseEventsActed?: Prisma.FinanceCloseEventCreateNestedManyWithoutActorUserInput
+  financeCloseWorkpapersPrepared?: Prisma.FinanceCloseWorkpaperCreateNestedManyWithoutPreparedByInput
+  financeCloseWorkpapersReviewed?: Prisma.FinanceCloseWorkpaperCreateNestedManyWithoutReviewedByInput
+  financeCloseWorkpaperEventsActed?: Prisma.FinanceCloseWorkpaperEventCreateNestedManyWithoutActorInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentCreateNestedManyWithoutAssessorInput
+  financeAssetDisposalsConfirmed?: Prisma.FinanceAssetDisposalCreateNestedManyWithoutConfirmerInput
+  financeAssetAcquisitionsConfirmed?: Prisma.FinanceAssetAcquisitionEvidenceCreateNestedManyWithoutConfirmerInput
+}
+
+export type UserUncheckedCreateWithoutRecordedRelationPolicyRevisionsInput = {
+  id?: number
+  wxUserId?: string | null
+  username: string
+  password?: string | null
+  avatar?: string | null
+  alias?: string | null
+  phone?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  preferredProjectIds?: string | null
+  portalSlots?: string | null
+  canLogin?: boolean
+  apiKeyHash?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  archivedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutArchivedByUserInput
+  uploadedContractAttachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutUploaderInput
+  removedContractAttachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutRemoverInput
+  uploadedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentUncheckedCreateNestedManyWithoutUploaderInput
+  removedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentUncheckedCreateNestedManyWithoutRemoverInput
+  createdEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutCreatorInput
+  updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedCreateNestedManyWithoutUpdaterInput
+  recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
+  createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutOwnerInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutReviewerInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutCreatorInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutCreatorInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutReviewerInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutReviewerInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutCreatedByInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutRespondedByInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  notificationSubscriptions?: Prisma.NotificationSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutSubmitterInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutResolverInput
+  approvalEvents?: Prisma.ApprovalEventUncheckedCreateNestedManyWithoutActorInput
+  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
+  recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
+  recordedEmployeePeriodRevisions?: Prisma.EmployeePeriodRevisionUncheckedCreateNestedManyWithoutRecordedByInput
+  requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
+  financeCloseRunsStarted?: Prisma.FinanceCloseRunUncheckedCreateNestedManyWithoutStartedByUserInput
+  financeCloseEventsActed?: Prisma.FinanceCloseEventUncheckedCreateNestedManyWithoutActorUserInput
+  financeCloseWorkpapersPrepared?: Prisma.FinanceCloseWorkpaperUncheckedCreateNestedManyWithoutPreparedByInput
+  financeCloseWorkpapersReviewed?: Prisma.FinanceCloseWorkpaperUncheckedCreateNestedManyWithoutReviewedByInput
+  financeCloseWorkpaperEventsActed?: Prisma.FinanceCloseWorkpaperEventUncheckedCreateNestedManyWithoutActorInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUncheckedCreateNestedManyWithoutAssessorInput
+  financeAssetDisposalsConfirmed?: Prisma.FinanceAssetDisposalUncheckedCreateNestedManyWithoutConfirmerInput
+  financeAssetAcquisitionsConfirmed?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedCreateNestedManyWithoutConfirmerInput
+}
+
+export type UserCreateOrConnectWithoutRecordedRelationPolicyRevisionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutRecordedRelationPolicyRevisionsInput, Prisma.UserUncheckedCreateWithoutRecordedRelationPolicyRevisionsInput>
+}
+
+export type UserUpsertWithoutRecordedRelationPolicyRevisionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutRecordedRelationPolicyRevisionsInput, Prisma.UserUncheckedUpdateWithoutRecordedRelationPolicyRevisionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutRecordedRelationPolicyRevisionsInput, Prisma.UserUncheckedCreateWithoutRecordedRelationPolicyRevisionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutRecordedRelationPolicyRevisionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutRecordedRelationPolicyRevisionsInput, Prisma.UserUncheckedUpdateWithoutRecordedRelationPolicyRevisionsInput>
+}
+
+export type UserUpdateWithoutRecordedRelationPolicyRevisionsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  archivedContracts?: Prisma.ContractUpdateManyWithoutArchivedByUserNestedInput
+  uploadedContractAttachments?: Prisma.ContractAttachmentUpdateManyWithoutUploaderNestedInput
+  removedContractAttachments?: Prisma.ContractAttachmentUpdateManyWithoutRemoverNestedInput
+  uploadedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentUpdateManyWithoutUploaderNestedInput
+  removedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentUpdateManyWithoutRemoverNestedInput
+  createdEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutCreatorNestedInput
+  updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUpdateManyWithoutUpdaterNestedInput
+  recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
+  createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutOwnerNestedInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutReviewerNestedInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUpdateManyWithoutCreatorNestedInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutReviewerNestedInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutReviewerNestedInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutCreatedByNestedInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutRespondedByNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  notificationSubscriptions?: Prisma.NotificationSubscriptionUpdateManyWithoutUserNestedInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutSubmitterNestedInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutResolverNestedInput
+  approvalEvents?: Prisma.ApprovalEventUpdateManyWithoutActorNestedInput
+  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
+  recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
+  recordedEmployeePeriodRevisions?: Prisma.EmployeePeriodRevisionUpdateManyWithoutRecordedByNestedInput
+  requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
+  financeCloseRunsStarted?: Prisma.FinanceCloseRunUpdateManyWithoutStartedByUserNestedInput
+  financeCloseEventsActed?: Prisma.FinanceCloseEventUpdateManyWithoutActorUserNestedInput
+  financeCloseWorkpapersPrepared?: Prisma.FinanceCloseWorkpaperUpdateManyWithoutPreparedByNestedInput
+  financeCloseWorkpapersReviewed?: Prisma.FinanceCloseWorkpaperUpdateManyWithoutReviewedByNestedInput
+  financeCloseWorkpaperEventsActed?: Prisma.FinanceCloseWorkpaperEventUpdateManyWithoutActorNestedInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUpdateManyWithoutAssessorNestedInput
+  financeAssetDisposalsConfirmed?: Prisma.FinanceAssetDisposalUpdateManyWithoutConfirmerNestedInput
+  financeAssetAcquisitionsConfirmed?: Prisma.FinanceAssetAcquisitionEvidenceUpdateManyWithoutConfirmerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutRecordedRelationPolicyRevisionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  archivedContracts?: Prisma.ContractUncheckedUpdateManyWithoutArchivedByUserNestedInput
+  uploadedContractAttachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutUploaderNestedInput
+  removedContractAttachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutRemoverNestedInput
+  uploadedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentUncheckedUpdateManyWithoutUploaderNestedInput
+  removedEmploymentAgreementAttachments?: Prisma.EmploymentAgreementAttachmentUncheckedUpdateManyWithoutRemoverNestedInput
+  createdEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutCreatorNestedInput
+  updatedEmployeeSocialInsurancePeriods?: Prisma.EmployeeSocialInsurancePeriodUncheckedUpdateManyWithoutUpdaterNestedInput
+  recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
+  createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutOwnerNestedInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutReviewerNestedInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutCreatorNestedInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutReviewerNestedInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutReviewerNestedInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutCreatedByNestedInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutRespondedByNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  notificationSubscriptions?: Prisma.NotificationSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutResolverNestedInput
+  approvalEvents?: Prisma.ApprovalEventUncheckedUpdateManyWithoutActorNestedInput
+  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
+  recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
+  recordedEmployeePeriodRevisions?: Prisma.EmployeePeriodRevisionUncheckedUpdateManyWithoutRecordedByNestedInput
+  requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
+  financeCloseRunsStarted?: Prisma.FinanceCloseRunUncheckedUpdateManyWithoutStartedByUserNestedInput
+  financeCloseEventsActed?: Prisma.FinanceCloseEventUncheckedUpdateManyWithoutActorUserNestedInput
+  financeCloseWorkpapersPrepared?: Prisma.FinanceCloseWorkpaperUncheckedUpdateManyWithoutPreparedByNestedInput
+  financeCloseWorkpapersReviewed?: Prisma.FinanceCloseWorkpaperUncheckedUpdateManyWithoutReviewedByNestedInput
+  financeCloseWorkpaperEventsActed?: Prisma.FinanceCloseWorkpaperEventUncheckedUpdateManyWithoutActorNestedInput
+  financeAssetImpairmentAssessments?: Prisma.FinanceAssetImpairmentAssessmentUncheckedUpdateManyWithoutAssessorNestedInput
+  financeAssetDisposalsConfirmed?: Prisma.FinanceAssetDisposalUncheckedUpdateManyWithoutConfirmerNestedInput
+  financeAssetAcquisitionsConfirmed?: Prisma.FinanceAssetAcquisitionEvidenceUncheckedUpdateManyWithoutConfirmerNestedInput
+}
+
 export type UserCreateWithoutCreatedDepartmentCollaborationsInput = {
   wxUserId?: string | null
   username: string
@@ -22547,6 +23781,8 @@ export type UserCreateWithoutCreatedDepartmentCollaborationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -22633,6 +23869,8 @@ export type UserUncheckedCreateWithoutCreatedDepartmentCollaborationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -22734,6 +23972,8 @@ export type UserUpdateWithoutCreatedDepartmentCollaborationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -22820,6 +24060,8 @@ export type UserUncheckedUpdateWithoutCreatedDepartmentCollaborationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -22905,6 +24147,8 @@ export type UserCreateWithoutDepartmentCollaborationResponsesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -22991,6 +24235,8 @@ export type UserUncheckedCreateWithoutDepartmentCollaborationResponsesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -23092,6 +24338,8 @@ export type UserUpdateWithoutDepartmentCollaborationResponsesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -23178,6 +24426,8 @@ export type UserUncheckedUpdateWithoutDepartmentCollaborationResponsesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -23263,6 +24513,8 @@ export type UserCreateWithoutCreatedKpiDefinitionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -23349,6 +24601,8 @@ export type UserUncheckedCreateWithoutCreatedKpiDefinitionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -23450,6 +24704,8 @@ export type UserUpdateWithoutCreatedKpiDefinitionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -23536,6 +24792,8 @@ export type UserUncheckedUpdateWithoutCreatedKpiDefinitionsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -23621,6 +24879,8 @@ export type UserCreateWithoutUpdatedKpiAssignmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -23707,6 +24967,8 @@ export type UserUncheckedCreateWithoutUpdatedKpiAssignmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -23808,6 +25070,8 @@ export type UserUpdateWithoutUpdatedKpiAssignmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -23894,6 +25158,8 @@ export type UserUncheckedUpdateWithoutUpdatedKpiAssignmentsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -23979,6 +25245,8 @@ export type UserCreateWithoutApprovedKpiResultSnapshotsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -24065,6 +25333,8 @@ export type UserUncheckedCreateWithoutApprovedKpiResultSnapshotsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -24166,6 +25436,8 @@ export type UserUpdateWithoutApprovedKpiResultSnapshotsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -24252,6 +25524,8 @@ export type UserUncheckedUpdateWithoutApprovedKpiResultSnapshotsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -24337,6 +25611,8 @@ export type UserCreateWithoutOwnedMeetingsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -24423,6 +25699,8 @@ export type UserUncheckedCreateWithoutOwnedMeetingsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -24513,6 +25791,8 @@ export type UserCreateWithoutSecretariedMeetingsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -24599,6 +25879,8 @@ export type UserUncheckedCreateWithoutSecretariedMeetingsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -24700,6 +25982,8 @@ export type UserUpdateWithoutOwnedMeetingsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -24786,6 +26070,8 @@ export type UserUncheckedUpdateWithoutOwnedMeetingsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -24882,6 +26168,8 @@ export type UserUpdateWithoutSecretariedMeetingsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -24968,6 +26256,8 @@ export type UserUncheckedUpdateWithoutSecretariedMeetingsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -25053,6 +26343,8 @@ export type UserCreateWithoutMeetingParticipationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -25139,6 +26431,8 @@ export type UserUncheckedCreateWithoutMeetingParticipationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -25240,6 +26534,8 @@ export type UserUpdateWithoutMeetingParticipationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -25326,6 +26622,8 @@ export type UserUncheckedUpdateWithoutMeetingParticipationsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -25411,6 +26709,8 @@ export type UserCreateWithoutMeetingVotesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -25497,6 +26797,8 @@ export type UserUncheckedCreateWithoutMeetingVotesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -25598,6 +26900,8 @@ export type UserUpdateWithoutMeetingVotesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -25684,6 +26988,8 @@ export type UserUncheckedUpdateWithoutMeetingVotesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -25769,6 +27075,8 @@ export type UserCreateWithoutWorkReportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -25855,6 +27163,8 @@ export type UserUncheckedCreateWithoutWorkReportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -25956,6 +27266,8 @@ export type UserUpdateWithoutWorkReportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -26042,6 +27354,8 @@ export type UserUncheckedUpdateWithoutWorkReportsInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -26127,6 +27441,8 @@ export type UserCreateWithoutDepartmentAssigneesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -26213,6 +27529,8 @@ export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -26314,6 +27632,8 @@ export type UserUpdateWithoutDepartmentAssigneesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -26400,6 +27720,8 @@ export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -26485,6 +27807,8 @@ export type UserCreateWithoutProjectAssigneesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
@@ -26571,6 +27895,8 @@ export type UserUncheckedCreateWithoutProjectAssigneesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedCreateNestedManyWithoutActorInput
   createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedCreateNestedManyWithoutUpdatedByInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedCreateNestedManyWithoutActorInput
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
@@ -26672,6 +27998,8 @@ export type UserUpdateWithoutProjectAssigneesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
@@ -26758,6 +28086,8 @@ export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
   recordedEmployeeSocialInsuranceRevisions?: Prisma.EmployeeSocialInsurancePeriodRevisionUncheckedUpdateManyWithoutActorNestedInput
   createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  updatedRelationPolicyConfigs?: Prisma.RelationPolicyConfigUncheckedUpdateManyWithoutUpdatedByNestedInput
+  recordedRelationPolicyRevisions?: Prisma.RelationPolicyRevisionUncheckedUpdateManyWithoutActorNestedInput
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
@@ -26834,6 +28164,8 @@ export type UserCountOutputType = {
   recordedEmployeeSocialInsuranceRevisions: number
   createdContractRecords: number
   editHistories: number
+  updatedRelationPolicyConfigs: number
+  recordedRelationPolicyRevisions: number
   employees: number
   editedFinanceAccounts: number
   editedFinanceVouchers: number
@@ -26905,6 +28237,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   recordedEmployeeSocialInsuranceRevisions?: boolean | UserCountOutputTypeCountRecordedEmployeeSocialInsuranceRevisionsArgs
   createdContractRecords?: boolean | UserCountOutputTypeCountCreatedContractRecordsArgs
   editHistories?: boolean | UserCountOutputTypeCountEditHistoriesArgs
+  updatedRelationPolicyConfigs?: boolean | UserCountOutputTypeCountUpdatedRelationPolicyConfigsArgs
+  recordedRelationPolicyRevisions?: boolean | UserCountOutputTypeCountRecordedRelationPolicyRevisionsArgs
   employees?: boolean | UserCountOutputTypeCountEmployeesArgs
   editedFinanceAccounts?: boolean | UserCountOutputTypeCountEditedFinanceAccountsArgs
   editedFinanceVouchers?: boolean | UserCountOutputTypeCountEditedFinanceVouchersArgs
@@ -27049,6 +28383,20 @@ export type UserCountOutputTypeCountCreatedContractRecordsArgs<ExtArgs extends r
  */
 export type UserCountOutputTypeCountEditHistoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.EditHistoryWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountUpdatedRelationPolicyConfigsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RelationPolicyConfigWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountRecordedRelationPolicyRevisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RelationPolicyRevisionWhereInput
 }
 
 /**
@@ -27478,6 +28826,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   recordedEmployeeSocialInsuranceRevisions?: boolean | Prisma.User$recordedEmployeeSocialInsuranceRevisionsArgs<ExtArgs>
   createdContractRecords?: boolean | Prisma.User$createdContractRecordsArgs<ExtArgs>
   editHistories?: boolean | Prisma.User$editHistoriesArgs<ExtArgs>
+  updatedRelationPolicyConfigs?: boolean | Prisma.User$updatedRelationPolicyConfigsArgs<ExtArgs>
+  recordedRelationPolicyRevisions?: boolean | Prisma.User$recordedRelationPolicyRevisionsArgs<ExtArgs>
   employees?: boolean | Prisma.User$employeesArgs<ExtArgs>
   agentProfile?: boolean | Prisma.User$agentProfileArgs<ExtArgs>
   editedFinanceAccounts?: boolean | Prisma.User$editedFinanceAccountsArgs<ExtArgs>
@@ -27606,6 +28956,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   recordedEmployeeSocialInsuranceRevisions?: boolean | Prisma.User$recordedEmployeeSocialInsuranceRevisionsArgs<ExtArgs>
   createdContractRecords?: boolean | Prisma.User$createdContractRecordsArgs<ExtArgs>
   editHistories?: boolean | Prisma.User$editHistoriesArgs<ExtArgs>
+  updatedRelationPolicyConfigs?: boolean | Prisma.User$updatedRelationPolicyConfigsArgs<ExtArgs>
+  recordedRelationPolicyRevisions?: boolean | Prisma.User$recordedRelationPolicyRevisionsArgs<ExtArgs>
   employees?: boolean | Prisma.User$employeesArgs<ExtArgs>
   agentProfile?: boolean | Prisma.User$agentProfileArgs<ExtArgs>
   editedFinanceAccounts?: boolean | Prisma.User$editedFinanceAccountsArgs<ExtArgs>
@@ -27683,6 +29035,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     recordedEmployeeSocialInsuranceRevisions: Prisma.$EmployeeSocialInsurancePeriodRevisionPayload<ExtArgs>[]
     createdContractRecords: Prisma.$ContractRecordPayload<ExtArgs>[]
     editHistories: Prisma.$EditHistoryPayload<ExtArgs>[]
+    updatedRelationPolicyConfigs: Prisma.$RelationPolicyConfigPayload<ExtArgs>[]
+    recordedRelationPolicyRevisions: Prisma.$RelationPolicyRevisionPayload<ExtArgs>[]
     employees: Prisma.$EmployeePayload<ExtArgs>[]
     agentProfile: Prisma.$AgentProfilePayload<ExtArgs> | null
     editedFinanceAccounts: Prisma.$FinanceAccountPayload<ExtArgs>[]
@@ -28163,6 +29517,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   recordedEmployeeSocialInsuranceRevisions<T extends Prisma.User$recordedEmployeeSocialInsuranceRevisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$recordedEmployeeSocialInsuranceRevisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeSocialInsurancePeriodRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdContractRecords<T extends Prisma.User$createdContractRecordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdContractRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   editHistories<T extends Prisma.User$editHistoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editHistoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EditHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  updatedRelationPolicyConfigs<T extends Prisma.User$updatedRelationPolicyConfigsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$updatedRelationPolicyConfigsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RelationPolicyConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  recordedRelationPolicyRevisions<T extends Prisma.User$recordedRelationPolicyRevisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$recordedRelationPolicyRevisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RelationPolicyRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   employees<T extends Prisma.User$employeesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$employeesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   agentProfile<T extends Prisma.User$agentProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$agentProfileArgs<ExtArgs>>): Prisma.Prisma__AgentProfileClient<runtime.Types.Result.GetResult<Prisma.$AgentProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   editedFinanceAccounts<T extends Prisma.User$editedFinanceAccountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedFinanceAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -28919,6 +30275,54 @@ export type User$editHistoriesArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.EditHistoryScalarFieldEnum | Prisma.EditHistoryScalarFieldEnum[]
+}
+
+/**
+ * User.updatedRelationPolicyConfigs
+ */
+export type User$updatedRelationPolicyConfigsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RelationPolicyConfig
+   */
+  select?: Prisma.RelationPolicyConfigSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RelationPolicyConfig
+   */
+  omit?: Prisma.RelationPolicyConfigOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RelationPolicyConfigInclude<ExtArgs> | null
+  where?: Prisma.RelationPolicyConfigWhereInput
+  orderBy?: Prisma.RelationPolicyConfigOrderByWithRelationInput | Prisma.RelationPolicyConfigOrderByWithRelationInput[]
+  cursor?: Prisma.RelationPolicyConfigWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RelationPolicyConfigScalarFieldEnum | Prisma.RelationPolicyConfigScalarFieldEnum[]
+}
+
+/**
+ * User.recordedRelationPolicyRevisions
+ */
+export type User$recordedRelationPolicyRevisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RelationPolicyRevision
+   */
+  select?: Prisma.RelationPolicyRevisionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RelationPolicyRevision
+   */
+  omit?: Prisma.RelationPolicyRevisionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RelationPolicyRevisionInclude<ExtArgs> | null
+  where?: Prisma.RelationPolicyRevisionWhereInput
+  orderBy?: Prisma.RelationPolicyRevisionOrderByWithRelationInput | Prisma.RelationPolicyRevisionOrderByWithRelationInput[]
+  cursor?: Prisma.RelationPolicyRevisionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RelationPolicyRevisionScalarFieldEnum | Prisma.RelationPolicyRevisionScalarFieldEnum[]
 }
 
 /**

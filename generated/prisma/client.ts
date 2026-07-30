@@ -1237,6 +1237,16 @@ export type ProductionQcAuditEvent = Prisma.ProductionQcAuditEventModel
  */
 export type SystemConfig = Prisma.SystemConfigModel
 /**
+ * Model RelationPolicyConfig
+ * 关系治理策略的当前有效覆盖；空 settingsJson 表示已显式重置到代码基线
+ */
+export type RelationPolicyConfig = Prisma.RelationPolicyConfigModel
+/**
+ * Model RelationPolicyRevision
+ * 关系治理策略的追加式修订历史；主配置重置后仍保留完整审计链
+ */
+export type RelationPolicyRevision = Prisma.RelationPolicyRevisionModel
+/**
  * Model BusinessCodeSequence
  * 业务编码的服务端原子流水；scopeKey 由各领域按公司、分类、年度等稳定维度组成
  */

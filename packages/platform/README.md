@@ -10,6 +10,7 @@ Workspace 主体包。这里聚合平台模块和业务包注册，生成导航�
 - 从模块注册的 `lifecycleStatus` 派生模块生命周期提示
 - 提供 `getAccessibleModules`、`getSubModules`、`getEmptyMessage`
 - 提供登录后的 Portal、L1 模块首页、AppShell、跨页导航、用户菜单和审计日志 UI 壳
+- 提供 `@workspace/platform/ui` 的分类/直属子项/详情工作台组合：左侧选择分类，右侧顶部展示当前分类直属子项，选中后在下方进入详情或编辑。HR 部门岗位、Settings 编码管理和数据关系共同使用这套组合；分类、子项和编辑内容仍由各业务域提供，Platform 不保存业务事实
 - 提供 `SessionUser` 等登录态平台契约类型
 - 提供审计日志字段标签与值格式化工具；具体业务审计弹窗留在各业务包
 - 提供 `@workspace/platform/hooks` 的跨模块平台 hook，例如 `useCompanyOptions`
@@ -70,7 +71,9 @@ Platform 可以读取业务包的注册信息，但不能直接 import 业务页
 
 ## Relation Catalog
 
-关系唯一事实源是 `packages/platform/module-registry.ts` 的 `relationRegistrations`。selector 关系声明 key、source、target、nullable 和 permission，并复用 `@workspace/platform/server/relation-targets`；governance 关系还必须声明 usage、semantics、physical、四个 lifecycle policy 和 adapterKey。运行时 planner 从包含 governance-only 声明的完整 Catalog 解析策略，adapter 返回的 policy 只作一致性断言；关系未声明、intent 未分类或二者漂移都会 fail closed。旧 `fk-registry.ts` / `fk-targets.ts` / `fk-registrations.ts` 只保留无逻辑兼容 re-export，不得新增实现。DMMF coverage 通过 `npm run relation-policy:check` 以稳定顺序报告 missing、stale、adapter capability 和数据库 `onDelete` 冲突；全仓默认 report-only，各模块在 `scripts/check/relation-policy-ratchet.json` 独立收紧。Work 试点除模块基线外，强制 `WorkPlan / WorkItem / Project` 的所有物理入向关系均已治理，新增未知入向关系会阻断 gate。
+关系唯一事实源是 `packages/platform/module-registry.ts` 的 `relationRegistrations`。selector 关系声明 key、source、target、nullable 和 permission，并复用 `@workspace/platform/server/relation-targets`；governance 关系还必须声明 usage、semantics、physical、四个 lifecycle policy 和 adapterKey。`nullable` 只描述物理列；可配置业务必填必须另行显式声明 `businessRequired + configurableBusinessRequired`，并由业务 validator 和表单共同消费，不能从数据库可空性推断产品规则。物理非空关系固定为必填。
+
+Settings 只可写有运行时消费者的 `targetDelete` 和 relation-keyed `businessRequired`。旧 archive/restore/reference-change 字段仅为存储兼容与清理证据，不能从新 UI 写入，任何非空旧覆盖在运行时均 fail closed，直到 root 显式 reset；空 reset tombstone 只保留审计/CAS 版本，不改变当前代码基线。非空退役或无登记配置必须在 Settings 可见并保持 reset-only。物理 FK、端点、列可空性、约束和数据库 `onDelete` 只作证据，配置写入不执行 DDL。策略写入与业务消费者按稳定顺序取得同一 policy-key advisory transaction lock；required 空值预检、配置 CAS 和 revision 审计处于同一事务。运行时 planner 从包含 governance-only 声明的完整 Catalog 解析策略，adapter 返回的 policy 只作一致性断言；关系未声明、intent 未分类或二者漂移都会 fail closed。旧 `fk-registry.ts` / `fk-targets.ts` / `fk-registrations.ts` 只保留无逻辑兼容 re-export，不得新增实现。DMMF coverage 通过 `npm run relation-policy:check` 以稳定顺序报告 missing、stale、adapter capability 和数据库 `onDelete` 冲突；全仓默认 report-only，各模块在 `scripts/check/relation-policy-ratchet.json` 独立收紧。Work 试点除模块基线外，强制 `WorkPlan / WorkItem / Project` 的所有物理入向关系均已治理，新增未知入向关系会阻断 gate。
 
 ## Mutation Impact
 

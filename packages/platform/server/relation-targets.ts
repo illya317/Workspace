@@ -1,14 +1,13 @@
 import {
   createRelationCatalog,
   type RelationDefinition,
-  type RelationLifecyclePolicies,
-  type RelationPhysicalDefinition,
-  type RelationSemantics,
-  type RelationUsage,
   type SelectorRelationDefinition,
-  type LifecycleScope,
   UNCLASSIFIED_RELATION_LIFECYCLE,
 } from "./relation-registry";
+import type {
+  RelationRegistrationContract,
+  RelationTargetKind,
+} from "../relation-registration-contract";
 import {
   resolveFkCompany,
   resolveFkDepartment,
@@ -39,35 +38,6 @@ import {
   searchFkProjects,
   searchFkUsers,
 } from "./fk-search";
-
-export type RelationTargetKind =
-  | "company"
-  | "department"
-  | "employee"
-  | "employeePosition"
-  | "employeeProject"
-  | "financeAccount"
-  | "financeAssetCategory"
-  | "financeGroupAccount"
-  | "financeVoucherItem"
-  | "financeConsolidationEntrySource"
-  | "meeting"
-  | "meetingActionCandidate"
-  | "meetingDecision"
-  | "party"
-  | "position"
-  | "positionDescription"
-  | "positionDescriptionRevision"
-  | "positionResponsibilityNode"
-  | "project"
-  | "projectMembershipChange"
-  | "projectPlanPhase"
-  | "user"
-  | "departmentCollaboration"
-  | "workItem"
-  | "workKpiAssignment"
-  | "workPlan"
-  | "workOkrCycle";
 
 type RelationTargetSpec = Pick<SelectorRelationDefinition, "target" | "search" | "resolve">;
 
@@ -209,21 +179,7 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
   },
 };
 
-export interface RelationRegistration
-  extends Pick<
-    SelectorRelationDefinition,
-    "key" | "scope" | "source" | "nullable" | "updatePolicy" | "targetDeletePolicy" | "targetArchivePolicy" | "permission"
-  > {
-  usage?: RelationUsage;
-  semantics?: RelationSemantics;
-  lifecycle?: Partial<RelationLifecyclePolicies>;
-  physical?: RelationPhysicalDefinition | null;
-  adapterKey?: string;
-  exemptionReason?: string;
-  target: RelationTargetKind;
-  targetLabel?: string;
-  defaultLifecycleScope?: LifecycleScope;
-}
+export type RelationRegistration = RelationRegistrationContract;
 
 export type RelationRegistrationAdapter = Partial<Pick<SelectorRelationDefinition, "search" | "resolve">>;
 

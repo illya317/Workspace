@@ -1,13 +1,16 @@
 import "server-only";
 
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { registeredModuleDefinitions } from "@workspace/platform/module-registry";
 
 import type {
   DatabaseRelationCatalogItem,
   DatabaseRelationDeleteAction,
   DatabaseSchemaCatalog,
+  DatabaseSchemaModule,
   DatabaseTableCatalogItem,
 } from "../database-schema-contract";
+import { databaseTableOwnerKey } from "./database-table-ownership";
 
 interface DatabaseColumnRow {
   tableName: string;
@@ -33,39 +36,44 @@ interface DatabaseIdentityRow {
   schemaName: string;
 }
 
-const GROUPS = [
-  { key: "finance", label: "财务" },
-  { key: "work", label: "工作" },
-  { key: "hr", label: "人力资源" },
-  { key: "administration", label: "行政合同" },
-  { key: "inventory", label: "库存" },
-  { key: "production", label: "生产与产品" },
-  { key: "external", label: "外部关系" },
-  { key: "capital", label: "资本证券" },
-  { key: "library", label: "资料库" },
-  { key: "docs", label: "文档" },
-  { key: "workflow", label: "流程" },
-  { key: "agent", label: "智能体" },
-  { key: "platform", label: "系统底座" },
-] as const;
-
-const GROUP_PREFIXES: ReadonlyArray<{ key: string; prefixes: readonly string[] }> = [
-  { key: "finance", prefixes: ["Finance"] },
-  { key: "work", prefixes: ["Work", "Project", "Meeting", "DepartmentCollaboration", "DepartmentWork", "ProjectWork", "WorkspaceAnalysis"] },
-  { key: "capital", prefixes: ["Ownership", "Share", "CompanyRegistry"] },
-  { key: "hr", prefixes: ["Employee", "Employment", "Department", "Position", "Company", "EDP", "Performance", "Org"] },
-  { key: "administration", prefixes: ["Contract", "ErpDueDiligence"] },
-  { key: "inventory", prefixes: ["Inventory", "Stock", "FinishedGoods"] },
-  { key: "production", prefixes: ["Product", "Quality", "Qc", "QC"] },
-  { key: "external", prefixes: ["Party", "External"] },
-  { key: "library", prefixes: ["Library"] },
-  { key: "docs", prefixes: ["DocumentTemplate", "DocumentSubmission"] },
-  { key: "workflow", prefixes: ["Approval", "Workflow"] },
-  { key: "agent", prefixes: ["Agent"] },
-];
-
-function groupKeyForTable(tableName: string) {
-  return GROUP_PREFIXES.find((group) => group.prefixes.some((prefix) => tableName.startsWith(prefix)))?.key ?? "platform";
+function schemaModules(tables: readonly DatabaseTableCatalogItem[]): DatabaseSchemaModule[] {
+  const modules = registeredModuleDefinitions.flatMap((definition) => {
+    const moduleDef = definition.moduleDef;
+    if (!moduleDef?.resourceKey) return [];
+    const children = (moduleDef.children ?? []).map((child) => {
+      const directTableCount = tables.filter((table) => table.moduleKey === child.resourceKey).length;
+      return {
+        key: child.resourceKey,
+        label: child.label,
+        level: "L2" as const,
+        directTableCount,
+        totalTableCount: directTableCount,
+        children: [],
+      };
+    }).filter((child) => child.totalTableCount > 0);
+    const directTableCount = tables.filter((table) => table.moduleKey === moduleDef.resourceKey).length;
+    const totalTableCount = directTableCount + children.reduce((sum, child) => sum + child.totalTableCount, 0);
+    return totalTableCount > 0 ? [{
+      key: moduleDef.resourceKey,
+      label: moduleDef.label,
+      level: "L1" as const,
+      directTableCount,
+      totalTableCount,
+      children,
+    }] : [];
+  });
+  const unassignedTableCount = tables.filter((table) => !table.moduleKey).length;
+  return [
+    ...modules,
+    ...(unassignedTableCount > 0 ? [{
+      key: "unassigned",
+      label: "未归属",
+      level: "L1" as const,
+      directTableCount: unassignedTableCount,
+      totalTableCount: unassignedTableCount,
+      children: [],
+    }] : []),
+  ];
 }
 
 function deleteAction(code: string): DatabaseRelationDeleteAction {
@@ -109,34 +117,48 @@ export function buildDatabaseSchemaCatalog(
     inboundCounts.set(relation.targetTable, (inboundCounts.get(relation.targetTable) ?? 0) + 1);
     outboundCounts.set(relation.sourceTable, (outboundCounts.get(relation.sourceTable) ?? 0) + 1);
   }
-  const tables: DatabaseTableCatalogItem[] = [...columnsByTable.entries()].map(([name, rows]) => ({
-    name,
-    groupKey: groupKeyForTable(name),
-    columnCount: rows.length,
-    inboundRelationCount: inboundCounts.get(name) ?? 0,
-    outboundRelationCount: outboundCounts.get(name) ?? 0,
-    columns: [...rows]
-      .sort((left, right) => left.ordinal - right.ordinal)
-      .map((row) => ({
-        name: row.name,
-        label: chineseColumnLabel(row.label),
-        type: row.type,
-        required: row.required,
-        primaryKey: row.primaryKey,
-        foreignKey: foreignKeyFields.has(`${row.tableName}.${row.name}`),
-        ordinal: row.ordinal,
-      })),
-  })).sort((left, right) => left.name.localeCompare(right.name));
+  const tables: DatabaseTableCatalogItem[] = [...columnsByTable.entries()]
+    .map(([name, rows]) => {
+      const moduleKey = databaseTableOwnerKey(name);
+      return {
+        name,
+        groupKey: moduleKey?.split(".")[0] ?? "unassigned",
+        moduleKey,
+        columnCount: rows.length,
+        inboundRelationCount: inboundCounts.get(name) ?? 0,
+        outboundRelationCount: outboundCounts.get(name) ?? 0,
+        columns: [...rows]
+          .sort((left, right) => left.ordinal - right.ordinal)
+          .map((row) => ({
+            name: row.name,
+            label: chineseColumnLabel(row.label),
+            type: row.type,
+            required: row.required,
+            primaryKey: row.primaryKey,
+            foreignKey: foreignKeyFields.has(`${row.tableName}.${row.name}`),
+            ordinal: row.ordinal,
+          })),
+      };
+    })
+    .sort((left, right) => left.name.localeCompare(right.name));
   const groupCounts = new Map<string, number>();
   for (const table of tables) groupCounts.set(table.groupKey, (groupCounts.get(table.groupKey) ?? 0) + 1);
+  const modules = schemaModules(tables);
 
   return {
     databaseName: identity.databaseName,
     schemaName: identity.schemaName,
     generatedAt: new Date().toISOString(),
-    groups: GROUPS
-      .map((group) => ({ ...group, tableCount: groupCounts.get(group.key) ?? 0 }))
-      .filter((group) => group.tableCount > 0),
+    groups: [
+      ...modules.filter((module) => module.key !== "unassigned").map((module) => ({
+        key: module.key,
+        label: module.label,
+        tableCount: groupCounts.get(module.key) ?? 0,
+      })),
+      ...(groupCounts.get("unassigned") ? [{ key: "unassigned", label: "未归属", tableCount: groupCounts.get("unassigned")! }] : []),
+    ],
+    modules,
+    unassignedTableNames: tables.filter((table) => !table.moduleKey).map((table) => table.name),
     tables,
     relations,
   };

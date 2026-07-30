@@ -4,10 +4,19 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
-import { validateFkValue } from "@workspace/platform/server/relation-registry";
+import type { RelationPolicyReadClient } from "@workspace/platform/server/relation-policy-config";
+import { validateConfiguredFkValue } from "@workspace/platform/server/relation-policy-validation";
 import { ADMINISTRATION_FK_REGISTRY } from "../fk-registry";
 import type { ContractCreateInput, ContractUpdateInput } from "../schemas";
 import { findActiveContractCategoryId } from "../contract-reference-adapter";
+
+export interface ContractReferenceValues {
+  owningCompanyId?: number | null;
+  ownerDepartmentId?: number | null;
+  partyAId?: number | null;
+  partyBId?: number | null;
+  handlerEmployeeId?: number | null;
+}
 
 export interface ContractWriteCommand {
   userId: number;
@@ -58,26 +67,33 @@ async function normalizeReference(
   value: number | null | undefined,
   field: string,
   label: string,
+  validateOmitted: boolean,
+  policyClient?: RelationPolicyReadClient,
 ) {
-  if (value === undefined) return okCommand(undefined);
-  const validation = await validateFkValue(ADMINISTRATION_FK_REGISTRY, {
+  if (value === undefined && !validateOmitted) return okCommand(undefined);
+  const validation = await validateConfiguredFkValue(ADMINISTRATION_FK_REGISTRY, {
     fkKey,
     value,
     lifecycleScope: "all",
     requiredLabel: label,
+    policyClient,
   });
   return validation.ok
     ? okCommand(validation.value)
     : failCommand(validation.error, validation.status ?? 400, field);
 }
 
-async function normalizeReferences(data: ContractCreateInput | ContractUpdateInput) {
+export async function normalizeContractConfiguredReferences(
+  data: ContractReferenceValues,
+  validateOmitted: boolean,
+  policyClient?: RelationPolicyReadClient,
+) {
   const [owningCompany, ownerDepartment, partyA, partyB, handlerEmployee] = await Promise.all([
-    normalizeReference("administration.contracts.owning.company", data.owningCompanyId, "owningCompanyId", "归属公司"),
-    normalizeReference("administration.contracts.owner.department", data.ownerDepartmentId, "ownerDepartmentId", "归口部门"),
-    normalizeReference("administration.contracts.party.a", data.partyAId, "partyAId", "甲方主体"),
-    normalizeReference("administration.contracts.party.b", data.partyBId, "partyBId", "乙方主体"),
-    normalizeReference("administration.contracts.handler.employee", data.handlerEmployeeId, "handlerEmployeeId", "经办人"),
+    normalizeReference("administration.contracts.owning.company", data.owningCompanyId, "owningCompanyId", "归属公司", validateOmitted, policyClient),
+    normalizeReference("administration.contracts.owner.department", data.ownerDepartmentId, "ownerDepartmentId", "归口部门", validateOmitted, policyClient),
+    normalizeReference("administration.contracts.party.a", data.partyAId, "partyAId", "甲方主体", validateOmitted, policyClient),
+    normalizeReference("administration.contracts.party.b", data.partyBId, "partyBId", "乙方主体", validateOmitted, policyClient),
+    normalizeReference("administration.contracts.handler.employee", data.handlerEmployeeId, "handlerEmployeeId", "经办人", validateOmitted, policyClient),
   ]);
   if (!owningCompany.ok) return owningCompany;
   if (!ownerDepartment.ok) return ownerDepartment;
@@ -159,10 +175,20 @@ export function validateContractState(input: { signedOn?: Date | null; expiresOn
   return okCommand(input);
 }
 
-export async function normalizeContractLegalInput(data: ContractCreateInput | ContractUpdateInput) {
+export async function normalizeContractLegalInput(
+  data: ContractCreateInput | ContractUpdateInput,
+  options: {
+    validateOmittedReferences?: boolean;
+    policyClient?: RelationPolicyReadClient;
+  } = {},
+) {
   const categoryId = await validateCategoryId(data.categoryId);
   if (!categoryId.ok) return categoryId;
-  const references = await normalizeReferences(data);
+  const references = await normalizeContractConfiguredReferences(
+    data,
+    Boolean(options.validateOmittedReferences),
+    options.policyClient,
+  );
   if (!references.ok) return references;
   const normalized = buildContractData(data, references.data);
   if (!normalized.ok) return normalized;
@@ -179,7 +205,7 @@ export async function buildContractCreateCommand(
   if (!validUserId.ok) return validUserId;
   if (!idempotencyKey.trim()) return failCommand("内部命令标识不能为空", 400);
   if (!data.name?.trim()) return failCommand("合同名称必填", 400, "name");
-  const normalized = await normalizeContractLegalInput(data);
+  const normalized = await normalizeContractLegalInput(data, { validateOmittedReferences: true });
   if (!normalized.ok) return normalized;
   return okCommand({ userId: validUserId.data, idempotencyKey: idempotencyKey.trim(), data: normalized.data });
 }

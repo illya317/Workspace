@@ -24,7 +24,10 @@ import {
 import { useContracts } from "./hooks/useContracts";
 import { useContractArchivePackage } from "./hooks/useContractArchivePackage";
 import getContractFilterToolbarItems from "./components/ContractFilters";
-import { contractFormSections } from "./components/contract-form";
+import {
+  contractFormSections,
+  missingRequiredContractRelationLabels,
+} from "./components/contract-form";
 
 const CONTRACT_LEDGER_TAB: PageSurfaceTabBarItemSpec = {
   key: "contract-ledger",
@@ -62,13 +65,18 @@ export default function ContractsClient({
     contracts, total, page, setPage, totalPages, pageSize, setPageSize,
     view, setView, q, setQ, locationFilter, setLocationFilter,
     categoryFilter, setCategoryFilter, lifecycleStatusFilter, setLifecycleStatusFilter,
-    locations, categories, refresh,
+    locations, categories, businessRequiredByRelation,
+    businessRequiredReady, businessRequiredError, refresh,
   } = useContracts();
   const feedback = useFeedback();
   const [editorMode, setEditorMode] = useState<ContractEditorMode>(null);
   const [editing, setEditing] = useState<Partial<Contract>>({});
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const missingRequiredRelations = missingRequiredContractRelationLabels(editing, businessRequiredByRelation);
+  const businessRequiredUnavailableMessage = businessRequiredError
+    ? "业务必填规则加载失败，请刷新后重试"
+    : "业务必填规则正在加载，请稍后重试";
 
   const updateContractApproval = useCallback((
     version: number,
@@ -108,6 +116,10 @@ export default function ContractsClient({
 
   const openCreate = () => {
     if (!canCreate) return;
+    if (!businessRequiredReady) {
+      feedback.error(businessRequiredUnavailableMessage);
+      return;
+    }
     setEditing({
       lifecycleStatus: "active",
       signatureStatus: "unknown",
@@ -179,8 +191,10 @@ export default function ContractsClient({
 
   async function createContract() {
     if (!canCreate) throw new Error("无权限执行该操作");
+    if (!businessRequiredReady) throw new Error(businessRequiredUnavailableMessage);
     if (!editing.name) throw new Error("合同名称为必填");
     if (!editing.categoryId) throw new Error("合同类型为必填");
+    if (missingRequiredRelations.length) throw new Error(`${missingRequiredRelations.join("、")}为必填`);
     setSaving(true);
     try {
       const response = await directCommandFetch("/api/modules/administration/contracts", {
@@ -201,8 +215,16 @@ export default function ContractsClient({
       feedback.error("无权限执行该操作或合同版本无效");
       return;
     }
+    if (!businessRequiredReady) {
+      feedback.error(businessRequiredUnavailableMessage);
+      return;
+    }
     if (!editing.name || !editing.categoryId) {
       feedback.error("合同名称和合同类型为必填");
+      return;
+    }
+    if (missingRequiredRelations.length) {
+      feedback.error(`${missingRequiredRelations.join("、")}为必填`);
       return;
     }
     setSaving(true);
@@ -309,7 +331,7 @@ export default function ContractsClient({
   };
 
   const editSections = editorMode === "edit"
-    ? contractFormSections(editing, updateField, { locations, categories, readOnly: !canUpdate }).map<FormSurfaceSectionSpec>((section) => ({
+    ? contractFormSections(editing, updateField, { locations, categories, businessRequiredByRelation, readOnly: !canUpdate }).map<FormSurfaceSectionSpec>((section) => ({
         kind: "section",
         key: section.key,
         title: section.title,
@@ -325,9 +347,9 @@ export default function ContractsClient({
     title: "新增合同",
     open: editorMode === "create",
     canCreate,
-    disabled: saving,
-    content: { kind: "sections", sections: contractFormSections(editing, updateField, { locations, categories }) },
-    submission: { action: "save", disabled: saving || !editing.name || !editing.categoryId, execute: createContract },
+    disabled: saving || !businessRequiredReady,
+    content: { kind: "sections", sections: contractFormSections(editing, updateField, { locations, categories, businessRequiredByRelation }) },
+    submission: { action: "save", disabled: saving || !businessRequiredReady || !editing.name || !editing.categoryId || missingRequiredRelations.length > 0, execute: createContract },
     onOpenChange: (open) => { if (open) openCreate(); else closeEditor(); },
   };
 
@@ -344,7 +366,7 @@ export default function ContractsClient({
           submit: canUpdate ? { onSubmit: () => void saveContract() } : undefined,
           actions: canUpdate ? [
             { key: "reset", action: "reset", label: "取消编辑", disabled: saving, onClick: closeEditor },
-            { key: "save", action: "save", label: saving ? "保存中..." : "保存", disabled: saving, onClick: () => void saveContract() },
+            { key: "save", action: "save", label: saving ? "保存中..." : "保存", disabled: saving || !businessRequiredReady || missingRequiredRelations.length > 0, onClick: () => void saveContract() },
           ] : [],
         }), ...archivePackage.sections]
       : [createEmptySection("contract-detail-empty", {

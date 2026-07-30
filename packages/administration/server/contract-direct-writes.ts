@@ -6,6 +6,7 @@ import {
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { buildContractRecordAccessWhere, canOwnContractScope } from "./contract-access";
+import { acquireContractBusinessRequiredPolicyLocks } from "./contract-business-required-policy";
 import {
   buildContractLegalSnapshot,
   contractSnapshotProjection,
@@ -23,7 +24,9 @@ import {
   refreshInitialContractDraftRevision,
 } from "./contract-revisions";
 import {
+  normalizeContractConfiguredReferences,
   validateContractState,
+  type ContractReferenceValues,
   type ContractTargetCommand,
   type ContractWriteCommand,
 } from "./domain/administration-contract-validation";
@@ -87,6 +90,7 @@ export async function commitCreateContractCommand(command: ContractWriteCommand)
   const revisionCommandId = `${command.idempotencyKey}:revision`;
   try {
     return await prisma.$transaction(async (tx) => {
+      await acquireContractBusinessRequiredPolicyLocks(tx);
       const replay = await tx.contractRevision.findUnique({
         where: { createIdempotencyKey: revisionCommandId },
         select: { contractId: true, createRequestFingerprint: true },
@@ -100,6 +104,12 @@ export async function commitCreateContractCommand(command: ContractWriteCommand)
           ? serviceOk({ success: true, record: toContractDto(existing) })
           : serviceError("合同不存在", 404);
       }
+      const references = await normalizeContractConfiguredReferences(
+        command.data as ContractReferenceValues,
+        true,
+        tx,
+      );
+      if (!references.ok) return validationError(references.issue);
       await lockContractNumber(command.data.contractNo, tx);
       if (await contractNumberConflict(command.data.contractNo, undefined, tx)) {
         return serviceError("合同编号已存在", 409);
@@ -178,6 +188,7 @@ async function commitLockedContractUpdate(
   },
 ) {
   const { command, accessWhere, requestFingerprint, revisionCommandId } = input;
+  await acquireContractBusinessRequiredPolicyLocks(tx);
   if (!await lockContract(command.id, tx)) return serviceError("合同不存在", 404);
   const locked = await tx.contract.findFirst({
     where: { AND: [{ id: command.id, isArchived: false }, accessWhere] },
@@ -197,6 +208,8 @@ async function commitLockedContractUpdate(
   if (locked.version !== command.expectedVersion) return serviceError("合同已被其他人修改，请刷新后重试", 409);
   const currentSnapshot = buildContractLegalSnapshot(locked as unknown as Record<string, unknown>);
   const nextSnapshot = mergeContractLegalSnapshot(locked as unknown as Record<string, unknown>, command.data);
+  const references = await normalizeContractConfiguredReferences(nextSnapshot, true, tx);
+  if (!references.ok) return validationError(references.issue);
   if (JSON.stringify(currentSnapshot) === JSON.stringify(nextSnapshot)) {
     return serviceOk({ success: true, record: toContractDto(locked) });
   }

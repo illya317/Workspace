@@ -10,7 +10,26 @@ import {
   type ContractCategoryOption,
 } from "@workspace/administration/types";
 
+import type { ContractBusinessRequiredByRelation } from "../../contract-business-required";
+
 type ContractValue = string | number | null;
+
+const CONTRACT_RELATION_FIELDS = [
+  { relationKey: "administration.contracts.owning.company", field: "owningCompanyId", label: "归属公司" },
+  { relationKey: "administration.contracts.owner.department", field: "ownerDepartmentId", label: "归口部门" },
+  { relationKey: "administration.contracts.party.a", field: "partyAId", label: "甲方主体" },
+  { relationKey: "administration.contracts.party.b", field: "partyBId", label: "乙方主体" },
+  { relationKey: "administration.contracts.handler.employee", field: "handlerEmployeeId", label: "经办人" },
+] as const;
+
+export function missingRequiredContractRelationLabels(
+  editing: Partial<Contract>,
+  requiredByRelation: ContractBusinessRequiredByRelation,
+) {
+  return CONTRACT_RELATION_FIELDS
+    .filter(({ relationKey, field }) => requiredByRelation[relationKey] && !editing[field])
+    .map(({ label }) => label);
+}
 
 function staticChoice(
   key: keyof Contract,
@@ -71,6 +90,7 @@ function referenceField(input: {
   value: number | null | undefined;
   displayValue: string | null | undefined;
   placeholder: string;
+  required: boolean;
   lifecycleScope?: "active" | "all";
   readOnly: boolean;
   onChange: (value: number | null, option?: ReferenceOption) => void;
@@ -78,9 +98,11 @@ function referenceField(input: {
   return {
     key: input.key,
     label: input.label,
+    required: input.required,
     spec: {
       valueType: "reference",
       control: "reference",
+      validation: input.required ? { required: true } : undefined,
       options: {
         source: "remote",
         fkKey: input.fkKey,
@@ -126,6 +148,7 @@ export function contractFormFields(
       fkKey: "administration.contracts.owning.company",
       value: editing.owningCompanyId,
       displayValue: editing.owningCompanyName,
+      required: Boolean(choices.businessRequiredByRelation?.["administration.contracts.owning.company"]),
       placeholder: "搜索公司",
       readOnly,
       onChange: (value, option) => {
@@ -139,6 +162,7 @@ export function contractFormFields(
       fkKey: "administration.contracts.owner.department",
       value: editing.ownerDepartmentId,
       displayValue: editing.ownerDepartmentName,
+      required: Boolean(choices.businessRequiredByRelation?.["administration.contracts.owner.department"]),
       placeholder: "搜索部门",
       readOnly,
       onChange: (value, option) => {
@@ -152,6 +176,7 @@ export function contractFormFields(
       fkKey: "administration.contracts.party.a",
       value: editing.partyAId,
       displayValue: editing.partyAIdentityName,
+      required: Boolean(choices.businessRequiredByRelation?.["administration.contracts.party.a"]),
       placeholder: "搜索法定主体",
       lifecycleScope: "all",
       readOnly,
@@ -168,6 +193,7 @@ export function contractFormFields(
       fkKey: "administration.contracts.party.b",
       value: editing.partyBId,
       displayValue: editing.partyBIdentityName,
+      required: Boolean(choices.businessRequiredByRelation?.["administration.contracts.party.b"]),
       placeholder: "搜索法定主体",
       lifecycleScope: "all",
       readOnly,
@@ -185,6 +211,7 @@ export function contractFormFields(
       fkKey: "administration.contracts.handler.employee",
       value: editing.handlerEmployeeId,
       displayValue: editing.handlerEmployeeName,
+      required: Boolean(choices.businessRequiredByRelation?.["administration.contracts.handler.employee"]),
       placeholder: "搜索员工姓名、工号",
       lifecycleScope: "all",
       readOnly,
@@ -271,4 +298,5 @@ export interface ContractFormChoices {
   locations: string[];
   categories: ContractCategoryOption[];
   readOnly?: boolean;
+  businessRequiredByRelation?: ContractBusinessRequiredByRelation;
 }

@@ -4,6 +4,37 @@ model SystemConfig {
   value String
 }
 
+/// 关系治理策略的当前有效覆盖；空 settingsJson 表示已显式重置到代码基线
+model RelationPolicyConfig {
+  policyKey       String                   @id
+  settingsJson    Json
+  baselineHash    String
+  version         Int                      @default(1)
+  updatedByUserId Int?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @default(now()) @updatedAt
+  updatedBy       User?                    @relation("RelationPolicyConfigUpdater", fields: [updatedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([updatedByUserId])
+}
+
+/// 关系治理策略的追加式修订历史；主配置重置后仍保留完整审计链
+model RelationPolicyRevision {
+  id           Int      @id @default(autoincrement())
+  policyKey    String
+  version      Int
+  changeKind   String
+  reason       String?
+  settingsJson Json
+  baselineHash String
+  actorUserId  Int?
+  createdAt    DateTime @default(now())
+  actor        User?    @relation("RelationPolicyRevisionActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@unique([policyKey, version])
+  @@index([actorUserId, createdAt])
+}
+
 /// 业务编码的服务端原子流水；scopeKey 由各领域按公司、分类、年度等稳定维度组成
 model BusinessCodeSequence {
   ruleKey    String

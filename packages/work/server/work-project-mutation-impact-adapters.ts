@@ -70,7 +70,6 @@ function projectOwnedChildrenAdapter(): MutationImpactAdapter<WorkProjectMutatio
     async inspect({ context, current }) {
       const projectId = Number(current.id);
       const groups = await Promise.all([
-        ownedRows(context.tx.employeeProject.findMany({ where: { projectId }, select: { id: true } }), "EmployeeProject", "项目成员"),
         ownedRows(context.tx.projectEnablingDepartment.findMany({ where: { projectId }, select: { id: true } }), "ProjectEnablingDepartment", "赋能部门"),
         ownedRows(context.tx.projectPlanPhase.findMany({ where: { projectId }, select: { id: true } }), "ProjectPlanPhase", "项目阶段"),
         ownedRows(context.tx.projectPlanDependency.findMany({ where: { projectId }, select: { id: true } }), "ProjectPlanDependency", "项目依赖"),
@@ -79,7 +78,6 @@ function projectOwnedChildrenAdapter(): MutationImpactAdapter<WorkProjectMutatio
       ]);
       const records = groups.flat();
       return records.length ? {
-        policy: "auto_cascade_owned",
         records,
         reason: "删除项目会同步清理项目自有技术明细",
         requiresPerItemPermission: false,
@@ -87,6 +85,31 @@ function projectOwnedChildrenAdapter(): MutationImpactAdapter<WorkProjectMutatio
     },
     cascade() {
       // Physical owned relations cascade with the root Project delete.
+    },
+  };
+}
+
+function projectMembershipsAdapter(): MutationImpactAdapter<WorkProjectMutationImpactContext> {
+  return {
+    relationKey: "work.project.memberships",
+    sourceEntity: "Project",
+    intents: ["delete"],
+    async inspect({ context, current }) {
+      const rows = await context.tx.employeeProject.findMany({
+        where: { projectId: Number(current.id) },
+        select: { id: true },
+        orderBy: { id: "asc" },
+      });
+      return rows.length ? {
+        policy: "block",
+        records: rows.map((row) => ({
+          entity: "EmployeeProject",
+          id: String(row.id),
+          label: `项目成员 #${row.id}`,
+        })),
+        reason: "项目成员是受生命周期保护的事实记录，请先按成员退出流程处理",
+        requiresPerItemPermission: false,
+      } : null;
     },
   };
 }
@@ -108,6 +131,7 @@ export function projectMutationImpactAdapters(input: {
     projectWorkReferenceAdapter({ ...input, relationKey: "work.tasks.linked.project-phase", source: "item", viaPhase: true }),
     projectWorkReferenceAdapter({ ...input, relationKey: "work.plan.linked.project", source: "plan", viaPhase: false }),
     projectWorkReferenceAdapter({ ...input, relationKey: "work.plan.linked.project-phase", source: "plan", viaPhase: true }),
+    projectMembershipsAdapter(),
     projectOwnedChildrenAdapter(),
   ];
 }

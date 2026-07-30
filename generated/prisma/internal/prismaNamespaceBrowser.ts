@@ -287,6 +287,8 @@ export const ModelName = {
   ProductionQcSignature: 'ProductionQcSignature',
   ProductionQcAuditEvent: 'ProductionQcAuditEvent',
   SystemConfig: 'SystemConfig',
+  RelationPolicyConfig: 'RelationPolicyConfig',
+  RelationPolicyRevision: 'RelationPolicyRevision',
   BusinessCodeSequence: 'BusinessCodeSequence',
   BusinessCodeRule: 'BusinessCodeRule',
   BusinessCodeAllocation: 'BusinessCodeAllocation',
@@ -5379,6 +5381,34 @@ export const SystemConfigScalarFieldEnum = {
 } as const
 
 export type SystemConfigScalarFieldEnum = (typeof SystemConfigScalarFieldEnum)[keyof typeof SystemConfigScalarFieldEnum]
+
+
+export const RelationPolicyConfigScalarFieldEnum = {
+  policyKey: 'policyKey',
+  settingsJson: 'settingsJson',
+  baselineHash: 'baselineHash',
+  version: 'version',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RelationPolicyConfigScalarFieldEnum = (typeof RelationPolicyConfigScalarFieldEnum)[keyof typeof RelationPolicyConfigScalarFieldEnum]
+
+
+export const RelationPolicyRevisionScalarFieldEnum = {
+  id: 'id',
+  policyKey: 'policyKey',
+  version: 'version',
+  changeKind: 'changeKind',
+  reason: 'reason',
+  settingsJson: 'settingsJson',
+  baselineHash: 'baselineHash',
+  actorUserId: 'actorUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type RelationPolicyRevisionScalarFieldEnum = (typeof RelationPolicyRevisionScalarFieldEnum)[keyof typeof RelationPolicyRevisionScalarFieldEnum]
 
 
 export const BusinessCodeSequenceScalarFieldEnum = {

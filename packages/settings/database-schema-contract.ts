@@ -13,6 +13,7 @@ export interface DatabaseColumnCatalogItem {
 export interface DatabaseTableCatalogItem {
   name: string;
   groupKey: string;
+  moduleKey: string | null;
   columnCount: number;
   inboundRelationCount: number;
   outboundRelationCount: number;
@@ -35,11 +36,22 @@ export interface DatabaseSchemaGroup {
   tableCount: number;
 }
 
+export interface DatabaseSchemaModule {
+  key: string;
+  label: string;
+  level: "L1" | "L2";
+  directTableCount: number;
+  totalTableCount: number;
+  children: DatabaseSchemaModule[];
+}
+
 export interface DatabaseSchemaCatalog {
   databaseName: string;
   schemaName: string;
   generatedAt: string;
   groups: DatabaseSchemaGroup[];
+  modules: DatabaseSchemaModule[];
+  unassignedTableNames: string[];
   tables: DatabaseTableCatalogItem[];
   relations: DatabaseRelationCatalogItem[];
 }

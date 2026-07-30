@@ -31,6 +31,8 @@ Administration Contracts 是公司集中维护的合同主数据和台账，不�
 - `partyAId/partyBId -> Party.id`
 - `handlerEmployeeId -> Employee.id`
 
+这五项关系的物理 FK 和列可空性始终由 Prisma migration 管理，并在 Settings 中只读展示。它们另有显式的业务必填基线；root 可在 Settings 将单项切换为必填或选填。列表 API 返回当前生效值，合同表单据此显示必填标记，创建命令和所有显式提交该字段的更新命令由同一 Relation Catalog validator 校验。切换为必填前，Settings 会检查现有合同空值并在存在阻断数据时拒绝保存。Settings 预检/保存与合同直接创建、修改、修订创建及修订发布按同一组 policy key 取得事务锁；合同写路径在持锁事务内重新解析并校验五项关系，旧修订快照也不能绕过新生效的必填规则。
+
 `partyA/partyB` 继续保存合同签署时的名称快照；共享 `Party` 只提供稳定法定主体身份，不以当前主体名称覆盖历史签署文本。
 
 `signedOn/expiresOn` 使用 PostgreSQL `date`。迁移前文本保存在 `legacySignDateRaw/legacyEndDateRaw`，日期精度记录在 `signedOnPrecision/expiresOnPrecision`；只有年份或无法确认到日的来源值不会被强行转换。金额使用 `Decimal(20,2)` 并配套三位 `currencyCode`。
@@ -88,7 +90,7 @@ Administration Contracts 是公司集中维护的合同主数据和台账，不�
 - 绝密级（4）合同仅系统管理员可见和维护。
 - 列表、导出、经营分析、更新、归档和删除复用同一记录范围；无权记录按不存在返回。
 
-Company、Department、Party、Employee 关系均登记在 Platform relation registry，并由 Administration mutation-impact adapter 阻止删除或归档仍被合同引用的主数据。
+Company、Department、Party、Employee 关系均登记在 Platform Relation Catalog。当前合同写入已消费可配置的业务必填策略；目标删除联动仍固定为代码基线，未接入可配置的 Administration mutation-impact 执行器，因此 Settings 不会为这些关系提供删除联动选择器。
 
 ## 下游适配
 

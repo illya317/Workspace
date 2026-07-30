@@ -8,7 +8,9 @@ import {
 } from "@workspace/platform/server/business-action-executor";
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { resolveConfiguredBusinessRequiredByRelation } from "@workspace/platform/server/relation-policy-validation";
 import type { Contract, ContractWorkView } from "@workspace/administration/types";
+import { CONTRACT_BUSINESS_REQUIRED_RELATION_KEYS } from "../contract-business-required";
 import { buildContractRecordAccessWhere } from "./contract-access";
 import { renderContractsCsv } from "./contract-csv";
 import {
@@ -48,6 +50,23 @@ export interface ContractListFilters {
 }
 
 export type ContractExportRecord = Contract;
+
+export function resolveContractBusinessRequiredByRelation(
+  policies: Readonly<Record<string, "required" | "optional">>,
+) {
+  return Object.fromEntries(
+    CONTRACT_BUSINESS_REQUIRED_RELATION_KEYS.map((relationKey) => {
+      const policy = policies[relationKey];
+      if (policy !== "required" && policy !== "optional") {
+        throw new Error(`合同关系 ${relationKey} 未解析到业务必填策略`);
+      }
+      return [
+        relationKey,
+        policy === "required",
+      ];
+    }),
+  );
+}
 
 type CreateContractInput = {
   userId: number;
@@ -181,7 +200,7 @@ export async function listContracts(filters: ContractListFilters) {
   const pageSize = filters.pageSize ?? 50;
   const built = await buildWhere(filters);
   const skip = (page - 1) * pageSize;
-  const [contracts, total, allLocations, categories] = await Promise.all([
+  const [contracts, total, allLocations, categories, requiredPolicies] = await Promise.all([
     prisma.contract.findMany({
       where: built.where,
       include: CONTRACT_INCLUDE,
@@ -202,6 +221,7 @@ export async function listContracts(filters: ContractListFilters) {
       select: { id: true, name: true },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     }),
+    resolveConfiguredBusinessRequiredByRelation(CONTRACT_BUSINESS_REQUIRED_RELATION_KEYS),
   ]);
   const duplicateSet = new Set(built.duplicates);
   return {
@@ -211,6 +231,7 @@ export async function listContracts(filters: ContractListFilters) {
     pageSize,
     locations: allLocations.map((item) => item.location).filter((value): value is string => Boolean(value)),
     categories,
+    businessRequiredByRelation: resolveContractBusinessRequiredByRelation(requiredPolicies),
   };
 }
 

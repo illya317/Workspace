@@ -7,6 +7,7 @@ import {
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { buildContractRecordAccessWhere, canOwnContractScope } from "./contract-access";
+import { acquireContractBusinessRequiredPolicyLocks } from "./contract-business-required-policy";
 import {
   buildContractLegalSnapshot,
   CONTRACT_LEGAL_SNAPSHOT_SCHEMA_VERSION,
@@ -21,6 +22,7 @@ import {
   mergeContractLegalSnapshot,
   parseContractLegalSnapshot,
 } from "./contract-lifecycle-records";
+import { normalizeContractConfiguredReferences } from "./domain/administration-contract-validation";
 import {
   assertDirectContractRevisionInput,
   assertInitialContractRevisionInput,
@@ -200,6 +202,7 @@ export async function commitCreateContractRevision(command: ContractRevisionCrea
   });
   try {
     return await prisma.$transaction(async (tx) => {
+      await acquireContractBusinessRequiredPolicyLocks(tx);
       if (!await lockContractLifecycle(command.contractId, tx)) return serviceError("合同不存在", 404);
       const current = await tx.contract.findFirst({ where: { AND: [{ id: command.contractId, isArchived: false }, accessWhere] } });
       if (!current) return serviceError("合同不存在", 404);
@@ -219,6 +222,8 @@ export async function commitCreateContractRevision(command: ContractRevisionCrea
       if (!currentRevision) return serviceError("合同当前正式修订不存在", 409);
       if (command.effectiveOn <= currentRevision.effectiveOn) return serviceError("修订生效日必须晚于当前正式修订", 409);
       const snapshot = mergeContractLegalSnapshot(current as unknown as Record<string, unknown>, command.data);
+      const references = await normalizeContractConfiguredReferences(snapshot, true, tx);
+      if (!references.ok) return serviceError(references.issue.message, references.issue.status || 400);
       if (!await canOwnContractScope({
         userId: command.userId,
         confidentialityLevel: snapshot.confidentialityLevel,
@@ -268,6 +273,7 @@ export async function commitPublishContractRevision(command: ContractRevisionPub
   });
   try {
     return await prisma.$transaction(async (tx) => {
+      await acquireContractBusinessRequiredPolicyLocks(tx);
       if (!await lockContractLifecycle(command.contractId, tx)) return serviceError("合同不存在", 404);
       const current = await tx.contract.findFirst({ where: { AND: [{ id: command.contractId, isArchived: false }, accessWhere] } });
       if (!current) return serviceError("合同不存在", 404);
@@ -292,6 +298,8 @@ export async function commitPublishContractRevision(command: ContractRevisionPub
       if (previous && revision.effectiveOn <= previous.effectiveOn) return serviceError("修订生效日必须晚于当前正式修订", 409);
       const snapshot = parseContractLegalSnapshot(revision.snapshotJson);
       if (!snapshot) return serviceError("修订快照无效", 409);
+      const references = await normalizeContractConfiguredReferences(snapshot, true, tx);
+      if (!references.ok) return serviceError(references.issue.message, references.issue.status || 400);
       if (!await canOwnContractScope({
         userId: command.userId,
         confidentialityLevel: snapshot.confidentialityLevel,
