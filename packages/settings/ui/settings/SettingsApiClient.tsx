@@ -10,6 +10,7 @@ import {
   createPageTabBar,
   createPanelSection,
   createSectionSection,
+  type BodySurfaceProps,
   type BodySurfaceSectionSpec,
   type DataSurfaceColumnSpec,
   type FormSurfaceItemSpec,
@@ -55,7 +56,7 @@ export default function SettingsApiClient({
   const [draftScopeKeys, setDraftScopeKeys] = useState<string[]>([]);
   const [mobileClientDetailActive, setMobileClientDetailActive] = useState(false);
 
-  const notificationPublishingSections = useNotificationPublishingWorkbench({
+  const notificationPublishing = useNotificationPublishingWorkbench({
     enabled: activeTab === "notifications" && canAccessNotifications,
   });
   const groupGovernance = useWeComGroupGovernanceWorkbench({
@@ -447,25 +448,31 @@ export default function SettingsApiClient({
       }
     : undefined;
 
-  const activeSections = activeTab === "clients"
-    ? clientSections
+  const overviewBody = (sections: BodySurfaceSectionSpec[]): BodySurfaceProps => createPageBody([
+    ...(message ? [createMessageSection("message", { tone: "default", content: message })] : []),
+    ...sections,
+  ]);
+  const activeBody: BodySurfaceProps = activeTab === "clients"
+    ? overviewBody(clientSections)
     : activeTab === "groups"
-      ? groupGovernance.sections
+      ? groupGovernance.body ?? createPageBody([])
+      : activeTab === "notifications"
+        ? notificationPublishing.body ?? createPageBody([])
+        : activeTab === "logs"
+          ? overviewBody(logSections)
+          : overviewBody(catalogSections);
+  const activeCreate = activeTab === "groups"
+    ? groupGovernance.create
     : activeTab === "notifications"
-      ? notificationPublishingSections
-      : activeTab === "logs"
-        ? logSections
-        : catalogSections;
+      ? notificationPublishing.create
+      : clientCreate;
 
   return (
     <PageSurface
       kind="standard"
       tabbar={navigation}
-      create={activeTab === "groups" ? groupGovernance.create : clientCreate}
-      body={createPageBody([
-        ...(message ? [createMessageSection("message", { tone: "default", content: message })] : []),
-        ...activeSections,
-      ])}
+      create={activeCreate}
+      body={activeBody}
     />
   );
 }

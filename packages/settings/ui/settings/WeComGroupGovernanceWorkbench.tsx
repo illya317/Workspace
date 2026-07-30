@@ -10,6 +10,7 @@ import {
   createPageModalSection,
   createPanelSection,
   type BodySurfaceSectionSpec,
+  type BodySurfaceSplitSectionProps,
   type DataSurfaceColumnSpec,
   type FormSurfaceItemSpec,
   type PageSurfaceCreateSpec,
@@ -63,7 +64,7 @@ const EMPTY_POLICY_DRAFT: PolicyDraft = {
 };
 
 export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean }): {
-  sections: BodySurfaceSectionSpec[];
+  body: BodySurfaceSplitSectionProps | null;
   create?: PageSurfaceCreateSpec;
 } {
   const { error: showError, success: showSuccess } = useFeedback();
@@ -103,7 +104,7 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
     if (enabled) void load();
   }, [enabled, load]);
 
-  if (!enabled) return { sections: [] };
+  if (!enabled) return { body: null };
 
   const selectedGroup = data?.managedGroups.find((group) => group.groupKey === selectedGroupKey) ?? null;
   const selectedPolicies = (data?.groupPolicies ?? []).filter((policy) => policy.groupKey === selectedGroupKey);
@@ -443,34 +444,33 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
     onCancel: () => { setCreatePolicyOpen(false); setPolicyDraft(EMPTY_POLICY_DRAFT); },
   } : undefined;
 
+  const governancePath = createPanelSection("managed-group-governance-path", {
+    title: "企业微信群发治理主路径",
+    sections: [
+      createFieldsSection("managed-group-governance-progress", [
+        { kind: "readonly", key: "directory", label: "1 受管群目录", value: `${managedGroups.length} 个群 · ${pendingClaimCount} 个待认领` },
+        { kind: "readonly", key: "claim-and-verify", label: "2 认领、命名与验证", value: managedGroupGovernanceStage(selectedGroup) },
+        { kind: "readonly", key: "policy-and-agent", label: "3 每群策略与周报绑定", value: selectedGroupReady ? `${selectedPolicies.length} 条策略 · ${publishedDefinitionCount} 个可用定义` : `${readyGroupCount} 个群已就绪` },
+      ], { layout: { columns: 3, density: "compact" } }),
+      createMessageSection("managed-group-guardrail", {
+        tone: "warning",
+        content: "未认领、未验证或已停用的群默认禁止发送；控制台和 Agent 都不接收 chatId 或 webhook。",
+      }),
+    ],
+  });
+
   return {
     create,
-    sections: [
-      createPanelSection("managed-group-governance-path", {
-        title: "企业微信群发治理主路径",
-        sections: [
-          createFieldsSection("managed-group-governance-progress", [
-            { kind: "readonly", key: "directory", label: "1 受管群目录", value: `${managedGroups.length} 个群 · ${pendingClaimCount} 个待认领` },
-            { kind: "readonly", key: "claim-and-verify", label: "2 认领、命名与验证", value: managedGroupGovernanceStage(selectedGroup) },
-            { kind: "readonly", key: "policy-and-agent", label: "3 每群策略与周报绑定", value: selectedGroupReady ? `${selectedPolicies.length} 条策略 · ${publishedDefinitionCount} 个可用定义` : `${readyGroupCount} 个群已就绪` },
-          ], { layout: { columns: 3, density: "compact" } }),
-          createMessageSection("managed-group-guardrail", {
-            tone: "warning",
-            content: "未认领、未验证或已停用的群默认禁止发送；控制台和 Agent 都不接收 chatId 或 webhook。",
-          }),
-        ],
-      }),
-      {
-        key: "managed-group-workspace",
-        body: createMasterDetailBody({
-          master: { label: "1 受管群目录", body: createPageBody([groupList]), presentation: "compact" },
-          detail: createPageBody(detailSections),
-          desktop: { ratio: [3, 7] },
-          mobile: { detailActive: mobileDetailActive, onNavigateToList: () => setMobileDetailActive(false) },
-        }),
-      },
-      ...(claimModal ? [claimModal] : []),
-      ...(editPolicyModal ? [editPolicyModal] : []),
-    ],
+    body: createMasterDetailBody({
+      master: { label: "1 受管群目录", body: createPageBody([groupList]), presentation: "compact" },
+      detail: createPageBody([
+        governancePath,
+        ...detailSections,
+        ...(claimModal ? [claimModal] : []),
+        ...(editPolicyModal ? [editPolicyModal] : []),
+      ]),
+      desktop: { ratio: [3, 7] },
+      mobile: { detailActive: mobileDetailActive, onNavigateToList: () => setMobileDetailActive(false) },
+    }),
   };
 }

@@ -10,8 +10,9 @@ import {
   createPageBody,
   createPanelSection,
   createSectionSection,
-  type BodySurfaceSectionSpec,
+  type BodySurfaceSplitSectionProps,
   type FormSurfaceItemSpec,
+  type PageSurfaceCreateSpec,
   useFeedback,
 } from "@workspace/core/ui";
 import { postJson, requestJson } from "@workspace/platform/ui/api-client";
@@ -27,7 +28,10 @@ import {
   type NotificationPublishingWorkbenchResponse,
 } from "./notification-publishing-workbench-model";
 
-export function useNotificationPublishingWorkbench({ enabled }: { enabled: boolean }): BodySurfaceSectionSpec[] {
+export function useNotificationPublishingWorkbench({ enabled }: { enabled: boolean }): {
+  body: BodySurfaceSplitSectionProps | null;
+  create?: PageSurfaceCreateSpec;
+} {
   const { error: showError, success: showSuccess } = useFeedback();
   const [data, setData] = useState<NotificationPublishingWorkbenchResponse | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
@@ -35,6 +39,7 @@ export function useNotificationPublishingWorkbench({ enabled }: { enabled: boole
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [mobileDetailActive, setMobileDetailActive] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const load = useCallback(async (preferredKey?: string | null) => {
     if (!enabled) return;
@@ -48,6 +53,7 @@ export function useNotificationPublishingWorkbench({ enabled }: { enabled: boole
       setData(next);
       setSelectedKey(nextSelectedKey);
       setDraft(selected ? toNotificationDefinitionDraft(selected) : EMPTY_NOTIFICATION_DEFINITION_DRAFT);
+      setCreateOpen(false);
     } catch (error) {
       showError(error instanceof Error ? error.message : "加载通知定义失败");
     } finally {
@@ -72,11 +78,12 @@ export function useNotificationPublishingWorkbench({ enabled }: { enabled: boole
     value: NotificationDefinitionDraft[K],
   ) => setDraft((current) => ({ ...current, [key]: value }));
 
-  async function save() {
+  async function save(rethrow = false) {
     const key = draft.key.trim();
     if (!key || !draft.label.trim() || !draft.titleTemplate.trim() || !draft.bodyTemplate.trim()) {
+      if (rethrow) throw new Error("请完整填写通知定义");
       showError("请填写定义键、名称、标题模板和正文模板");
-      return;
+      return undefined;
     }
     setBusy("save");
     try {
@@ -96,8 +103,11 @@ export function useNotificationPublishingWorkbench({ enabled }: { enabled: boole
       });
       showSuccess(selected ? "草稿已保存" : "通知定义已创建");
       await load(key);
+      return { outcome: "saved" as const };
     } catch (error) {
+      if (rethrow) throw error;
       showError(error instanceof Error ? error.message : "保存通知定义失败");
+      return undefined;
     } finally {
       setBusy(null);
     }
@@ -119,7 +129,7 @@ export function useNotificationPublishingWorkbench({ enabled }: { enabled: boole
     }
   }
 
-  if (!enabled) return [];
+  if (!enabled) return { body: null };
 
   const fields: FormSurfaceItemSpec[] = [
     {
@@ -217,6 +227,7 @@ export function useNotificationPublishingWorkbench({ enabled }: { enabled: boole
         badges: [{ key: "state", label: state.label, tone: state.tone }],
         tone: item.key === selectedKey ? "success" as const : "default" as const,
         onClick: () => {
+          setCreateOpen(false);
           setSelectedKey(item.key);
           setDraft(toNotificationDefinitionDraft(item));
           setMobileDetailActive(true);
@@ -225,21 +236,20 @@ export function useNotificationPublishingWorkbench({ enabled }: { enabled: boole
     }),
   });
 
-  const editor = createPanelSection("notification-definition-editor", {
-    title: selected ? `${selected.label} · 编排` : "新建通知定义",
+  const editor = selected ? createPanelSection("notification-definition-editor", {
+    title: `${selected.label} · 编排`,
+    actions: [{ key: "refresh", label: "刷新", icon: "refresh", disabled: loading, onClick: () => void load(selected.key) }],
     sections: [
-      ...(selected ? [createMessageSection("notification-definition-state", {
+      createMessageSection("notification-definition-state", {
         tone: notificationDefinitionState(selected).tone,
         content: `${notificationDefinitionState(selected).label} · 当前修订 ${selected.revision} · 已发布修订 ${selected.publishedRevision ?? "无"} · 版本 ${selected.version}`,
-      })] : []),
+      }),
       createFieldsSection("notification-definition-fields", fields, {
         layout: { columns: 2, density: "compact" },
         actions: [
           { key: "save", action: "save", label: busy === "save" ? "保存中…" : "保存草稿", disabled: fieldsDisabled || busy !== null, onClick: () => void save() },
-          ...(selected ? [
-            { key: "publish", action: "submit" as const, label: "发布", disabled: !canConfigure || busy !== null || selected.status === "archived" || selected.publishedRevision === selected.revision, onClick: () => void transition("publish") },
-            { key: "archive", action: "archive" as const, label: "归档", disabled: !canConfigure || busy !== null || selected.status === "archived", onClick: () => void transition("archive") },
-          ] : []),
+          { key: "publish", action: "submit" as const, label: "发布", disabled: !canConfigure || busy !== null || selected.status === "archived" || selected.publishedRevision === selected.revision, onClick: () => void transition("publish") },
+          { key: "archive", action: "archive" as const, label: "归档", disabled: !canConfigure || busy !== null || selected.status === "archived", onClick: () => void transition("archive") },
         ],
       }),
       createSectionSection("notification-preview", {
@@ -263,40 +273,48 @@ export function useNotificationPublishingWorkbench({ enabled }: { enabled: boole
         }], { layout: { columns: 1, density: "compact" } })],
       }),
     ],
-  });
+  }) : null;
 
-  return [
-    createSectionSection("notification-publishing-workbench", {
-      title: "通知发布调度台",
-      create: {
-        id: "notification-definition-create",
-        title: "新建定义",
-        presentation: "row",
-        canCreate: canConfigure,
-        disabled: busy !== null,
-        onCreate: () => {
-          setSelectedKey(null);
-          setDraft(EMPTY_NOTIFICATION_DEFINITION_DRAFT);
-          setMobileDetailActive(true);
-        },
-      },
-      actions: [{ key: "refresh", label: "刷新", icon: "refresh", disabled: loading, onClick: () => void load(selectedKey) }],
-      sections: [
-        createMessageSection("notification-publishing-guardrails", {
-          tone: "muted",
-          content: "模板是轻代码契约：只解析扁平变量，不执行脚本或 HTML。保存、发布和归档均以版本号做并发保护。",
-        }),
-        {
-          key: "notification-publishing-split",
-          body: createMasterDetailBody({
-            master: { label: "通知定义", body: createPageBody([list]) },
-            detail: createPageBody([editor]),
-            desktop: { ratio: [3, 7] },
-            mobile: { detailActive: mobileDetailActive, onNavigateToList: () => setMobileDetailActive(false) },
-          }),
-        },
-      ],
+  const create: PageSurfaceCreateSpec | undefined = canConfigure ? {
+    id: "notification-definition-create",
+    presentation: "block",
+    title: "新建通知定义",
+    open: createOpen,
+    canCreate: true,
+    disabled: busy !== null,
+    content: { kind: "form", form: { items: fields, layout: { columns: 2, density: "compact" } } },
+    submission: {
+      action: "save",
+      disabled: busy !== null || !draft.key.trim() || !draft.label.trim() || !draft.titleTemplate.trim() || !draft.bodyTemplate.trim(),
+      execute: () => save(true),
+    },
+    feedback: { saved: "通知定义已创建", error: "创建通知定义失败" },
+    onOpenChange: (open) => {
+      setCreateOpen(open);
+      if (open) {
+        setSelectedKey(null);
+        setDraft(EMPTY_NOTIFICATION_DEFINITION_DRAFT);
+        setMobileDetailActive(true);
+      }
+    },
+    onCancel: () => {
+      setCreateOpen(false);
+      const fallback = data?.definitions[0] ?? null;
+      setSelectedKey(fallback?.key ?? null);
+      setDraft(fallback ? toNotificationDefinitionDraft(fallback) : EMPTY_NOTIFICATION_DEFINITION_DRAFT);
+    },
+  } : undefined;
+
+  return {
+    create,
+    body: createMasterDetailBody({
+      master: { label: "通知定义", body: createPageBody([list]), presentation: "compact" },
+      detail: createPageBody([
+        ...(editor ? [editor] : []),
+        ...auditSections,
+      ]),
+      desktop: { ratio: [3, 7] },
+      mobile: { detailActive: mobileDetailActive, onNavigateToList: () => setMobileDetailActive(false) },
     }),
-    ...auditSections,
-  ];
+  };
 }
