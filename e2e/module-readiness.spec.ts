@@ -127,7 +127,7 @@ const readinessCases: ModuleReadinessCase[] = [
     ready: async (page) => {
       await expect(visible(page.getByText("每日简报", { exact: true })))
         .toBeVisible({ timeout: READY_BUDGET_MS });
-      await expect(visible(page.getByText(/· \d+ 条$/)))
+      await expect(visible(page.getByText(/^显示 \d+ \/ \d+ 条$/)))
         .toBeVisible({ timeout: READY_BUDGET_MS });
     },
   },
