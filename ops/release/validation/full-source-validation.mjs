@@ -26,7 +26,7 @@ export function runFullSourceValidation({
   contentDigest,
   resultFile,
   env = process.env,
-  execute = (command, args) => spawnSync(command, args, { cwd, env, stdio: "inherit" }),
+  execute = (command, args, options) => spawnSync(command, args, { ...options, stdio: "inherit" }),
   acknowledgeRepeat = false,
   now = () => Date.now(),
 } = {}) {
@@ -41,7 +41,10 @@ export function runFullSourceValidation({
     throw new Error("same candidate already consumed its full-CI attempt; inspect the failure before explicitly acknowledging a repeat");
   }
   const startedAtMs = now();
-  const result = execute(COMMAND[0], COMMAND[1]);
+  const result = execute(COMMAND[0], COMMAND[1], {
+    cwd,
+    env: { ...env, CHECK_SUITE_COLLECT_FAILURES: "1" },
+  });
   const completedAtMs = now();
   const statusCode = result.error || result.signal || result.status === null ? 1 : result.status;
   const receipt = {

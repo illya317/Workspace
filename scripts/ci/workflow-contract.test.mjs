@@ -3,6 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 
 const workflow = fs.readFileSync(new URL("../../.github/workflows/ci.yml", import.meta.url), "utf8");
+const releaseConfig = fs.readFileSync(new URL("../../ops/cnb-release.yml", import.meta.url), "utf8");
 const packageJson = JSON.parse(fs.readFileSync(new URL("../../package.json", import.meta.url), "utf8"));
 const preCommit = fs.readFileSync(new URL("../../.githooks/pre-commit", import.meta.url), "utf8");
 const prePush = fs.readFileSync(new URL("../../.githooks/pre-push", import.meta.url), "utf8");
@@ -15,6 +16,9 @@ test("normal CI is lightweight changed-file validation with stale-run cancellati
   assert.match(workflow, /name: CI \/ required/);
   assert.match(workflow, /cancel-in-progress: true/);
   assert.doesNotMatch(workflow, /force_full|build-standalone|test:e2e/);
+  assert.doesNotMatch(workflow, /\.cache\/types|\.cache\/tsbuild/);
+  assert.match(releaseConfig, /\.cache\/types/);
+  assert.match(releaseConfig, /\.cache\/tsbuild/);
 });
 
 test("workflow pins third-party actions and uses the repository Node contract", () => {

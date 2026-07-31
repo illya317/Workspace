@@ -258,9 +258,9 @@ function validate() {
   if (!/fileName:\s*["']tsconfig\.base\.json["']/.test(dependencyCruiserConfig)) {
     violations.push("dependency-cruiser must resolve paths through tsconfig.base.json");
   }
-  const workflow = fs.readFileSync(path.join(repoRoot, ".github/workflows/ci.yml"), "utf8");
+  const releaseConfig = fs.readFileSync(path.join(repoRoot, "ops/cnb-release.yml"), "utf8");
   for (const cachePath of [".cache/types", ".cache/tsbuild"]) {
-    if (!workflow.includes(cachePath)) violations.push(`CI type cache must include ${cachePath}`);
+    if (!releaseConfig.includes(cachePath)) violations.push(`release type cache must include ${cachePath}`);
   }
 
   return violations;

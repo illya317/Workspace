@@ -41,12 +41,18 @@ test("full source validation reuses success and blocks accidental repeated failu
   const resultFile = path.join(directory, "result.json");
   const contentDigest = "a".repeat(64);
   let executions = 0;
-  const execute = () => { executions += 1; return { status: 0, signal: null, error: null }; };
+  let executionOptions;
+  const execute = (_command, _args, options) => {
+    executions += 1;
+    executionOptions = options;
+    return { status: 0, signal: null, error: null };
+  };
   const first = runFullSourceValidation({ contentDigest, resultFile, execute, now: () => 1_000 });
   const second = runFullSourceValidation({ contentDigest, resultFile, execute, now: () => 2_000 });
   assert.equal(first.reused, false);
   assert.equal(second.reused, true);
   assert.equal(executions, 1);
+  assert.equal(executionOptions.env.CHECK_SUITE_COLLECT_FAILURES, "1");
 
   const failedFile = path.join(directory, "failed.json");
   runFullSourceValidation({
