@@ -1,4 +1,4 @@
--- workspace:migration-mode=expand
+-- workspace:migration-mode=maintenance
 -- Normalize PostgreSQL-truncated index names to the identifiers expected by the Prisma schema.
 ALTER INDEX "InvestmentEnterpriseContract_profileId_expiryDate_noticeDate_id"
   RENAME TO "InvestmentEnterpriseContract_profileId_expiryDate_noticeDat_idx";
