@@ -5,17 +5,17 @@ import UiComponentsShowcase from "@workspace/core/showcase/UiComponentsShowcase"
 import {
   createPageBody,
   createPageTabBar,
-  createStatusSection,
   PageSurface,
   useFeedback,
 } from "@workspace/core/ui";
 import { useDatabaseRelationsTab } from "../admin/tabs/DatabaseRelationsTab";
 import { useModuleManagementSection } from "../admin/tabs/ModuleManagementTab";
+import { useOperationsRecordsTab } from "./OperationsRecordsTab";
 import { useSqlSettingsTab } from "./SqlSettingsTab";
 
 type GovernanceTab = "ui" | "dataRelations" | "sqlSettings" | "modules" | "operations";
 
-export default function PlatformGovernanceClient({ isSuperAdmin }: { isSuperAdmin: boolean }) {
+export default function PlatformGovernanceClient({ isSuperAdmin, canAuditOperations }: { isSuperAdmin: boolean; canAuditOperations: boolean }) {
   const [activeTab, setActiveTab] = useState<GovernanceTab>("ui");
   const feedback = useFeedback();
   const showToast = feedback.notify;
@@ -26,13 +26,13 @@ export default function PlatformGovernanceClient({ isSuperAdmin }: { isSuperAdmi
       { key: "sqlSettings", label: "SQL 设置" },
       { key: "modules", label: "模块管理" },
     ] : []),
-    { key: "operations", label: "运维记录" },
-  ], [isSuperAdmin]);
+    ...(canAuditOperations ? [{ key: "operations", label: "运维记录" }] : []),
+  ], [canAuditOperations, isSuperAdmin]);
   const tabbar = createPageTabBar({
     items: tabs,
     active: activeTab,
     onChange: (key) => {
-      if (key === "ui" || key === "operations" || (isSuperAdmin && (key === "dataRelations" || key === "sqlSettings" || key === "modules"))) {
+      if (key === "ui" || (canAuditOperations && key === "operations") || (isSuperAdmin && (key === "dataRelations" || key === "sqlSettings" || key === "modules"))) {
         setActiveTab(key);
       }
     },
@@ -50,28 +50,30 @@ export default function PlatformGovernanceClient({ isSuperAdmin }: { isSuperAdmi
     enabled: activeTab === "sqlSettings" && isSuperAdmin,
     showToast,
   });
+  const operationsTab = useOperationsRecordsTab({
+    enabled: activeTab === "operations" && canAuditOperations,
+    showToast,
+  });
 
   if (activeTab === "ui") return <UiComponentsShowcase tabbar={tabbar} />;
-
-  const operationsBody = createPageBody([
-    createStatusSection("operations-records-empty", {
-      kind: "empty",
-      content: "暂无运维记录",
-    }),
-  ]);
 
   return (
     <PageSurface
       kind="standard"
       tabbar={tabbar}
-      toolbar={activeTab === "dataRelations" ? { items: databaseRelationsTab.toolbarItems } : undefined}
+      toolbar={activeTab === "dataRelations"
+        ? { items: databaseRelationsTab.toolbarItems }
+        : activeTab === "operations"
+          ? { items: operationsTab.toolbarItems }
+          : undefined}
       body={activeTab === "dataRelations"
         ? databaseRelationsTab.body
         : activeTab === "sqlSettings"
           ? sqlSettingsBody
         : activeTab === "modules"
           ? createPageBody([modulesSection])
-          : operationsBody}
+          : operationsTab.body}
+      footer={activeTab === "operations" ? operationsTab.footer : undefined}
     />
   );
 }

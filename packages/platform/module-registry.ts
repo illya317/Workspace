@@ -466,6 +466,7 @@ export const registeredModuleDefinitions = [
     ],
     apiGuards: [
       ...apiResourceGuards("/api/modules/settings/account/notification-subscriptions", ["GET", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/modules/settings/governance", ["GET"]),
       ...apiResourceGuards("/api/modules/settings/notifications", ["GET", "POST"]),
       ...apiResourceGuards("/api/settings/api/open/notification-definitions", ["GET", "POST"], {
         migrationNote: "Settings notification-definition management remains a console URL; programmatic publication uses /api/modules/settings/notifications.",

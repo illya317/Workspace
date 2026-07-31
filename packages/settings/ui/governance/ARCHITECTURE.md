@@ -8,7 +8,7 @@
 | 数据关系 | Module-owned PostgreSQL table structure plus the full PK/FK relationship graph | root only |
 | SQL 设置 | Live PostgreSQL catalog plus governed runtime-setting and credential operations | root only; writes also use `configure` |
 | 模块管理 | Module runtime enable/disable tree and build-time source analysis | root only; writes also use `configure` |
-| 运维记录 | Governed operations-record surface | empty in v1; future reads use `audit` |
+| 运维记录 | Signed SQL operations plus append-only relation-policy revisions, with source/status/search filters and pagination | explicit `settings.governance.audit` |
 
 Tab selection is local client state and does not navigate or synchronize the URL. `UiComponentsShowcase` accepts the shared tabbar so the UI registry remains the original implementation rather than a copied view.
 
@@ -28,4 +28,4 @@ Module management calls `/api/settings/governance/modules`; its snapshot is gene
 
 Source analysis derives every file's effective responsibility from source structure and dependency closure, then enforces the default direction `入口 -> 应用 -> 适配 -> 领域 -> 契约` together with `业务 -> Platform -> Core/Data Model`. Cross-business imports, reverse role edges, skipped layers such as input-to-persistence, implementation imports of its own public barrel, and production imports of test/tooling all block snapshot validation. The UI's invalid-direction count comes from the complete backend edge set, so expanding or collapsing grouped columns cannot change it; green relation highlighting is reserved for exact file cycles rather than aggregate two-way role traffic.
 
-The Operations Records tab must not read deployment receipts, `.cache` files, server directories, or NDJSON from the browser. A future log source must define a server DTO, provenance, retention, filtering, and `settings.governance.audit` authorization before it can add records.
+The Operations Records tab calls the canonical `/api/modules/settings/governance/operations` endpoint. Its DTO declares each provider's provenance and maximum read size, retains a 180-day view window, and fails closed on malformed signed SQL records. The UI never reads deployment receipts, `.cache` files, server directories, or NDJSON. New providers must remain database-backed and add explicit provenance, retention, filtering, and `settings.governance.audit` coverage before joining the aggregate.

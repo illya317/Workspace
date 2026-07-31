@@ -346,6 +346,18 @@ test("relation policy governance uses explicit read and configure actions", () =
   }
 });
 
+test("governance operations records require the explicit audit action", () => {
+  const policy = resolvePermissionApiActionPolicy({
+    method: "GET",
+    apiPath: "/api/modules/settings/governance/operations",
+    resourceKey: "settings.governance",
+  });
+  assert.equal(policy.resourceKey, "settings.governance");
+  assert.deepEqual(policy.requiredActions, ["audit"]);
+  assert.equal(policy.runtimeEnforcement, "gateway");
+  assert.match(policy.notes ?? "", /explicit/);
+});
+
 test("SQL setting operations require governance configure", () => {
   const policy = resolvePermissionApiActionPolicy({
     method: "PATCH",

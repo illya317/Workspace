@@ -44,4 +44,4 @@
 | `settings.notifications` | `read/configure/create/apiUse/audit` | `read` 查看已发布定义；`configure` 管理草稿、发布和归档；个人 API 发布同时要求 `create` 与 `apiUse`；`audit` 查看发布与投递事实。全部 action 都是 explicit-only。 |
 | `settings.governance` | `entry/read` | 平台治理入口，以及 UI 声明、数据关系和模块分析读取。 |
 | `settings.governance` | `configure` | 模块运行启停；数据库结构读取与模块启停当前仍额外限制为 root。 |
-| `settings.governance` | `audit` | 运维记录读取；首版只建立空态，后续日志源必须通过受控 API 接入。 |
+| `settings.governance` | `audit` | 读取统一运维记录；当前受控来源为 HMAC 验签的 SQL 操作请求和追加式关系策略修订。 |

@@ -60,11 +60,11 @@ export function SettingsApiPage({
   });
 }
 
-export function SettingsGovernancePage({ user }: { user: SessionUser }) {
+export function SettingsGovernancePage({ user, canAuditOperations = false }: { user: SessionUser; canAuditOperations?: boolean }) {
   return renderAppShellPage({
     title: "平台治理",
     backHref: "/settings",
     user,
-    children: <PlatformGovernanceClient isSuperAdmin={Boolean(user.isSuperAdmin)} />,
+    children: <PlatformGovernanceClient isSuperAdmin={Boolean(user.isSuperAdmin)} canAuditOperations={canAuditOperations} />,
   });
 }

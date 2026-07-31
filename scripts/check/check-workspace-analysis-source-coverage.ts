@@ -42,6 +42,11 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     reason: "controlPlane",
     description: "当前用户的通知目录、权限资格和订阅覆盖属于个人控制面，不是经营分析数据集。",
   },
+  "/api/modules/settings/governance/operations": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "平台治理运维记录受显式 audit 权限保护，用于排障与审计，不开放为经营分析数据集。",
+  },
   "/api/modules/administration/contracts/[id]/lifecycle": {
     disposition: "excluded",
     reason: "singleRecord",
