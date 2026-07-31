@@ -56,7 +56,8 @@ if [ "$ACTION" = "validate" ]; then
   export CI=1
   if [ -d "$RELEASE_SOURCE_DIR/node_modules" ]; then
     mkdir "$injection_worktree/node_modules"
-    if [ "$(stat -c %d "$RELEASE_SOURCE_DIR/node_modules")" = "$(stat -c %d "$injection_worktree/node_modules")" ]; then
+    if [ ! -L "$RELEASE_SOURCE_DIR/node_modules" ] && \
+      [ "$(stat -c %d "$RELEASE_SOURCE_DIR/node_modules")" = "$(stat -c %d "$injection_worktree/node_modules")" ]; then
       cp -al "$RELEASE_SOURCE_DIR/node_modules/." "$injection_worktree/node_modules/"
     else
       cp -a "$RELEASE_SOURCE_DIR/node_modules/." "$injection_worktree/node_modules/"

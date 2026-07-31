@@ -148,6 +148,7 @@ test("validation runs once and CNB or direct deploy only consumes its immutable 
   assert.match(runCnbReleaseGate, /ACTION" = "deploy"[\s\S]*?cnb-release-artifact-cache\.sh restore[\s\S]*?exit 0/);
   assert.match(runLocalReleaseAction, /\.local-release-worktrees/);
   assert.match(runLocalReleaseAction, /ACTION" = "validate"[\s\S]*?export CI=1/);
+  assert.match(runLocalReleaseAction, /\[ ! -L "\$RELEASE_SOURCE_DIR\/node_modules" \]/);
   assert.match(runLocalReleaseAction, /stat -c %d/);
   assert.match(runLocalReleaseAction, /cp -al "\$RELEASE_SOURCE_DIR\/node_modules\/\."/);
   assert.doesNotMatch(runLocalReleaseAction, /ln -s "\$RELEASE_SOURCE_DIR\/node_modules"/);
