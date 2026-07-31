@@ -62,7 +62,7 @@ export function validateConsolidatedOutputSnapshotPersistence(input: {
   generatedAt: Date;
 }): DomainValidationResult<{ valid: true }> {
   if (!positiveInteger(input.batchId)) return failCommand("合并输出快照批次ID无效", 400, "batchId");
-  if (input.version !== 1) return failCommand("合并输出快照版本无效", 400, "version");
+  if (input.version !== 2) return failCommand("合并输出快照版本无效", 400, "version");
   if (!SHA256_FINGERPRINT.test(input.inputFingerprint)) return failCommand("合并输出输入指纹无效", 400, "inputFingerprint");
   if (!SHA256_FINGERPRINT.test(input.outputFingerprint)) return failCommand("合并输出结果指纹无效", 400, "outputFingerprint");
   if (!input.reportPayload || typeof input.reportPayload !== "object" || Array.isArray(input.reportPayload)) {

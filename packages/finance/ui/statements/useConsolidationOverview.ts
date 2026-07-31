@@ -4,7 +4,10 @@ import { workspacePath } from "@workspace/core/routing";
 import type { ConsolidationOverview } from "@workspace/finance/types";
 import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { consolidationOverviewMatchesSelection } from "./consolidation-overview-request";
+import {
+  consolidationOverviewMatchesSelection,
+  consolidationPeriodSelectionRequiresReload,
+} from "./consolidation-overview-request";
 
 type EnsureBatchResponse = {
   batch?: NonNullable<ConsolidationOverview["batch"]>;
@@ -124,14 +127,19 @@ export function useConsolidationOverview(
     setData(null);
     setError(null);
     setLoading(true);
+    setRefreshKey((current) => current + 1);
   }, []);
 
   const selectPeriod = useCallback((nextYear: number, nextMonth: number) => {
+    if (!consolidationPeriodSelectionRequiresReload(
+      { year, month, batchId: selectedBatchId },
+      { year: nextYear, month: nextMonth },
+    )) return;
     invalidate();
     setSelectedBatchId(null);
     setYear(nextYear);
     setMonth(nextMonth);
-  }, [invalidate]);
+  }, [invalidate, month, selectedBatchId, year]);
 
   const selectYear = useCallback((nextYear: number) => {
     const nextMonth = data?.scope.availablePeriods.find((period) => period.year === nextYear)?.month ?? 12;
@@ -176,7 +184,6 @@ export function useConsolidationOverview(
       refreshedSnapshotKeyRef.current = `${freshBatch.id}:${freshBatch.sourceFingerprint}`;
     }
     invalidate();
-    setRefreshKey((current) => current + 1);
   }, [invalidate]);
   const refreshSnapshots = useCallback(() => {
     refreshedSnapshotKeyRef.current = null;
@@ -186,7 +193,6 @@ export function useConsolidationOverview(
     refreshedSnapshotKeyRef.current = null;
     invalidate();
     setSelectedBatchId(null);
-    setRefreshKey((current) => current + 1);
   }, [invalidate]);
 
   return {

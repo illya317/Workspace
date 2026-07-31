@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import type { ConsolidationOverview } from "@workspace/finance/types";
-import { consolidationOverviewMatchesSelection } from "./consolidation-overview-request";
+import {
+  consolidationOverviewMatchesSelection,
+  consolidationPeriodSelectionRequiresReload,
+} from "./consolidation-overview-request";
 
 function overview(input: { year: number; month: number; periodKind: "year" | "quarter" | "month"; batchId?: number | null }) {
   return {
@@ -34,5 +37,26 @@ test("accepts the server-resolved default scope before a precise period exists",
   assert.equal(consolidationOverviewMatchesSelection(
     overview({ year: 2026, month: 6, periodKind: "month", batchId: null }),
     { parentCompanyId: null, year: null, month: null, periodKind: "month", batchId: null },
+  ), true);
+});
+
+test("does not invalidate when the active period is selected again", () => {
+  assert.equal(consolidationPeriodSelectionRequiresReload(
+    { year: 2026, month: 6, batchId: null },
+    { year: 2026, month: 6 },
+  ), false);
+});
+
+test("reloads when the period changes", () => {
+  assert.equal(consolidationPeriodSelectionRequiresReload(
+    { year: 2026, month: 6, batchId: null },
+    { year: 2026, month: 7 },
+  ), true);
+});
+
+test("reloads the same period when leaving an explicitly selected batch", () => {
+  assert.equal(consolidationPeriodSelectionRequiresReload(
+    { year: 2026, month: 6, batchId: 28 },
+    { year: 2026, month: 6 },
   ), true);
 });
