@@ -73,6 +73,9 @@ test("prepare alone promotes main into the dedicated release worktree by fast-fo
   assert.doesNotMatch(publish, /git -C .*SOURCE_DIR.*status/);
   assert.match(publish, /RELEASE_CI_ENV_FILE/);
   assert.match(publish, /ln -s "\$RELEASE_CI_ENV_FILE" "\$release_env_target"/);
+  assert.match(publish, /export RELEASE_CI_ENV_FILE/);
+  assert.match(publish, /validate_release_ci_environment/);
+  assert.match(publish, /validate_local_deploy_credentials/);
   assert.match(publish, /release \.env 必须是指向受控 CI 环境文件的符号链接/);
 });
 
@@ -171,6 +174,8 @@ test("validation and build are independent one-shot stages and deploy only consu
   assert.match(runLocalReleaseAction, /stat -c %d/);
   assert.match(runLocalReleaseAction, /cp -al "\$RELEASE_SOURCE_DIR\/node_modules\/\."/);
   assert.doesNotMatch(runLocalReleaseAction, /ln -s "\$RELEASE_SOURCE_DIR\/node_modules"/);
+  assert.match(runLocalReleaseAction, /RELEASE_CI_ENV_FILE is required for local validate\/build/);
+  assert.match(runLocalReleaseAction, /source "\$RELEASE_CI_ENV_FILE"/);
   assert.ok(cnbRelease.indexOf("- name: release-gate") < cnbRelease.indexOf("- name: build-release-target"));
   assert.match(buildCnbReleaseTarget, /release-gate-receipt\.mjs artifact-create/);
   assert.match(buildCnbReleaseTarget, /cnb-release-artifact-cache\.sh restore/);
@@ -379,6 +384,7 @@ test("CNB release uses the reusable Builder, safe caches, and timed stages", () 
   assert.match(cnbRelease, /workspace-release-types-v1:\.\/\.cache\/types:copy-on-write/);
   assert.match(cnbRelease, /workspace-release-tsbuild-v1:\.\/\.cache\/tsbuild:copy-on-write/);
   assert.match(cnbRelease, /workspace-release-artifacts-v1:\.\/\.cache\/release-artifacts:read-write/);
+  assert.match(cnbRelease, /workspace-release-check-results-v1:\.\/\.cache\/check-results:read-write/);
   assert.match(releaseToCnb, /git commit --no-verify -m "chore\(cnb\): inject release metadata/);
   assert.match(cnbRelease, /install-cnb-release-dependencies\.sh/);
   assert.doesNotMatch(cnbRelease, /install-deploy-tools|apt-get|node_modules:copy-on-write/);
@@ -401,4 +407,27 @@ test("standalone artifact substages record failures without disabling errexit", 
     /release_timing_active_finalize_on_exit \"\$artifact_exit_code\" \|\| true[\s\S]*?return \"\$artifact_exit_code\"/,
   );
   assert.match(buildStandaloneArtifact, /trap cleanup_artifact_timing EXIT/);
+});
+
+test("validation freezes a Plan-specific task graph and never short-circuits on a candidate-wide receipt", () => {
+  assert.match(runLocalReleaseAction, /CHECK_TASK_GRAPH_FILE=.*release-task-graphs\/\$release_plan_id\.json/);
+  assert.match(runLocalReleaseAction, /CHECK_SOURCE_PLAN_ID="\$release_plan_id"/);
+  assert.match(runCnbReleaseGate, /--plan-id "\$CHECK_SOURCE_PLAN_ID"/);
+  assert.match(runCnbReleaseGate, /--task-graph "\$CHECK_TASK_GRAPH_FILE"/);
+  assert.doesNotMatch(runCnbReleaseGate, /source-verify/);
+  assert.doesNotMatch(runCnbReleaseGate, /RELEASE_ACKNOWLEDGE_FULL_CI_REPEAT/);
+});
+
+test("one versioned cache policy governs pruning, build watermarks, and deployment pins", () => {
+  const policy = JSON.parse(readFileSync(new URL("./cache-policy.json", import.meta.url), "utf8"));
+  const legacyPruner = readFileSync(new URL("./prune-local-check-cache.mjs", import.meta.url), "utf8");
+  const artifactCache = readFileSync(new URL("./cnb-release-artifact-cache.sh", import.meta.url), "utf8");
+  assert.equal(policy.schemaVersion, 1);
+  assert.equal(policy.classes["validation-receipt"].scope, "task-input");
+  assert.equal(policy.classes["deployed-artifact"].pin, "production-and-rollback");
+  assert.match(publish, /cache\/cache-prune\.mjs" prune --root "\$RELEASE_WORKTREE"/);
+  assert.match(buildCnbReleaseTarget, /cache-prune\.mjs assert-build-space/);
+  assert.match(deployCnbReleaseTarget, /cache-prune\.mjs pin/);
+  assert.match(artifactCache, /touch "\$CACHE_DIR"/);
+  assert.match(legacyPruner, /\.\/cache\/cache-prune\.mjs/);
 });

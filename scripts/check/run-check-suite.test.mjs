@@ -15,9 +15,9 @@ test("push suite flattens blockers and changed checks without repeating contract
   assert.equal(ids.filter((id) => id === "workspace-analysis-sources").length, 1);
   assert.equal(ids.filter((id) => id === "typecheck-entrypoints").length, 1);
   assert.equal(ids.filter((id) => id === "typecheck-project-references").length, 1);
-  assert.equal(ids.filter((id) => id === "test-node").length, 1);
+  assert.ok(ids.filter((id) => id.startsWith("test-node.")).length > 1);
   assert.equal(ids.includes("domain-changed"), true);
-  assert.equal(ids.includes("domain-architecture"), true);
+  assert.ok(ids.filter((id) => id.startsWith("domain-architecture.")).length > 1);
   assert.equal(new Set(ids).size, ids.length);
   assert.equal(plan.duplicateReferences, 10);
   assert.equal(plan.coveredTaskReferences, 0);
@@ -53,11 +53,14 @@ test("release source suite is the complete CI gate without duplicate artifact bu
   const ciIds = resolveCheckPlan(["ci"]).tasks.map((task) => task.id);
 
   assert.deepEqual(ciIds, [...sourceIds, "build-next", "playwright-processes"]);
-  assert.deepEqual(sourceIds, [...staticIds, "test-node", "typecheck-full"]);
+  assert.deepEqual(sourceIds.slice(0, staticIds.length), staticIds);
+  assert.ok(sourceIds.filter((id) => id.startsWith("test-node.")).length > 1);
+  assert.ok(sourceIds.filter((id) => id.startsWith("typecheck.")).length > 1);
+  const firstTypecheck = sourceIds.findIndex((id) => id.startsWith("typecheck."));
+  const lastNodeShard = sourceIds.findLastIndex((id) => id.startsWith("test-node."));
+  assert.ok(firstTypecheck > lastNodeShard);
   assert.ok(sourceIds.includes("docs-action-contracts"));
   assert.ok(sourceIds.includes("lint-full"));
-  assert.ok(sourceIds.includes("test-node"));
-  assert.ok(sourceIds.includes("typecheck-full"));
 });
 
 test("aggregate suite mode runs every independent task and summarizes all blocking failures", () => {
@@ -227,7 +230,8 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "db-migration-changed",
   ]);
   assert.equal(resolveCheckPlan(["precommit"]).tasks.some((task) => task.id === "typecheck-quick"), false);
-  assert.deepEqual(resolveCheckPlan(["push"]).tasks.map((task) => task.id), [
+  const pushIds = resolveCheckPlan(["push"]).tasks.map((task) => task.id);
+  assert.deepEqual(pushIds.filter((id) => !/^(?:domain-architecture|ui-architecture|test-node)\./.test(id)), [
     "test-focus",
     "business-identity",
     "api-response-format",
@@ -244,9 +248,7 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "business-action-registry",
     "action-contract",
     "work-plan-governance",
-    "domain-architecture",
     "structure-domain",
-    "ui-architecture",
     "core-ui-contracts",
     "structure-ui",
     "playwright-lifecycle",
@@ -254,19 +256,43 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "domain-changed",
     "db-migration-changed",
     "playwright-processes",
-    "test-node",
   ]);
+  assert.ok(pushIds.filter((id) => id.startsWith("domain-architecture.")).length > 1);
+  assert.ok(pushIds.filter((id) => id.startsWith("ui-architecture.")).length > 1);
+  assert.ok(pushIds.filter((id) => id.startsWith("test-node.")).length > 1);
   assert.equal(resolveCheckPlan(["refactor"]).tasks.some((task) => task.id === "typecheck-quick"), false);
-  assert.equal(resolveCheckPlan(["ci"]).tasks.some((task) => task.id === "typecheck-full"), true);
+  assert.equal(resolveCheckPlan(["ci"]).tasks.some((task) => task.id.startsWith("typecheck.")), true);
 });
 
 test("CI runs the authoritative full typecheck before a Next build that skips only the duplicate traversal", () => {
   const tasks = resolveCheckPlan(["ci"]).tasks;
-  const typecheckIndex = tasks.findIndex((task) => task.id === "typecheck-full");
+  const typecheckIndexes = tasks.flatMap((task, index) => task.id.startsWith("typecheck.") ? [index] : []);
   const buildIndex = tasks.findIndex((task) => task.id === "build-next");
-  assert.ok(typecheckIndex >= 0);
-  assert.ok(buildIndex > typecheckIndex);
+  assert.ok(typecheckIndexes.length > 1);
+  assert.ok(buildIndex > Math.max(...typecheckIndexes));
   assert.deepEqual(tasks[buildIndex]?.args, ["run", "build:next:after-typecheck"]);
+});
+
+test("explicit fast mode freezes every gate as skipped and executes none", () => {
+  const output = [];
+  let graph;
+  const status = runCheckSuites(["contracts"], {
+    env: { ...process.env, CHECK_RELEASE_MODE: "fast" },
+    createTaskCache: () => ({
+      freezeTaskGraph(tasks) {
+        graph = { graphDigest: "a".repeat(64), tasks: tasks.map((task) => ({ taskKey: task.id, status: "skipped_by_fast" })) };
+        return graph;
+      },
+      read() { return null; },
+      write() {},
+    }),
+    spawn: () => { throw new Error("fast mode must not execute checks"); },
+    stdout: { write(value) { output.push(value); } },
+    stderr: { write(value) { output.push(value); } },
+  });
+  assert.equal(status, 0);
+  assert.ok(graph.tasks.length > 0);
+  assert.match(output.join(""), /skipped_by_fast=/);
 });
 
 test("unknown suites fail before any command can run", () => {

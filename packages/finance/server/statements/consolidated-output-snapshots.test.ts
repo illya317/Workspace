@@ -96,6 +96,8 @@ function reportPayload(
   return {
     generatedAt: generatedAt.toISOString(),
     statements: [],
+    sourceCount: 0,
+    approvedEntryCount: 0,
     batch: {
       id: batch.id,
       parentCompanyId: batch.parentCompanyId,

@@ -63,6 +63,29 @@ export function discoverNodeTests(repositoryRoot = defaultRoot) {
     .sort();
 }
 
+export function nodeTestShardKey(relativePath) {
+  const packageMatch = relativePath.match(/^packages\/([^/]+)\//);
+  if (packageMatch) return `package.${packageMatch[1]}`;
+  const scriptMatch = relativePath.match(/^scripts\/([^/]+)\//);
+  if (scriptMatch) return `scripts.${scriptMatch[1]}`;
+  if (relativePath.startsWith("app/")) return "app";
+  if (relativePath.startsWith("ops/")) return "ops";
+  throw new Error(`Node test is outside the governed shard roots: ${relativePath}`);
+}
+
+export function groupNodeTestsByShard(allTests) {
+  const groups = new Map();
+  for (const relativePath of allTests) {
+    const key = nodeTestShardKey(relativePath);
+    const files = groups.get(key) ?? [];
+    files.push(relativePath);
+    groups.set(key, files);
+  }
+  return [...groups.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([key, files]) => ({ key, files: files.sort() }));
+}
+
 function jsonStringArray(value, label) {
   if (!value) return [];
   const parsed = JSON.parse(value);
@@ -128,6 +151,10 @@ export function selectNodeTests(allTests, suite, context = {}) {
       return allTests.filter((file) => workPlanGovernanceTests.has(file));
     case "scalability-contract":
       return allTests.filter((file) => scalabilityContractTests.has(file));
+    case "shard": {
+      if (!/^[a-z0-9][a-z0-9.-]*$/.test(context.shard ?? "")) throw new Error("Node test shard key is invalid");
+      return allTests.filter((file) => nodeTestShardKey(file) === context.shard);
+    }
     case "affected":
       return selectAffectedNodeTests(allTests, context);
     default:
@@ -146,6 +173,7 @@ export function main(
     tests = selectNodeTests(allTests, suite, {
       changedFiles: jsonStringArray(process.env.WORKSPACE_CHANGED_FILES_JSON, "WORKSPACE_CHANGED_FILES_JSON"),
       affectedModules: jsonStringArray(process.env.WORKSPACE_AFFECTED_MODULES_JSON, "WORKSPACE_AFFECTED_MODULES_JSON"),
+      shard: argv[1],
     });
   } catch (error) {
     stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);

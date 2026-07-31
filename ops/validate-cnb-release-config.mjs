@@ -11,6 +11,7 @@ const REQUIRED_VOLUMES = [
   "workspace-release-types-v1:./.cache/types:copy-on-write",
   "workspace-release-tsbuild-v1:./.cache/tsbuild:copy-on-write",
   "workspace-release-playwright-v1:./.cache/release-check/playwright:copy-on-write",
+  "workspace-release-check-results-v1:./.cache/check-results:read-write",
   "workspace-release-artifacts-v1:./.cache/release-artifacts:read-write",
 ];
 const REQUIRED_BUILD_INPUTS = [".node-version", "ops/cnb-builder.Dockerfile"];

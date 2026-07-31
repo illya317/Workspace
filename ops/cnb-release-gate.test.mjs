@@ -6,9 +6,11 @@ const gate = readFileSync(new URL("./run-cnb-release-gate.sh", import.meta.url),
 const build = readFileSync(new URL("./build-cnb-release-target.sh", import.meta.url), "utf8");
 const e2e = readFileSync(new URL("./run-release-e2e.sh", import.meta.url), "utf8");
 
-test("validate runs source CI once and never falls through to compilation", () => {
+test("validate freezes a Plan task graph and never falls through to compilation", () => {
   assert.match(gate, /full-source-validation\.mjs/);
-  assert.match(gate, /source-verify/);
+  assert.match(gate, /--plan-id "\$CHECK_SOURCE_PLAN_ID"/);
+  assert.match(gate, /--task-graph "\$CHECK_TASK_GRAPH_FILE"/);
+  assert.doesNotMatch(gate, /source-verify/);
   assert.match(gate, /source-create/);
   assert.match(gate, /source_status=\$\?/);
   assert.match(gate, /不自动重跑或进入 build/);

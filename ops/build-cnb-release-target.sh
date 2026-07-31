@@ -32,6 +32,7 @@ if bash ./ops/cnb-release-artifact-cache.sh restore; then
   exit 0
 fi
 [ "$ACTION" = "build" ] || { echo "[错误] deploy 只能消费 build 环节冻结的 artifact，禁止现场编译" >&2; exit 1; }
+node ops/cache/cache-prune.mjs assert-build-space --root "${RELEASE_SOURCE_DIR:-$PROJECT_ROOT}"
 
 echo "==> 编译一次冻结候选 artifact"
 set +e

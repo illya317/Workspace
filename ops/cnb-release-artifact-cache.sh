@@ -101,6 +101,7 @@ NODE
     --target "$TARGET_ID" --file "$RECEIPT_FILE" >/dev/null
   printf '%s\n' "$TARGET_ID:$CONTENT_DIGEST:$SOURCE_TREE" > "$HIT_MARKER"
   chmod 600 "$HIT_MARKER"
+  touch "$CACHE_DIR"
   echo "==> CNB artifact cache hit: $TARGET_ID ${SOURCE_TREE:0:12}"
 }
 

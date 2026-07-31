@@ -349,7 +349,6 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
 
   const editingDefinition = editingPolicy ? notificationDefinitions.find((item) => item.key === editingPolicy.definitionKey) ?? null : null;
   const editPolicyPanel = editingPolicy ? createPanelSection("group-policy-edit-panel", {
-    title: "3 编辑每群策略",
     sections: [createFieldsSection("group-policy-edit-fields", policyFields, {
       header: { title: editingPolicy.label || "编辑群发策略", description: `版本 ${editingPolicy.version}` },
       layout: { columns: 2, density: "compact" },
@@ -441,12 +440,12 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
     })] : []),
   ] : [createMessageSection("managed-group-empty", { tone: "muted", content: "先从左侧受管群目录选择一个匿名群，再完成认领、命名和验证。" })];
   const claimPanel = claimGroup ? createPanelSection("managed-group-claim-panel", {
-    title: "2 认领并命名企业微信群",
     sections: [createFieldsSection("managed-group-claim-fields", [
       { key: "display-name", label: "群名称", required: true, spec: { valueType: "string", control: "text" }, value: claimName, onChange: (value: unknown) => setClaimName(String(value ?? "")) },
       { key: "owner-user", label: "负责人", spec: { valueType: "string", control: "choice", options: { source: "static", items: (data?.ownerUserOptions ?? []).map((option) => ({ value: String(option.id), label: option.label })) } }, value: claimOwnerUserId, onChange: (value: unknown) => setClaimOwnerUserId(String(value ?? "")) },
       { key: "owner-position", label: "负责岗位", spec: { valueType: "string", control: "choice", options: { source: "static", items: (data?.ownerPositionOptions ?? []).map((option) => ({ value: String(option.id), label: option.label })) } }, value: claimOwnerPositionId, onChange: (value: unknown) => setClaimOwnerPositionId(String(value ?? "")) },
     ], {
+      header: { title: "2 认领并命名企业微信群" },
       layout: { columns: 1, density: "compact" },
       actions: [
         { key: "cancel", action: "reset", label: "取消", disabled: busy === "claim", onClick: () => setClaimGroup(null) },

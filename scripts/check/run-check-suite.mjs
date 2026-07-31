@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 
+import { DOMAIN_GATE_CHECK_NAMES, UI_GATE_CHECK_NAMES } from "../arch/gate-check-contracts.mjs";
+import { discoverNodeTests, groupNodeTestsByShard } from "../testing/run-node-tests.mjs";
 import { prepareChangedFilesManifest } from "./changed-files-manifest.mjs";
 import { createCheckTaskCache } from "./check-task-cache.mjs";
+import { checkTaskInputContract } from "./check-task-contracts.mjs";
 
 const TASKS = {
   "action-contract": npmScript("action-contract:check", "Action contract"),
@@ -18,10 +23,10 @@ const TASKS = {
   "build-next": npmScript("build:next:after-typecheck", "Next production build", { cacheable: false }),
   "company-hardcoding-warning": npmScript("company:check", "Company hardcoding", {
     severity: "warning",
-    cacheable: false,
+    reusableWarning: true,
   }),
   "core-ui-contracts": npmScript("core-ui:contracts:check", "Core UI contracts"),
-  "db-generate": npmScript("db:generate", "Prisma client generation", { cacheable: false }),
+  "db-generate": npmScript("db:generate", "Prisma client generation"),
   "db-migration-changed": npmScript("db:migration:changed", "Changed migration validation"),
   "db-migration-check": npmScript("db:migration:check", "Migration consistency", {
     covers: ["db-migration-changed"],
@@ -41,7 +46,7 @@ const TASKS = {
     coversWhenNoStagedChanges: ["domain-changed"],
   }),
   "domain-changed": npmScript("domain:changed", "Changed domain validation"),
-  "env": npmScript("env:check", "Environment", { cacheable: false }),
+  "env": npmScript("env:check", "Environment"),
   "history-policy": npmScript("check:history-policy", "History policy"),
   "import-reference": npmScript("import-reference:check", "Import reference governance"),
   "lint-changed": npmScript("lint:changed", "Changed lint"),
@@ -55,18 +60,21 @@ const TASKS = {
   "structure-domain": npmScript("arch:structure:domain", "Domain structure ratchet"),
   "structure-hygiene-warning": npmScript("arch:structure:hygiene", "Structure hygiene ratchet", {
     severity: "warning",
+    reusableWarning: true,
   }),
   "structure-ui": npmScript("arch:structure:ui", "UI structure ratchet"),
   "surface-boundaries-warning": npmScript("arch:surface-boundaries", "Core UI surface boundaries", {
     severity: "warning",
+    reusableWarning: true,
   }),
   "surface-page-adoption-warning": npmScript("arch:surface-page-adoption", "Core UI PageSurface adoption", {
     severity: "warning",
+    reusableWarning: true,
   }),
   "surface-visualization-adoption-warning": npmScript(
     "arch:surface-visualization-adoption",
     "Core UI Visualization adoption",
-    { severity: "warning" },
+    { severity: "warning", reusableWarning: true },
   ),
   "test-focus": npmScript("test:focus:check", "Focused-test guard"),
   "test-node": npmScript("test:node", "Node tests"),
@@ -177,13 +185,76 @@ function lockedTsScript(script, label, options = {}) {
   };
 }
 
+function typecheckProjects(cwd) {
+  const projects = [];
+  const packagesDirectory = path.join(cwd, "packages");
+  for (const entry of fs.readdirSync(packagesDirectory, { withFileTypes: true })) {
+    if (entry.isDirectory() && fs.existsSync(path.join(packagesDirectory, entry.name, "tsconfig.json"))) {
+      projects.push({ scope: entry.name, project: `packages/${entry.name}` });
+    }
+  }
+  const appsDirectory = path.join(cwd, "apps");
+  if (fs.existsSync(appsDirectory)) {
+    for (const entry of fs.readdirSync(appsDirectory, { withFileTypes: true })) {
+      if (entry.isDirectory() && fs.existsSync(path.join(appsDirectory, entry.name, "tsconfig.json"))) {
+        projects.push({ scope: `app-${entry.name}`, project: `apps/${entry.name}` });
+      }
+    }
+  }
+  projects.push(
+    { scope: "app", project: "tsconfig.app.json" },
+    { scope: "prisma-client", project: "tsconfig.prisma-client.json" },
+    { scope: "tooling", project: "tsconfig.tooling.json" },
+  );
+  return projects.sort((left, right) => left.scope.localeCompare(right.scope));
+}
+
+function expandTask(taskId, task, cwd) {
+  if (taskId === "domain-architecture") {
+    return DOMAIN_GATE_CHECK_NAMES.map((name) => ({
+      ...task,
+      id: `domain-architecture.${name}`,
+      label: `Domain architecture · ${name}`,
+      args: [...task.args, "--check", name],
+    }));
+  }
+  if (taskId === "ui-architecture") {
+    return UI_GATE_CHECK_NAMES.map((name) => ({
+      ...task,
+      id: `ui-architecture.${name}`,
+      label: `UI architecture · ${name}`,
+      args: [...task.args, "--check", name],
+    }));
+  }
+  if (taskId === "test-node") {
+    return groupNodeTestsByShard(discoverNodeTests(cwd)).map(({ key, files }) => ({
+      id: `test-node.${key}`,
+      label: `Node tests · ${key}`,
+      command: "node",
+      args: ["scripts/check/with-check-lock.js", "--", "node", "scripts/testing/run-node-tests.mjs", "shard", key],
+      shard: key,
+      testFiles: files,
+    }));
+  }
+  if (taskId === "typecheck-full") {
+    return typecheckProjects(cwd).map(({ scope, project }) => ({
+      id: `typecheck.${scope}`,
+      label: `TypeScript · ${scope}`,
+      command: "npm",
+      args: ["run", "typecheck:scope", "--", scope],
+      project,
+    }));
+  }
+  return [{ id: taskId, ...task }];
+}
+
 function coveredTaskIds(tasks) {
-  const present = new Set(tasks.map((task) => task.id));
+  const present = new Map(tasks.map((task) => [task.id, task]));
   const covered = new Set();
 
   const visit = (taskId, active = new Set()) => {
     if (active.has(taskId)) throw new Error(`Circular check task coverage: ${[...active, taskId].join(" -> ")}`);
-    const task = TASKS[taskId];
+    const task = present.get(taskId) ?? TASKS[taskId];
     if (!task) throw new Error(`Unknown covering check task: ${taskId}`);
     const nextActive = new Set(active).add(taskId);
     for (const coveredId of task.covers ?? []) {
@@ -214,7 +285,7 @@ function applyContextualCoverage(plan, changedFilesContext) {
   };
 }
 
-export function resolveCheckPlan(suiteNames) {
+export function resolveCheckPlan(suiteNames, { cwd = process.cwd() } = {}) {
   const tasks = [];
   const seenTasks = new Set();
   const activeSuites = new Set();
@@ -237,7 +308,10 @@ export function resolveCheckPlan(suiteNames) {
         continue;
       }
       seenTasks.add(ref);
-      tasks.push({ id: ref, ...task });
+      for (const expanded of expandTask(ref, task, cwd)) {
+        checkTaskInputContract(expanded);
+        tasks.push(expanded);
+      }
     }
     activeSuites.delete(suiteName);
   };
@@ -269,23 +343,15 @@ export function runCheckSuites(
     collectFailures = env.CHECK_SUITE_COLLECT_FAILURES === "1",
   } = {},
 ) {
-  let plan = resolveCheckPlan(suiteNames);
+  let plan = resolveCheckPlan(suiteNames, { cwd });
   const suiteStartedAt = now();
   const warningFailures = [];
   const blockingFailures = [];
   const taskCache = createTaskCache({ cwd, env });
-  const cachedTasks = new Map(
-    plan.tasks
-      .map((task) => [task.id, taskCache.read(task)])
-      .filter(([, cached]) => cached),
-  );
   let executionEnv = env;
   let changedFilesContext = null;
   try {
-    changedFilesContext = prepareChangedFiles(
-      plan.tasks.filter((task) => !cachedTasks.has(task.id)).map((task) => task.id),
-      { cwd, env },
-    );
+    changedFilesContext = prepareChangedFiles(plan.tasks.map((task) => task.id), { cwd, env });
     if (changedFilesContext) {
       executionEnv = { ...env, WORKSPACE_CHANGED_FILES_MANIFEST: changedFilesContext.file };
     }
@@ -293,6 +359,40 @@ export function runCheckSuites(
     stdout.write(`Changed-file context unavailable; leaves will recompute it (${error instanceof Error ? error.message : error}).\n`);
   }
   plan = applyContextualCoverage(plan, changedFilesContext);
+
+  const taskGraph = taskCache.freezeTaskGraph?.(plan.tasks, {
+    file: env.CHECK_TASK_GRAPH_FILE?.trim() || null,
+    mode: env.CHECK_RELEASE_MODE === "fast" ? "fast" : "standard",
+    sourcePlanId: env.CHECK_SOURCE_PLAN_ID?.trim() || null,
+  }) ?? null;
+  const blockedTasks = taskGraph?.tasks.filter((task) => task.status === "blocked") ?? [];
+  if (blockedTasks.length > 0) {
+    stderr.write(`Check task graph blocked before validation: ${blockedTasks.map((task) => task.taskKey).join(", ")}\n`);
+    return 2;
+  }
+  const cachedTasks = new Map();
+  const skippedTasks = new Set();
+  for (const task of plan.tasks) {
+    const graphTask = taskGraph?.tasks.find((item) => item.taskKey === task.id);
+    if (graphTask?.status === "skipped_by_fast") skippedTasks.add(task.id);
+    if (taskGraph && graphTask?.status !== "reused") continue;
+    const receipt = taskCache.read(task);
+    if (taskGraph && !receipt) {
+      throw new Error(`frozen task graph marked ${task.id} reused without a valid receipt`);
+    }
+    if (receipt) cachedTasks.set(task.id, receipt);
+  }
+  if (taskGraph) {
+    const counts = taskGraph.tasks.reduce((result, task) => {
+      result[task.status] = (result[task.status] ?? 0) + 1;
+      return result;
+    }, {});
+    stdout.write(
+      `Frozen task graph ${taskGraph.graphDigest}: reused=${counts.reused ?? 0}, pending=${counts.pending ?? 0}, skipped_by_fast=${counts.skipped_by_fast ?? 0}, blocked=0.\n`,
+    );
+  }
+  executionEnv = { ...executionEnv, CHECK_TASK_RECEIPTS_ACTIVE: "1" };
+
   const reductions = [
     plan.duplicateReferences > 0 ? `${plan.duplicateReferences} duplicate reference(s)` : null,
     plan.coveredTaskReferences > 0 ? `${plan.coveredTaskReferences} covered step(s)` : null,
@@ -303,6 +403,10 @@ export function runCheckSuites(
   for (const [index, task] of plan.tasks.entries()) {
     const executable = process.platform === "win32" && task.command === "npm" ? "npm.cmd" : task.command;
     stdout.write(`\n[${index + 1}/${plan.tasks.length}] ${task.label}\n`);
+    if (skippedTasks.has(task.id)) {
+      stdout.write(`⇥ Skipped ${task.label} by explicit fast deployment mode.\n`);
+      continue;
+    }
     const cached = cachedTasks.get(task.id);
     if (cached) {
       const originalDuration = Number.isFinite(cached.durationMs)

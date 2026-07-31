@@ -10,7 +10,20 @@ ACTION="${RELEASE_ACTION:-deploy}"
 RUNTIME="${RELEASE_VALIDATION_RUNTIME:-cnb}"
 EVIDENCE_ROOT="${RELEASE_EVIDENCE_ROOT:-$PWD/.cache/release-artifacts/evidence/$RELEASE_CONTENT_DIGEST}"
 RECEIPT_FILE="${RELEASE_SOURCE_VALIDATION_RECEIPT_FILE:-$EVIDENCE_ROOT/source-validation.json}"
-SOURCE_RESULT_FILE="${RELEASE_SOURCE_RESULT_FILE:-$EVIDENCE_ROOT/full-source-result.json}"
+plan_values="$(node - <<'NODE'
+const fs = require('node:fs');
+const metadata = JSON.parse(fs.readFileSync('.cnb-release.json', 'utf8'));
+const plan = metadata.releasePlan?.plan;
+if (!/^plan-[A-Za-z0-9-]+$/.test(plan?.planId ?? '')) throw new Error('release metadata must contain a Plan id');
+if (!['standard', 'fast'].includes(plan?.mode)) throw new Error('release metadata must contain a Plan mode');
+process.stdout.write(`${plan.planId}\n${plan.mode}\n`);
+NODE
+)"
+CHECK_SOURCE_PLAN_ID="${CHECK_SOURCE_PLAN_ID:-$(printf '%s\n' "$plan_values" | sed -n '1p')}"
+CHECK_RELEASE_MODE="${CHECK_RELEASE_MODE:-$(printf '%s\n' "$plan_values" | sed -n '2p')}"
+CHECK_TASK_GRAPH_FILE="${CHECK_TASK_GRAPH_FILE:-$EVIDENCE_ROOT/task-graph-$CHECK_SOURCE_PLAN_ID.json}"
+SOURCE_RESULT_FILE="${RELEASE_SOURCE_RESULT_FILE:-$EVIDENCE_ROOT/full-source-result-$CHECK_SOURCE_PLAN_ID.json}"
+export CHECK_SOURCE_PLAN_ID CHECK_RELEASE_MODE CHECK_TASK_GRAPH_FILE
 
 case "$ACTION" in
   validate|build|deploy) ;;
@@ -23,22 +36,15 @@ if [ "$ACTION" != "validate" ]; then
 fi
 
 mkdir -p "$EVIDENCE_ROOT"
-if node ops/release-gate-receipt.mjs source-verify \
-  --content "$RELEASE_CONTENT_DIGEST" --tree "$RELEASE_SOURCE_TREE" \
-  --file "$RECEIPT_FILE" >/dev/null 2>&1; then
-  echo "==> 复用同一候选内容的源码验证回执；不重新运行 CI"
-  exit 0
-fi
 
 validation_args=(
   --content "$RELEASE_CONTENT_DIGEST"
   --result-file "$SOURCE_RESULT_FILE"
+  --plan-id "$CHECK_SOURCE_PLAN_ID"
+  --task-graph "$CHECK_TASK_GRAPH_FILE"
 )
-if [ "${RELEASE_ACKNOWLEDGE_FULL_CI_REPEAT:-0}" = "1" ]; then
-  validation_args+=(--acknowledge-repeat)
-fi
 
-echo "==> 对冻结候选运行一次全量源码 CI；本环节不会触发编译"
+echo "==> 先冻结任务级输入图，再组合历史有效回执与本次检查；本环节不会触发编译"
 set +e
 env -u RELEASE_TIMING_FILE -u RELEASE_TIMING_RELEASE_ID \
   node ops/release/validation/full-source-validation.mjs "${validation_args[@]}"

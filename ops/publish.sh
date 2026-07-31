@@ -48,6 +48,7 @@ initialize_release_worktree() {
   RELEASE_CI_ENV_FILE="${RELEASE_CI_ENV_FILE:-${SOURCE_DIR:-}/.env}"
   : "${RELEASE_CI_ENV_FILE:?RELEASE_CI_ENV_FILE not set in $OPS_ENV_FILE}"
   [ -f "$RELEASE_CI_ENV_FILE" ] || { echo "[错误] release CI 环境文件不存在: $RELEASE_CI_ENV_FILE"; exit 1; }
+  export RELEASE_CI_ENV_FILE
 
   release_env_target="$RELEASE_WORKTREE/.env"
   if [ -L "$release_env_target" ]; then
@@ -100,6 +101,32 @@ validate_local_release_inputs() {
     cd "$RELEASE_WORKTREE"
     WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" npm run docs:permission-actions:check
   )
+}
+
+validate_release_ci_environment() {
+  (
+    set -a
+    # shellcheck source=/dev/null
+    source "$RELEASE_CI_ENV_FILE"
+    set +a
+    cd "$RELEASE_WORKTREE"
+    CI=1 node scripts/check/check-env.js
+  )
+}
+
+validate_local_deploy_credentials() {
+  if [ -n "${KEY_CONTENT:-}" ]; then
+    return 0
+  fi
+  if [ -n "${KEY:-}" ] && [ -f "$KEY" ]; then
+    return 0
+  fi
+  if [ -n "${KEY:-}" ]; then
+    echo "[错误] local deploy 凭据文件不存在: $KEY" >&2
+  else
+    echo "[错误] local deploy 必须在 prepare 前配置 KEY 或 KEY_CONTENT" >&2
+  fi
+  return 1
 }
 
 capture_release_configuration_identity() {
@@ -193,6 +220,11 @@ case "${1:-}" in
     [ "$release_mode" != fast ] || [ -n "$fast_reason" ] \
       || { echo "[错误] --fast 必须提供可审计原因"; exit 2; }
     prepare_release_worktree
+    node "$RELEASE_SCRIPT_DIR/cache/cache-prune.mjs" prune --root "$RELEASE_WORKTREE"
+    if [ "$validate_executor" = local ] || [ "$build_executor" = local ]; then
+      validate_release_ci_environment
+    fi
+    [ "$deploy_executor" != local ] || validate_local_deploy_credentials
     capture_release_configuration_identity
     RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/release-candidate.json"
     RELEASE_PLAN_ROOT="${RELEASE_PLAN_ROOT:-$RELEASE_WORKTREE/.cache/release-plans}"

@@ -23,6 +23,7 @@ cnb-release:
       env:
         RUN_LOCAL_CHECKS: "0"
         RELEASE_SOURCE_BRANCH: release
+          - workspace-release-check-results-v1:./.cache/check-results:read-write
         DEPLOY_UNIT_ID: ""
         DEPLOY_UNIT_MODE: shadow
       stages:
