@@ -1,6 +1,6 @@
 "use strict";
 
-const MAX_CHECK_OLD_SPACE_MIB = 4096;
+const MAX_CHECK_OLD_SPACE_MIB = 8192;
 const OLD_SPACE_OPTION_PATTERN =
   /(?:^|\s)--max[-_]old[-_]space[-_]size(?:=(\d+)|\s+(\d+))(?=\s|$)/g;
 
