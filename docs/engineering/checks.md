@@ -8,6 +8,8 @@
 
 复合检查统一由 `scripts/check/run-check-suite.mjs` 展开为有序 DAG。一个 suite 在整个执行期只持有一次项目检查锁；嵌套 suite 会被摊平，相同叶子只执行一次，全量 lint/type/UI gate 会覆盖对应增量步骤；full domain 只有在没有 staged-only 视图、两者读取同一 worktree 时才覆盖 changed domain。changed lint、domain 和 migration 共享一次文件集合计算，多个 structure gate 共享一次结构报告。只要快照没漂移，即使后续步骤失败，之前成功的部分结果也会留下供下一轮复用。不要同时启动 `check:blockers`、`gate:domain`、`gate:ui` 或 `arch:structure:*` 来“加速”，总入口已经包含对应叶子，额外启动只会等待 suite 锁。收到终止信号时，锁包装器会终止整棵子进程树并释放锁。
 
+CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失败模式：同轮执行全部独立叶子并一次列完 blocking failures；前置失败导致无法安全执行的后续步骤必须显示为 blocked。日常单项命令可以 fail-fast，但不得用正式全量门禁逐个发现错误。第一次正式失败后先按 `ops/ci-cd.md` 完成全图诊断与集中修复，再运行一次最终门禁。
+
 ## 常用命令
 
 | 场景 | 命令 | 说明 |

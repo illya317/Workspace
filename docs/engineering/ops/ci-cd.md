@@ -10,6 +10,17 @@
 - 启用分支保护后，受保护 `main` 的精确 `CI / required`（GitHub Actions App）仍是 GitHub 合并门禁，但不参与生产发布判定。
 - 生产先执行一次 `validate`：从当前生产 deployed source 到 candidate 的 base/head 选择源码检查，加入依赖闭包并构建目标 artifact。validation receipt 绑定 base/source/tree，artifact manifest 绑定 digest。后续 `deploy` 只消费这组 immutable evidence，不重新检查源码或构建。
 
+## 失败收集与重跑契约
+
+- CI 和生产 `validate` 的独立检查必须在同一轮继续执行并汇总全部失败，最终统一返回非零；不得因为 lint、Node、type、私有配置或某个独立 lane 先失败就隐藏其余结果。
+- 严格依赖链不得制造级联噪声。`migration -> seed -> PostgreSQL integration`、`build -> E2E -> artifact receipt` 等链在前置失败后，把未执行项明确记为 `blocked by <step>`；其他独立 lane 仍继续。
+- 第一次正式 `validate` 失败后立即停止正式全量重跑。Operations 必须展开本次 classification 的完整 DAG，并一次性检查：私有租户配置及可移植路径、Node 内存策略、一次性 `*_ci`/`*_test`/`*_e2e` 数据库、`DATABASE_URL`/`DIRECT_URL`/`SHADOW_DATABASE_URL` 同库约束、TLS 模式、全部 migration、resource seed、PostgreSQL 容量测试、目标 build、Playwright 生命周期和 artifact/receipt 前置。
+- 诊断阶段按 lane 执行聚合检查，保存完整失败与 blocked 清单；集中修改全部已知问题后，逐项验证对应 lane。只有完整清单归零，才重新 `prepare` 并运行一次最终正式 `validate`。
+- 禁止把正式全量门禁当作逐错发现器，禁止“跑全量、只修首错、再跑全量”。相同 source/tree/config 的成功项应复用精确输入缓存；缓存不可用时也不能用重复全量代替完整诊断。
+- `validate` 成功后才允许 `deploy`。部署仍只消费冻结 artifact，不得为省时间绕过最终门禁、降低检查范围或把诊断数据库换成开发/生产库。
+
+标准状态汇总至少包含：`passed`、`failed`、`blocked` 三类，列出命令/步骤、退出状态和依赖原因。进程被信号终止、环境无法建立或结果缺失一律计为失败，不得标记为 blocked 或跳过。
+
 ## 受影响范围
 
 | 变更 | 选择规则 | 默认证据 |
@@ -100,7 +111,7 @@ npm run test:e2e:latency
 3. 对命中 CODEOWNERS 的质量策略路径，由 repository owner 审批 bot-authored PR；这解决单 owner 对自己所开 PR 无法批准的问题，但不虚构“独立第二人”审查。旧批准会在后续 push 后失效；配置未要求通用批准数或 last-push 第二人批准。
 4. PR/merge-group 按受保护 base 分类并由 `CI / required` 聚合。GitHub Actions 在无 E2E/整站发布请求时上传受影响 unit artifacts；需要 E2E 或整站 artifact 时上传 canonical monolith，并只在同一 CI run 内交给 E2E。这些 CI artifacts 不发布 prerelease，也不参与生产部署。
 5. `publish.sh prepare` 是正式发布前唯一候选冻结入口。它快进专用 `release` worktree，校验私有 CNB YAML、租户运行配置与派生权限文档，只写入 source/tree 绑定的 candidate receipt；不在本机运行 compile、full type 或 E2E。
-6. `publish.sh validate`（CNB）或 `publish.sh validate --local` 从生产 receipt 取 validation base，对 `base..candidate` 选择改动 owner 和依赖消费者，串行运行必要源码检查、构建目标 artifact，并缓存 schema v2 validation receipt。修复后 source/tree 改变，旧缓存自动失效。
+6. `publish.sh validate`（CNB）或 `publish.sh validate --local` 从生产 receipt 取 validation base，对 `base..candidate` 选择改动 owner 和依赖消费者，按上面的失败收集契约运行必要源码检查、构建目标 artifact，并缓存 schema v2 validation receipt。第一次失败后先完成完整 DAG 诊断与集中修复；不得直接循环正式 validate。修复后 source/tree 改变，旧缓存自动失效。
 7. Git 跟踪的 `ops/cnb-release.yml` 只定义可复用流水线形状；租户实际的 CNB env import、服务器目录和健康检查地址由 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 管理。发布脚本读取并校验该租户文件；`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
 8. `publish.sh deploy` 或 `publish.sh deploy --direct` 必须恢复 validate 生成的同目标 artifact。cache miss、validation base/source/tree 不同或 digest 失败立即阻断；deploy 禁止运行 classifier、源码检查和 build。统一部署 adapter 仍复验 injection identity、manifest、artifact hash 与 migration set，全程不访问 GitHub。
 9. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准。candidate 必须是 bootstrap baseline 或已部署 source 的后代，同 source 是 no-op，回退或分叉直接阻断。

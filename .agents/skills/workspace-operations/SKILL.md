@@ -32,6 +32,7 @@ Operations 负责 CI、部署、环境和脚本运行态。
 - 维护 deploy graph 与生成 App 的运行契约：根 `app/`/registry 是事实源，`apps/*` 只通过生成器更新，并由 `deploy:apps:check` 阻断漂移。
 - 生产维护遵循提交优先：`prepare` 冻结精确 Git tree；`validate`（CNB）或 `validate --local` 对生产 base 到候选 head 的改动项目及依赖闭包验证一次并冻结目标 artifact；`deploy` 或 `deploy --direct` 只消费同一 base/source/tree/digest。修复后 source/tree 变化，必须重新 prepare/validate。
 - 多 agent 共用 main 时，pre-commit 的快照和缓存键只绑定 `HEAD + staged index + 检查环境`；其他 agent 的 unstaged/untracked 写入从一开始就不参与身份计算，不拒绝提交，也不使已通过缓存失效。`prepare` 只读取提交后的 main tree 并快进到干净 release worktree；`deploy` 固定消费该已验证候选。
+- 正式门禁不是逐错调试器。第一次 `validate` 失败后必须停止正式全量重跑，展开 classifier 选中的完整检查图，一次性审计源码、私有配置、内存、一次性数据库、TLS、migration/seed/integration、build、浏览器和 artifact 前置；独立检查以聚合模式全部执行，有依赖的链只在前置通过后继续并把其余项报告为 blocked。集中修复完整失败清单、逐项验证后，只允许再跑一次最终 `validate`。禁止“全量门禁 -> 修一个 -> 全量门禁”的循环。
 
 ## 禁止
 
@@ -58,4 +59,4 @@ Operations 负责 CI、部署、环境和脚本运行态。
 
 ## 验证
 
-远端是否允许合并由 base/head affected `CI / required` 决定。除用户明确要求外不运行 `check:ci` 或其他全量补充门禁。正式发布按 `prepare -> validate -> deploy`；部署阶段只做生产安全检查。Profile/Fleet 只经受信内部入口运行。
+远端是否允许合并由 base/head affected `CI / required` 决定。除用户明确要求外不运行 `check:ci` 或其他全量补充门禁。CI 与正式发布的复合检查必须聚合报告同轮全部独立失败；串行依赖项必须显式报告 blocked，不能静默跳过。正式发布按“完整诊断收敛 -> `prepare -> validate -> deploy`”执行；`validate` 是最终验收，不是逐错发现循环，部署阶段只做生产安全检查。Profile/Fleet 只经受信内部入口运行。

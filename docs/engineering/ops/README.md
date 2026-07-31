@@ -19,6 +19,12 @@ private configuration but does not compile locally. `validate` compares the prod
 the candidate head, checks the affected owners plus dependency consumers, and freezes the selected
 target artifact. `deploy` only verifies and consumes that same artifact, even if `main` advances.
 
+`validate` is the final acceptance run, not an iterative failure-discovery loop. After its first
+failure, stop formal reruns and expand the complete affected check graph. Audit every environment
+prerequisite and run all independent leaves in aggregate diagnostic mode; dependency chains report
+their blocked descendants. Fix the complete result set, verify those leaves, and then run one final
+`validate`. Repeating a full validation after each individual fix is prohibited.
+
 Repository-owned runtime dependency contracts:
 
 - [CI/CD 与测试分级](./ci-cd.md)
