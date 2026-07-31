@@ -7,13 +7,13 @@ const deploy = readFileSync(new URL("./deploy-cnb-release-target.sh", import.met
 
 test("CNB target builder restores first and builds only during validate", () => {
   assert.match(build, /cnb-release-artifact-cache\.sh restore/);
-  assert.match(build, /deploy 只能消费已验证 artifact，禁止现场构建/);
+  assert.match(build, /deploy 只能消费已验证 artifact，禁止现场编译/);
   assert.match(build, /if \[ -z "\$UNIT_ID" \]/);
   assert.match(build, /bash \.\/ops\/build-standalone-artifact\.sh/);
   assert.match(build, /bash \.\/ops\/build-deploy-unit-artifact\.sh "\$UNIT_ID"/);
   assert.match(build, /bash \.\/ops\/cnb-release-artifact-cache\.sh store/);
   assert.match(build, /ALLOW_CNB_RELEASE_INJECTION=1/);
-  assert.match(build, /--base "\$\{RELEASE_VALIDATION_BASE_SHA/);
+  assert.match(build, /--content "\$\{RELEASE_CONTENT_DIGEST/);
 });
 
 test("CNB target deploy defaults to monolith and unit release is trusted but shadow-first", () => {

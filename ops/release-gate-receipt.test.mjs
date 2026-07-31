@@ -12,62 +12,58 @@ import {
   validateReleaseCandidateReceipt,
 } from "./release-gate-receipt.mjs";
 
-const sourceSha = "a".repeat(40);
-const treeSha = "b".repeat(40);
-const baseSha = "c".repeat(40);
-const identity = { baseSha, sourceSha, treeSha };
+const identity = { treeId: "b".repeat(40), contentDigest: "c".repeat(64) };
 
-test("candidate receipt freezes only source and inexpensive configuration checks", () => {
+test("candidate receipt freezes content and inexpensive configuration checks", () => {
   const receipt = createReleaseCandidateReceipt({ ...identity, completedAt: "2026-07-28T00:00:00.000Z" });
   assert.equal(validateReleaseCandidateReceipt(receipt, identity), receipt);
   assert.equal(receipt.status, "prepared");
-  assert.deepEqual(receipt.checks, [
-    "cnb-release-config",
-    "tenant-config-dry-run",
-    "tenant-permission-docs",
-  ]);
-  assert.equal(Object.hasOwn(receipt, "fullCi"), false);
+  assert.equal(Object.hasOwn(receipt, "sourceSha"), false);
 });
 
-test("one validation receipt binds the Git base/head dependency closure", () => {
+test("validation receipt proves one full source CI and one compile", () => {
   const receipt = createCnbReleaseGateReceipt({ ...identity, completedAt: "2026-07-28T00:00:00.000Z" });
   assert.equal(validateCnbReleaseGateReceipt(receipt, identity), receipt);
-  assert.equal(receipt.scope, "git-base-head-with-dependency-closure");
-  assert.equal(receipt.baseSha, baseSha);
+  assert.equal(receipt.scope, "full-repository");
   assert.deepEqual(receipt.checks, [
-    "git-base-head",
-    "affected-source-checks",
-    "affected-dependency-closure",
-    "selected-postgresql",
-    "selected-playwright-when-applicable",
-    "artifact-identity",
+    "full-source-ci-once",
+    "artifact-compile-once",
+    "artifact-content-identity",
   ]);
-  assert.equal(Object.hasOwn(receipt, "target"), false);
+  assert.equal(Object.hasOwn(receipt, "baseSha"), false);
 });
 
-test("candidate and CNB receipts cannot substitute for one another or cross trees", () => {
+test("candidate and validation receipts cannot substitute or cross content", () => {
   const candidate = createReleaseCandidateReceipt(identity);
-  const gate = createCnbReleaseGateReceipt(identity);
-  assert.throws(() => validateCnbReleaseGateReceipt(candidate, identity), /CNB release gate/);
-  assert.throws(() => validateReleaseCandidateReceipt(gate, identity), /candidate receipt/);
-  assert.throws(
-    () => validateCnbReleaseGateReceipt(gate, { baseSha, sourceSha, treeSha: "d".repeat(40) }),
-    /different source tree/,
-  );
+  const validation = createCnbReleaseGateReceipt(identity);
+  assert.throws(() => validateCnbReleaseGateReceipt(candidate, identity), /validation receipt/);
+  assert.throws(() => validateReleaseCandidateReceipt(validation, identity), /candidate receipt/);
+  assert.throws(() => validateCnbReleaseGateReceipt(validation, {
+    ...identity,
+    contentDigest: "d".repeat(64),
+  }), /different candidate content/);
 });
 
-test("receipt CLI writes private atomic candidate and CNB evidence", (t) => {
+test("receipt CLI writes private atomic candidate and validation evidence", (t) => {
   const directory = mkdtempSync(path.join(os.tmpdir(), "workspace-release-gate-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   for (const kind of ["candidate", "cnb"]) {
     const output = path.join(directory, `${kind}.json`);
-    const createArgs = [`${kind}-create`, "--source", sourceSha, "--tree", treeSha, "--output", output];
-    if (kind === "cnb") createArgs.push("--base", baseSha, "--runner", "local");
+    const createArgs = [
+      `${kind}-create`,
+      "--content", identity.contentDigest,
+      "--tree", identity.treeId,
+      "--output", output,
+    ];
+    if (kind === "cnb") createArgs.push("--runner", "local");
     main(createArgs);
     assert.equal(statSync(output).mode & 0o777, 0o600);
-    assert.equal(JSON.parse(readFileSync(output, "utf8")).sourceSha, sourceSha);
-    const verifyArgs = [`${kind}-verify`, "--source", sourceSha, "--tree", treeSha, "--file", output];
-    if (kind === "cnb") verifyArgs.push("--base", baseSha);
-    main(verifyArgs);
+    assert.equal(JSON.parse(readFileSync(output, "utf8")).contentDigest, identity.contentDigest);
+    main([
+      `${kind}-verify`,
+      "--content", identity.contentDigest,
+      "--tree", identity.treeId,
+      "--file", output,
+    ]);
   }
 });

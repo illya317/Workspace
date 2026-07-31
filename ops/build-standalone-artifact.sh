@@ -10,6 +10,7 @@ ARTIFACT_PATH="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
 MANIFEST_PATH="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"
 SOURCE_SHA="${RELEASE_SOURCE_SHA:-$(git rev-parse HEAD)}"
 SOURCE_TREE="${RELEASE_SOURCE_TREE:-$(git rev-parse "${SOURCE_SHA}^{tree}")}"
+CONTENT_DIGEST="${RELEASE_CONTENT_DIGEST:-}"
 RELEASE_TIMING_ENABLED=0
 
 if [ -n "${RELEASE_TIMING_FILE:-}" ]; then
@@ -56,6 +57,10 @@ if ! printf '%s' "$SOURCE_SHA" | grep -Eq '^[0-9a-f]{40}$'; then
 fi
 if ! printf '%s' "$SOURCE_TREE" | grep -Eq '^[0-9a-f]{40}$'; then
   echo "[错误] RELEASE_SOURCE_TREE 必须是完整小写 Git tree SHA"
+  exit 1
+fi
+if ! printf '%s' "$CONTENT_DIGEST" | grep -Eq '^[0-9a-f]{64}$'; then
+  echo "[错误] RELEASE_CONTENT_DIGEST 必须是候选内容 SHA-256"
   exit 1
 fi
 if [ "$(git rev-parse "${SOURCE_SHA}^{tree}")" != "$SOURCE_TREE" ]; then
@@ -273,8 +278,8 @@ copy_data_release_files() {
 
 if [ "$STANDALONE_SKIP_NEXT_BUILD" = "1" ]; then
   echo "==> 复用当前 job 已完成的 Next standalone 构建..."
-  if [ ! -f .next/BUILD_ID ] || [ "$(cat .next/BUILD_ID)" != "$SOURCE_SHA" ]; then
-    echo "[错误] STANDALONE_SKIP_NEXT_BUILD 只能复用 BUILD_ID 等于 canonical source SHA 的构建"
+  if [ ! -f .next/BUILD_ID ] || [ "$(cat .next/BUILD_ID)" != "$CONTENT_DIGEST" ]; then
+    echo "[错误] STANDALONE_SKIP_NEXT_BUILD 只能复用 BUILD_ID 等于候选内容摘要的构建"
     exit 1
   fi
   ensure_build_deps
@@ -286,11 +291,11 @@ else
   ensure_build_deps
   if [ "${STANDALONE_EXTERNAL_TYPECHECK:-0}" = "1" ]; then
     run_artifact_stage next.build \
-      env NEXT_PUBLIC_BUILD_VERSION="$SOURCE_SHA" BUILD_VERSION="$SOURCE_SHA" \
+      env NEXT_PUBLIC_BUILD_VERSION="$CONTENT_DIGEST" BUILD_VERSION="$CONTENT_DIGEST" \
       bash -c 'npm run db:generate:inner && npm run build:next:after-typecheck'
   else
     run_artifact_stage next.build \
-      env NEXT_PUBLIC_BUILD_VERSION="$SOURCE_SHA" BUILD_VERSION="$SOURCE_SHA" \
+      env NEXT_PUBLIC_BUILD_VERSION="$CONTENT_DIGEST" BUILD_VERSION="$CONTENT_DIGEST" \
       npm run build
   fi
 fi
@@ -303,8 +308,8 @@ test -s .cache/source-code-analysis/snapshot.json || {
   exit 1
 }
 
-if [ ! -f .next/BUILD_ID ] || [ "$(cat .next/BUILD_ID)" != "$SOURCE_SHA" ]; then
-  echo "[错误] .next/BUILD_ID 与 canonical source SHA 不一致；禁止打包错误构建"
+if [ ! -f .next/BUILD_ID ] || [ "$(cat .next/BUILD_ID)" != "$CONTENT_DIGEST" ]; then
+  echo "[错误] .next/BUILD_ID 与候选内容摘要不一致；禁止打包错误构建"
   exit 1
 fi
 
@@ -426,6 +431,7 @@ deploy_graph_sha="$(node ops/gateway-generation.mjs graph-digest --graph "$DEPLO
 
 SOURCE_SHA="$SOURCE_SHA" \
 SOURCE_TREE="$SOURCE_TREE" \
+CONTENT_DIGEST="$CONTENT_DIGEST" \
 PACKAGE_LOCK_SHA="$package_lock_sha" \
 MIGRATION_SET_SHA="$migration_set_sha" \
 DEPLOY_GRAPH_SHA="$deploy_graph_sha" \
@@ -436,49 +442,12 @@ node <<'NODE'
 const { readFileSync, statSync, writeFileSync } = require("fs");
 const { basename } = require("path");
 
-function parseJsonEnvironment(name, fallback) {
-  const value = process.env[name];
-  if (!value) return fallback;
-  try {
-    return JSON.parse(value);
-  } catch {
-    throw new Error(`${name} must be valid JSON`);
-  }
-}
-
-function requireStringArray(value, name) {
-  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.length === 0)) {
-    throw new Error(`${name} must be a JSON string array`);
-  }
-  return [...new Set(value)].sort();
-}
-
-const classification = parseJsonEnvironment("CI_CLASSIFICATION_JSON", null);
-if (classification !== null && (!classification || typeof classification !== "object" || Array.isArray(classification))) {
-  throw new Error("CI_CLASSIFICATION_JSON must be a JSON object");
-}
-const requiredSuites = requireStringArray(
-  parseJsonEnvironment("CI_REQUIRED_SUITES_JSON", classification?.requiredSuites ?? []),
-  "CI_REQUIRED_SUITES_JSON",
-);
-const e2eSpecs = requireStringArray(
-  parseJsonEnvironment("CI_E2E_SPECS_JSON", classification?.e2eSpecs ?? []),
-  "CI_E2E_SPECS_JSON",
-);
-const riskClass = process.env.CI_RISK_CLASS || classification?.riskClass || null;
-const e2eMode = process.env.CI_E2E_MODE || classification?.e2eMode || null;
-if (classification && (classification.riskClass !== riskClass
-  || classification.e2eMode !== e2eMode
-  || JSON.stringify(requireStringArray(classification.requiredSuites ?? [], "classification.requiredSuites")) !== JSON.stringify(requiredSuites)
-  || JSON.stringify(requireStringArray(classification.e2eSpecs ?? [], "classification.e2eSpecs")) !== JSON.stringify(e2eSpecs))) {
-  throw new Error("CI classification fields are inconsistent");
-}
-
 const manifest = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   source: {
     commitSha: process.env.SOURCE_SHA,
     treeSha: process.env.SOURCE_TREE,
+    contentDigest: process.env.CONTENT_DIGEST,
   },
   inputs: {
     packageLockSha256: process.env.PACKAGE_LOCK_SHA,
@@ -502,13 +471,6 @@ const manifest = {
     githubRunId: process.env.GITHUB_RUN_ID || null,
     githubRunAttempt: process.env.GITHUB_RUN_ATTEMPT || null,
     githubEventName: process.env.GITHUB_EVENT_NAME || null,
-    riskClass,
-    e2eMode,
-    forceFull: process.env.CI_FORCE_FULL === "true",
-    targetSha: process.env.CI_TARGET_SHA || process.env.GITHUB_SHA || null,
-    requiredSuites,
-    e2eSpecs,
-    classification,
   },
 };
 writeFileSync(process.env.MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, { mode: 0o644 });

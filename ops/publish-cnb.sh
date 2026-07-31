@@ -37,7 +37,7 @@ RELEASE_TRANSPORT="cnb"
 DEPLOY_UNIT_ID=""
 DEPLOY_UNIT_MODE=""
 DATABASE_REPLACEMENT_RECEIPT_FILE=""
-DEPLOY_WAIT_SECONDS="${DEPLOY_WAIT_SECONDS:-1800}"
+DEPLOY_REVIEW_SECONDS="${DEPLOY_REVIEW_SECONDS:-900}"
 LOCAL_PREFLIGHT_DURATION_SECONDS=0
 TENANT_SYNC_DURATION_SECONDS=0
 RELEASE_TRIGGER_DURATION_SECONDS=0
@@ -92,69 +92,8 @@ record_failed_deploy_attempt() {
   local duration_seconds="$(($(date +%s) - DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS))"
   [ "$duration_seconds" -ge 0 ] || duration_seconds=0
   if ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
-    "REMOTE_DIR='$REMOTE_DIR' DEPLOY_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_SOURCE_SHA='$SOURCE_SHA' DEPLOY_STARTED_EPOCH_SECONDS='$DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS' DEPLOY_DURATION_SECONDS='$duration_seconds' DEPLOY_STATUS='$status' DEPLOY_EXIT_CODE='$exit_code' python3 - <<'PY'
-import datetime
-import json
-import os
-from pathlib import Path
-
-remote_dir = Path(os.environ['REMOTE_DIR'])
-build = os.environ['DEPLOY_SOURCE_SHA']
-started = int(os.environ['DEPLOY_STARTED_EPOCH_SECONDS'])
-duration = int(os.environ['DEPLOY_DURATION_SECONDS'])
-status = os.environ['DEPLOY_STATUS']
-exit_code = int(os.environ['DEPLOY_EXIT_CODE'])
-transport = os.environ['DEPLOY_TRANSPORT']
-finished_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
-event_id = f'attempt:{build}:{started}'
-payload = {
-    'schemaVersion': 2,
-    'kind': 'workspace-deploy-event',
-    'id': event_id,
-    'transport': transport,
-    'deploymentKind': 'full',
-    'deploymentMode': 'full',
-    'action': 'deploy',
-    'status': status,
-    'package': 'unknown',
-    'build': build,
-    'release': f'attempt-{build[:12]}',
-    'durationSeconds': duration,
-    'opsDurationSeconds': duration,
-    'exitCode': exit_code,
-    'startedAtEpochSeconds': started,
-    'finishedAt': finished_at,
-}
-
-def atomic_write(target, body):
-    tmp = target.with_name(f'.{target.name}.tmp-{os.getpid()}')
-    tmp.write_text(body)
-    os.chmod(tmp, 0o600)
-    tmp.replace(target)
-
-body = json.dumps(payload, ensure_ascii=False)
-target = Path.home() / '.finance-bot-deploy-event.json'
-atomic_write(target, body)
-history_root = remote_dir / '.workspace' / 'deployment-history'
-history_root.mkdir(parents=True, exist_ok=True, mode=0o700)
-os.chmod(history_root, 0o700)
-latest = history_root / 'latest.json'
-duplicate = False
-if latest.exists():
-    try:
-        duplicate = json.loads(latest.read_text()).get('id') == event_id
-    except (OSError, ValueError):
-        pass
-stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
-atomic_write(history_root / f'{stamp}-{build[:12]}-{status}.json', body)
-atomic_write(latest, body)
-if not duplicate:
-    history_log = history_root / 'deployments.ndjson'
-    with history_log.open('a') as handle:
-        handle.write(body + '\n')
-    os.chmod(history_log, 0o600)
-print(f'Workspace deploy attempt recorded: {event_id} ({status}, {duration}s)')
-PY"; then
+    "REMOTE_DIR='$REMOTE_DIR' DEPLOY_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_SOURCE_SHA='$SOURCE_SHA' DEPLOY_STARTED_EPOCH_SECONDS='$DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS' DEPLOY_DURATION_SECONDS='$duration_seconds' DEPLOY_STATUS='$status' DEPLOY_EXIT_CODE='$exit_code' python3 -" \
+    < "$SCRIPT_DIR/release/diagnostics/record-deploy-attempt.py"; then
     DEPLOY_ATTEMPT_RECORDED=1
   else
     echo "[警告] 部署失败事件未能写入服务器；原始退出码仍为 $exit_code" >&2
@@ -189,6 +128,13 @@ prepare_server_read_key() {
 format_duration() {
   local total_seconds="$1"
   printf '%dm %02ds' "$((total_seconds / 60))" "$((total_seconds % 60))"
+}
+
+review_slow_deploy_flow() {
+  [ "$review_notice_sent" = "0" ] || return 0
+  [ "$(date +%s)" -ge "$review_at" ] || return 0
+  echo "[提示] CNB 等待超过软复查阈值；Agent 应检查排队、缓存 miss、重复编译和依赖安装，但当前发布继续等待。" >&2
+  review_notice_sent=1
 }
 
 print_deploy_timing_summary() {
@@ -324,10 +270,10 @@ if [ -n "$DATABASE_REPLACEMENT_RECEIPT_FILE" ]; then
     || { echo "[错误] 整库替换不能与 bootstrap/genesis 同时执行"; exit 1; }
 fi
 
-case "$DEPLOY_WAIT_SECONDS" in
-  ''|*[!0-9]*) echo "[错误] DEPLOY_WAIT_SECONDS 必须是正整数"; exit 1 ;;
+case "$DEPLOY_REVIEW_SECONDS" in
+  ''|*[!0-9]*) echo "[错误] DEPLOY_REVIEW_SECONDS 必须是正整数"; exit 1 ;;
 esac
-[ "$DEPLOY_WAIT_SECONDS" -ge 1 ] || { echo "[错误] DEPLOY_WAIT_SECONDS 必须至少为 1"; exit 1; }
+[ "$DEPLOY_REVIEW_SECONDS" -ge 1 ] || { echo "[错误] DEPLOY_REVIEW_SECONDS 必须至少为 1"; exit 1; }
 
 bootstrap_count=0
 for value in "$BOOTSTRAP_LEGACY_CNB_COMMIT" "$BOOTSTRAP_LEGACY_RELEASE_ID" "$BOOTSTRAP_LEGACY_CNB_BUILD_SN" "$BOOTSTRAP_LEGACY_RUNTIME_VERSION" "$BOOTSTRAP_LEGACY_BUILD_ID"; do
@@ -379,14 +325,16 @@ cd "$SOURCE_DIR"
 [ -z "$(git status --short)" ] || { echo "[错误] 工作区存在未提交改动"; git status --short; exit 1; }
 
 SOURCE_SHA="$(git rev-parse HEAD)"
-SOURCE_TREE="$(git rev-parse 'HEAD^{tree}')"
+candidate_identity="$(node "$SCRIPT_DIR/release/candidate/identity.mjs" capture --repository "$SOURCE_DIR" --revision HEAD)"
+SOURCE_TREE="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.treeId)' "$candidate_identity")"
+SOURCE_CONTENT_DIGEST="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.contentDigest)' "$candidate_identity")"
 RELEASE_CANDIDATE_RECEIPT_FILE="${RELEASE_CANDIDATE_RECEIPT_FILE:-$SOURCE_DIR/.cache/release-check/release-candidate.json}"
 [ -f "$CNB_REAL_CNB_YML" ] || { echo "[错误] 真实 CNB 配置文件不存在: $CNB_REAL_CNB_YML"; exit 1; }
 node "$SCRIPT_DIR/validate-cnb-release-config.mjs" "$CNB_REAL_CNB_YML"
 OPS_ENV_FILE="$OPS_ENV_FILE" WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" \
   "$SCRIPT_DIR/sync-tenant-config.sh" --dry-run --source-sha "$SOURCE_SHA"
 if ! node "$SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
-  --source "$SOURCE_SHA" --tree "$SOURCE_TREE" \
+  --content "$SOURCE_CONTENT_DIGEST" --tree "$SOURCE_TREE" \
   --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null; then
   echo "[错误] 当前 release tree 没有有效 prepare 回执；拒绝进入 CNB。" >&2
   echo "[提示] 先运行: OPS_ENV_FILE=$OPS_ENV_FILE ops/publish.sh prepare" >&2
@@ -530,7 +478,7 @@ git merge-base --is-ancestor "$RELEASE_VALIDATION_BASE_SHA" "$SOURCE_SHA" || {
 
 LOCAL_PREFLIGHT_DURATION_SECONDS="$(($(date +%s) - LOCAL_PREFLIGHT_STARTED_EPOCH_SECONDS))"
 
-echo "==> 已验证 prepare 回执；$RELEASE_ACTION 将使用 ${RELEASE_VALIDATION_BASE_SHA:0:12}..${SOURCE_SHA:0:12} 的受影响依赖闭包。"
+echo "==> 已验证 prepare 回执；$RELEASE_ACTION 固定执行一次全量源码 CI 与一次 artifact 编译。"
 
 if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   echo "==> 同步并校验本次部署使用的租户配置..."
@@ -610,7 +558,7 @@ NODE
   GENESIS_BASELINE_CHECKSUM="$(printf '%s\n' "$genesis_baseline_values" | sed -n '2p')"
 fi
 
-SOURCE_SHA="$SOURCE_SHA" SOURCE_TREE="$SOURCE_TREE" CNB_REPO="$CNB_REPO" RELEASE_BRANCH="$RELEASE_BRANCH" \
+SOURCE_SHA="$SOURCE_SHA" SOURCE_TREE="$SOURCE_TREE" SOURCE_CONTENT_DIGEST="$SOURCE_CONTENT_DIGEST" CNB_REPO="$CNB_REPO" RELEASE_BRANCH="$RELEASE_BRANCH" \
 RELEASE_TRANSPORT="$RELEASE_TRANSPORT" \
 RELEASE_ACTION="$RELEASE_ACTION" RELEASE_VALIDATION_BASE_SHA="$RELEASE_VALIDATION_BASE_SHA" \
 BOOTSTRAP_PRODUCTION_BASE="$BOOTSTRAP_PRODUCTION_BASE" BOOTSTRAP_LEGACY_CNB_COMMIT="$BOOTSTRAP_LEGACY_CNB_COMMIT" \
@@ -642,7 +590,11 @@ if (releaseAttemptCount < 1) throw new Error('RELEASE_ATTEMPT_COUNT is invalid')
 if (Number.isNaN(Date.parse(process.env.RELEASE_PROCESS_STARTED_AT))) throw new Error('RELEASE_PROCESS_STARTED_AT is invalid');
 const metadata = {
   schemaVersion: 1,
-  source: { commitSha: process.env.SOURCE_SHA, treeSha: process.env.SOURCE_TREE },
+  source: {
+    commitSha: process.env.SOURCE_SHA,
+    treeSha: process.env.SOURCE_TREE,
+    contentDigest: process.env.SOURCE_CONTENT_DIGEST,
+  },
   transport: { kind: process.env.RELEASE_TRANSPORT },
   releaseCandidate,
   cnb: { repository: process.env.CNB_REPO, sourceBranch: process.env.RELEASE_BRANCH },
@@ -702,7 +654,7 @@ if [ "$DIRECT_RELEASE" = "1" ]; then
   RELEASE_VALIDATION_RUNTIME=local \
   RELEASE_ACTION="$RELEASE_ACTION" \
   RELEASE_VALIDATION_BASE_SHA="$RELEASE_VALIDATION_BASE_SHA" \
-  RELEASE_SOURCE_SHA="$SOURCE_SHA" RELEASE_SOURCE_TREE="$SOURCE_TREE" \
+  RELEASE_SOURCE_SHA="$SOURCE_SHA" RELEASE_SOURCE_TREE="$SOURCE_TREE" RELEASE_CONTENT_DIGEST="$SOURCE_CONTENT_DIGEST" \
   RELEASE_SOURCE_DIR="$SOURCE_DIR" CNB_REAL_CNB_YML="$CNB_REAL_CNB_YML" \
   CNB_REPO="$CNB_REPO" RELEASE_BRANCH="$RELEASE_BRANCH" \
   bash "$SCRIPT_DIR/run-local-release-action.sh" "$RELEASE_ACTION" "$METADATA_FILE"
@@ -721,10 +673,11 @@ RELEASE_TRIGGER_DURATION_SECONDS="$(($(date +%s) - RELEASE_TRIGGER_STARTED_EPOCH
 [ "$PRINT_COMMAND_ONLY" = "0" ] || exit 0
 
 CNB_SN="$(node -e 'const r=require(process.argv[1]); process.stdout.write(r.sn);' "$RESULT_FILE")"
-echo "==> 等待 CNB ${CNB_SN} 完成 ${RELEASE_ACTION}（最长 ${DEPLOY_WAIT_SECONDS}s）..."
+echo "==> 等待 CNB ${CNB_SN} 完成 ${RELEASE_ACTION}；${DEPLOY_REVIEW_SECONDS}s 后只提示检查流程，不因耗时终止。"
 
-deadline=$(( $(date +%s) + DEPLOY_WAIT_SECONDS ))
-while [ "$(date +%s)" -le "$deadline" ]; do
+review_at=$(( $(date +%s) + DEPLOY_REVIEW_SECONDS ))
+review_notice_sent=0
+while true; do
   cnb_state="unknown"
   status_file="$TMP_DIR/cnb-status.json"
   if env -u CNB_TOKEN cnb build get-build-status --repo "$CNB_REPO" --sn "$CNB_SN" --verbose > "$status_file" 2>/dev/null; then
@@ -766,6 +719,7 @@ NODE" 2>/dev/null || true)"
       complete_release_process_session
       exit 0
     fi
+    review_slow_deploy_flow
     sleep 10
     continue
   fi
@@ -775,7 +729,7 @@ NODE" 2>/dev/null || true)"
   deployed_release_id="$(printf '%s\n' "$deployed_values" | sed -n '2p')"
   if [ "$deployed_sha" = "$SOURCE_SHA" ] && [ "$cnb_state" = "success" ]; then
     ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
-      "set -e; curl -fsS '$HEALTHCHECK_URL' >/dev/null; test \"\$(curl -fsS http://127.0.0.1:3000/workspace/api/settings/version | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>process.stdout.write(JSON.parse(s).version))')\" = '$SOURCE_SHA'"
+      "set -e; curl -fsS '$HEALTHCHECK_URL' >/dev/null; test \"\$(curl -fsS http://127.0.0.1:3000/workspace/api/settings/version | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>process.stdout.write(JSON.parse(s).version))')\" = '$SOURCE_CONTENT_DIGEST'"
     FORMAL_DEPLOY_FINISHED_EPOCH="$(date +%s)"
     FORMAL_DEPLOY_FINISHED_AT="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
     FORMAL_DEPLOY_DURATION="$((FORMAL_DEPLOY_FINISHED_EPOCH - PUBLISH_STARTED_EPOCH_SECONDS))"
@@ -786,8 +740,6 @@ NODE" 2>/dev/null || true)"
     complete_release_process_session
     exit 0
   fi
+  review_slow_deploy_flow
   sleep 10
 done
-
-echo "[错误] 等待 CNB/生产部署超时: $CNB_SN${DEPLOY_UNIT_ID:+ ($DEPLOY_UNIT_ID $DEPLOY_UNIT_MODE)}"
-exit 1

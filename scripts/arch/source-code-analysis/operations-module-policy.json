@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "modules": [
+    {
+      "name": "deploy-contract-test",
+      "include": ["ops/deploy/source-contract.mjs"],
+      "allowedDependencies": []
+    },
+    {
+      "name": "release-contracts",
+      "include": ["ops/release/contracts/"],
+      "allowedDependencies": []
+    },
+    {
+      "name": "release-candidate",
+      "include": ["ops/release/candidate/"],
+      "allowedDependencies": []
+    },
+    {
+      "name": "release-diagnostics",
+      "include": ["ops/release/diagnostics/"],
+      "allowedDependencies": []
+    },
+    {
+      "name": "release-validation",
+      "include": ["ops/release/validation/"],
+      "allowedDependencies": ["release-candidate", "release-contracts", "release-diagnostics"]
+    },
+    {
+      "name": "release-cli",
+      "include": ["ops/release-gate-receipt.mjs"],
+      "allowedDependencies": ["release-contracts"]
+    },
+    {
+      "name": "transport",
+      "include": ["ops/deploy/transport.sh"],
+      "allowedDependencies": []
+    },
+    {
+      "name": "state",
+      "include": ["ops/deploy/state.sh"],
+      "allowedDependencies": ["transport"]
+    },
+    {
+      "name": "artifact",
+      "include": ["ops/deploy/artifact.sh"],
+      "allowedDependencies": ["transport"]
+    },
+    {
+      "name": "runtime-supply",
+      "include": ["ops/deploy/runtime-supply.sh"],
+      "allowedDependencies": ["transport"]
+    },
+    {
+      "name": "runtime-safety",
+      "include": ["ops/deploy/runtime-safety.sh"],
+      "allowedDependencies": ["state", "transport"]
+    },
+    {
+      "name": "atomic-cutover",
+      "include": ["ops/deploy/atomic-cutover.sh"],
+      "allowedDependencies": ["artifact", "runtime-safety", "state", "transport"]
+    },
+    {
+      "name": "health",
+      "include": ["ops/deploy/health.sh"],
+      "allowedDependencies": ["transport"]
+    },
+    {
+      "name": "orchestration",
+      "include": ["ops/deploy.sh"],
+      "allowedDependencies": ["artifact", "atomic-cutover", "health", "runtime-safety", "runtime-supply", "state", "transport"]
+    }
+  ]
+}

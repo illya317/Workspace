@@ -10,6 +10,7 @@ const repositoryRoot = path.resolve(import.meta.dirname, "..");
 const tool = path.join(import.meta.dirname, "cnb-release-artifact-cache.sh");
 const sourceSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: repositoryRoot, encoding: "utf8" }).trim();
 const sourceTree = execFileSync("git", ["rev-parse", "HEAD^{tree}"], { cwd: repositoryRoot, encoding: "utf8" }).trim();
+const contentDigest = createHash("sha256").update(`candidate:${sourceTree}`).digest("hex");
 
 function run(command, paths) {
   return spawnSync("bash", [tool, command], {
@@ -19,7 +20,7 @@ function run(command, paths) {
       ...process.env,
       RELEASE_SOURCE_SHA: sourceSha,
       RELEASE_SOURCE_TREE: sourceTree,
-      RELEASE_VALIDATION_BASE_SHA: sourceSha,
+      RELEASE_CONTENT_DIGEST: contentDigest,
       CNB_RELEASE_ARTIFACT_CACHE_ROOT: paths.cache,
       CNB_RELEASE_ARTIFACT_HIT_MARKER: paths.marker,
       STANDALONE_ARTIFACT_PATH: paths.artifact,
@@ -30,7 +31,7 @@ function run(command, paths) {
   });
 }
 
-test("CNB artifact cache restores only exact source/tree and verified bytes", () => {
+test("CNB artifact cache restores only exact candidate content and verified bytes", () => {
   const root = mkdtempSync(path.join(os.tmpdir(), "workspace-cnb-artifact-cache-"));
   const paths = {
     cache: path.join(root, "cache"),
@@ -56,32 +57,28 @@ test("CNB artifact cache restores only exact source/tree and verified bytes", ()
       "--graph", paths.graph,
     ], { cwd: repositoryRoot, encoding: "utf8" }).trim();
     writeFileSync(paths.manifest, `${JSON.stringify({
-      schemaVersion: 1,
-      source: { commitSha: sourceSha, treeSha: sourceTree },
+      schemaVersion: 2,
+      source: { commitSha: sourceSha, treeSha: sourceTree, contentDigest },
       artifact: {
         sha256: createHash("sha256").update(artifact).digest("hex"),
         sizeBytes: artifact.length,
       },
-      build: { buildId: sourceSha },
+      build: { buildId: contentDigest },
       inputs: { deployGraphSha256: graphDigest },
     })}\n`);
     writeFileSync(paths.receipt, `${JSON.stringify({
-      schemaVersion: 2,
+      schemaVersion: 3,
       kind: "workspace-release-validation",
       status: "passed",
-      command: "ops/run-cnb-release-gate.sh validate",
+      command: "ops/publish.sh validate",
       runner: "local",
-      baseSha: sourceSha,
-      sourceSha,
-      treeSha: sourceTree,
-      scope: "git-base-head-with-dependency-closure",
+      treeId: sourceTree,
+      contentDigest,
+      scope: "full-repository",
       checks: [
-        "git-base-head",
-        "affected-source-checks",
-        "affected-dependency-closure",
-        "selected-postgresql",
-        "selected-playwright-when-applicable",
-        "artifact-identity",
+        "full-source-ci-once",
+        "artifact-compile-once",
+        "artifact-content-identity",
       ],
       completedAt: "2026-07-30T00:00:00.000Z",
     })}\n`);
@@ -97,7 +94,7 @@ test("CNB artifact cache restores only exact source/tree and verified bytes", ()
     assert.ok(statSync(paths.marker).isFile());
 
     writeFileSync(paths.artifact, "corrupt");
-    const cacheArtifact = path.join(paths.cache, "monolith", sourceTree, "workspace-standalone.tgz");
+    const cacheArtifact = path.join(paths.cache, "monolith", contentDigest, "workspace-standalone.tgz");
     writeFileSync(cacheArtifact, "corrupt");
     const rejected = run("restore", paths);
     assert.notEqual(rejected.status, 0);

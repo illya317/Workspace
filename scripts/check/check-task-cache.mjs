@@ -4,7 +4,7 @@ import path from "node:path";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { resolveWorkspaceSnapshot, SNAPSHOT_ENV_KEYS } = require("./workspace-snapshot.js");
+const { resolveWorkspaceSnapshot } = require("./workspace-snapshot.js");
 
 const CACHE_VERSION = "suite-task-result-v1";
 const SNAPSHOT_PATTERN = /^[0-9a-f]{64}$/;
@@ -26,7 +26,6 @@ function taskKey(task, snapshotKey, env, runtime) {
   addHashPart(hash, "args", JSON.stringify(task.args));
   addHashPart(hash, "severity", task.severity ?? "blocking");
   addHashPart(hash, "runtime", JSON.stringify(runtime));
-  for (const name of SNAPSHOT_ENV_KEYS) addHashPart(hash, `env.${name}`, env[name] ?? "");
   return hash.digest("hex");
 }
 

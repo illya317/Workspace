@@ -7,6 +7,8 @@ import {
   type SourceCodeAnalysisSnapshot,
 } from "../../../packages/platform/source-code-analysis-contract";
 import { analyzeSourceCode } from "./analyzer";
+import { analyzeOperationsModules } from "./operations-module-policy";
+import { analyzeOperationsSize } from "./operations-size-policy";
 
 export const DEFAULT_SOURCE_CODE_ANALYSIS_SNAPSHOT = ".cache/source-code-analysis/snapshot.json";
 type BlockingDiagnosticsSummary = Pick<
@@ -58,6 +60,20 @@ function printDiagnostics(snapshot: Awaited<ReturnType<typeof analyzeSourceCode>
   }
 }
 
+function printOperationsDiagnostics(
+  moduleViolations: Awaited<ReturnType<typeof analyzeOperationsModules>>["violations"],
+  sizeViolations: Awaited<ReturnType<typeof analyzeOperationsSize>>["violations"],
+) {
+  for (const item of moduleViolations) {
+    console.error(`[source-code-analysis] 运维模块治理(${item.kind}): ${item.path} -> ${item.detail}`);
+  }
+  for (const item of sizeViolations) {
+    console.error(
+      `[source-code-analysis] 运维脚本体量(${item.kind}): ${item.path} ${item.lines} 行，允许 ${item.limit} 行`,
+    );
+  }
+}
+
 export async function writeSourceCodeAnalysisSnapshot(outputPath: string, snapshot: SourceCodeAnalysisSnapshot) {
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
   const temporaryPath = `${outputPath}.${process.pid}.${Date.now()}.tmp`;
@@ -99,10 +115,20 @@ export async function runSourceCodeAnalysis(args = process.argv.slice(2), reposi
     }
   }
   snapshot ??= await analyzeSourceCode(repositoryRoot);
-  const failed = hasBlockingSourceCodeAnalysisDiagnostics(snapshot);
+  const operationsGovernance = check
+    ? await Promise.all([
+      analyzeOperationsModules(repositoryRoot),
+      analyzeOperationsSize(repositoryRoot),
+    ])
+    : [{ violations: [] }, { violations: [] }] as const;
+  const [operationsModules, operationsSize] = operationsGovernance;
+  const failed = hasBlockingSourceCodeAnalysisDiagnostics(snapshot)
+    || operationsModules.violations.length > 0
+    || operationsSize.violations.length > 0;
 
   if (json) console.log(JSON.stringify(snapshot));
   if (failed) printDiagnostics(snapshot);
+  if (failed) printOperationsDiagnostics(operationsModules.violations, operationsSize.violations);
   if (check && failed) return 1;
   if (write) {
     await writeSourceCodeAnalysisSnapshot(outputPath, snapshot);

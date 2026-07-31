@@ -15,7 +15,7 @@ test("canonical packager embeds the source code analysis snapshot beside the run
   assert.doesNotMatch(source, /source-code-analysis:snapshot:optional/);
 });
 
-test("canonical packager refuses to reuse a build whose BUILD_ID is not the source SHA", () => {
+test("canonical packager refuses to reuse a build whose BUILD_ID is not the candidate content digest", () => {
   const root = mkdtempSync(path.join(tmpdir(), "standalone-packager-test-"));
   try {
     mkdirSync(path.join(root, "ops"));
@@ -35,6 +35,7 @@ test("canonical packager refuses to reuse a build whose BUILD_ID is not the sour
     }
     const source = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).stdout.trim();
     const tree = spawnSync("git", ["rev-parse", "HEAD^{tree}"], { cwd: root, encoding: "utf8" }).stdout.trim();
+    const contentDigest = "a".repeat(64);
     const result = spawnSync("bash", [path.join(root, "ops/build-standalone-artifact.sh")], {
       cwd: root,
       encoding: "utf8",
@@ -42,12 +43,13 @@ test("canonical packager refuses to reuse a build whose BUILD_ID is not the sour
         ...process.env,
         RELEASE_SOURCE_SHA: source,
         RELEASE_SOURCE_TREE: tree,
+        RELEASE_CONTENT_DIGEST: contentDigest,
         STANDALONE_SKIP_NEXT_BUILD: "1",
         ALLOW_NON_LINUX_BUILD: "1",
       },
     });
     assert.notEqual(result.status, 0);
-    assert.match(result.stdout + result.stderr, /BUILD_ID 等于 canonical source SHA/);
+    assert.match(result.stdout + result.stderr, /BUILD_ID 等于候选内容摘要/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

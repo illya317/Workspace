@@ -19,6 +19,11 @@ fi
 
 export RELEASE_SOURCE_SHA="${RELEASE_SOURCE_SHA:-$(git rev-parse HEAD^)}"
 export RELEASE_SOURCE_TREE="${RELEASE_SOURCE_TREE:-$(git rev-parse "${RELEASE_SOURCE_SHA}^{tree}")}"
+if [ -z "${RELEASE_CONTENT_DIGEST:-}" ]; then
+  candidate_identity="$(node ops/release/candidate/identity.mjs capture --repository "$PWD" --revision "$RELEASE_SOURCE_SHA")"
+  RELEASE_CONTENT_DIGEST="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.contentDigest)' "$candidate_identity")"
+fi
+export RELEASE_CONTENT_DIGEST
 : "${RELEASE_ACTION:?RELEASE_ACTION is required from rendered release metadata}"
 : "${RELEASE_VALIDATION_BASE_SHA:?RELEASE_VALIDATION_BASE_SHA is required from rendered release metadata}"
 export RELEASE_TIMING_FILE="${RELEASE_TIMING_FILE:-$PWD/.cache/release-timing/${RELEASE_SOURCE_SHA}.ndjson}"

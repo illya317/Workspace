@@ -140,9 +140,11 @@ trap cleanup EXIT
 echo "==> 验证本地 $RELEASE_BRANCH source 与 CNB release metadata..."
 canonical_sha="$(git rev-parse HEAD)"
 canonical_tree="$(git rev-parse 'HEAD^{tree}')"
-metadata_values="$(node - "$METADATA_FILE" "$canonical_sha" "$canonical_tree" "$CNB_REPO" "$RELEASE_BRANCH" <<'NODE'
+canonical_content="$(node ops/release/candidate/identity.mjs capture --repository "$PWD" --revision HEAD \
+  | node -e 'let value=""; process.stdin.on("data", chunk => value += chunk).on("end", () => process.stdout.write(JSON.parse(value).contentDigest))')"
+metadata_values="$(node - "$METADATA_FILE" "$canonical_sha" "$canonical_tree" "$canonical_content" "$CNB_REPO" "$RELEASE_BRANCH" <<'NODE'
 const fs = require('node:fs');
-const [file, sha, tree, repository, branch] = process.argv.slice(2);
+const [file, sha, tree, contentDigest, repository, branch] = process.argv.slice(2);
 const metadata = JSON.parse(fs.readFileSync(file, 'utf8'));
 const localTiming = metadata.deployment?.localTiming;
 const localTimingKeys = 'releaseAttemptCount,releaseProcessSeconds,releaseProcessStartedAt,tenantSyncSeconds';
@@ -159,13 +161,14 @@ const validLocalTiming = localTiming
 if (metadata.schemaVersion !== 1
   || metadata.source?.commitSha !== sha
   || metadata.source?.treeSha !== tree
+  || metadata.source?.contentDigest !== contentDigest
   || metadata.transport?.kind !== 'cnb'
-  || metadata.releaseCandidate?.schemaVersion !== 1
+  || metadata.releaseCandidate?.schemaVersion !== 2
   || metadata.releaseCandidate?.kind !== 'workspace-release-candidate'
   || metadata.releaseCandidate?.status !== 'prepared'
   || metadata.releaseCandidate?.command !== 'ops/publish.sh prepare'
-  || metadata.releaseCandidate?.sourceSha !== sha
-  || metadata.releaseCandidate?.treeSha !== tree
+  || metadata.releaseCandidate?.treeId !== tree
+  || metadata.releaseCandidate?.contentDigest !== contentDigest
   || JSON.stringify(metadata.releaseCandidate?.checks) !== JSON.stringify([
     'cnb-release-config',
     'tenant-config-dry-run',

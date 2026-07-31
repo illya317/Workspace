@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
+import { readDeploySourceContract } from "./deploy/source-contract.mjs";
+
+const deploy = readDeploySourceContract();
 const tenant = readFileSync(new URL("./tenant-config-manifest.mjs", import.meta.url), "utf8");
 const receipt = readFileSync(new URL("./control-plane-receipt.mjs", import.meta.url), "utf8");
 const controlPlaneEntrypoint = readFileSync(new URL("./deploy-control-plane.sh", import.meta.url), "utf8");

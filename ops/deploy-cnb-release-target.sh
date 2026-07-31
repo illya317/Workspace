@@ -14,8 +14,7 @@ if [ "$ACTION" = "validate" ]; then
 fi
 [ "$ACTION" = "deploy" ] || { echo "[错误] RELEASE_ACTION 只能是 validate 或 deploy" >&2; exit 2; }
 node ops/release-gate-receipt.mjs cnb-verify \
-  --base "${RELEASE_VALIDATION_BASE_SHA:?RELEASE_VALIDATION_BASE_SHA is required}" \
-  --source "${RELEASE_SOURCE_SHA:?RELEASE_SOURCE_SHA is required}" \
+  --content "${RELEASE_CONTENT_DIGEST:?RELEASE_CONTENT_DIGEST is required}" \
   --tree "${RELEASE_SOURCE_TREE:?RELEASE_SOURCE_TREE is required}" \
   --file "$CNB_RELEASE_GATE_RECEIPT_FILE"
 if [ -z "$UNIT_ID" ]; then

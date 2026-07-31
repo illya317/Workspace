@@ -1,6 +1,5 @@
 import fs from "node:fs";
 
-export type ChangeClass = "C1" | "C2" | "C3";
 export type ImpactTrait = "api" | "auth" | "latency" | "read-only" | "server" | "ui" | "write";
 
 export interface ImpactPathSet {
@@ -30,16 +29,11 @@ export interface ModuleImpactRule {
   modules: string[];
   paths: ImpactPathSet;
   traits: ImpactTrait[];
-  riskFloor: ChangeClass;
   requiredSuites: string[];
 }
 
 export interface ModuleImpactMap {
-  schemaVersion: 1;
-  policies: {
-    unmatchedModulePath: "C3";
-    unmappedWritePath: "C3";
-  };
+  schemaVersion: 2;
   suites: E2eImpactSuite[];
   modules: ModuleImpactDefinition[];
   rules: ModuleImpactRule[];
@@ -52,11 +46,9 @@ export interface ResolvedModuleImpact {
   potentialWritePaths: string[];
   unmappedModulePaths: string[];
   unmappedWritePaths: string[];
-  riskFloor: ChangeClass | null;
   failClosed: boolean;
 }
 
-const CHANGE_CLASSES = new Set<ChangeClass>(["C1", "C2", "C3"]);
 const IMPACT_TRAITS = new Set<ImpactTrait>([
   "api",
   "auth",
@@ -67,7 +59,6 @@ const IMPACT_TRAITS = new Set<ImpactTrait>([
   "write",
 ]);
 const ID_PATTERN = /^[a-z][a-z0-9-]*$/;
-const RISK_ORDER: Record<ChangeClass, number> = { C1: 1, C2: 2, C3: 3 };
 
 function recordAt(value: unknown, location: string): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -182,9 +173,7 @@ function moduleAt(value: unknown, index: number): ModuleImpactDefinition {
 function ruleAt(value: unknown, index: number): ModuleImpactRule {
   const location = `module impact map.rules[${index}]`;
   const record = recordAt(value, location);
-  exactKeys(record, ["id", "modules", "paths", "traits", "riskFloor", "requiredSuites"], location);
-  const riskFloor = stringAt(record.riskFloor, `${location}.riskFloor`);
-  if (!CHANGE_CLASSES.has(riskFloor as ChangeClass)) throw new Error(`${location}.riskFloor must be C1, C2, or C3`);
+  exactKeys(record, ["id", "modules", "paths", "traits", "requiredSuites"], location);
   const traits = stringArrayAt(record.traits, `${location}.traits`).map((trait) => {
     if (!IMPACT_TRAITS.has(trait as ImpactTrait)) throw new Error(`${location}.traits contains unknown trait: ${trait}`);
     return trait as ImpactTrait;
@@ -203,21 +192,14 @@ function ruleAt(value: unknown, index: number): ModuleImpactRule {
     )),
     paths: pathSetAt(record.paths, `${location}.paths`),
     traits,
-    riskFloor: riskFloor as ChangeClass,
     requiredSuites,
   };
 }
 
 export function validateModuleImpactMap(value: unknown): ModuleImpactMap {
   const record = recordAt(value, "module impact map");
-  exactKeys(record, ["schemaVersion", "policies", "suites", "modules", "rules"], "module impact map");
-  if (record.schemaVersion !== 1) throw new Error("module impact map.schemaVersion must be 1");
-
-  const policiesRecord = recordAt(record.policies, "module impact map.policies");
-  exactKeys(policiesRecord, ["unmatchedModulePath", "unmappedWritePath"], "module impact map.policies");
-  if (policiesRecord.unmatchedModulePath !== "C3" || policiesRecord.unmappedWritePath !== "C3") {
-    throw new Error("module impact map policies must fail closed to C3");
-  }
+  exactKeys(record, ["schemaVersion", "suites", "modules", "rules"], "module impact map");
+  if (record.schemaVersion !== 2) throw new Error("module impact map.schemaVersion must be 2");
 
   if (!Array.isArray(record.suites) || !Array.isArray(record.modules) || !Array.isArray(record.rules)) {
     throw new Error("module impact map suites, modules, and rules must be arrays");
@@ -241,8 +223,7 @@ export function validateModuleImpactMap(value: unknown): ModuleImpactMap {
   }
 
   return {
-    schemaVersion: 1,
-    policies: { unmatchedModulePath: "C3", unmappedWritePath: "C3" },
+    schemaVersion: 2,
     suites,
     modules,
     rules,
@@ -267,12 +248,6 @@ function validChangedPath(value: string) {
   }
 }
 
-function highestRisk(values: ChangeClass[]) {
-  return values.reduce<ChangeClass | null>((highest, value) => (
-    !highest || RISK_ORDER[value] > RISK_ORDER[highest] ? value : highest
-  ), null);
-}
-
 export function resolveModuleImpact(map: ModuleImpactMap, changedPaths: string[]): ResolvedModuleImpact {
   const affectedModules = new Set<string>();
   const matchedRuleIds = new Set<string>();
@@ -280,7 +255,6 @@ export function resolveModuleImpact(map: ModuleImpactMap, changedPaths: string[]
   const potentialWritePaths = new Set<string>();
   const unmappedModulePaths = new Set<string>();
   const unmappedWritePaths = new Set<string>();
-  const risks: ChangeClass[] = [];
 
   for (const rawPath of changedPaths) {
     const repoPath = validChangedPath(rawPath);
@@ -302,7 +276,6 @@ export function resolveModuleImpact(map: ModuleImpactMap, changedPaths: string[]
     }
     for (const rule of matchedRules) {
       matchedRuleIds.add(rule.id);
-      risks.push(rule.riskFloor);
       for (const moduleId of rule.modules) affectedModules.add(moduleId);
       for (const suiteId of rule.requiredSuites) requiredSuites.add(suiteId);
     }
@@ -317,7 +290,6 @@ export function resolveModuleImpact(map: ModuleImpactMap, changedPaths: string[]
   }
 
   const failClosed = unmappedModulePaths.size > 0 || unmappedWritePaths.size > 0;
-  if (failClosed) risks.push("C3");
   return {
     affectedModules: [...affectedModules].sort(),
     matchedRuleIds: [...matchedRuleIds].sort(),
@@ -325,7 +297,6 @@ export function resolveModuleImpact(map: ModuleImpactMap, changedPaths: string[]
     potentialWritePaths: [...potentialWritePaths].sort(),
     unmappedModulePaths: [...unmappedModulePaths].sort(),
     unmappedWritePaths: [...unmappedWritePaths].sort(),
-    riskFloor: highestRisk(risks),
     failClosed,
   };
 }

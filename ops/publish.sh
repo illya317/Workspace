@@ -23,10 +23,10 @@ usage() {
   OPS_ENV_FILE=/path/to/ops/.env publish.sh timing pause|resume|status
 
 模式:
-  push           推送候选；GitHub 以远端 base/head 运行受影响依赖闭包 CI
+  push           只推送当前已提交候选；共享工作区的未提交内容不参与
   prepare        冻结 release tree 并校验私有配置，生成 CNB 候选回执；不在本机编译
-  validate       在 CNB（或 --local）对 base/head 受影响依赖闭包验证一次并冻结制品
-  deploy         仅消费同一 base/source/tree 的已验证制品；可走 CNB 或 --direct
+  validate       对候选内容运行一次全量源码 CI 与一次制品编译并冻结制品
+  deploy         仅消费同一 content/tree 的已验证制品；可走 CNB 或 --direct
   data           校验并上传私有数据发布源；上传只进入受控暂存区，不执行数据库写入
   timing         在处理 main 前暂停 Ops 计时；恢复 release 工作时继续累计
 
@@ -66,7 +66,11 @@ initialize_release_worktree() {
 
 capture_release_identity() {
   RELEASE_SOURCE_SHA="$(git -C "$RELEASE_WORKTREE" rev-parse HEAD)"
-  RELEASE_SOURCE_TREE="$(git -C "$RELEASE_WORKTREE" rev-parse 'HEAD^{tree}')"
+  candidate_identity="$(node "$RELEASE_WORKTREE/ops/release/candidate/identity.mjs" capture \
+    --repository "$RELEASE_WORKTREE" --revision HEAD)"
+  RELEASE_SOURCE_TREE="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.treeId)' "$candidate_identity")"
+  RELEASE_CONTENT_DIGEST="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.contentDigest)' "$candidate_identity")"
+  export RELEASE_SOURCE_SHA RELEASE_SOURCE_TREE RELEASE_CONTENT_DIGEST
 }
 
 prepare_release_worktree() {
@@ -103,7 +107,7 @@ case "${1:-}" in
     validate_local_release_inputs
     RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/release-candidate.json"
     if node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
-      --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
+      --content "$RELEASE_CONTENT_DIGEST" --tree "$RELEASE_SOURCE_TREE" \
       --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null 2>&1; then
       echo "==> 复用当前 tree 的 CNB 候选回执；本机未运行编译或 E2E。"
       exit 0
@@ -111,10 +115,10 @@ case "${1:-}" in
     rm -f "$RELEASE_CANDIDATE_RECEIPT_FILE"
     mkdir -p "$(dirname "$RELEASE_CANDIDATE_RECEIPT_FILE")"
     node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-create \
-      --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
+      --content "$RELEASE_CONTENT_DIGEST" --tree "$RELEASE_SOURCE_TREE" \
       --output "$RELEASE_CANDIDATE_RECEIPT_FILE"
     node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
-      --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
+      --content "$RELEASE_CONTENT_DIGEST" --tree "$RELEASE_SOURCE_TREE" \
       --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null
     echo "==> prepare 完成：候选与私有配置已冻结；下一步选择 validate --local 或 CNB validate。"
     exit 0
@@ -151,7 +155,7 @@ case "${1:-}" in
     validate_local_release_inputs
     RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/release-candidate.json"
     if ! node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
-      --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" \
+      --content "$RELEASE_CONTENT_DIGEST" --tree "$RELEASE_SOURCE_TREE" \
       --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null; then
       echo "[错误] 当前 release tree 没有有效 prepare 回执；拒绝进入 CNB。" >&2
       echo "[提示] 先运行: OPS_ENV_FILE=$OPS_ENV_FILE ops/publish.sh prepare" >&2
@@ -188,7 +192,7 @@ DEVELOPMENT_BRANCH="${DEVELOPMENT_BRANCH:-main}"
 
 GITHUB_REMOTE_NAME="${GITHUB_REMOTE:-origin}"
 GITHUB_HTTPS_PROXY="${GITHUB_HTTPS_PROXY-http://127.0.0.1:7897}"
-PROMOTION_WAIT_SECONDS="${PROMOTION_WAIT_SECONDS:-600}"
+PROMOTION_REVIEW_SECONDS="${PROMOTION_REVIEW_SECONDS:-600}"
 
 with_github_proxy() {
   if [ -n "$GITHUB_HTTPS_PROXY" ]; then
@@ -205,18 +209,13 @@ case "${1:-}" in
 esac
 [ "$#" = "0" ] || { echo "[错误] push 不接受额外参数"; exit 1; }
 
-case "$PROMOTION_WAIT_SECONDS" in
-  ''|*[!0-9]*) echo "[错误] PROMOTION_WAIT_SECONDS 必须是正整数"; exit 1 ;;
+case "$PROMOTION_REVIEW_SECONDS" in
+  ''|*[!0-9]*) echo "[错误] PROMOTION_REVIEW_SECONDS 必须是正整数"; exit 1 ;;
 esac
-[ "$PROMOTION_WAIT_SECONDS" -ge 1 ] || { echo "[错误] PROMOTION_WAIT_SECONDS 必须至少为 1"; exit 1; }
+[ "$PROMOTION_REVIEW_SECONDS" -ge 1 ] || { echo "[错误] PROMOTION_REVIEW_SECONDS 必须至少为 1"; exit 1; }
 
 cd "$SOURCE_DIR"
-dirty_status="$(git status --short)"
-if [ -n "$dirty_status" ]; then
-  echo "[错误] 工作区存在未提交改动，请先提交或清理："
-  echo "$dirty_status"
-  exit 1
-fi
+echo "==> 候选固定为已提交 HEAD；未暂存、已暂存和未跟踪工作区内容全部忽略。"
 
 command -v gh >/dev/null 2>&1 || { echo "[错误] 未找到 gh CLI；push 需要 GitHub PR/CI 能力"; exit 1; }
 
@@ -251,17 +250,21 @@ with_github_proxy gh workflow run promote-candidate.yml \
   -f staging_sha="$head_sha" \
   -f base_sha="$remote_main_sha"
 
-echo "==> 等待受信任 main workflow 创建 bot PR 并显式触发 candidate CI..."
-promotion_deadline=$(( $(date +%s) + PROMOTION_WAIT_SECONDS ))
+echo "==> 等待受信任 main workflow 创建 bot PR 并显式触发 candidate CI；${PROMOTION_REVIEW_SECONDS}s 后只提示复查。"
+promotion_review_at=$(( $(date +%s) + PROMOTION_REVIEW_SECONDS ))
+promotion_review_sent=0
 promotion_run_id=""
-while [ "$(date +%s)" -le "$promotion_deadline" ]; do
+while [ -z "$promotion_run_id" ]; do
   promotion_run_id="$(with_github_proxy gh api \
     "repos/${github_repository}/actions/workflows/promote-candidate.yml/runs?branch=${DEVELOPMENT_BRANCH}&event=workflow_dispatch&per_page=100" \
     --jq "[.workflow_runs[] | select(.id > $minimum_promotion_run_id and .head_sha == \"$remote_main_sha\")] | sort_by(.id) | last | .id // empty")"
   [ -z "$promotion_run_id" ] || break
+  if [ "$promotion_review_sent" = "0" ] && [ "$(date +%s)" -ge "$promotion_review_at" ]; then
+    echo "[提示] Promote candidate 启动等待超过软复查阈值；Agent 应检查 workflow 排队、权限和触发条件，当前流程继续等待。" >&2
+    promotion_review_sent=1
+  fi
   sleep 2
 done
-[ -n "$promotion_run_id" ] || { echo "[错误] 等待 Promote candidate workflow 启动超时"; exit 1; }
 
 with_github_proxy gh run watch "$promotion_run_id" --repo "$github_repository" --exit-status --interval 5
 pr_url="$(with_github_proxy gh pr view "$candidate_branch" --repo "$github_repository" --json url --jq .url)"

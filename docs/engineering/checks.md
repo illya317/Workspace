@@ -4,7 +4,7 @@
 
 `apps/*` 是由部署图生成的独立 Next App 镜像，不是第二份源码事实源。ESLint 只扫描 `app/`、`packages/` 和工具源码；生成 App 由 `deploy:apps:check` 做逐字一致性校验，避免 full lint 重复扫描每个 L1 及其 `.next` 构建目录。
 
-本地多 agent 并行时，确定性的静态检查和 Node 测试以“同一台机器、同一代码快照、同一命令成功一次”为准。`scripts/check/with-check-lock.js` 默认计算包含 HEAD、staged、unstaged、untracked 和相关环境的快照。pre-commit 是显式例外：必须先 stage 本任务，入口把 index 写成临时 Git tree/commit，并在 detached 临时 worktree 内执行；后续 worktree 修改和其他 agent 的文件从执行内容中物理隔离。
+本地多 agent 并行时，确定性的静态检查和 Node 测试以“同一台机器、同一候选内容、同一命令成功一次”为准。`scripts/check/with-check-lock.js` 默认只计算 HEAD tree、exact staged diff 和受治理环境；unstaged、untracked、PATH、Node 内存参数及 base/head commit SHA 不进入 key。pre-commit 把 index 写成临时 Git tree/commit，并在 detached 临时 worktree 内执行；后续 worktree 修改和其他 agent 的文件从执行内容中物理隔离。
 
 复合检查统一由 `scripts/check/run-check-suite.mjs` 展开为有序 DAG。一个 suite 在整个执行期只持有一次项目检查锁；嵌套 suite 会被摊平，相同叶子只执行一次，全量 lint/type/UI gate 会覆盖对应增量步骤；full domain 只有在没有 staged-only 视图、两者读取同一 worktree 时才覆盖 changed domain。changed lint、domain 和 migration 共享一次文件集合计算，多个 structure gate 共享一次结构报告。只要快照没漂移，即使后续步骤失败，之前成功的部分结果也会留下供下一轮复用。不要同时启动 `check:blockers`、`gate:domain`、`gate:ui` 或 `arch:structure:*` 来“加速”，总入口已经包含对应叶子，额外启动只会等待 suite 锁。收到终止信号时，锁包装器会终止整棵子进程树并释放锁。
 
@@ -20,13 +20,14 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 | 受影响 TypeScript 闭包 | `WORKSPACE_CHANGED_FILES_JSON='[...]' npm run typecheck:affected` | 按 deploy graph 选择 owner unit 及其反向消费者的 package/App scopes；未知、共享或部署协议变化 fail closed 到全部受治理 scopes。 |
 | TypeScript 工程图治理 | `npm run typecheck:references:check` | 锁定根 project references、源码 ownership 与 CI 声明/build-info 成对缓存契约；不执行编译。 |
 | 本地提交默认检查 | `npm run check:precommit` | 只验证 exact staged tree 的 changed lint、domain 与 migration；不读取未 stage 内容，不自动加全量或 TypeScript 门禁。 |
-| 推送门禁 | GitHub `CI / required` | pre-push 不重复执行源码门禁。远端从可信 Git base/head 选择改动项目，并通过 deploy graph / impact map 扩展反向依赖；只执行该范围的 lint、Node、type、PostgreSQL、build 与已登记 E2E。`npm run check:push` 仅保留为用户显式请求的本地诊断命令。 |
+| Agent 针对性检查 | `npm run check:agent -- --plan <file>` | Agent 显式声明 staged 文件、依赖文件和命令；执行器只验证 evidence 并执行，不做风险分类或自动追加门禁。 |
+| 推送门禁 | GitHub `CI / required` | 只运行 changed-files 轻量检查；完整 CI 与编译不在普通 push 重复执行。 |
 | 清债/重构改动 | `npm run check:refactor` | 跑拆分质量、changed lint 和静态 contract；类型检查留到显式诊断或 CI/发布。 |
 | 仅检查本次总行数预算 | `npm run complexity:line-budget` | 检查 staged diff；没有 staged diff 时检查 tracked changed + untracked。默认净增必须 `<= 0`。 |
 | 仅检查拆分质量 | `npm run complexity:split-quality` | 防止为过 `max-lines` 把大文件随便搬家。 |
 | 当前变更阻断项 | `npm run check:blockers` | 跑业务阻断和 UI 阻断；这些问题由当前改动 agent 自己修。 |
 | 业务阻断 | `npm run gate:domain` | API、route、resource、RBAC、domain validation、app route 和包边界。 |
-| 源码模块声明 | `npm run source-code-analysis:check` | 校验每个受治理源码文件唯一归属 declared module + role、模块 interface 路径存在、declared module 依赖图无环，并要求高置信度单文件混合职责为零；通过后同时原子刷新 snapshot，缺失目录/文件会自动建立。同一检查已进入 `gate:domain`。 |
+| 源码模块声明 | `npm run source-code-analysis:check` | 校验源码唯一归属、模块 interface、依赖无环和混合职责；同时校验运维子模块注册方向，以及新脚本 450 行上限和历史超大脚本只减不增基线。 |
 | 源码分析 snapshot | `npm run source-code-analysis:snapshot` / `npm run source-code-analysis:snapshot:ensure` / `npm run source-code-analysis:report` | `snapshot` 原子重建 `.cache/source-code-analysis/snapshot.json`，`snapshot:ensure` 仅在文件缺失或 contract 无效时重建；dev、build 和 artifact 组装必须从源码自动建立缺失目录/文件，生成或复制失败即阻断对应生命周期。运行时请求只读不可变快照，意外缺失时仍不拖垮左侧模块管理；声明违规严格失败仍由显式 `source-code-analysis:check` 负责。 |
 | UI 阻断 | `npm run gate:ui` | Core UI 唯一入口、PageSurface 协议、Toolbar/Input/Selector 等结构性 UI 边界。 |
 | 架构兼容入口 | `npm run check:arch` | 等价于 `npm run check:blockers`。`npm run arch:gate` 保留为兼容总入口。 |
@@ -40,7 +41,7 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 | 可扩展性契约 | `npm run test:scalability-contract` | 用 mock/fixture 阻断全量读取、内存分页和调用次数爆炸；不把它当作真实延迟测试。 |
 | PostgreSQL integration | `npm run test:integration:postgresql` | 在一次性 `*_ci` 库执行真实 PostgreSQL runtime/constraint、并发通知读取与并发写入 capacity smoke。 |
 | 关键浏览器保存闭环 | `npm run test:e2e:critical` | 先拒绝非一次性数据库并 seed 身份，再执行页面操作 → 保存 → API/DB 回读 → 刷新保留；账户页暖重载超过 `10 s` 会阻断。 |
-| 显式全量诊断 | `npm run check:ci` | 仅在用户明确要求全量时运行；不是 pre-commit、push 或 deploy 的默认门禁。发布验证使用 `scripts/ci/run-affected-validation.mjs` 的 base/head 受影响闭包。 |
+| 显式全量源码 CI | `npm run check:ci` | 普通开发不运行；正式发布的冻结候选只运行一次，artifact 编译是紧随其后且同样只运行一次的独立阶段。 |
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
 | 周期性清债 | `npm run check:hygiene` | 强制巡检租户硬编码和简单 structure hygiene 债务；active baseline 固定为零，定时 CI 每晚 strict 执行，Hygiene 至少每周复查结果。 |
@@ -157,9 +158,9 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 - PostgreSQL integration 使用一次性 `*_ci` / `*_test` / `*_e2e` 库，验证 migration、Prisma、真实约束、事务和写后读；不得指向开发或生产库。
 - 所有 `test:e2e*` 入口都会先 seed 身份，Playwright config 也会独立校验 `DATABASE_URL` 以及已设置的 `DIRECT_URL`：两者必须指向同名的 `*_ci` / `*_test` / `*_e2e` 库，所以直接绕过 package script 也不能连接开发/生产库。当前只有账户设置 spec 通过真实页面事件覆盖保存、服务端回读、刷新持久化和原值恢复，并以独立 `10 s` 暖重载上限拦截灾难性回归；其他已注册模块浏览器证据仍是只读或 readiness。Playwright 禁止复用已有 server；CI 中只启动已由 build job 产出并校验 manifest/digest 的 standalone，不在 E2E job 重建。
 
-GitHub Actions 先对完整 base/head diff 做 C0–C3 分类，再并行执行 static、Node、type、PostgreSQL 和 build。没有 E2E 且不要求整站 artifact 时，build job 生成受影响 unit 计划并构建对应独立 artifacts；需要 E2E 或显式整站 artifact 时才构建 canonical monolith，E2E 独立 job 只下载并启动同一个 canonical 产物。`CI / required` 最后验证哪些 job 必须成功、哪些必须跳过。详细分级、覆盖映射和同 SHA 发布契约见 [`ops/ci-cd.md`](ops/ci-cd.md)。
+GitHub Actions 不再做风险分类，只运行 changed-files 轻量检查。具体 Node/type/E2E 由 Agent 根据本次改动和依赖选择；没有任何 C 级别能自动把普通反馈升级成全库工作。
 
-生产发布不等待或查询 GitHub。`ops/publish.sh prepare` 冻结 source/tree；`publish.sh validate` 或 `validate --local` 以生产 deployed source 为 base，只验证 base/head 改动项目和反向依赖，构建目标 artifact，并把 validation base、source、tree、receipt 与 artifact digest 原子缓存。`publish.sh deploy` 或 `deploy --direct` 只恢复和复验该缓存，随后进入 migration/锁/备份/健康/切换/回滚等部署安全检查，不再运行源码门禁或构建。
+生产发布不等待 GitHub 作为质量回执。`ops/publish.sh prepare` 冻结已提交 tree 和内容摘要；`validate` 对该内容运行一次全量源码 CI、编译一次目标 artifact，并按内容摘要缓存。`deploy` 只恢复和复验该 artifact，随后进入 migration、锁、备份、健康、切换和回滚等生产安全检查。详见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
 ### scalability contract 与真实容量
 

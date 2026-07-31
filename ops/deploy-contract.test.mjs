@@ -6,7 +6,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
-const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
+import { readDeploySourceContract } from "./deploy/source-contract.mjs";
+
+const deploy = readDeploySourceContract();
 const replaceProductionDatabase = readFileSync(new URL("./replace-production-database.sh", import.meta.url), "utf8");
 const kimiSandboxRunner = readFileSync(new URL("./kimi-agent-sandbox-runner.sh", import.meta.url), "utf8");
 const kimiDarwinSandboxRunner = readFileSync(new URL("./kimi-agent-sandbox-runner-darwin.sh", import.meta.url), "utf8");

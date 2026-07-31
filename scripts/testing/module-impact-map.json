@@ -1,9 +1,5 @@
 {
-  "schemaVersion": 1,
-  "policies": {
-    "unmatchedModulePath": "C3",
-    "unmappedWritePath": "C3"
-  },
+  "schemaVersion": 2,
   "suites": [
     {
       "id": "auth-access",
@@ -436,7 +432,6 @@
         "ui",
         "write"
       ],
-      "riskFloor": "C3",
       "requiredSuites": [
         "auth-access"
       ]
@@ -465,102 +460,176 @@
         "write",
         "latency"
       ],
-      "riskFloor": "C2",
       "requiredSuites": [
         "settings-account-save"
       ]
     },
     {
       "id": "administration-readiness",
-      "modules": ["administration"],
+      "modules": [
+        "administration"
+      ],
       "paths": {
         "prefixes": [],
-        "files": ["app/(modules)/administration/page.tsx"]
+        "files": [
+          "app/(modules)/administration/page.tsx"
+        ]
       },
-      "traits": ["latency", "read-only", "ui"],
-      "riskFloor": "C2",
-      "requiredSuites": ["module-readiness"]
+      "traits": [
+        "latency",
+        "read-only",
+        "ui"
+      ],
+      "requiredSuites": [
+        "module-readiness"
+      ]
     },
     {
       "id": "external-readiness",
-      "modules": ["external"],
+      "modules": [
+        "external"
+      ],
       "paths": {
         "prefixes": [],
-        "files": ["app/(modules)/external/customers/page.tsx"]
+        "files": [
+          "app/(modules)/external/customers/page.tsx"
+        ]
       },
-      "traits": ["latency", "read-only", "ui"],
-      "riskFloor": "C2",
-      "requiredSuites": ["module-readiness"]
+      "traits": [
+        "latency",
+        "read-only",
+        "ui"
+      ],
+      "requiredSuites": [
+        "module-readiness"
+      ]
     },
     {
       "id": "finance-readiness",
-      "modules": ["finance"],
+      "modules": [
+        "finance"
+      ],
       "paths": {
         "prefixes": [],
-        "files": ["app/(modules)/finance/page.tsx"]
+        "files": [
+          "app/(modules)/finance/page.tsx"
+        ]
       },
-      "traits": ["latency", "read-only", "ui"],
-      "riskFloor": "C2",
-      "requiredSuites": ["module-readiness"]
+      "traits": [
+        "latency",
+        "read-only",
+        "ui"
+      ],
+      "requiredSuites": [
+        "module-readiness"
+      ]
     },
     {
       "id": "hr-readiness",
-      "modules": ["hr"],
+      "modules": [
+        "hr"
+      ],
       "paths": {
         "prefixes": [],
-        "files": ["app/(modules)/hr/roster/page.tsx"]
+        "files": [
+          "app/(modules)/hr/roster/page.tsx"
+        ]
       },
-      "traits": ["latency", "read-only", "ui"],
-      "riskFloor": "C2",
-      "requiredSuites": ["module-readiness"]
+      "traits": [
+        "latency",
+        "read-only",
+        "ui"
+      ],
+      "requiredSuites": [
+        "module-readiness"
+      ]
     },
     {
       "id": "inventory-readiness",
-      "modules": ["inventory"],
+      "modules": [
+        "inventory"
+      ],
       "paths": {
         "prefixes": [],
-        "files": ["app/(modules)/inventory/operations/page.tsx"]
+        "files": [
+          "app/(modules)/inventory/operations/page.tsx"
+        ]
       },
-      "traits": ["latency", "read-only", "ui"],
-      "riskFloor": "C2",
-      "requiredSuites": ["module-readiness"]
+      "traits": [
+        "latency",
+        "read-only",
+        "ui"
+      ],
+      "requiredSuites": [
+        "module-readiness"
+      ]
     },
     {
       "id": "library-readiness",
-      "modules": ["library"],
+      "modules": [
+        "library"
+      ],
       "paths": {
         "prefixes": [],
-        "files": ["app/(modules)/library/basic-info/page.tsx"]
+        "files": [
+          "app/(modules)/library/basic-info/page.tsx"
+        ]
       },
-      "traits": ["latency", "read-only", "ui"],
-      "riskFloor": "C2",
-      "requiredSuites": ["module-readiness"]
+      "traits": [
+        "latency",
+        "read-only",
+        "ui"
+      ],
+      "requiredSuites": [
+        "module-readiness"
+      ]
     },
     {
       "id": "news-page-readiness",
-      "modules": ["news"],
+      "modules": [
+        "news"
+      ],
       "paths": {
         "prefixes": [],
-        "files": ["app/(modules)/news/page.tsx"]
+        "files": [
+          "app/(modules)/news/page.tsx"
+        ]
       },
-      "traits": ["latency", "read-only", "ui"],
-      "riskFloor": "C2",
-      "requiredSuites": ["module-readiness"]
+      "traits": [
+        "latency",
+        "read-only",
+        "ui"
+      ],
+      "requiredSuites": [
+        "module-readiness"
+      ]
     },
     {
       "id": "news-api-readiness",
-      "modules": ["news"],
+      "modules": [
+        "news"
+      ],
       "paths": {
         "prefixes": [],
-        "files": ["app/api/modules/news/route.ts"]
+        "files": [
+          "app/api/modules/news/route.ts"
+        ]
       },
-      "traits": ["api", "latency", "read-only", "server"],
-      "riskFloor": "C2",
-      "requiredSuites": ["module-readiness"]
+      "traits": [
+        "api",
+        "latency",
+        "read-only",
+        "server"
+      ],
+      "requiredSuites": [
+        "module-readiness"
+      ]
     },
     {
       "id": "news-write-unverified",
-      "modules": ["news"],
+      "modules": [
+        "news"
+      ],
       "paths": {
         "prefixes": [
           "app/api/modules/news/reactions/",
@@ -568,24 +637,41 @@
         ],
         "files": []
       },
-      "traits": ["api", "latency", "server", "ui"],
-      "riskFloor": "C2",
-      "requiredSuites": ["module-readiness"]
+      "traits": [
+        "api",
+        "latency",
+        "server",
+        "ui"
+      ],
+      "requiredSuites": [
+        "module-readiness"
+      ]
     },
     {
       "id": "production-readiness",
-      "modules": ["production"],
+      "modules": [
+        "production"
+      ],
       "paths": {
         "prefixes": [],
-        "files": ["app/(modules)/production/qc/page.tsx"]
+        "files": [
+          "app/(modules)/production/qc/page.tsx"
+        ]
       },
-      "traits": ["latency", "read-only", "ui"],
-      "riskFloor": "C2",
-      "requiredSuites": ["module-readiness"]
+      "traits": [
+        "latency",
+        "read-only",
+        "ui"
+      ],
+      "requiredSuites": [
+        "module-readiness"
+      ]
     },
     {
       "id": "work-readiness",
-      "modules": ["work"],
+      "modules": [
+        "work"
+      ],
       "paths": {
         "prefixes": [],
         "files": [
@@ -594,9 +680,14 @@
           "packages/work/ui/home/WorkHomePage.tsx"
         ]
       },
-      "traits": ["latency", "read-only", "ui"],
-      "riskFloor": "C2",
-      "requiredSuites": ["module-readiness"]
+      "traits": [
+        "latency",
+        "read-only",
+        "ui"
+      ],
+      "requiredSuites": [
+        "module-readiness"
+      ]
     },
     {
       "id": "finance-analysis-read",
@@ -615,7 +706,6 @@
         "read-only",
         "ui"
       ],
-      "riskFloor": "C2",
       "requiredSuites": [
         "finance-analysis-read"
       ]
@@ -637,7 +727,6 @@
         "latency",
         "server"
       ],
-      "riskFloor": "C2",
       "requiredSuites": [
         "finance-analysis-read"
       ]
@@ -658,7 +747,6 @@
         "read-only",
         "ui"
       ],
-      "riskFloor": "C2",
       "requiredSuites": [
         "finance-ledger-read"
       ]
@@ -682,7 +770,6 @@
         "server",
         "ui"
       ],
-      "riskFloor": "C2",
       "requiredSuites": [
         "finance-ledger-read"
       ]

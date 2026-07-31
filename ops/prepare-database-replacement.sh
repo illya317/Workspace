@@ -33,10 +33,12 @@ RECEIPT_FILE="${DATABASE_REPLACEMENT_RECEIPT_FILE:-$RELEASE_WORKTREE/.cache/rele
 }
 
 SOURCE_SHA="$(git -C "$RELEASE_WORKTREE" rev-parse HEAD)"
-SOURCE_TREE="$(git -C "$RELEASE_WORKTREE" rev-parse 'HEAD^{tree}')"
+candidate_identity="$(node "$RELEASE_WORKTREE/ops/release/candidate/identity.mjs" capture --repository "$RELEASE_WORKTREE" --revision HEAD)"
+SOURCE_TREE="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.treeId)' "$candidate_identity")"
+SOURCE_CONTENT_DIGEST="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.contentDigest)' "$candidate_identity")"
 CANDIDATE_RECEIPT_FILE="${RELEASE_CANDIDATE_RECEIPT_FILE:-$RELEASE_WORKTREE/.cache/release-check/release-candidate.json}"
 node "$RELEASE_WORKTREE/ops/release-gate-receipt.mjs" candidate-verify \
-  --source "$SOURCE_SHA" --tree "$SOURCE_TREE" --file "$CANDIDATE_RECEIPT_FILE" >/dev/null
+  --content "$SOURCE_CONTENT_DIGEST" --tree "$SOURCE_TREE" --file "$CANDIDATE_RECEIPT_FILE" >/dev/null
 
 if command -v lsof >/dev/null 2>&1 && lsof -nP -iTCP:3000 -sTCP:LISTEN >/dev/null 2>&1; then
   echo "[错误] 本地 3000 仍在运行；整库替换快照前必须停止本地 Workspace writer" >&2

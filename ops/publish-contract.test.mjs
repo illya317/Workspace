@@ -10,7 +10,9 @@ const publishCnb = readFileSync(new URL("./publish-cnb.sh", import.meta.url), "u
 const promoteRelease = readFileSync(new URL("./promote-release-branch.sh", import.meta.url), "utf8");
 const releaseToCnb = readFileSync(new URL("./release-to-cnb.sh", import.meta.url), "utf8");
 const syncTenantConfig = readFileSync(new URL("./sync-tenant-config.sh", import.meta.url), "utf8");
-const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
+import { readDeploySourceContract } from "./deploy/source-contract.mjs";
+
+const deploy = readDeploySourceContract();
 const buildDeployUnitArtifact = readFileSync(new URL("./build-deploy-unit-artifact.sh", import.meta.url), "utf8");
 const buildStandaloneArtifact = readFileSync(new URL("./build-standalone-artifact.sh", import.meta.url), "utf8");
 const buildCnbReleaseTarget = readFileSync(new URL("./build-cnb-release-target.sh", import.meta.url), "utf8");
@@ -18,6 +20,10 @@ const deployCnbReleaseTarget = readFileSync(new URL("./deploy-cnb-release-target
 const installCnbReleaseDependencies = readFileSync(new URL("./install-cnb-release-dependencies.sh", import.meta.url), "utf8");
 const runCnbReleaseGate = readFileSync(new URL("./run-cnb-release-gate.sh", import.meta.url), "utf8");
 const runLocalReleaseAction = readFileSync(new URL("./run-local-release-action.sh", import.meta.url), "utf8");
+const recordDeployAttempt = readFileSync(
+  new URL("./release/diagnostics/record-deploy-attempt.py", import.meta.url),
+  "utf8",
+);
 const cnbRelease = readFileSync(new URL("./cnb-release.yml", import.meta.url), "utf8");
 const uploadDataRelease = readFileSync(new URL("./upload-data-release.sh", import.meta.url), "utf8");
 const prepareDatabaseReplacement = readFileSync(new URL("./prepare-database-replacement.sh", import.meta.url), "utf8");
@@ -144,7 +150,8 @@ test("legacy local receipt recovery is explicit, migration-bound, and one-shot",
 
 test("validation runs once and CNB or direct deploy only consumes its immutable artifact", () => {
   assert.doesNotMatch(publish, /npm run check:ci|npm run test:e2e|local-release-gate\.sh/);
-  assert.match(runCnbReleaseGate, /classify-risk\.mjs[\s\S]*?--base "\$RELEASE_VALIDATION_BASE_SHA"[\s\S]*?run-affected-validation\.mjs/);
+  assert.match(runCnbReleaseGate, /validation_args=\([\s\S]*?--content "\$RELEASE_CONTENT_DIGEST"/);
+  assert.match(runCnbReleaseGate, /full-source-validation\.mjs "\$\{validation_args\[@\]\}"/);
   assert.match(runCnbReleaseGate, /ACTION" = "deploy"[\s\S]*?cnb-release-artifact-cache\.sh restore[\s\S]*?exit 0/);
   assert.match(runLocalReleaseAction, /\.local-release-worktrees/);
   assert.match(runLocalReleaseAction, /ACTION" = "validate"[\s\S]*?export CI=1/);
@@ -173,9 +180,9 @@ test("validation runs once and CNB or direct deploy only consumes its immutable 
   assert.match(deploy, /RELEASE_DEPLOY_GRAPH_FILE[\s\S]*?graph-assert/);
   assert.doesNotMatch(deploy, /migration\.static/);
   for (const source of [releaseToCnb, deploy]) {
-    assert.match(source, /metadata\.releaseCandidate\?\.schemaVersion !== 1/);
-    assert.match(source, /metadata\.releaseCandidate\?\.sourceSha !== sha/);
-    assert.match(source, /metadata\.releaseCandidate\?\.treeSha !== tree/);
+    assert.match(source, /metadata\.releaseCandidate\?\.schemaVersion !== 2/);
+    assert.match(source, /metadata\.releaseCandidate\?\.treeId !== tree/);
+    assert.match(source, /metadata\.releaseCandidate\?\.contentDigest !== contentDigest/);
     assert.match(source, /metadata\.releaseCandidate\?\.command !== 'ops\/publish\.sh prepare'/);
   }
 });
@@ -301,8 +308,9 @@ test("CNB records the full deployment attempt and keeps release-processing timin
 test("failed or cancelled deploy attempts notify the server with duration", () => {
   assert.match(publishCnb, /record_failed_deploy_attempt/);
   assert.match(publishCnb, /130\|143\) status="cancelled"/);
-  assert.match(publishCnb, /'status': status/);
-  assert.match(publishCnb, /'durationSeconds': duration/);
+  assert.match(publishCnb, /record-deploy-attempt\.py/);
+  assert.match(recordDeployAttempt, /"status": status/);
+  assert.match(recordDeployAttempt, /"durationSeconds": duration/);
   assert.doesNotMatch(deploy, /run_deploy_stage notification\.record/);
 });
 

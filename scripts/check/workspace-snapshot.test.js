@@ -114,7 +114,7 @@ function waitForClose(child) {
   });
 }
 
-test("snapshot keeps HEAD, index, unstaged, and untracked state separate", (t) => {
+test("snapshot keys staged or committed content and ignores unrelated worktree drift", (t) => {
   const cwd = createRepository(t);
   const base = snapshot(cwd);
 
@@ -128,16 +128,11 @@ test("snapshot keeps HEAD, index, unstaged, and untracked state separate", (t) =
 
   fs.writeFileSync(path.join(cwd, "tracked.txt"), "staged plus unstaged\n");
   const unstaged = snapshot(cwd);
-  assert.equal(unstaged.parts.head, staged.parts.head);
-  assert.equal(unstaged.parts.index, staged.parts.index);
-  assert.notEqual(unstaged.parts.unstaged, staged.parts.unstaged);
-  assert.equal(unstaged.parts.untracked, staged.parts.untracked);
+  assert.equal(unstaged.key, staged.key);
 
   fs.writeFileSync(path.join(cwd, "untracked.txt"), "untracked\n");
   const untracked = snapshot(cwd);
-  assert.equal(untracked.parts.index, unstaged.parts.index);
-  assert.equal(untracked.parts.unstaged, unstaged.parts.unstaged);
-  assert.notEqual(untracked.parts.untracked, unstaged.parts.untracked);
+  assert.equal(untracked.key, staged.key);
 
   fs.mkdirSync(path.join(cwd, ".cache"));
   fs.writeFileSync(path.join(cwd, ".cache/generated.txt"), "ignored\n");
@@ -147,6 +142,10 @@ test("snapshot keeps HEAD, index, unstaged, and untracked state separate", (t) =
   fs.writeFileSync(path.join(cwd, "another-agent.txt"), "changed again\n");
   const committedAfter = snapshot(cwd, { CHECK_WORKSPACE_SNAPSHOT_SCOPE: "committed" });
   assert.equal(committedAfter.key, committedBefore.key);
+  git(cwd, ["reset", "--hard", "HEAD"]);
+  git(cwd, ["commit", "--allow-empty", "--quiet", "-m", "metadata only"]);
+  const sameTreeNewCommit = snapshot(cwd, { CHECK_WORKSPACE_SNAPSHOT_SCOPE: "committed" });
+  assert.equal(sameTreeNewCommit.key, committedAfter.key);
 });
 
 test("pre-commit scope accepts concurrent worktree drift and reuses the passed cache", async (t) => {
@@ -188,7 +187,7 @@ test("pre-commit scope accepts concurrent worktree drift and reuses the passed c
   assert.match(reused.stdout, /Reusing cached gate check result/);
 });
 
-test("changed-check base/head and CI environment participate in the key", (t) => {
+test("commit SHAs and PATH do not invalidate content cache while semantic mode does", (t) => {
   const cwd = createRepository(t);
   const base = snapshot(cwd, {
     CI: "",
@@ -212,11 +211,11 @@ test("changed-check base/head and CI environment participate in the key", (t) =>
     WORKSPACE_DIFF_HEAD: "b".repeat(40),
   });
 
-  assert.notEqual(differentHead.parts.environment, base.parts.environment);
-  assert.notEqual(differentHead.key, base.key);
+  assert.equal(differentHead.parts.environment, base.parts.environment);
+  assert.equal(differentHead.key, base.key);
   assert.notEqual(ci.parts.environment, base.parts.environment);
   assert.notEqual(ci.key, base.key);
-  assert.notEqual(differentPath.key, base.key);
+  assert.equal(differentPath.key, base.key);
 });
 
 test("ignored dotenv inputs participate in the snapshot without exposing their contents", (t) => {
@@ -441,7 +440,8 @@ test("an outer wrapper rejects drift even when its nested check was a cache hit"
   child.stderr.setEncoding("utf8");
   child.stderr.on("data", (chunk) => { stderr += chunk; });
   await waitForFile(marker, child);
-  fs.writeFileSync(path.join(cwd, "cached-drift.txt"), "changed after cache hit\n");
+  fs.writeFileSync(path.join(cwd, "tracked.txt"), "staged candidate changed after cache hit\n");
+  git(cwd, ["add", "tracked.txt"]);
   const result = await waitForClose(child);
 
   assert.equal(result.code, 1);
@@ -514,7 +514,8 @@ test("snapshot drift rejects success and discards pending cache receipts", async
   child.stderr.setEncoding("utf8");
   child.stderr.on("data", (chunk) => { stderr += chunk; });
   await waitForFile(marker, child);
-  fs.writeFileSync(path.join(cwd, "drift.txt"), "changed while checking\n");
+  fs.writeFileSync(path.join(cwd, "tracked.txt"), "staged candidate changed while checking\n");
+  git(cwd, ["add", "tracked.txt"]);
   const result = await waitForClose(child);
 
   assert.equal(result.code, 1);

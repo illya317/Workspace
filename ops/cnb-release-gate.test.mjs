@@ -6,37 +6,32 @@ const gate = readFileSync(new URL("./run-cnb-release-gate.sh", import.meta.url),
 const build = readFileSync(new URL("./build-cnb-release-target.sh", import.meta.url), "utf8");
 const e2e = readFileSync(new URL("./run-release-e2e.sh", import.meta.url), "utf8");
 
-test("validate plans from exact base/head and runs only the affected dependency closure", () => {
-  assert.match(gate, /--base "\$RELEASE_VALIDATION_BASE_SHA"/);
-  assert.match(gate, /--head "\$RELEASE_SOURCE_SHA"/);
-  assert.match(gate, /--diff-mode two-dot/);
-  assert.match(gate, /run-affected-validation\.mjs[\s\S]*?--classification "\$CLASSIFICATION_FILE" --phase source/);
+test("validate runs one full source CI without automatic risk classification", () => {
+  assert.match(gate, /full-source-validation\.mjs/);
+  assert.match(gate, /--content "\$RELEASE_CONTENT_DIGEST"/);
   assert.match(gate, /--result-file "\$SOURCE_RESULT_FILE"/);
   assert.match(gate, /source_status=\$\?/);
-  assert.match(gate, /RELEASE_DATABASE_START_STATUS="\$database_status"/);
-  assert.match(gate, /仍进入 artifact 阶段收集独立 build\/E2E 结果/);
-  assert.doesNotMatch(gate, /npm run check:ci|full-ci/);
+  assert.match(gate, /仍进入一次独立编译/);
 });
 
-test("deploy restores base-bound validation evidence and never reruns source gates", () => {
+test("deploy restores content-bound validation evidence and never reruns source gates", () => {
   const deployBranch = gate.slice(gate.indexOf('if [ "$ACTION" = "deploy" ]'));
   assert.ok(deployBranch.indexOf("cnb-release-artifact-cache.sh restore") < deployBranch.indexOf("cnb-verify"));
-  assert.match(deployBranch, /--base "\$RELEASE_VALIDATION_BASE_SHA"/);
+  assert.match(deployBranch, /--content "\$RELEASE_CONTENT_DIGEST"/);
   assert.match(deployBranch, /exit 0/);
-  assert.ok(deployBranch.indexOf("exit 0") < deployBranch.indexOf("classify-risk.mjs"));
 });
 
-test("receipt is created only after target build and selected post-build checks", () => {
-  assert.ok(build.indexOf("build-standalone-artifact.sh") < build.indexOf("--phase post-build"));
-  assert.ok(build.indexOf("--phase post-build") < build.indexOf("cnb-create"));
+test("receipt is created only after the single target compilation", () => {
+  assert.ok(build.indexOf("build-standalone-artifact.sh") < build.indexOf("cnb-create"));
   assert.ok(build.indexOf("cnb-create") < build.indexOf("cnb-release-artifact-cache.sh store"));
+  assert.doesNotMatch(build, /post-build/);
 });
 
-test("validate aggregates source, build, and post-build status before creating evidence", () => {
-  assert.match(build, /SOURCE_RESULT_FILE=.*affected-source-result[\s\S]*?source_status=/);
+test("validate aggregates full source CI and compile status before creating evidence", () => {
+  assert.match(build, /SOURCE_RESULT_FILE=.*full-source-result[\s\S]*?source_status=/);
   assert.match(build, /build_status=\$\?/);
-  assert.match(build, /post-build\/E2E: blocked by artifact-build/);
-  assert.match(build, /已收集全部可执行检查结果/);
+  assert.match(build, /full-source-ci:/);
+  assert.match(build, /artifact-compile:/);
   assert.ok(build.indexOf("validate 全阶段结果") < build.indexOf("cnb-create"));
   assert.ok(build.indexOf('source_status=""') < build.indexOf("cnb-release-artifact-cache.sh restore"));
   assert.match(build, /cnb-release-artifact-cache\.sh restore[\s\S]*?source_status[\s\S]*?exit "\$source_status"/);
